@@ -65,7 +65,8 @@ public class ThrowFrame extends SingleLineFrame
         setHeaderRow(param1, previewSemi);
 
         //Manvi jain
-        param1.setAccessibility("throw exception name " + param1.getText());
+        param1.setAccessibilityRoleDescription(param1.getText());
+        param1.setAccessibility(" exception name in throw ");
     }
     
     public ThrowFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
@@ -74,7 +75,8 @@ public class ThrowFrame extends SingleLineFrame
         param1.setText(val);
         frameEnabledProperty.set(enabled);
         //Manvi jain
-        param1.setAccessibility("throw exception name " + param1.getText());
+        param1.setAccessibilityRoleDescription(param1.getText());
+        param1.setAccessibility(" exception name in throw ");
     }
 
     @Override
@@ -83,7 +85,8 @@ public class ThrowFrame extends SingleLineFrame
         element = new ThrowElement(this, param1.getSlotElement(), frameEnabledProperty.get());
         codeVersion.set(codeVersion.get() + 1);
         //Manvi jain
-        param1.setAccessibility("throw exception name " + param1.getText());
+        param1.setAccessibilityRoleDescription(param1.getText());
+        param1.setAccessibility(" exception name in throw ");
     }
     
     @Override

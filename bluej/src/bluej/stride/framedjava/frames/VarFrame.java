@@ -216,9 +216,12 @@ public class VarFrame extends SingleLineFrame
         showingValue.bind(inInterfaceProperty.or(keyFocusDelayed).or(slotValueBlank.not()));
 
         //Manvi jain
-        slotType.setAccessibility("variable type, " + slotType.getText());
-        slotName.setAccessibility("variable name" + slotName.getText());
-        slotValue.setAccessibility("variable value, " + slotValue.getText());
+        slotType.setAccessibility(", variable type");
+        slotType.setAccessibilityRoleDescription(slotType.getJavaCode());
+        slotName.setAccessibility(", variable name");
+        slotName.setAccessibilityRoleDescription(slotName.getText());
+        slotValue.setAccessibility(", variable value");
+        slotValue.setAccessibilityRoleDescription(slotValue.getJavaCode());
         }
     
     // If varValue is null, that means the slot is not shown
@@ -239,9 +242,12 @@ public class VarFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        slotType.setAccessibility("variable type, " + slotType.getText());
-        slotName.setAccessibility("variable name" + slotName.getText());
-        slotValue.setAccessibility("variable value, " + slotValue.getText());
+        slotType.setAccessibility(", variable type");
+        slotType.setAccessibilityRoleDescription(slotType.getJavaCode());
+        slotName.setAccessibility(", variable name");
+        slotName.setAccessibilityRoleDescription(slotName.getText());
+        slotValue.setAccessibility(", variable value");
+        slotValue.setAccessibilityRoleDescription(slotValue.getJavaCode());
     }
 
     @Override
@@ -364,9 +370,6 @@ public class VarFrame extends SingleLineFrame
         //Manvi jain
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            System.out.println("variable type " + getParentCanvas().getParent().getHelpContext());
-            System.out.println("variable name " + getParentCanvas().getParent().getHelpContext());
-            System.out.println("variable name " + getParentCanvas().getParent().getHelpContext());
             slotType.setAccessibilityHelpSlots("variable type " + getParentCanvas().getParent().getHelpContext());
             slotName.setAccessibilityHelpSlots("variable name " + getParentCanvas().getParent().getHelpContext());
             slotValue.setAccessibilityHelpSlots("variable name " + getParentCanvas().getParent().getHelpContext());

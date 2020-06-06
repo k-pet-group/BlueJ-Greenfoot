@@ -155,9 +155,12 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         JavaFXUtil.addChangeListener(staticModifier, b -> editor.modifiedFrame(this, false));
         JavaFXUtil.addChangeListener(finalModifier, b -> editor.modifiedFrame(this, false));
 
-        returnType.setAccessibility("return type in signature of method " +getName());
-        methodName.setText("method name in signature of " +getName());
+        //Manvi jain
+        returnType.setAccessibilityRoleDescription(returnType.getJavaCode());
+        returnType.setAccessibility(", return type in signature of method " + getName());
 
+        methodName.setAccessibilityRoleDescription(methodName.getText());
+        methodName.setAccessibility(", method name in signature of " +getName());
     }
     
     public NormalMethodFrame(InteractionManager editor, AccessPermissionFragment access, boolean staticModifier,
@@ -172,6 +175,13 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         this.returnType.setText(returnType);
         methodName.setText(name);
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        this.returnType.setAccessibilityRoleDescription(this.returnType.getJavaCode());
+        this.returnType.setAccessibility(", return type in signature of method " + getName());
+
+        methodName.setAccessibilityRoleDescription(this.methodName.getText());
+        methodName.setAccessibility(", method name in signature of " +getName());
     }
 
     @Override
@@ -424,8 +434,6 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     {
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            System.out.println("return type in signature of method " +getName() + " " + getParentCanvas().getParent().getHelpContext());
-            System.out.println("method name in signature of " +getName() + " " + getParentCanvas().getParent().getHelpContext());
             returnType.setAccessibilityHelpSlots("return type in signature of method " +getName() + " " + getParentCanvas().getParent().getHelpContext());
             methodName.setAccessibilityHelpSlots("method name in signature of " +getName() + " " + getParentCanvas().getParent().getHelpContext());
         }
@@ -434,5 +442,13 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
     //Manvi jain
     @Override
-    public String getHelpContext(){ return "in method " +getName() + " "; }
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in method " +getName() + " " + parent;
+    }
 }

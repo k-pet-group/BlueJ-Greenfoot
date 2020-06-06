@@ -173,7 +173,8 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         setHeaderRow(importField, previewSemi);
 
         //Manvi jain
-        importField.setAccessibility("import field ");
+        importField.setAccessibilityRoleDescription(importField.getText());
+        importField.setAccessibility(" import field");
     }
     
     /**
@@ -187,7 +188,8 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        importField.setAccessibility("import field ");
+        importField.setAccessibilityRoleDescription(importField.getText());
+        importField.setAccessibility(" import field");
     }
     
     // Constructor for adding new imports in response to an error-fix:
@@ -198,7 +200,8 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         this.element = new ImportElement(src, importField, frameEnabledProperty.get());
 
         //Manvi jain
-        importField.setAccessibility("import field ");
+        importField.setAccessibilityRoleDescription(importField.getText());
+        importField.setAccessibility(" import field");
     }
     
     public static FrameFactory<ImportFrame> getFactory()

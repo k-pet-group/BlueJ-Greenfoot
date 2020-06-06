@@ -92,9 +92,12 @@ public class ForeachFrame extends SingleCanvasFrame
         collection.onTextPropertyChange(updateTriple);
 
         //Manvi jain
-        type.setAccessibility("condition variable type in for each loop");
-        var.setAccessibility("condition variable name in for each loop");
-        collection.setAccessibility("collection name in for each loop");
+        type.setAccessibility(" variable type in condition  in for each loop");
+        type.setAccessibilityRoleDescription(type.getJavaCode());
+        var.setAccessibility(" variable name in condition in for each loop");
+        var.setAccessibilityRoleDescription(var.getText());
+        collection.setAccessibility("collection name in condition in for each loop");
+        collection.setAccessibilityRoleDescription(collection.getJavaCode());
     }
     
     public ForeachFrame(InteractionManager editor, TypeSlotFragment type, NameDefSlotFragment var, ExpressionSlotFragment collection, boolean enabled) {
@@ -105,9 +108,12 @@ public class ForeachFrame extends SingleCanvasFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        this.type.setAccessibility("condition variable type in for each loop");
-        this.var.setAccessibility("condition variable name in for each loop");
-        this.collection.setAccessibility("collection name in for each loop");
+        this.type.setAccessibility(" variable type in condition  in for each loop");
+        this.type.setAccessibilityRoleDescription(this.type.getJavaCode());
+        this.var.setAccessibility(" variable name in condition in for each loop");
+        this.var.setAccessibilityRoleDescription(this.var.getText());
+        this.collection.setAccessibility("collection name in condition in for each loop");
+        this.collection.setAccessibilityRoleDescription(this.collection.getJavaCode());
     }
     
     public ForeachFrame(InteractionManager editor, List<Frame> contents)
@@ -116,9 +122,12 @@ public class ForeachFrame extends SingleCanvasFrame
         getCanvas().getFirstCursor().insertFramesAfter(contents);
 
         //Manvi jain
-        this.type.setAccessibility("condition variable type in for each loop");
-        this.var.setAccessibility("condition variable name in for each loop");
-        this.collection.setAccessibility("collection name in for each loop");
+        type.setAccessibility(" variable type in condition  in for each loop");
+        type.setAccessibilityRoleDescription(type.getJavaCode());
+        var.setAccessibility(" variable name in condition in for each loop");
+        var.setAccessibilityRoleDescription(var.getText());
+        collection.setAccessibility("collection name in condition in for each loop");
+        collection.setAccessibilityRoleDescription(collection.getJavaCode());
     }
 
     @Override
@@ -245,9 +254,6 @@ public class ForeachFrame extends SingleCanvasFrame
 
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            System.out.println("condition variable type in foreach loop " + getParentCanvas().getParent().getHelpContext());
-            System.out.println("condition variable name in foreach loop " + getParentCanvas().getParent().getHelpContext());
-            System.out.println("collection name in foreach loop " + getParentCanvas().getParent().getHelpContext());
             type.setAccessibilityHelpSlots("condition variable type in foreach loop " + getParentCanvas().getParent().getHelpContext());
             var.setAccessibilityHelpSlots("condition variable name in foreach loop " + getParentCanvas().getParent().getHelpContext());
             type.setAccessibilityHelpSlots("collection name in foreach loop " + getParentCanvas().getParent().getHelpContext());

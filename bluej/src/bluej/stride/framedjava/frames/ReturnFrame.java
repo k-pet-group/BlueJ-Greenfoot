@@ -106,6 +106,10 @@ public class ReturnFrame extends SingleLineFrame
             if ("void".equals(returnType.get()) && value.getText().isEmpty())
                 showingValue.set(false);
         } );
+
+        //Manvi jain
+        value.setAccessibility(" return value of method");
+        value.setAccessibilityRoleDescription(value.getJavaCode());
     }
     
     public ReturnFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
@@ -121,6 +125,10 @@ public class ReturnFrame extends SingleLineFrame
             showingValue.set(false);
         }
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        value.setAccessibility(" return value of method");
+        value.setAccessibilityRoleDescription(value.getJavaCode());
     }
 
     @Override

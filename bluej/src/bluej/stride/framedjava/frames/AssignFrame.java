@@ -77,8 +77,10 @@ public class AssignFrame extends SingleLineFrame
         slotLHS.addClosingChar(' ');
 
         //Manvi jain
-        slotLHS.setAccessibility("existing variable name");
-        slotRHS.setAccessibility("new value of variable");
+        slotLHS.setAccessibilityRoleDescription(slotLHS.getJavaCode());
+        slotLHS.setAccessibility(" existing variable name");
+        slotRHS.setAccessibilityRoleDescription(slotRHS.getJavaCode());
+        slotRHS.setAccessibility(" new value of variable");
     }
     
     // For replacement of a method call frame:
@@ -93,8 +95,10 @@ public class AssignFrame extends SingleLineFrame
         }
 
         //Manvi jain
-        slotLHS.setAccessibility("existing variable name" + slotLHS.getText());
-        slotRHS.setAccessibility("new value of variable" + slotRHS.getText());
+        slotLHS.setAccessibilityRoleDescription(slotLHS.getJavaCode());
+        slotLHS.setAccessibility(" existing variable name");
+        slotRHS.setAccessibilityRoleDescription(slotRHS.getJavaCode());
+        slotRHS.setAccessibility(" new value of variable");
     }
     
     public AssignFrame(InteractionManager editor, FilledExpressionSlotFragment lhs, FilledExpressionSlotFragment rhs, boolean enabled)
@@ -106,8 +110,10 @@ public class AssignFrame extends SingleLineFrame
 
 
         //Manvi jain
-        slotLHS.setAccessibility("existing variable name" + slotLHS.getText());
-        slotRHS.setAccessibility("new value of variable" + slotRHS.getText());
+        slotLHS.setAccessibilityRoleDescription(slotLHS.getJavaCode());
+        slotLHS.setAccessibility(" existing variable name");
+        slotRHS.setAccessibilityRoleDescription(slotRHS.getJavaCode());
+        slotRHS.setAccessibility(" new value of variable");
     }
 
     @Override

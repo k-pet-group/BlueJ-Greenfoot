@@ -56,7 +56,7 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
 {
     private ExpressionSlot slot;
 
-    // Each plain is a non-compound ident
+    // Each plain is a non-compound indent
     private final List<LocatableToken> plains = new ArrayList<>();
     private List<LocatableToken> curCompound = null;
     private final List<List<LocatableToken>> compounds = new ArrayList<>();

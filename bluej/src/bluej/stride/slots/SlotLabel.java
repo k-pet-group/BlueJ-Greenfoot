@@ -297,8 +297,4 @@ public class SlotLabel implements HeaderItem, Styleable, CopyableHeaderItem
         return Stream.of(copy);
     }
 
-    //Manvi jain
-    public void setAccessibility(String currentFrame){
-        this.getComponents().get(0).setAccessibleText(currentFrame + "Label");
-    }
 }

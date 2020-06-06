@@ -179,10 +179,12 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         addCanvas(constructorsLabelRow, constructorsCanvas, 1);
 
         //Manvi jain
-        extendsSlot.setAccessibility("parent class name" );
+        System.out.println(" parent class name");
+       // extendsSlot.setAccessibility(" parent class name" );
         for(int i=0; i<implementsList.size(); i++)
         {
-            implementsList.get(i).getSlot().setAccessibility("interface name");
+            if(implementsList.get(i).getSlot() != null)
+                implementsList.get(i).getSlot().setAccessibility(" interface name");
         }
     }
 
@@ -909,10 +911,11 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         }
         return super.backspaceAtStart(srcRow, src);
     }
+
     //Manvi jain
     @Override
     public String getHelpContext()
     {
-        return "in class " ;
+        return "in class " + nameProperty().get();
     }
 }

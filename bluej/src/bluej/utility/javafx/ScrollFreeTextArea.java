@@ -382,6 +382,9 @@ public class ScrollFreeTextArea
         this.textArea.setAccessibleText(text);
     }
 
+    public void setAccessibilityRoleDescription(String text){
+        this.textArea.setAccessibleRoleDescription(text);
+    }
 
     public void setAccessibilityHelpSlots(String helpText)
     {

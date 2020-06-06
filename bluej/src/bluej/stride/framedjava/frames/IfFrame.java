@@ -221,7 +221,6 @@ public class IfFrame extends SandwichCanvasesFrame
 
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            System.out.println("Condition in if statement " + getParentCanvas().getParent().getHelpContext());
             ifCondition.setAccessibilityHelpSlots("Condition in if statement " + getParentCanvas().getParent().getHelpContext());
         }
     }

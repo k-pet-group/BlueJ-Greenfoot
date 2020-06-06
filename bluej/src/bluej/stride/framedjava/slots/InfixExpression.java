@@ -163,6 +163,10 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
 
         slot.withParamNamesForConstructor(
             poss -> setPromptsFromParamNames(poss));
+
+
+        //Manvi jain
+        System.out.println("update 1");
     }
 
     // package-visible
@@ -180,6 +184,9 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
 
         slot.withParamNamesForPos(absPosOfMethodName, methodName,
             poss -> setPromptsFromParamNames(poss));
+
+        //Manvi jain
+        System.out.println("update 2");
     }
 
     /**

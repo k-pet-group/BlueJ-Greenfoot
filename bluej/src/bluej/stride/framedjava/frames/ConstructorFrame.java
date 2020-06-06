@@ -99,11 +99,13 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         //Manvi jain
         if(superThisParams != null)
         {
+            superThisParams.setAccessibilityRoleDescription(superThisParams.getJavaCode());
             superThisParams.setAccessibility("super constructor's parameters");
         }
 
         if(superThis != null)
         {
+            superThis.setAccessibilityRoleDescription("");
             superThis.setAccessibility("super constructor options");
         }
     }
@@ -118,6 +120,21 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
             addSuperThis(delegate, delegateParams);
         }
         frameEnabledProperty.set(enabled);
+
+
+
+        //Manvi jain
+        if(superThisParams != null)
+        {
+            superThisParams.setAccessibilityRoleDescription(superThisParams.getJavaCode());
+            superThisParams.setAccessibility(" super constructors parameters");
+        }
+
+        if(superThis != null)
+        {
+            superThis.setAccessibilityRoleDescription("");
+            superThis.setAccessibility(" super constructor options");
+        }
     }
 
     public static FrameFactory<ConstructorFrame> getFactory() {
@@ -389,13 +406,11 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
             //Manvi jain
             if(superThisParams != null)
             {
-                System.out.println("super constructor's parameters " + getParentCanvas().getParent().getHelpContext());
                 superThisParams.setAccessibilityHelpSlots("super constructor's parameters " + getParentCanvas().getParent().getHelpContext());
             }
 
             if(superThis != null)
             {
-                System.out.println("super constructor options " + getParentCanvas().getParent().getHelpContext());
                 superThis.setAccessibilityHelpSlots("super constructor options " + getParentCanvas().getParent().getHelpContext());
             }
         }

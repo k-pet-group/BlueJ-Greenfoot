@@ -119,8 +119,7 @@ import threadchecker.Tag;
  *
  * This class is abstract, as a few details must be specified by some slim, more specific subclasses
  */
-public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragment, INFIX extends InfixStructured<?, INFIX>, COMPLETION_CALCULATOR extends StructuredCompletionCalculator> implements EditableSlot, ErrorFixListener, SuggestionListListener
-{
+public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragment, INFIX extends InfixStructured<?, INFIX>, COMPLETION_CALCULATOR extends StructuredCompletionCalculator> implements EditableSlot, ErrorFixListener, SuggestionListListener {
     // The overlay on which to draw errors, underlines, etc
     private final ErrorUnderlineCanvas overlay;
     // Same item, but stored twice due to types:
@@ -213,8 +212,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     protected final List<FXRunnable> afterModify = new ArrayList<>();
 
     public StructuredSlot(InteractionManager editor,
-                          Frame parentFrame, CodeFrame<?> parentCodeFrame, FrameContentRow row, String stylePrefix, COMPLETION_CALCULATOR completionCalculator, List<FrameCatalogue.Hint> hints)
-    {
+                          Frame parentFrame, CodeFrame<?> parentCodeFrame, FrameContentRow row, String stylePrefix, COMPLETION_CALCULATOR completionCalculator, List<FrameCatalogue.Hint> hints) {
         this.editor = editor;
         this.parentFrame = parentFrame;
         this.parentCodeFrame = parentCodeFrame;
@@ -228,14 +226,11 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         topLevel = newInfix(editor, new ModificationToken());
 
         effectivelyFocusedProperty = focusedProperty.or(fakeCaretShowing);
-        
+
         JavaFXUtil.addChangeListener(textMirror, t -> {
-            if (!editor.isLoading())
-            {
+            if (!editor.isLoading()) {
                 modified();
-            }
-            else
-            {
+            } else {
                 parentFrame.trackBlank();
             }
         });
@@ -243,128 +238,113 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         this.overlay = row.getOverlay();
         overlay.addExtraRedraw(gc -> {
             gc.save();
-            if (selectionDrawPositions != null && !selectionDrawPositions.isEmpty())
-            {
+            if (selectionDrawPositions != null && !selectionDrawPositions.isEmpty()) {
                 gc.setFill(editor.getHighlightColor());
-                
+
                 for (Line l : TextOverlayPosition.groupIntoLines(selectionDrawPositions)) {
                     l.transform(overlay::sceneToLocal);
                     gc.fillRect(l.startX + 1.0 /* fudge factor */, l.topY, l.endX - l.startX, l.bottomY - l.topY);
                 }
             }
-            
-            if (fakeCaretShowing.get())
-            {
+
+            if (fakeCaretShowing.get()) {
                 gc.setStroke(Color.BLACK);
                 double x = overlay.sceneToLocal(topLevel.calculateOverlayPos(suggestionLocation).getSceneX(), 0).getX();
                 gc.strokeLine(x, 0, x, suggestionField.heightProperty().get());
             }
             gc.restore();
         });
-        
+
         JavaFXUtil.addChangeListener(fakeCaretShowing, b -> JavaFXUtil.runNowOrLater(() -> overlay.redraw()));
     }
-    
-    
-    
- // Errors:
+
+
+    // Errors:
 
     @OnThread(Tag.FXPlatform)
     @Override
-    public void flagErrorsAsOld()
-    {
+    public void flagErrorsAsOld() {
         allErrors.forEach(CodeError::flagAsOld);
     }
 
     @OnThread(Tag.FXPlatform)
     @Override
-    public void removeOldErrors()
-    {
+    public void removeOldErrors() {
         allErrors.removeIf(CodeError::isFlaggedAsOld);
         recalculateShownErrors();
     }
 
     @OnThread(Tag.FXPlatform)
-    private void recalculateShownErrors()
-    {
+    private void recalculateShownErrors() {
         shownErrors.clear();
-        
+
         // We need to find all non-overlapping errors, preferring our own errors
         // to those of javac, and then preferring shorter errors (as probably being more specific)
         List<CodeError> sortedErrors = allErrors.stream()
-            .sorted((a, b) -> CodeError.compareErrors(a, b)).collect(Collectors.toList());
-        
+                .sorted((a, b) -> CodeError.compareErrors(a, b)).collect(Collectors.toList());
+
         sortedErrors.forEach(e -> {
             // Add the error if it doesn't overlap:
-            if (shownErrors.stream().allMatch(shown -> !shown.overlaps(e)))
-            {
+            if (shownErrors.stream().allMatch(shown -> !shown.overlaps(e))) {
                 shownErrors.add(e);
                 e.setShowingIndicator(true);
-            }
-            else
-            {
+            } else {
                 e.setShowingIndicator(false);
             }
         });
-        
+
         clearErrorMarkers();
         shownErrors.forEach(e -> drawErrorMarker(e.getStartPosition(), e.getEndPosition(), e.isJavaPos(), b -> showErrorHover(b ? e : null), e.visibleProperty()));
-        
+
         CaretPos curPos = topLevel.getCurrentPos();
         if (curPos != null)
-            JavaFXUtil.runNowOrLater(() -> showErrorAtCaret(curPos));
+           JavaFXUtil.runNowOrLater(() -> showErrorAtCaret(curPos));
     }
 
     @OnThread(Tag.FXPlatform)
-    private void showErrorHover(CodeError error)
-    {
-        if (errorAndFixDisplay != null)
-        {
-            if (error != null && errorAndFixDisplay.getError().equals(error)){
+    private void showErrorHover(CodeError error) {
+        if (errorAndFixDisplay != null) {
+            if (error != null && errorAndFixDisplay.getError().equals(error)) {
                 hoverErrorCurrentlyShown = error; //update current error
                 return; // Already showing that error
             }
-            
+
             CaretPos caretPos = topLevel.getCurrentPos();
-            if (caretPos != null)
-            {
+            if (caretPos != null) {
                 final int caretPosition = topLevel.caretPosToStringPos(caretPos, true);
                 Optional<CodeError> errorAtCaret = shownErrors.stream()
                         .filter(e -> e.getStartPosition() <= caretPosition && caretPosition <= e.getEndPosition())
                         .findFirst();
                 // If we are turning off the hover error, but the caret is in the error,
                 // we do not stop showing it.
-                if (error == null && errorAtCaret.isPresent() && errorAtCaret.get().equals(errorAndFixDisplay.getError())){
+                if (error == null && errorAtCaret.isPresent() && errorAtCaret.get().equals(errorAndFixDisplay.getError())) {
                     hoverErrorCurrentlyShown = null; //update current error
                     return;
                 }
             }
-            
+
             errorAndFixDisplay.hide();
             errorAndFixDisplay = null;
         }
-        
-        if (error != null && error.visibleProperty().get())
-        {
+
+        if (error != null && error.visibleProperty().get()) {
             hoverErrorCurrentlyShown = error; //update current error
             errorAndFixDisplay = new ErrorAndFixDisplay(editor, error, this);
-            errorAndFixDisplay.showBelow((Region)error.getRelevantNode(), Duration.ZERO);
+            errorAndFixDisplay.showBelow((Region) error.getRelevantNode(), Duration.ZERO);
         }
     }
 
     @OnThread(Tag.FXPlatform)
-    private void showErrorAtCaret(CaretPos curPos)
-    {
+    private void showErrorAtCaret(CaretPos curPos) {
         if (curPos == null) {
             //Stop showing error:
-            if (errorAndFixDisplay != null)
-            {
+            if (errorAndFixDisplay != null) {
                 errorAndFixDisplay.hide();
                 errorAndFixDisplay = null;
             }
             return;
         }
-        
+
         int caretPosition = topLevel.caretPosToStringPos(curPos, true);
         // Note: we do want <= and <= here, so that the explanation shows
         // if the caret is at either end of the error (visually, if the caret is touching
@@ -372,8 +352,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         Optional<CodeError> errorAtCaret = shownErrors.stream()
                 .filter(e -> e.getStartPosition() <= caretPosition && caretPosition <= e.getEndPosition())
                 .findFirst();
-        
-        if (errorAtCaret.isPresent() && errorAndFixDisplay != null && errorAndFixDisplay.getError().equals(errorAtCaret.get()))  {
+
+        if (errorAtCaret.isPresent() && errorAndFixDisplay != null && errorAndFixDisplay.getError().equals(errorAtCaret.get())) {
             // Already displaying that error; fine:
             return;
         }
@@ -382,7 +362,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             errorAndFixDisplay.hide();
             errorAndFixDisplay = null;
         }
-        
+
         // If there is now a (new) error to show, do so:
         if (errorAtCaret.isPresent() && errorAtCaret.get().visibleProperty().get()) {
             errorAndFixDisplay = new ErrorAndFixDisplay(editor, errorAtCaret.get(), this);
@@ -391,29 +371,25 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @OnThread(Tag.FXPlatform)
-    public void addError(CodeError err)
-    {
+    public void addError(CodeError err) {
         allErrors.add(err);
         err.bindFresh(getFreshExtra(err).or(getParentFrame().freshProperty()), editor);
         recalculateShownErrors();
     }
 
-    protected BooleanExpression getFreshExtra(CodeError err)
-    {
+    protected BooleanExpression getFreshExtra(CodeError err) {
         return new ReadOnlyBooleanWrapper(false);
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
-    public void fixedError(CodeError err)
-    {
+    public void fixedError(CodeError err) {
         allErrors.remove(err);
         recalculateShownErrors();
     }
 
     @OnThread(Tag.FXPlatform)
-    public void drawErrorMarker(int startPos, int endPos, boolean javaPos, FXPlatformConsumer<Boolean> onHover, ObservableBooleanValue visible)
-    {
+    public void drawErrorMarker(int startPos, int endPos, boolean javaPos, FXPlatformConsumer<Boolean> onHover, ObservableBooleanValue visible) {
         // If we are trying to highlight an empty slot, highlight whole width
         if ((startPos == 0 && endPos == 0) || getText().length() == 0)
             overlay.addErrorMarker(this, 0, Integer.MAX_VALUE, false, onHover, visible);
@@ -423,9 +399,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
 
     protected abstract SLOT_FRAGMENT makeSlotFragment(String content, String javaCode);
-    
-    public SLOT_FRAGMENT getSlotElement()
-    {
+
+    public SLOT_FRAGMENT getSlotElement() {
         if (slotElement == null || beenModified) {
             slotElement = makeSlotFragment(getText(), getJavaCode());
             beenModified = false;
@@ -434,20 +409,18 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @OnThread(Tag.FXPlatform)
-    public void clearErrorMarkers()
-    {
+    public void clearErrorMarkers() {
         overlay.clearErrorMarkers(this);
     }
 
-    public void setSimplePromptText(String t)
-    {
+    public void setSimplePromptText(String t) {
         FXRunnable action = () -> {
             topLevel.withContent((fields, ops) -> {
                 // If there's just one field:
                 if (ops.isEmpty() && fields.size() == 1 && fields.get(0) instanceof StructuredSlotField)
-                    ((StructuredSlotField)fields.get(0)).setPromptText(t);
+                    ((StructuredSlotField) fields.get(0)).setPromptText(t);
                 else if (fields.size() > 0)
-                    ((StructuredSlotField)fields.get(0)).setPromptText("");
+                    ((StructuredSlotField) fields.get(0)).setPromptText("");
             });
         };
         // We only act after complete updates:
@@ -455,9 +428,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         // And trigger now:
         action.run();
     }
-    
-    public void setMethodCallPromptText(String t)
-    {
+
+    public void setMethodCallPromptText(String t) {
         FXRunnable action = () -> {
             topLevel.withContent((fields, ops) -> {
                 // Can happen during blanking:
@@ -466,17 +438,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
                 // Scan for fields that are followed by brackets (with no operator inbetween),
                 // and preceded by start or a dot:
-                for (int i = 0; i < fields.size() - 1 /* Don't look at last field */; i++)
-                {
-                    if (fields.get(i) instanceof StructuredSlotField)
-                    {
-                        StructuredSlotField f = (StructuredSlotField)fields.get(i);
+                for (int i = 0; i < fields.size() - 1 /* Don't look at last field */; i++) {
+                    if (fields.get(i) instanceof StructuredSlotField) {
+                        StructuredSlotField f = (StructuredSlotField) fields.get(i);
                         // Brackets after, with no op inbetween:
-                        if (ops.get(i) == null && fields.get(i + 1) instanceof BracketedStructured)
-                        {
+                        if (ops.get(i) == null && fields.get(i + 1) instanceof BracketedStructured) {
                             // No op beforehand, or a dot:
-                            if (i == 0 || (ops.get(i - 1) != null && ops.get(i - 1).get().equals(".")))
-                            {
+                            if (i == 0 || (ops.get(i - 1) != null && ops.get(i - 1).get().equals("."))) {
                                 f.setPromptText(t);
                             }
                         }
@@ -490,30 +458,27 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         action.run();
     }
 
-    public void onTextPropertyChange(FXConsumer<String> listener)
-    {
+    public void onTextPropertyChange(FXConsumer<String> listener) {
         JavaFXUtil.addChangeListener(textMirror, listener);
     }
-    public void onTextPropertyChangeOld(FXBiConsumer<String, String> listener)
-    {
+
+    public void onTextPropertyChangeOld(FXBiConsumer<String, String> listener) {
         textMirror.addListener((a, oldVal, newVal) -> listener.accept(oldVal, newVal));
     }
 
     //TO BE USED
-    public String getText()
-    {
+    public String getText() {
         return topLevel.getCopyText(null, null);
     }
 
     @Override
-    public boolean isFocused()
-    {
+    public boolean isFocused() {
         return topLevel.isFocused();
     }
+
     //TO BE USED
     @Override
-    public int getFocusInfo()
-    {
+    public int getFocusInfo() {
         CaretPos pos = topLevel.getCurrentPos();
         if (pos == null)
             pos = mostRecentPos;
@@ -525,68 +490,58 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @Override
-    public Node recallFocus(int info)
-    {
+    public Node recallFocus(int info) {
         return topLevel.positionCaret(topLevel.stringPosToCaretPos(info, false));
     }
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public Stream<CodeError> getCurrentErrors()
-    {
+    public Stream<CodeError> getCurrentErrors() {
         return shownErrors.stream();
     }
 
     @OnThread(Tag.FXPlatform)
-    public void setText(String text)
-    {
+    public void setText(String text) {
         modificationPlatform(token -> {
             topLevel.blank(token);
-            if (!"".equals(text))
-            {
+            if (!"".equals(text)) {
                 topLevel.insert(topLevel.getFirstField(), 0, text);
             }
         });
     }
 
     @Override
-    public void focusAndPositionAtError(CodeError err)
-    {
+    public void focusAndPositionAtError(CodeError err) {
         requestFocus();
-        topLevel.positionCaret(javaPosToCaretPos(err.getStartPosition()));        
+        topLevel.positionCaret(javaPosToCaretPos(err.getStartPosition()));
     }
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void addUnderline(Underline u)
-    {
+    public void addUnderline(Underline u) {
         underlines.add(u);
         drawUnderlines();
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
-    public void removeAllUnderlines()
-    {
+    public void removeAllUnderlines() {
         underlines.clear();
         drawUnderlines();
     }
 
     @OnThread(Tag.FXPlatform)
-    private void drawUnderlines()
-    {
+    private void drawUnderlines() {
         overlay.clearUnderlines();
         underlines.forEach(u -> overlay.addUnderline(this, u.getStartPosition(), u.getEndPosition(), u.getOnClick()));
     }
 
     @Override
-    public void cleanup()
-    {
+    public void cleanup() {
         if (suggestionDisplay != null)
             hideSuggestionDisplay();
-        
-        if (errorAndFixDisplay != null)
-        {
+
+        if (errorAndFixDisplay != null) {
             final ErrorAndFixDisplay errorAndFixDisplayToHide = this.errorAndFixDisplay;
             JavaFXUtil.runNowOrLater(() -> errorAndFixDisplayToHide.hide());
             this.errorAndFixDisplay = null;
@@ -599,10 +554,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @OnThread(Tag.FXPlatform)
-    public void replace(int startPosInSlot, int endPosInSlot, boolean javaPos, String s)
-    {
-        if (javaPos)
-        {
+    public void replace(int startPosInSlot, int endPosInSlot, boolean javaPos, String s) {
+        if (javaPos) {
             // Convert back to normal pos:
             startPosInSlot = topLevel.caretPosToStringPos(javaPosToCaretPos(startPosInSlot), false);
             endPosInSlot = topLevel.caretPosToStringPos(javaPosToCaretPos(endPosInSlot), false);
@@ -611,92 +564,80 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         String prev = getText();
         String updated = prev.substring(0, startPosInSlot) + s + prev.substring(endPosInSlot);
         setText(updated);
-    }   
-    
-/*
-    @Override
-    public int getSlotElementPositionInLine()
-    {
-        return topLevel.getSlotElement().getPositionInLine();
+
     }
+
+    /*
+        @Override
+        public int getSlotElementPositionInLine()
+        {
+            return topLevel.getSlotElement().getPositionInLine();
+        }
     
+        @Override
+        public boolean hasSlotElementPosition()
+        {
+            return topLevel.getSlotElement().positionRecorded();
+        }
+    */
     @Override
-    public boolean hasSlotElementPosition()
-    {
-        return topLevel.getSlotElement().positionRecorded();
-    }
-*/
-    @Override
-    public void requestFocus(Focus on)
-    {
+    public void requestFocus(Focus on) {
         topLevel.requestFocus();
         if (on == Focus.LEFT) {
             topLevel.home(null);
-        }
-        else if (on == Focus.RIGHT) {
+        } else if (on == Focus.RIGHT) {
             topLevel.end();
-        }
-        else if (on == Focus.SELECT_ALL) {
+        } else if (on == Focus.SELECT_ALL) {
             topLevel.selectAll(null);
         }
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return topLevel.isEmpty();
     }
 
-    protected void modified()
-    {
+    protected void modified() {
         beenModified = true;
         editor.modifiedFrame(parentFrame, false);
         JavaFXUtil.runNowOrLater(() -> editor.afterRegenerateAndReparse(null));
     }
-    
+
     // package-visible
-    double sceneToOverlayX(double sceneX)
-    {
+    double sceneToOverlayX(double sceneX) {
         return overlay.sceneToLocal(sceneX, 0.0).getX();
     }
-    
+
     // package-visible
-    double sceneToOverlayY(double sceneY)
-    {
+    double sceneToOverlayY(double sceneY) {
         return overlay.sceneToLocal(0.0, sceneY).getY();
     }
-    
+
     // package-visible
-    void clearSelection(boolean invalidateErrors)
-    {
+    void clearSelection(boolean invalidateErrors) {
         selectionDrawPositions = null;
         JavaFXUtil.runNowOrLater(() -> {
-            if (invalidateErrors)
-            {
+            if (invalidateErrors) {
                 clearErrorMarkers();
             }
             overlay.redraw();
         });
     }
-    
+
     // package-visible
-    void drawSelection(List<TextOverlayPosition> positions)
-    {
+    void drawSelection(List<TextOverlayPosition> positions) {
         selectionDrawPositions = positions;
         JavaFXUtil.runNowOrLater(overlay::redraw);
     }
-    
-    public void bindTargetType(StringExpression targetTypeBinding)
-    {
+
+    public void bindTargetType(StringExpression targetTypeBinding) {
         this.targetType = targetTypeBinding;
     }
 
-    public void setTargetType(String targetType)
-    {
+    public void setTargetType(String targetType) {
         this.targetType = new SimpleStringProperty(targetType);
     }
 
-    public static Label makeBracket(String content, boolean opening, InfixStructured parent)
-    {
+    public static Label makeBracket(String content, boolean opening, InfixStructured parent) {
         Label l = new Label(content);
         JavaFXUtil.addStyleClass(l, "expression-bracket", opening ? "expression-bracket-opening" : "expression-bracket-closing");
         l.setOnMousePressed(e -> {
@@ -704,7 +645,9 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                 parent.moveTo(e.getSceneX(), e.getSceneY(), true);
             e.consume();
         });
-        l.setOnMouseMoved(e -> { if (e.isShortcutDown()) parent.getSlot().getOverlay().hoverAtPos(-1); });
+        l.setOnMouseMoved(e -> {
+            if (e.isShortcutDown()) parent.getSlot().getOverlay().hoverAtPos(-1);
+        });
         l.setOnMouseReleased(MouseEvent::consume);
         l.setOnMouseClicked(MouseEvent::consume);
         l.setOnMouseDragged(MouseEvent::consume);
@@ -712,8 +655,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         return l;
     }
 
-    public static SlotLabel makeBracketSlot(String content, boolean opening, InfixStructured parent)
-    {
+    public static SlotLabel makeBracketSlot(String content, boolean opening, InfixStructured parent) {
         SlotLabel l = new SlotLabel(content);
         JavaFXUtil.addStyleClass(l, "expression-bracket", opening ? "expression-bracket-opening" : "expression-bracket-closing");
         l.setOnMousePressed(e -> {
@@ -727,10 +669,9 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         l.setOnDragDetected(MouseEvent::consume);
         return l;
     }
-    
+
     //package-visible
-    void hideSuggestionDisplay()
-    {
+    void hideSuggestionDisplay() {
         if (suggestionDisplay != null) {
             //suggestionDisplay.hide();
             suggestionDisplay = null;
@@ -742,22 +683,20 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
      * Shows code completion for this slot (intended for use in new, blank slots)
      */
     @OnThread(Tag.FXPlatform)
-    public void showSuggestion()
-    {
+    public void showSuggestion() {
         showSuggestionDisplay(topLevel.getFirstField(), 0, false);
     }
 
     // package-visible
     @OnThread(Tag.FXPlatform)
-    void showSuggestionDisplay(StructuredSlotField field, int caretPosition, boolean stringLiteral)
-    {
+    void showSuggestionDisplay(StructuredSlotField field, int caretPosition, boolean stringLiteral) {
         if (suggestionDisplay != null) {
             hideSuggestionDisplay();
         }
-        
+
         suggestionField = field;
         suggestionNode = field.getComponents().get(0);
-        
+
         FXPlatformConsumer<SuggestionList> withSuggList = suggList -> {
             suggestionDisplay = suggList;
             updateSuggestions(true);
@@ -765,26 +704,24 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             suggestionDisplay.show(suggestionNode, new BoundingBox(0, 0, 0, field.heightProperty().get()));
             fakeCaretShowing.set(true);
         };
-        
+
         suggestionLocation = topLevel.getCurrentPos();
-        
+
         if (stringLiteral) {
             // They are just inside a string; complete image file names:
             fileCompletions = editor.getAvailableFilenames();
             // Have to have this function on a separate line to work around Eclipse bug (sigh):
             Function<FileCompletion, SuggestionDetails> func = f -> new SuggestionDetailsWithCustomDoc(f.getFile().getName(), null, f.getType(), SuggestionList.SuggestionShown.COMMON, () -> makeFileCompletionPreview(f)) {
                 @Override
-                public boolean hasDocs()
-                {
+                public boolean hasDocs() {
                     // Bit of a hack; Greenfoot sounds/images have doc, but
                     // BlueJ CSS files have no doc
                     return Config.isGreenfoot();
                 }
             };
             withSuggList.accept(new SuggestionList(editor, Utility.mapList(fileCompletions, func), null, SuggestionList.SuggestionShown.RARE, null, StructuredSlot.this));
-            
-        }
-        else {
+
+        } else {
             currentlyCompleting = true;
             // TODO we shouldn't need to regen whole code repeatedly if they only modify this slot:
             editor.afterRegenerateAndReparse(() -> {
@@ -797,29 +734,26 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
             });
         }
-        
+
     }
 
-    private Pane makeFileCompletionPreview(FileCompletion fc)
-    {
+    private Pane makeFileCompletionPreview(FileCompletion fc) {
         Pane javadocDisplay = new BorderPane(fc.getPreview(300, 250));
         JavaFXUtil.addStyleClass(javadocDisplay, "suggestion-file-preview");
         CodeOverlayPane.setDropShadow(javadocDisplay);
-        
+
         fileCompletionShortcuts = fc.getShortcuts();
         return javadocDisplay;
     }
 
-    private String getCurSuggestionWord()
-    {
+    private String getCurSuggestionWord() {
         if (suggestionLocation == null)
             return null;
         else
             return topLevel.getCopyText(replaceLastWithZero(suggestionLocation), suggestionLocation);
     }
-    
-    private static CaretPos replaceLastWithZero(CaretPos p)
-    {
+
+    private static CaretPos replaceLastWithZero(CaretPos p) {
         if (p.subPos == null)
             return new CaretPos(0, null);
         else
@@ -827,18 +761,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @OnThread(Tag.FXPlatform)
-    private void updateSuggestions(boolean initialState)
-    {
-        if (suggestionDisplay != null)
-        {
+    private void updateSuggestions(boolean initialState) {
+        if (suggestionDisplay != null) {
             String prefix = getCurSuggestionWord();
-            if (prefix == null)
-            {
+            if (prefix == null) {
                 // Lost focus:
                 hideSuggestionDisplay();
-            }
-            else
-            {
+            } else {
                 suggestionDisplay.calculateEligible(prefix, true, initialState);
                 suggestionDisplay.updateVisual(prefix);
             }
@@ -847,23 +776,19 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @OnThread(Tag.FXPlatform)
-    private void executeSuggestion(int selected, ModificationToken token, int codeCompletionId)
-    {
+    private void executeSuggestion(int selected, ModificationToken token, int codeCompletionId) {
         if (selected == -1)
             return;
 
         String name;
         List<String> params;
         char opening;
-        if (fileCompletions != null)
-        {
+        if (fileCompletions != null) {
             FileCompletion fc = fileCompletions.get(selected);
             name = fc.getFile().getName();
             params = null;
             opening = '\0';
-        }
-        else
-        {
+        } else {
             name = completionCalculator.getName(selected);
             params = completionCalculator.getParams(selected);
             opening = completionCalculator.getOpening(selected);
@@ -873,17 +798,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         String completion = name + (params == null ? "" : "(" + params.stream().collect(Collectors.joining(",")) + ")");
         editor.recordCodeCompletionEnded(getSlotElement(), topLevel.caretPosToStringPos(suggestionLocation, false), getCurSuggestionWord(), completion, codeCompletionId);
     }
-    
+
     // Package-visible
-    void up()
-    {
-        if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes() && errorAndFixDisplay.isShowing())
-        {
+    void up() {
+        if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes() && errorAndFixDisplay.isShowing()) {
             errorAndFixDisplay.up();
-        }
-        else
-        {
-            
+        } else {
+
             // See if there is content above us within the expression:
             List<TextOverlayPosition> overlayPositions = topLevel.getAllStartEndPositionsBetween(null, null).collect(Collectors.toList());
 
@@ -891,50 +812,40 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             TextOverlayPosition cur = topLevel.calculateOverlayPos(topLevel.getCurrentPos());
             List<Line> lines = TextOverlayPosition.groupIntoLines(overlayPositions);
             int curLine = -1;
-            for (int i = 0; i < lines.size();i++)
-            {
-                if (lines.get(i).topY <= cur.getSceneTopY() && lines.get(i).bottomY >= cur.getSceneBottomY())
-                {
+            for (int i = 0; i < lines.size(); i++) {
+                if (lines.get(i).topY <= cur.getSceneTopY() && lines.get(i).bottomY >= cur.getSceneBottomY()) {
                     curLine = i;
                     break;
                 }
             }
-            
-            if (curLine > 0)
-            {
+
+            if (curLine > 0) {
                 double nearestDist = 9999.0;
                 StructuredSlotField nearest = null;
-                for (int i = 0; i < lines.get(curLine - 1).positions.size(); i++)
-                {
+                for (int i = 0; i < lines.get(curLine - 1).positions.size(); i++) {
                     TextOverlayPosition p = lines.get(curLine - 1).positions.get(i);
                     double dist = Math.abs(p.getSceneX() - cur.getSceneX());
-                    if (dist < nearestDist && p.getSource() != null)
-                    {
+                    if (dist < nearestDist && p.getSource() != null) {
                         nearestDist = dist;
                         nearest = p.getSource();
                     }
                 }
-                if (nearest != null)
-                {
+                if (nearest != null) {
                     nearest.focusAtPos(nearest.getNearest(cur.getSceneX(), cur.getSceneTopY(), false, false).getPos());
                     return;
                 }
             }
-            
+
             // In all other cases, just focus cursor above:
             row.focusUp(this, false);
         }
     }
 
     // Package-visible
-    void down()
-    {
-        if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes() && errorAndFixDisplay.isShowing())
-        {
+    void down() {
+        if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes() && errorAndFixDisplay.isShowing()) {
             errorAndFixDisplay.down();
-        }
-        else
-        {
+        } else {
             // See if there is content below us within the expression:
             List<TextOverlayPosition> overlayPositions = topLevel.getAllStartEndPositionsBetween(null, null).collect(Collectors.toList());
 
@@ -942,58 +853,47 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             TextOverlayPosition cur = topLevel.calculateOverlayPos(topLevel.getCurrentPos());
             List<Line> lines = TextOverlayPosition.groupIntoLines(overlayPositions);
             int curLine = -1;
-            for (int i = 0; i < lines.size();i++)
-            {
-                if (lines.get(i).topY <= cur.getSceneTopY() && lines.get(i).bottomY >= cur.getSceneBottomY())
-                {
+            for (int i = 0; i < lines.size(); i++) {
+                if (lines.get(i).topY <= cur.getSceneTopY() && lines.get(i).bottomY >= cur.getSceneBottomY()) {
                     curLine = i;
                     break;
                 }
             }
-            
-            if (curLine < lines.size() - 1)
-            {
+
+            if (curLine < lines.size() - 1) {
                 double nearestDist = 9999.0;
                 StructuredSlotField nearest = null;
-                for (int i = 0; i < lines.get(curLine + 1).positions.size(); i++)
-                {
+                for (int i = 0; i < lines.get(curLine + 1).positions.size(); i++) {
                     TextOverlayPosition p = lines.get(curLine + 1).positions.get(i);
                     double dist = Math.abs(p.getSceneX() - cur.getSceneX());
-                    if (dist < nearestDist && p.getSource() != null)
-                    {
+                    if (dist < nearestDist && p.getSource() != null) {
                         nearestDist = dist;
                         nearest = p.getSource();
                     }
                 }
-                if (nearest != null)
-                {
+                if (nearest != null) {
                     nearest.focusAtPos(nearest.getNearest(cur.getSceneX(), cur.getSceneBottomY(), false, false).getPos());
                     return;
                 }
             }
-            
+
             // In all other cases, just focus cursor above:
-            
+
             row.focusDown(this);
         }
     }
-    
+
     // Package-visible
     @OnThread(Tag.FXPlatform)
-    void enter()
-    {
-        if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes())
-        {
+    void enter() {
+        if (errorAndFixDisplay != null && errorAndFixDisplay.hasFixes()) {
             errorAndFixDisplay.executeSelected();
-        }
-        else
-        {
+        } else {
             row.focusEnter(this);
         }
     }
 
-    public String getJavaCode()
-    {
+    public String getJavaCode() {
         if (topLevel.isCurlyLiteral())
             return getCurlyLiteralPrefix() + topLevel.getJavaCode();
         else
@@ -1001,8 +901,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @OnThread(Tag.FXPlatform)
-    public void caretMoved()
-    {
+    public void caretMoved() {
         CaretPos pos = topLevel.getCurrentPos();
         showErrorAtCaret(pos);
         topLevel.showHighlightedBrackets(null, pos);
@@ -1011,37 +910,30 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @OnThread(Tag.FXPlatform)
-    public void escape()
-    {
+    public void escape() {
         // We want the error to hide until the user moves out and in, but not re-show if
         // the user moves within the error.
         // Easiest thing to do is notionally keep it as the display, but actually hide it:
-        if (errorAndFixDisplay != null)
-        {
+        if (errorAndFixDisplay != null) {
             errorAndFixDisplay.hide();
-        }
-        else
-        {
+        } else {
             row.escape(this);
         }
     }
 
     @Override
-    public ObservableList<Node> getComponents()
-    {
+    public ObservableList<Node> getComponents() {
         return topLevel.getComponents();
     }
 
     @Override
-    public TextOverlayPosition getOverlayLocation(int stringCaretPos, boolean javaPos)
-    {
+    public TextOverlayPosition getOverlayLocation(int stringCaretPos, boolean javaPos) {
         CaretPos p;
         if (stringCaretPos == Integer.MAX_VALUE)
             return topLevel.calculateOverlayEnd();
         else if (stringCaretPos < 0)
             p = topLevel.getStartPos();
-        else
-        {
+        else {
             p = javaPos ? javaPosToCaretPos(stringCaretPos) : topLevel.stringPosToCaretPos(stringCaretPos, false);
             if (p == null)
                 p = topLevel.getEndPos();
@@ -1049,37 +941,30 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         return topLevel.calculateOverlayPos(p);
     }
 
-    public List<Line> getAllLines(int start, int end, boolean javaPos)
-    {
+    public List<Line> getAllLines(int start, int end, boolean javaPos) {
         CaretPos startPos = topLevel.stringPosToCaretPos(start, javaPos);
         CaretPos endPos;
-        if (end == Integer.MAX_VALUE)
-        {
+        if (end == Integer.MAX_VALUE) {
             endPos = null;
-        }
-        else
-        {
+        } else {
             endPos = topLevel.stringPosToCaretPos(end, javaPos);
         }
         return TextOverlayPosition.groupIntoLines(topLevel.getAllStartEndPositionsBetween(startPos, endPos).collect(Collectors.toList()));
     }
 
     // package-visible
-    CaretPos javaPosToCaretPos(int pos)
-    {
+    CaretPos javaPosToCaretPos(int pos) {
         if (topLevel.isCurlyLiteral())
             pos -= getCurlyLiteralPrefix().length();
         return topLevel.stringPosToCaretPos(Math.max(0, pos), true);
     }
 
-    public InfixStructured getTopLevel()
-    {
+    public InfixStructured getTopLevel() {
         return topLevel;
     }
 
     //package-visible
-    FocusParent<HeaderItem> getSlotParent()
-    {
+    FocusParent<HeaderItem> getSlotParent() {
         return row;
     }
 
@@ -1087,40 +972,32 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
      * Returns true if the method has transferred focus out of the slot
      */
     @OnThread(Tag.FXPlatform)
-    public boolean backspaceAtStart()
-    {
+    public boolean backspaceAtStart() {
         return row.backspaceAtStart(this);
     }
 
-    public void addClosingChar(char c)
-    {
+    public void addClosingChar(char c) {
         topLevel.addClosingChar(c);
     }
 
-    public boolean checkFilePreviewShortcut(KeyCode code)
-    {
-        if (fileCompletionShortcuts != null && fileCompletionShortcuts.containsKey(code))
-        {
+    public boolean checkFilePreviewShortcut(KeyCode code) {
+        if (fileCompletionShortcuts != null && fileCompletionShortcuts.containsKey(code)) {
             fileCompletionShortcuts.get(code).run();
             return true;
         }
         return false;
     }
-    
+
     @OnThread(Tag.FXPlatform)
-    public boolean isShowingSuggestions()
-    {
+    public boolean isShowingSuggestions() {
         return suggestionDisplay != null && suggestionDisplay.isShowing() && !suggestionDisplay.isInMiddleOfHiding();
     }
 
     public abstract List<? extends PossibleLink> findLinks();
-    
-    @Override
-    public void lostFocus()
-    {
-        if (focusedProperty.get())
-        {
 
+    @Override
+    public void lostFocus() {
+        if (focusedProperty.get()) {
             // Don't show new value as old:
             recentValues.removeAll(getText());
             // Remove any old value from middle, re-add at top:
@@ -1139,87 +1016,82 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         focusedProperty.set(false);
     }
 
-    void notifyGainFocus(StructuredSlotField focus)
-    {
+    void notifyGainFocus(StructuredSlotField focus) {
         // Tell other slots they've lost focus:
         notifyLostFocusExcept(focus);
-        if (!focusedProperty.get())
-        {
+        if (!focusedProperty.get()) {
             valueOnGain = getText();
             editor.beginRecordingState(this);
         }
         focusedProperty.set(true);
     }
 
-    private void notifyLostFocusExcept(StructuredSlotField except)
-    {
+    private void notifyLostFocusExcept(StructuredSlotField except) {
         topLevel.getAllExpressions().forEach(e -> e.notifyLostFocus(except));
     }
-    
-    public void onLostFocus(FXRunnable action)
-    {
+
+    public void onLostFocus(FXRunnable action) {
         lostFocusActions.add(action);
     }
 
     //Manvi jain
-    public void setAccessibility(String text){this.getComponents().get(0).setAccessibleText(text);}
+    //write the position of the text here,
+    public void setAccessibility(String text) {
+        this.getComponents().get(0).setAccessibleText(getTopLevel().replaceOperatorInText(text));
+    }
 
-    public void setAccessibilityHelpSlots(String text){this.getComponents().get(0).setAccessibleHelp(text);}
+    //write the value of the slot here
+    public void setAccessibilityRoleDescription(String text) {
+        this.getComponents().get(0).setAccessibleRoleDescription(getTopLevel().replaceOperatorInText(text));
+    }
 
-    public void addFocusListener(Frame frame)
-    {
+    public void setAccessibilityHelpSlots(String text) {
+        this.getComponents().get(0).setAccessibleHelp(text);
+    }
+
+    public void addFocusListener(Frame frame) {
         onLostFocus(frame::checkForEmptySlot);
     }
-    
+
     // package-visible
-    ErrorUnderlineCanvas getOverlay()
-    {
+    ErrorUnderlineCanvas getOverlay() {
         return overlay;
     }
-    
+
     @Override
-    public Frame getParentFrame()
-    {
+    public Frame getParentFrame() {
         return parentFrame;
     }
 
-    public List<StructuredSlot.PlainVarReference> findPlainVarReferences(String name)
-    {
-        return topLevel.findPlainVarUse(name);        
+    public List<StructuredSlot.PlainVarReference> findPlainVarReferences(String name) {
+        return topLevel.findPlainVarUse(name);
     }
-    
-    public String getCurlyLiteralPrefix()
-    {
+
+    public String getCurlyLiteralPrefix() {
         return "";
     }
-    
+
     @Override
-    public void setView(View oldView, View newView, SharedTransition animate)
-    {
+    public void setView(View oldView, View newView, SharedTransition animate) {
         topLevel.setView(oldView, newView, animate, Optional.empty());
     }
 
-    public boolean isConstantRange()
-    {
+    public boolean isConstantRange() {
         return topLevel.checkRangeExpression() == RangeType.RANGE_CONSTANT;
     }
-    
+
     @Override
-    public Map<TopLevelMenu, MenuItems> getMenuItems(boolean contextMenu)
-    {
+    public Map<TopLevelMenu, MenuItems> getMenuItems(boolean contextMenu) {
         HashMap<TopLevelMenu, MenuItems> itemMap = new HashMap<>();
 
         // We must have at least one dummy item for the menu to be shown:
         final Menu recentMenu = new Menu(Config.getString("frame.slot.recent"));
         recentMenu.setDisable(true);
-        recentValues.addListener((ListChangeListener)c -> {
+        recentValues.addListener((ListChangeListener) c -> {
             recentMenu.getItems().clear();
-            if (recentValues.isEmpty())
-            {
+            if (recentValues.isEmpty()) {
                 recentMenu.setDisable(true);
-            }
-            else
-            {
+            } else {
                 recentMenu.setDisable(false);
                 recentValues.forEach(v -> {
                     MenuItem item = new MenuItem(v);
@@ -1244,16 +1116,12 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         setToOriginal.accept(originalItems);
         itemMap.put(TopLevelMenu.EDIT, new MenuItems(originalItems) {
             @OnThread(Tag.FXPlatform)
-            public void onShowing()
-            {
+            public void onShowing() {
                 Stream<InfixStructured<?, ?>> allExpressions = getTopLevel().getAllExpressions();
                 InfixStructured exp = allExpressions.filter(i -> i.isFocused()).findFirst().orElse(null);
-                if (exp == null)
-                {
+                if (exp == null) {
                     setToOriginal.accept(items);
-                }
-                else
-                {
+                } else {
                     MenuItem cut = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.cut"), exp::cut, new KeyCodeCombination(KeyCode.X, KeyCodeCombination.SHORTCUT_DOWN));
                     MenuItem copy = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.copy"), exp::copy, new KeyCodeCombination(KeyCode.C, KeyCodeCombination.SHORTCUT_DOWN));
                     MenuItem paste = JavaFXUtil.makeMenuItem(Config.getString("frame.slot.paste"), exp::paste, Config.isMacOS() ? null : new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN));
@@ -1266,34 +1134,30 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
                     setToOriginal.accept(items);
                     items.addAll(
-                        MenuItemOrder.CUT.item(cut),
-                        MenuItemOrder.COPY.item(copy),
-                        MenuItemOrder.PASTE.item(paste)
+                            MenuItemOrder.CUT.item(cut),
+                            MenuItemOrder.COPY.item(copy),
+                            MenuItemOrder.PASTE.item(paste)
                     );
                 }
-                if (hoverErrorCurrentlyShown != null ){
+                if (hoverErrorCurrentlyShown != null) {
                     errorAndFixDisplay.hide();
                 }
             }
         });
 
-        if (contextMenu)
-        {
+        if (contextMenu) {
             final SortedMenuItem scanningItem = MenuItemOrder.GOTO_DEFINITION.item(new MenuItem("Scanning..."));
             scanningItem.getItem().setDisable(true);
 
-            itemMap.put(TopLevelMenu.VIEW, new MenuItems(FXCollections.observableArrayList())
-            {
+            itemMap.put(TopLevelMenu.VIEW, new MenuItems(FXCollections.observableArrayList()) {
 
-                private void removeScanning()
-                {
+                private void removeScanning() {
                     if (items.size() == 1 && items.get(0) == scanningItem)
                         items.clear();
                 }
 
                 @OnThread(Tag.FXPlatform)
-                public void onShowing()
-                {
+                public void onShowing() {
                     items.setAll(scanningItem);
 
                     CaretPos caretPos = getTopLevel().getCurrentPos();
@@ -1312,20 +1176,18 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                     JavaFXUtil.runAfter(Duration.millis(1000), this::removeScanning);
                 }
 
-                public void onHidden()
-                {
+                public void onHidden() {
                     items.clear();
                 }
             });
         }
-        
+
         return itemMap;
     }
 
     //package-visible
     @OnThread(Tag.FXPlatform)
-    void withLinksAtPos(CaretPos caretPos, FXPlatformConsumer<Optional<LinkedIdentifier>> withLink)
-    {
+    void withLinksAtPos(CaretPos caretPos, FXPlatformConsumer<Optional<LinkedIdentifier>> withLink) {
         List<? extends PossibleLink> possibleLinks = findLinks();
 
         possibleLinks.removeIf(possLink -> {
@@ -1340,13 +1202,10 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public Response suggestionListKeyPressed(SuggestionList suggestionList, KeyEvent event, int highlighted)
-    {
-        switch (event.getCode())
-        {
+    public Response suggestionListKeyPressed(SuggestionList suggestionList, KeyEvent event, int highlighted) {
+        switch (event.getCode()) {
             case ENTER:
-                if (highlighted != -1)
-                {
+                if (highlighted != -1) {
                     modificationPlatform(token -> executeSuggestion(highlighted, token, suggestionList.getRecordingId()));
                     return Response.DISMISS;
                 }
@@ -1354,13 +1213,10 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                 return Response.DISMISS;
             case BACK_SPACE:
                 CaretPos updatedLocation = modificationReturnPlatform(token -> topLevel.deletePreviousAtPos(suggestionLocation, token));
-                if (updatedLocation == null || !updatedLocation.init().equals(suggestionLocation.init()))
-                {
+                if (updatedLocation == null || !updatedLocation.init().equals(suggestionLocation.init())) {
                     JavaFXUtil.runAfterCurrent(() -> topLevel.positionCaret(updatedLocation));
                     return Response.DISMISS;
-                }
-                else
-                {
+                } else {
                     suggestionLocation = updatedLocation;
                     overlay.redraw();
                     updateSuggestions(false);
@@ -1369,8 +1225,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             case TAB:
                 if (event.isShiftDown())
                     row.focusLeft(StructuredSlot.this);
-                else
-                {
+                else {
                     row.focusRight(StructuredSlot.this);
                     completeIfPossible(highlighted, suggestionList);
                 }
@@ -1380,38 +1235,28 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @OnThread(Tag.FXPlatform)
-    private void completeIfPossible(int highlighted, SuggestionList suggestionList)
-    {
+    private void completeIfPossible(int highlighted, SuggestionList suggestionList) {
         // Pick a value if one was available to complete:
-        if (highlighted != -1)
-        {
+        if (highlighted != -1) {
             modificationPlatform(token -> executeSuggestion(highlighted, token, suggestionList.getRecordingId()));
-        }
-        else if (suggestionDisplay.eligibleCount() == 1  && getText().length() > 0)
-        {
+        } else if (suggestionDisplay.eligibleCount() == 1 && getText().length() > 0) {
             modificationPlatform(token -> executeSuggestion(suggestionDisplay.getFirstEligible(), token, suggestionList.getRecordingId()));
         }
     }
 
     @OnThread(Tag.FXPlatform)
     @Override
-    public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
-    {
+    public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted) {
         return modificationReturnPlatform(token -> {
             CaretPos updatedLocation = null;
-            if (!"\b".equals(event.getCharacter()))
-            {
+            if (!"\b".equals(event.getCharacter())) {
                 updatedLocation = topLevel.insertAtPos(suggestionLocation, event.getCharacter(), token);
-            }
-            else
+            } else
                 return Response.CONTINUE;
 
-            if (!updatedLocation.init().equals(suggestionLocation.init()))
-            {
+            if (!updatedLocation.init().equals(suggestionLocation.init())) {
                 return Response.DISMISS;
-            }
-            else
-            {
+            } else {
                 suggestionLocation = updatedLocation;
                 overlay.redraw();
                 updateSuggestions(true);
@@ -1422,36 +1267,31 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void suggestionListChoiceClicked(SuggestionList suggestionList, int highlighted)
-    {
+    public void suggestionListChoiceClicked(SuggestionList suggestionList, int highlighted) {
         modificationPlatform(token -> executeSuggestion(highlighted, token, suggestionList.getRecordingId()));
     }
-    
+
     @Override
     public void hidden() {
         fakeCaretShowing.set(false);
     }
 
     @OnThread(Tag.FXPlatform)
-    public boolean suggestingFor(CaretPos fieldPos)
-    {
+    public boolean suggestingFor(CaretPos fieldPos) {
         return fieldPos != null && suggestionLocation != null && fieldPos.equals(suggestionLocation.init())
                 && suggestionDisplay != null && suggestionDisplay.isShowing();
     }
 
     @OnThread(Tag.FXPlatform)
-    public boolean deleteAtEnd()
-    {
-        if (row != null)
-        {
+    public boolean deleteAtEnd() {
+        if (row != null) {
             return row.deleteAtEnd(this);
         }
         return false;
     }
 
     @OnThread(Tag.FXPlatform)
-    public void setSplitText(String beforeCursor, String afterCursor)
-    {
+    public void setSplitText(String beforeCursor, String afterCursor) {
         modificationPlatform(token -> {
             topLevel.blank(token);
             CaretPos p = topLevel.insertImpl(topLevel.getFirstField(), 0, beforeCursor, false, token);
@@ -1460,78 +1300,69 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         });
     }
 
-    public boolean isCurrentlyCompleting()
-    {
+    public boolean isCurrentlyCompleting() {
         return currentlyCompleting;
     }
 
     //package-visible:
-    List<ExtensionDescription> getExtensions()
-    {
+    List<ExtensionDescription> getExtensions() {
         return row.getExtensions();
     }
 
     //package-visible:
     @OnThread(Tag.FXPlatform)
-    void notifyModifiedPress(KeyCode c)
-    {
+    void notifyModifiedPress(KeyCode c) {
         row.notifyModifiedPress(c);
     }
 
     //package-visible:
-    void focusNext()
-    {
+    void focusNext() {
         row.focusRight(this);
     }
 
     public abstract boolean canCollapse();
 
-    public static class SplitInfo
-    {
+    public static class SplitInfo {
         public final String lhs;
         public final String rhs;
-        
-        public SplitInfo(String lhs, String rhs) { this.lhs = lhs; this.rhs = rhs; }
+
+        public SplitInfo(String lhs, String rhs) {
+            this.lhs = lhs;
+            this.rhs = rhs;
+        }
     }
 
-    public SplitInfo trySplitOnEquals()
-    {
+    public SplitInfo trySplitOnEquals() {
         return topLevel.trySplitOn("=");
     }
 
-    public final List<FrameCatalogue.Hint> getHints()
-    {
+    public final List<FrameCatalogue.Hint> getHints() {
         return hints;
     }
 
     @Override
-    public boolean isAlmostBlank()
-    {
+    public boolean isAlmostBlank() {
         return topLevel.isAlmostBlank();
     }
 
     @Override
-    public boolean isEditable()
-    {
+    public boolean isEditable() {
         return editable;
     }
 
     @Override
-    public void setEditable(boolean editable)
-    {
+    public void setEditable(boolean editable) {
         this.editable = editable;
         topLevel.setEditable(editable);
     }
 
     @Override
-    public ObservableBooleanValue effectivelyFocusedProperty()
-    {
+    public ObservableBooleanValue effectivelyFocusedProperty() {
         return effectivelyFocusedProperty;
     }
 
     @Override
-    public int calculateEffort()
-    {
+    public int calculateEffort() {
         return topLevel.calculateEffort();
     }
 
@@ -1540,35 +1371,32 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
      * the graphical node containing the variable, and a callback which will rename
      * the use of that variable.
      */
-    public static class PlainVarReference
-    {
+    public static class PlainVarReference {
         public final FXConsumer<String> rename;
         public final Region refNode; // The Region of the textfield referencing the var
-        PlainVarReference(FXConsumer<String> rename, Region refNode)
-        {
+
+        PlainVarReference(FXConsumer<String> rename, Region refNode) {
             this.rename = rename;
             this.refNode = refNode;
         }
     }
-    
+
     protected abstract INFIX newInfix(InteractionManager editor, ModificationToken token);
 
     /**
      * Runs a block of code (passed as parameter) which modifies the slot.
-     * 
+     * <p>
      * Calls to this function can be safely nested, although it should be avoided
      * where possible.  You should make sure that all related modifications are encompassed
      * within a single modificationReturn call, so that the outside world only
-     * sees a single complete modification. 
-     * 
+     * sees a single complete modification.
+     *
      * @param modificationAction A block of code to run which modifies the slot.
-     * @param <T> The return type of the inner function.
+     * @param <T>                The return type of the inner function.
      * @return The return value of the inner function.
      */
     //package-visible
-    @OnThread(Tag.FX)
-    <T> T modificationReturn(FXFunction<ModificationToken, T> modificationAction)
-    {
+    @OnThread(Tag.FX) <T> T modificationReturn(FXFunction<ModificationToken, T> modificationAction) {
         ModificationToken token = new ModificationToken();
         modificationTokens.add(token);
         T ret = modificationAction.apply(token);
@@ -1576,54 +1404,51 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             throw new IllegalStateException("Modifications did not nest"); // Should not be possible
         modificationTokens.remove(token);
         //We only update when outermost modification finishes, i.e. the modification stack is empty:
-        if (modificationTokens.isEmpty())
-        {
+        if (modificationTokens.isEmpty()) {
             // All modifications finished; update and run after actions:
             textMirror.set(topLevel.calculateText());
             // Actions specific to this modification:
             token.runAfters();
             // And our persistent actions:
             afterModify.forEach(FXRunnable::run);
-        }
-        else
-        {
+        } else {
             // Add after actions to top of stack token, rather than running them now:
             modificationTokens.get(0).afters.addAll(token.afters);
         }
         return ret;
     }
 
-    @OnThread(Tag.FXPlatform)
-    <T> T modificationReturnPlatform(FXPlatformFunction<ModificationToken, T> modificationAction)
-    {
+    @OnThread(Tag.FXPlatform) <T> T modificationReturnPlatform(FXPlatformFunction<ModificationToken, T> modificationAction) {
         // Defeat thread-checker:
-        return modificationReturn((FXFunction<ModificationToken, T>)(modificationAction::apply));
+        return modificationReturn((FXFunction<ModificationToken, T>) (modificationAction::apply));
     }
-    
+
     //package-visible
     // See modificationReturn
-    void modification(FXConsumer<ModificationToken> modificationAction)
-    {
-        modificationReturn(t -> {modificationAction.accept(t);return 0;});
+    void modification(FXConsumer<ModificationToken> modificationAction) {
+        modificationReturn(t -> {
+            modificationAction.accept(t);
+            return 0;
+        });
     }
 
     //package-visible
     @OnThread(Tag.FXPlatform)
-    void modificationPlatform(FXPlatformConsumer<ModificationToken> modificationAction)
-    {
-        modificationReturnPlatform(t -> {modificationAction.accept(t);return 0;});
+    void modificationPlatform(FXPlatformConsumer<ModificationToken> modificationAction) {
+        modificationReturnPlatform(t -> {
+            modificationAction.accept(t);
+            return 0;
+        });
     }
-    
+
     //package-visible
     // Only used for testing:
-    static <T> T testingModification(FXFunction<ModificationToken, T> modificationAction)
-    {
+    static <T> T testingModification(FXFunction<ModificationToken, T> modificationAction) {
         return modificationAction.apply(new ModificationToken());
     }
 
     //package-visible
-    void afterCurrentModification(FXRunnable action)
-    {
+    void afterCurrentModification(FXRunnable action) {
         if (modificationTokens.isEmpty())
             action.run();
         else
@@ -1635,35 +1460,32 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
      * occur inside the modification/modificationReturn functions above.
      * To this end, we require a ModificationToken parameter to any actions
      * which modify a structured slot (StructuredSlotField.setText, fields.add, etc).
-     * 
+     * <p>
      * To get an instance of this class, you must use the modification/modificationReturn
      * function rather than constructing one directly.  This ensures the post-modification
      * actions are run correctly after a complete change.
      */
-    public static class ModificationToken
-    {
+    public static class ModificationToken {
         // Actions to run when the modification completes:
         private List<FXRunnable> afters = new ArrayList<>();
-        
-        private ModificationToken() { }
+
+        private ModificationToken() {
+        }
 
         // Doesn't do anything, but you'll get an exception if you call it
         // on a null token. 
-        public void check()
-        {
+        public void check() {
 
         }
 
         // Specify an action to run once the outermost current ongoing
         // modification is complete.
-        public void after(FXRunnable action)
-        {
+        public void after(FXRunnable action) {
             afters.add(action);
         }
-        
+
         // Run the after actions.
-        private void runAfters()
-        {
+        private void runAfters() {
             afters.forEach(FXRunnable::run);
         }
     }

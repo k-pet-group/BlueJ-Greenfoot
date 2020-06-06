@@ -116,8 +116,10 @@ public class WhileFrame extends SingleCanvasFrame
         */
         paramCondition.onTextPropertyChange(updateSidebarCurried("while "));
 
+
         //Manvi jain
-        paramCondition.setAccessibility("Condition in while loop " + paramCondition.getText());
+        paramCondition.setAccessibility(" condition in while loop");
+        paramCondition.setAccessibilityRoleDescription(paramCondition.getJavaCode());
     }
     
     public WhileFrame(InteractionManager editor, ExpressionSlotFragment condition, boolean enabled)
@@ -127,7 +129,8 @@ public class WhileFrame extends SingleCanvasFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        paramCondition.setAccessibility("Condition in while loop " + paramCondition.getText());
+        paramCondition.setAccessibility(" condition in while loop");
+        paramCondition.setAccessibilityRoleDescription(paramCondition.getJavaCode());
     }
     
     public WhileFrame(InteractionManager editor, List<Frame> contents)
@@ -136,7 +139,8 @@ public class WhileFrame extends SingleCanvasFrame
         getCanvas().getFirstCursor().insertFramesAfter(contents);
 
         //Manvi jain
-        paramCondition.setAccessibility("Condition in while loop " + paramCondition.getText());
+        paramCondition.setAccessibility(" condition in while loop");
+        paramCondition.setAccessibilityRoleDescription(paramCondition.getJavaCode());
     }
     
     /**
@@ -260,17 +264,17 @@ public class WhileFrame extends SingleCanvasFrame
             canvas.previewCurly(newView == View.JAVA_PREVIEW, header.getLeftFirstItem() + tweakCurlyX(), tweakOpeningCurlyY(), animateProgress);
     }
 
+    //Manvi jain
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            System.out.println("Condition in while loop " + getParentCanvas().getParent().getHelpContext());
             paramCondition.setAccessibilityHelpSlots("Condition in while loop " + getParentCanvas().getParent().getHelpContext());
         }
     }
 
-    //Manvi jain
+
     @Override
     public String getHelpContext()
     {
