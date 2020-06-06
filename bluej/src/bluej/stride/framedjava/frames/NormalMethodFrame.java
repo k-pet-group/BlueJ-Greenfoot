@@ -157,10 +157,10 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
         //Manvi jain
         returnType.setAccessibilityRoleDescription(returnType.getJavaCode());
-        returnType.setAccessibility(", return type in signature of method " + getName());
+        returnType.setAccessibility(", return type in method signature");
 
         methodName.setAccessibilityRoleDescription(methodName.getText());
-        methodName.setAccessibility(", method name in signature of " +getName());
+        methodName.setAccessibility(", method name in method signature");
     }
     
     public NormalMethodFrame(InteractionManager editor, AccessPermissionFragment access, boolean staticModifier,
@@ -178,10 +178,10 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
         //Manvi jain
         this.returnType.setAccessibilityRoleDescription(this.returnType.getJavaCode());
-        this.returnType.setAccessibility(", return type in signature of method " + getName());
+        this.returnType.setAccessibility(", return type in method signature");
 
-        methodName.setAccessibilityRoleDescription(this.methodName.getText());
-        methodName.setAccessibility(", method name in signature of " +getName());
+        methodName.setAccessibilityRoleDescription(methodName.getText());
+        methodName.setAccessibility(", method name in method signature");
     }
 
     @Override

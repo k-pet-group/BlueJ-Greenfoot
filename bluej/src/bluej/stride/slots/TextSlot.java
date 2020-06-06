@@ -447,7 +447,6 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             this.textProperty().addListener((observable, oldValue, newValue) -> {
                 slotElement = null;
 
-                System.out.println("text 3: " +getText());
 
                 //Unless still focused (or notionally focused because code completion is showing), go transparent
                 if (!isFocused() && suggestionDisplayProperty.get() == null)
@@ -468,7 +467,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 if (!allowed)
                 {
                     //Manvi jain
-                    System.out.println("Value 2: " + getText());
+                    //System.out.println("Value 2: " + getText());
                     setText(oldValue);
                 } else
                 {
@@ -476,7 +475,9 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                     // It doesn't matter if we run this while loading because
                     // we won't be showing code completion:
                     JavaFXUtil.runPlatformLater(() -> {
-                        System.out.println("text 1: " +getText());
+
+                        //Manvi jain
+                        setAccessibilityRoleDescription(getText());
                         if (suggestionDisplayProperty.get() != null)
                         {
                             String beforeNewPrefix = getText().substring(0, getStartOfCurWord());
