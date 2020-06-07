@@ -26,20 +26,15 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.List;
-
-import javafx.beans.property.SimpleIntegerProperty;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
-import bluej.stride.framedjava.ast.HighlightedBreakpoint;
-import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.ThrowElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
-import bluej.stride.operations.FrameOperation;
+import javafx.beans.property.SimpleIntegerProperty;
 
 /**
  * A Throw statement
@@ -65,7 +60,6 @@ public class ThrowFrame extends SingleLineFrame
         setHeaderRow(param1, previewSemi);
 
         //Manvi jain
-        param1.setAccessibilityRoleDescription(param1.getText());
         param1.setAccessibility(" exception name in throw ");
     }
     
@@ -75,7 +69,6 @@ public class ThrowFrame extends SingleLineFrame
         param1.setText(val);
         frameEnabledProperty.set(enabled);
         //Manvi jain
-        param1.setAccessibilityRoleDescription(param1.getText());
         param1.setAccessibility(" exception name in throw ");
     }
 
@@ -85,7 +78,6 @@ public class ThrowFrame extends SingleLineFrame
         element = new ThrowElement(this, param1.getSlotElement(), frameEnabledProperty.get());
         codeVersion.set(codeVersion.get() + 1);
         //Manvi jain
-        param1.setAccessibilityRoleDescription(param1.getText());
         param1.setAccessibility(" exception name in throw ");
     }
     

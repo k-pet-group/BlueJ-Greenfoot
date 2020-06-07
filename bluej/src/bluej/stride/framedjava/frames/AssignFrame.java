@@ -77,9 +77,7 @@ public class AssignFrame extends SingleLineFrame
         slotLHS.addClosingChar(' ');
 
         //Manvi jain
-        slotLHS.setAccessibilityRoleDescription(slotLHS.getJavaCode());
         slotLHS.setAccessibility(" existing variable name");
-        slotRHS.setAccessibilityRoleDescription(slotRHS.getJavaCode());
         slotRHS.setAccessibility(" new value of variable");
     }
     
@@ -95,9 +93,7 @@ public class AssignFrame extends SingleLineFrame
         }
 
         //Manvi jain
-        slotLHS.setAccessibilityRoleDescription(slotLHS.getJavaCode());
         slotLHS.setAccessibility(" existing variable name");
-        slotRHS.setAccessibilityRoleDescription(slotRHS.getJavaCode());
         slotRHS.setAccessibility(" new value of variable");
     }
     
@@ -110,9 +106,7 @@ public class AssignFrame extends SingleLineFrame
 
 
         //Manvi jain
-        slotLHS.setAccessibilityRoleDescription(slotLHS.getJavaCode());
         slotLHS.setAccessibility(" existing variable name");
-        slotRHS.setAccessibilityRoleDescription(slotRHS.getJavaCode());
         slotRHS.setAccessibility(" new value of variable");
     }
 

@@ -156,11 +156,21 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         JavaFXUtil.addChangeListener(finalModifier, b -> editor.modifiedFrame(this, false));
 
         //Manvi jain
-        returnType.setAccessibilityRoleDescription(returnType.getJavaCode());
-        returnType.setAccessibility(", return type in method signature");
+        returnType.setAccessibility("return type in method signature");
 
-        methodName.setAccessibilityRoleDescription(methodName.getText());
-        methodName.setAccessibility(", method name in method signature");
+        methodName.setAccessibility("method name in method signature");
+
+        for(int i=0; i<paramsPane.getSlots().size(); i++){
+
+            if(paramsPane.getSlots().size() !=  0){
+            //System.out.println(paramsPane.getSlots().get(i).getComponents());
+            int numberOfParams = paramsPane.getSlots().get(i).getComponents().size();
+
+            for(int j=0; j< numberOfParams; j++){
+                paramsPane.getSlots().get(i).getComponents().get(j).setAccessibleText("parameter name / type");
+            }
+        }
+        }
     }
     
     public NormalMethodFrame(InteractionManager editor, AccessPermissionFragment access, boolean staticModifier,
@@ -177,10 +187,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        this.returnType.setAccessibilityRoleDescription(this.returnType.getJavaCode());
         this.returnType.setAccessibility(", return type in method signature");
-
-        methodName.setAccessibilityRoleDescription(methodName.getText());
         methodName.setAccessibility(", method name in method signature");
     }
 

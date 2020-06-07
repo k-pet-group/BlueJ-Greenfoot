@@ -26,9 +26,6 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import bluej.Config;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
@@ -39,25 +36,19 @@ import bluej.stride.framedjava.elements.SwitchElement;
 import bluej.stride.framedjava.frames.BreakFrame.BreakEncloser;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.FrameTypeCheck;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.MultiCanvasFrame;
 import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Container-block representing a switch-case statement.
@@ -464,7 +455,6 @@ public class SwitchFrame extends MultiCanvasFrame
     {
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            System.out.println("Condition in switch statement " + getParentCanvas().getParent().getHelpContext());
             expression.setAccessibilityHelpSlots("Condition in switch statement " + getParentCanvas().getParent().getHelpContext());
         }
     }

@@ -21,30 +21,36 @@
  */
 package bluej.stride.framedjava.slots;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import bluej.Config;
 import bluej.collect.StrideEditReason;
+import bluej.editor.fixes.SuggestionList;
+import bluej.editor.fixes.SuggestionList.SuggestionDetails;
+import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithCustomDoc;
+import bluej.editor.fixes.SuggestionList.SuggestionListListener;
+import bluej.editor.stride.CodeOverlayPane;
 import bluej.editor.stride.FrameCatalogue;
-
+import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.ast.StructuredSlotFragment;
 import bluej.stride.framedjava.ast.links.PossibleLink;
+import bluej.stride.framedjava.errors.CodeError;
+import bluej.stride.framedjava.errors.ErrorAndFixDisplay;
+import bluej.stride.framedjava.errors.ErrorAndFixDisplay.ErrorFixListener;
+import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.slots.InfixStructured.RangeType;
+import bluej.stride.framedjava.slots.TextOverlayPosition.Line;
 import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.Frame;
+import bluej.stride.generic.Frame.View;
+import bluej.stride.generic.FrameContentRow;
+import bluej.stride.generic.InteractionManager;
+import bluej.stride.generic.InteractionManager.FileCompletion;
+import bluej.stride.slots.*;
+import bluej.utility.Utility;
+import bluej.utility.javafx.*;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.StringExpression;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -54,51 +60,19 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import bluej.Config;
-import bluej.editor.stride.CodeOverlayPane;
-import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
-import bluej.stride.framedjava.errors.CodeError;
-import bluej.stride.framedjava.errors.ErrorAndFixDisplay;
-import bluej.stride.framedjava.errors.ErrorAndFixDisplay.ErrorFixListener;
-import bluej.stride.framedjava.frames.CodeFrame;
-import bluej.stride.framedjava.slots.TextOverlayPosition.Line;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.Frame.View;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.InteractionManager.FileCompletion;
-import bluej.stride.slots.EditableSlot;
-import bluej.stride.slots.Focus;
-import bluej.stride.slots.FocusParent;
-import bluej.stride.slots.HeaderItem;
-import bluej.stride.slots.LinkedIdentifier;
-import bluej.stride.slots.SlotLabel;
-import bluej.editor.fixes.SuggestionList;
-import bluej.editor.fixes.SuggestionList.SuggestionDetails;
-import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithCustomDoc;
-import bluej.editor.fixes.SuggestionList.SuggestionListListener;
-import bluej.utility.Utility;
-import bluej.utility.javafx.ErrorUnderlineCanvas;
-import bluej.utility.javafx.FXBiConsumer;
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.FXFunction;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformFunction;
-import bluej.utility.javafx.FXRunnable;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The StructuredSlot class is used where a single expression is wanted as a slot.  For example,
@@ -1034,17 +1008,18 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         lostFocusActions.add(action);
     }
 
-    //Manvi jain
-    //write the position of the text here,
+    /**
+     * Sets the immediate parent of the slot or description of slot
+     * @param text
+     */
     public void setAccessibility(String text) {
-        this.getComponents().get(0).setAccessibleText(getTopLevel().replaceOperatorInText(text));
+        this.getComponents().get(0).setAccessibleText(text);
     }
 
-    //write the value of the slot here
-    public void setAccessibilityRoleDescription(String text) {
-        this.getComponents().get(0).setAccessibleRoleDescription(getTopLevel().replaceOperatorInText(text));
-    }
-
+    /**
+     * Sets the relative location of the slot for screen reader
+     * @param text
+     */
     public void setAccessibilityHelpSlots(String text) {
         this.getComponents().get(0).setAccessibleHelp(text);
     }

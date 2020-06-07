@@ -73,7 +73,6 @@ public class CallFrame extends SingleLineFrame
         content.addFocusListener(this);
 
         //Manvi jain
-        content.setAccessibilityRoleDescription(content.getText());
         content.setAccessibility(" method name in call");
     }
     
@@ -85,7 +84,6 @@ public class CallFrame extends SingleLineFrame
         this.content.setSplitText(beforeCursor, afterCursor);
 
         //Manvi jain
-        content.setAccessibilityRoleDescription(content.getText());
         content.setAccessibility(" method name in call");
     }
     
@@ -96,7 +94,6 @@ public class CallFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        content.setAccessibilityRoleDescription(content.getText());
         content.setAccessibility(" method name in call");
     }
 
@@ -199,7 +196,6 @@ public class CallFrame extends SingleLineFrame
     {
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            System.out.println("method call name " + getParentCanvas().getParent().getHelpContext());
             content.setAccessibilityHelpSlots("method call name " + getParentCanvas().getParent().getHelpContext());
         }
     }

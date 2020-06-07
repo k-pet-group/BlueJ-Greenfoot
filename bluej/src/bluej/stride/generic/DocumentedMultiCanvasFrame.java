@@ -21,9 +21,10 @@
  */
 package bluej.stride.generic;
 
-import java.util.List;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
+
+import java.util.List;
 
 public abstract class DocumentedMultiCanvasFrame extends MultiCanvasFrame
 {
@@ -33,6 +34,7 @@ public abstract class DocumentedMultiCanvasFrame extends MultiCanvasFrame
     {
         super(editor, caption, stylePrefix);
         documentationPane = new DocumentationTextArea(editor, this, this, stylePrefix);
+        documentationPane.setAccessibleText("documentation area");
     }
 
     public String getDocumentation()

@@ -179,12 +179,12 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         addCanvas(constructorsLabelRow, constructorsCanvas, 1);
 
         //Manvi jain
-        System.out.println(" parent class name");
-       // extendsSlot.setAccessibility(" parent class name" );
+        className.getSlot().setAccessibility("class name");
+        extendsSlot.setAccessibility(" parent class name" );
         for(int i=0; i<implementsList.size(); i++)
         {
             if(implementsList.get(i).getSlot() != null)
-                implementsList.get(i).getSlot().setAccessibility(" interface name");
+                implementsList.get(i).getSlot().setAccessibility("interface name");
         }
     }
 

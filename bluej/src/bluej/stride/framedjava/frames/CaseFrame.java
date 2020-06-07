@@ -26,10 +26,6 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.framedjava.canvases.JavaCanvas;
@@ -37,21 +33,18 @@ import bluej.stride.framedjava.elements.CaseElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SingleCanvasFrame;
-import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Utility;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Container-block representing a case condition.
@@ -114,7 +107,6 @@ public class CaseFrame extends SingleCanvasFrame
         paramCondition.onTextPropertyChange(updateSidebarCurried("case "));
 
         //Manvi jain
-        paramCondition.setAccessibilityRoleDescription(paramCondition.getText());
         paramCondition.setAccessibility(" condition in case statement");
     }
     
@@ -125,7 +117,6 @@ public class CaseFrame extends SingleCanvasFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        paramCondition.setAccessibilityRoleDescription(paramCondition.getText());
         paramCondition.setAccessibility("condition in case statement");
     }
     

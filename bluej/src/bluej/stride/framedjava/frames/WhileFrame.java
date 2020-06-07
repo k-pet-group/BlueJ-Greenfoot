@@ -26,10 +26,6 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
@@ -48,6 +44,10 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Container-block representing a while loop.
@@ -119,7 +119,6 @@ public class WhileFrame extends SingleCanvasFrame
 
         //Manvi jain
         paramCondition.setAccessibility(" condition in while loop");
-        paramCondition.setAccessibilityRoleDescription(paramCondition.getJavaCode());
     }
     
     public WhileFrame(InteractionManager editor, ExpressionSlotFragment condition, boolean enabled)
@@ -130,7 +129,6 @@ public class WhileFrame extends SingleCanvasFrame
 
         //Manvi jain
         paramCondition.setAccessibility(" condition in while loop");
-        paramCondition.setAccessibilityRoleDescription(paramCondition.getJavaCode());
     }
     
     public WhileFrame(InteractionManager editor, List<Frame> contents)
@@ -140,7 +138,6 @@ public class WhileFrame extends SingleCanvasFrame
 
         //Manvi jain
         paramCondition.setAccessibility(" condition in while loop");
-        paramCondition.setAccessibilityRoleDescription(paramCondition.getJavaCode());
     }
     
     /**
@@ -268,6 +265,7 @@ public class WhileFrame extends SingleCanvasFrame
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        //Set the accessibility help of the slot in the frame
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
             paramCondition.setAccessibilityHelpSlots("Condition in while loop " + getParentCanvas().getParent().getHelpContext());
@@ -275,6 +273,10 @@ public class WhileFrame extends SingleCanvasFrame
     }
 
 
+    /**
+     * returns the position of the frame as a String
+     * @return
+     */
     @Override
     public String getHelpContext()
     {

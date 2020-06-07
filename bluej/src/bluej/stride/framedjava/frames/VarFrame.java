@@ -22,56 +22,34 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Stream;
-
+import bluej.stride.framedjava.ast.*;
+import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.VarElement;
+import bluej.stride.framedjava.slots.ExpressionSlot;
+import bluej.stride.framedjava.slots.FilledExpressionSlot;
 import bluej.stride.framedjava.slots.TypeSlot;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.FrameCursor;
+import bluej.stride.operations.FrameOperation;
+import bluej.stride.operations.ToggleBooleanProperty;
+import bluej.stride.slots.*;
+import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SharedTransition;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.Duration;
-
-import bluej.stride.framedjava.ast.AccessPermission;
-import bluej.stride.framedjava.ast.AccessPermissionFragment;
-import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
-import bluej.stride.framedjava.ast.NameDefSlotFragment;
-import bluej.stride.framedjava.ast.TypeSlotFragment;
-import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.framedjava.elements.VarElement;
-import bluej.stride.framedjava.slots.ExpressionSlot;
-import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.CanvasParent;
-import bluej.stride.generic.ExtensionDescription;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SingleLineFrame;
-import bluej.stride.operations.FrameOperation;
-import bluej.stride.operations.ToggleBooleanProperty;
-import bluej.stride.slots.AccessPermissionSlot;
-import bluej.stride.slots.EditableSlot;
-import bluej.stride.slots.ChoiceSlot;
-import bluej.stride.slots.Focus;
-import bluej.stride.slots.FocusParent;
-import bluej.stride.slots.HeaderItem;
-import bluej.stride.slots.SlotLabel;
-import bluej.stride.slots.SlotTraversalChars;
-import bluej.stride.slots.SlotValueListener;
-import bluej.stride.slots.VariableNameDefTextSlot;
-
-import bluej.utility.javafx.FXRunnable;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * A variable/object declaration block (with optional init)
@@ -217,11 +195,8 @@ public class VarFrame extends SingleLineFrame
 
         //Manvi jain
         slotType.setAccessibility(", variable type");
-        slotType.setAccessibilityRoleDescription(slotType.getJavaCode());
         slotName.setAccessibility(", variable name");
-        slotName.setAccessibilityRoleDescription(slotName.getText());
         slotValue.setAccessibility(", variable value");
-        slotValue.setAccessibilityRoleDescription(slotValue.getJavaCode());
         }
     
     // If varValue is null, that means the slot is not shown
@@ -243,11 +218,8 @@ public class VarFrame extends SingleLineFrame
 
         //Manvi jain
         slotType.setAccessibility(", variable type");
-        slotType.setAccessibilityRoleDescription(slotType.getJavaCode());
         slotName.setAccessibility(", variable name");
-        slotName.setAccessibilityRoleDescription(slotName.getText());
         slotValue.setAccessibility(", variable value");
-        slotValue.setAccessibilityRoleDescription(slotValue.getJavaCode());
     }
 
     @Override

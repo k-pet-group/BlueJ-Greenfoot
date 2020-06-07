@@ -21,17 +21,6 @@
  */
 package bluej.stride.framedjava.frames;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.FrameContentItem;
-import bluej.stride.generic.FrameCursor;
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.JavaFXUtil;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
@@ -41,22 +30,26 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.ForeachElement;
 import bluej.stride.framedjava.frames.BreakFrame.BreakEncloser;
 import bluej.stride.framedjava.slots.EachExpressionSlot;
-import bluej.stride.generic.ExtensionDescription;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SingleCanvasFrame;
+import bluej.stride.framedjava.slots.TypeSlot;
+import bluej.stride.generic.*;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.operations.FrameOperation;
+import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.VariableNameDefTextSlot;
-import bluej.stride.operations.PullUpContentsOperation;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ForeachFrame extends SingleCanvasFrame
   implements CodeFrame<ForeachElement>, DebuggableParentFrame
@@ -93,11 +86,9 @@ public class ForeachFrame extends SingleCanvasFrame
 
         //Manvi jain
         type.setAccessibility(" variable type in condition  in for each loop");
-        type.setAccessibilityRoleDescription(type.getJavaCode());
         var.setAccessibility(" variable name in condition in for each loop");
-        var.setAccessibilityRoleDescription(var.getText());
+        //var.setAccessibilityRoleDescription(var.getText());
         collection.setAccessibility("collection name in condition in for each loop");
-        collection.setAccessibilityRoleDescription(collection.getJavaCode());
     }
     
     public ForeachFrame(InteractionManager editor, TypeSlotFragment type, NameDefSlotFragment var, ExpressionSlotFragment collection, boolean enabled) {
@@ -109,11 +100,9 @@ public class ForeachFrame extends SingleCanvasFrame
 
         //Manvi jain
         this.type.setAccessibility(" variable type in condition  in for each loop");
-        this.type.setAccessibilityRoleDescription(this.type.getJavaCode());
         this.var.setAccessibility(" variable name in condition in for each loop");
-        this.var.setAccessibilityRoleDescription(this.var.getText());
+        //this.var.setAccessibilityRoleDescription(this.var.getText());
         this.collection.setAccessibility("collection name in condition in for each loop");
-        this.collection.setAccessibilityRoleDescription(this.collection.getJavaCode());
     }
     
     public ForeachFrame(InteractionManager editor, List<Frame> contents)
@@ -123,11 +112,9 @@ public class ForeachFrame extends SingleCanvasFrame
 
         //Manvi jain
         type.setAccessibility(" variable type in condition  in for each loop");
-        type.setAccessibilityRoleDescription(type.getJavaCode());
         var.setAccessibility(" variable name in condition in for each loop");
-        var.setAccessibilityRoleDescription(var.getText());
+        //var.setAccessibilityRoleDescription(var.getText());
         collection.setAccessibility("collection name in condition in for each loop");
-        collection.setAccessibilityRoleDescription(collection.getJavaCode());
     }
 
     @Override
