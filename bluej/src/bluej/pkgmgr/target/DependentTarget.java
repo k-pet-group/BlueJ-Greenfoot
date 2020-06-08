@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2016,2017,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -73,9 +73,9 @@ public abstract class DependentTarget extends EditableTarget
     /**
      * Create a new target belonging to the specified package.
      */
-    public DependentTarget(Package pkg, String identifierName)
+    public DependentTarget(Package pkg, String identifierName, String accessibleTargetType)
     {
-        super(pkg, identifierName);
+        super(pkg, identifierName, accessibleTargetType);
 
         inUses = new ArrayList<>();
         outUses = new ArrayList<>();

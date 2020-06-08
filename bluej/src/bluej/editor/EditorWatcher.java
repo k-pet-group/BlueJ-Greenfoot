@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,7 +29,10 @@ import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.editor.stride.FrameCatalogue;
+import bluej.pkgmgr.Package;
 import bluej.stride.generic.Frame;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Interface between the editor and the rest of BlueJ
@@ -77,6 +80,12 @@ public interface EditorWatcher
      * Gets a property
      */
     String getProperty(String key);
+
+    /**
+     * Gets the associated package with the editor
+     */
+    @OnThread(Tag.Any)
+    Package getPackage();
 
     /**
      * Schedule compilation due to reload or modification

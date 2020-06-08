@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,6 +41,7 @@ import javafx.beans.binding.When;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Cursor;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -232,6 +233,8 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         JavaFXUtil.addStyleClass(this, "object-wrapper");
 
         Label label = new Label(getName() + ":\n" + displayClassName);
+        setAccessibleText(label.getText() + " Object");
+        setAccessibleRole(AccessibleRole.NODE);
         JavaFXUtil.addStyleClass(label, "object-wrapper-text");
         createComponent(label);
         highlight.setMouseTransparent(true);
@@ -344,6 +347,36 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 || Modifier.isPrivate(clMods));
     }
     
+    private Class<?> unwrapArrays(String className)
+    {
+        String memberType = className.substring(0, className.length() - 2);
+        if (memberType.endsWith("[]"))
+        {
+            // Nested array:
+            return Array.newInstance(unwrapArrays(memberType), 0).getClass();
+        }
+        switch (memberType)
+        {
+            case "boolean":
+                return boolean[].class;
+            case "byte":
+                return byte[].class;
+            case "short":
+                return short[].class;
+            case "int":
+                return int[].class;
+            case "long":
+                return long[].class;
+            case "float":
+                return float[].class;
+            case "double":
+                return double[].class;
+            case "char":
+                return char[].class;
+        }
+        return Array.newInstance(pkg.loadClass(memberType), 0).getClass();
+    }
+    
     /**
      * Determine an appropriate type to use for this object in shell files.
      * The type must be accessible in the current package.
@@ -359,27 +392,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         Class<?> cl = pkg.loadClass(className);
         if (cl == null && obj.isArray() && className.endsWith("[]"))
         {
-            String memberType = className.substring(0, className.length() - 2);
-            switch (memberType)
-            {
-                case "boolean":
-                    return boolean[].class;
-                case "byte":
-                    return byte[].class;
-                case "short":
-                    return short[].class;
-                case "int":
-                    return int[].class;
-                case "long":
-                    return long[].class;
-                case "float":
-                    return float[].class;
-                case "double":
-                    return double[].class;
-                case "char":
-                    return char[].class;
-            }
-            cl = Array.newInstance(pkg.loadClass(memberType), 0).getClass();
+            cl = unwrapArrays(className);
         }
         // If the class is inaccessible, use the invocation type.
         if (cl != null) {

@@ -34,6 +34,8 @@ import java.util.stream.Stream;
 import bluej.editor.stride.FrameEditor;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
+import bluej.stride.framedjava.errors.MissingDoubleEqualsError;
+import bluej.stride.framedjava.errors.UndeclaredMethodInExpressionError;
 import bluej.stride.framedjava.errors.UnknownTypeError;
 import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.application.Platform;
@@ -56,8 +58,9 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
 {
     private ExpressionSlot slot;
 
-    // Each plain is a non-compound indent
-    private final List<LocatableToken> plains = new ArrayList<>();
+    // Each plain is a non-compound ident
+    private final List<LocatableToken> plainsVar = new ArrayList<>();
+    private final List<LocatableToken> plainsMeth = new ArrayList<>();
     private List<LocatableToken> curCompound = null;
     private final List<List<LocatableToken>> compounds = new ArrayList<>();
     private final List<List<LocatableToken>> types = new ArrayList<>();
@@ -75,11 +78,20 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
         {
             // Used to ignore the method name following the "::" method reference operator:
             boolean ignoreNext = false;
+
             @Override
             protected void gotIdentifier(LocatableToken token)
             {
                 if (!ignoreNext)
-                    plains.add(unwrapForParse(token));
+                    plainsVar.add(unwrapForParse(token));
+                ignoreNext = false;
+            }
+
+            @Override
+            protected void gotMethodCall(LocatableToken token)
+            {
+                if (!ignoreNext)
+                    plainsMeth.add(unwrapForParse(token));
                 ignoreNext = false;
             }
 
@@ -242,10 +254,10 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
             //Debug.message("This: " + getClass() + " " + this + "+" + getPosInSourceDoc().offset);
             //Debug.message("Vars: " + this.vars.keySet().stream().collect(Collectors.joining(", ")));
             //Debug.message("Plains: " + plains.stream().map(t -> t.getText()).collect(Collectors.joining(", ")));
-            
+
             //Debug.message("Assign LHS: " + assignmentLHSParent + " Java: \"" + getJavaCode() + "\"");
 
-            List<DirectSlotError> undeclaredVarErrors = plains.stream().map(identToken ->
+            List<DirectSlotError> undeclaredVarErrors = plainsVar.stream().map(identToken ->
             {
                 if (!vars.containsKey(identToken.getText()))
                 {
@@ -259,38 +271,64 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                 return null;
             }).filter(x -> x != null).collect(Collectors.toList());
 
-            editor.withTypes(availableTypes -> {
-
-                // Only look at single ident types:
-                Stream<DirectSlotError> unknownTypeErrors = types.stream().filter(t -> t.size() == 1).map(t -> t.get(0)).map(token -> {
-                    String typeName = token.getText();
-                    if (availableTypes.containsKey(typeName))
+            // Manage the missing methods errors
+            ASTUtility.withMethods(parent, editor, getPosInSourceDoc(), includeDirectDecl(), methods -> {
+                List<DirectSlotError> undeclaredMethodErrors = plainsMeth.stream().map(identToken ->
+                {
+                    if (!methods.contains(identToken.getText()))
                     {
-                        // Match -- no error
-                        return null;
+                        return new UndeclaredMethodInExpressionError(this, identToken.getText(), identToken.getColumn() - 1,
+                            identToken.getColumn() - 1 + identToken.getLength(), slot, methods);
                     }
-                    int startPosInSlot = token.getColumn() - 1;
-                    int endPosInSlot = token.getColumn() - 1 + token.getLength();
-                    FXPlatformConsumer<String> replace =
-                        s -> slot.replace(startPosInSlot, endPosInSlot, true, s);
-                    return (DirectSlotError) new UnknownTypeError(this, typeName, replace, editor, availableTypes.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().flatMap(Collection::stream)) {
-                        @Override
-                        public int getStartPosition()
-                        {
-                            return startPosInSlot;
-                        }
+                    return null;
+                }).filter(x -> x != null).collect(Collectors.toList());
 
-                        @Override
-                        public int getEndPosition()
-                        {
-                            return endPosInSlot;
-                        }
-                    };
-                }).filter(x -> x != null);
+                editor.withTypes(availableTypes -> {
 
-                f.complete(Stream.concat(undeclaredVarErrors.stream(), unknownTypeErrors).peek(e -> e.recordPath(rootPathMap.locationFor(this))).collect(Collectors.toList()));
+                    // Only look at single ident types:
+                    Stream<DirectSlotError> unknownTypeErrors = types.stream().filter(t -> t.size() == 1).map(t -> t.get(0)).map(token -> {
+                        String typeName = token.getText();
+                        if (availableTypes.containsKey(typeName))
+                        {
+                            // Match -- no error
+                            return null;
+                        }
+                        int startPosInSlot = token.getColumn() - 1;
+                        int endPosInSlot = token.getColumn() - 1 + token.getLength();
+                        FXPlatformConsumer<String> replace =
+                            s -> slot.replace(startPosInSlot, endPosInSlot, true, s);
+                        return (DirectSlotError) new UnknownTypeError(this, typeName, replace, editor, availableTypes.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().flatMap(Collection::stream))
+                        {
+                            @Override
+                            public int getStartPosition()
+                            {
+                                return startPosInSlot;
+                            }
+
+                            @Override
+                            public int getEndPosition()
+                            {
+                                return endPosInSlot;
+                            }
+                        };
+                    }).filter(x -> x != null);
+
+                    // Find mistake between "=" and "==" in a conditional expression
+                    List<DirectSlotError> missingDoubleEqualsErrors = new ArrayList<>();
+                    if (getErrorMessage().startsWith("incompatible types:") && getErrorMessage().endsWith("cannot be converted to boolean")
+                        && getJavaCode().charAt(getErrorStartPos()) == '=')
+                    {
+                        // corrections.add(new DoubleEqualFix(editor, startPos));
+                        missingDoubleEqualsErrors.add(new MissingDoubleEqualsError(this, getErrorStartPos(), editor.getFrameEditor()));
+                    }
+
+                    f.complete(Stream.concat(undeclaredVarErrors.stream(),
+                        Stream.concat(undeclaredMethodErrors.stream(),
+                            Stream.concat(unknownTypeErrors, missingDoubleEqualsErrors.stream())))
+                        .peek(e -> e.recordPath(rootPathMap.locationFor(this))).collect(Collectors.toList()));
+                });
+                // TODO errors for compounds
             });
-            // TODO errors for compounds
         }));
         return f;
     }

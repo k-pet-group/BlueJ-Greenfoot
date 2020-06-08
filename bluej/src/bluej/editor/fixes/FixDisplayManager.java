@@ -91,20 +91,23 @@ public abstract class FixDisplayManager
 
     protected void prepareFixDisplay(VBox vboxContainer, List<FixSuggestion> fixSuggestions, Supplier<EditorWatcher> editorWatcherSupplier, int errorIdentifier){
         this.errorIdentifier = errorIdentifier;
-        for (FixSuggestion fix : fixSuggestions)
+        if (fixSuggestions != null)
         {
-            FixDisplay l = new FixDisplay("  Fix: " + fix.getDescription(), () -> fix.execute());
-            l.onMouseClickedProperty().set(e ->
+            for (FixSuggestion fix : fixSuggestions)
             {
-                recordExecute(editorWatcherSupplier, fixes.indexOf(l));
-                fix.execute();
-                hide();
-                postFixError();
-                e.consume();
-            });
-            l.onMouseEnteredProperty().set(e -> setHighlighted(fixes.indexOf(l)));
-            vboxContainer.getChildren().add(l);
-            fixes.add(l);
+                FixDisplay l = new FixDisplay("  Fix: " + fix.getDescription(), () -> fix.execute());
+                l.onMouseClickedProperty().set(e ->
+                {
+                    recordExecute(editorWatcherSupplier, fixes.indexOf(l));
+                    fix.execute();
+                    hide();
+                    postFixError();
+                    e.consume();
+                });
+                l.onMouseEnteredProperty().set(e -> setHighlighted(fixes.indexOf(l)));
+                vboxContainer.getChildren().add(l);
+                fixes.add(l);
+            }
         }
         JavaFXUtil.addStyleClass(vboxContainer, "error-fix-display");
         vboxContainer.setMinWidth(250.0);

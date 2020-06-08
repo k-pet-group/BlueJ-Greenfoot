@@ -64,7 +64,6 @@ import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.frames.DebugInfo;
 import bluej.stride.framedjava.frames.LocalCompletion;
-import bluej.stride.framedjava.frames.LocalTypeCompletion;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.parser.AssistContentThreadSafe;
 import bluej.utility.Debug;
@@ -74,7 +73,6 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.print.PrinterJob;
 import javafx.scene.image.Image;
@@ -1156,8 +1154,8 @@ public class FrameEditor implements Editor
         LocationMap rootPathMap = el.toXML().buildLocationMap();
         // We must start these futures going on the FX thread
         List<Future<List<DirectSlotError>>> futures = allElements.flatMap(e -> e.findDirectLateErrors(panel, rootPathMap)).collect(Collectors.toList());
-        // Then wait for them on another thread, and hop back to FX to finish:
-        Utility.runBackground(() -> {
+        // Then wait for them on another thread
+        new Thread(() -> {
             ArrayList<DirectSlotError> allLates = new ArrayList<>();
             try
             {
@@ -1169,12 +1167,10 @@ public class FrameEditor implements Editor
             {
                 Debug.reportError(e);
             }
-            Platform.runLater(() -> {
-                panel.updateErrorOverviewBar(false);
-                List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
-                watcher.recordLateErrors(diagnostics, compilationIdentifier);
-            });
-        });
+            panel.updateErrorOverviewBar(false);
+            List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
+            watcher.recordLateErrors(diagnostics, compilationIdentifier);
+        }).start();
     }
         
     @Override
@@ -1212,7 +1208,7 @@ public class FrameEditor implements Editor
         ArrayList<AssistContent> joined = new ArrayList<>();
         if (suggests != null)
         {
-            AssistContent[] assists = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null);
+            AssistContent[] assists = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, null);
             if (assists != null)
                 joined.addAll(Arrays.asList(assists));
         }
@@ -1229,7 +1225,7 @@ public class FrameEditor implements Editor
                 // TODO in future, only do this if we are importing Greenfoot classes.
                 JavaReflective greenfootClassRef = new JavaReflective(pkg.loadClass("greenfoot.Greenfoot"));
                 ExpressionTypeInfo greenfootClass = new ExpressionTypeInfo(new GenTypeClass(greenfootClassRef), null, null, true, false);
-                AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null);
+                AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null, null);
                 Arrays.stream(greenfootStatic).filter(ac -> ac.getKind() == CompletionKind.METHOD).forEach(ac -> joined.add(new PrefixCompletionWrapper(ac, "Greenfoot.")));
             }
 
@@ -1254,11 +1250,11 @@ public class FrameEditor implements Editor
         {
             members = new ArrayList<>();
             // Add it whether overridden or not:
-            ParseUtils.getPossibleCompletions(suggests, javadocResolver, (ac, isOverridden) -> members.add(ac));
+            ParseUtils.getPossibleCompletions(suggests, javadocResolver, (ac, isOverridden) -> members.add(ac), null);
         }
         else
         {
-            AssistContent[] result = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null);
+            AssistContent[] result = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, null);
             if (result == null)
                 members = Collections.emptyList();
             else
@@ -1294,6 +1290,11 @@ public class FrameEditor implements Editor
     @OnThread(Tag.Any)
     public EditorFixesManager getEditorFixesManager(){
         return editorFixesMgr;
+    }
+
+    public boolean containsImport(String importName)
+    {
+        return panel.containsImport(importName);
     }
 
     @Override
@@ -1340,35 +1341,9 @@ public class FrameEditor implements Editor
     }
 
     @OnThread(Tag.FXPlatform)
-    public List<AssistContentThreadSafe> getLocalTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds)
+    public List<AssistContentThreadSafe> getLocalTypes(Class<?> superType, Set<Kind> kinds)
     {
-        return pkg.getClassTargets()
-                  .stream()
-                  .filter(ct -> {
-                      if (superType != null)
-                      {
-                          ClassInfo info = ct.getSourceInfo().getInfoIfAvailable();
-                          if (info == null)
-                              return false;
-                          // This code won't pick up the case where A extends B, and B has "superType"
-                          // as a super type, but I'm not sure how we can easily tell that.
-                          boolean hasSuperType = false;
-                          hasSuperType |= superType.getName().equals(info.getSuperclass());
-                          // Check interfaces:
-                          hasSuperType |= info.getImplements().stream().anyMatch(s -> superType.getName().equals(s));
-                          if (!hasSuperType)
-                              return false;
-                      }
-                      
-                      if (ct.isInterface())
-                          return kinds.contains(Kind.INTERFACE);
-                      else if (ct.isEnum())
-                          return kinds.contains(Kind.ENUM);
-                      else 
-                          return kinds.contains(Kind.CLASS_FINAL) || kinds.contains(Kind.CLASS_NON_FINAL);
-                  })
-                  .map(ct -> new AssistContentThreadSafe(LocalTypeCompletion.getCompletion(ct)))
-                  .collect(Collectors.toList());
+        return ParseUtils.getLocalTypes(pkg, superType, kinds);
     }
 
     public void showNextError()

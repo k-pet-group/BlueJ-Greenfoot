@@ -294,14 +294,18 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         });
 
         JavaFXUtil.addChangeListenerPlatform(stage.focusedProperty(), focused -> {
-            if (focused) {
-                ((FXTab) tabPane.getSelectionModel().getSelectedItem()).notifySelected();
-            }
-            else {
-                Tab selectedItem = tabPane.getSelectionModel().getSelectedItem();
-                // if 'selectedItem' is null, that mean it has been already notified unselected
-                // by the selectedItemProperty Listener added above.
-                if (selectedItem != null) {
+            Tab selectedItem = tabPane.getSelectionModel().getSelectedItem();
+            // It is possible during shutdown that the window becomes focused while no tabs are present, so guard against that:
+            if (selectedItem != null && selectedItem instanceof FXTab)
+            {
+                if (focused)
+                {
+                    ((FXTab) selectedItem).notifySelected();
+                }
+                else
+                {
+                    // if 'selectedItem' is null, that mean it has been already notified unselected
+                    // by the selectedItemProperty Listener added above.
                     ((FXTab) selectedItem).notifyUnselected();
                 }
             }

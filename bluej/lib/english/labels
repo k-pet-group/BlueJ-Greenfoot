@@ -235,6 +235,19 @@ editor.printDialog.fontSize.small=Small
 editor.printDialog.fontSize.standard=Standard
 editor.printDialog.fontSize.large=Large
 
+# Editor quick fix messages
+editor.quickfix.correctToSugg.fixMsg=Correct to:\u0020
+editor.quickfix.unknownType.errorMsg=Unknown type:\u0020
+editor.quickfix.unknownType.fixMsg.class=Import class\u0020
+editor.quickfix.unknownType.fixMsg.package=Import package\u0020
+editor.quickfix.undeclaredVar.errorMsg=Undeclared variable:\u0020
+editor.quickfix.undeclaredVar.fixMsg.local=Declare variable here
+editor.quickfix.undeclaredVar.fixMsg.class=Declare field in class
+editor.quickfix.undeclaredMethod.errorMsg=Undeclared method:\u0020
+editor.quickfix.wrongComparisonOperator.errorMsg=Assignment found instead of boolean expression. \n\
+                                                 Did you mean "=="?
+editor.quickfix.wrongComparisonOperator.fixMsg=Replace "=" with "=="
+
 # Dialog titles and texts
 editor.functions.title = Editor Functions
 editor.functions.editFunctions = Edit Functions

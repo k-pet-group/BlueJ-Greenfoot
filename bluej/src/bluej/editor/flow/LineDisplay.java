@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,9 +27,12 @@ import bluej.utility.javafx.FXFunction;
 import bluej.utility.javafx.FXSupplier;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.HitInfo;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -41,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * A class to handle the display of the set of visible lines in an editor window.
@@ -355,6 +359,22 @@ public class LineDisplay
         }
     }
 
+    @OnThread(Tag.FXPlatform)
+    public Bounds[] getBoundsForRange(Document document, int startOffset, int endOffset)
+    {
+        int firstLine = document.getLineFromPosition(startOffset);
+        int lastLine = document.getLineFromPosition(endOffset);
+
+        return IntStream.rangeClosed(firstLine, lastLine)
+            .mapToObj(line -> {
+                if (!isLineVisible(line))
+                    return null;
+                MarginAndTextLine node = getVisibleLine(line);
+                Path path = new Path(node.textLine.rangeShape(Math.max(startOffset, document.getLineStart(line)), Math.min(endOffset, document.getLineEnd(line))));
+                return node.localToParent(node.textLine.localToParent(path.getBoundsInLocal()));
+            }).filter(b -> b != null).toArray(Bounds[]::new);
+    }
+
     static interface LineDisplayListener
     {
         @OnThread(Tag.FX)
@@ -362,15 +382,15 @@ public class LineDisplay
     }
     
     // Pair of ints; line index and column index (both zero based)
-    public int[] getCaretPositionForMouseEvent(MouseEvent e)
+    public int[] getCaretPositionForLocalPoint(Point2D localPoint)
     {
         for (int i = 0; i < visibleLines.size(); i++)
         {
             MarginAndTextLine currentlyVisibleLine = visibleLines.get(i + firstVisibleLineIndex);
-            if (currentlyVisibleLine.getLayoutY() <= e.getY() && e.getY() <= currentlyVisibleLine.getLayoutY() + currentlyVisibleLine.getHeight())
+            if (currentlyVisibleLine.getLayoutY() <= localPoint.getY() && localPoint.getY() <= currentlyVisibleLine.getLayoutY() + currentlyVisibleLine.getHeight())
             {
                 // Can't use parentToLocal if layout bounds may be out of date:
-                Point2D pointInLocal = new Point2D(e.getX() - currentlyVisibleLine.getLayoutX() - MarginAndTextLine.TEXT_LEFT_EDGE + horizScrollProperty.get(), e.getY() - currentlyVisibleLine.getLayoutY());
+                Point2D pointInLocal = new Point2D(localPoint.getX() - currentlyVisibleLine.getLayoutX() - MarginAndTextLine.TEXT_LEFT_EDGE + horizScrollProperty.get(), localPoint.getY() - currentlyVisibleLine.getLayoutY());
                 HitInfo hitInfo = currentlyVisibleLine.textLine.hitTest(pointInLocal);
                 if (hitInfo != null)
                 {
