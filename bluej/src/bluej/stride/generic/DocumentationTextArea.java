@@ -422,6 +422,8 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         return !isDisable();
     }
 
+
+
     @Override
     public void setEditable(boolean editable)
     {
@@ -451,4 +453,6 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
     {
         return getText().length();
     }
+
+
 }

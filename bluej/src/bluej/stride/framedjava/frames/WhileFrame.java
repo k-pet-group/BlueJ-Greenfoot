@@ -26,10 +26,6 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
@@ -39,14 +35,8 @@ import bluej.stride.framedjava.elements.WhileElement;
 import bluej.stride.framedjava.frames.BreakFrame.BreakEncloser;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SingleCanvasFrame;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.SlotLabel;
@@ -54,6 +44,10 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Container-block representing a while loop.
@@ -121,6 +115,10 @@ public class WhileFrame extends SingleCanvasFrame
         replaceMenu.getItems().addAll(forMenu, new SeparatorMenuItem(), ifMenu, ifElseMenu);
         */
         paramCondition.onTextPropertyChange(updateSidebarCurried("while "));
+
+
+        //Manvi jain
+        paramCondition.setAccessibility(" condition in while loop");
     }
     
     public WhileFrame(InteractionManager editor, ExpressionSlotFragment condition, boolean enabled)
@@ -128,12 +126,18 @@ public class WhileFrame extends SingleCanvasFrame
         this(editor);
         paramCondition.setText(condition);
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        paramCondition.setAccessibility(" condition in while loop");
     }
     
     public WhileFrame(InteractionManager editor, List<Frame> contents)
     {
         this(editor);
         getCanvas().getFirstCursor().insertFramesAfter(contents);
+
+        //Manvi jain
+        paramCondition.setAccessibility(" condition in while loop");
     }
     
     /**
@@ -256,4 +260,33 @@ public class WhileFrame extends SingleCanvasFrame
         if (isFrameEnabled()  && (oldView == View.JAVA_PREVIEW || newView == View.JAVA_PREVIEW))
             canvas.previewCurly(newView == View.JAVA_PREVIEW, header.getLeftFirstItem() + tweakCurlyX(), tweakOpeningCurlyY(), animateProgress);
     }
+
+    //Manvi jain
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        //Set the accessibility help of the slot in the frame
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            paramCondition.setAccessibilityHelpSlots("Condition in while loop " + getParentCanvas().getParent().getHelpContext());
+        }
+    }
+
+
+    /**
+     * returns the position of the frame as a String
+     * @return
+     */
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+           parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in while loop " + parent ;
+    }
+
+
 }

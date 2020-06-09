@@ -21,17 +21,6 @@
  */
 package bluej.stride.framedjava.frames;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.FrameContentItem;
-import bluej.stride.generic.FrameCursor;
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.JavaFXUtil;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
@@ -41,22 +30,26 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.ForeachElement;
 import bluej.stride.framedjava.frames.BreakFrame.BreakEncloser;
 import bluej.stride.framedjava.slots.EachExpressionSlot;
-import bluej.stride.generic.ExtensionDescription;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SingleCanvasFrame;
+import bluej.stride.framedjava.slots.TypeSlot;
+import bluej.stride.generic.*;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.operations.FrameOperation;
+import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.VariableNameDefTextSlot;
-import bluej.stride.operations.PullUpContentsOperation;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ForeachFrame extends SingleCanvasFrame
   implements CodeFrame<ForeachElement>, DebuggableParentFrame
@@ -90,6 +83,12 @@ public class ForeachFrame extends SingleCanvasFrame
         type.onTextPropertyChange(updateTriple);
         JavaFXUtil.addChangeListener(var.textProperty(), updateTriple);
         collection.onTextPropertyChange(updateTriple);
+
+        //Manvi jain
+        type.setAccessibility(" variable type in condition  in for each loop");
+        var.setAccessibility(" variable name in condition in for each loop");
+        //var.setAccessibilityRoleDescription(var.getText());
+        collection.setAccessibility("collection name in condition in for each loop");
     }
     
     public ForeachFrame(InteractionManager editor, TypeSlotFragment type, NameDefSlotFragment var, ExpressionSlotFragment collection, boolean enabled) {
@@ -98,12 +97,24 @@ public class ForeachFrame extends SingleCanvasFrame
         this.var.setText(var);
         this.collection.setText(collection);
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        this.type.setAccessibility(" variable type in condition  in for each loop");
+        this.var.setAccessibility(" variable name in condition in for each loop");
+        //this.var.setAccessibilityRoleDescription(this.var.getText());
+        this.collection.setAccessibility("collection name in condition in for each loop");
     }
     
     public ForeachFrame(InteractionManager editor, List<Frame> contents)
     {
         this(editor);
         getCanvas().getFirstCursor().insertFramesAfter(contents);
+
+        //Manvi jain
+        type.setAccessibility(" variable type in condition  in for each loop");
+        var.setAccessibility(" variable name in condition in for each loop");
+        //var.setAccessibilityRoleDescription(var.getText());
+        collection.setAccessibility("collection name in condition in for each loop");
     }
 
     @Override
@@ -224,4 +235,27 @@ public class ForeachFrame extends SingleCanvasFrame
         return super.backspaceAtStart(srcRow, src);
     }
 
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            type.setAccessibilityHelpSlots("condition variable type in foreach loop " + getParentCanvas().getParent().getHelpContext());
+            var.setAccessibilityHelpSlots("condition variable name in foreach loop " + getParentCanvas().getParent().getHelpContext());
+            type.setAccessibilityHelpSlots("collection name in foreach loop " + getParentCanvas().getParent().getHelpContext());
+        }
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in for each loop " + parent;
+    }
 }

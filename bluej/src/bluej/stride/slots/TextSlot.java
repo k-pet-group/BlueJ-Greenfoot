@@ -417,7 +417,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                         //Stop the behaviour of selecting text when tabbing to a field:
                         //Need to wrap in runLater as selection happens after this method
                         Platform.runLater(this::deselect);
-                        showErrorAtCaret(getCaretPosition());                        
+                        showErrorAtCaret(getCaretPosition());
                     }
                     else {
                         setTransparent(!getText().isEmpty() && suggestionDisplayProperty.get() == null);
@@ -439,12 +439,14 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                                 recentValues.remove(3);
                             valueChangedLostFocus(valueOnGain, getText());
                         }
+
                     }
             });
-            
+
             //Text changes
             this.textProperty().addListener((observable, oldValue, newValue) -> {
                 slotElement = null;
+
 
                 //Unless still focused (or notionally focused because code completion is showing), go transparent
                 if (!isFocused() && suggestionDisplayProperty.get() == null)
@@ -464,6 +466,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
 
                 if (!allowed)
                 {
+                    //Manvi jain
+                    //System.out.println("Value 2: " + getText());
                     setText(oldValue);
                 } else
                 {
@@ -471,6 +475,9 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                     // It doesn't matter if we run this while loading because
                     // we won't be showing code completion:
                     JavaFXUtil.runPlatformLater(() -> {
+
+                        //Manvi jain
+                        setAccessibilityRoleDescription(getText());
                         if (suggestionDisplayProperty.get() != null)
                         {
                             String beforeNewPrefix = getText().substring(0, getStartOfCurWord());
@@ -491,7 +498,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                     editor.modifiedFrame(frameParent, false);
                 }
             });
-            
+
             // Autosizing the slot to fit contents:
             minWidthProperty().bind(new DoubleBinding() {
                 { super.bind(textProperty());
@@ -509,13 +516,13 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 }
             });
             prefWidthProperty().bind(minWidthProperty());
-            
+
             caretPositionProperty().addListener( (observable, oldValue, newVal) -> {
                     if (isFocused())
                         JavaFXUtil.runNowOrLater(() -> showErrorAtCaret(newVal.intValue()));
                     // TODO cancel code completion if we've moved away from it
             });
-            
+
             // Need to allow parent's constructor to execute, and
             // need to be in the scene:
             JavaFXUtil.onceInScene(getNode(), () -> setContextMenu(MenuItems.makeContextMenu(getMenuItems(true))));
@@ -524,13 +531,13 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         public final int getCaretPosition()
         {
             return caretPositionProperty().get();
-        }    
-        
+        }
+
         protected void setTransparent(boolean transparent)
         {
             field.setPseudoclass("bj-transparent", transparent);
         }
-        
+
         public String getCurWord()
         {
             return getText().substring(getStartOfCurWord(), getCaretPosition());
@@ -830,6 +837,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     {
         String before = getText().substring(0, startPosInSlot);
         String after = getText().substring(endPosInSlot);
+        System.out.println("Other value:" + before + replacement + after);
+        //Manvi
         setText(before + replacement + after);
         field.positionCaret(before.length() + replacement.length());
     }
@@ -1089,5 +1098,20 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     {
         // We put a ceiling of 4 keypresses, approximating code completion:
         return Math.min(4, getText().length());
+}
+
+    //Manvi jain
+    public void setAccessibility(String text)
+    {
+        field.getFocusableNode().setAccessibleText(text);
+    }
+
+    public void setAccessibilityRoleDescription(String text){
+        field.getFocusableNode().setAccessibleRoleDescription(text);
+    }
+
+    public void setAccessibilityHelpSlots(String text)
+    {
+        field.getFocusableNode().setAccessibleHelp(text);
     }
 }

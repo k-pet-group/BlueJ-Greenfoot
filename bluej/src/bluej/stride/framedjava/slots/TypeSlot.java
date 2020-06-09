@@ -30,6 +30,8 @@ import java.util.stream.Stream;
 
 import bluej.pkgmgr.target.role.Kind;
 import javafx.beans.binding.StringExpression;
+
+
 import javafx.scene.Node;
 
 import bluej.Config;
@@ -267,4 +269,5 @@ public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCo
     {
         return topLevel.makeDisplayClone(editor);
     }
+
 }
