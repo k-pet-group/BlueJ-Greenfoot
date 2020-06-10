@@ -21,15 +21,15 @@
  */
 package bluej.stride.slots;
 
-import java.util.List;
-import java.util.function.Supplier;
-
 import bluej.stride.framedjava.ast.ThrowsTypeFragment;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
+
+import java.util.List;
+import java.util.function.Supplier;
 
 public class Throws extends TypeList
 {

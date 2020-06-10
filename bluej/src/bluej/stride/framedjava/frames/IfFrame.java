@@ -25,6 +25,7 @@ package bluej.stride.framedjava.frames;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
@@ -35,11 +36,7 @@ import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.SandwichCanvasesElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SandwichCanvasesFrame;
+import bluej.stride.generic.*;
 import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Debug;
@@ -81,7 +78,13 @@ public class IfFrame extends SandwichCanvasesFrame
         ifCondition.setTargetType("boolean");
         ifCondition.onTextPropertyChange(updateSidebarCurried("if "));
         setHeaderRow(new SlotLabel(" (", "if-bracket-opening"), ifCondition, new SlotLabel(")"));
+
+
+        //Manvi Jain
+        ifCondition.setAccessibility("condition in if statement ");
+
     }
+
     
     /**
      * Construct an IfFrame by wrapping the given frames
@@ -90,6 +93,9 @@ public class IfFrame extends SandwichCanvasesFrame
     {
         this(editor);
         getFirstCanvas().getFirstCursor().insertFramesAfter(contents);
+
+      // Manvi Jain
+        ifCondition.setAccessibility("condition in if statement ");
     }
 
     /**
@@ -118,6 +124,9 @@ public class IfFrame extends SandwichCanvasesFrame
             elseContents.forEach(f -> getTailCanvas().insertBlockAfter(f, null));
         }
         frameEnabledProperty.set(enabled);
+
+       // Manvi Jain
+        ifCondition.setAccessibility("condition in if statement ");
     }
 
     @Override
@@ -160,6 +169,9 @@ public class IfFrame extends SandwichCanvasesFrame
 //        addCanvas(divider, elseIfCanvas);
 
         elseIfConditions.add(at, elseIfCondition); //add condition to the main ifFrame.
+
+
+        elseIfCondition.setAccessibility("else if statement condition");
         return row;
     }
 
@@ -200,4 +212,31 @@ public class IfFrame extends SandwichCanvasesFrame
         return new IfElement(this, ifCondition.getSlotElement(), firstCanvasContents, elseIfConditionsCode,
                 intermediateCanvasesContents, tailCanvasContents, enabled);
     }
+
+
+
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            ifCondition.setAccessibilityHelpSlots("Condition in if statement " + getParentCanvas().getParent().getHelpContext());
+        }
+    }
+
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in if statement " + parent;
+    }
+
+
 }

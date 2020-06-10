@@ -310,6 +310,7 @@ class StructuredSlotField implements StructuredSlotComponent
     
     public void setText(String s, StructuredSlot.ModificationToken token)
     {
+        //Manvi jain
         token.check();
         field.setText(s);
     }

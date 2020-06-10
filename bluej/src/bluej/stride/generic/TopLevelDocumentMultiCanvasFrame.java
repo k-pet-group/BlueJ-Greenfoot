@@ -326,6 +326,11 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
             {
                 return CanvasKind.IMPORTS;
             }
+
+
+            //Manvi jain
+            @Override
+            public String getHelpContext(){ return "" ; }
         }, stylePrefix + "import-");
 
         importCanvas.setAnimateLeftMarginScale(true);
@@ -555,5 +560,9 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
     }
 
     protected abstract List<SlotLabel> getCanvasLabels();
+
+    //Manvi jain
+    @Override
+    public String getHelpContext(){ return "" ; }
 
 }

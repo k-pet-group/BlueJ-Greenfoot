@@ -1,39 +1,33 @@
 /*
- This file is part of the BlueJ program. 
+ This file is part of the BlueJ program.
  Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
- 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
- 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
- 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
- This file is subject to the Classpath exception as provided in the  
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.stride.framedjava.slots;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import bluej.stride.framedjava.slots.StructuredSlot.SplitInfo;
+import bluej.stride.generic.Frame.View;
+import bluej.stride.generic.InteractionManager;
+import bluej.utility.Debug;
+import bluej.utility.Utility;
+import bluej.utility.javafx.*;
+import bluej.utility.javafx.binding.DeepListBinding;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -45,54 +39,41 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.Region;
-
-import bluej.stride.framedjava.slots.StructuredSlot.SplitInfo;
-import bluej.stride.generic.Frame.View;
-import bluej.stride.generic.InteractionManager;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.FXFunction;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformFunction;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
-import bluej.utility.javafx.TextFieldDelegate;
-import bluej.utility.javafx.binding.DeepListBinding;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * This class is the major part of the display and logic for expressions.  Here's how the architecture works:
- * 
+ *
  * <h3>The Expression Tree</h3>
- *     
+ *
  * This gets turned into a rich tree of expressions.  The expressions nest as follows.
- * 
+ *
  *  - There is InfixStructured (this class), which holds a sequence of operands (see the "fields" field)
  *    and in the middle of each of these is optionally an operator (Operator class, "operators" field).
  *    An operand (which implements StructuredSlotComponent) can be:
  *      - a fairly standard text field (StructuredSlotField),
  *      - a string literal (StringLiteralExpressionSlot) or
  *      - a bracketed expression (BracketedStructured).
- *      
+ *
  *  - A BracketedStructured is really a thin wrapper around InfixStructured.  So an expression tree is
  *    really made up primarily of InfixStructured, with each one (excluding the top-level) wrapped in
  *    a BracketedStructured.
- *    
+ *
  *  Given an expression like:
- * 
+ *
  *    1 + 2 * getX() + convert(5 + 7) - (3 * (15 + 6))
- *  
+ *
  *  We have a top-level InfixStructured.  This has an array of eleven operands:
- *  
+ *
  *   [0]: StructuredSlotField, content: "1"
  *   [1]: StructuredSlotField, content: "2"
  *   [2]: StructuredSlotField, content: "getX"
@@ -119,7 +100,7 @@ import threadchecker.Tag;
  *            [0]: Operator, content "*"
  *            [1]: null
  *   [10]:StructuredSlotField, content ""
- *   
+ *
  * And an array of ten operators:
  *   [0]: Operator, content: "+"
  *   [1]: Operator, content: "*"
@@ -133,25 +114,25 @@ import threadchecker.Tag;
  *   [9]: null
  *
  *  There are a few rules to these slots:
- *  
+ *
  *   - Operator N is between Operand N and N+1.  So operator 0 is between operand 0 and operand 1, etc
  *   - The size of the operators array is always exactly one less than the size of the operands array
  *     (although many operator entries may be null).
  *   - Each BracketedStructured is surrounded by two null operators.  See explanation below.
  *   - Operators are only null when they are adjacent to a BracketedStructured.
  *   - A BracketedStructured never appears in the very first or very last entry in the operands array. (See below.)
- *  
+ *
  *  The non-obvious rules relate to BracketedStructured.  To start with, consider the expression "1>=2".  In
  *  a standard text editor, this a string of length 4, and there are 5 possible caret positions (before each
  *  character, and after the last one).  If we turn this into an InfixStructured, we get two operands and an operator:
  *    field 0: StructuredSlotField, content "1"
  *    operator 0: Operator, content ">="
  *    field 1: StructuredSlotField, content "2"
- *    
+ *
  *  In our version, we have four valid caret positions: before the '1', after the '1', before the '2', after the '2'.
  *  We lose only the caret position in the middle of the operator, but you can always alter it by going before/after it
  *  and using delete/backspace, which will chip off one character at a time from the oprator.
- *  
+ *
  *  Now consider the same expression with some brackets: "1>=(2)".  In a standard text editor, it's a string
  *  of length 6, and you have 7 caret positions.  My first attempt at turning this into an InfixStructured
  *  [NOTE: THIS IS NOT HOW IT NOW WORKS!] was:
@@ -159,26 +140,26 @@ import threadchecker.Tag;
  *    operator 0: Operator, content ">="
  *    field 1: BracketedStructured, containing:
  *      field 0: StructuredSlotField, content "2"
- *      
+ *
  *  This seems logical, but we would only have 4 caret positions -- again:  before the '1', after the '1', before the '2', after the '2'.
  *  If you want to add content after the closing bracket, there is no way to do so.  If you want to delete
  *  the '=' (to turn it into strictly greater than), there is no caret position from which to do so, and nor
  *  can you add any content between the operator and the bracket.  So while this scheme correctly contains all
  *  the current text, it *does not allow all possible edits to take place*.  The fix for this is as follows:
- *  
+ *
  *  Each BracketedStructured must always have an StructuredSlotField before and after it, with no operator
  *  inbetween the brackets and field.  These fields correspond to the space just outside the brackets, to
  *  always allow editing in those positions.  Often, these extra fields will be empty (e.g. in the case of
  *  "1*(2-3)/5", these extra fields will be empty.  However, in the case of method calls such as "move(5)",
  *  the "move" occupies the field beforehand, and in the case of casts such as "(int)x", the "x" occupies
  *  the field afterwards.
- *  
+ *
  *  This rule is what leads to several of our rules above.  Since BracketedStructured always has these fields
  *  before and after with no operators, we store null in the corresponding operator fields, and BracketedStructured
  *  can never be first or last in the InfixStructured.
- *  
+ *
  *  <h3>Floating-Point Literals</h3>
- *  
+ *
  *  One special case in expressions is floating point literals.  Given an expression like "-x.y", we would usually
  *  turn this into an InfixStructured with a minus operator and dot operator.  However, for expressions like
  *  "-9.3", this is misleading; the dot is not really an operator here (though the minus is perhaps less clear;
@@ -187,20 +168,20 @@ import threadchecker.Tag;
  *  more complicated with floating hex literals, and we also must take care around "a415.y" etc) then we do
  *  not insert an operator, but rather allow the dot in the slot itself.  The insertion and deletion logic
  *  has to work hard to handle this -- not only must it handle inserting and deleting the dot itself, but
- *  for example deleting the "g" in "g325.7" changes the content from a syntax error into a valid numeric literal. 
- *  
+ *  for example deleting the "g" in "g325.7" changes the content from a syntax error into a valid numeric literal.
+ *
  *  <h3>Deleting/Inserting Operators</h3>
- *  
+ *
  *  Adding text content to an existing text field is simple -- you just change the content of that field.
  *  However, adding or deleting an operator or bracket may require merging or splitting existing slots,
  *  especially so if selection is involved.  For example, in the field "12345", selecting the "234" and hitting
  *  "(" should split the slot into two, the first half containing "1", the second half containing "5", and
  *  inbetween those there will be a BracketedStructured inserted which contains "234".
- *  
+ *
  *  There is complicated logic to the insertion, which is covered in the comments for the insertChar method, below.
- *  
+ *
  *  <h3>Selection</h3>
- *  
+ *
  *  InfixStructured items support selection.  The logic for selection in expressions is similar to that for frames:
  *  a bracketed expression is a whole unit (like a frame is), and thus you either select the whole bracket,
  *  or none of it.  Other than brackets, you can select across any parts of an expression.  If you consider
@@ -213,33 +194,33 @@ import threadchecker.Tag;
  *    - "1+{2+(3*4)}+5"
  *    - "1+{2+(3*4)+}5"
  *    - "1+{2+(3*4)+5}"
- *    
+ *
  *  The valid selections from just after the 3 are:
  *   - "1+2+({3}*4)+5" [heading backwards]
  *   - "1+2+(3{*}4)+5" [heading forwards]
  *   - "1+2+(3{*4})+5" [heading forwards]
- *   
+ *
  *  That is, your selection cannot leave a bracketed expression that you start inside of, because
  *  allowing the selection to leave the bracket would mean you were selecting part of a bracketed expression.
- * 
+ *
  *  <h3>Methods with Underscore Names</h3>
- *  
+ *
  *  In some cases, there are methods that we want to test, where we need to pass different parameters
  *  to the usual public methods.  To facilitate this, some methods (like insert), have a package-visible
  *  version with an underscore ("insert_") which is used directly by the tests, and a public version
  *  without the underscore ("insert") that should be used in all normal, non-test code
- *  
+ *
  *  <h3>Caret Position</h3>
- *  
+ *
  *  Because we have a rich structure in the expression, the notion of caret position has changed.  In a normal text slot,
  *  it would just be an integer, indicating the position along the string.  In our expression slots, it is
  *  a list of integers (singly linked list, in CaretPos).  The meaning of each integer depends on the component it is applied to.
- *  
+ *
  *  At the outer-most level, we have an InfixStructured.  Here, the first integer is an index into the "fields" array,
  *  indicating which slot we are in.  You then strip off the first integer, and use the rest of the list to find
  *  the position in the subfield.  If it's an StructuredSlotField, the index is simply a standard caret position.
  *  If it's a BracketedStructured, it applies to the contained InfixStructured.
- *  
+ *
  *  So ultimately, the CaretPos is a list of integers where the last one applies to an StructuredSlotField, and the preceding
  *  ones are indexes into InfixStructured's "fields" arrays.
  */
@@ -256,18 +237,18 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     // Operator 0 is between field 0 and field 1.  Operator N trails field N.
     // Can be null when the operator is effectively a bracket.
     protected final ProtectedList<Operator> operators = new ProtectedList<>();
-    
-    //private final FlowPane components = new FlowPane();    
+
+    //private final FlowPane components = new FlowPane();
     //private final HBox components = new HBox();
     private final ObservableList<Node> components = FXCollections.observableArrayList();
     protected final BracketedStructured<INFIX, SLOT> parent; // null if top-level
     // The characters which cause us to go up a level (e.g. a closing bracket) or
     // move to the next slot
     private final Set<Character> closingChars = new HashSet<>();
-    
+
     private final InteractionManager editor;
     protected final SLOT slot; // Can be null when testing, but otherwise non-null
-    
+
     private final StringProperty textProperty = new SimpleStringProperty();
     private final BooleanProperty previewingJavaRange = new SimpleBooleanProperty(false);
     private final StringProperty startRangeText = new SimpleStringProperty(DEFAULT_RANGE_START);
@@ -284,10 +265,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     {
         this(editor, slot, "", null, token);
     }
-    
+
     /**
      * Create InfixStructured just inside the given BracketedStructured.
-     * 
+     *
      * @param initialContent The initial content.  This should be suitable for putting into a single
      *    StructuredSlotField; it should not contain any operators or brackets, etc.  If you need
      *    to add rich content, pass "" for this parameter and insert the rich content afterwards.
@@ -299,7 +280,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         this.parent = wrapper;
         this.closingChars.addAll(Arrays.asList(closingChars));
         this.slot = slot;
-        
+
         this.textProperty.set(initialContent);
         // When starting, add just one empty field:
         fields.add(makeNewField(initialContent, false), token);
@@ -347,7 +328,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             }
 
         }.startListening();
-        
+
         fields.observable().addListener((ListChangeListener)c -> {
             // If we are not a single field, remove prompts on all fields:
             if (fields.size() != 1)
@@ -358,18 +339,18 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                         ((StructuredSlotField)comp).setPromptText("");
                     }
                 });
-            }   
+            }
         });
-        
-        
+
+
         // Now we calculate precedence as follows:
         // - We find the lowest precedence operator (preferring leftmost).
         //   - We recursively traverse the LHS and RHS of this operator with same algorithm.
         // - On return, if lowest operator in LHS or RHS is identical to outer, we take
-        components.addListener((ListChangeListener)c -> 
+        components.addListener((ListChangeListener)c ->
             calculatePrecedences(operators.stream().collect(Collectors.toList()), fields.stream().map(StructuredSlotComponent::isFieldAndEmpty).limit(operators.size()).collect(Collectors.toList()))
         );
-        
+
         updateBreaks();
         JavaFXUtil.addChangeListener(textProperty, value -> updateBreaks());
     }
@@ -383,12 +364,12 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 operators.stream().map(o -> o == null ? Stream.<Node>empty() : Stream.of(o.makeDisplayClone(editor))))
                 .flatMap(x -> x);
     }
-    
+
     private void updateBreaks()
     {
         // Update possible breaks.
         // Breaks are not allowed between a method name and the opening bracket:
-        
+
         // Spot the method calls and inform the brackets:
         // Start at second item because first can't be a bracket:
         for (int i = 1; i < fields.size(); i++)
@@ -406,7 +387,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
     // package-visible and static for testing
     static OpPrec calculatePrecedences(List<Operator> ops, List<Boolean> isUnary)
-    {   
+    {
         int lowestPrec = Integer.MAX_VALUE;
         int lowestIndex = -1;
         for (int i = 0; i < ops.size(); i++)
@@ -431,9 +412,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 ops.get(i).setPrecedence(Operator.Precedence.NEW);
                 continue;
             }
-            
+
             int prec = Operator.getOperatorPrecedence(ops.get(i).get(), isUnary.get(i).booleanValue());
-            
+
             // Prefer left-hand op, needs to be strictly lower
             if (prec < lowestPrec)
             {
@@ -448,10 +429,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             List<Boolean> lhsUnary = isUnary.subList(0, lowestIndex);
             List<Operator> rhs = ops.subList(lowestIndex + 1, ops.size());
             List<Boolean> rhsUnary = isUnary.subList(lowestIndex + 1, ops.size());
-            
+
             OpPrec lhsPrec = calculatePrecedences(lhs, lhsUnary);
             OpPrec rhsPrec = calculatePrecedences(rhs, rhsUnary);
-            
+
             int ourLevel;
             if (lhsPrec.prec == lowestPrec || rhsPrec.prec == lowestPrec ||
                     (lhsPrec.prec == -1 && rhsPrec.prec == -1))
@@ -464,7 +445,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 // One higher precedence:
                 ourLevel = 1 + Math.max(lhsPrec.levels, rhsPrec.levels);
             }
-            
+
             ops.get(lowestIndex).setPrecedence(Operator.getPrecForLevel(ourLevel));
             return new OpPrec(lowestPrec, ourLevel);
         }
@@ -521,7 +502,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     break;
             }
         });
-        
+
         // Put the handlers for links on the field:
         f.addEventHandler(MouseEvent.MOUSE_MOVED, e -> {
             CaretPos relNearest = getNearest(e.getSceneX(), e.getSceneY(), false, Optional.empty()).getPos();
@@ -529,11 +510,11 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             f.setPseudoclass("bj-hyperlink", e.isShortcutDown() && slot.getOverlay().hoverAtPos(slot.getTopLevel().caretPosToStringPos(absNearest, false)) != null);
         });
         f.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-            if (e.getClickCount() > 1) // Double and triple clicks will be handled by the text field 
+            if (e.getClickCount() > 1) // Double and triple clicks will be handled by the text field
                 return;
             if (!(e.isShortcutDown() || e.getButton() == MouseButton.MIDDLE))
                 return; // Either they must be holding shortcut button, or middle clicking
-            
+
             // check for click on underlined region
             CaretPos relNearest = getNearest(e.getSceneX(), e.getSceneY(), false, Optional.empty()).getPos();
             CaretPos absNearest = absolutePos(relNearest);
@@ -551,7 +532,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 //  - the mouse click has changed things (e.g. in var frames, clicking the type slot focuses it and changes the frame content)
                 //  - the user middle-clicked, so we didn't scan in advance
                 // Thus to cover the latter two options, we scan again to be sure:
-                slot.withLinksAtPos(absNearest, optLink -> 
+                slot.withLinksAtPos(absNearest, optLink ->
                     optLink.ifPresent(link -> {
                         FXPlatformRunnable onClick = link.getOnClick();
                         if (onClick != null)
@@ -560,10 +541,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 );
             }
         });
-        
+
         return f;
     }
-    
+
     /**
      * Position and focus the caret at the given position.  Returns the Node that will receive
      * focus.
@@ -584,7 +565,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             return foc.focusAtPos(pos.subPos);
         }
     }
-    
+
     /**
      * Draws the selection from anchorPos (if null, draw no selection) to the
      * position given as a parameter.  It does not matter whether anchorPos
@@ -607,7 +588,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 start = cur;
                 end = anchorPos;
             }
-            
+
             slot.drawSelection(getAllStartEndPositionsBetween(start, end).collect(Collectors.toList()));
         }
     }
@@ -619,10 +600,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
      *
      * We need this to calculate where to draw the selection boxes and error underlines for
      * multi-field selections/errors.
-     * 
+     *
      * @param start The start position, or null to mean from the start of this entire expression
-     * @param end The end position, or null to mean to the end of this entire expression 
-     */    
+     * @param end The end position, or null to mean to the end of this entire expression
+     */
     // package-visible
     Stream<TextOverlayPosition> getAllStartEndPositionsBetween(CaretPos start, CaretPos end)
     {
@@ -633,7 +614,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         if (end == null) {
             end = new CaretPos(fields.size() - 1, getLastField().getEndPos());
         }
-        
+
         // Single field is a simple case:
         int startIndex = start.index;
         int endIndex = end.index;
@@ -643,7 +624,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 s = Stream.concat(s, Stream.of(((StructuredSlotField) fields.get(fields.size() - 1)).calculateOverlayEnd()));
             return s;
         }
-        
+
         Stream<TextOverlayPosition> s = fields.get(startIndex).getAllStartEndPositionsBetween(start.subPos, null);
         for (int i = startIndex + 1; i < endIndex; i++)
         {
@@ -661,42 +642,42 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
         return s;
     }
-    
+
     // As position on overlay:
     public TextOverlayPosition calculateOverlayPos(CaretPos p)
     {
         //if (p == null)
         //    return new TextOverlayPosition(0.0, 0.0, 5.0);
-        
+
         StructuredSlotComponent f = fields.get(p.index);
         return f.calculateOverlayPos(p.subPos);
     }
-    
+
     public double sceneToOverlayX(double sceneX)
     {
         return slot.sceneToOverlayX(sceneX);
     }
-    
+
     public double sceneToOverlayY(double sceneY)
     {
         return slot.sceneToOverlayY(sceneY);
     }
-    
+
     public void deselect()
     {
         anchorPos = null;
         drawSelection(null);
     }
-    
+
     @Override
     public void backwardAtStart(StructuredSlotField f)
     {
         backwardAtStart((StructuredSlotComponent) f);
     }
-    
+
     /**
      * Handle moving backwards (left) when at the start of the given field.
-     * 
+     *
      * This will either move to the end of the appropriate preceding field, or if the passed
      * parameter is the first field, will take the appropriate action via its surrounding
      * BracketedStructured/StructuredSlot
@@ -705,7 +686,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     {
         int i = findField(f);
         if (i == -1) throw new IllegalStateException();
-        
+
         if (i > 0) {
             fields.get(i - 1).focusAtEnd();
         }
@@ -719,16 +700,16 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             }
         }
     }
-    
+
     @Override
     public void forwardAtEnd(StructuredSlotField f)
     {
         forwardAtEnd((StructuredSlotComponent)f);
     }
-    
+
     /**
      * Handle moving forwards (right) when at the start of the given field.
-     * 
+     *
      * This will either move to the beginning of the appropriate following field, or if the passed
      * parameter is the last field, will take the appropriate action via its surrounding
      * BracketedStructured/StructuredSlot
@@ -737,7 +718,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     {
         int i = findField(f);
         if (i == -1) throw new IllegalStateException();
-        
+
         if (i < fields.size() - 1) {
             fields.get(i + 1).focusAtStart();
         }
@@ -801,7 +782,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         drawSelection(new CaretPos(dest, fields.get(dest).getEndPos()));
         return true;
     }
-    
+
     //package-visible
     StructuredSlotField getFirstField()
     {
@@ -814,7 +795,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     }
 
     @Override
-    public boolean previousWord(StructuredSlotField f, boolean atStart) 
+    public boolean previousWord(StructuredSlotField f, boolean atStart)
     {
         if (atStart) {
             backwardAtStart(f);
@@ -823,7 +804,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         // Let the field handle it if not at start:
         return false;
     }
-    
+
     @Override
     public boolean nextWord(StructuredSlotField f, boolean atEnd)
     {
@@ -834,13 +815,13 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
      // Let the field handle it if not at end:
         return false;
     }
-    
+
     @Override
     public boolean endOfNextWord(StructuredSlotField f, boolean atEnd)
     {
         return nextWord(f, atEnd);
     }
-    
+
     @Override
     public boolean selectAll(StructuredSlotField f)
     {
@@ -873,7 +854,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         }
         return true;
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public boolean selectPreviousWord(StructuredSlotField f)
@@ -894,7 +875,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         }
         return true;
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public boolean cut()
@@ -903,7 +884,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         deleteSelection();
         return true;
     }
-    
+
     @Override
     public void moveTo(double sceneX, double sceneY, boolean setAnchor)
     {
@@ -913,7 +894,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             anchorPos = pos;
         }
     }
-    
+
     // Package-visible
     PosAndDist getNearest(double sceneX, double sceneY, boolean canDescend, Optional<Integer> restrictTo)
     {
@@ -926,12 +907,12 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         }
         return nearest;
     }
-    
+
     @Override
     public void selectTo(double sceneX, double sceneY)
     {
         // Anchor pos should already be set, so we just have to move caret
-        
+
         // Rules are:
         // you can't select into brackets or string literals
         // you can only select at same level.
@@ -939,7 +920,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         positionCaret(pos);
         drawSelection(pos);
     }
-    
+
     @Override
     public void selected()
     {
@@ -951,18 +932,18 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             drawSelection(null);
         }
     }
-    
+
     private void setAnchorIfUnset(CaretPos caretPos)
     {
         if (anchorPos == null)
-            anchorPos = caretPos;   
+            anchorPos = caretPos;
     }
-    
+
     @Override
     public boolean selectBackward(StructuredSlotField f, int posInSlot)
     {
         int start = findField(f);
-        
+
         if (posInSlot > 0) {
             setAnchorIfUnset(new CaretPos(start, new CaretPos(posInSlot, null)));
             CaretPos newPos = new CaretPos(start, new CaretPos(posInSlot - 1, null));
@@ -974,7 +955,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         // Can't select beyond beginning of string literal:
         if (fields.get(start) instanceof StringLiteralExpression)
             return false;
-        
+
         // Look at previous fields until we find one we can select into
         for (int i = start - 1; i >= 0; i--) {
             CaretPos pos = fields.get(i).getSelectIntoPos(true);
@@ -988,12 +969,12 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         }
         return false;
     }
-    
+
     @Override
     public boolean selectForward(StructuredSlotField f, int posInSlot, boolean atEnd)
     {
         int start = findField(f);
-        
+
         if (!atEnd) {
             setAnchorIfUnset(new CaretPos(start, new CaretPos(posInSlot, null)));
             CaretPos newPos = new CaretPos(start, new CaretPos(posInSlot + 1, null));
@@ -1005,7 +986,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         // Can't select beyond end of string literal:
         if (fields.get(start) instanceof StringLiteralExpression)
             return false;
-        
+
         // Let's look at next field:
         // Keep going right until we find a non-compound field:
         for (int i = start + 1; i < fields.size(); i++) {
@@ -1020,18 +1001,18 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         }
         return false;
     }
-    
+
     public void delete(StructuredSlotField f, int start, int end)
     {
         modification(token -> f.setText(f.getText().substring(0, start) + f.getText().substring(end), token));
     }
-    
+
     @Override
     public boolean copy()
     {
         if (anchorPos == null)
             return true;
-        
+
         CaretPos cur = getCurrentPos();
         CaretPos start, end;
         if (anchorPos.before(cur)) {
@@ -1042,19 +1023,19 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             start = cur;
             end = anchorPos;
         }
-        
+
         String s = getCopyText(start, end);
         Clipboard.getSystemClipboard().setContent(Collections.singletonMap(DataFormat.PLAIN_TEXT, s));
         return true;
     }
-    
+
     public String getCopyText(CaretPos start, CaretPos end)
     {
         if (start == null)
             start = new CaretPos(0, new CaretPos(0, null));
         if (end == null)
             end = new CaretPos(fields.size() - 1, getLastField().getEndPos());
-        
+
         if (start.index == end.index) {
             return fields.get(start.index).getCopyText(start.subPos, end.subPos);
         }
@@ -1075,9 +1056,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     private String getJavaCodeForFields(int start, int end)
     {
         StringBuilder b = new StringBuilder();
-        
+
         // If we have any .. operators, they are converted into a function call.
-        
+
         for (int i = start; i < end; i++)
         {
             b.append(fields.get(i).getJavaCode());
@@ -1091,9 +1072,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     {
         StringBuilder b = new StringBuilder();
         // If we have any .. operators, they are converted into a function call
-        
+
         int closing = 0;
-        
+
         int last = 0;
         for (int i = 0; i < operators.size(); i++)
         {
@@ -1105,7 +1086,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 // In this case, the range operator binds lower than the commas, so we basically have
                 // three parameters: "a", "6 .. 5 + x" and "c".  The "5 + x" binds tighter than .., so
                 // forms the right-hand side.
-                
+
                 // Thus our logic is as follows.  If the operator is a comma, we add everything we have seen up
                 // to that point, and reset the "last" index.  If the operator is a range, we
                 // add everything since "last" (the beginning, or last comma) to the output, and again
@@ -1133,17 +1114,17 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         b.append(getJavaCodeForFields(last, fields.size()));
         for (; closing > 0; closing--)
             b.append(")");
-        
+
         return b.toString();
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public boolean deleteSelection()
     {
         return modificationReturnPlatform(token -> deleteSelectionImpl(getCurrentPos(), token) != null);
     }
-    
+
     @OnThread(Tag.FXPlatform)
     private CaretPos deleteSelectionImpl(CaretPos cur, StructuredSlot.ModificationToken token)
     {
@@ -1198,7 +1179,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         }
         return pos;
     }
-    
+
     /**
      * Deletes the character before the given position in the text field.
      * The atStart parameter is a bit redundant (check if posInField == 0), but mirrors that of
@@ -1210,7 +1191,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         modificationPlatform(token -> positionCaret(deletePrevious_(f, posInField, atStart, token)));
         return true;
     }
-    
+
     @OnThread(Tag.FXPlatform)
     public CaretPos deletePreviousAtPos(CaretPos p, StructuredSlot.ModificationToken token)
     {
@@ -1241,7 +1222,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             if (index > 0)
             {
                 Operator prev = operators.get(index - 1);
-                
+
                 if (prev == null)
                 {
                     // No operator, must be closing bracket/quote beforehand
@@ -1275,7 +1256,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                         int newPos = prevField.getText().length() + opRemaining.length();
                         prevField.setText(prevField.getText() + opRemaining + f.getText(), token);
                         fields.remove(index, token);
-                        
+
                         //TODO act different if compound is involved
                         return checkFieldChange(index - 1, new CaretPos(index - 1, new CaretPos(newPos, null)), token);
                     }
@@ -1309,14 +1290,14 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             return p;
         }
     }
-    
+
     @OnThread(Tag.FXPlatform)
     public CaretPos flattenCompound(StructuredSlotComponent item, boolean caretAtEnd,
             StructuredSlot.ModificationToken token)
     {
         return flattenCompound(fields.indexOf(item), caretAtEnd, token);
     }
-    
+
     /**
      * Given the index of a compound field (e.g. BracketedStructured, StringLiteralExpressionField),
      * takes its content and flattens it, i.e. unwraps it from the BracketedStructured and inserts it
@@ -1329,13 +1310,13 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         StructuredSlotField fieldBefore = (StructuredSlotField) fields.get(index - 1);
         String after = fields.get(index+1).getCopyText(null, null);
         String content = fields.get(index).getCopyText(fields.get(index).getStartPos(), fields.get(index).getEndPos());
-        
+
         // Must remove second field first:
         fields.remove(index+1, token);
         if (operators.remove(index, token) != null) throw new IllegalStateException();
         fields.remove(index, token);
         if (operators.remove(index-1, token) != null) throw new IllegalStateException();
-        
+
         int len = fieldBefore.getText().length();
         CaretPos mid = insertImpl(fieldBefore, len, content, false, token);
         // TODO stop using testing method here:
@@ -1344,7 +1325,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             return mid;
         return new CaretPos(index - 1, new CaretPos(len, null));
     }
-    
+
     /**
      * Deletes the next character after the given position.  atEnd is a convenience
      * variable indicating if the deletion is requested at the last caret position
@@ -1356,7 +1337,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         modificationPlatform(token -> positionCaret(deleteNextImpl(f, posInField, atEnd, token)));
         return true;
     }
-    
+
     @OnThread(Tag.FXPlatform)
     private CaretPos deleteNextImpl(StructuredSlotField f, int posInField, boolean atEnd,
             StructuredSlot.ModificationToken token)
@@ -1381,7 +1362,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     // Operator follows
                     String op = next.get();
                     // If it is still a valid operator without the first char, then just lop the first
-                    // character off but leave as an operator: 
+                    // character off but leave as an operator:
                     if (op.length() > 1 && isOperator(op.substring(1)))
                     {
                         next.set(op.substring(1));
@@ -1397,13 +1378,13 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                         {
                             opRemaining = "ew"; // Remove 'n' because of delete, and space to avoid awkwardness
                         }
-                        
+
                         operators.remove(index, token);
                         int newPos = f.getText().length();
                         f.setText(f.getText() + opRemaining + ((StructuredSlotField)fields.get(index + 1)).getText(), token);
                         fields.remove(index + 1, token);
-                        
-                        
+
+
                         return checkFieldChange(index, new CaretPos(index, new CaretPos(newPos, null)), token);
                     }
                 }
@@ -1431,7 +1412,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             return checkFieldChange(index, new CaretPos(index, new CaretPos(posInField, null)), token);
         }
     }
-    
+
     public CaretPos getCurrentPos()
     {
         for (int i = 0; i < fields.size(); i++)
@@ -1442,7 +1423,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         }
         return null;
     }
-    
+
     private int findField(StructuredSlotComponent f)
     {
         for (int i = 0; i < fields.size(); i++)
@@ -1461,7 +1442,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         }
         return -1;
     }
-    
+
     /**
      * Handles inserting the given text at the given caret position in the given slot-field.
      */
@@ -1470,7 +1451,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     {
         modificationPlatform(token -> insertImpl(f, posInField, text, true, token));
     }
-    
+
     /**
      * Implementation of insert method, used directly by test classes.
      */
@@ -1483,13 +1464,13 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             return null;
         }
         int index = findField(f);
-        
+
         if (index == -1)
         {
             return null; // Must be initialising; nothing to do here
-        }        
+        }
         CaretPos pos = new CaretPos(index, new CaretPos(posInField, null));
-        
+
         // Unless it's a opening bracket, any insertion must involve first deleting the selection:
         if (text.length() > 0 && !isOpeningBracket(text.charAt(0)) && text.charAt(0) != '\"' && text.charAt(0) != '\'')
         {
@@ -1497,16 +1478,16 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             if (postDeletion != null)
                 pos = postDeletion;
         }
-        
+
         for (int i = 0; i < text.length(); i++)
         {
             pos = insertChar(pos, text.charAt(i), user, token);
-            
+
             // Blank selection after first insertion:
             // (We don't do it before first insertion, because you might have pressed '(' which should
             // take the selection and enclose it; the selection only becomes N/A after the first insertion):
             anchorPos = null;
-            
+
             if (pos.index == Integer.MAX_VALUE)
             {
                 if (parent == null)
@@ -1518,16 +1499,16 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 }
             }
         }
-        
+
         positionCaret(pos);
         if (slot != null)
         {
             slot.clearSelection(true);
         }
-        
+
         return pos; // Returned for testing purposes
     }
-    
+
     @OnThread(Tag.FXPlatform)
     CaretPos insertAtPos(CaretPos p, String after, StructuredSlot.ModificationToken token)
     {
@@ -1552,11 +1533,11 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             final Operator prev = pos.index == 0 ? null : operators.get(pos.index - 1);
             final Operator next = pos.index >= operators.size() ? null : operators.get(pos.index);
             int posInField = pos.subPos.index;
-            
+
             if (isDisallowed(c))
                 // No semi-colons allowed, except in string literals:
                 return pos;
-            
+
             if (Character.isWhitespace(c) && !f.getText().substring(0, posInField).equals("new"))
             {
                 // No whitespace allowed in slots (except string literals, handled later, and after "new")
@@ -1593,7 +1574,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             {
                 String before = f.getText().substring(0, posInField);
                 String following = f.getText().substring(posInField);
-                
+
                 f.setText(before, token);
                 operators.add(pos.index, new Operator("" + c, this), token);
                 fields.add(pos.index + 1, makeNewField(following, false), token);
@@ -1601,7 +1582,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             }
             else if (anchorPos != null && (isOpeningBracket(c) || c == '\"' || c == '\''))
             {
-                // If there is a selection, enclose that in the bracket/quote:                
+                // If there is a selection, enclose that in the bracket/quote:
                 String content = anchorPos.before(pos) ? getCopyText(anchorPos, pos) : getCopyText(pos, anchorPos);
                 pos = deleteSelectionImpl(pos, token);
                 pos = insertChar(pos, c, false, token);
@@ -1621,11 +1602,14 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                         return new CaretPos(pos.index + 1, new CaretPos(0, new CaretPos(0, null)));
                     }
                 }
-                
+
                 String following = f.getText().substring(posInField);
                 f.setText(f.getText().substring(0, posInField), token);
+                //manvi jain
+
+                setAccessibilityRoleDescription(f.getText() + " ");
                 operators.add(pos.index, null, token);
-                
+
                 fields.add(pos.index + 1, new BracketedStructured(editor, this, this.slot, c, "", token), token);
                 if (pos.index + 1 >= operators.size() || operators.get(pos.index + 1) != null
                         || !(fields.get(pos.index + 2) instanceof StructuredSlotField))
@@ -1659,6 +1643,11 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             {
                 String following = f.getText().substring(posInField);
                 f.setText(f.getText().substring(0, posInField), token);
+                //manvi
+                if(c == '\"')
+                    setAccessibilityRoleDescription("double quotation ");
+                else
+                    setAccessibilityRoleDescription("single quotation ");
                 operators.add(pos.index, null, token);
                 fields.add(pos.index + 1, new StringLiteralExpression(c, makeNewField("", true), this), token);
                 if (pos.index + 1 >= operators.size() || operators.get(pos.index + 1) != null || fields.get(pos.index + 2) instanceof StringLiteralExpression || fields.get(pos.index + 2) instanceof BracketedStructured)
@@ -1681,8 +1670,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                         && Character.isWhitespace(c))
                 {
                     String following = f.getText().substring(posInField);
-                
+
                     f.setText("", token);
+                    //manvi jain
+                    setAccessibilityRoleDescription(getSlot().getJavaCode() + " new object created ");
                     operators.add(pos.index, new Operator("new ", this), token);
                     fields.add(pos.index + 1, makeNewField(following, false), token);
                     return new CaretPos(pos.index + 1, new CaretPos(0, null));
@@ -1691,8 +1682,11 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 {
                     // Just insert normally:
                     f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
-                    
-                    CaretPos overridePos = checkFieldChange(pos.index, new CaretPos(pos.index, new CaretPos(posInField+1, null)), c == '.', user, token);
+
+                    //manvi
+                    setAccessibilityRoleDescription(getSlot().getJavaCode());
+
+                   CaretPos overridePos = checkFieldChange(pos.index, new CaretPos(pos.index, new CaretPos(posInField+1, null)), c == '.', user, token);
                     return overridePos;
                 }
             }
@@ -1727,12 +1721,17 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 else
                 {
                     // Not at end of field; ignore it
-                    return pos;                       
+                    return pos;
                 }
             }
-            
+
             // If it is not a quote, or it is after a backslash, insert as-is:
             f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
+            //Manvi jain
+            if(getSlot().getJavaCode().charAt(0) == '\'')
+                setAccessibilityRoleDescription(getSlot().getJavaCode() + " in apostrophe");
+            else
+                setAccessibilityRoleDescription(getSlot().getJavaCode() + " in quotation");
             return new CaretPos(pos.index, new CaretPos(posInField+1, null));
         }
         return null;
@@ -1782,14 +1781,14 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     {
         return checkFieldChange(index, pos, false, false, token);
     }
-    
+
     /**
      * Checks the field at the given index, and performs any rearrangements necessary that
      * relate to floating point literals.  This may involve turning a dot in a field into an
      * operator, or turning an operator back into field content (for dots, pluses and minuses).
-     * 
+     *
      * Returns the new position (adjustment of the passed pos)
-     * 
+     *
      */
     @OnThread(Tag.FXPlatform)
     private CaretPos checkFieldChange(int index, CaretPos pos, boolean addedDot, boolean user, StructuredSlot.ModificationToken token)
@@ -1804,10 +1803,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 ? operators.get(index).get() : "";
         StructuredSlotField prevField = index > 0 && fields.get(index - 1) instanceof StructuredSlotField
                 ? (StructuredSlotField)fields.get(index - 1) : null;
-        boolean precedingBracket = index > 0 && operators.get(index - 1) == null;        
+        boolean precedingBracket = index > 0 && operators.get(index - 1) == null;
         boolean bracketBeforePrevField = index > 1 && prevField != null && operators.get(index - 2) == null;
-        
-        int dotIndex = -1;   
+
+        int dotIndex = -1;
         while ((dotIndex = f.getText().indexOf('.', dotIndex + 1)) != -1)
         {
             String beforeDot = f.getText().substring(0, dotIndex);
@@ -1819,7 +1818,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             if (!supportsFloatLiterals() || !precedesDotInFloatingPointLiteral(beforeDot) || isDoubleDot /* two dots is operator */)
             {
                 f.setText(beforeDot, token);
-                 
+
                 if (isDoubleDot)
                 {
                     operators.add(index, new Operator("..", this), token);
@@ -1828,17 +1827,17 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 else
                 {
                     boolean wasShowingSuggestions = slot != null && slot.isShowingSuggestions();
-                    
+
                     operators.add(index, new Operator(".", this), token);
                     fields.add(index + 1, makeNewField(afterDot, false), token);
-                    
+
                     // If a dot is entered and code completion was showing, re-trigger it in the new field:
                     // We use runLater to make sure the state is all settled before showing the completion:
                     // (we must be on FX thread, not loading, because we are modified while showing suggestions)
                     if (wasShowingSuggestions && user && addedDot)
                         JavaFXUtil.runPlatformLater(() -> slot.showSuggestionDisplay((StructuredSlotField)fields.get(index+1), 0, false));
                 }
-                
+
                 if (pos.index > index) // already after split field:
                     pos =  new CaretPos(pos.index + (isDoubleDot ? 2 : 1), pos.subPos);
                 else if (pos.index == index)
@@ -1852,14 +1851,14 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                         // in field, after dot
                 }
                 // else before the dot field, leave as-is
-                
+
                 pos = checkFieldChange(index, pos, token);
                 return checkFieldChange(index + 1, pos, token);
             }
             // else if it is a literal and it's in the slot already, leave in slot.
             // But we still need to continue in case plus or minus was just added, or second dot...
         }
-                
+
         if (supportsFloatLiterals() && precedesDotInFloatingPointLiteral(f.getText()) && nextOp.equals("."))
         {
             // Need to merge dot back in:
@@ -1867,7 +1866,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             f.setText(f.getText() + nextOp + ((StructuredSlotField)fields.get(index + 1)).getText(), token);
             operators.remove(index, token);
             fields.remove(index+1, token);
-            
+
             if (pos.index > index + 1)
             {
                 pos = new CaretPos(pos.index - 1, pos.subPos);
@@ -1877,11 +1876,11 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 pos = new CaretPos(index, new CaretPos(pos.subPos.index + prevLen + 1, null));
             }
             // If it was in pos.index or an earlier slot, it can stay untouched.
-            
+
             nextOp = (index < operators.size() && operators.get(index) != null)
                     ? operators.get(index).get() : "";
         }
-        
+
         Function<Integer, Integer> findPlusMinus = prev -> {
             int plusIndex = f.getText().indexOf('+', prev + 1);
             int minusIndex = f.getText().indexOf('-', prev + 1);
@@ -1900,10 +1899,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             // There are two points at which it is valid to have a plus/minus in a numeric literal:
             //  - At the very beginning of the literal (and assuming there is no operand before the plus/minus, i.e. it is unary)
             //  - After digits and an 'e' or hex digits and a 'p'.
-            
+
             boolean atBeginningAndUnary = before.equals("") && !precedingBracket && (!prevOp.equals("") || prevField == null || prevField.getText().equals("")) && succeedsOpeningPlusMinusInFloatingPointLiteral(after);
-            boolean midwayAfterEorP = precedesPlusMinusInFloatingPointLiteral(before); 
-            
+            boolean midwayAfterEorP = precedesPlusMinusInFloatingPointLiteral(before);
+
             // If it satisfies neither of these, split out into its own field:
             if (!atBeginningAndUnary && !midwayAfterEorP)
             {
@@ -1924,7 +1923,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     return pos;
             }
         }
-        
+
         if (precedesPlusMinusInFloatingPointLiteral(f.getText()) && (nextOp.equals("+") || nextOp.equals("-")))
         {
             // Need to merge dot back in:
@@ -1932,7 +1931,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             f.setText(f.getText() + nextOp + ((StructuredSlotField)fields.get(index + 1)).getText(), token);
             operators.remove(index, token);
             fields.remove(index+1, token);
-            
+
             if (pos.index > index + 1)
             {
                 pos = new CaretPos(pos.index - 1, pos.subPos);
@@ -1943,7 +1942,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             }
             // If it was in pos.index or an earlier slot, it can stay untouched.
         }
-        
+
         if ((prevOp.equals("+") || prevOp.equals("-")) && succeedsOpeningPlusMinusInFloatingPointLiteral(f.getText())
                 && prevField != null && prevField.getText().equals("") && !bracketBeforePrevField)
         {
@@ -1953,9 +1952,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             f.setText(prevOp + f.getText(), token);
             pos = new CaretPos(pos.index - 1, new CaretPos(pos.subPos.index + 1, null));
         }
-        
+
         return pos;
-        
+
     }
 
     /**
@@ -1964,10 +1963,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     protected abstract boolean supportsFloatLiterals();
 
     private boolean precedesPlusMinusInFloatingPointLiteral(String before) {
-        return before.matches("\\A\\s*0x" + HEX_DIGITS_REGEX + "(\\.(" + HEX_DIGITS_REGEX +")?)?[pP]\\z") || 
+        return before.matches("\\A\\s*0x" + HEX_DIGITS_REGEX + "(\\.(" + HEX_DIGITS_REGEX +")?)?[pP]\\z") ||
                 before.matches("\\A\\s*[+-]?" + DIGITS_REGEX + "(\\.(" + DIGITS_REGEX + ")?)?[eE]\\z");
     }
-    
+
     private boolean succeedsOpeningPlusMinusInFloatingPointLiteral(String after)
     {
         return after.matches("\\A\\d.*");
@@ -1977,44 +1976,44 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     {
         getFirstField().focusAtStart();
     }
-    
+
     public void focusAtEnd()
     {
         getLastField().focusAtEnd();
     }
-    
+
     public CaretPos getStartPos()
     {
         return new CaretPos(0, getFirstField().getStartPos());
     }
-    
+
     public CaretPos getEndPos()
     {
         return new CaretPos(fields.size() - 1, getLastField().getEndPos());
     }
-    
+
     public void end()
     {
         getLastField().focusAtEnd();
     }
-    
+
     // Delegate targets from Slot, via StructuredSlot:
-    
+
     public ObservableList<Node> getComponents()
     {
         return components;
     }
-    
+
     public boolean isEmpty()
     {
         return fields.size() == 1 && getFirstField().isEmpty();
     }
-    
+
     public void requestFocus()
     {
         getFirstField().requestFocus();
     }
-    
+
     // package-visible
     void withContent(BiConsumer<ProtectedList<StructuredSlotComponent>, ProtectedList<Operator>> setPrompts)
     {
@@ -2030,7 +2029,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
     /**
      * Creates mappings between a caret position and string position.  See CaretPosMap for more info.
-     * 
+     *
      * If javaString is true, maps to generated Java code string.  If false,
      * maps to copy-string/frame source.  Difference is that if you want to write
      * "6 - -5", then in copy-string this must be "6--5" (no spaces supported) and in
@@ -2041,7 +2040,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     List<CaretPosMap> mapCaretPosStringPos(IntCounter cur, boolean javaString)
     {
         List<CaretPosMap> r = new ArrayList<>();
-        
+
         BiConsumer<Integer, Integer> addForRange = (startIncl, endExcl) -> {
             for (int i = startIncl; i < endExcl; i++)
             {
@@ -2059,14 +2058,14 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 }
             }
         };
-        
+
         if (!javaString)
         {
             addForRange.accept(0, fields.size());
         }
         else
         {
-            
+
             int closing = 0;
             int last = 0;
             for (int i = 0; i < fields.size(); i++)
@@ -2103,7 +2102,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
      * Maps a given string position into a CaretPos.
      * Only really applicable when called on the top-level InfixStructured.
      * Should probably be moved to StructuredSlot.
-     * 
+     *
      * If javaString is true, maps to generated Java code string.  If false,
      * maps to copy-string/frame source.  Difference is that if you want to write
      * "6 - -5", then in copy-string this must be "6--5" (no spaces supported) and in
@@ -2125,12 +2124,12 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         Debug.message("Could not find position for: " + pos);
         return null;
     }
-    
+
     /**
      * Maps a given CaretPos into a position in the full string for the expression.
      * Only really applicable when called on the top-level InfixStructured.
      * Should probably be moved to StructuredSlot.
-     * 
+     *
      * If javaString is true, maps to generated Java code string.  If false,
      * maps to copy-string/frame source.  Difference is that if you want to write
      * "6 - -5", then in copy-string this must be "6--5" (no spaces supported) and in
@@ -2142,14 +2141,14 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     {
         List<CaretPosMap> mapping = mapCaretPosStringPos(new IntCounter(), javaString);
         for (CaretPosMap cpm : mapping) {
-            Optional<Integer> i = pos.getFollowing(cpm.posOuter); 
+            Optional<Integer> i = pos.getFollowing(cpm.posOuter);
             if (i.isPresent()) {
-                return i.get() + cpm.startIndex; 
+                return i.get() + cpm.startIndex;
             }
         }
         throw new IllegalStateException();
     }
-    
+
     //package-visible
     double getBaseline()
     {
@@ -2160,7 +2159,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             height -= field.getBorder().getInsets().getBottom();
         return height;
     }
-    
+
     public void blank(StructuredSlot.ModificationToken token)
     {
         token.check();
@@ -2169,12 +2168,12 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         fields.add(makeNewField("", false), token);
         anchorPos = null;
     }
-    
+
     public boolean isFocused()
     {
         return fields.stream().anyMatch(StructuredSlotComponent::isFocused);
     }
-    
+
     public boolean isCollapsible(StructuredSlotField f)
     {
         // A field is collapsible if:
@@ -2182,19 +2181,19 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         // - It occurs between a bracket (null operator) and an operator, or
         //   a bracket and the end, or two brackets (could be cast on lhs)
         //   - This includes single slots, but there is exception for only slot at top-level, unless we are parameters to constructor
-        
+
         int index = findField(f);
         if (index == -1) {
             // This can occur, e.g. while field is being removed and has lost focus:
             return false;
         }
-        
+
         boolean opBefore = index == 0 || operators.get(index - 1) != null;
         boolean opAfter = index == operators.size() || operators.get(index) != null;
-        
+
         //boolean unaryBefore = index != 0 && canBeUnary(operators.get(index - 1));
         boolean unaryAfter = index < operators.size() && canBeUnary(Utility.orNull(operators.get(index), Operator::get));
-        
+
         if (fields.size() == 1 && parent == null)
         {
             if (slot != null && slot.canCollapse())
@@ -2258,7 +2257,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             return insertImpl((StructuredSlotField)fields.get(0), 0, text, false, token);
         });
     }
-    
+
     @OnThread(Tag.FXPlatform)
     CaretPos testingInsert(CaretPos p, String after)
     {
@@ -2278,7 +2277,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 return new CaretPos(p.index, ((BracketedStructured)fields.get(p.index)).testingContent().testingBackspace(p.subPos));
         });
     }
-    
+
     @OnThread(Tag.FXPlatform)
     CaretPos testingDelete(CaretPos p)
     {
@@ -2290,11 +2289,11 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             f = ((StringLiteralExpression)fields.get(p.index)).getField();
         else
             return new CaretPos(p.index, ((BracketedStructured)fields.get(p.index)).testingContent().testingDelete(p.subPos));
-        
+
         return modificationReturnPlatform(token ->
                 deleteNextImpl(f, p.subPos.index, p.subPos.index == f.getText().length(), token));
     }
-    
+
     @OnThread(Tag.FXPlatform)
     CaretPos testingDeleteSelection(CaretPos start, CaretPos end)
     {
@@ -2324,7 +2323,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 StringBuilder commas = new StringBuilder();
                 for (int i = 0; i < params.size() - 1; i++)
                     commas.append(',');
-                
+
                 if (p.index + 1 < fields.size() && fields.get(p.index + 1) instanceof BracketedStructured && ((BracketedStructured)fields.get(p.index + 1)).getOpening() == opening)
                 {
                     BracketedStructured b = ((BracketedStructured)fields.get(p.index + 1));
@@ -2359,7 +2358,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
     @OnThread(Tag.FXPlatform)
     public abstract void calculateTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler);
-        
+
     protected CaretPos absolutePos(CaretPos p)
     {
         if (parent == null)
@@ -2385,7 +2384,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     {
         List<StructuredSlotField> r = new ArrayList<>();
         int lastComma = -1; // Just before first parameter, in effect
-                
+
         for (int i = 0; i < fields.size(); i++)
         {
             StructuredSlotField f = fields.get(i) instanceof StructuredSlotField ? (StructuredSlotField)fields.get(i) : null;
@@ -2403,7 +2402,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 lastComma = i;
             }
         }
-        
+
         return r;
     }
 
@@ -2426,7 +2425,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     @OnThread(Tag.FXPlatform)
     public void escape()
     {
-        slot.escape();        
+        slot.escape();
     }
 
     public void addClosingChar(char closingChar)
@@ -2443,7 +2442,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     {
         return textProperty;
     }
-    
+
     public TextOverlayPosition calculateOverlayEnd()
     {
         return getLastField().calculateOverlayEnd();
@@ -2478,10 +2477,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         }
         return refs;
     }
-    
+
     /**
      * Returns true iff the infix expression is of the form {1,2,3},
-     * or that in some number of round brackets. 
+     * or that in some number of round brackets.
      */
     public boolean isCurlyLiteral()
     {
@@ -2502,7 +2501,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             //return e.getContent().isCurlyLiteral();
         else
             return false;
-        
+
     }
 
     // package-visible
@@ -2519,7 +2518,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         {
             wrapper.highlightBrackets(true);
         }
-        
+
         for (int i = 0; i < fields.size(); i++)
         {
             StructuredSlotComponent f = fields.get(i);
@@ -2542,16 +2541,16 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 e.getContent().showHighlightedBrackets(e, pos != null && pos.index == i ? pos.subPos : null);
             }
         }
-        
+
     }
-    
+
     // forLoopVarName is missing if we are not top-level in a for loop,
     // but present if we are.  If present, check for constant loop bounds, and display classic for loop instead.
     public void setView(View oldView, View newView, SharedTransition animate, Optional<String> forLoopVarName)
     {
         fields.forEach(f -> f.setView(oldView, newView, animate));
         operators.forEach(o -> { if (o != null) o.setView(newView, animate); });
-        
+
         if (newView == View.NORMAL)
         {
             previewingJavaRange.set(false);
@@ -2655,7 +2654,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         // It is allowed to have structure (brackets, quotes, operators) as long as all text fields are blank:
         return fields.stream().allMatch(StructuredSlotComponent::isAlmostBlank);
     }
-    
+
     public void notifyLostFocus(StructuredSlotField except)
     {
         fields.forEach(f -> { if (f != except) f.notifyLostFocus(except); });
@@ -2676,13 +2675,13 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
      *   "Hi!\n C:\\Program Files"
      * we can pass various substrings to find the escape status (using curly brackets to
      * surround the string, to avoid confusion):
-     * 
+     *
      * {Hi!} : NORMAL
      * {Hi!\}: AFTER_BACKSLASH
      * {Hi!\n}: NORMAL
      * {Hi!\n C:\}: AFTER_BACKSLASH
      * {Hi!\n C:\\}: NORMAL
-     * 
+     *
      */
     private static enum EscapeStatus { NORMAL, AFTER_BACKSLASH }
 
@@ -2704,6 +2703,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     // Package-visible
     static class CaretPosMap
     {
+
+
+
         private final CaretPos posOuter; // Has null at inner point where you should put within-field caret index
         private final int startIndex; // The corresponding index within the entire String
         private final int endIndex; // The corresponding index within the entire String
@@ -2715,7 +2717,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             this.startIndex = startIndex;
             this.endIndex = endIndex;
         }
-        
+
         /**
          * Makes a copy of this CaretPosMap, with the given index on the beginning of the posOuter field.
          */
@@ -2723,7 +2725,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         {
             return new CaretPosMap(new CaretPos(index, posOuter), startIndex, endIndex);
         }
-        
+
         @Override
         public boolean equals(Object obj)
         {
@@ -2760,17 +2762,17 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             return "CaretPosMap [posOuter=" + posOuter + ", startIndex="
                     + startIndex + ", endIndex=" + endIndex + "]";
         }
-        
-        
+
+
     }
 
 
     abstract boolean isOperator(String s);
 
     abstract boolean beginsOperator(char c);
-    
+
     abstract boolean canBeUnary(String s);
-    
+
     abstract INFIX newInfix(InteractionManager editor, SLOT slot, String initialContent, BracketedStructured<?, SLOT> wrapper, StructuredSlot.ModificationToken token, Character... closingChars);
 
     private <T> T modificationReturn(FXFunction<StructuredSlot.ModificationToken, T> modificationAction)
@@ -2802,7 +2804,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         // Defeat thread checker:
         return modificationReturn(modificationAction::apply);
     }
-    
+
     //package-visible:
     String calculateText()
     {
@@ -2812,7 +2814,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             operators.stream().map(o -> o == null ? null : o.get()))
             .filter(x -> x != null).collect(Collectors.joining());
     }
-    
+
     /**
      * A simple class to allow a mutable integer to be passed around while building a CaretPosMap
      */
@@ -2832,5 +2834,68 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             this.levels = levels;
         }
     }
+
+
+    //Manvi jain
+
+    /**
+     * Read out the value in the slot
+     * @param text
+     */
+    public void setAccessibilityRoleDescription(String text){
+        this.getComponents().get(0).setAccessibleRoleDescription(replaceOperatorInText(text));
+    }
+
+
+    /**
+     * converts all operator symbols to words for the Screenreader
+     * @param textIn String with operator symbol
+     * @return converted String
+     */
+    public String replaceOperatorInText(String textIn)
+    {
+        String text = textIn;
+        final HashMap<String, String> operatorText = new HashMap<>(){{
+                    put("==", "is equal equal to ");
+                    put(">=", "is greater than equal to ");
+                    put("<=", "is smaller than equal to ");
+                    put("<","is smaller than ");
+                    put(">", "is greater than ");
+                    put("=", "is equals to ");
+                    put("||", "or ");
+                    put("&&", "and ");
+                    put("!", "not");
+                    put("&","bitwise and ");
+                    put("|","bitwise or ");
+                    put("^","power ");
+                    put("/+","plus ");
+                    put("-","minus ");
+                    put("/*","star ");
+                    put(">>","greater than greater than sign ");
+                    put("<<","smaller than smaller than sign ");
+                    put("%","percentage sign ");
+                    put("->","arrow ");
+        }};
+
+
+        for(int i = 0; i < text.length() ; i++){
+            if(operatorText.containsKey(Character.toString(text.charAt(i)))){
+                try {
+                    String doubleOp = Character.toString(text.charAt(i)) + text.charAt(i + 1);
+
+                    if(operatorText.containsKey(doubleOp)){
+                        text = text.replace(text.substring(i, i+2), operatorText.get(doubleOp));
+                    }
+                    else {
+                        throw new IndexOutOfBoundsException();
+                    }
+                }catch (IndexOutOfBoundsException e){
+                    text = text.replace(text.substring(i, i+1), operatorText.get(Character.toString(text.charAt(i))));
+                }
+            }
+        }
+        return text;
+    }
+
 }
 

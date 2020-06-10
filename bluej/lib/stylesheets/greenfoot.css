@@ -1,0 +1,211 @@
+/* Define named colours: */
+.root {
+    export-background: rgb(220, 220, 220);
+}
+
+.class-group .inherit-arrow {
+    -fx-stroke: black;
+    -fx-stroke-width: 1;
+    -fx-fill: null;
+}
+
+.class-display {
+    /* Match size of selected border: */
+    -fx-border-width: 1, 2;
+    -fx-border-color: black, transparent;
+    -fx-border-style: solid outside;
+}
+.class-display:gf-selected {
+    -fx-border-width: 3;
+    -fx-border-color: black;
+}
+.class-display, .class-display-content {
+    -fx-background-color: rgb(245, 204, 155);
+}
+.class-display-content {
+    /* These two values must be identical to let us see the stripes: */
+    -fx-padding: 4px 7px 4px 7px;
+    -fx-background-insets: 4px 7px 4px 7px;
+}
+.class-display-content .label {
+    -fx-content-display: right;
+    -fx-graphic-test-gap: 5;
+}
+
+.gclass-diagram {
+    -fx-padding: 5px;
+}
+.gclass-diagram-scroll > .viewport {
+    -fx-background-color: white;
+}
+.gclass-diagram-scroll-wrapper {
+    -fx-padding: 15px;
+}
+
+.import-class-dialog .class-group {
+    -fx-border-color: gray;
+    -fx-border-width: 1;
+    -fx-border-style: solid inside;
+}
+
+.export-dialog .content {
+    -fx-padding: 10px 10px 0 10px;
+}
+.export-dialog .content .tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: transparent;
+}
+.export-dialog .content .bottom-box {
+    -fx-spacing: 10px;
+    -fx-padding: 10px 10px 0 10px;
+    -fx-alignment: baseline-left;
+}
+.export-tab {
+    -fx-pref-height: 75px;
+    -fx-background-color: transparent;
+}
+.export-tab:selected {
+    -fx-background-color: export-background !important;
+    -fx-background-insets: -1 !important;
+}
+.export-tab-content {
+    -fx-padding: 10px;
+    -fx-spacing: 10px;
+    -fx-background-color: export-background;
+}
+.export-publish-tab .help-box {
+    -fx-alignment: baseline-left;
+}
+.export-publish-tab .help-box .label {
+    -fx-font-style: normal;
+}
+.export-publish-tab .info-pane, .export-publish-tab .login-pane {
+    -fx-effect: innershadow(three-pass-box, gray, 12 , 0.5, 1, 1);
+    -fx-background-color: rgb(166, 188, 202);
+    -fx-padding: 15px;
+}
+.export-publish-tab .login-pane {
+    -fx-spacing: 10px;
+    -fx-alignment: baseline-center;
+}
+.export-publish-tab .scenario-pane {
+    -fx-spacing: 10px;
+    -fx-padding: 10px 10px 0 0;
+}
+.export-publish-tab .title-desc-pane {
+    -fx-hgap: 8px;
+    -fx-vgap: 8px;
+}
+.export-publish-tab .icon-text-pane {
+    -fx-alignment: center-right;
+}
+.export-publish-tab .tag-pane {
+    -fx-spacing: 20px;
+}
+.export-publish-tab .pop-pane {
+    -fx-spacing: 5px;
+}
+.export-publish-tab .source-lock-pane {
+    -fx-spacing: 10px;
+    -fx-padding: 5px 0 0 0;
+    -fx-alignment:	bottom-center;
+}
+.export-publish-tab .label {
+    -fx-font-size: 10pt;
+    -fx-font-style: italic;
+    -fx-font-family: "Source Sans Pro";
+}
+.export-publish-tab .intro-label {
+    -fx-font-style: normal;
+    -fx-text-fill: rgb(40, 75, 125);
+}
+.export-publish-tab .create-account-label {
+    -fx-alignment:	bottom-left;
+}
+.export-local-tab .location-pane {
+    -fx-spacing: 5px;
+}
+.image-edit-pane {
+    -fx-spacing: 10px;
+    -fx-alignment: center;
+}
+
+.ask-pane {
+    -fx-border-width: 1;
+    -fx-background-color: rgb(222, 166, 41);
+    -fx-border-color: black;
+    -fx-padding: 10 10 10 10;
+}
+.world-display-wrapper {
+    -fx-border-style: solid outside;
+    -fx-border-width: 1;
+    -fx-border-color: black;
+}
+.world-display-wrapper .actor-highlight {
+    -fx-fill: null;
+    -fx-stroke-type: inside;
+    -fx-stroke-width: 2;
+    -fx-stroke-miter-limit: 1;
+}
+.image-edit-pane .image-canvas {
+    -fx-border-style: solid inside;
+    -fx-border-width: 1;
+    -fx-border-color: black;
+}
+.world-display-scroll {
+    /* Turn off the scroll pane border except at bottom and right: */
+    -fx-background-insets: 0, 0 1 1 0;
+    -fx-padding: 0 1 1 0;
+}
+
+.background-message, .hung-message {
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-wrap-text: true;
+    -fx-label-padding: 40px;
+    -fx-font-size: 20px;
+    /* Let it fill the space: */
+    -fx-max-width: 99999.0;
+    -fx-max-height: 99999.0;
+}
+.background-message {
+    -fx-text-fill: gray;
+    -fx-background-color: -fx-box-border, -fx-background;
+    -fx-background-insets: 0, 0 1 1 0;
+}
+.hung-message {
+    -fx-text-fill: maroon;
+}
+
+.act-icon {
+    -fx-stroke: green;
+    -fx-stroke-width: 2;
+}
+.run-icon {
+    -fx-stroke: green;
+    -fx-fill: green;
+    -fx-stroke-width: 2;
+}
+.pause-icon {
+    -fx-stroke: darkred;
+    -fx-fill: null;
+    -fx-stroke-width: 3;
+    -fx-stroke-line-cap: square;
+}
+
+.control-panel {
+    -fx-padding: 10 0 10 0;
+    -fx-background-insets: 0, 0 1 0 0;
+    -fx-background-color: -fx-box-border, -fx-background;
+}
+.control-panel .buttons-panel {
+    -fx-hgap: 20;
+    /* 280 is the minimum without wrapping the buttons */
+    -fx-min-width: 280;
+}
+.control-panel .buttons-panel .button {
+    -fx-graphic-text-gap: 8;
+    -fx-padding: 6 10 6 10;
+}
+.control-panel .speed-panel {
+    -fx-hgap: 10;
+}

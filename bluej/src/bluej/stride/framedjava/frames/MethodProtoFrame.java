@@ -94,6 +94,10 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         getHeaderRow().getNode().getStyleClass().add("method-header");
 
         bindHeader();
+
+        //Manvi jain
+        returnType.setAccessibility("return type of method " + returnType.getText());
+        methodName.setAccessibility("method name " + methodName.getText());
     }
     
     public MethodProtoFrame(final InteractionManager editor, TypeSlotFragment returnType,
@@ -106,6 +110,10 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         throwsTypes.forEach(t -> throwsPane.addTypeSlotAtEnd(t.getType(), false));
         setDocumentation(documentation);
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        this.returnType.setAccessibility("return type of method " + this.returnType.getText());
+        this.methodName.setAccessibility("method name " + this.methodName.getText());
     }
     
     private void bindHeader()

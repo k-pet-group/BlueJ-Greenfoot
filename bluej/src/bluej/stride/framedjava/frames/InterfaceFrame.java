@@ -93,6 +93,11 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
                 FXCollections.observableArrayList(paramName),
                 extendsList.getHeaderItems()
         ));
+
+        for(int i=0; i<extendsTypes.size(); i++)
+        {
+            extendsTypes.get(i).getSlot().setAccessibility("parent class name ");
+        }
     }
 
     protected Frame findASpecialMethod()
@@ -292,5 +297,12 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
     protected List<SlotLabel> getCanvasLabels()
     {
         return Arrays.asList(importsLabel, fieldsLabel, methodsLabel);
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        return "in interface " ;
     }
 }

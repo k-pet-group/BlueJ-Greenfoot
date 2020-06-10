@@ -34,28 +34,12 @@ import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.MethodWithBodyElement;
 import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.DocumentedSingleCanvasFrame;
-import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.slots.AccessPermissionSlot;
-import bluej.stride.slots.ChoiceSlot;
-import bluej.stride.slots.EditableSlot;
-import bluej.stride.slots.FormalParameters;
-import bluej.stride.slots.HeaderItem;
-import bluej.stride.slots.Throws;
+import bluej.stride.slots.*;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -70,9 +54,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Container-block representing a method.
@@ -336,6 +323,8 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
                 
         // Method blocks don't show anything in the sidebar
         //setSidebar(param2.textProperty());
+
+       // paramsPane.getSlots().size()
     }
     
     protected List<ParamFragment> generateParams()
