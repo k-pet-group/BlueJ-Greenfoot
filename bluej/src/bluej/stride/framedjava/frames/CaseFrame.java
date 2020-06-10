@@ -26,6 +26,10 @@
 package bluej.stride.framedjava.frames;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.framedjava.canvases.JavaCanvas;
@@ -35,16 +39,19 @@ import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
 import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
+import bluej.stride.generic.Frame;
+import bluej.stride.generic.FrameCanvas;
+import bluej.stride.generic.FrameCursor;
+import bluej.stride.generic.FrameFactory;
+import bluej.stride.generic.InteractionManager;
+import bluej.stride.generic.SingleCanvasFrame;
+import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Utility;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Container-block representing a case condition.
@@ -119,7 +126,39 @@ public class CaseFrame extends SingleCanvasFrame
         //Manvi jain
         paramCondition.setAccessibility("condition in case statement");
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        String condition;
+        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
+        String text = "'case' frame with value" + condition;
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String condition, text;
+        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
+        text = " in a 'case' frame with value " + condition + ",";
+        text += getParentCanvas().getParentLocationDescription();
+        return text;
+    }
+
     /**
      * Replace statement with a "for" loop, transferring over loop body and header.
      */

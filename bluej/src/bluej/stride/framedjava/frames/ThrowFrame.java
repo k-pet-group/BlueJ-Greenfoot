@@ -26,15 +26,20 @@
 package bluej.stride.framedjava.frames;
 
 
+import java.util.List;
+
+import javafx.beans.property.SimpleIntegerProperty;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
+import bluej.stride.framedjava.ast.HighlightedBreakpoint;
+import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.ThrowElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
-import javafx.beans.property.SimpleIntegerProperty;
+import bluej.stride.operations.FrameOperation;
 
 /**
  * A Throw statement
@@ -71,6 +76,30 @@ public class ThrowFrame extends SingleLineFrame
         //Manvi jain
         param1.setAccessibility(" exception name in throw ");
     }
+
+    //cherry
+    public String getScreenReaderText() {
+        String thrown;
+        if (param1.getText().equals("")) { thrown = "blank"; } else { thrown = param1.getText(); }
+        String text = "throw " + thrown;
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
 
     @Override
     public void regenerateCode()

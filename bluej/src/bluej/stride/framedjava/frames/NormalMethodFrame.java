@@ -191,6 +191,63 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         methodName.setAccessibility(", method name in method signature");
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        // build string out of all params
+        StringBuilder paramString = new StringBuilder();
+        for(ParamFragment pair : paramsPane.getSlotElement()) {
+            String name, type;
+            if (pair.getParamName().getSlot().getText().equals("")) { name = "blank"; } else { name = pair.getParamName().getSlot().getText(); }
+            if (pair.getParamType().getSlot().getText().equals("")) { type = "blank"; } else { type = pair.getParamType().getSlot().getText(); }
+
+            paramString.append(type + " " +  name + " ");
+        }
+        // make method text
+        String text, nameString, returnString;
+        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
+        if (returnType.getText().equals("")) { returnString = "blank"; } else { returnString = returnType.getText(); }
+
+        if (paramString.length() != 0) {
+            text = "Method " + nameString + " with parameters " + paramString.toString() + " with " + access.getValue(AccessPermission.PUBLIC).toString() + " access and " + returnString + " return type ";
+        } else {
+            text = "Method " + nameString + " with "   + access.getValue(AccessPermission.PUBLIC).toString() + " access and "+ returnString + " return type ";
+        }
+        // add static final if present
+        if (finalModifier.get()) {
+            text = finalLabel.getText() + " " + text;
+        }
+        if (staticModifier.get()) {
+            text = staticLabel.getText() + " " + text;
+        }
+//        System.out.println(text);
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String text, nameString;
+        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
+        text = " in the method " + nameString + ",";
+        text += getParentCanvas().getParentLocationDescription();
+
+        return text;
+    }
+
     @Override
     public boolean focusWhenJustAdded()
     {

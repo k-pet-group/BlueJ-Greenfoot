@@ -222,6 +222,29 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         };
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String fieldString;
+        if (importField.getText().equals("")) { fieldString = "blank"; } else { fieldString = importField.getText(); }
+        String text = "import " + fieldString;
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
     public String getImport()
     {
         return importField.getText();

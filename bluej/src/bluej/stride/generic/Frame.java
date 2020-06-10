@@ -45,6 +45,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
@@ -95,7 +96,7 @@ import threadchecker.Tag;
  * 
  * Frames often implement the CodeFrame interface, from which you can generate a CodeElement
  * (e.g. for saving and compiling).  Most CodeElements are also frame factories (e.g. for loading).
- * 
+ *
  * @author Fraser McKay
  */
 public abstract class Frame implements CursorFinder, FocusParent<FrameContentItem>, ErrorShower
@@ -140,6 +141,12 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      */
     private final BooleanProperty disabledRoot = new SimpleBooleanProperty(true);
     private final String stylePrefix;
+
+    //cherry
+    protected abstract String getScreenReaderText();
+
+    //cherry
+    protected abstract String getScreenReaderHelp();
 
     public final String getStylePrefix()
     {

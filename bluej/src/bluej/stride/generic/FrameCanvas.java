@@ -182,6 +182,15 @@ public class FrameCanvas implements FrameContentItem
         return parentBlock;
     }
 
+    //cherry
+    public String getParentLocationDescription()
+    {
+        // if this canvas has no parent, (if i'm not wrong) it means this
+        // canvas is exposed in the class, so the parent is the class
+        if (getParent()==null) { return " in the class " + editorFrm.nameProperty().get(); }
+        else return getParent().getLocationDescription(this);
+    }
+
     public VBox getSpecialBefore(FrameCursor cursor)
     {
         int index = 0;
@@ -254,6 +263,7 @@ public class FrameCanvas implements FrameContentItem
         specials.add(index, special);
         toAdd.setParentCanvas(this);
         validate(cursor, index + 1);
+
     }
     
     /**
@@ -291,6 +301,8 @@ public class FrameCanvas implements FrameContentItem
         specials.add(index, special);
         toAdd.setParentCanvas(this);
         validate(cursor, index);
+
+
     }
 
     /**
@@ -806,7 +818,7 @@ public class FrameCanvas implements FrameContentItem
     /**
      * Empty the canvas of block contents, and move them all to the target canvas, starting at the specified index (in that canvas's children)
      * @param targetCanvas canvas to export contents to
-     * @param index  starting index in other canvas to insert at
+     * @param after  starting index in other canvas to insert at
      */
     public void emptyTo(FrameCanvas targetCanvas, Frame after)
     {

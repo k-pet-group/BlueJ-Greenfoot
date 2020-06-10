@@ -22,6 +22,11 @@
 package bluej.stride.framedjava.frames;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
@@ -36,11 +41,6 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Container-block representing a try-catch statement.
@@ -111,6 +111,45 @@ public class TryFrame extends SandwichCanvasesFrame
             catchVars.get(i).setAccessibility("catch variable name in try block");
         }
     }
+
+    //cherry
+    public String getScreenReaderText() {
+        String text = "try frame ";
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String text = "";
+        int sectionIndex = canvases.indexOf(c);
+        if (sectionIndex==0) {
+            // "try" section
+            text = " in the 'try' section,";
+        } else {
+            // "catch" section
+            text = " in the 'catch' section with parameter " + catchVars.get(sectionIndex-1) + " of type " + catchTypes.get(sectionIndex-1) + ",";
+        }
+        text += " in a 'try-catch' frame,";
+        text += getParentCanvas().getParentLocationDescription();
+
+        return text;
+    }
+
 
     @Override
     protected FrameContentRow getFrameContentRow(List<SlotFragment> slots, JavaCanvas canvas, int at)

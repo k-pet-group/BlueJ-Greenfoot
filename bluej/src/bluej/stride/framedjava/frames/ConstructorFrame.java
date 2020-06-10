@@ -21,6 +21,18 @@
  */
 package bluej.stride.framedjava.frames;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import bluej.stride.framedjava.elements.ClassElement;
+import javafx.beans.binding.DoubleExpression;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+
 import bluej.Config;
 import bluej.stride.framedjava.ast.*;
 import bluej.stride.framedjava.elements.CodeElement;
@@ -111,6 +123,58 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
             superThis.setAccessibility(" super constructor options");
         }
     }
+
+    //cherry
+    public String getScreenReaderText() {
+        StringBuilder paramString = new StringBuilder();
+        for(ParamFragment pair : paramsPane.getSlotElement()) {
+            String name, type;
+            if (pair.getParamName().getSlot().getText().equals("")) { name = "blank"; } else { name = pair.getParamName().getSlot().getText(); }
+            if (pair.getParamType().getSlot().getText().equals("")) { type = "blank"; } else { type = pair.getParamType().getSlot().getText(); }
+
+            paramString.append(type + " " +  name + " ");
+        }
+        String text = "Constructor " + getEditor().nameProperty().get();
+        if (paramString.length() != 0) {
+            text += " with parameters " + paramString.toString();
+        }
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        StringBuilder paramString = new StringBuilder();
+        for(ParamFragment pair : paramsPane.getSlotElement()) {
+            String name, type;
+            if (pair.getParamName().getSlot().getText().equals("")) { name = "blank"; } else { name = pair.getParamName().getSlot().getText(); }
+            if (pair.getParamType().getSlot().getText().equals("")) { type = "blank"; } else { type = pair.getParamType().getSlot().getText(); }
+
+            paramString.append(type + " " +  name + " ");
+        }
+        String text = " in the constructor " + getEditor().nameProperty().get();
+        if (paramString.length() != 0) {
+            text += " with parameters " + paramString.toString();
+        }
+        text += getParentCanvas().getParentLocationDescription();
+
+        return text;
+    }
+
 
     public static FrameFactory<ConstructorFrame> getFactory() {
         return new FrameFactory<ConstructorFrame>() {

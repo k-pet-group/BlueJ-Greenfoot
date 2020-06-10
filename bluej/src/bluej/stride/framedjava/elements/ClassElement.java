@@ -54,6 +54,7 @@ import bluej.stride.framedjava.frames.ClassFrame;
 import bluej.stride.framedjava.frames.ConstructorFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.parser.AssistContentThreadSafe;
+import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.ShowReason;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
@@ -319,7 +320,8 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         });
         return frame;
     }
-    
+
+
     @Override
     public ClassFrame createTopLevelFrame(InteractionManager editor)
     {

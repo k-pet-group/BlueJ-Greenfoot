@@ -26,19 +26,27 @@
 package bluej.stride.framedjava.frames;
 
 
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import bluej.stride.generic.CanvasParent;
+import bluej.stride.generic.DocumentationTextArea;
 import bluej.stride.framedjava.elements.CommentElement;
 import bluej.stride.generic.*;
 import bluej.stride.slots.EditableSlot;
+import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-
-import java.util.Arrays;
 
 /**
  * A statement with // for comments
@@ -128,7 +136,32 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
             }
         };
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        String commentString;
+        if (comment.getText().equals("")) { commentString = "blank"; } else { commentString = comment.getText(); }
+        String text = "comment " + commentString;
+//        System.out.println(text);
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
+
     private Canvas getDiagonalLineCanvas()
     {
         if (diagonalLinesCanvas == null)

@@ -115,7 +115,50 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         this.returnType.setAccessibility("return type of method " + this.returnType.getText());
         this.methodName.setAccessibility("method name " + this.methodName.getText());
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        StringBuilder paramString = new StringBuilder();
+        for(ParamFragment pair : paramsPane.getSlotElement()) {
+            String name, type;
+            if (pair.getParamName().getSlot().getText().equals("")) { name = "blank"; } else { name = pair.getParamName().getSlot().getText(); }
+            if (pair.getParamType().getSlot().getText().equals("")) { type = "blank"; } else { type = pair.getParamType().getSlot().getText(); }
+
+            paramString.append(type + " " +  name + " ");
+        }
+        // make method text
+        String text, nameString, returnString;
+        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
+        if (returnType.getText().equals("")) { returnString = "blank"; } else { returnString = returnType.getText(); }
+        if (paramString.length() != 0) {
+            text = "method " + nameString + " with parameters " + paramString.toString() + " and " + returnString + " return type ";
+        } else {
+            text = "method " + nameString + " with " + returnString + " return type ";
+        }
+        // add abstract if this method is in a class (not interface)
+        if (parentIsClass.get()) {
+            text = abstractLabel.getText() + " " + text;
+        }
+//        System.out.println(text);
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
+
     private void bindHeader()
     {
         getHeaderRow().bindContentsConcat(FXCollections.observableArrayList(

@@ -188,6 +188,25 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         }
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "class frame";
+//        System.out.println(text);
+        return text;
+    }
+
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String text = " in the class " + getEditor().nameProperty().get();
+        return text;
+    }
+
     @Override
     public Stream<EditableSlot> getPossiblyHiddenSlotsDirect()
     {

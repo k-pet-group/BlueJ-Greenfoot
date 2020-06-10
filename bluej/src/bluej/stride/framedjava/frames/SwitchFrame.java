@@ -26,6 +26,9 @@
 package bluej.stride.framedjava.frames;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import bluej.Config;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
@@ -46,9 +49,6 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Container-block representing a switch-case statement.
@@ -106,6 +106,41 @@ public class SwitchFrame extends MultiCanvasFrame
         this.expression.setAccessibility("switch statement expression ");
 
     }
+
+    //cherry
+    public String getScreenReaderText() {
+        String expressionStr;
+        if (expression.getText().equals("")) { expressionStr = "blank"; } else { expressionStr = expression.getText(); }
+        String text = "switch " + expressionStr;
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String expressionStr, text;
+        if (expression.getText().equals("")) { expressionStr = "blank"; } else { expressionStr = expression.getText(); }
+
+        text = " in a 'switch' frame for expression " + expressionStr + ",";
+        text += getParentCanvas().getParentLocationDescription();
+
+        return text;
+    }
+
 
     public boolean addDefault()
     {

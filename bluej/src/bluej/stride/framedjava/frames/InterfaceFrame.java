@@ -100,6 +100,25 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
         }
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "interface frame";
+        return text;
+    }
+
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String text = "";
+        return text;
+    }
+
+
     protected Frame findASpecialMethod()
     {
         return null;

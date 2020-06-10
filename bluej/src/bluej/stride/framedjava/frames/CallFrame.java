@@ -97,6 +97,31 @@ public class CallFrame extends SingleLineFrame
         content.setAccessibility(" method name in call");
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String contentString;
+        if (content.getText().trim().equals("()")) { contentString = "blank"; } else { contentString = content.getText(); }
+        String text = "call " + contentString;
+//        System.out.println(text);
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
+
     @Override
     public void regenerateCode()
     {

@@ -139,7 +139,32 @@ public class AssignFrame extends SingleLineFrame
             }
         };
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        String lhs, rhs;
+        if (slotLHS.getText().trim().isEmpty()) { lhs = "blank"; } else { lhs = slotLHS.getText(); }
+        if (slotRHS.getText().trim().isEmpty()) { rhs = "blank"; } else { rhs = slotRHS.getText(); }
+        String text = "assign " + lhs + " with " + rhs;
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
+
     public ExpressionSlot<? extends ExpressionSlotFragment> getLHS()
     {
         return slotLHS;

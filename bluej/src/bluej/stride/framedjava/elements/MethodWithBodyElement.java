@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.JavaFragment;
+import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
 import nu.xom.Element;

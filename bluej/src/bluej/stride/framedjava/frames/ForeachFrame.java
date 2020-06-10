@@ -117,6 +117,47 @@ public class ForeachFrame extends SingleCanvasFrame
         collection.setAccessibility("collection name in condition in for each loop");
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String typeString, varString, collectionString;
+        if (type.getText().equals("")) { typeString = "blank"; } else { typeString = type.getText(); }
+        if (var.getText().equals("")) { varString = "blank"; } else { varString = var.getText(); }
+        if (collection.getText().equals("")) { collectionString = "blank"; } else { collectionString = collection.getText(); }
+
+        String text = "for each " + typeString + " " + varString + " in " + collectionString;
+//        System.out.println(text);
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String text, typeString, varString, collectionString;
+        if (type.getText().equals("")) { typeString = "blank"; } else { typeString = type.getText(); }
+        if (var.getText().equals("")) { varString = "blank"; } else { varString = var.getText(); }
+        if (collection.getText().equals("")) { collectionString = "blank"; } else { collectionString = collection.getText(); }
+
+        text = " in a 'for each' frame that loops through every " + varString + " of type " + typeString + " in collection " + collectionString + ",";
+        text += getParentCanvas().getParentLocationDescription();
+
+        return text;
+    }
+
+
     @Override
     @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()

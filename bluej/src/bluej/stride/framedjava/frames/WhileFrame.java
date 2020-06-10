@@ -26,6 +26,10 @@
 package bluej.stride.framedjava.frames;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
@@ -44,10 +48,6 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Container-block representing a while loop.
@@ -139,7 +139,43 @@ public class WhileFrame extends SingleCanvasFrame
         //Manvi jain
         paramCondition.setAccessibility(" condition in while loop");
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        String condition;
+        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
+        String text = "while frame with condition " + condition;
+//        System.out.println(text);
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String condition, text;
+        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
+        text = " in a while frame with condition " + condition + ",";
+        text += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(text);
+        return text;
+    }
+
+
     /**
      * Replace statement with a "for" loop, transferring over loop body and header.
      */

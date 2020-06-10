@@ -26,7 +26,19 @@
 package bluej.stride.framedjava.frames;
 
 
+import java.util.List;
+import java.util.stream.Stream;
+
+import bluej.stride.slots.EditableSlot;
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.Cursor;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
+import bluej.stride.framedjava.ast.HighlightedBreakpoint;
+import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.ReturnElement;
 import bluej.stride.framedjava.slots.OptionalExpressionSlot;
 import bluej.stride.generic.*;
@@ -35,14 +47,6 @@ import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.beans.binding.BooleanExpression;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.Cursor;
-
-import java.util.stream.Stream;
 
 /**
  * A return statement
@@ -120,6 +124,30 @@ public class ReturnFrame extends SingleLineFrame
         //Manvi jain
         value.setAccessibility(" return value of method");
     }
+
+    //cherry
+    public String getScreenReaderText() {
+        String valueString;
+        if (value.getText().equals("")) { valueString = "blank"; } else { valueString = value.getText(); }
+        String text = "return " + valueString;
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
 
     @Override
     public void regenerateCode()

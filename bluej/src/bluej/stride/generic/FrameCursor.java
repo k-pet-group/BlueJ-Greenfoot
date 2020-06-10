@@ -411,6 +411,15 @@ public class FrameCursor implements RecallableFocus
             {
                 animateShowHide(nowFocused, false);
             }
+            //cherry
+            if (nowFocused)
+            {
+                if (getFrameAfter() != null)
+                {
+                    node.setAccessibleText(getFrameAfter().getScreenReaderText());
+                    node.setAccessibleHelp(getFrameAfter().getScreenReaderHelp());
+                }
+            }
         });
         JavaFXUtil.addChangeListener(node.localToSceneTransformProperty(), t -> JavaFXUtil.runNowOrLater(() -> adjustDragTargetPosition()));
         

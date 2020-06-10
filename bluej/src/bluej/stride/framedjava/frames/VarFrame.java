@@ -222,6 +222,51 @@ public class VarFrame extends SingleLineFrame
         slotValue.setAccessibility(", variable value");
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text, name, type, accessString;
+        if (slotName.getText().trim().isEmpty()) { name = "blank"; } else { name = slotName.getText(); }
+        if (slotType.getText().trim().isEmpty()) { type = "blank"; } else { type = slotType.getText(); }
+        accessString = access.getValue(AccessPermission.PRIVATE).toString();
+        if (accessModifier.get()) { // class field
+            text = "field " + name + " of type " + type + " with " + accessString + " access ";
+            if (finalModifier.get()) {
+                text = finalLabel.getText() + " " + text;
+            }
+            if (staticModifier.get()) {
+                text = staticLabel.getText() + " " + text;
+            }
+        } else if (finalModifier.get()) { // local constant
+            text = "constant " + name + " of type " + type;
+        } else { // local variable
+            text = "variable " + name + " of type " + type;
+        }
+
+        if (showingValue.get()) {
+            text += " equals " + slotValue.getText();
+        }
+//        System.out.println(text);
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
+        return helpText;
+    }
+
+
+
+
     @Override
     public void regenerateCode()
     {

@@ -107,6 +107,12 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
         storage.registerShelf(this);
     }
 
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String text = "";
+        return text;
+    }
+
     @Override
     @OnThread(Tag.FXPlatform)
     public void withCompletions(JavaFragment.PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
