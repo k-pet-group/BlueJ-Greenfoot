@@ -22,56 +22,34 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Stream;
-
+import bluej.stride.framedjava.ast.*;
+import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.VarElement;
+import bluej.stride.framedjava.slots.ExpressionSlot;
+import bluej.stride.framedjava.slots.FilledExpressionSlot;
 import bluej.stride.framedjava.slots.TypeSlot;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.FrameCursor;
+import bluej.stride.operations.FrameOperation;
+import bluej.stride.operations.ToggleBooleanProperty;
+import bluej.stride.slots.*;
+import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SharedTransition;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.Duration;
-
-import bluej.stride.framedjava.ast.AccessPermission;
-import bluej.stride.framedjava.ast.AccessPermissionFragment;
-import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
-import bluej.stride.framedjava.ast.NameDefSlotFragment;
-import bluej.stride.framedjava.ast.TypeSlotFragment;
-import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.framedjava.elements.VarElement;
-import bluej.stride.framedjava.slots.ExpressionSlot;
-import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.CanvasParent;
-import bluej.stride.generic.ExtensionDescription;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SingleLineFrame;
-import bluej.stride.operations.FrameOperation;
-import bluej.stride.operations.ToggleBooleanProperty;
-import bluej.stride.slots.AccessPermissionSlot;
-import bluej.stride.slots.EditableSlot;
-import bluej.stride.slots.ChoiceSlot;
-import bluej.stride.slots.Focus;
-import bluej.stride.slots.FocusParent;
-import bluej.stride.slots.HeaderItem;
-import bluej.stride.slots.SlotLabel;
-import bluej.stride.slots.SlotTraversalChars;
-import bluej.stride.slots.SlotValueListener;
-import bluej.stride.slots.VariableNameDefTextSlot;
-
-import bluej.utility.javafx.FXRunnable;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * A variable/object declaration block (with optional init)
@@ -86,11 +64,16 @@ public class VarFrame extends SingleLineFrame
     private static final String TOGGLE_FINAL_VAR = "toggleFinalVar";
 
     private final BooleanProperty accessModifier = new SimpleBooleanProperty(false);
+
     private final ChoiceSlot<AccessPermission> access; // present only when it is a class field
+    //manvi jain
     private final SlotLabel staticLabel = new SlotLabel(STATIC_NAME + " ");
+
     private final BooleanProperty staticModifier = new SimpleBooleanProperty(false);
+    //manvi jain
     private final SlotLabel finalLabel = new SlotLabel(FINAL_NAME + " ");
     private final BooleanProperty finalModifier = new SimpleBooleanProperty(false);
+    //manvi jain
     private final TypeSlot slotType;
     private final VariableNameDefTextSlot slotName;
     private final BooleanProperty showingValue = new SimpleBooleanProperty(false);
@@ -107,9 +90,10 @@ public class VarFrame extends SingleLineFrame
      * @param editor 
      */
     VarFrame(final InteractionManager editor, boolean isFinal, boolean isStatic)
-    {
+        {
         super(editor, "var ", "var-");
         //Parameters
+
 
         staticModifier.set(isStatic);
         finalModifier.set(isFinal);
@@ -122,7 +106,7 @@ public class VarFrame extends SingleLineFrame
         // Renaming fields is more difficult (could be accesses in other classes)
         // so for now we stick to renaming local vars:
         slotName = new VariableNameDefTextSlot(editor, this, getHeaderRow(), () -> isField(getParentCanvas()), "var-name-");
-        
+
         slotName.addValueListener(new SlotValueListener()
         {
 
@@ -149,10 +133,14 @@ public class VarFrame extends SingleLineFrame
         });
         
         slotName.setPromptText("name");
-        
+
         slotType = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.DECLARATION, "var-type-");
         slotType.setSimplePromptText("type");
+
+
         slotType.addClosingChar(' ');
+
+
 
         access = new AccessPermissionSlot(editor, this, getHeaderRow(), "var-access-");
         access.setValue(AccessPermission.PRIVATE);
@@ -175,7 +163,7 @@ public class VarFrame extends SingleLineFrame
         };
         slotName.addValueListener(new SlotTraversalChars(runAddValSlot, SlotTraversalChars.ASSIGN_LHS.getChars()));
 
-        
+
 
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(headerCaptionLabel),
@@ -198,11 +186,18 @@ public class VarFrame extends SingleLineFrame
                 );
 
         slotValue.onTextPropertyChange(s -> slotValueBlank.set(s.isEmpty()));
+
+
         // We must make the showing immediate when you get keyboard focus, as otherwise there
         // are problems with focusing the slot and then it disappears:
         ReadOnlyBooleanProperty keyFocusDelayed = JavaFXUtil.delay(hasKeyboardFocus, Duration.ZERO, Duration.millis(100));
         showingValue.bind(inInterfaceProperty.or(keyFocusDelayed).or(slotValueBlank.not()));
-    }
+
+        //Manvi jain
+        slotType.setAccessibility(", variable type");
+        slotName.setAccessibility(", variable name");
+        slotValue.setAccessibility(", variable value");
+        }
     
     // If varValue is null, that means the slot is not shown
     // If accessValue is null, that means the slot is not shown
@@ -220,6 +215,11 @@ public class VarFrame extends SingleLineFrame
             slotValue.setText(varValue);
         }
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        slotType.setAccessibility(", variable type");
+        slotName.setAccessibility(", variable name");
+        slotValue.setAccessibility(", variable value");
     }
 
     //cherry
@@ -383,6 +383,14 @@ public class VarFrame extends SingleLineFrame
             headerCaptionLabel.setText("var ");
             JavaFXUtil.setPseudoclass("bj-transparent", isAfterVarFrame(parentCanvas), headerCaptionLabel.getNode());
         }
+
+        //Manvi jain
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            slotType.setAccessibilityHelpSlots("variable type " + getParentCanvas().getParent().getHelpContext());
+            slotName.setAccessibilityHelpSlots("variable name " + getParentCanvas().getParent().getHelpContext());
+            slotValue.setAccessibilityHelpSlots("variable name " + getParentCanvas().getParent().getHelpContext());
+        }
     }
 
     private boolean isAfterVarFrame(FrameCanvas parentCanvas)
@@ -436,6 +444,8 @@ public class VarFrame extends SingleLineFrame
     @Override
     public void focusName() {
         slotName.requestFocus(Focus.LEFT);
+       // System.out.println("focussing");
+       // slotName.setHelpAccessibility("manvi jain focus");
     }
 
     @Override
@@ -507,4 +517,5 @@ public class VarFrame extends SingleLineFrame
     {
         return Stream.of(access, slotValue);
     }
+
 }

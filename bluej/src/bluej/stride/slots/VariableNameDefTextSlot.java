@@ -30,6 +30,7 @@ import java.util.function.BiConsumer;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
+import javafx.scene.AccessibleRole;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
@@ -231,7 +232,6 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
             hideAllUsesButton = null;
         }
     }
-
 
     @Override
     public List<? extends PossibleLink> findLinks()

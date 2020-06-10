@@ -21,12 +21,11 @@
  */
 package bluej.stride.framedjava.ast;
 
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.List;
-
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.Access;
+
+import java.util.Arrays;
+import java.util.List;
 
 public enum AccessPermission
 {
@@ -45,7 +44,8 @@ public enum AccessPermission
     {
         return displayName;
     }
-    
+
+
     public String getJavaCode()
     {
         // This is ok, even for EMPTY, because missing the permission does produce

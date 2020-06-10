@@ -60,7 +60,11 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     public void setText(ExpressionSlotFragment rhs)
     {
         rhs.registerSlot(this);
-        setText(rhs.getContent());        
+        setText(rhs.getContent());
+
+        //System.out.println("updated");
+        //Manvi jain
+        //this.getComponents().get(0).setAccessibleRoleDescription(rhs.getContent());
     }
 
     @Override
@@ -80,6 +84,8 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
                 topLevel.treatAsConstructorParams_updatePrompts();
             }
         }
+
+        //System.out.println("updated");
     }
 
 
@@ -152,4 +158,5 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
     {
         return topLevel.findLinks(Optional.empty(), getSlotElement().getVars(), offset -> getSlotElement().getPosInSourceDoc(offset), 0);
     }
-}
+
+  }

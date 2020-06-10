@@ -177,6 +177,15 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         this.constructorsCanvas = new FrameCanvas(editor, this, "class-");
         constructorsLabelRow = new FrameContentRow(this, constructorsLabel);
         addCanvas(constructorsLabelRow, constructorsCanvas, 1);
+
+        //Manvi jain
+        className.getSlot().setAccessibility("class name");
+        extendsSlot.setAccessibility(" parent class name" );
+        for(int i=0; i<implementsList.size(); i++)
+        {
+            if(implementsList.get(i).getSlot() != null)
+                implementsList.get(i).getSlot().setAccessibility("interface name");
+        }
     }
 
     //cherry
@@ -920,5 +929,12 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
             return false;
         }
         return super.backspaceAtStart(srcRow, src);
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        return "in class " + nameProperty().get();
     }
 }

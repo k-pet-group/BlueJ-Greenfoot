@@ -105,6 +105,10 @@ public class InheritedMethodFrame extends SingleLineFrame
         checkForOverride();
 
         setHeaderRow(slot, overrideLabel);
+
+        //Manvi jain
+        slot.setAccessibilityRoleDescription(methodName);
+        slot.setAccessibility("Inherited method name with return type " +returnType+ " " );
     }
 
     private void checkForOverride()
@@ -313,6 +317,16 @@ public class InheritedMethodFrame extends SingleLineFrame
         @Override
         public void setView(Frame.View oldView, Frame.View newView, SharedTransition animate)
         {
+        }
+
+        //Manvi jain
+        public void setAccessibility(String text)
+        {
+            this.getComponents().get(0).setAccessibleText(text);
+        }
+
+        public void setAccessibilityRoleDescription(String text){
+            this.getComponents().get(0).setAccessibleRoleDescription(text);
         }
     }
 

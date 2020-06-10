@@ -37,7 +37,7 @@ import bluej.stride.framedjava.elements.CaseElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
@@ -112,6 +112,9 @@ public class CaseFrame extends SingleCanvasFrame
         replaceMenu.getItems().addAll(forMenu, new SeparatorMenuItem(), ifMenu, ifElseMenu);
         */
         paramCondition.onTextPropertyChange(updateSidebarCurried("case "));
+
+        //Manvi jain
+        paramCondition.setAccessibility(" condition in case statement");
     }
     
     public CaseFrame(InteractionManager editor, FilledExpressionSlotFragment condition, boolean enabled)
@@ -119,6 +122,9 @@ public class CaseFrame extends SingleCanvasFrame
         this(editor);
         paramCondition.setText(condition);
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        paramCondition.setAccessibility("condition in case statement");
     }
 
     //cherry
@@ -269,5 +275,26 @@ public class CaseFrame extends SingleCanvasFrame
     {
         return getEditableSlotsDirect().allMatch(EditableSlot::isAlmostBlank) &&
                 canvas.getBlockContents().stream().allMatch(f -> (f instanceof BlankFrame || f instanceof BreakFrame));
+    }
+
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            paramCondition.setAccessibilityHelpSlots("Condition in case statement" + getParentCanvas().getParent().getHelpContext());
+        }
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in case statement " + parent ;
     }
 }

@@ -63,6 +63,9 @@ public class ThrowFrame extends SingleLineFrame
         param1 = new FilledExpressionSlot(editor, this, this, getHeaderRow(), "throw-");
         param1.setSimplePromptText("expression");
         setHeaderRow(param1, previewSemi);
+
+        //Manvi jain
+        param1.setAccessibility(" exception name in throw ");
     }
     
     public ThrowFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
@@ -70,6 +73,8 @@ public class ThrowFrame extends SingleLineFrame
         this(editor);
         param1.setText(val);
         frameEnabledProperty.set(enabled);
+        //Manvi jain
+        param1.setAccessibility(" exception name in throw ");
     }
 
     //cherry
@@ -101,6 +106,8 @@ public class ThrowFrame extends SingleLineFrame
     {
         element = new ThrowElement(this, param1.getSlotElement(), frameEnabledProperty.get());
         codeVersion.set(codeVersion.get() + 1);
+        //Manvi jain
+        param1.setAccessibility(" exception name in throw ");
     }
     
     @Override

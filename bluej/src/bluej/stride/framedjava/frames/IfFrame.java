@@ -25,6 +25,7 @@ package bluej.stride.framedjava.frames;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
@@ -77,8 +78,14 @@ public class IfFrame extends SandwichCanvasesFrame
         ifCondition.setTargetType("boolean");
         ifCondition.onTextPropertyChange(updateSidebarCurried("if "));
         setHeaderRow(new SlotLabel(" (", "if-bracket-opening"), ifCondition, new SlotLabel(")"));
+
+
+        //Manvi Jain
+        ifCondition.setAccessibility("condition in if statement ");
+
     }
-    
+
+
     /**
      * Construct an IfFrame by wrapping the given frames
      */
@@ -86,6 +93,9 @@ public class IfFrame extends SandwichCanvasesFrame
     {
         this(editor);
         getFirstCanvas().getFirstCursor().insertFramesAfter(contents);
+
+      // Manvi Jain
+        ifCondition.setAccessibility("condition in if statement ");
     }
 
     /**
@@ -114,6 +124,9 @@ public class IfFrame extends SandwichCanvasesFrame
             elseContents.forEach(f -> getTailCanvas().insertBlockAfter(f, null));
         }
         frameEnabledProperty.set(enabled);
+
+       // Manvi Jain
+        ifCondition.setAccessibility("condition in if statement ");
     }
 
     //cherry
@@ -201,6 +214,9 @@ public class IfFrame extends SandwichCanvasesFrame
 //        addCanvas(divider, elseIfCanvas);
 
         elseIfConditions.add(at, elseIfCondition); //add condition to the main ifFrame.
+
+
+        elseIfCondition.setAccessibility("else if statement condition");
         return row;
     }
 
@@ -241,4 +257,31 @@ public class IfFrame extends SandwichCanvasesFrame
         return new IfElement(this, ifCondition.getSlotElement(), firstCanvasContents, elseIfConditionsCode,
                 intermediateCanvasesContents, tailCanvasContents, enabled);
     }
+
+
+
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            ifCondition.setAccessibilityHelpSlots("Condition in if statement " + getParentCanvas().getParent().getHelpContext());
+        }
+    }
+
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in if statement " + parent;
+    }
+
+
 }

@@ -22,15 +22,22 @@
 package bluej.stride.slots;
 
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import bluej.editor.fixes.SuggestionList;
+import bluej.editor.fixes.SuggestionList.SuggestionDetails;
+import bluej.editor.fixes.SuggestionList.SuggestionListListener;
+import bluej.editor.stride.FrameCatalogue;
+import bluej.stride.framedjava.ast.JavaFragment;
+import bluej.stride.framedjava.ast.links.PossibleLink;
+import bluej.stride.framedjava.errors.CodeError;
+import bluej.stride.framedjava.slots.TextOverlayPosition;
+import bluej.stride.generic.Frame;
+import bluej.stride.generic.Frame.View;
+import bluej.stride.generic.FrameContentRow;
+import bluej.stride.generic.InteractionManager;
+import bluej.utility.Utility;
+import bluej.utility.javafx.ErrorUnderlineCanvas;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SharedTransition;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.ObjectProperty;
@@ -50,24 +57,16 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-
-import bluej.editor.stride.FrameCatalogue;
-import bluej.stride.framedjava.ast.JavaFragment;
-import bluej.stride.framedjava.ast.links.PossibleLink;
-import bluej.stride.framedjava.errors.CodeError;
-import bluej.stride.framedjava.slots.TextOverlayPosition;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.Frame.View;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.InteractionManager;
-import bluej.editor.fixes.SuggestionList.SuggestionDetails;
-import bluej.editor.fixes.SuggestionList.SuggestionListListener;
-import bluej.utility.Utility;
-import bluej.utility.javafx.ErrorUnderlineCanvas;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A choice slot has three overlaid elements (not counting the error underline) that make up
@@ -189,6 +188,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         effectivelyFocusedProperty = dummyField.focusedProperty().or(dropdown.isNotNull());
 
         setValue(null);
+
     }
     
     @OnThread(Tag.FXPlatform)
@@ -660,5 +660,23 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
     {
         // Not much effort to select choice, and often left as-is; approximate as one keypress:
         return 1;
+    }
+
+    public void setAccessibilityRoleDescription(String text){
+        this.getComponents().get(0).setAccessibleRoleDescription(text);
+    }
+
+    public List<T> getChoices(){
+        return choices;
+    }
+
+    //Manvi jain
+    public void setAccessibility(String text) {
+        this.getComponents().get(0).setAccessibleText(text);
+    }
+
+    //Manvi Jain
+    public void setAccessibilityHelpSlots(String helpText) {
+        this.getComponents().get(0).setAccessibleRoleDescription(helpText);
     }
 }

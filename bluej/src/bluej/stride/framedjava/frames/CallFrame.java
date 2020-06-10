@@ -71,6 +71,9 @@ public class CallFrame extends SingleLineFrame
 
         content.onTextPropertyChange(s -> checkForTopLevelEquals());
         content.addFocusListener(this);
+
+        //Manvi jain
+        content.setAccessibility(" method name in call");
     }
     
     // For replacement of AssignFrame:
@@ -79,6 +82,9 @@ public class CallFrame extends SingleLineFrame
     {
         this(editor);
         this.content.setSplitText(beforeCursor, afterCursor);
+
+        //Manvi jain
+        content.setAccessibility(" method name in call");
     }
     
     public CallFrame(InteractionManager editor, ExpressionSlotFragment e, boolean enabled)
@@ -86,6 +92,9 @@ public class CallFrame extends SingleLineFrame
         this(editor);
         this.content.setText(e);
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        content.setAccessibility(" method name in call");
     }
 
     //cherry
@@ -185,6 +194,11 @@ public class CallFrame extends SingleLineFrame
         }
     }
 
+    @Override
+    public void focusName() {
+        super.focusName();
+    }
+
     private void deleteOurselves()
     {
         FrameCanvas parentCanvas = getParentCanvas();
@@ -200,5 +214,14 @@ public class CallFrame extends SingleLineFrame
         // Add a delay so that the frame gets displayed first, otherwise
         // the code suggestions can show at the wrong position:
         JavaFXUtil.runAfter(Duration.millis(100), content::showSuggestion);
+    }
+
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            content.setAccessibilityHelpSlots("method call name " + getParentCanvas().getParent().getHelpContext());
+        }
     }
 }

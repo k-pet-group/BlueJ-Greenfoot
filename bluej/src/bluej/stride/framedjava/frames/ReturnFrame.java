@@ -41,12 +41,8 @@ import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.ReturnElement;
 import bluej.stride.framedjava.slots.OptionalExpressionSlot;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SingleLineFrame;
-import bluej.stride.operations.FrameOperation;
+import bluej.stride.generic.*;
+import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.javafx.FXRunnable;
@@ -106,6 +102,9 @@ public class ReturnFrame extends SingleLineFrame
             if ("void".equals(returnType.get()) && value.getText().isEmpty())
                 showingValue.set(false);
         } );
+
+        //Manvi jain
+        value.setAccessibility(" return value of method");
     }
     
     public ReturnFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
@@ -121,6 +120,9 @@ public class ReturnFrame extends SingleLineFrame
             showingValue.set(false);
         }
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        value.setAccessibility(" return value of method");
     }
 
     //cherry

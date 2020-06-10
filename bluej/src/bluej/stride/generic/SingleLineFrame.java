@@ -228,5 +228,6 @@ public abstract class SingleLineFrame extends Frame
         {
             return cachedXML.hashCode();
         }
+
     }
 }

@@ -110,6 +110,8 @@ public interface CanvasParent extends CursorFinder
     {
         FIELDS, CONSTRUCTORS, METHODS, STATEMENTS, IMPORTS;
     }
-    
+
+    String getHelpContext();
+
     default CanvasKind getChildKind(FrameCanvas c) { return CanvasKind.STATEMENTS; }
 }

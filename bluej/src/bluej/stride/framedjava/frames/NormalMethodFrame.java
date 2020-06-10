@@ -154,6 +154,23 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
         JavaFXUtil.addChangeListener(staticModifier, b -> editor.modifiedFrame(this, false));
         JavaFXUtil.addChangeListener(finalModifier, b -> editor.modifiedFrame(this, false));
+
+        //Manvi jain
+        returnType.setAccessibility("return type in method signature");
+
+        methodName.setAccessibility("method name in method signature");
+
+        for(int i=0; i<paramsPane.getSlots().size(); i++){
+
+            if(paramsPane.getSlots().size() !=  0){
+            //System.out.println(paramsPane.getSlots().get(i).getComponents());
+            int numberOfParams = paramsPane.getSlots().get(i).getComponents().size();
+
+            for(int j=0; j< numberOfParams; j++){
+                paramsPane.getSlots().get(i).getComponents().get(j).setAccessibleText("parameter name / type");
+            }
+        }
+        }
     }
     
     public NormalMethodFrame(InteractionManager editor, AccessPermissionFragment access, boolean staticModifier,
@@ -168,6 +185,10 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         this.returnType.setText(returnType);
         methodName.setText(name);
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        this.returnType.setAccessibility(", return type in method signature");
+        methodName.setAccessibility(", method name in method signature");
     }
 
     //cherry
@@ -470,5 +491,28 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            returnType.setAccessibilityHelpSlots("return type in signature of method " +getName() + " " + getParentCanvas().getParent().getHelpContext());
+            methodName.setAccessibilityHelpSlots("method name in signature of " +getName() + " " + getParentCanvas().getParent().getHelpContext());
+        }
+    }
+
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in method " +getName() + " " + parent;
     }
 }

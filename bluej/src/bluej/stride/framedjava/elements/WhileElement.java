@@ -102,6 +102,7 @@ public class WhileElement extends ContainerCodeElement implements JavaSingleLine
         for (CodeElement c : contents)
         {
             frame.getCanvas().insertBlockAfter(c.createFrame(editor), null);
+
         }
         return frame;
     }

@@ -118,6 +118,10 @@ class InheritedCanvas
             {
                 // No need to do anything on modification, as it was programmatic
             }
+
+            //Manvi jain
+            @Override
+            public String getHelpContext(){ return "" ; }
         }, "class-inherited-")
         {
 
@@ -188,4 +192,6 @@ class InheritedCanvas
         if (optionalCollapse != null)
             optionalCollapse.setVisible(false);
     }
+
+
 }

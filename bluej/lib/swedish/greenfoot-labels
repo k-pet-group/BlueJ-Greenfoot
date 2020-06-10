@@ -1,0 +1,360 @@
+#i18n for greenfoot
+
+greenfoot.nyi=Ej implementerat \u00E4n - sorry.
+greenfoot.preferences=Inst\u00E4llningar...
+greenfoot.copyright=Upphovsr\u00E4tt...
+greenfoot.quit=Avsluta
+
+greenfoot.launchFailed=Greenfoot misslyckades med att starta. F\u00F6r hj\u00E4lp, g\u00E5 till http://www.greenfoot.org/support
+
+
+# Greenfoot project version info
+project.version.none=Scenariot som \u00F6ppnas \u00E4r skapat med en gammal version av Greenfoot (innan version 0.5). Detta resulterar sannolikt i vissa fel som m\u00E5ste \u00E5tg\u00E4rdas manuellt.
+project.version.notGreenfoot=Detta \u00E4r inte ett Greenfoot-scenario: 
+project.version.mismatch=Versionerna matchar inte
+# The next 3 items will be shown if the major digit in the version number has changed. 
+# part3 should be updated to describe the changes that has happened.
+project.version.older.part1=Det \u00F6ppnade scenariot har skapats med an gammal version av Greenfoot (API version 
+# project version inserted here by Greenfoot
+project.version.older.part2=). Scenariot kommer att uppdateras till nuvarande version (API version 
+# api version inserted here by Greenfoot
+
+#Info about changes in this new version of the API that might break existing scenarios.
+project.version.older.part3=). F\u00F6ljande \u00E4ndringar i Greenfoots API kan g\u00F6ra detta scenario obrukbart:
+
+# Note the versions here are API versions, not Greenfoot versions!
+project.version.changes.1=2.1.0 Metoderna 'stopSimulation', 'startSimulation' and 'setSimulationSpeed' i Greenfoot har bytit namn till 'start', 'stop' and 'setSpeed'. 
+project.version.changes.2=2.1.0 Actor-metoder 'getWidth' and 'getHeight' har tagits bort. Use 'getImage().getWidth()' and 'getImage().getHeight()' instead.
+project.version.changes.3=2.1.0 Actor-metoder 'getObjectsInRange' anv\u00E4nder numer celler ist\u00E4llet f\u00F6r pixlar som enhet f\u00F6r r\u00E4ckvidd
+project.version.changes.4=2.1.0 Greenfoot har gjorts skiftl\u00E4gesk\u00E4nsliga n\u00E4r man behandlar ljud- och bildfiler.
+project.version.changes.5=2.1.0 World's metoder 'setTiled' and 'getTiled' har tagits bort.
+project.version.changes.6=2.1.0 World's 'getBackground' returnerar nu en bild med samma storlek som hela bakgrunden.
+project.version.changes.7=2.2.0 En 'move'-metod och en 'turn'-metod har lagts till i Actor-klassen.
+project.version.changes.8=2.3.0 Greenfoot.getMouseInfo() returnerar nu endast null om musen inte finns i v\u00E4rlden.
+project.version.changes.9=2.3.0 En metod: 'turnTowards(int,int)' har lagts till i Actor-klassen.
+project.version.changes.10=2.4.0 En klass 'UserInfo' har lagts till (ombd\u00F6p fr\u00E5n 'PlayerData' i Greenfoot 2.2.0 beta).
+project.version.changes.11=2.5.0 Metoderna 'isTouching' och 'removeTouching' har lagts till i Actor-klassen.
+project.version.changes.12=2.6.0 Metoden 'showText' lads till i World-klassen och en ny konstruktor lades till i GreenfootImage.
+project.version.changes.13=2.7.0 Metoden 'ask' lades till i Greenfoot-klassen.
+project.version.changes.14=2.8.0 Metoden 'getWorldOfType' lades till i Actor-klassen och generics lades till i APIn.
+project.version.changes.15=3.0.0 Klasserna greenfoot.Color och greenfoot.Font introducerades f\u00F6r att ers\u00E4tta java.awt-klasser.
+
+project.version.newer.part1=Scenariot som \u00F6ppnas skapades i en nyare version av Greenfoot (API version 
+# project version inserted here by Greenfoot
+project.version.newer.part2=). Om du \u00F6ppnar scenariot i nuvarande version s\u00E5 kan det resultera i fel som m\u00E5ste \u00E5tg\u00E4rdas manuellt.\n\nVill du forts\u00E4tta \u00F6ppna filen \u00E4nd\u00E5?
+project.close=St\u00E4ng
+
+# Actions
+greenfoot.about=Om Greenfoot...
+compile.all=Kompilera
+compile.class=Kompilera
+duplicate.class=Duplicera...
+edit.class=\u00D6ppna redigerare
+edit.images=Scenario-bilder...
+new.other.class=Ny klass...
+new.sub.class=Ny subklass...
+stride.new.project=Nytt Stride-scenario...
+java.new.project=Nytt Java-Scenario...
+open.project=\u00D6ppna...
+open.gfar.project=\u00D6ppna GFAR...
+open.recentProject=\u00D6ppna senaste
+remove.class=Ta bort
+remove.selected=Ta bort klass
+convert.to.java.class=Konvertera till Java
+convert.to.java.selected=Konvertera klass till Java
+inspect.class=Inspektera
+reset.world=\u00C5terst\u00E4ll
+run.once=Agera
+run.simulation=K\u00F6r
+project.save=Spara
+project.saveAs=Spara som...
+select.image=Ange bild...
+show.readme=Scenario-information
+pause.simulation=Pausa
+show.apidoc=\u00D6ppna dokumentation
+save.world=Spara v\u00E4rlden
+
+newProject.prompt=Ange ett namn f\u00F6r scenariot
+
+# Remove class confirmation
+remove.confirm.title=Bekr\u00E4fta borttagning av klass
+remove.confirm.text1=Du kommer att ta bort klassen
+remove.confirm.text2=Forts\u00E4tt?
+
+# Convert to Java class confirmation
+convert.to.java.confirm.title=Bekr\u00E4fta att du vill konvertera en klass
+convert.to.java.confirm.text1=Du h\u00E5ller p\u00E5 att konvertera
+convert.to.java.confirm.text2=en klass fr\u00E5n Stride till Java.
+convert.to.java.confirm.text3=Denna handling kan o\u00E5terkallelig. Forts\u00E4tt?
+
+# Save As project dialog
+project.saveAs.title=Spara scenario som
+
+# Export scenario dialog
+export.project=Dela...
+export.progress.bundling=F\u00F6rpackar scenario...
+export.progress.publishing=Publicerar...
+export.progress.writingHTML=Skriver webbsida...
+export.progress.writingJar=Skriver jar-fil...
+export.progress.writingGfar=Skriver gfar.fil...
+export.progress.complete=Export utf\u00F6rd.
+export.publish.fail=Publicering misslyckades:
+export.publish.unknownHost=Publicering misslyckades: Ok\u00E4nd v\u00E4rd
+export.publish.errorResponse=Svaret fr\u00E5n servern k\u00E4nns inte igen.
+export.publish.errorPassword=Felaktigt anv\u00E4ndarnamn eller l\u00F6senord.
+export.publish.errorTooLarge=Scenariot \u00E4r f\u00F6r stort.
+export.publish.complete=Publicering utf\u00F6rd.
+export.publish.proxyAuth=Proxy-autentisering
+export.publish.needProxyAuth=Proxy-autentisering kr\u00E4vs.
+export.app.help=Skapa en frist\u00E5ende, k\u00F6rbar jar-fil
+export.app.location=Spara till:
+export.app.browse=Utforska
+export.app.choose=Spara k\u00F6rbara jar-fil
+export.project.help=Skapa en frist\u00E5ende gfar-fil.
+export.project.location=Spara till:
+export.project.browse=Utforska
+export.project.choose=Spara gfar-fil f\u00F6r projekt
+export.dialog.title=Dela
+export.dialog.export=Exportera
+export.dialog.share=Dela
+export.dialog.update=Updatera
+export.lock.label=L\u00E5s scenario
+export.controls.label=G\u00F6m kontrollerna
+export.fullScreen.label=Helsk\u00E4rm
+export.fullScreen.description=\u00D6ppnar scenariot i helsk\u00E4rm
+export.controls.description=G\u00F6mmer K\u00F6r/Paus och \u00E5terst\u00E4ll-knapparna.
+export.snapshot.label=Beh\u00E5ll nuvarande sk\u00E4rmdump
+export.lock.descriptionF\u00F6rhindrar: Hastighetsf\u00F6r\u00E4ndring, Act-knapp och \u00E4ndring av actor-position under paus.
+export.publish.help=Publicera scenariot till:
+export.publish.info=Information visas p\u00E5
+export.publish.image1=Scenario-ikon:
+export.publish.image2=(\u00E4ndra storlek/flytta)
+export.publish.title=Titel:
+export.publish.tags.additional1=Ytterligare taggar:
+export.publish.tags.additional2=(en tagg per rad)
+export.publish.tags.popular=Popul\u00E4ra taggar:
+export.publish.tags.loading=laddar...
+export.publish.shortDescription=Enradsbeskrivning:
+export.publish.longDescription=L\u00E4ngre beskrivning:
+export.publish.update=\u00C4ndringar i uppdatering:
+export.publish.url=Din egen sida (URL):
+export.publish.login=Logga in
+export.publish.username=Anv\u00E4ndarnamn:
+export.publish.password=L\u00F6senord:
+export.publish.createAccount=Skapa konto
+export.publish.includeSource=Publicera k\u00E4llkod
+export.web.help=Skapa en webbsida med en applet.
+export.web.exportLocation=Exportera plats:
+export.web.browse=Utforska
+export.web.choose=V\u00E4lj namn p\u00E5 mapp f\u00F6r exportering
+export.icontab.publish=Publicera
+export.icontab.webpage=Webbsida
+export.icontab.application=Applikation
+export.icontab.project=Projekt
+export.noworld.dialog.title=Fel: Ingen world-klass hittades.
+export.noworld.dialog.msg=Ingen world-klass kunde hittas i scenariot. F\u00F6r att exportera kr\u00E4vs en subklass av World.
+export.noconstructor.dialog.title=Fel: Ingen l\u00E4mplig konstruktor
+export.noconstructor.dialog.msg=World-klassen har ingen standardkonstruktor. F\u00F6r att exportera kr\u00E4vs en konstruktor utan argument.
+
+publish.event.error=Fel:
+publish.event.status=Status:
+
+world.handlerDelegate.inspect=Inspektera
+world.handlerDelegate.remove=Ta bort
+
+record.method.comment1=F\u00F6rbered v\u00E4rlden p\u00E5 programstart.
+record.method.comment2=Vilket inneb\u00E4r: skapa startobjekt och l\u00E4gg till dem i v\u00E4rlden.
+
+greenfoot.utilDelegate.newScenario=Nytt Scenario
+
+#File choosers
+chooser.newFile.button=V\u00E4lj
+chooser.scenario.title=\u00D6ppna Scenario
+chooser.scenario.button=\u00D6ppna
+
+#New Class dialog
+newclass.dialog.title=Skapa ny klass
+newclass.dialog.help1=Ett klassnamn f\u00E5r inte inneh\u00E5ler mellanslag eller punktuering
+newclass.dialog.help2=och b\u00F6r b\u00F6rja med en stor bokstav.
+newclass.dialog.className=Nytt klassnamn:
+newclass.dialog.err.classExists=En klass med det namnet finns redan.
+newclass.dialog.err.classNameIllegal=Ogiltigt $LANGUAGE klassnamn.
+newclass.dialog.selectionLabel=Spr\u00E5k:
+newclass.dialog.class=Klass
+newclass.dialog.interface=Gr\u00E4nssnitt
+
+# Image Lib Preview
+imagelib.paste.image=Klistra in bild...
+imagelib.title=V\u00E4lj klassens bild:
+imagelib.newClass=Ny klass
+imagelib.projectImages=Scenari-bilder:
+imagelib.categories=Bildkategorier:
+imagelib.images=Bibliotek-bilder:
+imagelib.browse.button=Importa fr\u00E5n fil...
+imagelib.create.button=Skapa ny bild...
+imagelib.edit=Redigera
+imagelib.edit.tooltip=Redigera vald bild genom att \u00F6ppna den i bildredigeraren.
+imagelib.duplicate=Duplicera
+imagelib.duplicate.tooltip=Duplicera vald bild.
+imagelib.delete=Ta bort
+imagelib.delete.tooltip=Ta bort vald bild.
+imagelib.import.button=Importera fr\u00E5n bibliotek...
+imagelib.create.tooltip=Skapa en ny bild med standardstorlek och standardnamn och \u00F6ppna den i bildredigeraren.
+imagelib.paste.tooltip=Klistra in en bild fr\u00E5n systemets urklipp.
+imagelib.import.tooltip=Skapa en bild fr\u00E5n ett bibliotek f\u00F6r att importera den till scenariot.
+imagelib.className=Nytt klassnamn:
+imagelib.newClass.image=Ny klassbild:
+imagelib.file.noPreview=Ingen f\u00F6rhandsgranskning
+imagelib.choose.button=Markera
+imagelib.write.exists.title=Bekr\u00E4fta ers\u00E4ttning av fil
+imagelib.greenfoot.frame.title=Greenfoot biblioteks-bilder
+imagelib.scenario.frame.title=Scenario-bilder
+imagelib.image.invalid.title=Ogiltig bild
+imagelib.rename.exists.text=Kan ej byta namn p\u00E5 fil f\u00F6r att en fil med det namnet redan existerar
+imagelib.rename.exists.title=Byta namn misslyckads
+imagelib.new.image.title=Ny bild
+imagelib.new.image.name=Namn:
+imagelib.new.image.name.prompt=Skriv ett namn f\u00F6r den nya bilden
+imagelib.new.image.width=Bredd:
+imagelib.new.image.height=H\u00F6jd:
+imagelib.new.image.type=Typ:
+imagelib.more=Fler handlingar...
+imagelib.duplicate.image.name.suffix=Kopiera
+
+editor.paste.image.title=Klistra in bild
+editor.paste.image.prompt=Filnamn:
+editor.paste.image.name.prompt=Skriv ett namn f\u00F6r den infogade bilden
+
+scenario.viewer.appletInfo=Applet genererad med Greenfoot (www.greenfoot.org). Scenarionamn:
+
+# Simulation Control Panel
+controls.runonce.shortDescription=Kalla 'act' en g\u00E5ng per actor.
+controls.runonce.longDescription=Kalla 'act' en g\u00E5ng f\u00F6r varje actor.
+controls.run.shortDescription=K\u00F6r simulationen.
+controls.run.longDescription=K\u00F6r simulationen tills den stoppas.
+controls.pause.shortDescription=Pausa simulationen.
+controls.pause.longDescription=Pausa simulationen och l\u00E4mna den i nuvarande tillst\u00E5nd.
+controls.run.button=K\u00F6r
+controls.pause.button=Pausa
+controls.reset.shortDescription=Initiera en ny v\u00E4rld.
+controls.reset.longDescription=Initiera en ny v\u00E4rld.
+controls.speed.label=Hastighet:
+controls.speedSlider.tooltip=Justerar exekveringshastigheten
+
+# Class browser
+browser.border.world=World-klasser
+browser.border.actors=Actor-klasser
+browser.border.others=Andra klasser
+
+# Sound Recorder
+
+soundRecorder.title=Ljudinspelare
+soundRecorder.record=Spela in
+soundRecorder.stopRecord=Stoppa inspelning
+soundRecorder.trim=Trimma till markering
+soundRecorder.play=Spela upp
+soundRecorder.playSelection=Spela upp markering
+soundRecorder.stopPlay=Stoppa uppspelning
+soundRecorder.filename=Filnamn
+soundRecorder.save=Spara
+soundRecorder.close=St\u00E4ng
+soundRecorder.close.without.saving=St\u00E4ng utan att spara
+
+# Import 
+import.import=Importera
+import.dialogTitle=Importera klass
+import.action=Importera klass...
+import.restartMessage=Greenfoot m\u00E5ste startas om f\u00F6r att detta projekt ska fungera korrekt
+
+set.player=Set Player Name
+playername.dialog.title=Ange spelarens namn
+playername.dialog.help=Ange anv\u00E4ndarnamn som anv\u00E4nds i UserInfo-klassen
+playername.dialog.playerName=Spelarens namn
+
+prefmgr.misc.playername.title=Spelarens namn
+prefmgr.misc.playerNameNote=Du kan \u00E4ndra detta snabbt genom genv\u00E4gen:
+
+# Menus
+
+menu.openRecent=\u00D6ppna senaste
+menu.noRecentProjects=(inga senaste scenarion)
+
+menu.scenario=Scenario
+
+menu.edit=Redigera
+menu.new=Nytt
+
+menu.controls=Kontroller
+
+menu.debugger=Visa debugger
+
+menu.soundRecorder=Visa ljudinspelare
+
+menu.help=Hj\u00E4lp
+menu.help.about=Om Greenfoot...
+menu.help.classDoc=Greenfoot klass-dokumentation
+menu.help.javadoc=Java biblioteksdokumentation
+menu.help.tutorial=Greenfoot handledning
+menu.help.website=Greenfoot webbsida
+menu.help.moreScenarios=Hitta fler scenarion
+menu.help.discuss=Greenfoot diskussion
+
+#Copyright
+
+menu.help.copyright.title=Greenfoot Upphvovsr\u00E4tt, licensiering och omdistrubutering
+menu.help.copyright.line0=Greenfoot \u00a9 2005-2018 Michael K\u00F6lling, Poul Henriksen.
+menu.help.copyright.line1=Greenfoot \u00E4r tillg\u00E4nglig under licensen GNU General Public License  
+menu.help.copyright.line2=version 2 med Classpath undantag.
+menu.help.copyright.line3=F\u00F6r mer information, see filerna LICENSE.txt 
+menu.help.copyright.line4=och THIRDPARTYLICENSE.txt.
+
+
+# Popup menu
+classPopup.needsCompile=Beh\u00F6ver kompileras
+classPopup.containsError=Inneh\u00E5ller fel
+
+# Project does not exist dialog
+noproject.dialog.title=Fel vid \u00F6ppning av projekt
+noproject.dialog.msg=Projektet existerar inte:
+ 
+# Header for the properties file
+properties.heading.greenfoot=Greenfoot-inst\u00E4llningar. Inst\u00E4llningar i den h\u00E4r filen \u00F6verskrider \"bluej.defs\" och \"greenfoot.defs\"
+
+# Message to display if a file cannot be created
+greenfoot.cannotCreateClass=Klassen kunde unte skapas. Kontrollera att prjektets mapp \u00E4r skrivbar.
+
+# General error messages
+greenfoot.cannotFindAPIDocumentation=API-dokumentationen verkar saknas eller vara ol\u00E4sbar.
+
+# Message for sound related errors
+sound-line-unavailable=Kan ej f\u00E5 tillg\u00E5ng till ljudkortet. Om du har ett\n ljudkort installerat, kontrollera systeminst\u00E4llningarna och st\u00E4ng\n andra program som skulle kunna anv\u00E4nda ljudkortet.
+
+# MainFrame central messages
+centrePanel.message.openScenario=\u2196 Skapa eller \u00F6ppna ett scenario via scenario-menyn
+centrePanel.message.createWorldClass=Skapa en ny subklass i World
+centrePanel.message.compile1=World-klassen kan inte kompileras
+centrePanel.message.compile2=En av klasserna har ett fel. Kontrollera dem f\u00F6r att initiera scenariot. \u2197
+centrePanel.message.initialising=V\u00E4rlden konstrueras...
+centrePanel.message.initialisingTooLong1=Konstrukton f\u00F6r World tar l\u00E5ng tid.
+centrePanel.message.initialisingTooLong2=Du kanske har en evig loop.
+centrePanel.message.notFocused=F\u00F6r att konstruera v\u00E4rlden, klicka p\u00E5 detta f\u00F6nster.
+centrePanel.restartButton.label=Start om
+centrePanel.message.error1=World-konstruktorn kastade ett undantag.
+centrePanel.message.error2=Se terminal-f\u00F6nstret f\u00F6r fler detaljer.
+centrePanel.message.afterRestarting1=Greenfoot har startats om f\u00F6r att World inte kunde konstrueras.
+centrePanel.message.afterRestarting2=Kontrollera konstruktorn f\u00F6r World-subklassen.
+centrePanel.message.missingWorldConstructor1=V\u00E4rlden kunde inte konstrueras. World-subklassen kanske inte
+centrePanel.message.missingWorldConstructor2=har en publik konstruktor utan parametrar.
+
+centrePanel.message.hung=Exekvering tar l\u00E5ng tid. Du kanske beh\u00F6ver stoppa exekveringen via snurrande knappen nere till h\u00F6ger.
+
+executionDisplay.openDebugger=\u00D6ppna debugger
+executionDisplay.restart=Avsluta exekvering
+
+# Not a package
+notAProject.greenfoot.title=Inte ett Greenfoot-scenario
+notAProject.greenfoot.message=Den valda mappen inneh\u00E5ller inte ett Greenfoot-scenario:
+notAProject.greenfoot.subDirs=Vissa undermappar inneh\u00E5ller Greenfoot-scenarion. Menade du:
+notAProject.greenfoot.subDirButton=\u00D6ppna markerade
+notAProject.greenfoot.button=V\u00E4lj igen...
+
