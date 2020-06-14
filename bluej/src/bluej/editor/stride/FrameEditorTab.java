@@ -101,6 +101,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
@@ -128,6 +129,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.util.Pair;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -439,7 +441,27 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                         event.consume();
                     }
                     break;
+                //cherry
+                case E:
+                    if (blockCursorFocused) {
 
+                        VBox vbox = new VBox();
+                        for (Pair<CodeError, Frame> pair : getErrorLocationList()) {
+                            vbox.getChildren().add(new Button(pair.getKey().getMessage() + " in " + pair.getValue().getScreenReaderText()));
+                        }
+
+                        // display the list of errors
+                        Stage popup = new Stage();
+                        Scene scene = new Scene(vbox);
+                        popup.setScene(scene);
+                        popup.show();
+
+                        System.out.println("end of popup show");
+
+                        selection.clear();
+                        event.consume();
+                    }
+                    break;
 
                 //This is a workaround for a JDK bug on Mac.
                 //'='/'-' don't work as menu accelerators.
@@ -1709,6 +1731,39 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
             getTopLevelFrame().getEditableSlots().flatMap(EditableSlot::getCurrentErrors)
             , getTopLevelFrame().getAllFrames().flatMap(Frame::getCurrentErrors));
     }
+
+    //cherry
+    @OnThread(Tag.FXPlatform)
+    public List<Pair<CodeError, Frame>> getErrorLocationList() {
+        List<Pair<CodeError, Frame>> list = new ArrayList<>();
+        for (EditableSlot slot :
+                Utility.iterableStream(getTopLevelFrame().getEditableSlots()))
+        {
+            for (CodeError error : Utility.iterableStream(slot.getCurrentErrors()))
+            {
+                if (slot.getParentFrame()!=null) {
+                    // Do something here with error, knowing that it comes from slot
+                    list.add(new Pair<>(error, slot.getParentFrame()));
+                }
+            }
+        }
+
+        for (Frame frame :
+                Utility.iterableStream(getTopLevelFrame().getAllFrames()))
+        {
+            for (CodeError error :
+                    Utility.iterableStream(frame.getCurrentErrors()))
+            {
+                if (frame != null) {
+                    // Do something here with error, knowing that it comes from frame
+                    list.add(new Pair<>(error, frame));
+                }
+            }
+        }
+        return list;
+    }
+
+
 
     @Override
     public void modifiedFrame(Frame f, boolean force)
