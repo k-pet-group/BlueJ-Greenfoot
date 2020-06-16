@@ -66,6 +66,11 @@ public class BreakpointFrame extends SingleLineFrame implements CodeFrame<Breakp
     }
 
     //cherry
+    public String getFrameName() {
+        return getScreenReaderText();
+    }
+
+    //cherry
     public String getScreenReaderText() {
         String text = "breakpoint frame";
         return text;

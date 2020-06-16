@@ -125,6 +125,11 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
     }
 
     //cherry
+    public String getFrameName() {
+        return getScreenReaderText();
+    }
+
+    //cherry
     public String getScreenReaderText() {
         StringBuilder paramString = new StringBuilder();
         for(ParamFragment pair : paramsPane.getSlotElement()) {

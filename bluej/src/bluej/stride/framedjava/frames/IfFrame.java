@@ -130,6 +130,11 @@ public class IfFrame extends SandwichCanvasesFrame
     }
 
     //cherry
+    public String getFrameName() {
+        return getScreenReaderText();
+    }
+
+    //cherry
     public String getScreenReaderText() {
         String condition;
         if (ifCondition.getText().equals("")) { condition = "blank"; } else { condition = ifCondition.getText(); }

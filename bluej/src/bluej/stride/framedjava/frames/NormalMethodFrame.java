@@ -192,6 +192,11 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     }
 
     //cherry
+    public String getFrameName() {
+        return getScreenReaderText();
+    }
+
+    //cherry
     public String getScreenReaderText() {
         // build string out of all params
         StringBuilder paramString = new StringBuilder();

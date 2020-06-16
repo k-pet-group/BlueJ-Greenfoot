@@ -447,7 +447,9 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
 
                         VBox vbox = new VBox();
                         for (Pair<CodeError, Frame> pair : getErrorLocationList()) {
-                            vbox.getChildren().add(new Button(pair.getKey().getMessage() + " in " + pair.getValue().getScreenReaderText()));
+                            Frame frame = pair.getValue();
+                            vbox.getChildren().add(new Button(pair.getKey().getMessage() + " in " + frame.getFrameName() + frame.getParentCanvas().getParentLocationDescription()));
+//                            System.out.println(pair.getKey().getMessage() + " in " + frame.getFrameName() + frame.getParentCanvas().getParentLocationDescription());
                         }
 
                         // display the list of errors
@@ -455,8 +457,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                         Scene scene = new Scene(vbox);
                         popup.setScene(scene);
                         popup.show();
-
-                        System.out.println("end of popup show");
 
                         selection.clear();
                         event.consume();
@@ -1736,13 +1736,14 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     @OnThread(Tag.FXPlatform)
     public List<Pair<CodeError, Frame>> getErrorLocationList() {
         List<Pair<CodeError, Frame>> list = new ArrayList<>();
+
+        // add errors and their respective origin frame to the returned list
         for (EditableSlot slot :
                 Utility.iterableStream(getTopLevelFrame().getEditableSlots()))
         {
             for (CodeError error : Utility.iterableStream(slot.getCurrentErrors()))
             {
                 if (slot.getParentFrame()!=null) {
-                    // Do something here with error, knowing that it comes from slot
                     list.add(new Pair<>(error, slot.getParentFrame()));
                 }
             }
@@ -1755,7 +1756,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                     Utility.iterableStream(frame.getCurrentErrors()))
             {
                 if (frame != null) {
-                    // Do something here with error, knowing that it comes from frame
                     list.add(new Pair<>(error, frame));
                 }
             }

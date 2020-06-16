@@ -105,6 +105,9 @@ public class ReturnFrame extends SingleLineFrame
 
         //Manvi jain
         value.setAccessibility(" return value of method");
+
+        //cherry
+        frameName = "return statement";
     }
     
     public ReturnFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
@@ -123,6 +126,11 @@ public class ReturnFrame extends SingleLineFrame
 
         //Manvi jain
         value.setAccessibility(" return value of method");
+    }
+
+    //cherry
+    public String getFrameName() {
+        return frameName;
     }
 
     //cherry

@@ -98,6 +98,9 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         //Manvi jain
         returnType.setAccessibility("return type of method " + returnType.getText());
         methodName.setAccessibility("method name " + methodName.getText());
+
+        //cherry
+        frameName = "method prototype";
     }
     
     public MethodProtoFrame(final InteractionManager editor, TypeSlotFragment returnType,
@@ -114,6 +117,11 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         //Manvi jain
         this.returnType.setAccessibility("return type of method " + this.returnType.getText());
         this.methodName.setAccessibility("method name " + this.methodName.getText());
+    }
+
+    //cherry
+    public String getFrameName() {
+        return frameName;
     }
 
     //cherry

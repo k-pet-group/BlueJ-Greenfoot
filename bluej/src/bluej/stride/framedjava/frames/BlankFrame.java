@@ -40,6 +40,14 @@ public class BlankFrame extends SingleLineFrame implements CodeFrame<BlankElemen
     public BlankFrame(InteractionManager editor)
     {
         super(editor, "", "blank-");
+
+        //cherry
+        frameName = "blank line";
+    }
+
+    //cherry
+    public String getFrameName() {
+        return frameName;
     }
 
     //cherry

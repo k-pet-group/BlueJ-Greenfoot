@@ -66,6 +66,9 @@ public class ThrowFrame extends SingleLineFrame
 
         //Manvi jain
         param1.setAccessibility(" exception name in throw ");
+
+        //cherry
+        frameName = "throw statement";
     }
     
     public ThrowFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
@@ -75,6 +78,11 @@ public class ThrowFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
         //Manvi jain
         param1.setAccessibility(" exception name in throw ");
+    }
+
+    //cherry
+    public String getFrameName() {
+        return frameName;
     }
 
     //cherry

@@ -38,6 +38,11 @@ public class InheritedFieldFrame extends SingleLineFrame
     }
 
     //cherry
+    public String getFrameName() {
+        return getScreenReaderText();
+    }
+
+    //cherry
     public String getScreenReaderText() {
         String text = "inherited field frame";
         return text;

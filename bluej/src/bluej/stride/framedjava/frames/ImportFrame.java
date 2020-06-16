@@ -175,6 +175,9 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         //Manvi jain
         importField.setAccessibilityRoleDescription(importField.getText());
         importField.setAccessibility(" import field");
+
+        //cherry
+        frameName = "import statement";
     }
     
     /**
@@ -220,6 +223,11 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
                 return ImportFrame.class;
             }
         };
+    }
+
+    //cherry
+    public String getFrameName() {
+        return frameName;
     }
 
     //cherry

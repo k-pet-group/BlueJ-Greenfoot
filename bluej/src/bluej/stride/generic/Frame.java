@@ -143,6 +143,9 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     private final String stylePrefix;
 
     //cherry
+    public abstract String getFrameName();
+
+    //cherry
     public abstract String getScreenReaderText();
 
     //cherry
@@ -155,6 +158,10 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
 
 
     private String name ;
+
+    //cherry
+    protected String frameName;
+
     // Called when frame has lost direct focus (i.e. is not in its own slots; it could
     // be in the slots or canvas of a child frame).  Overridden in subclasses.
     @OnThread(Tag.FXPlatform)

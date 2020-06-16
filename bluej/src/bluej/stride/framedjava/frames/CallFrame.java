@@ -74,6 +74,9 @@ public class CallFrame extends SingleLineFrame
 
         //Manvi jain
         content.setAccessibility(" method name in call");
+
+        //cherry
+        frameName = "method call";
     }
     
     // For replacement of AssignFrame:
@@ -95,6 +98,11 @@ public class CallFrame extends SingleLineFrame
 
         //Manvi jain
         content.setAccessibility(" method name in call");
+    }
+
+    //cherry
+    public String getFrameName() {
+        return frameName;
     }
 
     //cherry

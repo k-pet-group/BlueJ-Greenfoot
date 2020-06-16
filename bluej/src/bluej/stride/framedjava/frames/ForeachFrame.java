@@ -118,6 +118,11 @@ public class ForeachFrame extends SingleCanvasFrame
     }
 
     //cherry
+    public String getFrameName() {
+        return getScreenReaderText();
+    }
+
+    //cherry
     public String getScreenReaderText() {
         String typeString, varString, collectionString;
         if (type.getText().equals("")) { typeString = "blank"; } else { typeString = type.getText(); }

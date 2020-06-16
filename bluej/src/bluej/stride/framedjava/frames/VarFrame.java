@@ -197,6 +197,9 @@ public class VarFrame extends SingleLineFrame
         slotType.setAccessibility(", variable type");
         slotName.setAccessibility(", variable name");
         slotValue.setAccessibility(", variable value");
+
+        //cherry
+        frameName = "variable declaration";
         }
     
     // If varValue is null, that means the slot is not shown
@@ -220,6 +223,11 @@ public class VarFrame extends SingleLineFrame
         slotType.setAccessibility(", variable type");
         slotName.setAccessibility(", variable name");
         slotValue.setAccessibility(", variable value");
+    }
+
+    //cherry
+    public String getFrameName() {
+        return frameName;
     }
 
     //cherry

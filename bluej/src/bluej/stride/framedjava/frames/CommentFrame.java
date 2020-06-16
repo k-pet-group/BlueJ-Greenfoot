@@ -92,6 +92,9 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         //Manvi jain
         //comment.setAccessibilityRoleDescription(getComment());
         //comment.setAccessibleText(" comment text");
+
+        //cherry
+        frameName = "comment";
     }
 
     /**
@@ -144,6 +147,11 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         String text = "comment " + commentString;
 //        System.out.println(text);
         return text;
+    }
+
+    //cherry
+    public String getFrameName() {
+        return frameName;
     }
 
     //cherry

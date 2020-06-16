@@ -79,6 +79,9 @@ public class AssignFrame extends SingleLineFrame
         //Manvi jain
         slotLHS.setAccessibility(" existing variable name");
         slotRHS.setAccessibility(" new value of variable");
+
+        //cherry
+        frameName = "assign statement";
     }
     
     // For replacement of a method call frame:
@@ -138,6 +141,11 @@ public class AssignFrame extends SingleLineFrame
                 return AssignFrame.class;
             }
         };
+    }
+
+    //cherry
+    public String getFrameName() {
+        return frameName;
     }
 
     //cherry

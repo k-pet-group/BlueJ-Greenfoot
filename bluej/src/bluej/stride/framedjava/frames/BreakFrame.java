@@ -80,12 +80,20 @@ public class BreakFrame extends SingleLineFrame
     {
         super(editor, "break", "break-");
         setHeaderRow(previewSemi);
+
+        //cherry
+        frameName = "break statement";
     }
     
     public BreakFrame(InteractionManager editor, boolean enabled)
     {
         this(editor);
         frameEnabledProperty.set(enabled);
+    }
+
+    //cherry
+    public String getFrameName() {
+        return frameName;
     }
 
     //cherry
