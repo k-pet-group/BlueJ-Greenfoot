@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2010,2014,2016,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -86,5 +86,14 @@ public class DeclaredVar implements NamedValue
     public boolean isFinal()
     {
         return isFinal;
+    }
+
+    /**
+     * Sets the declared type.  Used when the "var" keyword is present, to set the
+     * type once we've seen the initializer expression.
+     */
+    public void setDeclType(JavaType type)
+    {
+        this.declVarType = type;
     }
 }

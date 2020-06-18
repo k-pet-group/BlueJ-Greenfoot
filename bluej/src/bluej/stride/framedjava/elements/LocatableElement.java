@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2016,2020 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -113,9 +113,6 @@ public class LocatableElement extends Element
      * XPath: "/class[1]/methods[1]/method[1]/body[1]/call[2]/@expression" when called on the class,
      * or "/method[1]/body[1]/call[2]/@expression" when called on the Element from the method.
      *
-     * @param siblingCounts The counts of each element type seen so far as children of this
-     *                      Element's parent.  Needed in building XPaths to make sure we give
-     *                      a unique index to each element.
      * @return A map from JavaFragment to XPath String identifying the location of that fragment.
      */
     public LocationMap buildLocationMap()

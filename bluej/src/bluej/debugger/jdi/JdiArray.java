@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2000-2009,2010,2011,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 2000-2009,2010,2011,2018,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -58,6 +58,7 @@ public class JdiArray extends JdiObject
      * @param obj           The reference to the the remote object
      * @param expectedType  The known type of the object
      */
+    @OnThread(Tag.FXPlatform)
     protected JdiArray(ArrayReference obj, JavaType expectedType)
     {
         this.obj = obj;
@@ -190,6 +191,7 @@ public class JdiArray extends JdiObject
      * @return       The InstanceFieldObject value
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public DebuggerObject getElementObject(int index)
     {
         Value val = ((ArrayReference) obj).getValue(index);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,38 +21,22 @@
  */
 package bluej.stride.slots;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.slots.UnderlineContainer;
-import bluej.utility.javafx.FXRunnable;
-import bluej.utility.javafx.binding.DeepListBinding;
+import bluej.utility.javafx.AbstractOperation;
 
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.ErrorShower;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.RecallableFocus;
-import bluej.utility.Utility;
 import bluej.utility.javafx.ErrorUnderlineCanvas.UnderlineInfo;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.binding.ConcatListBinding;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -141,176 +125,13 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
 
     public static enum TopLevelMenu { EDIT, VIEW }
 
-    // This is an ordering across all menus
-    public static enum MenuItemOrder
-    {
-        // The integer is a block number, which is used to group and add dividers.
-        // The ordering of the block numbers doesn't matter, it just needs to be a different number for each block,
-        // and blocks should only be of adjacent enum values.
-        CLOSE(0),
-        UNDO(10), REDO(10),
-        RECENT_VALUES(20),
-        CUT(30), COPY(30), PASTE(30),
-        DELETE(40), ENABLE_FRAME(40), DISABLE_FRAME(40),
-        INSERT_FRAME(60),
-        TRANSFORM(70), TOGGLE_BOOLEAN(70), TOGGLE_ABSTRACT(70), TOGGLE_EXTENDS(70), TOGGLE_IMPLEMENTS(70), OVERRIDE(70),
-        GOTO_DEFINITION(80), GOTO_OVERRIDE(80), SHOW_HIDE_USES(80);
-
-        private final int block;
-
-        MenuItemOrder(int block)
-        {
-            this.block = block;
-        }
-
-        public SortedMenuItem item(MenuItem fxItem)
-        {
-            return new SortedMenuItem(fxItem, this);
-        }
-    }
-
-    public static class SortedMenuItem
-    {
-        private final MenuItem item;
-        private MenuItemOrder sortOrder;
-
-        private SortedMenuItem(MenuItem item, MenuItemOrder sortOrder)
-        {
-            this.item = item;
-            this.sortOrder = sortOrder;
-        }
-
-        public MenuItem getItem()
-        {
-            return item;
-        }
-
-        private static final Comparator<SortedMenuItem> COMPARATOR = (a, b) -> a.sortOrder.compareTo(b.sortOrder);
-
-        public MenuItemOrder getMenuItemOrder()
-        {
-            return sortOrder;
-        }
-
-        public static ObservableList<MenuItem> sortAndAddDividers(ObservableList<SortedMenuItem> primaryItems, List<SortedMenuItem> defaultItems)
-        {
-            ObservableList<MenuItem> r = FXCollections.observableArrayList();
-            new DeepListBinding<MenuItem>(r) {
-                @Override
-                protected Stream<MenuItem> calculateValues()
-                {
-                    return calculateList(primaryItems, defaultItems);
-                }
-
-                @Override
-                protected Stream<ObservableList<?>> getListenTargets()
-                {
-                    return Stream.of(primaryItems);
-                }
-            }.startListening();
-            return r;
-        }
-
-        private static Stream<MenuItem> calculateList(ObservableList<SortedMenuItem> primaryItems, List<SortedMenuItem> defaultItems)
-        {
-            List<SortedMenuItem> all = new ArrayList<>(primaryItems);
-            for (SortedMenuItem def : defaultItems)
-            {
-                // Add any defaults where their item is not already present:
-                if (!all.stream().anyMatch(item -> item.getMenuItemOrder() == def.getMenuItemOrder()))
-                    all.add(def);
-            }
-            all.sort(COMPARATOR);
-
-            for (int i = 0; i < all.size() - 1; i++)
-            {
-                if (all.get(i).getMenuItemOrder().block != all.get(i+1).getMenuItemOrder().block)
-                {
-                    all.add(i + 1, new SortedMenuItem(new SeparatorMenuItem(), null));
-                    // then skip it:
-                    i += 1;
-                }
-            }
-            return all.stream().map(SortedMenuItem::getItem);
-        }
-    }
-
-    /**
-     * A class to keep track of items to display in a top-level/context menu.  If you want to listen
-     * for the menu containing the items being shown or hidden, override the class and implement
-     * onShowing/onHidden.
-     */
-    public static class MenuItems
-    {
-        protected final ObservableList<SortedMenuItem> items;
-        
-        public MenuItems(ObservableList<SortedMenuItem> items) { this.items = items; }
-
-        @OnThread(Tag.FXPlatform)
-        public void onShowing() {}
-
-        @OnThread(Tag.FXPlatform)
-        public void onHidden() {}
-        
-        public static MenuItems concat(MenuItems... src)
-        {
-            List<MenuItems> nonNull = Arrays.stream(src).filter(m -> m != null).collect(Collectors.toList());
-            ObservableList<SortedMenuItem> joinedItems = FXCollections.observableArrayList();
-            ConcatListBinding.bind(joinedItems, FXCollections.observableArrayList(nonNull.stream().map(m -> m.items).collect(Collectors.toList())));
-            return new MenuItems(joinedItems) {
-                @Override
-                public void onShowing() {nonNull.forEach(MenuItems::onShowing);}
-                @Override
-                public void onHidden() {nonNull.forEach(MenuItems::onHidden);}
-            };
-        }
-        
-        public Menu makeSubMenu()
-        {
-            Menu menu = new Menu();
-            JavaFXUtil.bindMap(menu.getItems(), items, SortedMenuItem::getItem, FXRunnable::run);
-            menu.onShowingProperty().set(e -> onShowing());
-            menu.onHiddenProperty().set(e -> onHidden());
-            return menu;
-        }
-        
-        public static ContextMenu makeContextMenu(Map<TopLevelMenu, MenuItems> allItems)
-        {
-            return makeContextMenu(allItems.entrySet().stream().sorted((a, b) -> a.getKey().compareTo(b.getKey())).map(e -> e.getValue()).collect(Collectors.toList()));
-        }
-        
-        private static ContextMenu makeContextMenu(List<MenuItems> allItems)
-        {
-            ContextMenu menu = new ContextMenu();
-
-            ObservableList<SortedMenuItem> sorted = FXCollections.observableArrayList();
-            ConcatListBinding.bind(sorted, FXCollections.observableArrayList(Utility.mapList(allItems, MenuItems::getItems)));
-            JavaFXUtil.bindList(menu.getItems(), SortedMenuItem.sortAndAddDividers(sorted, Collections.emptyList()));
-            
-            menu.onShowingProperty().set(e -> allItems.forEach(MenuItems::onShowing));
-            menu.onHiddenProperty().set(e -> allItems.forEach(MenuItems::onHidden));
-
-            return menu;
-        }
-
-        public boolean isEmpty()
-        {
-            return items.isEmpty();
-        }
-
-        public ObservableList<SortedMenuItem> getItems()
-        {
-            return items;
-        }
-    }
-
     /**
      * Gets the menu items that might appear in top-level menus or context menu.  If shown in a top-level
      * menu, the key on the Map is used to organise them; if
      * @param contextMenu Whether this is a context menu or top level
      * @return The menu items
      */
-    default public Map<TopLevelMenu, MenuItems> getMenuItems(boolean contextMenu) { return Collections.emptyMap(); }
+    default public Map<TopLevelMenu, AbstractOperation.MenuItems> getMenuItems(boolean contextMenu) { return Collections.emptyMap(); }
 
     /**
      * Gets the relevant graphical node related to the given error, used for scrolling to the error.

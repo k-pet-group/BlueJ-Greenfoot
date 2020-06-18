@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011,2012,2013,2015,2018,2019 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011,2012,2013,2015,2018,2019,2020 Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -263,7 +263,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         }
         else if (atBreakpoint && e.getBreakpointProperties().get(NAME_ACTOR_KEY) != null)
         {
-            DebuggerObject actorArray = e.getThread().getStackObject(0, 0);
+            DebuggerObject actorArray = e.getThread().getStackObjectUntyped(0, 0);
             greenfootRecorder.nameActors(fetchArray(actorArray));
             e.getThread().cont();
             return true;

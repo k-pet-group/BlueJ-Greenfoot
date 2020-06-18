@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2018,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -66,7 +66,12 @@ public abstract class DebuggerThread
     @OnThread(Tag.VMEventHandler)
     public abstract boolean varIsObject(int frameNo, int index);
     @OnThread(Tag.VMEventHandler)
-    public abstract DebuggerObject getStackObject(int frameNo, int index);
+    public abstract FXPlatformSupplier<DebuggerObject> getStackObject(int frameNo, int index);
+    /**
+     * Gets the stack object, but without fetching its type, allowing it to be done from the VMEventHandler thread.
+     */
+    @OnThread(Tag.VMEventHandler)
+    public abstract DebuggerObject getStackObjectUntyped(int frameNo, int index);
     
     /**
      * Return the current instance object of some frame on this thread.

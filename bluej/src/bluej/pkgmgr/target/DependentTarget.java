@@ -459,7 +459,7 @@ public abstract class DependentTarget extends EditableTarget
     }
 
     @OnThread(Tag.FXPlatform)
-    protected void updateAssociatePosition()
+    public void updateAssociatePosition()
     {
         DependentTarget t = getAssociation();
 

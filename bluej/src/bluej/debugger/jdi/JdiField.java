@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2011,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 2011,2018,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -61,6 +61,7 @@ public class JdiField extends DebuggerField
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getType()
     {
         if (object != null) {
@@ -94,6 +95,7 @@ public class JdiField extends DebuggerField
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public DebuggerObject getValueObject(JavaType expectedType)
     {
         Value value;

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2016,2017,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
+import bluej.pkgmgr.target.actions.ClassTargetOperation;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
@@ -175,9 +176,9 @@ public abstract class ClassRole
      * @return true if any menu items have been added
      */
     @OnThread(Tag.FXPlatform)
-    public boolean createRoleMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl, State state)
+    public List<ClassTargetOperation> getRoleOperationsBegin(ClassTarget ct, Class<?> cl, State state)
     {
-        return false;
+        return List.of();
     }
 
     /**
@@ -194,9 +195,9 @@ public abstract class ClassRole
      * @return true if any menu items have been added
      */
     @OnThread(Tag.FXPlatform)
-    public boolean createRoleMenuEnd(ObservableList<MenuItem> menu, ClassTarget ct, State state)
+    public List<ClassTargetOperation> getRoleOperationsEnd(ClassTarget ct, State state)
     {
-        return false;
+        return List.of();
     }
 
     /**
@@ -209,7 +210,7 @@ public abstract class ClassRole
      * @return true if any menu items were added to the menu
      */
     @OnThread(Tag.FXPlatform)
-    public boolean createClassConstructorMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl)
+    public List<ClassTargetOperation> getClassConstructorOperations(ClassTarget ct, Class<?> cl)
     {
         View view = View.getView(cl);
 
@@ -217,11 +218,10 @@ public abstract class ClassRole
             ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, ct.getPackage().getQualifiedName());
             ConstructorView[] constructors = view.getConstructors();
 
-            if (createMenuItems(menu, constructors, filter, 0, constructors.length, "new ", ct))
-                return true;
+            return createMenuItems(constructors, filter, 0, constructors.length, "new ", ct);
         }
 
-        return false;
+        return List.of();
     }
 
     /**
@@ -234,16 +234,13 @@ public abstract class ClassRole
      * @return true if any menu items were added to the menu
      */
     @OnThread(Tag.FXPlatform)
-    public boolean createClassStaticMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl)
+    public List<ClassTargetOperation> getClassStaticOperations(ClassTarget ct, Class<?> cl)
     {
         View view = View.getView(cl);
 
         ViewFilter filter = new ViewFilter(StaticOrInstance.STATIC, ct.getPackage().getQualifiedName());
         MethodView[] allMethods = view.getAllMethods();
-        if (createMenuItems(menu, allMethods, filter, 0, allMethods.length, "", ct))
-            return true;
-
-        return false;
+        return createMenuItems(allMethods, filter, 0, allMethods.length, "", ct);
     }
 
     /**
@@ -251,16 +248,16 @@ public abstract class ClassRole
      * @return  true if any items were created
      */
     @OnThread(Tag.FXPlatform)
-    private static boolean createMenuItems(ObservableList<MenuItem> menu, CallableView[] members, ViewFilter filter,
+    private static List<ClassTargetOperation> createMenuItems(CallableView[] members, ViewFilter filter,
                                            int first, int last, String prefix, InvokeListener il)
     {
-        boolean hasEntries = false;
-
         // If we have a lot of items, we should create a submenu to fold some items in
         // 28 is a wild guess for now. It was 19 but with higher resolution screens, it became insufficient.
         int itemHeight = 28;
         int itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
         int sizeLimit = itemsOnScreen / 2;
+        
+        ArrayList<ClassTargetOperation> ops = new ArrayList<>();
 
         for (int i = first; i < last; i++) {
             try {
@@ -271,30 +268,11 @@ public abstract class ClassRole
 
                 if (m instanceof MethodView)
                 {
-                    MenuItem menuItem = new MenuItem(prefix + m.getLongDesc());
-                    menuItem.setOnAction(e ->
-                        il.executeMethod((MethodView)m)
-                    );
-
-                    // check whether it's time for a submenu
-                    int itemCount = menu.size();
-                    if(itemCount >= sizeLimit) {
-                        Menu subMenu = new Menu(Config.getString("pkgmgr.classmenu.moreMethods"));
-                        menu.add(subMenu);
-                        menu = subMenu.getItems();
-                    }
-
-                    menu.add(menuItem);
-                    hasEntries = true;
+                    ops.add(new ExecuteMethodAction(prefix + m.getLongDesc(), il, (MethodView)m));
                 }
                 else if (m instanceof ConstructorView)
                 {
-                    MenuItem menuItem = new MenuItem(prefix + m.getLongDesc());
-                    menu.add(menuItem);
-                    menuItem.setOnAction(e ->
-                        il.callConstructor((ConstructorView) m)
-                    );
-                    hasEntries = true;
+                    ops.add(new CallConstructorAction(prefix + m.getLongDesc(), il, (ConstructorView) m));
                 }
             }
             catch (Exception e) {
@@ -302,7 +280,7 @@ public abstract class ClassRole
                 e.printStackTrace();
             }
         }
-        return hasEntries;
+        return ops;
     }
 
     public void run(PkgMgrFrame pmf, ClassTarget ct, String param)
@@ -336,4 +314,42 @@ public abstract class ClassRole
      */
     @OnThread(Tag.Any)
     public abstract boolean canConvertToStride();
+
+    private static class ExecuteMethodAction extends ClassTargetOperation
+    {
+        private final InvokeListener il;
+        private final MethodView m;
+
+        public ExecuteMethodAction(String label, InvokeListener il, MethodView m)
+        {
+            super(label, Combine.ONE, null, label, MenuItemOrder.RUN_METHOD);
+            this.il = il;
+            this.m = m;
+        }
+
+        @Override
+        protected void execute(ClassTarget target)
+        {
+            il.executeMethod(m);
+        }
+    }
+
+    private static class CallConstructorAction extends ClassTargetOperation
+    {
+        private final InvokeListener il;
+        private final ConstructorView c;
+
+        public CallConstructorAction(String label, InvokeListener il, ConstructorView c)
+        {
+            super(label, Combine.ONE, null, label, MenuItemOrder.RUN_CONSTRUCTOR);
+            this.il = il;
+            this.c = c;
+        }
+
+        @Override
+        protected void execute(ClassTarget target)
+        {
+            il.callConstructor(c);
+        }
+    }
 }

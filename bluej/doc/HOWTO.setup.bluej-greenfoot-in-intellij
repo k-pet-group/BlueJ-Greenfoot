@@ -85,7 +85,7 @@ In Project tab on left-hand side (show by hovering over very bottom-left icon in
 
 Copy bluej/build.properties.template to bluej/build.properties.  Do not add it to Git. Edit
   to set build_java_home to be the path of your JDK.  On Windows,
-  use forward slashes in paths to avoid issues.
+  use forward slashes in paths to avoid issues.  Also edit openjfx_path to point to your JavaFX path.
 
 Before you can run the BlueJ configuration for the first time, you need to run the ant target
   "update-version-number" from the BlueJ ant file.

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,6 +20,9 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.debugger.gentype;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -52,7 +55,8 @@ public abstract class GenTypeSolid extends JavaType
     {
         return false;
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public abstract boolean isInterface();
     
     /**
@@ -61,12 +65,14 @@ public abstract class GenTypeSolid extends JavaType
      * 
      * @param s  The set into which to store the reflectives
      */
+    @OnThread(Tag.FXPlatform)
     public abstract void erasedSuperTypes(Set<Reflective> s);
     
     /**
      * Find the minimal set of supertypes of this type which are reference types. For tpars
      * this is the bounds. For a class/interface this is the type itself. 
      */
+    @OnThread(Tag.FXPlatform)
     public abstract GenTypeClass [] getReferenceSupertypes();
     
     /**
@@ -85,6 +91,7 @@ public abstract class GenTypeSolid extends JavaType
      * @param map   A map to which mappings should be added
      * @param template   The template to use
      */
+    @OnThread(Tag.FXPlatform)
     abstract public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template);
     
     /*
@@ -109,6 +116,7 @@ public abstract class GenTypeSolid extends JavaType
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getCapture()
     {
         return this;
@@ -135,6 +143,7 @@ public abstract class GenTypeSolid extends JavaType
      * means, calculate the most specific type to which all the given types are
      * convertible.<p>
      */
+    @OnThread(Tag.FXPlatform)
     public static GenTypeSolid lub(GenTypeSolid [] ubounds)
     {
         Stack<GenTypeClass[]> btstack = new Stack<GenTypeClass[]>();
@@ -148,6 +157,7 @@ public abstract class GenTypeSolid extends JavaType
     /**
      * lub workhorse method, uses a stack backtrace to avoid infinite recursion.
      */
+    @OnThread(Tag.FXPlatform)
     private static GenTypeSolid lub(GenTypeSolid [] ubounds, Stack<GenTypeClass[]> lubBt)
     {
         // "lowest(/least) upper bound"?
@@ -171,6 +181,7 @@ public abstract class GenTypeSolid extends JavaType
      * @param lubBt    A backtrace used to avoid infinite recursion
      * @return  The candidate type
      */
+    @OnThread(Tag.FXPlatform)
     private static GenTypeClass Candidate(Reflective t, GenTypeSolid [] ubounds, Stack<GenTypeClass[]> lubBt)
     {
         GenTypeClass [] ri = relevantInvocations(t, ubounds);
@@ -189,6 +200,7 @@ public abstract class GenTypeSolid extends JavaType
      * @param lubBt   A backtrace used to avoid infinite recursion
      * @return   The least containing type
      */
+    @OnThread(Tag.FXPlatform)
     private static GenTypeClass leastContainingInvocation(GenTypeClass [] types, Stack<GenTypeClass[]> lubBt)
     {
         // first check for infinite recursion:
@@ -219,6 +231,7 @@ public abstract class GenTypeSolid extends JavaType
     /**
      * Find the least containing invocation from two invocations.
      */
+    @OnThread(Tag.FXPlatform)
     private static GenTypeClass leastContainingInvocation(GenTypeClass a, GenTypeClass b, Stack<GenTypeClass[]> lubBt, boolean breakRecursion)
     {
         if (! a.getReflective().getName().equals(b.getReflective().getName()))
@@ -280,6 +293,7 @@ public abstract class GenTypeSolid extends JavaType
      * @param lubBt  The backtrace for avoiding infinite recursion
      * @return   The least containing type
      */
+    @OnThread(Tag.FXPlatform)
     private static GenTypeParameter leastContainingTypeArgument(GenTypeParameter a, GenTypeParameter b, Stack<GenTypeClass[]> lubBt)
     {
         GenTypeSolid ac = a.asSolid();
@@ -341,6 +355,7 @@ public abstract class GenTypeSolid extends JavaType
      * @param types   The types for which to find the MEC.
      * @return        The MEC as an array of Reflective.
      */
+    @OnThread(Tag.FXPlatform)
     private static Reflective [] minimalErasedCandidateSet(GenTypeSolid [] types)
     {
         // have to find *intersection* of all sets and remove redundant types
@@ -396,6 +411,7 @@ public abstract class GenTypeSolid extends JavaType
      * @param ubounds The parameter list to search
      * @return        A list of generic types all based on the class r
      */
+    @OnThread(Tag.FXPlatform)
     private static GenTypeClass [] relevantInvocations(Reflective r, GenTypeSolid [] ubounds)
     {
         ArrayList<GenTypeClass> rlist = new ArrayList<GenTypeClass>();

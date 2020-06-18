@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,9 +27,8 @@ import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.frames.InterfaceFrame;
-import bluej.stride.operations.AbstractOperation.Combine;
+import bluej.utility.javafx.AbstractOperation.Combine;
 import bluej.stride.operations.FrameOperation;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;

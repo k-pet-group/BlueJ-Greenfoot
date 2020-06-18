@@ -140,7 +140,7 @@ public class LineDisplay
             int lineIndex = firstVisibleLineIndex;
             while (lines.hasNext())
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k)));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k), () -> flowEditorPaneListener.getContextMenuToShow()));
                 line.textLine.setText(lines.next(), xTranslate, false, fontCSS);
                 lineIndex += 1;
             }
@@ -156,7 +156,7 @@ public class LineDisplay
             int lineIndex;
             for (lineIndex = firstVisibleLineIndex; lineIndex < allLines.size() && totalHeightSoFar < height; lineIndex += 1)
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k)));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k), () -> flowEditorPaneListener.getContextMenuToShow()));
                 line.textLine.setText(allLines.get(lineIndex), xTranslate, true, fontCSS);
                 double lineHeight = calculateLineHeight(allLines.get(lineIndex), width);
                 totalHeightSoFar += snapHeight.apply(lineHeight);
@@ -387,7 +387,7 @@ public class LineDisplay
         for (int i = 0; i < visibleLines.size(); i++)
         {
             MarginAndTextLine currentlyVisibleLine = visibleLines.get(i + firstVisibleLineIndex);
-            if (currentlyVisibleLine.getLayoutY() <= localPoint.getY() && localPoint.getY() <= currentlyVisibleLine.getLayoutY() + currentlyVisibleLine.getHeight())
+            if (currentlyVisibleLine != null && currentlyVisibleLine.getLayoutY() <= localPoint.getY() && localPoint.getY() <= currentlyVisibleLine.getLayoutY() + currentlyVisibleLine.getHeight())
             {
                 // Can't use parentToLocal if layout bounds may be out of date:
                 Point2D pointInLocal = new Point2D(localPoint.getX() - currentlyVisibleLine.getLayoutX() - MarginAndTextLine.TEXT_LEFT_EDGE + horizScrollProperty.get(), localPoint.getY() - currentlyVisibleLine.getLayoutY());

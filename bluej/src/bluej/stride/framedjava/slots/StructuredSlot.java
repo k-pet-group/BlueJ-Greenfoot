@@ -39,6 +39,7 @@ import bluej.stride.framedjava.frames.CodeFrame;
 import bluej.stride.framedjava.slots.InfixStructured.RangeType;
 import bluej.stride.framedjava.slots.TextOverlayPosition.Line;
 import bluej.stride.generic.ExtensionDescription;
+import bluej.utility.javafx.*;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.FrameContentRow;
@@ -66,6 +67,30 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import bluej.Config;
+import bluej.editor.stride.CodeOverlayPane;
+import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
+import bluej.stride.framedjava.errors.CodeError;
+import bluej.stride.framedjava.errors.ErrorAndFixDisplay;
+import bluej.stride.framedjava.errors.ErrorAndFixDisplay.ErrorFixListener;
+import bluej.stride.framedjava.frames.CodeFrame;
+import bluej.stride.framedjava.slots.TextOverlayPosition.Line;
+import bluej.stride.generic.Frame;
+import bluej.stride.generic.Frame.View;
+import bluej.stride.generic.FrameContentRow;
+import bluej.stride.generic.InteractionManager;
+import bluej.stride.generic.InteractionManager.FileCompletion;
+import bluej.stride.slots.EditableSlot;
+import bluej.stride.slots.Focus;
+import bluej.stride.slots.FocusParent;
+import bluej.stride.slots.HeaderItem;
+import bluej.stride.slots.LinkedIdentifier;
+import bluej.stride.slots.SlotLabel;
+import bluej.editor.fixes.SuggestionList;
+import bluej.editor.fixes.SuggestionList.SuggestionDetails;
+import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithCustomDoc;
+import bluej.editor.fixes.SuggestionList.SuggestionListListener;
+import bluej.utility.Utility;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -950,8 +975,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         return topLevel;
     }
 
-    //package-visible
-    FocusParent<HeaderItem> getSlotParent() {
+    public FocusParent<HeaderItem> getSlotParent()
+    {
         return row;
     }
 
@@ -1069,8 +1094,9 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @Override
-    public Map<TopLevelMenu, MenuItems> getMenuItems(boolean contextMenu) {
-        HashMap<TopLevelMenu, MenuItems> itemMap = new HashMap<>();
+    public Map<TopLevelMenu, AbstractOperation.MenuItems> getMenuItems(boolean contextMenu)
+    {
+        HashMap<TopLevelMenu, AbstractOperation.MenuItems> itemMap = new HashMap<>();
 
         // We must have at least one dummy item for the menu to be shown:
         final Menu recentMenu = new Menu(Config.getString("frame.slot.recent"));
@@ -1094,15 +1120,15 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             }
         });
 
-        final ObservableList<SortedMenuItem> originalItems = FXCollections.observableArrayList();
-        final FXConsumer<ObservableList<SortedMenuItem>> setToOriginal = l -> {
+        final ObservableList<AbstractOperation.SortedMenuItem> originalItems = FXCollections.observableArrayList();
+        final FXConsumer<ObservableList<AbstractOperation.SortedMenuItem>> setToOriginal = l -> {
             if (contextMenu)
-                l.setAll(MenuItemOrder.RECENT_VALUES.item(recentMenu));
+                l.setAll(AbstractOperation.MenuItemOrder.RECENT_VALUES.item(recentMenu));
             else
                 l.clear();
         };
         setToOriginal.accept(originalItems);
-        itemMap.put(TopLevelMenu.EDIT, new MenuItems(originalItems) {
+        itemMap.put(TopLevelMenu.EDIT, new AbstractOperation.MenuItems(originalItems) {
             @OnThread(Tag.FXPlatform)
             public void onShowing() {
                 Stream<InfixStructured<?, ?>> allExpressions = getTopLevel().getAllExpressions();
@@ -1122,9 +1148,9 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
                     setToOriginal.accept(items);
                     items.addAll(
-                            MenuItemOrder.CUT.item(cut),
-                            MenuItemOrder.COPY.item(copy),
-                            MenuItemOrder.PASTE.item(paste)
+                        AbstractOperation.MenuItemOrder.CUT.item(cut),
+                        AbstractOperation.MenuItemOrder.COPY.item(copy),
+                        AbstractOperation.MenuItemOrder.PASTE.item(paste)
                     );
                 }
                 if (hoverErrorCurrentlyShown != null) {
@@ -1133,11 +1159,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             }
         });
 
-        if (contextMenu) {
-            final SortedMenuItem scanningItem = MenuItemOrder.GOTO_DEFINITION.item(new MenuItem("Scanning..."));
+        if (contextMenu)
+        {
+            final AbstractOperation.SortedMenuItem scanningItem = AbstractOperation.MenuItemOrder.GOTO_DEFINITION.item(new MenuItem("Scanning..."));
             scanningItem.getItem().setDisable(true);
 
-            itemMap.put(TopLevelMenu.VIEW, new MenuItems(FXCollections.observableArrayList()) {
+            itemMap.put(TopLevelMenu.VIEW, new AbstractOperation.MenuItems(FXCollections.observableArrayList())
+            {
 
                 private void removeScanning() {
                     if (items.size() == 1 && items.get(0) == scanningItem)
@@ -1153,7 +1181,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                     FXPlatformConsumer<Optional<LinkedIdentifier>> withLink = optLink -> {
                         removeScanning();
                         optLink.ifPresent(defLink -> {
-                            items.add(MenuItemOrder.GOTO_DEFINITION.item(JavaFXUtil.makeMenuItem(Config.getString("frame.slot.goto")
+                            items.add(AbstractOperation.MenuItemOrder.GOTO_DEFINITION.item(JavaFXUtil.makeMenuItem(Config.getString("frame.slot.goto")
                                     .replace("$", defLink.getName()), defLink.getOnClick(), null)));
                         });
                     };
