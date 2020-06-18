@@ -1684,7 +1684,8 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
 
                     //manvi
-                    setAccessibilityRoleDescription(getSlot().getJavaCode());
+                    if(getSlot() != null)
+                        setAccessibilityRoleDescription(getSlot().getJavaCode());
 
                    CaretPos overridePos = checkFieldChange(pos.index, new CaretPos(pos.index, new CaretPos(posInField+1, null)), c == '.', user, token);
                     return overridePos;
@@ -1728,10 +1729,13 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             // If it is not a quote, or it is after a backslash, insert as-is:
             f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
             //Manvi jain
-            if(getSlot().getJavaCode().charAt(0) == '\'')
-                setAccessibilityRoleDescription(getSlot().getJavaCode() + " in apostrophe");
-            else
-                setAccessibilityRoleDescription(getSlot().getJavaCode() + " in quotation");
+            if(getSlot() != null)
+            {
+                if (getSlot().getJavaCode().charAt(0) == '\'')
+                    setAccessibilityRoleDescription(getSlot().getJavaCode() + " in apostrophe");
+                else
+                    setAccessibilityRoleDescription(getSlot().getJavaCode() + " in quotation");
+            }
             return new CaretPos(pos.index, new CaretPos(posInField+1, null));
         }
         return null;
