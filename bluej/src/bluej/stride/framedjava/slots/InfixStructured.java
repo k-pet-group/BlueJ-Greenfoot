@@ -1673,7 +1673,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
                     f.setText("", token);
                     //manvi jain
-                    setAccessibilityRoleDescription(getSlot().getJavaCode() + " new object created ");
+                    if (getSlot() != null)
+                    {
+                        setAccessibilityRoleDescription(getSlot().getJavaCode() + " new object created ");
+                    }
                     operators.add(pos.index, new Operator("new ", this), token);
                     fields.add(pos.index + 1, makeNewField(following, false), token);
                     return new CaretPos(pos.index + 1, new CaretPos(0, null));
