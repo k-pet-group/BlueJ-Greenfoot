@@ -224,6 +224,8 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         if (staticModifier.get()) {
             text = staticLabel.getText() + " " + text;
         }
+        // add documentation
+        text += ". Documentation: " + getDocumentation();
 //        System.out.println(text);
         return text;
     }

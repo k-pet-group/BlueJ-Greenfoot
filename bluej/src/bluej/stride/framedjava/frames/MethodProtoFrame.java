@@ -147,6 +147,9 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         if (parentIsClass.get()) {
             text = abstractLabel.getText() + " " + text;
         }
+        // add documentation
+        text += ". Documentation: " + getDocumentation();
+
 //        System.out.println(text);
         return text;
     }

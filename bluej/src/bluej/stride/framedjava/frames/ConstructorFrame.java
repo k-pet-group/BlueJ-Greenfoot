@@ -143,6 +143,9 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         if (paramString.length() != 0) {
             text += " with parameters " + paramString.toString();
         }
+        // add documentation
+        text += ". Documentation: " + getDocumentation();
+
         return text;
     }
 
