@@ -470,11 +470,11 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
                 // far to extract the runtime of individual test.
                 if (item.getRunTimeMs() == 0)
                 {
-                    setText(item.getMethodName());
+                    setText(item.getQualifiedClassName() + "." + item.getMethodName());
                 }
                 else
                 {
-                    setText(item.getMethodName() + " (" + item.getRunTimeMs() + "ms)");
+                    setText(item.getQualifiedClassName() + item.getMethodName() + " (" + item.getRunTimeMs() + "ms)");
                 }
 
                 // Add a tooltip on the entry (display name)

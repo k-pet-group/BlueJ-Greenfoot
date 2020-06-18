@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2016,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,7 +51,11 @@ class DataCollectionDialog extends Dialog<Boolean>
     public DataCollectionDialog()
     {
         initModality(Modality.APPLICATION_MODAL);
-        setResizable(false);
+        // There is a problem on some systems where the dialog begins by appearing very small.
+        // It seems like this may be some kind of JavaFX glitch.
+        // So although resizing doesn't make much sense, we need to let users who have a small
+        // dialog resize it to the proper size.
+        setResizable(true);
         
         setTitle("BlueJ - " + Config.getString("collect.dialog.title"));
         

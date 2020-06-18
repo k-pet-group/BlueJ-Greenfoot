@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2018,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -421,14 +421,16 @@ class JdiThread extends DebuggerThread
                     LocalVariable var = vars.get(i);
 
                     // Add "type name = value" to the list
-                    JavaType vartype = JdiReflective.fromLocalVar(localTypes.get(i), genericSigs.get(i),
-                            typeNames.get(i), declaringType);
-                    int iFinal = i;
-                    Supplier<DebuggerObject> getObjectToInspect = varIsObject(frameNo, i) ?
-                            () -> getStackObject(frameNo, iFinal)
+
+                    final int iFinal = i;
+                    FXPlatformSupplier<DebuggerObject> getObjectToInspect = varIsObject(frameNo, i) ?
+                            getStackObject(frameNo, iFinal)
                             : null;
-                    String val = localVals.get(i);
-                    localVars.add(() -> new VarDisplayInfo(vartype, var, val, getObjectToInspect));
+                    localVars.add(() -> {
+                        JavaType vartype = JdiReflective.fromLocalVar(localTypes.get(iFinal), genericSigs.get(iFinal),
+                            typeNames.get(iFinal), declaringType);
+                        return new VarDisplayInfo(vartype, var, localVals.get(iFinal), getObjectToInspect);
+                    });
                 }
                 return localVars;
             }
@@ -494,16 +496,41 @@ class JdiThread extends DebuggerThread
      */
     @OnThread(Tag.VMEventHandler)
     // @SuppressWarnings("threadchecker")
-    public DebuggerObject getStackObject(int frameNo, int index)
+    public FXPlatformSupplier<DebuggerObject> getStackObject(int frameNo, int index)
     {
         try {
             if(rt.isSuspended()) {
                 StackFrame frame = rt.frame(frameNo);
                 List<LocalVariable> vars = frame.visibleVariables();
                 LocalVariable var = vars.get(index);
-                JavaType vartype = JdiReflective.fromLocalVar(frame, var);
+                FXPlatformSupplier<JavaType> vartype = JdiReflective.fromLocalVar(frame, var);
                 ObjectReference val = (ObjectReference)frame.getValue(var);
-                return JdiObject.getDebuggerObject(val, vartype);
+                return () -> JdiObject.getDebuggerObject(val, vartype.get());
+            }
+            else
+                return null;
+        }
+        catch(Exception e) {
+            // nothing can be done...
+            Debug.reportError("could not get local variable info: " + e);
+            e.printStackTrace(System.out);
+        }
+        return null;
+    }
+
+    /**
+     * Gets the stack object, but without fetching its type, allowing it to be done from the VMEventHandler thread.
+     */
+    @OnThread(Tag.VMEventHandler)
+    public DebuggerObject getStackObjectUntyped(int frameNo, int index)
+    {
+        try {
+            if(rt.isSuspended()) {
+                StackFrame frame = rt.frame(frameNo);
+                List<LocalVariable> vars = frame.visibleVariables();
+                LocalVariable var = vars.get(index);
+                ObjectReference val = (ObjectReference)frame.getValue(var);
+                return JdiObject.getDebuggerObject(val);
             }
             else
                 return null;

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017,2018,2019,2019  Poul Henriksen and Michael Kolling
+ Copyright (C) 2017,2018,2019,2019,2020  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -135,7 +135,7 @@ import java.net.URL;
 import java.nio.IntBuffer;
 import java.util.*;
 
-import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
+import static bluej.pkgmgr.target.EditableTarget.MENU_STYLE_INBUILT;
 import static greenfoot.vmcomm.Command.*;
 
 /**

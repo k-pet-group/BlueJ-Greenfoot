@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2013,2016,2017,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -245,12 +245,6 @@ public class FieldList extends ScrollPane
                 largestRight = Math.max(largestRight, children.get(i + 1).prefWidth(height));
             }
             return Math.min(300.0, largestLeft) + Math.min(500.0, largestRight);
-        }
-
-        @Override
-        protected double computePrefHeight(double width)
-        {
-            return ROW_HEIGHT * (getChildren().size() / 2) + getInsets().getTop() + getInsets().getBottom();
         }
     }
 }        

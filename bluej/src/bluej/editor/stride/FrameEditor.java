@@ -73,6 +73,7 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.print.PrinterJob;
 import javafx.scene.image.Image;
@@ -138,7 +139,7 @@ public class FrameEditor implements Editor
     @OnThread(Tag.FXPlatform) private final List<HighlightedBreakpoint> execHistory = new ArrayList<>();
     /** The Editor Quick Fixes manager associated with this Editor */
     @OnThread(Tag.Any)
-    private final EditorFixesManager editorFixesMgr = new EditorFixesManager();
+    private final EditorFixesManager editorFixesMgr;
 
     /** Stride source at last save. Assigned on FX thread only, readable on any thread. */
     private volatile TopLevelCodeElement lastSource;
@@ -212,6 +213,7 @@ public class FrameEditor implements Editor
         this.pkg = pkg;
         this.javaSource = new SimpleObjectProperty<>();
         this.callbackOnOpen = callbackOnOpen;
+        this.editorFixesMgr = new EditorFixesManager(watcher.getPackage().getProject().getImports());
         lastSource = Loader.loadTopLevelElement(frameFilename, resolver, pkg.getQualifiedName());
     }
 
@@ -1155,22 +1157,29 @@ public class FrameEditor implements Editor
         // We must start these futures going on the FX thread
         List<Future<List<DirectSlotError>>> futures = allElements.flatMap(e -> e.findDirectLateErrors(panel, rootPathMap)).collect(Collectors.toList());
         // Then wait for them on another thread
-        new Thread(() -> {
-            ArrayList<DirectSlotError> allLates = new ArrayList<>();
-            try
+        new Thread() {
+            @Override
+            @OnThread(Tag.Worker)
+            public void run()
             {
-                // Wait for all futures:
-                for (Future<List<DirectSlotError>> f : futures)
-                    allLates.addAll(f.get());
+                ArrayList<DirectSlotError> allLates = new ArrayList<>();
+                try
+                {
+                    // Wait for all futures:
+                    for (Future<List<DirectSlotError>> f : futures)
+                        allLates.addAll(f.get());
+                }
+                catch (ExecutionException | InterruptedException e)
+                {
+                    Debug.reportError(e);
+                }
+                Platform.runLater(() -> {
+                    panel.updateErrorOverviewBar(false);
+                    List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
+                    watcher.recordLateErrors(diagnostics, compilationIdentifier);
+                });
             }
-            catch (ExecutionException | InterruptedException e)
-            {
-                Debug.reportError(e);
-            }
-            panel.updateErrorOverviewBar(false);
-            List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
-            watcher.recordLateErrors(diagnostics, compilationIdentifier);
-        }).start();
+        }.start();
     }
         
     @Override

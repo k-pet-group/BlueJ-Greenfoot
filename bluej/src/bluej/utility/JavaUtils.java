@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2014,2015,2016,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2014,2015,2016,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,9 +28,13 @@ import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import bluej.parser.lexer.JavaLexer;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -206,6 +210,7 @@ public abstract class JavaUtils
      * @param tparams  The map (String -> GenType) for class type parameters
      * @return The description.
      */
+    @OnThread(Tag.FXPlatform)
     abstract public String getShortDesc(Method method, String [] paramnames,
             Map<String,GenTypeParameter> tparams) throws ClassNotFoundException;
 
@@ -227,6 +232,7 @@ public abstract class JavaUtils
      * @param tparams  The map (String -> GenType) for class type parameters
      * @return The long description string.
      */
+    @OnThread(Tag.FXPlatform)
     abstract public String getLongDesc(Method method, String [] paramnames,
             Map<String,GenTypeParameter> tparams) throws ClassNotFoundException;
     
@@ -259,15 +265,19 @@ public abstract class JavaUtils
     /**
      * Get the return type of a method.
      */
+    @OnThread(Tag.FXPlatform)
     abstract public JavaType getReturnType(Method method) throws ClassNotFoundException;
-    
+
+    @OnThread(Tag.FXPlatform)
     abstract public JavaType getRawReturnType(Method method);
 
     /**
      * Get the declared type of a field.
      */
+    @OnThread(Tag.FXPlatform)
     abstract public JavaType getFieldType(Field field) throws ClassNotFoundException;
-    
+
+    @OnThread(Tag.FXPlatform)
     abstract public JavaType getRawFieldType(Field field);
     
     /**
@@ -277,6 +287,7 @@ public abstract class JavaUtils
      * @param method   The method fro which to find the type parameters
      * @return  A list of GenTypeDeclTpar
      */
+    @OnThread(Tag.FXPlatform)
     abstract public List<GenTypeDeclTpar> getTypeParams(Method method);
     
     /**
@@ -286,6 +297,7 @@ public abstract class JavaUtils
      * @param cons   The constructors for which to find the type parameters
      * @return  A list of GenTypeDeclTpar
      */
+    @OnThread(Tag.FXPlatform)
     abstract public List<GenTypeDeclTpar> getTypeParams(Constructor<?> cons);
     
     /**
@@ -295,11 +307,13 @@ public abstract class JavaUtils
      * @param cl the class
      * @return A List of GenTypeDeclTpar
      */
+    @OnThread(Tag.FXPlatform)
     abstract public List<GenTypeDeclTpar> getTypeParams(Class<?> cl);
     
     /**
      * Get the declared supertype of a class.
      */
+    @OnThread(Tag.FXPlatform)
     abstract public GenTypeClass getSuperclass(Class<?> cl) throws ClassNotFoundException;
     
     /**
@@ -307,6 +321,7 @@ public abstract class JavaUtils
      * @param cl  The class for which to find the interfaces
      * @return    An array of interfaces
      */
+    @OnThread(Tag.FXPlatform)
     abstract public GenTypeClass [] getInterfaces(Class<?> cl) throws ClassNotFoundException;
     
     /**
@@ -327,6 +342,7 @@ public abstract class JavaUtils
      * @param raw     whether to return the raw versions of argument types
      * @return  the argument types
      */
+    @OnThread(Tag.FXPlatform)
     abstract public JavaType[] getParamGenTypes(Method method, boolean raw) throws ClassNotFoundException;
     
     /**
@@ -346,6 +362,7 @@ public abstract class JavaUtils
      * @param constructor  the constructor whose argument types to get
      * @return  the argument types
      */
+    @OnThread(Tag.FXPlatform)
     abstract public JavaType[] getParamGenTypes(Constructor<?> constructor) throws ClassNotFoundException;
     
     /**
@@ -355,6 +372,7 @@ public abstract class JavaUtils
      * @param tparams   A list of GenTypeDeclTpar
      * @return          A map (String -> GenTypeSolid)
      */
+    @OnThread(Tag.FXPlatform)
     public static Map<String,GenTypeSolid> TParamsToMap(List<GenTypeDeclTpar> tparams)
     {
         Map<String,GenTypeSolid> rmap = new HashMap<String,GenTypeSolid>();
@@ -377,6 +395,7 @@ public abstract class JavaUtils
      * 
      * @return  true if the access is allowed, false otherwise
      */
+    @OnThread(Tag.FXPlatform)
     public static boolean checkMemberAccess(Reflective container, GenTypeSolid targetType,
             Reflective accessor, int modifiers, boolean isStatic)
     {
@@ -636,6 +655,7 @@ public abstract class JavaUtils
     /**
      * Get a GenType corresponding to the (raw) class c
      */
+    @OnThread(Tag.FXPlatform)
     public static JavaType genTypeFromClass(Class<?> c)
     {
         if (c.isPrimitive()) {
@@ -791,4 +811,74 @@ public abstract class JavaUtils
         return sig.replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    /**
+     * Blanks comments and String literals in a java code portion, replacing the content of the comment by the a repetition of specified character.
+     *
+     * @param codeStr The code for which comments should be blanked
+     * @param obfChar The character chosen to blank the content of the comments
+     * @return the blanked code.
+     */
+    @OnThread(Tag.FXPlatform)
+    public static String blankCodeCommentsAndStringLiterals(String codeStr, char obfChar)
+    {
+        JavaLexer l = new JavaLexer(new StringReader(codeStr));
+        StringBuilder sb = new StringBuilder();
+        int currReaderPosition = 0;
+        LocatableToken lastToken = null;
+        for (LocatableToken t = l.nextToken(); t.getType() != JavaTokenTypes.EOF; t = l.nextToken())
+        {
+            //save the last token (cf after the for loop)
+            lastToken = t;
+
+            // Because the parser ignores spaces between tokens, we need preserve these (to match positions)
+            // and fill up with spaces when there is a mismatch between the current reading position and the token
+            if (t.getPosition() > currReaderPosition)
+            {
+                sb.append(" ".repeat(t.getPosition() - currReaderPosition));
+            }
+            currReaderPosition = t.getEndPosition();
+
+
+            int tokenStartOffset, tokenEndOffset;
+            switch (t.getType())
+            {
+                case JavaTokenTypes.ML_COMMENT:
+                    tokenStartOffset = 2; //for /*
+                    tokenEndOffset = 2; //for */
+                    break;
+                case JavaTokenTypes.SL_COMMENT:
+                    tokenStartOffset = 2; //for //
+                    tokenEndOffset = 0; //none
+                    break;
+                case JavaTokenTypes.STRING_LITERAL:
+                    tokenStartOffset = 1; //for "
+                    tokenEndOffset = 1; //for "
+                    break;
+                case JavaTokenTypes.CHAR_LITERAL:
+                    tokenStartOffset = 1; //for '
+                    tokenEndOffset = 1; //for '
+                    // break;
+                default:
+                    // if we are in a case we do not need to blank,
+                    // we just keep append the token in the StringBuilder
+                    // and move to the next token.
+                    sb.append(codeStr, t.getPosition(), t.getPosition() + t.getLength());
+                    continue;
+            }
+
+            // At this point we need to blank the code, preserving the token indicators (i.e. "/*")
+            sb.append(codeStr.substring(t.getPosition(), t.getPosition() + tokenStartOffset)
+                + String.valueOf(obfChar).repeat(t.getLength() - tokenStartOffset - tokenEndOffset)
+                + codeStr.substring(t.getEndPosition() - tokenEndOffset, t.getEndPosition()));
+        }
+
+        //trailing spaces: if there are more blank spaces after the last token fill up the string
+        //with spaces to maintain the same string size.
+        if (lastToken != null && (lastToken.getEndPosition() < codeStr.length() - 1))
+        {
+            sb.append(" ".repeat(codeStr.length() - lastToken.getEndPosition()));
+        }
+
+        return sb.toString();
+    }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -359,9 +359,12 @@ public class HoleDocument implements Document
     }
 
     @Override
-    public void addListener(DocumentListener listener)
+    public void addListener(boolean atStart, DocumentListener listener)
     {
-        listeners.add(listener);
+        if (atStart)
+            listeners.add(0, listener);
+        else
+            listeners.add(listener);
     }
 
     public boolean hasLineAttribute(int lineIndex, Object attributeKey)

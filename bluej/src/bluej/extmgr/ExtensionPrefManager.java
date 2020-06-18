@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2014,2016,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -76,8 +76,7 @@ public class ExtensionPrefManager implements PrefPanelListener
     {
         if (drawVBox.getChildren().size() == 0)
         {
-            Text noContentTextNode = new Text(Config.getString("prefmgr.extensions.noContent"));
-            drawVBox.getChildren().add(noContentTextNode);
+            drawVBox.getChildren().add(new Text(Config.getString("prefmgr.extensions.noContent")));
         }
         return drawScrollPane;
     }

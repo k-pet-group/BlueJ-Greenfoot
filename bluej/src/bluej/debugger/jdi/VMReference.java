@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -785,6 +785,7 @@ public class VMReference
      * @return a Reference to the class mirrored in the remote VM
      * @throws ClassNotFoundException  if the remote class can't be loaded
      */
+    @OnThread(Tag.NOTVMEventHandler)
     ReferenceType loadClass(String className)
         throws ClassNotFoundException
     {
@@ -802,6 +803,7 @@ public class VMReference
      *                   the current established project classloader
      * @return     A reference to the loaded class, or null if the class could not be loaded.
      */
+    @OnThread(Tag.NOTVMEventHandler)
     ReferenceType loadClass(String className, ClassLoaderReference clr)
     {
         synchronized(workerThread) {
@@ -876,6 +878,7 @@ public class VMReference
      * @param className
      *            the class to start
      */
+    @OnThread(Tag.NOTVMEventHandler)
     public DebuggerResult runShellClass(String className)
     {
         // Calls to this method are protected by serverThreadLock in JdiDebugger
@@ -932,6 +935,7 @@ public class VMReference
     /**
      * Invoke the default constructor for some class, and return the resulting object.
      */
+    @OnThread(Tag.NOTVMEventHandler)
     public DebuggerResult instantiateClass(String className)
     {
         ObjectReference obj = null;
@@ -972,6 +976,7 @@ public class VMReference
      * @return  The newly constructed object (or null if error/exception
      *          occurs)
      */
+    @OnThread(Tag.NOTVMEventHandler)
     public DebuggerResult instantiateClass(String className, String [] paramTypes, ObjectReference [] args)
     {
         ObjectReference obj = null;
@@ -1308,6 +1313,7 @@ public class VMReference
      * Find and load all classes declared in the same source file as className
      * and then find the Location object for the source at the line 'line'.
      */
+    @OnThread(Tag.FXPlatform)
     private Location loadClassesAndFindLine(String className, int line)
     {
         ReferenceType remoteClass = null;
@@ -1389,6 +1395,7 @@ public class VMReference
      * @param properties The collection of properties to set on the breakpoint.  Can be null.
      * @return null if there was no problem, or an error string
      */
+    @OnThread(Tag.FXPlatform)
     String setBreakpoint(String className, int line, Map<String, String> properties)
     {
         Location location = loadClassesAndFindLine(className, line);
@@ -1440,6 +1447,7 @@ public class VMReference
     }
     
     // As above but sets the breakpoint on the first line of a given method
+    @OnThread(Tag.FXPlatform)
     String setBreakpoint(String className, String methodName, Map<String, String> properties)
     {
         try {
@@ -1469,6 +1477,7 @@ public class VMReference
      *            The line number of the breakpoint.
      * @return null if there was no problem, or an error string
      */
+    @OnThread(Tag.FXPlatform)
     String clearBreakpoint(String className, int line)
     {
         Location location = loadClassesAndFindLine(className, line);
@@ -1733,6 +1742,7 @@ public class VMReference
      * 
      * @return  The newly constructed object
      */
+    @OnThread(Tag.NOTVMEventHandler)
     private ObjectReference invokeConstructor(String className, String [] paramTypes, ObjectReference [] args)
     {
         // Calls to this method are serialized via serverThreadLock in JdiDebugger

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import bluej.Config;
 import bluej.stride.framedjava.slots.StructuredSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
+import bluej.utility.javafx.*;
 import javafx.beans.binding.When;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -81,10 +82,6 @@ import bluej.stride.slots.SlotLabel;
 
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import bluej.utility.javafx.BetterVBox;
-import bluej.utility.javafx.FXRunnable;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -99,7 +96,7 @@ import threadchecker.Tag;
  *
  * @author Fraser McKay
  */
-public abstract class Frame implements CursorFinder, FocusParent<FrameContentItem>, ErrorShower
+public abstract class Frame implements CursorFinder, FocusParent<FrameContentItem>, ErrorShower, AbstractOperation.ContextualItem<Frame>
 {
     /**
      * The list of contents of a frame.  The primary dimension of a frame is vertical:

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2016,2020 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@ package bluej.stride.operations;
 import bluej.Config;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.slots.EditableSlot;
+import bluej.utility.javafx.AbstractOperation;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -71,7 +71,7 @@ public class ToggleBooleanProperty extends FrameOperation
     @Override
     public List<ItemLabel> getLabels()
     {
-        return Arrays.asList(new ItemLabel(label, EditableSlot.MenuItemOrder.TOGGLE_BOOLEAN));
+        return Arrays.asList(new ItemLabel(label, AbstractOperation.MenuItemOrder.TOGGLE_BOOLEAN));
     }
 
     @Override

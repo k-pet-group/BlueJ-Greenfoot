@@ -21,10 +21,15 @@
  */
 package bluej.pkgmgr.target;
 
+import bluej.extmgr.ClassExtensionMenu;
+import bluej.extmgr.ExtensionsManager;
+import bluej.extmgr.ExtensionsMenuManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
+import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.JavaFXUtil;
 
+import java.util.Map;
 import java.util.Properties;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -52,7 +57,7 @@ import threadchecker.Tag;
  * @author Michael Cahill
  */
 public abstract class Target
-    implements Comparable<Target>
+    implements Comparable<Target>, AbstractOperation.ContextualItem<Target>
 {
     static final int DEF_WIDTH = 80;
     static final int DEF_HEIGHT = 50;
@@ -312,8 +317,16 @@ public abstract class Target
         });
 
         JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
-            pkg.getEditor().selectOnly(this);
-            popupMenu(x.intValue(), y.intValue(), pkg.getEditor());
+            AbstractOperation.MenuItems menuItems = AbstractOperation.getMenuItems(pkg.getEditor().getSelection(), true);
+            ContextMenu contextMenu = AbstractOperation.MenuItems.makeContextMenu(Map.of("", menuItems));
+            if (pkg.getEditor().getSelection().size() == 1 && pkg.getEditor().getSelection().get(0) instanceof ClassTarget)
+            {
+                ClassTarget classTarget = (ClassTarget)pkg.getEditor().getSelection().get(0);
+                ExtensionsMenuManager menuManager = new ExtensionsMenuManager(contextMenu, ExtensionsManager.getInstance(), new ClassExtensionMenu(classTarget));
+                menuManager.addExtensionMenu(getPackage().getProject());
+            }
+            showingMenu(contextMenu);
+            contextMenu.show(pane, x.intValue(), y.intValue());
             return true;
         }, KeyCode.SPACE, KeyCode.ENTER);
 
@@ -624,9 +637,6 @@ public abstract class Target
 
     @OnThread(Tag.FXPlatform)
     public abstract void doubleClick(boolean openInNewWindow);
-
-    @OnThread(Tag.FXPlatform)
-    public abstract void popupMenu(int x, int y, PackageEditor editor);
 
     public abstract void remove();
 

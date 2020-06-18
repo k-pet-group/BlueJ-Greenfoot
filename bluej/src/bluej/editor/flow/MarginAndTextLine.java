@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,10 +22,13 @@
 package bluej.editor.flow;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.StringExpression;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.Tooltip;
@@ -56,6 +59,7 @@ public class MarginAndTextLine extends Region
     private final Line dividerLine;
     private final int lineNumberToDisplay;
     private boolean hoveringMargin = false;
+
     // Does not include the hover icon, which is added dynamically:
     private final EnumSet<MarginDisplay> displayItems = EnumSet.noneOf(MarginDisplay.class);
     private final Tooltip breakpointHoverTooltip;
@@ -83,7 +87,7 @@ public class MarginAndTextLine extends Region
     private final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
     final TextLine textLine;
 
-    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformSupplier<Boolean> onClick)
+    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformSupplier<Boolean> onClick, FXPlatformSupplier<ContextMenu> getContextMenuToShow)
     {
         this.dividerLine = new Line(LINE_X, 0.5, LINE_X, 1);
         dividerLine.getStyleClass().add("flow-margin-line");
@@ -112,8 +116,8 @@ public class MarginAndTextLine extends Region
                         breakpointHoverTooltip.setText(breakpointHoverUsualText);
                         breakpointHoverTooltip.setShowDelay(Duration.seconds(1));
                     }
+                    e.consume();
                 }
-                e.consume();
             }
         });
         addEventHandler(MouseEvent.MOUSE_MOVED, e -> {
@@ -125,6 +129,33 @@ public class MarginAndTextLine extends Region
             breakpointHoverTooltip.setText(breakpointHoverUsualText);
             breakpointHoverTooltip.setShowDelay(Duration.seconds(1));
             setMarginGraphics(EnumSet.copyOf(displayItems));
+        });
+
+        // Context menu to show or hide line numbers
+        ContextMenu contextMenu = new ContextMenu();
+        // If they right-click on us, we show new-class and import-class actions:
+        contextMenu.getItems().add(
+            JavaFXUtil.makeMenuItem(
+                Config.getString("prefmgr.edit.displaylinenumbers"),
+                () -> {PrefMgr.setFlag(PrefMgr.LINENUMBERS, !PrefMgr.getFlag(PrefMgr.LINENUMBERS)); },
+                null
+            )
+        );
+
+        // Right-clicks/control-clicks in the left margin show this menu:
+        backgroundNode.setOnContextMenuRequested(e -> {
+            if (contextMenu.isShowing())
+            {
+                contextMenu.hide();
+            }
+            contextMenu.show(backgroundNode, e.getScreenX(), e.getScreenY());
+            e.consume();
+        });
+
+        // Right-clicks/control-clicks anywhere else in the line show this menu:
+        this.setOnContextMenuRequested(e -> {
+            getContextMenuToShow.get().show(this, e.getScreenX(), e.getScreenY());
+            e.consume();
         });
     }
 
@@ -232,6 +263,7 @@ public class MarginAndTextLine extends Region
                         label.setEllipsisString("\u2026");
                         label.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
                         JavaFXUtil.addStyleClass(label, "flow-line-label");
+                        label.setMouseTransparent(true);
                         return label;
                     case STEP_MARK:
                         return makeStepMarkIcon();
@@ -278,6 +310,7 @@ public class MarginAndTextLine extends Region
     {
         Node icon = Config.makeStopIcon(false);
         JavaFXUtil.addStyleClass(icon, "moe-breakpoint-icon");
+        icon.setMouseTransparent(true);
         return icon;
     }
 
@@ -285,6 +318,7 @@ public class MarginAndTextLine extends Region
     {
         Shape arrow = Config.makeArrowShape(false);
         JavaFXUtil.addStyleClass(arrow, "moe-step-mark-icon");
+        arrow.setMouseTransparent(true);
         return arrow;
     }
 }

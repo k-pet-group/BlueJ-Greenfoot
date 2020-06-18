@@ -77,7 +77,7 @@
         <include name="lib/slovak/" />
         <include name="lib/spanish/" />
         <include name="lib/swedish/" />
-        <include name="lib/extensions/" />
+        <include name="lib/extensions2/" />
         <include name="lib/stylesheets/" />
         <include name="lib/tutorial/" />
         <exclude name="lib/*/greenfoot-labels" />
@@ -344,6 +344,13 @@
             <arg value="${basedir}/${dist.mac}" />
         </exec>
         <echo message="${bundleoutput}"/>
+        <chmod perm="+x" file="sign-mac.sh" />
+        <!-- Only works if you have Michael's key, otherwise get him to run this command -->
+        <exec executable="sign-mac.sh" resolveexecutable="true" outputproperty="signoutput">
+            <arg value="${basedir}/${dist.mac}" />
+            <arg value="Michael"/>
+        </exec>
+        <echo message="${signoutput}"/>
         
         <delete dir="mac_tmp" />
 

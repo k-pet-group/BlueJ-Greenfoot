@@ -223,6 +223,13 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
+    public Class loadClass(String className)
+    {
+        return null;
+    }
+
+    @Override
     public void recordCodeCompletionStarted(SlotFragment position, int index, String stem, int codeCompletionId)
     {
         // Not applicable

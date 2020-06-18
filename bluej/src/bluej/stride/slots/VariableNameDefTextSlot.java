@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import bluej.utility.javafx.AbstractOperation;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
@@ -152,14 +153,14 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
     }
 
     @Override
-    protected Map<TopLevelMenu, MenuItems> getExtraContextMenuItems()
+    protected Map<TopLevelMenu, AbstractOperation.MenuItems> getExtraContextMenuItems()
     {
-        return Collections.singletonMap(TopLevelMenu.VIEW, new MenuItems(FXCollections.observableArrayList()) {
+        return Collections.singletonMap(TopLevelMenu.VIEW, new AbstractOperation.MenuItems(FXCollections.observableArrayList()) {
             public void onShowing()
             {
                 if (allUsesCanvas != null)
                 {
-                    items.setAll(MenuItemOrder.SHOW_HIDE_USES.item(JavaFXUtil.makeMenuItem("Hide uses of \"" + getText() + "\"", () -> hideUsesOverlay(), null)));
+                    items.setAll(AbstractOperation.MenuItemOrder.SHOW_HIDE_USES.item(JavaFXUtil.makeMenuItem("Hide uses of \"" + getText() + "\"", () -> hideUsesOverlay(), null)));
                 }
                 else
                 {
@@ -167,7 +168,7 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
                     
                     if (!refFinder.refs.isEmpty())
                     {
-                        items.setAll(MenuItemOrder.SHOW_HIDE_USES.item(JavaFXUtil.makeMenuItem("See uses of \"" + getText() + "\"", () -> showUsesOverlay(refFinder.refs), null)));
+                        items.setAll(AbstractOperation.MenuItemOrder.SHOW_HIDE_USES.item(JavaFXUtil.makeMenuItem("See uses of \"" + getText() + "\"", () -> showUsesOverlay(refFinder.refs), null)));
                     }
                     else
                         items.clear();

@@ -127,6 +127,8 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow.AnchorLocation;
 import javafx.stage.Stage;
@@ -154,6 +156,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -178,7 +181,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
     /** The Editor Quick Fixes manager associated with this Editor */
-    private final EditorFixesManager editorFixesMgr = new EditorFixesManager();
+    private final EditorFixesManager editorFixesMgr;
     
     private final boolean sourceIsCode;           // true if current buffer is code
     private final List<Menu> fxMenus;
@@ -237,6 +240,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private boolean showingChangedOnDiskDialog = false;
     private FXPlatformRunnable callbackOnOpen;
 
+    private final ContextMenu editorContextMenu;
+
     public boolean containsSourceCode()
     {
         return sourceIsCode;
@@ -254,12 +259,24 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         return toggleBreakpointForLine(lineIndex);
     }
 
+    @Override
+    public ContextMenu getContextMenuToShow()
+    {
+        // It may already be showing; if so, hide and re-show at new click position:
+        editorContextMenu.hide();
+        return editorContextMenu;
+    }
+
     // Returns true if successfully flipped, false if not.
     private boolean toggleBreakpointForLine(int lineIndex)
     {
         if (watcher.breakpointToggleEvent(lineIndex + 1, !breakpoints.get(lineIndex)) == null)
         {
             breakpoints.flip(lineIndex);
+            if(breakpoints.get(lineIndex))
+            {
+                mayHaveBreakpoints = true;
+            }
             flowEditorPane.setLineMarginGraphics(lineIndex, calculateMarginDisplay(lineIndex));
             // We also reapply scopes:
             flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
@@ -302,6 +319,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         FXTabbedEditor getFXTabbedEditor(boolean newWindow);
     }
 
+    /**
+     * An implementation of FlowEditorPaneListener that is only used for printing.
+     */
     public static class OffScreenFlowEditorPaneListener extends ScopeColorsBorderPane implements FlowEditorPaneListener
     {
         @Override
@@ -329,6 +349,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
         @Override
         public String getErrorAtPosition(int caretPos)
+        {
+            return null;
+        }
+
+        @Override
+        public ContextMenu getContextMenuToShow()
         {
             return null;
         }
@@ -402,7 +428,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.callbackOnOpen = openCallback;
         this.flowEditorPane = new FlowEditorPane("", this);
         this.document = flowEditorPane.getDocument();
-        this.document.addListener(this);
+        this.document.addListener(false, this);
         this.javaSyntaxView = new JavaSyntaxView(document, flowEditorPane, this, parentResolver, syntaxHighlighting);
         this.flowEditorPane.setErrorQuery(errorManager);
         this.undoManager = new UndoManager(document);
@@ -413,6 +439,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.actions = new FlowActions(this);
         this.htmlPane = new WebView();
         this.sourceIsCode = sourceIsCode;
+        this.editorFixesMgr = new EditorFixesManager(watcher == null || watcher.getPackage() == null ? new CompletableFuture<>() : watcher.getPackage().getProject().getImports());
         htmlPane.visibleProperty().bind(viewingHTML);
         setCenter(new StackPane(flowEditorPane, htmlPane));
         this.interfaceToggle = createInterfaceSelector();
@@ -462,9 +489,20 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         bottomArea.setTop(finder);
         setBottom(bottomArea);
 
+        this.editorContextMenu = new ContextMenu(
+            getActions().getActionByName(DefaultEditorKit.cutAction).makeContextMenuItem(Config.getString("editor.cutLabel")),
+            getActions().getActionByName(DefaultEditorKit.copyAction).makeContextMenuItem(Config.getString("editor.copyLabel")),
+            getActions().getActionByName(DefaultEditorKit.pasteAction).makeContextMenuItem(Config.getString("editor.pasteLabel"))
+        );
+
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), s -> {
             javaSyntaxView.fontSizeChanged();
             flowEditorPane.fontSizeChanged();
+        });
+
+        // Repaint the flowEditorPane whenever the line numbers are shown or hidden
+        JavaFXUtil.addChangeListenerPlatform(PrefMgr.flagProperty(PrefMgr.LINENUMBERS), b -> {
+            flowEditorPane.repaint();
         });
     }
 
@@ -483,7 +521,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     private Region createToolbar(DoubleExpression buttonHeight)
     {
-        TilePane tilePane = new TilePane(Orientation.HORIZONTAL,
+        // We use a tile pane because it makes all the buttons the same size as each other.
+        // But we don't actually want any wrapping that TilePane gives us.  The easiest way to
+        // prevent this is to make it vertical, and then restrict it to one row in height.
+        // This means it "wraps" all the buttons horizontally, and won't change it's behaviour
+        // if the window gets too narrow to display all the buttons.
+        TilePane tilePane = new TilePane(Orientation.VERTICAL,
             createToolbarButton("compile", buttonHeight),
             createToolbarButton("undo", buttonHeight),
             createToolbarButton("cut", buttonHeight),
@@ -492,7 +535,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             createToolbarButton("find", buttonHeight),
             createToolbarButton("close", buttonHeight)
         );
+        tilePane.setPrefRows(1);
         tilePane.setPrefColumns(tilePane.getChildren().size());
+        tilePane.prefWidthProperty().bind(tilePane.maxWidthProperty());
+        tilePane.prefHeightProperty().bind(tilePane.minHeightProperty());
         return JavaFXUtil.withStyleClass(tilePane, "flow-top-bar-buttons");
     }
 
@@ -660,7 +706,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public String getErrorAtPosition(int caretPos)
     {
-        return errorManager.getErrorAtPosition(caretPos).message;
+        String errorMessage = (errorManager.getErrorAtPosition(caretPos) != null)
+            ? errorManager.getErrorAtPosition(caretPos).message
+            : null;
+        return errorMessage;
     }
 
     /**
@@ -760,6 +809,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         boolean isStillSameError = errorDisplay != null && caretPos >= errorDisplay.details.startPos && caretPos <= errorDisplay.details.endPos;
         if (err != null && !isStillSameError)
         {
+            showErrorOverlay(err, caretPos);
+        }
+        else if (!mousePosition && !isStillSameError)
+        {
+            // If the keyboard moves to a different error (or out of an error)
+            // always do that update:
             showErrorOverlay(err, caretPos);
         }
         else
@@ -1041,7 +1096,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 getSourcePane().positionCaret(0);
                 undoManager.forgetHistory();
 
-                javaSyntaxView.enableParser(false);
+                if (sourceIsCode)
+                {
+                    javaSyntaxView.enableParser(false);
+                }
                 loaded = true;
             }
             catch (IOException ex) {
@@ -1243,6 +1301,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public ParsedCUNode getParsedNode()
     {
+        javaSyntaxView.flushReparseQueue();
         return javaSyntaxView.getParser();
     }
 
@@ -1292,7 +1351,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             File file = new File(filename);
             setLastModified(file.lastModified());
 
-            enableParser(false);
+            if (sourceIsCode)
+            {
+                enableParser(false);
+            }
 
             // We want to inform the watcher that the editor content has changed,
             // and then inform it that we are in "saved" state (synced with file).
@@ -1328,9 +1390,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void setEditorVisible(boolean vis, boolean openInNewWindow)
     {
         FXTabbedEditor fxTabbedEditor = fetchTabbedEditor.getFXTabbedEditor(openInNewWindow);
-
-        // prepare the imports
-        getEditorFixesManager().prepareImports(fxTabbedEditor.getProject());
 
         if (vis)
         {
@@ -1945,7 +2004,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         if (mayHaveBreakpoints)
         {
-            document.removeLineAttributeThroughout(ParagraphAttribute.BREAKPOINT);
+            breakpoints.clear();
+            for (int lineIndex = 0; lineIndex < document.getLineCount(); lineIndex++)
+            {
+                flowEditorPane.setLineMarginGraphics(lineIndex, calculateMarginDisplay(lineIndex));
+            }
             mayHaveBreakpoints = false;
         }
     }
@@ -1955,22 +2018,19 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         if (mayHaveBreakpoints) {
             mayHaveBreakpoints = false;
-            for (int i = 1; i <= numberOfLines(); i++) {
-                if (lineHasBreakpoint(i)) {
+            for (int i = 1; i <= numberOfLines(); i++)
+            {
+                if (breakpoints.get(i))
+                {
                     if (watcher != null)
-                        watcher.breakpointToggleEvent(i, true);
+                        watcher.breakpointToggleEvent(i + 1, true);
                     mayHaveBreakpoints = true;
                 }
             }
         }
     }
 
-    private boolean lineHasBreakpoint(int i)
-    {
-        return document.hasLineAttribute(i, ParagraphAttribute.BREAKPOINT);
-    }
-
-    /**
+     /**
      * User requests "save"
      */
     public void userSave()
@@ -2745,7 +2805,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                     selectNext(true);
                 }
                 int pos = flowEditorPane.getSelectionStart();
-                document.replaceText(pos, searchFor.length(), replacement);
+                document.replaceText(pos, pos + searchFor.length(), replacement);
                 flowEditorPane.positionCaret(pos + searchFor.length());
                 return doFind(searchFor, ignoreCase);
             }
@@ -2755,7 +2815,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 // Sort all the found positions in descending order, so we can replace them
                 // in order without affecting the later positions in the list (earlier in file):
                 foundStarts.stream().sorted(Comparator.reverseOrder()).forEach(pos ->
-                    document.replaceText(pos, searchFor.length(), replacement)
+                    document.replaceText(pos, pos + searchFor.length(), replacement)
                 );
             }
 
@@ -2877,7 +2937,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         if (suggests != null)
         {
             LocatableToken suggestToken = suggests.getSuggestionToken();
-            AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getCurrentPosNode(flowEditorPane.getCaretPosition(), 0));
+            AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getContainingMethodOrClassNode(flowEditorPane.getCaretPosition()));
             Arrays.sort(possibleCompletions, AssistContent.getComparator());
             List<SuggestionDetails> suggestionDetails = Arrays.stream(possibleCompletions)
                     .map(AssistContentThreadSafe::new)
@@ -3364,7 +3424,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     public void print()
     {
-        Optional<PrintChoices> choices = new PrintDialog(getWindow(), null).showAndWait();
+        Optional<PrintChoices> choices = new PrintDialog(getWindow(), null, document.getLineCount() >= 200).showAndWait();
         if (!choices.isPresent())
             return;
         PrinterJob job = JavaFXUtil.createPrinterJob();
@@ -3435,11 +3495,24 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             this.popup = new PopupControl();
             VBox errorVBox = new VBox();
 
-            Label text = new Label(ParserMessageHandler.getMessageForCode(details.message));
-            errorVBox.getChildren().add(text);
+            String errorMessage = ParserMessageHandler.getMessageForCode(details.message);
+            TextFlow tf = null;
+            if (details.italicMessageStartIndex == -1 || details.italicMessageEndIndex == -1)
+            {
+                tf = new TextFlow(new Label(errorMessage));
+            } else
+            {
+                Label beforeItalicText = (details.italicMessageStartIndex > 0) ? new Label(errorMessage.substring(0, details.italicMessageStartIndex)) : new Label("");
+                Label italicText = new Label(errorMessage.substring(details.italicMessageStartIndex, details.italicMessageEndIndex));
+                JavaFXUtil.withStyleClass(italicText, "error-fix-display-italic");
+                Label afterItalicText = (details.italicMessageEndIndex < errorMessage.length() - 1) ? new Label(errorMessage.substring(details.italicMessageEndIndex)) : new Label("");
+                tf = new TextFlow(beforeItalicText, italicText, afterItalicText);
+            }
+
+            errorVBox.getChildren().add(tf);
             prepareFixDisplay(errorVBox, details.corrections, editorWatcherSupplier, details.identifier);
 
-            JavaFXUtil.addStyleClass(text, "error-label");
+            JavaFXUtil.addStyleClass(tf, "error-label");
             this.popup.setSkin(new Skin<Skinnable>()
             {
                 @Override
@@ -3464,6 +3537,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 }
             });
             errorVBox.getStyleClass().add("java-error-popup");
+            // No need to bind as only matters if user increases font size while error showing:
+            tf.setStyle(PrefMgr.getEditorFontCSS(false).get());
             Config.addPopupStylesheets(errorVBox);
         }
     }

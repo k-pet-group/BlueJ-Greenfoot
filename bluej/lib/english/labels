@@ -138,6 +138,7 @@ prefmgr.accessibility.support=Accessibility Mode [only for use with screen reade
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Installed Extensions
 extmgr.extensions=Extensions
+extmgr.noExtensionInstalled=No extension installed.
 extmgr.systemExtensionShort=System
 extmgr.systemExtensionLong=System extension (active for all projects)
 extmgr.projectExtensionShort=Project
@@ -230,6 +231,7 @@ editor.preferencesLabel = Preferences...
 editor.printDialog.title=BlueJ:  Print Source Code
 editor.printDialog.printLineNumbers=Print Line Numbers
 editor.printDialog.printHighlighting=Print with Scope Highlighting
+editor.printDialog.printHighlighting.tooltip=This slows down printing and is not supported for large print jobs
 editor.printDialog.fontSize=Font size
 editor.printDialog.fontSize.small=Small
 editor.printDialog.fontSize.standard=Standard
@@ -247,6 +249,10 @@ editor.quickfix.undeclaredMethod.errorMsg=Undeclared method:\u0020
 editor.quickfix.wrongComparisonOperator.errorMsg=Assignment found instead of boolean expression. \n\
                                                  Did you mean "=="?
 editor.quickfix.wrongComparisonOperator.fixMsg=Replace "=" with "=="
+editor.quickfix.unreportedException.errorMsg.part1=The possible exception of type\u0020
+editor.quickfix.unreportedException.errorMsg.part2=\u0020needs to be handled
+editor.quickfix.unreportedException.fixMsg.trycatch=Surround this line with try/catch
+editor.quickfix.unreportedException.fixMsg.throws=Add throws statement for this exception in the containing method
 
 # Dialog titles and texts
 editor.functions.title = Editor Functions

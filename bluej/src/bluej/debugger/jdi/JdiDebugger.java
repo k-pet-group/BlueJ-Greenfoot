@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -457,6 +457,7 @@ public class JdiDebugger extends Debugger
     /*
      * @see bluej.debugger.Debugger#getMirror(java.lang.String)
      */
+    @OnThread(Tag.FXPlatform)
     public DebuggerObject getMirror(String value)
     {
         VMReference vmr = getVM();
@@ -699,7 +700,7 @@ public class JdiDebugger extends Debugger
      *            the class to start
      */
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.NOTVMEventHandler)
     public DebuggerResult runClassMain(String className)
         throws ClassNotFoundException
     {
@@ -751,7 +752,7 @@ public class JdiDebugger extends Debugger
      * Construct a class instance using the default constructor.
      */
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.NOTVMEventHandler)
     public DebuggerResult instantiateClass(String className)
     {
         VMReference vmr = getVM();
@@ -769,7 +770,7 @@ public class JdiDebugger extends Debugger
      * @see bluej.debugger.Debugger#instantiateClass(java.lang.String, java.lang.String[], bluej.debugger.DebuggerObject[])
      */
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.NOTVMEventHandler)
     public DebuggerResult instantiateClass(String className, String[] paramTypes, DebuggerObject[] args)
     {
         // If there are no arguments, use the default constructor
@@ -799,7 +800,7 @@ public class JdiDebugger extends Debugger
      * @see bluej.debugger.Debugger#getClass(java.lang.String, boolean)
      */
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.NOTVMEventHandler)
     public FXPlatformSupplier<DebuggerClass> getClass(String className, boolean initialize)
         throws ClassNotFoundException
     {
@@ -894,6 +895,7 @@ public class JdiDebugger extends Debugger
      * 
      * @return null if there was no problem, or an error string
      */
+    @OnThread(Tag.FXPlatform)
     public String toggleBreakpoint(String className, int line, boolean set, Map<String, String> properties)
     {
         // Debug.message("[toggleBreakpoint]: " + className + " line " + line);
@@ -922,7 +924,7 @@ public class JdiDebugger extends Debugger
     /*
      * @see bluej.debugger.Debugger#toggleBreakpoint(java.lang.String, java.lang.String, boolean, java.util.Map)
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public String toggleBreakpoint(String className, String method, boolean set, Map<String, String> properties)
     {
         VMReference vmr = getVM();

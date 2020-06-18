@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -391,7 +391,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     new SyntaxEvent(0, document.getLength(), true, false));
             // We can discard the MoeSyntaxEvent: the reparse will update scopes/syntax
             //}
-            document.addListener((start, oldText, newText, linesRemoved, linesAdded) -> {
+            document.addListener(true, (start, oldText, newText, linesRemoved, linesAdded) -> {
                 if (oldText.length() != 0)
                 {
                     scopeBackgrounds.linesRemoved(document.getLineFromPosition(start), linesRemoved);
@@ -436,10 +436,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         List<StyledSegment> cached = styledLines.get(lineIndex);
         if (cached != null && lineContent.equals(asCharSequence(cached)))
             return cached;
-        
+
         ArrayList<StyledSegment> lineStyle = new ArrayList<>();
         int curPosInLine = 0;
-        Token nextToken = rootNode.getMarkTokensFor(document.getLineStart(lineIndex), lineContent.length(), 0, this); 
+        Token nextToken = rootNode.getMarkTokensFor(document.getLineStart(lineIndex), lineContent.length(), 0, this);
         while (nextToken.id != TokenType.END)
         {
             String tokenContent = lineContent.subSequence(curPosInLine, curPosInLine + nextToken.length).toString();

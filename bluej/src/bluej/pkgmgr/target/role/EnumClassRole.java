@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2016,2017,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,12 +23,16 @@ package bluej.pkgmgr.target.role;
 
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
+import bluej.pkgmgr.target.actions.ClassTargetOperation;
+import bluej.pkgmgr.target.actions.CreateTestAction;
 import bluej.prefmgr.PrefMgr;
 import javafx.collections.ObservableList;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.List;
 
 /**
  * A role object to represent the behaviour of enums.
@@ -64,16 +68,14 @@ public class EnumClassRole extends ClassRole
      * Because we are an enum class we cannot have any constructors
      * so we override this method to do nothing.
      *
-     * @param menu the popup menu to add the class menu items to
      * @param cl Class object associated with this class target
      */
     @Override
-    @OnThread(Tag.FXPlatform)
-    public boolean createClassConstructorMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl)
+    public @OnThread(Tag.FXPlatform) List<ClassTargetOperation> getClassConstructorOperations(ClassTarget ct, Class<?> cl)
     {
-        return false;
+        return List.of();
     }
-    
+
     /**
      * Adds role specific items at the bottom of the popup menu for this class target.
      *
@@ -85,15 +87,13 @@ public class EnumClassRole extends ClassRole
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    public boolean createRoleMenuEnd(ObservableList<MenuItem> menu, ClassTarget ct, State state)
+    public List<ClassTargetOperation> getRoleOperationsEnd(ClassTarget ct, State state)
     {
-        if(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS)) {
-            if (ct.getAssociation() == null) {
-                menu.add(new SeparatorMenuItem());
-                menu.add(ct.new CreateTestAction());
-            }
+        if (ct.getAssociation() == null)
+        {
+            return List.of(new CreateTestAction());
         }
-        return true;
+        return List.of();
     }
 
     @Override
