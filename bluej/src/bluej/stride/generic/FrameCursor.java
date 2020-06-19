@@ -53,6 +53,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -414,11 +415,38 @@ public class FrameCursor implements RecallableFocus
             //cherry
             if (nowFocused)
             {
+                node.setAccessibleRole(AccessibleRole.NODE);
+                String normalText = "frame cursor normal text";
+                String helpText = "frame cursor help text";
                 if (getFrameAfter() != null)
                 {
-                    node.setAccessibleText(getFrameAfter().getScreenReaderText());
-                    node.setAccessibleHelp(getFrameAfter().getScreenReaderHelp());
+                    normalText = getFrameAfter().getScreenReaderText();
+                    helpText = getFrameAfter().getScreenReaderHelp();
+                    node.setAccessibleText(normalText);
+                    node.setAccessibleHelp(helpText);
+                } else {
+                    normalText = "no frame selected";
+                    node.setAccessibleText(normalText);
+                    switch(parentCanvas.getParent().getChildKind(parentCanvas)) {
+                        case FIELDS:
+                            helpText = "you are in the Fields area";
+                            break;
+                        case CONSTRUCTORS:
+                            helpText = "you are in the Constructors area";
+                            break;
+                        case METHODS:
+                            helpText = "you are in the Methods area";
+                            break;
+                        case STATEMENTS:
+                            helpText = "you are in the Statements area";
+                            break;
+                        case IMPORTS:
+                            helpText = "you are in the Imports area";
+                            break;
+                    }
+                    node.setAccessibleHelp(helpText);
                 }
+                System.out.println("normal text: " + normalText + " | help text: " + helpText );
             }
         });
         JavaFXUtil.addChangeListener(node.localToSceneTransformProperty(), t -> JavaFXUtil.runNowOrLater(() -> adjustDragTargetPosition()));
