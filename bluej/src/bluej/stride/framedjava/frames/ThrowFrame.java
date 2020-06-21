@@ -81,11 +81,6 @@ public class ThrowFrame extends SingleLineFrame
     }
 
     //cherry
-    public String getFrameName() {
-        return frameName;
-    }
-
-    //cherry
     public String getScreenReaderText() {
         String thrown;
         if (param1.getText().equals("")) { thrown = "blank"; } else { thrown = param1.getText(); }

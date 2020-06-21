@@ -83,6 +83,9 @@ public class IfFrame extends SandwichCanvasesFrame
         //Manvi Jain
         ifCondition.setAccessibility("condition in if statement ");
 
+        //cherry
+        frameName = "if block";
+
     }
 
 
@@ -127,11 +130,6 @@ public class IfFrame extends SandwichCanvasesFrame
 
        // Manvi Jain
         ifCondition.setAccessibility("condition in if statement ");
-    }
-
-    //cherry
-    public String getFrameName() {
-        return getScreenReaderText();
     }
 
     //cherry

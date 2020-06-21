@@ -89,6 +89,9 @@ public class ForeachFrame extends SingleCanvasFrame
         var.setAccessibility(" variable name in condition in for each loop");
         //var.setAccessibilityRoleDescription(var.getText());
         collection.setAccessibility("collection name in condition in for each loop");
+
+        //cherry
+        frameName = "foreach loop";
     }
     
     public ForeachFrame(InteractionManager editor, TypeSlotFragment type, NameDefSlotFragment var, ExpressionSlotFragment collection, boolean enabled) {
@@ -115,11 +118,6 @@ public class ForeachFrame extends SingleCanvasFrame
         var.setAccessibility(" variable name in condition in for each loop");
         //var.setAccessibilityRoleDescription(var.getText());
         collection.setAccessibility("collection name in condition in for each loop");
-    }
-
-    //cherry
-    public String getFrameName() {
-        return getScreenReaderText();
     }
 
     //cherry

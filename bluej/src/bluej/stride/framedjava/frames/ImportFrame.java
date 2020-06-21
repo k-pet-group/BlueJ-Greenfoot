@@ -226,11 +226,6 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
     }
 
     //cherry
-    public String getFrameName() {
-        return frameName;
-    }
-
-    //cherry
     public String getScreenReaderText() {
         String fieldString;
         if (importField.getText().equals("")) { fieldString = "blank"; } else { fieldString = importField.getText(); }

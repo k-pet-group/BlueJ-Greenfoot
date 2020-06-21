@@ -64,6 +64,9 @@ public class TryFrame extends SandwichCanvasesFrame
             catchTypes.get(i).setAccessibility("catch type in try block");
             catchVars.get(i).setAccessibility("catch variable name in try block");
         }
+
+        //cherry
+        frameName = "try block";
     }
 
     /**
@@ -110,11 +113,6 @@ public class TryFrame extends SandwichCanvasesFrame
             catchTypes.get(i).getSlot().setAccessibility("catch type in try block");
             catchVars.get(i).setAccessibility("catch variable name in try block");
         }
-    }
-
-    //cherry
-    public String getFrameName() {
-        return getScreenReaderText();
     }
 
     //cherry

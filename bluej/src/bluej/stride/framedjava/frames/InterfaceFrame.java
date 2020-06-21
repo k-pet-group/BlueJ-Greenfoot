@@ -101,11 +101,6 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
     }
 
     //cherry
-    public String getFrameName() {
-        return getScreenReaderText();
-    }
-
-    //cherry
     public String getScreenReaderText() {
         String text = "interface frame";
         return text;

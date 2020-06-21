@@ -171,6 +171,9 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             }
         }
         }
+
+        //cherry
+        frameName = "method with body";
     }
     
     public NormalMethodFrame(InteractionManager editor, AccessPermissionFragment access, boolean staticModifier,
@@ -192,11 +195,6 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     }
 
     //cherry
-    public String getFrameName() {
-        return getScreenReaderText();
-    }
-
-    //cherry
     public String getScreenReaderText() {
         // build string out of all params
         StringBuilder paramString = new StringBuilder();
@@ -213,9 +211,9 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         if (returnType.getText().equals("")) { returnString = "blank"; } else { returnString = returnType.getText(); }
 
         if (paramString.length() != 0) {
-            text = "Method " + nameString + " with parameters " + paramString.toString() + " with " + access.getValue(AccessPermission.PUBLIC).toString() + " access and " + returnString + " return type ";
+            text = "Method " + nameString + "() with parameters " + paramString.toString() + " with " + access.getValue(AccessPermission.PUBLIC).toString() + " access and " + returnString + " return type ";
         } else {
-            text = "Method " + nameString + " with "   + access.getValue(AccessPermission.PUBLIC).toString() + " access and "+ returnString + " return type ";
+            text = "Method " + nameString + "() with "   + access.getValue(AccessPermission.PUBLIC).toString() + " access and "+ returnString + " return type ";
         }
         // add static final if present
         if (finalModifier.get()) {

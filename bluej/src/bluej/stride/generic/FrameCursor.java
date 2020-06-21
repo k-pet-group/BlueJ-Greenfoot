@@ -421,33 +421,27 @@ public class FrameCursor implements RecallableFocus
                 if (getFrameAfter() != null)
                 {
                     normalText = getFrameAfter().getScreenReaderText();
-                    helpText = getFrameAfter().getScreenReaderHelp();
+                    helpText = "you are on a " + getFrameAfter().getFrameName() + "," + parentCanvas.getParentLocationDescription();
+//                    helpText = getFrameAfter().getScreenReaderHelp();
                     node.setAccessibleText(normalText);
                     node.setAccessibleHelp(helpText);
                 } else {
                     normalText = "no frame selected";
                     node.setAccessibleText(normalText);
-                    switch(parentCanvas.getParent().getChildKind(parentCanvas)) {
-                        case FIELDS:
-                            helpText = "you are in the Fields area";
-                            break;
-                        case CONSTRUCTORS:
-                            helpText = "you are in the Constructors area";
-                            break;
-                        case METHODS:
-                            helpText = "you are in the Methods area";
-                            break;
+                    CanvasParent.CanvasKind area = parentCanvas.getParent().getChildKind(parentCanvas);
+                    switch(area) {
                         case STATEMENTS:
-                            helpText = "you are in the Statements area";
+                            helpText = "you are " + parentCanvas.getParentLocationDescription();
                             break;
-                        case IMPORTS:
-                            helpText = "you are in the Imports area";
+                        default:
+                            helpText = "you are in the " + area + " area, " + parentCanvas.getParentLocationDescription();
                             break;
                     }
                     node.setAccessibleHelp(helpText);
                 }
-                System.out.println("normal text: " + normalText + " | help text: " + helpText );
+                System.out.println("normal text: " + node.getAccessibleText() + " | help text: " + node.getAccessibleHelp() );
             }
+            //end of cherry
         });
         JavaFXUtil.addChangeListener(node.localToSceneTransformProperty(), t -> JavaFXUtil.runNowOrLater(() -> adjustDragTargetPosition()));
         

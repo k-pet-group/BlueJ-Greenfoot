@@ -143,7 +143,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     private final String stylePrefix;
 
     //cherry
-    public abstract String getFrameName();
+    public String getFrameName() { return frameName; }
 
     //cherry
     public abstract String getScreenReaderText();

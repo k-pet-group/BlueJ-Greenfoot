@@ -448,7 +448,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                         VBox vbox = new VBox();
                         for (Pair<CodeError, Frame> pair : getErrorLocationList()) {
                             Frame frame = pair.getValue();
-                            vbox.getChildren().add(new Button(pair.getKey().getMessage() + " in " + frame.getFrameName() + frame.getParentCanvas().getParentLocationDescription()));
+                            vbox.getChildren().add(new Button(pair.getKey().getMessage() + " in the frame " + frame.getScreenReaderText() + frame.getParentCanvas().getParentLocationDescription()));
 //                            System.out.println(pair.getKey().getMessage() + " in " + frame.getFrameName() + frame.getParentCanvas().getParentLocationDescription());
                         }
 

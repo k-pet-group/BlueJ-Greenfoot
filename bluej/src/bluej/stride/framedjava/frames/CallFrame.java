@@ -101,11 +101,6 @@ public class CallFrame extends SingleLineFrame
     }
 
     //cherry
-    public String getFrameName() {
-        return frameName;
-    }
-
-    //cherry
     public String getScreenReaderText() {
         String contentString;
         if (content.getText().trim().equals("()")) { contentString = "blank"; } else { contentString = content.getText(); }

@@ -96,6 +96,9 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
             superThis.setAccessibilityRoleDescription("");
             superThis.setAccessibility("super constructor options");
         }
+
+        //cherry
+        frameName = "constructor with body";
     }
 
     public ConstructorFrame(InteractionManager editor, AccessPermissionFragment access, String documentation,
@@ -122,11 +125,6 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
             superThis.setAccessibilityRoleDescription("");
             superThis.setAccessibility(" super constructor options");
         }
-    }
-
-    //cherry
-    public String getFrameName() {
-        return getScreenReaderText();
     }
 
     //cherry

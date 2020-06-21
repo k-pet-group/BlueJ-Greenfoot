@@ -120,11 +120,6 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     }
 
     //cherry
-    public String getFrameName() {
-        return frameName;
-    }
-
-    //cherry
     public String getScreenReaderText() {
         StringBuilder paramString = new StringBuilder();
         for(ParamFragment pair : paramsPane.getSlotElement()) {

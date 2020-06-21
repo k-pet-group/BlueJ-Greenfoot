@@ -92,11 +92,6 @@ public class BreakFrame extends SingleLineFrame
     }
 
     //cherry
-    public String getFrameName() {
-        return frameName;
-    }
-
-    //cherry
     public String getScreenReaderText() {
         String text = "break";
         return text;

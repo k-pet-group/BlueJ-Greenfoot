@@ -129,11 +129,6 @@ public class ReturnFrame extends SingleLineFrame
     }
 
     //cherry
-    public String getFrameName() {
-        return frameName;
-    }
-
-    //cherry
     public String getScreenReaderText() {
         String valueString;
         if (value.getText().equals("")) { valueString = "blank"; } else { valueString = value.getText(); }

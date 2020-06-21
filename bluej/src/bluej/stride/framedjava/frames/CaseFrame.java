@@ -115,6 +115,9 @@ public class CaseFrame extends SingleCanvasFrame
 
         //Manvi jain
         paramCondition.setAccessibility(" condition in case statement");
+
+        //cherry
+        frameName = "case block";
     }
     
     public CaseFrame(InteractionManager editor, FilledExpressionSlotFragment condition, boolean enabled)
@@ -125,11 +128,6 @@ public class CaseFrame extends SingleCanvasFrame
 
         //Manvi jain
         paramCondition.setAccessibility("condition in case statement");
-    }
-
-    //cherry
-    public String getFrameName() {
-        return getScreenReaderText();
     }
 
     //cherry

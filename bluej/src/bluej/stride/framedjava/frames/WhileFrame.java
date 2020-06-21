@@ -119,6 +119,9 @@ public class WhileFrame extends SingleCanvasFrame
 
         //Manvi jain
         paramCondition.setAccessibility(" condition in while loop");
+
+        //cherry
+        frameName = "While loop";
     }
     
     public WhileFrame(InteractionManager editor, ExpressionSlotFragment condition, boolean enabled)
@@ -138,11 +141,6 @@ public class WhileFrame extends SingleCanvasFrame
 
         //Manvi jain
         paramCondition.setAccessibility(" condition in while loop");
-    }
-
-    //cherry
-    public String getFrameName() {
-        return getScreenReaderText();
     }
 
     //cherry

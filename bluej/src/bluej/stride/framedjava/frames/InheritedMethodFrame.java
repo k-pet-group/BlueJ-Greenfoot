@@ -123,11 +123,6 @@ public class InheritedMethodFrame extends SingleLineFrame
     }
 
     //cherry
-    public String getFrameName() {
-        return getScreenReaderText();
-    }
-
-    //cherry
     public String getScreenReaderText() {
         StringBuilder paramString = new StringBuilder();
         for(ParamInfo pair : params) {

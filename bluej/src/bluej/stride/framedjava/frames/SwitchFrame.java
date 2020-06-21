@@ -105,11 +105,9 @@ public class SwitchFrame extends MultiCanvasFrame
         //manvi jain
         this.expression.setAccessibility("switch statement expression ");
 
-    }
+        //cherry
+        frameName = "switch block";
 
-    //cherry
-    public String getFrameName() {
-        return getScreenReaderText();
     }
 
     //cherry

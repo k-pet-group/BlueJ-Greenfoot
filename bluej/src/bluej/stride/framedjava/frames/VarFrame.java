@@ -226,11 +226,6 @@ public class VarFrame extends SingleLineFrame
     }
 
     //cherry
-    public String getFrameName() {
-        return frameName;
-    }
-
-    //cherry
     public String getScreenReaderText() {
         String text, name, type, accessString;
         if (slotName.getText().trim().isEmpty()) { name = "blank"; } else { name = slotName.getText(); }
