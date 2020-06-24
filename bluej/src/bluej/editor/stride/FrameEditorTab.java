@@ -135,6 +135,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -229,9 +231,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         this.initialSource = initialSource;
         this.undoRedoManager = new UndoRedoManager(new FrameState(initialSource));
         this.menuManager = new FrameMenuManager(this);
-
-        // prepare imports
-        this.getFrameEditor().getEditorFixesManager().prepareImports(project);
     }
 
     public static String blockSkipModifierLabel()
@@ -550,7 +549,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
 
                     // When imports change, we provide a new future to calculate the types:
                     List<Future<List<AssistContentThreadSafe>>> importsToUpdate = FrameEditorTab.this.getFrameEditor().getEditorFixesManager().getImportedTypesFutureList();
-                    JavaFXUtil.bindMap(importsToUpdate, getTopLevelFrame().getImports(), FrameEditorTab.this.getFrameEditor().getEditorFixesManager()::importsUpdated, change ->
+                    JavaFXUtil.bindMap(importsToUpdate, getTopLevelFrame().getImports(), FrameEditorTab.this.getFrameEditor().getEditorFixesManager()::scanImports, change ->
                     {
                         frameEditor.getEditorFixesManager().getImportedTypesLock().writeLock().lock();
                         change.run();
@@ -2663,6 +2662,13 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     public FrameEditor getFrameEditor()
     {
         return editor;
+    }
+
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public Class loadClass(String className)
+    {
+        return project.loadClass(className);
     }
 
     @Override

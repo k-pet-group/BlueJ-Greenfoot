@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,11 +60,11 @@ public class FXTest extends ApplicationTest
         protected void failed(Throwable e, Description description)
         {
             super.failed(e, description);
-            System.err.println("Screenshot of failure:");
-            dumpScreenshot();
             e.printStackTrace();
             if (e.getCause() != null)
                 e.getCause().printStackTrace();
+            System.err.println("Screenshot of failure:");
+            dumpScreenshot();
         }
     };
 
@@ -120,7 +120,7 @@ public class FXTest extends ApplicationTest
             JavaFXUtil.runNowOrLater(() -> {
                 future.complete(fxFetcher.get());
             });
-            return future.get(5, TimeUnit.SECONDS);
+            return future.get(10, TimeUnit.SECONDS);
         }
         catch (ExecutionException | TimeoutException | InterruptedException e)
         {

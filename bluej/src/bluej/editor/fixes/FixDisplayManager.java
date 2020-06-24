@@ -22,6 +22,7 @@
 package bluej.editor.fixes;
 
 import bluej.editor.EditorWatcher;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -65,8 +66,8 @@ public abstract class FixDisplayManager
             getChildren().addAll(l, enterHint);
             HBox.setHgrow(l, Priority.ALWAYS);
             l.setMaxWidth(9999);
+            setStyle(PrefMgr.getEditorFontCSS(false).get());
         }
-
         private void setHighlight(boolean highlight)
         {
             if (highlight)
@@ -95,7 +96,7 @@ public abstract class FixDisplayManager
         {
             for (FixSuggestion fix : fixSuggestions)
             {
-                FixDisplay l = new FixDisplay("  Fix: " + fix.getDescription(), () -> fix.execute());
+                FixDisplay l = new FixDisplay("  \u2022 Fix: " + fix.getDescription(), () -> fix.execute());
                 l.onMouseClickedProperty().set(e ->
                 {
                     recordExecute(editorWatcherSupplier, fixes.indexOf(l));

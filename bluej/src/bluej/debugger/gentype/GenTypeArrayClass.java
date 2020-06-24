@@ -21,6 +21,9 @@
  */
 package bluej.debugger.gentype;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.HashMap;
 
 /**
@@ -51,6 +54,7 @@ public class GenTypeArrayClass extends GenTypeClass
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass getErasedType()
     {
         JavaType newComponentType = componentType.getErasedType();

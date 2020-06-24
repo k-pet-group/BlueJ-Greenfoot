@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import bluej.utility.javafx.AbstractOperation;
 import bluej.stride.framedjava.elements.ClassElement;
 import javafx.beans.binding.DoubleExpression;
 import javafx.collections.FXCollections;
@@ -44,8 +45,11 @@ import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
-import bluej.stride.slots.*;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
+import bluej.stride.slots.ChoiceSlot;
+import bluej.stride.slots.EditableSlot;
+import bluej.stride.slots.FormalParameters;
+import bluej.stride.slots.HeaderItem;
+import bluej.stride.slots.SlotLabel;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -296,7 +300,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
 
         r.add(new CustomFrameOperation(getEditor(), "constructor->method",
                 Arrays.asList(Config.getString("frame.operation.change"), Config.getString("frame.operation.change.to.method")),
-                MenuItemOrder.TRANSFORM, this, () -> {
+                AbstractOperation.MenuItemOrder.TRANSFORM, this, () -> {
                     // TODO AA enhance the code
                     Frame parent = getParentCanvas().getParent().getFrame();
                     if (parent instanceof ClassFrame) {

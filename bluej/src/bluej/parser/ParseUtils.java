@@ -226,11 +226,15 @@ public class ParseUtils
                             locVars.forEach((varName, fieldNodeSet) -> {
                                 // Depth of set values should be 1...
                                 FieldNode locVarFieldNode = fieldNodeSet.iterator().next();
-                                GenTypeParameter fieldType = locVarFieldNode.getFieldType().getType().getUpperBound();
-                                FieldCompletion completion = new FieldCompletion(fieldType.toString(true), varName,
-                                    locVarFieldNode.getModifiers(), methodReflective.getDeclaringType().getName() + "."
-                                    + methodReflective.getName());
-                                completions.add(completion);
+                                JavaType type = locVarFieldNode.getFieldType().getType();
+                                if (type != null)
+                                {
+                                    GenTypeParameter fieldType = type.getUpperBound();
+                                    FieldCompletion completion = new FieldCompletion(fieldType.toString(true), varName,
+                                            locVarFieldNode.getModifiers(), methodReflective.getDeclaringType().getName() + "."
+                                            + methodReflective.getName());
+                                    completions.add(completion);
+                                }
                             });
                         }
                     });

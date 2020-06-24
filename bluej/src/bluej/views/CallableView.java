@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2016,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,6 +64,11 @@ public abstract class CallableView extends MemberView
      * Indicates whether the callable view represents a constructor.
      */
     public abstract boolean isConstructor();
+
+    /**
+     * Check whether this method returns void
+     */
+    public abstract boolean isVoid();
     
     /**
      * Count of parameters

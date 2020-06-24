@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -63,5 +63,15 @@ public abstract class DirectSlotError extends CodeError
         final Diagnostic diagnostic = new Diagnostic(Diagnostic.ERROR, getMessage(), javaFileName, -1, -1, -1, -1, origin, getIdentifier());
         diagnostic.setXPath(path, -1, -1);
         return new DiagnosticWithShown(diagnostic, false, strideFileName);
+    }
+
+    @OnThread(Tag.Any)
+    public int getItalicMessageStartIndex(){
+        return -1;
+    }
+
+    @OnThread(Tag.Any)
+    public int getItalicMessageEndIndex(){
+        return -1;
     }
 }

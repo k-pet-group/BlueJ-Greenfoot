@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,7 +25,6 @@ import bluej.Config;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -61,7 +60,7 @@ public class PullUpContentsOperation extends FrameOperation
     @OnThread(Tag.FXPlatform)
     public void disablePreview()
     {
-        editor.getSelection().setPullUpPreview(false);
+        editor.getSelection().setPullUpPreview(super.onlyOnContextMenu());
     }
 
     @Override

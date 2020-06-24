@@ -21,11 +21,8 @@
  */
 package bluej.editor.fixes;
 
-import bluej.Config;
-import bluej.editor.Editor;
 import bluej.editor.fixes.SuggestionList.SuggestionShown;
 import bluej.parser.AssistContentThreadSafe;
-import bluej.parser.PrimitiveTypeCompletion;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.role.Kind;
 import bluej.utility.Debug;
@@ -44,8 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.BiFunction;
@@ -57,17 +54,9 @@ import java.util.stream.Stream;
  */
 public class EditorFixesManager
 {
-
     @OnThread(Tag.Any)
-    private final static List<Future<List<AssistContentThreadSafe>>> popularImports = new ArrayList<>();
-    @OnThread(Tag.Any)
-    private final static List<Future<List<AssistContentThreadSafe>>> rarerImports = new ArrayList<>();
-    // This static field can be accessed by any thread from an instance, but is initialised once
-    // in an Editor constructor by the first constructed instance, so is thread safe:
-    @OnThread(Tag.Any)
-    private static Future<List<AssistContentThreadSafe>> javaLangImports;
-    @OnThread(Tag.FX)
-    private static List<AssistContentThreadSafe> prims;
+    private final CompletableFuture<ProjectImportInformation> projectImportInformation;
+    
     // The following variables are to be used on a *per editor* basis
     @OnThread(Tag.Any)
     private final ReadWriteLock importedTypesLock;
@@ -75,74 +64,36 @@ public class EditorFixesManager
     private final List<Future<List<AssistContentThreadSafe>>> importedTypes;
     @OnThread(Tag.Any)
     private Project project;
-    @OnThread(Tag.Any)
-    private final AtomicBoolean areImportsready = new AtomicBoolean(false);
 
     /**
      * The constructor of EditorFixesManager is called by an Editor,
      * so this is where *per editor* variables are initialised.
+     * @param projectImportInformation
      */
     @OnThread(Tag.Any)
-    public EditorFixesManager()
+    public EditorFixesManager(CompletableFuture<ProjectImportInformation> projectImportInformation)
     {
+        this.projectImportInformation = projectImportInformation;
         importedTypesLock = new ReentrantReadWriteLock();
         importedTypes = new ArrayList<>();
     }
 
-    public void prepareImports(Project project){
-        this.project = project;
-
-        if (getJavaLangImports() == null)
-        {
-            setJavaLangImports(importsUpdated("java.lang.*"));
-        }
-        // This should perhaps be in an external config file:
-        if (getPopularImports().isEmpty())
-        {
-            getPopularImports().addAll(Arrays.asList(
-                    "java.io.*",
-                    "java.math.*",
-                    "java.time.*",
-                    "java.util.*",
-                    "java.util.function.*",
-                    "java.util.stream.*",
-                    Config.isGreenfoot() ? "greenfoot.*" : null
-            ).stream().filter(i -> i != null).map(this::importsUpdated).collect(Collectors.toList()));
-
-            getRarerImports().addAll(Arrays.asList(
-                    Config.isGreenfoot() ? null : "java.awt.*",
-                    Config.isGreenfoot() ? null : "java.awt.event.*",
-                    "java.net.*",
-                    "java.text.*",
-                    "java.util.concurrent.*",
-                    Config.isGreenfoot() ? null : "javafx.application.*",
-                    Config.isGreenfoot() ? null : "javafx.beans.*",
-                    Config.isGreenfoot() ? null : "javafx.beans.property.*",
-                    Config.isGreenfoot() ? null : "javafx.collections.*",
-                    Config.isGreenfoot() ? null : "javafx.event.*",
-                    Config.isGreenfoot() ? null : "javafx.scene.*",
-                    Config.isGreenfoot() ? null : "javafx.scene.control.*",
-                    Config.isGreenfoot() ? null : "javafx.scene.input.*",
-                    Config.isGreenfoot() ? null : "javafx.scene.layout.*",
-                    Config.isGreenfoot() ? null : "javafx.stage.*",
-                    Config.isGreenfoot() ? null : "javax.swing.*",
-                    Config.isGreenfoot() ? null : "javax.swing.event.*"
-            ).stream().filter(i -> i != null).map(this::importsUpdated).collect(Collectors.toList()));
-        }
-    }
-
-
-    public Future<List<AssistContentThreadSafe>> importsUpdated(final String x)
+    /**
+     * Scans for imports in a background thread that match the given import string.
+     * @param importString A Java import like "java.util.List" or "java.awt.*"
+     */
+    @OnThread(Tag.Any)
+    public Future<List<AssistContentThreadSafe>> scanImports(final String importString)
     {
         CompletableFuture<List<AssistContentThreadSafe>> f = new CompletableFuture<>();
         Utility.runBackground(() -> {
             try
             {
-                f.complete(project.getImportScanner().getImportedTypes(x));
+                f.complete(projectImportInformation.get().scanImports(importString));
             }
             catch (Throwable t)
             {
-                Debug.reportError("Exception while scanning for import " + x, t);
+                Debug.reportError("Exception while scanning for import " + importString, t);
                 f.complete(Collections.emptyList());
             }
         });
@@ -159,12 +110,15 @@ public class EditorFixesManager
     public Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions()
     {
         HashMap<String, Pair<SuggestionShown, AssistContentThreadSafe>> imports = new HashMap<>();
-        if (popularImports.size() > 0 && rarerImports.size() > 0)
+        try
         {
+            List<AssistContentThreadSafe> popularImports = projectImportInformation.get().getPopularImports();
+            List<AssistContentThreadSafe> rarerImports = projectImportInformation.get().getRarerImports();
+        
             // Add popular:
             Stream.concat(
-                popularImports.stream().flatMap(imps -> Utility.getFutureList(imps).stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.COMMON, ac))),
-                rarerImports.stream().flatMap(imps -> Utility.getFutureList(imps).stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.RARE, ac)))
+                    popularImports.stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.COMMON, ac)),
+                    rarerImports.stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.RARE, ac))
             )
                 .filter(imp -> imp.getValue().getPackage() != null)
                 .forEach(imp -> {
@@ -178,30 +132,27 @@ public class EditorFixesManager
                 });
             // Remove what we already import:
             getAllImportedTypes()
-                .filter(imp -> imp.getPackage() != null)
-                .forEach(imp -> imports.remove(imp.getPackage() + "." + imp.getName()));
+                    .filter(imp -> imp.getPackage() != null)
+                    .forEach(imp -> imports.remove(imp.getPackage() + "." + imp.getName()));
             // Remove imports we want to hide (for instance that are unused and confusing for users)
             imports.remove("java.awt.List");
+        
+        }
+        catch (InterruptedException | ExecutionException ex)
+        {
+            Debug.reportError(ex);
         }
 
         // And return the result:
         HashMap<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> ret = new HashMap<>();
         imports.values().forEach(p -> ret.merge(p.getKey(), new ArrayList<AssistContentThreadSafe>(Arrays.asList(p.getValue())), (BiFunction<Collection<AssistContentThreadSafe>, Collection<AssistContentThreadSafe>, Collection<AssistContentThreadSafe>>) (a, b) -> {a.addAll(b); return a;}));
-        areImportsready.set((ret.size() > 0));
         return ret;
-    }
-
-    @OnThread(Tag.Any)
-    public boolean areImportsready(){
-        return areImportsready.get();
     }
 
     @OnThread(Tag.FXPlatform)
     public List<AssistContentThreadSafe> getPrimitiveTypes()
     {
-        if (prims == null)
-            prims = PrimitiveTypeCompletion.allPrimitiveTypes().stream().map(AssistContentThreadSafe::copy).collect(Collectors.toList());
-        return prims;
+        return ProjectImportInformation.getPrims();
     }
 
     @OnThread(Tag.Any)
@@ -216,7 +167,7 @@ public class EditorFixesManager
         importedTypesLock.readLock().lock();
         ArrayList<Future<List<AssistContentThreadSafe>>> importedTypesCopy = new ArrayList<>(importedTypes);
         importedTypesLock.readLock().unlock();
-        return Stream.concat(Stream.of(javaLangImports), importedTypesCopy.stream()).map(Utility::getFutureList).flatMap(List::stream);
+        return Stream.concat(Stream.of(projectImportInformation.thenApply(i -> i.getJavaLangImports())), importedTypesCopy.stream()).map(Utility::getFutureList).flatMap(List::stream);
     }
 
     @OnThread(Tag.Worker)
@@ -240,23 +191,17 @@ public class EditorFixesManager
     }
 
     @OnThread(Tag.Any)
-    public List<Future<List<AssistContentThreadSafe>>> getPopularImports (){
-        return popularImports;
-    }
-
-    @OnThread(Tag.Any)
-    public List<Future<List<AssistContentThreadSafe>>> getRarerImports(){
-        return rarerImports;
-    }
-
-    @OnThread(Tag.Any)
-    public Future<List<AssistContentThreadSafe>> getJavaLangImports(){
-        return javaLangImports;
-    }
-
-    @OnThread(Tag.Any)
-    public void setJavaLangImports(Future<List<AssistContentThreadSafe>> javaLangImports){
-        this.javaLangImports = javaLangImports;
+    public List<AssistContentThreadSafe> getJavaLangImports()
+    {
+        try
+        {
+            return projectImportInformation.get().getJavaLangImports();
+        }
+        catch (InterruptedException | ExecutionException ex)
+        {
+            Debug.reportError(ex);
+            return Collections.emptyList();
+        }
     }
 
     /**

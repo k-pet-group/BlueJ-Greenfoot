@@ -25,12 +25,11 @@ import bluej.Config;
 import bluej.editor.Editor;
 import bluej.editor.flow.FlowEditor;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PackageEditor;
+import bluej.pkgmgr.target.actions.EditAction;
 import bluej.utility.Debug;
+import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import threadchecker.OnThread;
@@ -39,6 +38,7 @@ import threadchecker.Tag;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -166,27 +166,10 @@ public class ReadmeTarget extends NonCodeEditableTarget
         openEditor(openInNewWindow);
     }
 
-    /*
-     * Post the context menu for this target.
-     */
     @Override
-    @OnThread(Tag.FXPlatform)
-    public void popupMenu(int x, int y, PackageEditor editor)
+    public List<? extends AbstractOperation<Target>> getContextOperations()
     {
-        ContextMenu menu = createMenu();
-        if (menu != null) {
-            showingMenu(menu);
-            menu.show(getNode(), x, y);
-        }
-    }
-    
-    @OnThread(Tag.FXPlatform)
-    private ContextMenu createMenu()
-    {
-        MenuItem open = new MenuItem(openStr);
-        open.setOnAction(e -> openEditor(false));
-        JavaFXUtil.addStyleClass(open, "class-action-inbuilt");
-        return new ContextMenu(open);
+        return List.of(new EditAction());
     }
 
     @Override

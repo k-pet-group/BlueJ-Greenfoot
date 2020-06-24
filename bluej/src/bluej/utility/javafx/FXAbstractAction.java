@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 1999-2009,2015,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -176,10 +176,12 @@ public abstract class FXAbstractAction
 
     /**
      * Makes a MenuItem which will run this action, but without an accelerator.
+     *
+     * @param nameOverride If non-null, will be used as the text on the menu item.  If localised, caller is responsible for calling Config.getString
      */
-    public MenuItem makeContextMenuItem()
+    public MenuItem makeContextMenuItem(String nameOverride)
     {
-        MenuItem menuItem = new MenuItem(name);
+        MenuItem menuItem = new MenuItem(nameOverride != null ? nameOverride : name);
         setMenuActionAndDisable(menuItem, true);
         return menuItem;
     }

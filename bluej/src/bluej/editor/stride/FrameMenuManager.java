@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2015,2016,2017,2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,10 +27,10 @@ import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.slots.EditableSlot;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
-import bluej.stride.slots.EditableSlot.SortedMenuItem;
+import bluej.utility.javafx.AbstractOperation.SortedMenuItem;
 import bluej.utility.DialogManager;
 import bluej.utility.Utility;
+import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -75,9 +75,9 @@ class FrameMenuManager extends TabMenuManager
     // An action to unbind the current binding on extraViewItems.  May be null if no binding.
     private FXRunnable unbindViewItems;
     // A listener for when the edit menu is shown:
-    private EditableSlot.MenuItems editMenuListener;
+    private AbstractOperation.MenuItems editMenuListener;
     // A listener for when the view menu is shown:
-    private EditableSlot.MenuItems viewMenuListener;
+    private AbstractOperation.MenuItems viewMenuListener;
     // A list of all the menus to display in the menu bar
     private List<Menu> menus = null;
     // Keeps track of whether Java preview mode is currently enabled:
@@ -95,11 +95,11 @@ class FrameMenuManager extends TabMenuManager
         });
 
         defaultEditItems = Arrays.asList(
-                MenuItemOrder.UNDO.item(JavaFXUtil.makeMenuItem(Config.getString("editor.undoLabel"), editor::undo, new KeyCodeCombination(KeyCode.Z, KeyCodeCombination.SHORTCUT_DOWN))),
-                MenuItemOrder.REDO.item(JavaFXUtil.makeMenuItem(Config.getString("editor.redoLabel"), editor::redo, Config.isMacOS() ? new KeyCodeCombination(KeyCode.Z, KeyCodeCombination.SHORTCUT_DOWN, KeyCodeCombination.SHIFT_DOWN) : new KeyCodeCombination(KeyCode.Y, KeyCodeCombination.SHORTCUT_DOWN))),
-                MenuItemOrder.CUT.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.cutLabel"), new KeyCodeCombination(KeyCode.X, KeyCodeCombination.SHORTCUT_DOWN))),
-                MenuItemOrder.COPY.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.copyLabel"), new KeyCodeCombination(KeyCode.C, KeyCodeCombination.SHORTCUT_DOWN))),
-                MenuItemOrder.PASTE.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.pasteLabel"), new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN)))
+                AbstractOperation.MenuItemOrder.UNDO.item(JavaFXUtil.makeMenuItem(Config.getString("editor.undoLabel"), editor::undo, new KeyCodeCombination(KeyCode.Z, KeyCodeCombination.SHORTCUT_DOWN))),
+                AbstractOperation.MenuItemOrder.REDO.item(JavaFXUtil.makeMenuItem(Config.getString("editor.redoLabel"), editor::redo, Config.isMacOS() ? new KeyCodeCombination(KeyCode.Z, KeyCodeCombination.SHORTCUT_DOWN, KeyCodeCombination.SHIFT_DOWN) : new KeyCodeCombination(KeyCode.Y, KeyCodeCombination.SHORTCUT_DOWN))),
+                AbstractOperation.MenuItemOrder.CUT.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.cutLabel"), new KeyCodeCombination(KeyCode.X, KeyCodeCombination.SHORTCUT_DOWN))),
+                AbstractOperation.MenuItemOrder.COPY.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.copyLabel"), new KeyCodeCombination(KeyCode.C, KeyCodeCombination.SHORTCUT_DOWN))),
+                AbstractOperation.MenuItemOrder.PASTE.item(JavaFXUtil.makeDisabledMenuItem(Config.getString("editor.pasteLabel"), new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN)))
         );
 
     }
@@ -116,9 +116,9 @@ class FrameMenuManager extends TabMenuManager
         {
             // The edit menu consists of defaultEditItems plus contextualEditItems:
             Menu editMenu = JavaFXUtil.makeMenu(Config.getString("frame.editmenu.title"));
-            JavaFXUtil.bindList(editMenu.getItems(), SortedMenuItem.sortAndAddDividers(contextualEditItems, defaultEditItems));
-            editMenu.setOnShowing(e -> Utility.ifNotNull(editMenuListener, EditableSlot.MenuItems::onShowing));
-            editMenu.setOnHidden(e -> Utility.ifNotNull(editMenuListener, EditableSlot.MenuItems::onHidden));
+            JavaFXUtil.bindList(editMenu.getItems(), AbstractOperation.SortedMenuItem.sortAndAddDividers(contextualEditItems, defaultEditItems));
+            editMenu.setOnShowing(e -> Utility.ifNotNull(editMenuListener, AbstractOperation.MenuItems::onShowing));
+            editMenu.setOnHidden(e -> Utility.ifNotNull(editMenuListener, AbstractOperation.MenuItems::onHidden));
 
             MenuItem birdsEyeItem = JavaFXUtil.makeMenuItem("", editor::enableCycleBirdseyeView, new KeyCharacterCombination("d", KeyCombination.SHORTCUT_DOWN));
             birdsEyeItem.textProperty().bind(new StringBinding()
@@ -152,8 +152,8 @@ class FrameMenuManager extends TabMenuManager
             Menu viewMenu = new Menu(Config.getString("frame.viewmenu.title"));
             //ConcatListBinding.bind(viewMenu.getItems(), FXCollections.observableArrayList(standardViewMenuItems /*, extraViewItems*/));
             JavaFXUtil.bindList(viewMenu.getItems(), standardViewMenuItems);
-            viewMenu.setOnShowing(e -> Utility.ifNotNull(viewMenuListener, EditableSlot.MenuItems::onShowing));
-            viewMenu.setOnHidden(e -> Utility.ifNotNull(viewMenuListener, EditableSlot.MenuItems::onHidden));
+            viewMenu.setOnShowing(e -> Utility.ifNotNull(viewMenuListener, AbstractOperation.MenuItems::onShowing));
+            viewMenu.setOnHidden(e -> Utility.ifNotNull(viewMenuListener, AbstractOperation.MenuItems::onHidden));
 
             updateMoveMenus();
 
@@ -206,7 +206,7 @@ class FrameMenuManager extends TabMenuManager
     }
 
     // Updates our menu items using binding.
-    void setMenuItems(Map<EditableSlot.TopLevelMenu, EditableSlot.MenuItems> items)
+    void setMenuItems(Map<EditableSlot.TopLevelMenu, AbstractOperation.MenuItems> items)
     {
         if (unbindEditItems != null)
         {
@@ -216,7 +216,7 @@ class FrameMenuManager extends TabMenuManager
             editMenuListener = null;
         }
 
-        EditableSlot.MenuItems editItems = items.get(EditableSlot.TopLevelMenu.EDIT);
+        AbstractOperation.MenuItems editItems = items.get(EditableSlot.TopLevelMenu.EDIT);
         if (editItems != null) {
             editMenuListener = editItems;
             unbindEditItems = JavaFXUtil.bindList(contextualEditItems, editItems.getItems());
@@ -230,7 +230,7 @@ class FrameMenuManager extends TabMenuManager
             viewMenuListener = null;
         }
 
-        EditableSlot.MenuItems viewItems = items.get(EditableSlot.TopLevelMenu.VIEW);
+        AbstractOperation.MenuItems viewItems = items.get(EditableSlot.TopLevelMenu.VIEW);
         if (viewItems != null)
         {
             viewMenuListener = viewItems;

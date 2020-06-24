@@ -57,6 +57,7 @@ import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
+import bluej.pkgmgr.target.actions.*;
 import bluej.pkgmgr.target.role.AbstractClassRole;
 import bluej.pkgmgr.target.role.ClassRole;
 import bluej.pkgmgr.target.role.EnumClassRole;
@@ -87,6 +88,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -126,14 +128,12 @@ public class ClassTarget extends DependentTarget
 {
     final static int MIN_WIDTH = 60;
     final static int MIN_HEIGHT = 30;
-    private final static String editStr = Config.getString("pkgmgr.classmenu.edit");
-    private final static String compileStr = Config.getString("pkgmgr.classmenu.compile");
-    private final static String inspectStr = Config.getString("pkgmgr.classmenu.inspect");
-    private final static String removeStr = Config.getString("pkgmgr.classmenu.remove");
-    private final static String convertToJavaStr = Config.getString("pkgmgr.classmenu.convertToJava");
-    private final static String convertToStrideStr = Config.getString("pkgmgr.classmenu.convertToStride");
-    private final static String duplicateClassStr = Config.getString("pkgmgr.classmenu.duplicate");
-    private final static String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
+    public final static String compileStr = Config.getString("pkgmgr.classmenu.compile");
+    public final static String inspectStr = Config.getString("pkgmgr.classmenu.inspect");
+    public final static String convertToJavaStr = Config.getString("pkgmgr.classmenu.convertToJava");
+    public final static String convertToStrideStr = Config.getString("pkgmgr.classmenu.convertToStride");
+    public final static String duplicateClassStr = Config.getString("pkgmgr.classmenu.duplicate");
+    public final static String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
     private final static String launchFXStr = Config.getString("pkgmgr.classmenu.launchFX");
 
     private static final String STEREOTYPE_OPEN = "\u00AB"; //"<<";
@@ -189,7 +189,6 @@ public class ClassTarget extends DependentTarget
     // potential open events, and don't want to keep recording ourselves as re-opening
     private boolean recordedAsOpen = false;
     private boolean visible = true;
-    public static final String MENU_STYLE_INBUILT = "class-action-inbuilt";
     private static String[] pseudos;
 
     // The body of the class target which goes hashed, etc:
@@ -569,7 +568,7 @@ public class ClassTarget extends DependentTarget
      * 
      * <p>In Junit4, test classes can be of any type.
      * The only way to test is to check if it has one of the following annotations:
-     * @Before, @Test or @After<br/>Note: a test class may only the @Before
+     * @Before, @Test or @After<br/>Note: a test class may only contain the @Before
      * and @After annotations when created with BlueJ, so @Test alone is not a reliable
      * indicator for a test class.
      * 
@@ -613,9 +612,22 @@ public class ClassTarget extends DependentTarget
      *
      * <p>In Junit5, test classes can be of any type.
      * The only way to test is to check if it has one of the following annotations:
-     * @BeforeEach, @Test or @AfterEach.<br/>Note: a test class may only the @BeforeEach
+     * @BeforeEach, @Test or @AfterEach.<br/>Note: a test class may only contain the @BeforeEach
      * and @AfterEach annotation when created with BlueJ, so @Test alone is not a reliable
      * indicator for a test class.
+     * For JUnit 5 we extend the detection of test classes to these common annotations:
+     * @RepeatedTest.
+     * @DisplayName.
+     * @BeforeAll.
+     * @AfterAll.
+     * @Tag.
+     * @Disabled.
+     * @ParameterizedTest
+     * @TestFactory
+     * @Nested
+     * @TestInstance
+     * @SelectPackages (class)
+     * @SelectClasses (class)
 
      * @param cl class to test
      */
@@ -625,30 +637,46 @@ public class ClassTarget extends DependentTarget
         ClassLoader clLoader = cl.getClassLoader();
         try
         {
-            Class<? extends Annotation> beforeClass =
-                    (Class<? extends Annotation>) Class.forName("org.junit.jupiter.api.BeforeEach", false, clLoader);
-            Class<? extends Annotation> afterClass =
-                    (Class<? extends Annotation>) Class.forName("org.junit.jupiter.api.AfterEach", false, clLoader);
-            Class<? extends Annotation> testClass =
-                    (Class<? extends Annotation>) Class.forName("org.junit.jupiter.api.Test", false, clLoader);
+            Class[] matchingMethodAnnotationsClassArray = {
+                Class.forName("org.junit.jupiter.api.BeforeEach", false, clLoader),
+                Class.forName("org.junit.jupiter.api.BeforeAll", false, clLoader),
+                Class.forName("org.junit.jupiter.api.AfterEach", false, clLoader),
+                Class.forName("org.junit.jupiter.api.AfterAll", false, clLoader),
+                Class.forName("org.junit.jupiter.api.Test", false, clLoader),
+                Class.forName("org.junit.jupiter.api.RepeatedTest", false, clLoader),
+                Class.forName("org.junit.jupiter.api.DisplayName", false, clLoader),
+                Class.forName("org.junit.jupiter.api.Tag", false, clLoader),
+                Class.forName("org.junit.jupiter.api.TestFactory", false, clLoader),
+                Class.forName("org.junit.jupiter.api.Disabled", false, clLoader),
+                Class.forName("org.junit.jupiter.params.ParameterizedTest", false, clLoader),
+                Class.forName("org.junit.jupiter.api.Nested", false, clLoader),
+                Class.forName("org.junit.jupiter.api.TestInstance", false, clLoader)
+            };
+
+            Class[] matchingClassAnnotationsClassArray = {
+                Class.forName("org.junit.platform.suite.api.SelectPackages", false, clLoader),
+                Class.forName("org.junit.platform.suite.api.SelectClasses", false, clLoader)
+            };
 
             Method[] methods = cl.getDeclaredMethods();
             for (int i = 0; i < methods.length; i++)
             {
-                if (methods[i].getAnnotation(beforeClass) != null)
+                for (Class matchingClass : matchingMethodAnnotationsClassArray)
                 {
-                    return true;
+                    if (methods[i].getAnnotation(matchingClass) != null)
+                    {
+                        return true;
+                    }
                 }
-                if (methods[i].getAnnotation(afterClass) != null)
-                {
-                    return true;
-                }
-                if (methods[i].getAnnotation(testClass) != null)
+            }
+
+            for (Class matchingClass : matchingClassAnnotationsClassArray)
+            {
+                if (cl.getAnnotation(matchingClass) != null)
                 {
                     return true;
                 }
             }
-
         }
         catch (ClassNotFoundException cnfe)
         {
@@ -1344,7 +1372,7 @@ public class ClassTarget extends DependentTarget
      * @param parent Parent window.
      * @param animateFromCentre Animate from centre of this node.
      */
-    private void inspect(Window parent, Node animateFromCentre)
+    public void inspect(Window parent, Node animateFromCentre)
     {
         Project proj = getPackage().getProject();
 
@@ -2053,14 +2081,8 @@ public class ClassTarget extends DependentTarget
         repaint();
     }
 
-    /**
-     * Post the context menu for this target.
-     * 
-     * @param x  the x coordinate for the menu, relative to graph editor
-     * @param y  the y coordinate for the menu, relative to graph editor
-     */
     @Override
-    public void popupMenu(int x, int y, PackageEditor graphEditor)
+    public List<? extends AbstractOperation<Target>> getContextOperations()
     {
         Class<?> cl = null;
 
@@ -2087,83 +2109,42 @@ public class ClassTarget extends DependentTarget
         // check that the class loading hasn't changed out state
         if (getState() != State.COMPILED)
             cl = null;
-        // Need a bunch of info from the Swing thread before hopping to FX:
-        Class<?> clFinal = cl;
-        final ClassRole roleFinal;
-        roleFinal = role;
-        SourceType sourceAvailableFinal = sourceAvailable;
-        boolean docExists = getDocumentationFile().exists();
-        ExtensionsManager extMgr = ExtensionsManager.getInstance();
-        withMenu(clFinal, roleFinal, sourceAvailableFinal, docExists, menu ->
-        {
-            showingMenu(menu);
-            menu.show(pane, x, y);
-        }, extMgr);
-    }
-
-    /**
-     * Creates a popup menu for this class target.
-     * 
-     * @param extMgr
-     * @param cl class object associated with this class target
-     * @return the created popup menu object
-     */
-    protected void withMenu(Class<?> cl, ClassRole roleRef, SourceType source, boolean docExists, FXPlatformConsumer<ContextMenu> withMenu, ExtensionsManager extMgr)
-    {
-        final ContextMenu menu = new ContextMenu();
+        
+        ArrayList<AbstractOperation<Target>> ops = new ArrayList<>();
 
         // call on role object to add any options needed at top
-        roleRef.createRoleMenu(menu.getItems(), this, cl, getState());
-
+        ops.addAll(role.getRoleOperationsBegin(this, cl, getState()));
         if (cl != null)
         {
             if (Application.class.isAssignableFrom(cl))
             {
-                menu.getItems().add(JavaFXUtil.withStyleClass(JavaFXUtil.makeMenuItem(launchFXStr,() -> {
-                    PackageEditor ed = getPackage().getEditor();
-                    Window fxWindow = ed.getFXWindow();
-                    if (getPackage().getProject().getRunOnThread() == null)
-                    {
-                        // We've never asked if they want to run on FX; ask now
-                        int result = DialogManager.askQuestionFX(fxWindow, "run-on-fx");
-                        if (result == 0)
-                            getPackage().getProject().setRunOnThread(RunOnThread.FX);
-                        else
-                            getPackage().getProject().setRunOnThread(RunOnThread.DEFAULT);
-                    }
+                ops.add(new RunFXApplication(cl));
+            }
 
-                    CompletableFuture<FXPlatformSupplier<DebuggerResult>> result = getPackage().getDebugger().launchFXApp(cl.getName());
-                    putFXLaunchResult(ed, fxWindow, result);
-                }, null), MENU_STYLE_INBUILT));
-            }
-            
-            if (roleRef.createClassConstructorMenu(menu.getItems(), this, cl)) {
-                menu.getItems().add(new SeparatorMenuItem());
-            }
-            
-            if (roleRef.createClassStaticMenu(menu.getItems(), this, cl)) {
-                menu.getItems().add(new SeparatorMenuItem());
-            }
+            ops.addAll(role.getClassConstructorOperations(this, cl));
+            ops.addAll(role.getClassStaticOperations(this, cl));
         }
-        boolean sourceOrDocExists = source != SourceType.NONE || docExists;
-        menu.getItems().add(new EditAction(sourceOrDocExists));
-        menu.getItems().add(new CompileAction(source != SourceType.NONE));
-        menu.getItems().add(new InspectAction(cl != null, null));
-        menu.getItems().add(new RemoveAction());
-        menu.getItems().add(new DuplicateClassAction());
-        Window parentWindow = pane.getScene().getWindow();
-        if (source == SourceType.Stride)
-            menu.getItems().add(new ConvertToJavaAction(parentWindow));
-        else if (source == SourceType.Java && roleRef.canConvertToStride())
-            menu.getItems().add(new ConvertToStrideAction(parentWindow));
 
         // call on role object to add any options needed at bottom
-        roleRef.createRoleMenuEnd(menu.getItems(), this, getState());
+        ops.addAll(role.getRoleOperationsEnd(this, getState()));
 
-        ExtensionsMenuManager menuManager = new ExtensionsMenuManager(menu, extMgr, new ClassExtensionMenu(this));
-        menuManager.addExtensionMenu(getPackage().getProject());
+        boolean sourceOrDocExists = sourceAvailable != SourceType.NONE || getDocumentationFile().exists();
+        if (sourceOrDocExists)
+            ops.add(new EditAction());
+        if (sourceAvailable != SourceType.NONE)
+            ops.add(new CompileAction());
+        if (cl != null)
+            ops.add(new InspectAction(null));
+        ops.add(new RemoveClassAction());
+        if (sourceAvailable != SourceType.NONE)
+            ops.add(new DuplicateClassAction());
+        Window parentWindow = pane.getScene().getWindow();
+        if (sourceAvailable == SourceType.Stride)
+            ops.add(new ConvertToJavaAction(parentWindow));
+        else if (sourceAvailable == SourceType.Java && role.canConvertToStride())
+            ops.add(new ConvertToStrideAction(parentWindow));
 
-        withMenu.accept(menu);
+        return ops;
     }
 
     private void putFXLaunchResult(PackageEditor ed, Window fxWindow, CompletableFuture<FXPlatformSupplier<DebuggerResult>> result)
@@ -2186,192 +2167,6 @@ public class ClassTarget extends DependentTarget
                 });
             }
         });
-    }
-
-    /**
-     * Action which creates a test
-     */
-    @OnThread(Tag.FXPlatform)
-    public class CreateTestAction extends MenuItem
-    {
-        /**
-         * Constructor for the CreateTestAction object
-         */
-        public CreateTestAction()
-        {
-            super(createTestStr);
-            setOnAction(e -> actionPerformed(e));
-            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
-        }
-        
-        @OnThread(Tag.FXPlatform)
-        private void actionPerformed(ActionEvent e)
-        {
-            PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-
-            if (pmf != null) {
-                String testClassName = getIdentifierName() + "Test";
-                pmf.createNewClass(testClassName, "unittest", SourceType.Java, true, -1, -1);
-                // we want to check that the previous called actually
-                // created a unit test class as a name clash with an existing
-                // class would not. This prevents a non unit test becoming
-                // associated with a class unintentionally
-                Target target = getPackage().getTarget(testClassName);
-                DependentTarget assoc = null;
-                if (target instanceof ClassTarget) {
-                    ClassTarget ct = (ClassTarget) target;
-                    if (ct != null && ct.isUnitTest()) {
-                        assoc = (DependentTarget) getPackage().getTarget(getIdentifierName() + "Test");
-                    }
-                }
-                DependentTarget assocFinal = assoc;
-                PackageEditor pkgEd = getPackage().getEditor();
-                if (assocFinal != null)
-                    setAssociation(assocFinal);
-                updateAssociatePosition();
-                pkgEd.repaint();
-            }
-        }
-    }
-
-    /**
-     * Action to open the editor for a classtarget
-     */
-    @OnThread(Tag.FXPlatform)
-    private class EditAction extends MenuItem
-    {
-        public EditAction(boolean enable)
-        {
-            super(editStr);
-            setOnAction(e -> open());
-            setDisable(!enable);
-            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
-        }
-    }
-
-    /**
-     * Action to compile a classtarget
-     */
-    @OnThread(Tag.FXPlatform)
-    private class CompileAction extends MenuItem
-    {
-        public CompileAction(boolean enable)
-        {
-            super(compileStr);
-            setOnAction(e -> {
-                getPackage().compile(ClassTarget.this, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
-            });
-            setDisable(!enable);
-            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
-        }
-    }
-
-    /**
-     * Action to remove a classtarget from its package
-     */
-    @OnThread(Tag.FXPlatform)
-    private class RemoveAction extends MenuItem
-    {
-        public RemoveAction()
-        {
-            super(removeStr);
-            setOnAction(e -> actionPerformed(e));
-            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
-        }
-
-        @OnThread(Tag.FXPlatform)
-        private void actionPerformed(ActionEvent e)
-        {
-            PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-            if (pmf.askRemoveClass())
-            {
-                remove();
-            }
-        }
-    }
-
-    /**
-     * Action to inspect the static members of a class
-     */
-    @OnThread(Tag.FXPlatform)
-    public class InspectAction extends MenuItem
-    {
-        private final Node animateFromCentreOverride;
-
-        /**
-         * Create an action to inspect a class (i.e. static members, not inspecting an instance)
-         * 
-         * @param enable Should the action be enabled?
-         * @param animateFromCentreOverride If non-null, animate from centre of this node.  If null, use ClassTarget's GUI node
-         */
-        public InspectAction(boolean enable, Node animateFromCentreOverride)
-        {
-            super(inspectStr);
-            this.animateFromCentreOverride = animateFromCentreOverride;
-            setOnAction(e -> actionPerformed(e));
-            setDisable(!enable);
-            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
-        }
-
-        @OnThread(Tag.FXPlatform)
-        private void actionPerformed(ActionEvent e)
-        {
-            if (checkDebuggerState())
-            {
-                Window parent = getPackage().getUI().getStage();
-                Node animateFromCentre = animateFromCentreOverride != null ? animateFromCentreOverride : getNode();
-
-                inspect(parent, animateFromCentre);
-            }
-        }
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public class ConvertToJavaAction extends MenuItem
-    {
-        private final Window parentWindow;
-        
-        public ConvertToJavaAction(Window parentWindow)
-        {
-            super(convertToJavaStr);
-            this.parentWindow = parentWindow;
-            setOnAction(this::actionPerformed);
-            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
-        }
-
-        private void actionPerformed(ActionEvent e)
-        {
-            if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message", parentWindow, true))
-            {
-                convertStrideToJava();
-            }
-        }
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public class ConvertToStrideAction extends MenuItem
-    {
-        public ConvertToStrideAction(Window parentWindow)
-        {
-            super(convertToStrideStr);
-            setOnAction(e -> promptAndConvertJavaToStride(parentWindow));
-            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
-        }
-    }
-
-    /**
-     * A menu item to invoke a class duplication. This is valid for
-     * Java and Stride classes.
-     */
-    @OnThread(Tag.FXPlatform)
-    private class DuplicateClassAction extends MenuItem
-    {
-        public DuplicateClassAction()
-        {
-            super(duplicateClassStr);
-            setOnAction(event -> duplicate());
-            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
-        }
     }
 
     /**
@@ -2632,7 +2427,7 @@ public class ClassTarget extends DependentTarget
     /**
      * Duplicates the class which is represented by this class target
      */
-    private void duplicate()
+    public void duplicate()
     {
         String originalClassName = getBaseName();
         SourceType sourceType = getSourceType();
@@ -2711,7 +2506,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @return Whether the original request should be executed (dependent on how the user wants to proceed)
      */
-    private boolean checkDebuggerState()
+    public boolean checkDebuggerState()
     {
         return ProjectUtils.checkDebuggerState(getPackage().getProject(), getPackage().getUI().getStage());
     }
@@ -2930,5 +2725,35 @@ public class ClassTarget extends DependentTarget
     {
         // Don't allow resize if we are picking an extends arrow:
         return super.cursorAtResizeCorner(e) && !drawingExtends;
+    }
+
+    private static class RunFXApplication extends ClassTargetOperation
+    {
+        private final Class<?> cl;
+
+        public RunFXApplication(Class<?> cl)
+        {
+            super("runFX", Combine.ONE, null, launchFXStr, MenuItemOrder.RUN_FX, MENU_STYLE_INBUILT);
+            this.cl = cl;
+        }
+
+        @Override
+        protected void execute(ClassTarget target)
+        {
+            PackageEditor ed = target.getPackage().getEditor();
+            Window fxWindow = ed.getFXWindow();
+            if (target.getPackage().getProject().getRunOnThread() == null)
+            {
+                // We've never asked if they want to run on FX; ask now
+                int result = DialogManager.askQuestionFX(fxWindow, "run-on-fx");
+                if (result == 0)
+                    target.getPackage().getProject().setRunOnThread(RunOnThread.FX);
+                else
+                    target.getPackage().getProject().setRunOnThread(RunOnThread.DEFAULT);
+            }
+
+            CompletableFuture<FXPlatformSupplier<DebuggerResult>> result = target.getPackage().getDebugger().launchFXApp(cl.getName());
+            target.putFXLaunchResult(ed, fxWindow, result);
+        }
     }
 }

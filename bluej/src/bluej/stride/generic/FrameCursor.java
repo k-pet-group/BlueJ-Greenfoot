@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,7 +38,7 @@ import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.stride.framedjava.frames.StrideCategory;
 import bluej.stride.framedjava.frames.StrideDictionary;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
+import bluej.utility.javafx.AbstractOperation;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -839,7 +839,7 @@ public class FrameCursor implements RecallableFocus
         if (menu != null) {
             menu.hide();
         }
-        menu = EditableSlot.MenuItems.makeContextMenu(Collections.singletonMap(EditableSlot.TopLevelMenu.EDIT, getMenuItems(true)));
+        menu = AbstractOperation.MenuItems.makeContextMenu(Collections.singletonMap(EditableSlot.TopLevelMenu.EDIT, getMenuItems(true)));
         if (menu.getItems().size() > 0) {
             menu.show(node, screenX, screenY);
             return true;
@@ -848,20 +848,20 @@ public class FrameCursor implements RecallableFocus
     }
 
     @OnThread(Tag.FXPlatform)
-    public EditableSlot.MenuItems getMenuItems(boolean contextMenu)
+    public AbstractOperation.MenuItems getMenuItems(boolean contextMenu)
     {
         boolean selection = !editor.getSelection().isEmpty();
-        EditableSlot.MenuItems menuItems = new EditableSlot.MenuItems(FXCollections.observableArrayList(new PasteFrameOperation(editor).getMenuItem(contextMenu)));
+        AbstractOperation.MenuItems menuItems = new AbstractOperation.MenuItems(FXCollections.observableArrayList(new PasteFrameOperation(editor).getMenuItem(contextMenu, () -> editor.getSelection().getSelected())));
         if (!editor.getSelection().isEmpty())
         {
-            menuItems = EditableSlot.MenuItems.concat( editor.getSelection().getMenuItems(contextMenu), menuItems);
+            menuItems = AbstractOperation.MenuItems.concat( AbstractOperation.getMenuItems(editor.getSelection().getSelected(), contextMenu), menuItems);
         }
 
         if (canInsert() && contextMenu && !selection)
         {
             Menu insertMenu = new Menu("Insert");
             insertMenu.getItems().addAll(getAcceptedFramesMenuItems());
-            menuItems = EditableSlot.MenuItems.concat( new EditableSlot.MenuItems(FXCollections.observableArrayList(MenuItemOrder.INSERT_FRAME.item(insertMenu))), menuItems);
+            menuItems = AbstractOperation.MenuItems.concat( new AbstractOperation.MenuItems(FXCollections.observableArrayList(AbstractOperation.MenuItemOrder.INSERT_FRAME.item(insertMenu))), menuItems);
         }
 
         return menuItems;

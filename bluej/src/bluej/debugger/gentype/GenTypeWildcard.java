@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2014,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,6 +20,9 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.debugger.gentype;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -75,6 +78,7 @@ public class GenTypeWildcard extends GenTypeParameter
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public GenTypeWildcard mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         GenTypeSolid newUpper = null;
@@ -112,6 +116,7 @@ public class GenTypeWildcard extends GenTypeParameter
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean equals(GenTypeParameter other)
     {
         if (this == other)
@@ -141,6 +146,7 @@ public class GenTypeWildcard extends GenTypeParameter
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getErasedType()
     {
         return upperBound.getErasedType();
