@@ -498,6 +498,8 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     {
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
+            System.out.println("return type in signature of method " +getName() + " " + getParentCanvas().getParent().getHelpContext());
+            System.out.println("method name in signature of " +getName() + " " + getParentCanvas().getParent().getHelpContext());
             returnType.setAccessibilityHelpSlots("return type in signature of method " +getName() + " " + getParentCanvas().getParent().getHelpContext());
             methodName.setAccessibilityHelpSlots("method name in signature of " +getName() + " " + getParentCanvas().getParent().getHelpContext());
         }

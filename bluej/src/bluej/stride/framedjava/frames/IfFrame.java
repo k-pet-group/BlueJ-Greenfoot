@@ -22,11 +22,6 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.SlotFragment;
@@ -43,6 +38,10 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Container-block representing an if statement.
@@ -266,6 +265,7 @@ public class IfFrame extends SandwichCanvasesFrame
 
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
+            System.out.println("Condition in if statement " + getParentCanvas().getParent().getHelpContext());
             ifCondition.setAccessibilityHelpSlots("Condition in if statement " + getParentCanvas().getParent().getHelpContext());
         }
     }
