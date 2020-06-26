@@ -415,14 +415,13 @@ public class FrameCursor implements RecallableFocus
             //cherry
             if (nowFocused)
             {
-                node.setAccessibleRole(AccessibleRole.NODE);
+//                node.setAccessibleRole(AccessibleRole.NODE); // This causes a weird bug where the screenreader reads out the same help text for all cursors, rather than the different help text of each cursor
                 String normalText = "frame cursor normal text";
                 String helpText = "frame cursor help text";
                 if (getFrameAfter() != null)
                 {
                     normalText = getFrameAfter().getScreenReaderText();
                     helpText = "you are on a " + getFrameAfter().getFrameName() + "," + parentCanvas.getParentLocationDescription();
-//                    helpText = getFrameAfter().getScreenReaderHelp();
                     node.setAccessibleText(normalText);
                     node.setAccessibleHelp(helpText);
                 } else {
@@ -439,7 +438,7 @@ public class FrameCursor implements RecallableFocus
                     }
                     node.setAccessibleHelp(helpText);
                 }
-                System.out.println("normal text: " + node.getAccessibleText() + " | help text: " + node.getAccessibleHelp() );
+//                System.out.println("normal text: " + node.getAccessibleText() + " | help text: " + node.getAccessibleHelp() );
             }
             //end of cherry
         });
