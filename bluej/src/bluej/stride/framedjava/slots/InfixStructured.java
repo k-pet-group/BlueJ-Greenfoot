@@ -24,6 +24,7 @@ package bluej.stride.framedjava.slots;
 import bluej.stride.framedjava.slots.StructuredSlot.SplitInfo;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.InteractionManager;
+import bluej.stride.generic.ScreenreaderDictionary;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.*;
@@ -1049,6 +1050,23 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 b.append(operators.get(i).getCopyText());
         }
         b.append(fields.get(end.index).getCopyText(null, end.subPos));
+        return b.toString();
+    }
+
+    //cherry
+    public String getScreenreaderText() {
+//        CaretPos start = new CaretPos(0, new CaretPos(0, null));
+//        CaretPos end = new CaretPos(fields.size() - 1, getLastField().getEndPos());
+        StringBuilder b = new StringBuilder();
+//        b.append(fields.get(start.index).getScreenreaderText());
+//        if (operators.get(start.index) != null)
+//            b.append(ScreenreaderDictionary.transcribeForScreenreader(operators.get(start.index).getCopyText()));
+        for (int i = 0; i < fields.size() - 1; i++) {
+            b.append(fields.get(i).getScreenreaderText());
+            if (operators.get(i) != null)
+                b.append(ScreenreaderDictionary.transcribeForScreenreader(operators.get(i).getCopyText()));
+        }
+        b.append(fields.get(fields.size() - 1).getScreenreaderText());
         return b.toString();
     }
 

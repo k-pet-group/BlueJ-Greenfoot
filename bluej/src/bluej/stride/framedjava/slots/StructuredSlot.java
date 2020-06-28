@@ -458,6 +458,11 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         return topLevel.getCopyText(null, null);
     }
 
+    //cherry
+    public String getScreenreaderText() {
+        return topLevel.getScreenreaderText();
+    }
+
     @Override
     public boolean isFocused() {
         return topLevel.isFocused();

@@ -438,7 +438,7 @@ public class FrameCursor implements RecallableFocus
                     }
                     node.setAccessibleHelp(helpText);
                 }
-//                System.out.println("normal text: " + node.getAccessibleText() + " | help text: " + node.getAccessibleHelp() );
+                System.out.println("normal text: " + node.getAccessibleText() + " | help text: " + node.getAccessibleHelp() );
             }
             //end of cherry
         });

@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import bluej.stride.generic.ScreenreaderDictionary;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -321,6 +322,11 @@ class StructuredSlotField implements StructuredSlotComponent
         int start = from == null ? 0 : from.index;
         int end = to == null ? field.getLength() : to.index;
         return field.getText().substring(start, end);
+    }
+
+    //cherry
+    public String getScreenreaderText() {
+        return ScreenreaderDictionary.transcribeForScreenreader(field.getText());
     }
     
     @Override
