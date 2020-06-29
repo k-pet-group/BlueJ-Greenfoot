@@ -83,7 +83,7 @@ public class ThrowFrame extends SingleLineFrame
     //cherry
     public String getScreenReaderText() {
         String thrown;
-        if (param1.getText().equals("")) { thrown = "blank"; } else { thrown = param1.getText(); }
+        if (param1.getText().equals("")) { thrown = "blank"; } else { thrown = param1.getScreenreaderText(); }
         String text = "throw " + thrown;
         return text;
     }

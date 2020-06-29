@@ -41,14 +41,8 @@ import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.parser.AssistContentThreadSafe;
-import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.operations.ToggleBooleanProperty;
@@ -207,7 +201,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         }
         // make method text
         String text, nameString, returnString;
-        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
+        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = ScreenreaderDictionary.transcribeForScreenreader(methodName.getText()); }
         if (returnType.getText().equals("")) { returnString = "blank"; } else { returnString = returnType.getText(); }
 
         if (paramString.length() != 0) {

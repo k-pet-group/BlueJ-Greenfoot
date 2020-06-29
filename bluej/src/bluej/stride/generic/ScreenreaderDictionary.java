@@ -3,7 +3,7 @@ package bluej.stride.generic;
 import java.util.HashMap;
 
 /**
- * @author Cherry Lim, Manvi Jain
+ * @author Cherry Lim
  */
 public class ScreenreaderDictionary {
 
@@ -11,10 +11,10 @@ public class ScreenreaderDictionary {
     // java operators : https://www.w3schools.com/java/java_operators.asp
     private static HashMap<String, String> syntaxToTextMap = new HashMap<>() {{
         // braces
-        put("("," left parenthesis ");
-        put(")"," right parenthesis ");
-        put("{"," left curly brace ");
-        put("}"," right curly brace ");
+        put("("," left bracket ");
+        put(")"," right bracket ");
+        put("{"," left curly bracket ");
+        put("}"," right curly bracket ");
         put("["," left square bracket ");
         put("]"," right square bracket ");
         // punctuation
@@ -23,7 +23,7 @@ public class ScreenreaderDictionary {
         put("_"," underscore ");
         put("@"," at sign ");
         put(";"," semicolon ");
-        put("."," point "); // or dot
+        put("."," dot "); // or period, point
         put("\\"," back slash ");
         // arithmetic operators
         put("-"," minus "); // or negative or dash

@@ -147,7 +147,7 @@ public class WhileFrame extends SingleCanvasFrame
     public String getScreenReaderText() {
         String condition;
 //        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
-        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getScreenreaderText(); }
+        if (paramCondition.getScreenreaderText().equals("")) { condition = "blank"; } else { condition = paramCondition.getScreenreaderText(); }
 
         String text = "while frame with condition " + condition;
 //        System.out.println(text);

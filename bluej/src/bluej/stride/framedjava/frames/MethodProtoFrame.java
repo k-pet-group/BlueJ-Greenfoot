@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import bluej.stride.generic.*;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -40,13 +41,7 @@ import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.elements.MethodProtoElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.DocumentedSingleLineFrame;
-import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot;
@@ -131,7 +126,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         }
         // make method text
         String text, nameString, returnString;
-        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
+        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = ScreenreaderDictionary.transcribeForScreenreader(methodName.getText()); }
         if (returnType.getText().equals("")) { returnString = "blank"; } else { returnString = returnType.getText(); }
         if (paramString.length() != 0) {
             text = "method " + nameString + " with parameters " + paramString.toString() + " and " + returnString + " return type ";

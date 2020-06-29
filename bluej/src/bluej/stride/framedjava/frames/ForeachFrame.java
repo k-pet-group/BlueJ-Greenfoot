@@ -124,8 +124,8 @@ public class ForeachFrame extends SingleCanvasFrame
     public String getScreenReaderText() {
         String typeString, varString, collectionString;
         if (type.getText().equals("")) { typeString = "blank"; } else { typeString = type.getText(); }
-        if (var.getText().equals("")) { varString = "blank"; } else { varString = var.getText(); }
-        if (collection.getText().equals("")) { collectionString = "blank"; } else { collectionString = collection.getText(); }
+        if (var.getText().equals("")) { varString = "blank"; } else { varString = ScreenreaderDictionary.transcribeForScreenreader(var.getText()); }
+        if (collection.getText().equals("")) { collectionString = "blank"; } else { collectionString = collection.getScreenreaderText(); }
 
         String text = "for each " + typeString + " " + varString + " in " + collectionString;
 //        System.out.println(text);

@@ -137,7 +137,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
 
             paramString.append(type + " " +  name + " ");
         }
-        String text = "Constructor " + getEditor().nameProperty().get();
+        String text = "Constructor " + ScreenreaderDictionary.transcribeForScreenreader(getEditor().nameProperty().get());
         if (paramString.length() != 0) {
             text += " with parameters " + paramString.toString();
         }

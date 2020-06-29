@@ -146,8 +146,8 @@ public class AssignFrame extends SingleLineFrame
     //cherry
     public String getScreenReaderText() {
         String lhs, rhs;
-        if (slotLHS.getText().trim().isEmpty()) { lhs = "blank"; } else { lhs = slotLHS.getText(); }
-        if (slotRHS.getText().trim().isEmpty()) { rhs = "blank"; } else { rhs = slotRHS.getText(); }
+        if (slotLHS.getText().trim().isEmpty()) { lhs = "blank"; } else { lhs = slotLHS.getScreenreaderText(); }
+        if (slotRHS.getText().trim().isEmpty()) { rhs = "blank"; } else { rhs = slotRHS.getScreenreaderText(); }
         String text = "assign " + lhs + " with " + rhs;
         return text;
     }
