@@ -1620,7 +1620,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 f.setText(f.getText().substring(0, posInField), token);
                 //manvi jain
 
-                setAccessibilityRoleDescription(f.getText() + " ");
+                setAccessibilityRoleDescription(f.getScreenreaderText() + " ");
                 operators.add(pos.index, null, token);
 
                 fields.add(pos.index + 1, new BracketedStructured(editor, this, this.slot, c, "", token), token);
@@ -1686,7 +1686,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
                     f.setText("", token);
                     //manvi jain
-                    setAccessibilityRoleDescription(getSlot().getJavaCode() + " new object created ");
+                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " new object created ");
                     operators.add(pos.index, new Operator("new ", this), token);
                     fields.add(pos.index + 1, makeNewField(following, false), token);
                     return new CaretPos(pos.index + 1, new CaretPos(0, null));
@@ -1697,7 +1697,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
 
                     //manvi
-                    setAccessibilityRoleDescription(getSlot().getJavaCode());
+                    setAccessibilityRoleDescription(getSlot().getScreenreaderText());
 
                    CaretPos overridePos = checkFieldChange(pos.index, new CaretPos(pos.index, new CaretPos(posInField+1, null)), c == '.', user, token);
                     return overridePos;
@@ -1742,9 +1742,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
             //Manvi jain
             if(getSlot().getJavaCode().charAt(0) == '\'')
-                setAccessibilityRoleDescription(getSlot().getJavaCode() + " in apostrophe");
+                setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in apostrophe");
             else
-                setAccessibilityRoleDescription(getSlot().getJavaCode() + " in quotation");
+                setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in quotation");
             return new CaretPos(pos.index, new CaretPos(posInField+1, null));
         }
         return null;
@@ -2856,7 +2856,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
      * @param text
      */
     public void setAccessibilityRoleDescription(String text){
-        this.getComponents().get(0).setAccessibleRoleDescription(replaceOperatorInText(text));
+        this.getComponents().get(0).setAccessibleRoleDescription(text);
     }
 
 
@@ -2865,6 +2865,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
      * @param textIn String with operator symbol
      * @return converted String
      */
+    /** commented out by Cherry
     public String replaceOperatorInText(String textIn)
     {
         String text = textIn;
@@ -2908,7 +2909,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             }
         }
         return text;
-    }
+    } */
 
 }
 

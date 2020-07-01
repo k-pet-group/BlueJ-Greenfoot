@@ -30,6 +30,7 @@ public class ScreenreaderDictionary {
         put("+"," plus ");
         put("*"," times "); // or asterisk
         put("/"," divided by "); // or forward slash
+        put("^"," power ");
         put("%"," modulo "); // or percent
         put("++", " increment ");
         put("--", " decrement ");
