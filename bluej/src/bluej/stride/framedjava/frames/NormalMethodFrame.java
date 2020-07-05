@@ -237,7 +237,9 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         String text, nameString;
         if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
         text = " in the method " + nameString + ",";
-        text += getParentCanvas().getParentLocationDescription();
+        if (getParentCanvas()!=null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
 
         return text;
     }

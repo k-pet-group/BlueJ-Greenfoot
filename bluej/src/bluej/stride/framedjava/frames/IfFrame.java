@@ -171,8 +171,10 @@ public class IfFrame extends SandwichCanvasesFrame
             text = " in the 'else' section,";
         }
         text += " in an if frame with condition " + condition + ",";
-        text += getParentCanvas().getParentLocationDescription();
-//        System.out.println(text);
+        if (getParentCanvas()!=null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
+        //        System.out.println(text);
         return text;
     }
 

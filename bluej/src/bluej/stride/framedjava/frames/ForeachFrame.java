@@ -154,8 +154,9 @@ public class ForeachFrame extends SingleCanvasFrame
         if (collection.getText().equals("")) { collectionString = "blank"; } else { collectionString = collection.getText(); }
 
         text = " in a 'for each' frame that loops through every " + varString + " of type " + typeString + " in collection " + collectionString + ",";
-        text += getParentCanvas().getParentLocationDescription();
-
+        if (getParentCanvas()!=null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
         return text;
     }
 

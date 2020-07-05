@@ -174,8 +174,9 @@ public class WhileFrame extends SingleCanvasFrame
         String condition, text;
         if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
         text = " in a while frame with condition " + condition + ",";
-        text += getParentCanvas().getParentLocationDescription();
-
+        if (getParentCanvas()!=null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
 //        System.out.println(text);
         return text;
     }

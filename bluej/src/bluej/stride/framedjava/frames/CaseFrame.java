@@ -158,7 +158,9 @@ public class CaseFrame extends SingleCanvasFrame
         String condition, text;
         if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
         text = " in a 'case' frame with value " + condition + ",";
-        text += getParentCanvas().getParentLocationDescription();
+        if (getParentCanvas()!=null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
         return text;
     }
 

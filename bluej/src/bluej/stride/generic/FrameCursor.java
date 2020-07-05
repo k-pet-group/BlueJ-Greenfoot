@@ -422,11 +422,8 @@ public class FrameCursor implements RecallableFocus
                 {
                     normalText = getFrameAfter().getScreenReaderText();
                     helpText = "you are on a " + getFrameAfter().getFrameName() + "," + parentCanvas.getParentLocationDescription();
-                    node.setAccessibleText(normalText);
-                    node.setAccessibleHelp(helpText);
                 } else {
                     normalText = "no frame selected";
-                    node.setAccessibleText(normalText);
                     CanvasParent.CanvasKind area = parentCanvas.getParent().getChildKind(parentCanvas);
                     switch(area) {
                         case STATEMENTS:
@@ -436,9 +433,11 @@ public class FrameCursor implements RecallableFocus
                             helpText = "you are in the " + area + " area, " + parentCanvas.getParentLocationDescription();
                             break;
                     }
-                    node.setAccessibleHelp(helpText);
                 }
-                System.out.println("normal text: " + node.getAccessibleText() + " | help text: " + node.getAccessibleHelp() );
+                node.setAccessibleText(normalText);
+                node.setAccessibleHelp(helpText);
+
+//                System.out.println("normal text: " + node.getAccessibleText() + " | help text: " + node.getAccessibleHelp() );
             }
             //end of cherry
         });

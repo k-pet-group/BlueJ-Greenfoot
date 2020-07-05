@@ -139,8 +139,9 @@ public class SwitchFrame extends MultiCanvasFrame
         if (expression.getText().equals("")) { expressionStr = "blank"; } else { expressionStr = expression.getText(); }
 
         text = " in a 'switch' frame for expression " + expressionStr + ",";
-        text += getParentCanvas().getParentLocationDescription();
-
+        if (getParentCanvas()!=null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
         return text;
     }
 

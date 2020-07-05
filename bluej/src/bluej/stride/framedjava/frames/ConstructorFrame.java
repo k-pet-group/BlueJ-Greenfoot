@@ -180,8 +180,9 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         if (paramString.length() != 0) {
             text += " with parameters " + paramString.toString();
         }
-        text += getParentCanvas().getParentLocationDescription();
-
+        if (getParentCanvas()!=null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
         return text;
     }
 

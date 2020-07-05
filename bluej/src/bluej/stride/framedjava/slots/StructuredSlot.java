@@ -255,6 +255,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         });
 
         JavaFXUtil.addChangeListener(fakeCaretShowing, b -> JavaFXUtil.runNowOrLater(() -> overlay.redraw()));
+
+        //cherry
+        /*JavaFXUtil.addChangeListener(effectivelyFocusedProperty(), nowFocused -> {
+            if (nowFocused) {
+
+            }
+        });*/
     }
 
 
