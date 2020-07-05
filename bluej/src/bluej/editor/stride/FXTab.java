@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2015,2016,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 2015,2016,2018,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -43,16 +43,24 @@ import threadchecker.Tag;
  * which adds some methods which FXTabbedEditor needs to call on its contained tabs.
  *
  * The three subclasses of this class (at the moment) are FrameEditorTab for Stride classes,
- * MoeFXTab for Java classes, and WebTab for web browser (for documentation).
+ * FlowFXTab for Java classes, and WebTab for web browser (for documentation).
  */
 @OnThread(Tag.FXPlatform)
 abstract class FXTab extends Tab
 {
     private final boolean showCatalogue;
 
+    /**
+     * Make an FXTab.
+     * @param showCatalogue Whether to keep showing the frame cheat sheet (catalogue) if it is showing and we switch to this tab.
+     *                      The catalogue is per-window, but it is hidden if this tab does not support it. 
+     */
     public FXTab(boolean showCatalogue)
     {
         this.showCatalogue = showCatalogue;
+        setOnSelectionChanged(e -> {
+            JavaFXUtil.runAfterCurrent(this::focusWhenShown);
+        });
     }
 
     /**
@@ -151,7 +159,7 @@ abstract class FXTab extends Tab
     public abstract void notifyUnselected();
 
     /**
-     * Specifies whether the tab should show the frame catalogue.
+     * Specifies whether the tab supports showing the frame catalogue.
      * Will not change over a tab's lifetime.
      */
     public final boolean shouldShowCatalogue()

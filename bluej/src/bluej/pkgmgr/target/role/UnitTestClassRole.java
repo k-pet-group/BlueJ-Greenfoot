@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,6 +37,8 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.TestRunnerThread;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
+import bluej.pkgmgr.target.Target;
+import bluej.pkgmgr.target.actions.ClassTargetOperation;
 import bluej.terminal.Terminal;
 import bluej.testmgr.TestDisplayFrame;
 import bluej.testmgr.record.ExistingFixtureInvokerRecord;
@@ -44,6 +46,7 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaUtils;
+import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.dialog.InputDialog;
@@ -54,6 +57,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.api.RepeatedTest;
 import threadchecker.OnThread;
@@ -78,7 +82,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
+import static bluej.pkgmgr.target.EditableTarget.MENU_STYLE_INBUILT;
 
 /**
  * A role object for Junit unit tests.
@@ -156,6 +160,7 @@ public class UnitTestClassRole extends ClassRole
                 Class<org.junit.jupiter.api.Test> testClassJU5;
                 Class<ParameterizedTest> paramTestClassJU5;
                 Class<RepeatedTest> repeatedTestClassJU5;
+                Class<Disabled> disabledTestClassJU5;
                 try
                 {
                     if (classLoader == null)
@@ -163,15 +168,19 @@ public class UnitTestClassRole extends ClassRole
                         testClassJU5 = org.junit.jupiter.api.Test.class;
                         paramTestClassJU5 = ParameterizedTest.class;
                         repeatedTestClassJU5 = RepeatedTest.class;
+                        disabledTestClassJU5 = Disabled.class;
                     }
                     else
                     {
                         testClassJU5 = (Class<org.junit.jupiter.api.Test>) classLoader.loadClass("org.junit.jupiter.api.Test");
                         paramTestClassJU5 = (Class<ParameterizedTest>) classLoader.loadClass("org.junit.jupiter.params.ParameterizedTest");
                         repeatedTestClassJU5 = (Class<RepeatedTest>) classLoader.loadClass("org.junit.jupiter.api.RepeatedTest");
+                        disabledTestClassJU5 = (Class<Disabled>) classLoader.loadClass("org.junit.jupiter.api.Disabled");
                     }
 
-                    if (m.getAnnotation(testClassJU5) != null || m.getAnnotation(paramTestClassJU5) != null || m.getAnnotation(repeatedTestClassJU5) != null)
+                    // Disabled methods are excluded from the tests
+                    if (m.getAnnotation(disabledTestClassJU5) == null &&
+                        (m.getAnnotation(testClassJU5) != null || m.getAnnotation(paramTestClassJU5) != null || m.getAnnotation(repeatedTestClassJU5) != null))
                     {
                         if (!Modifier.isPublic(m.getModifiers())) return false;
                         if (m.getAnnotation(paramTestClassJU5) != null && m.getParameterTypes().length == 0) return false;
@@ -241,7 +250,7 @@ public class UnitTestClassRole extends ClassRole
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    public boolean createRoleMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl, State state)
+    public List<ClassTargetOperation> getRoleOperationsBegin(ClassTarget ct, Class<?> cl, State state)
     {
         boolean enableTestAll = false;
         if (!ct.getPackage().getProject().inTestMode() && state == State.COMPILED && cl != null && ! ct.isAbstract()) {
@@ -251,35 +260,28 @@ public class UnitTestClassRole extends ClassRole
         }
 
         // add run all tests option
-        addMenuItem(menu, new TestAction(testAll, ct.getPackage().getEditor(),ct), enableTestAll);
-        menu.add(new SeparatorMenuItem());
-
-        return false;
+        if (enableTestAll)
+            return List.of(new TestAction(testAll, AbstractOperation.MenuItemOrder.TEST_ALL, ct.getPackage().getEditor(), null));
+        
+        return List.of();
     }
-
-    @OnThread(Tag.FXPlatform)
-    private static void addMenuItem(ObservableList<MenuItem> menu, TargetAbstractAction testAction, boolean enableTestAll)
-    {
-        menu.add(testAction);
-        testAction.setDisable(!enableTestAll);
-        JavaFXUtil.addStyleClass(testAction, MENU_STYLE_INBUILT);
-    }
-
+    
     /**
      * creates a class menu containing any constructors and static methods etc.
      *
-     * @param menu the popup menu to add the class menu items to
      * @param cl Class object associated with this class target
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    public boolean createClassConstructorMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl)
+    public List<ClassTargetOperation> getClassConstructorOperations(ClassTarget ct, Class<?> cl)
     {
         boolean hasEntries = false;
 
         Stream<Method> allMethods = Arrays.stream(cl.getMethods())
                 .filter(this::isJUnitTestMethod)
                 .sorted(Comparator.comparing(Method::getName));
+        
+        ArrayList<ClassTargetOperation> ops = new ArrayList<>();
         
         if (! ct.isAbstract()) {
             // If we have a lot of items, we should create a submenu to fold some items in
@@ -303,48 +305,34 @@ public class UnitTestClassRole extends ClassRole
                     args.append(Arrays.stream(m.getParameterTypes()).map(Class::getName).collect(Collectors.joining(", ")));
                 }
                 args.append(")");
-                TargetAbstractAction testAction = new TestAction(rtype + " " + m.getName() + args,
-                        ct.getPackage().getEditor(), ct, m.getName()+args);
+                TargetAbstractAction testAction = new TestAction(rtype + " " + m.getName() + args, AbstractOperation.MenuItemOrder.RUN_METHOD,
+                        ct.getPackage().getEditor(), m.getName()+args);
 
-                // check whether it's time for a submenu
-                int itemCount = menu.size();
-                if(itemCount >= sizeLimit) {
-                    Menu subMenu = new Menu(Config.getString("pkgmgr.classmenu.moreMethods"));
-                    menu.add(subMenu);
-                    menu = subMenu.getItems();
-                }
-
-                menu.add(testAction);
+                ops.add(testAction);
                 hasEntries = true;
             }
             if (!hasEntries) {
-                MenuItem item = new MenuItem(Config.getString("pkgmgr.test.popup.noTests"));
-                item.setDisable(true);
-                menu.add(item);
+                ops.add(new DummyDisabledOperation(Config.getString("pkgmgr.test.popup.noTests"), AbstractOperation.MenuItemOrder.RUN_METHOD));
             }
         }
         else {
-            MenuItem item = new MenuItem(Config.getString("pkgmgr.test.popup.abstract"));
-            item.setDisable(true);
-            menu.add(item);
+            ops.add(new DummyDisabledOperation(Config.getString("pkgmgr.test.popup.abstract"), AbstractOperation.MenuItemOrder.RUN_METHOD));
         }
-        return true;
+        return ops;
     }
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public boolean createClassStaticMenu(ObservableList<MenuItem> menu, ClassTarget ct,  Class<?> cl)
+    public List<ClassTargetOperation> getClassStaticOperations(ClassTarget ct,  Class<?> cl)
     {
-        boolean enable = !ct.getPackage().getProject().inTestMode() && ct.hasSourceCode() && ! ct.isAbstract();
-            
-        addMenuItem(menu, new MakeTestCaseAction(createTest,
-                                                    ct.getPackage().getEditor(), ct), enable);
-        addMenuItem(menu, new BenchToFixtureAction(benchToFixture,
-                                                    ct.getPackage().getEditor(), ct), enable);
-        addMenuItem(menu, new FixtureToBenchAction(fixtureToBench,
-                                                    ct.getPackage().getEditor(), ct), enable);
-
-        return true;
+        if (!ct.getPackage().getProject().inTestMode() && ct.hasSourceCode() && ! ct.isAbstract())
+        {
+            return List.of(
+                    new MakeTestCaseAction(ct.getPackage().getEditor()),
+                    new BenchToFixtureAction(ct.getPackage().getEditor()),
+                    new FixtureToBenchAction(ct.getPackage().getEditor()));
+        }
+        return List.of();
     }
 
     @Override
@@ -384,16 +372,16 @@ public class UnitTestClassRole extends ClassRole
     public List<String> startRunTest(PkgMgrFrame pmf, ClassTarget ct, TestRunnerThread trt)
     {
         Class<?> cl = pmf.getPackage().loadClass(ct.getQualifiedName());
-        
+
         if (cl == null)
             return null;
-        
+
         // Test the whole class:
         List<String> testMethods = Arrays.stream(cl.getMethods())
-                .filter(this::isJUnitTestMethod)
-                .map(Method::getName)
-                .sorted()
-                .collect(Collectors.toList());
+            .filter(this::isJUnitTestMethod)
+            .map(Method::getName)
+            .sorted()
+            .collect(Collectors.toList());
 
         Project proj = pmf.getProject();
         TestDisplayFrame.getTestDisplay().startTest(proj, testMethods.size());
@@ -796,21 +784,15 @@ public class UnitTestClassRole extends ClassRole
      * A base class for all our actions that run on targets.
      */
     @OnThread(Tag.FXPlatform)
-    private abstract class TargetAbstractAction extends MenuItem
+    private abstract class TargetAbstractAction extends ClassTargetOperation
     {
-        protected ClassTarget t;
         protected PackageEditor ped;
 
-        public TargetAbstractAction(String name, PackageEditor ped, ClassTarget t)
+        public TargetAbstractAction(String name, String label, MenuItemOrder menuItemOrder, PackageEditor ped)
         {
-            super(name);
+            super(name, Combine.ONE, null, label, menuItemOrder, MENU_STYLE_INBUILT);
             this.ped = ped;
-            this.t = t;
-            setOnAction(e -> actionPerformed(e));
         }
-
-        @OnThread(Tag.FXPlatform)
-        public abstract void actionPerformed(javafx.event.ActionEvent actionEvent);
     }
 
     /**
@@ -823,72 +805,62 @@ public class UnitTestClassRole extends ClassRole
     private class TestAction extends TargetAbstractAction
     {
         private String testName;
-
-        public TestAction(String actionName, PackageEditor ped, ClassTarget t)
-        {
-            super(actionName, ped, t);
-            this.testName = null;
-        }
                     
-        public TestAction(String actionName, PackageEditor ped, ClassTarget t, String testName)
+        public TestAction(String label, MenuItemOrder menuItemOrder, PackageEditor ped, String testName)
         {
-            super(actionName, ped, t);
+            super("test_" + testName, label, menuItemOrder, ped);
             this.testName = testName;
         }
 
         @Override
-        @OnThread(Tag.FXPlatform)
-        public void actionPerformed(ActionEvent e)
+        protected void execute(ClassTarget target)
         {
-            ped.runTest(t, testName);
+            ped.runTest(target, testName);
         }
     }
 
     @OnThread(Tag.FXPlatform)
     private class MakeTestCaseAction extends TargetAbstractAction
     {
-        public MakeTestCaseAction(String name, PackageEditor ped, ClassTarget t)
+        public MakeTestCaseAction(PackageEditor ped)
         {
-            super(name, ped, t);
+            super("makeTestCase", createTest, MenuItemOrder.MAKE_TEST_CASE, ped);
         }
 
         @Override
-        @OnThread(Tag.FXPlatform)
-        public void actionPerformed(ActionEvent e)
+        protected void execute(ClassTarget target)
         {
-            ped.makeTestCase(t);
+            ped.makeTestCase(target);
         }
     }
 
     @OnThread(Tag.FXPlatform)
     private class BenchToFixtureAction extends TargetAbstractAction
     {
-        public BenchToFixtureAction(String name, PackageEditor ped, ClassTarget t)
+        public BenchToFixtureAction(PackageEditor ped)
         {
-            super(name, ped, t);
+            super("benchToFixture", benchToFixture, MenuItemOrder.BENCH_TO_FIXTURE, ped);
         }
 
         @Override
-        @OnThread(Tag.FXPlatform)
-        public void actionPerformed(ActionEvent e)
+        protected void execute(ClassTarget target)
         {
-            ped.benchToFixture(t);
+            ped.benchToFixture(target);
         }
     }
 
     @OnThread(Tag.FXPlatform)
     private class FixtureToBenchAction extends TargetAbstractAction
     {
-        public FixtureToBenchAction(String name, PackageEditor ped, ClassTarget t)
+        public FixtureToBenchAction(PackageEditor ped)
         {
-            super(name, ped, t);
+            super("fixtureToBench", fixtureToBench, MenuItemOrder.FIXTURE_TO_BENCH, ped);
         }
 
         @Override
-        @OnThread(Tag.FXPlatform)
-        public void actionPerformed(ActionEvent e)
+        protected void execute(ClassTarget target)
         {
-            ped.fixtureToBench(t);
+            ped.fixtureToBench(target);
         }
     }
 
@@ -932,6 +904,21 @@ public class UnitTestClassRole extends ClassRole
                 setOKEnabled(true);
             }
             return true; //always allow
+        }
+    }
+
+    public static class DummyDisabledOperation extends ClassTargetOperation
+    {
+        public DummyDisabledOperation(String label, MenuItemOrder menuItemOrder)
+        {
+            super(label, Combine.ONE, null, label, menuItemOrder);
+            this.enabled = false;
+        }
+
+        @Override
+        protected void execute(ClassTarget target)
+        {
+            // Will not be called
         }
     }
 }

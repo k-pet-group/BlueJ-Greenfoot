@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -1686,7 +1686,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
                     f.setText("", token);
                     //manvi jain
-                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " new object created ");
+                    if (getSlot() != null)
+                    {
+                        setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " new object created ");
+                    }
                     operators.add(pos.index, new Operator("new ", this), token);
                     fields.add(pos.index + 1, makeNewField(following, false), token);
                     return new CaretPos(pos.index + 1, new CaretPos(0, null));
@@ -1697,7 +1700,8 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
 
                     //manvi
-                    setAccessibilityRoleDescription(getSlot().getScreenreaderText());
+                    if(getSlot() != null)
+                        setAccessibilityRoleDescription(getSlot().getScreenreaderText());
 
                    CaretPos overridePos = checkFieldChange(pos.index, new CaretPos(pos.index, new CaretPos(posInField+1, null)), c == '.', user, token);
                     return overridePos;
@@ -1741,10 +1745,13 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             // If it is not a quote, or it is after a backslash, insert as-is:
             f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
             //Manvi jain
-            if(getSlot().getJavaCode().charAt(0) == '\'')
-                setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in apostrophe");
-            else
-                setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in quotation");
+            if(getSlot() != null)
+            {
+                if (getSlot().getJavaCode().charAt(0) == '\'')
+                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in apostrophe");
+                else
+                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in quotation");
+            }
             return new CaretPos(pos.index, new CaretPos(posInField+1, null));
         }
         return null;
@@ -2348,8 +2355,17 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
                     // We use a runLater as we need to request focus after the suggestion window has been hidden:
                     JavaFXUtil.runAfterCurrent(() ->
-                        b.focusAtStart()
-                    );
+                    {
+                        //In a method call with no params, focus the cursor after the parenthesis
+                        if(params.size()==0)
+                        {
+                            b.focusAfter();
+                        }
+                        else //otherwise focus inside the parentesis
+                        {
+                            b.focusAtStart();
+                        }
+                    });
                 }
                 else
                 {

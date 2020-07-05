@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2016,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -227,6 +227,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
     /**
      * Check whether this is method returns void
      */
+    @Override
     public boolean isVoid()
     {
         return method.getReturnType() == void.class;

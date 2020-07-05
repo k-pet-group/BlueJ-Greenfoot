@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,8 @@
 package bluej.views;
 
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Represents a formal type parameter for a generic class
@@ -69,6 +71,7 @@ public class TypeParamView
      * Returns a string describing this type parameter. This includes name and bound as written in Java. <br>
      * Eaxample: T extends Integer
      */
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public String toString() {
         return paramType.toString(true);
     }

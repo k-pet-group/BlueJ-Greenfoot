@@ -42,15 +42,9 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.input.*;
 import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.input.KeyCombination.ModifierValue;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -60,13 +54,7 @@ import threadchecker.Tag;
 import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -74,6 +62,7 @@ import java.util.List;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -103,7 +92,7 @@ public final class FlowActions
     private static final Modifier[] SHIFT_SHORTCUT_MASK = { KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN};
     // Must be weak to allow unused actions to be GCed:
     private static final Set<FlowActions> allActions = Collections.newSetFromMap(new WeakHashMap<>());
-    
+
     // -------- INSTANCE VARIABLES --------
     private final FlowEditor editor;
     // frequently needed actions
@@ -126,7 +115,7 @@ public final class FlowActions
         if (!load())
             setDefaultKeyBindings();
         lastActionWasCut = false;
-        
+
         builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME), actions.get(DefaultEditorKit.beginLineAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.END), actions.get(DefaultEditorKit.endLineAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.PAGE_UP), actions.get(DefaultEditorKit.pageUpAction));
@@ -150,7 +139,7 @@ public final class FlowActions
         builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionEndAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHORTCUT_DOWN), actions.get(DefaultEditorKit.beginAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBeginAction));
-        
+
         builtInKeymap.put(new KeyCodeCombination(KeyCode.BACK_SPACE), actions.get(DefaultEditorKit.deletePrevCharAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.DELETE), actions.get(DefaultEditorKit.deleteNextCharAction));
 
@@ -173,7 +162,7 @@ public final class FlowActions
             builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionPreviousWordAction));
             builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionNextWordAction));
         }
-        
+
         builtInKeymap.put(new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), new FlowAbstractAction("select-all", Category.EDIT)
         {
             @Override
@@ -194,7 +183,7 @@ public final class FlowActions
 
         // install our own keymap, with the existing one as parent:
         updateKeymap();
-        
+
         if (getTextComponent() != null)
         {
             Nodes.addInputMap(getTextComponent(), InputMap.sequence(
@@ -251,7 +240,7 @@ public final class FlowActions
             Nodes.addInputMap(getTextComponent(), curKeymap);
         }
     }
-    
+
     private static int findWordLimit(FlowEditorPane c, int pos, boolean forwards)
     {
         int maxLen = c.getDocument().getLength();
@@ -940,7 +929,7 @@ public final class FlowActions
         compileOrNextErrorAction = compileOrNextErrorAction();
 
         // get all actions into arrays
-        
+
         List<Function<Boolean, FlowAbstractAction>> selectionActions = List.of(
             EndDocumentAction::new,
             EndLineAction::new,
@@ -961,7 +950,7 @@ public final class FlowActions
         FlowAbstractAction[] myActions = new FlowAbstractAction[] {
                 new DeletePrevCharAction(),
                 new DeleteNextCharAction(),
-                
+
                 deleteWordAction(),
                 selectWordAction(),
                 saveAction(),
@@ -972,7 +961,7 @@ public final class FlowActions
                 commentBlockAction(),
                 uncommentBlockAction(),
                 autoIndentAction(),
-                
+
                 indentBlockAction(),
                 deindentBlockAction(),
                 insertMethodAction(),
@@ -1017,7 +1006,7 @@ public final class FlowActions
                 actions.put(action.getName(), action);
             }
         }
-        
+
         for (FlowAbstractAction action : myActions)
         {
             actions.put(action.getName(), action);
@@ -1214,7 +1203,7 @@ public final class FlowActions
             return category;
         }
     }
-    
+
     private FlowAbstractAction saveAction()
     {
         return action("save", Category.CLASS, () -> getClearedEditor().userSave());
@@ -1227,12 +1216,12 @@ public final class FlowActions
     }
 
     // --------------------------------------------------------------------
-    
+
     private FlowAbstractAction closeAction()
     {
         return action("close", Category.CLASS, () -> getClearedEditor().close());
     }
-    
+
     // --------------------------------------------------------------------
 
     private FlowAbstractAction undoAction()
@@ -1264,7 +1253,7 @@ public final class FlowActions
         });
     }
 
-    // --------------------------------------------------------------------    
+    // --------------------------------------------------------------------
 
     private FlowAbstractAction uncommentBlockAction()
     {
@@ -1283,7 +1272,7 @@ public final class FlowActions
     {
         return action("deindent-block", Category.EDIT, () -> doBlockDeIndent(getClearedEditor()));
     }
-    
+
     private FlowAbstractAction autoIndentAction()
     {
         return action("autoindent", Category.EDIT, () -> {
@@ -1397,7 +1386,7 @@ public final class FlowActions
 
     // --------------------------------------------------------------------
 
-    
+
     private FlowAbstractAction indentAction()
     {
         return action("indent", Category.EDIT, () -> doBlockIndent(getClearedEditor()));
@@ -1449,7 +1438,7 @@ public final class FlowActions
         return contextSensitiveAction("cut-to-clipboard", Category.EDIT, viaContextMenu -> {
             if (editor.isReadOnly())
                 return;
-            
+
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
             if (viaContextMenu || editor.getSourcePane().isFocused())
             {
@@ -1488,7 +1477,7 @@ public final class FlowActions
         return contextSensitiveAction("paste-from-clipboard", Category.EDIT, viaContextMenu -> {
             if (editor.isReadOnly())
                 return;
-            
+
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
             if (viaContextMenu || editor.getSourcePane().isFocused())
             {
@@ -1725,7 +1714,22 @@ public final class FlowActions
             }
             else
             {
-                moveCaret(document.getLineStart(curLine));
+                int lineStart = document.getLineStart(curLine);
+                int contentStart = lineStart;
+                int lineEnd = document.getLineEnd(curLine);
+                // Move it to the first non-whitespace character:
+                while (Character.isWhitespace(getTextComponent().getDocument().getContent(contentStart, contentStart + 1).charAt(0)) && contentStart < lineEnd)
+                    contentStart += 1;
+
+                if (getTextComponent().getCaretPosition() == contentStart)
+                {
+                    moveCaret(lineStart);
+                }
+                else
+                {
+                    moveCaret(contentStart);
+                }
+
             }
         }
     }
@@ -1893,7 +1897,7 @@ public final class FlowActions
             moveCaret(Math.min(getTextComponent().getDocument().getLength(), getTextComponent().getCaretPosition() + 1));
         }
     }
-    
+
     private class DeletePrevCharAction extends FlowAbstractAction
     {
         public DeletePrevCharAction()
@@ -1904,9 +1908,28 @@ public final class FlowActions
         @Override
         public void actionPerformed(boolean viaContextMenu)
         {
+            //If no selection has been made
             if (getTextComponent().getCaretPosition() == getTextComponent().getAnchorPosition())
             {
-                getTextComponent().moveCaret(Math.max(0, getTextComponent().getCaretPosition() - 1));
+                int lineIndex = getCurrentLineIndex();
+
+                ReparseableDocument doc = editor.getSourceDocument();
+                ReparseableDocument.Element line = doc.getDefaultRootElement().getElement(lineIndex);
+                int lineStart = line.getStartOffset();
+                //get the text from the line start to the caret
+                String textBeforeCaret = getTextComponent().getDocument().getContent(lineStart,getTextComponent().getCaretPosition()).toString();
+
+                // If it's only tabs and spaces (left to the caret)
+                if(Pattern.compile("[    ]+[ ]*").matcher(textBeforeCaret).matches())
+                {
+                    int exceedingSpaces = textBeforeCaret.length()%4;
+                    //First delete the extra white spaces and then delete a tab at a time
+                    getTextComponent().select(getTextComponent().getCaretPosition(),getTextComponent().getCaretPosition()-((exceedingSpaces == 0)?4:exceedingSpaces));
+                }
+                else //delete one character
+                {
+                    getTextComponent().moveCaret(Math.max(0, getTextComponent().getCaretPosition() - 1));
+                }
             }
             getTextComponent().replaceSelection("");
         }

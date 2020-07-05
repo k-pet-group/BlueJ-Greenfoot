@@ -47,14 +47,10 @@ import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.stride.slots.*;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.HangingFlowPane;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
+import bluej.utility.javafx.*;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -356,7 +352,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         
         operations.add(new CustomFrameOperation(editor, "method->constructor",
                 Arrays.asList(Config.getString("frame.operation.change"), Config.getString("frame.operation.change.to.constructor")),
-                MenuItemOrder.TRANSFORM, this,
+                AbstractOperation.MenuItemOrder.TRANSFORM, this,
                 () -> {
                     Frame parent = getParentCanvas().getParent().getFrame();
                     if (parent instanceof ClassFrame) {
@@ -372,7 +368,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         
         operations.add(new CustomFrameOperation(editor, "concrete->abstract",
                 Arrays.asList(Config.getString("frame.operation.change"), Config.getString("frame.operation.change.to.abstract")),
-                MenuItemOrder.TRANSFORM, this,
+                AbstractOperation.MenuItemOrder.TRANSFORM, this,
                 () -> {
                     FrameCursor c = getCursorBefore();
                     MethodProtoElement el = new MethodProtoElement(null, returnType.getSlotElement(), methodName.getSlotElement(),

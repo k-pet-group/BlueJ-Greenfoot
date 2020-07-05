@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import bluej.utility.javafx.*;
 import bluej.stride.generic.ScreenreaderDictionary;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ObjectProperty;
@@ -160,7 +161,7 @@ class StructuredSlotField implements StructuredSlotComponent
             shrinkGrow.run();
             if (parent.getSlot() != null) // Can be null during testing
             {
-                field.setContextMenu(MenuItems.makeContextMenu(parent.getSlot().getMenuItems(true)));
+                field.setContextMenu(AbstractOperation.MenuItems.makeContextMenu(parent.getSlot().getMenuItems(true)));
             }
         });
         if (!stringLiteral)
@@ -328,7 +329,7 @@ class StructuredSlotField implements StructuredSlotComponent
     public String getScreenreaderText() {
         return ScreenreaderDictionary.transcribeForScreenreader(field.getText());
     }
-    
+
     @Override
     public String getJavaCode()
     {

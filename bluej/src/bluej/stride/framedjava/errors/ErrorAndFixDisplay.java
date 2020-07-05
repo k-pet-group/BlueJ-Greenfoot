@@ -21,28 +21,22 @@
  */
 package bluej.stride.framedjava.errors;
 
-import bluej.editor.EditorWatcher;
 import bluej.editor.fixes.FixDisplayManager;
 import bluej.editor.fixes.FixSuggestion;
 import bluej.editor.stride.CodeOverlayPane;
 import bluej.editor.stride.CodeOverlayPane.WidthLimit;
-import bluej.editor.stride.FrameEditor;
 import bluej.stride.generic.InteractionManager;
-import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ErrorAndFixDisplay extends FixDisplayManager
@@ -84,8 +78,20 @@ public class ErrorAndFixDisplay extends FixDisplayManager
         // We must consume the mouse pressed event to stop the focus from moving away
         // from the text slot when the mouse is clicked on us:
         vbox.setOnMousePressed(MouseEvent::consume);
-        
-        Label errorLabel = new Label(prefix + err.getMessage());
+
+        TextFlow errorLabel = null;
+        if (!(err instanceof DirectSlotError) || (err instanceof DirectSlotError && (((DirectSlotError) err).getItalicMessageStartIndex() == -1 || ((DirectSlotError) err).getItalicMessageEndIndex() == -1)))
+        {
+            errorLabel = new TextFlow(new Label(prefix + err.getMessage()));
+        } else
+        {
+            DirectSlotError dsError = (DirectSlotError) err;
+            Label beforeItalicText = (dsError.getItalicMessageStartIndex() > 0) ? new Label(dsError.getMessage().substring(0, dsError.getItalicMessageStartIndex())) : new Label("");
+            Label italicText = new Label(dsError.getMessage().substring(dsError.getItalicMessageStartIndex(), dsError.getItalicMessageEndIndex()));
+            JavaFXUtil.withStyleClass(italicText, "error-fix-display-italic");
+            Label afterItalicText = (dsError.getItalicMessageEndIndex() < dsError.getMessage().length() - 1) ? new Label(dsError.getMessage().substring(dsError.getItalicMessageEndIndex())) : new Label("");
+            errorLabel = new TextFlow(beforeItalicText, italicText, afterItalicText);
+        }
         JavaFXUtil.addStyleClass(errorLabel, "error-label");
         vbox.getChildren().add(errorLabel);
         prepareFixDisplay(vbox, (List<FixSuggestion>) err.getFixSuggestions(), () -> editor.getFrameEditor().getWatcher(), err.getIdentifier());

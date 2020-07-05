@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2020  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -80,6 +80,13 @@ public final class ConstructorView extends CallableView
     public boolean isConstructor()
     {
         return true;
+    }
+
+    @Override
+    public boolean isVoid()
+    {
+        // Constructor can't return void, by definition:
+        return false;
     }
 
     /**

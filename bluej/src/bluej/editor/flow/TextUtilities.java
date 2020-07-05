@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -71,6 +71,15 @@ public class TextUtilities
             default: return -1;
         }
 
+        String fullContent = doc.getFullContent();
+
+        // Before checking the document for matching
+        // we first check the character is not in a comment.
+        if (isTextInComment(fullContent, offset))
+        {
+            return -1;
+        }
+
         int count = 1;
         int step;
         int texttOffset;
@@ -92,7 +101,6 @@ public class TextUtilities
         }
         CharSequence textt = doc.getContent(texttOffset, texttOffset + len);
 
-        String fullContent = doc.getFullContent();
         while (len > 0) {
             char x = textt.charAt(i);
 

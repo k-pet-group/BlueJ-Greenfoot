@@ -37,9 +37,11 @@ import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BackgroundFill;
@@ -50,6 +52,8 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -60,6 +64,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * A FlowEditorPane is a component with (optional) horizontal and vertical scroll bars.
@@ -105,6 +110,8 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     private double pendingScrollY;
     // Have we currently scheduled an update of the caret graphics?  If so, no need to schedule another.
     private boolean caretUpdateScheduled;
+    // If we have currently scheduled an update of the caret graphics, will we ensure caret is visible?
+    private boolean caretUpdateEnsureVisible;
 
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
@@ -177,7 +184,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
                 oldCaretPos = caretPosition;
             }
         });
-        document.addListener((origStartIncl, replaced, replacement, linesRemoved, linesAdded) -> {
+        document.addListener(false, (origStartIncl, replaced, replacement, linesRemoved, linesAdded) -> {
             notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
         });
 
@@ -259,6 +266,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             && character.charAt(0) != 0x7F
             && !event.isMetaDown()) { // Not sure about this one -- NCCB note this comment is from the original source
             replaceSelection(character);
+            JavaFXUtil.runAfterCurrent(() -> scheduleCaretUpdate(true));
         }
         
     }
@@ -266,9 +274,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     private void mousePressed(MouseEvent e)
     {
         requestFocus();
-        positionCaretAtDestination(e, true);
-        anchor.position = caret.position;
-        updateRender(true);
+        if (e.getButton() == MouseButton.PRIMARY)
+        {
+            // If shift pressed, don't move anchor; form selection instead:
+            positionCaretAtDestination(e, !e.isShiftDown());
+            updateRender(true);
+        }
     }
 
     private void positionCaretAtDestination(MouseEvent e, boolean setAnchor)
@@ -298,9 +309,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
 
     private void mouseDragged(MouseEvent e)
     {
-        positionCaretAtDestination(e, false);
-        // Don't update the anchor, though
-        updateRender(true);
+        if (e.getButton() == MouseButton.PRIMARY)
+        {
+            positionCaretAtDestination(e, false);
+            // Don't update the anchor, though
+            updateRender(true);
+        }
     }
 
     public void textChanged()
@@ -317,6 +331,21 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         {
             lineDisplay.ensureLineVisible(caret.getLine());
         }
+
+        // Must calculate horizontal scroll before rendering, in case it updates the horizontal scroll:
+        double width = lineDisplay.calculateLineWidth(document.getLongestLine());
+        // It doesn't look nice if the width the scroll bar shows is exactly the longest line,
+        // as then it feels like it shows "too soon".  So we allow an extra 100 pixels before showing:
+        int EXTRA_WIDTH = 100;
+        horizontalScroll.setMax(width + EXTRA_WIDTH - getWidth());
+        if (horizontalScroll.getValue() > horizontalScroll.getMax())
+        {
+            updatingScrollBarDirectly = true;
+            horizontalScroll.setValue(Math.max(Math.min(horizontalScroll.getValue(), horizontalScroll.getMax()), horizontalScroll.getMin()));
+            updatingScrollBarDirectly = false;
+        }
+        horizontalScroll.setVisibleAmount(getWidth() / (horizontalScroll.getMax() + getWidth()) * horizontalScroll.getMax());
+        horizontalScroll.setVisible(allowScrollBars && width + EXTRA_WIDTH >= getWidth());
         
         List<Node> prospectiveChildren = new ArrayList<>();
         // Use an AbstractList rather than pre-calculate, as that means we don't bother
@@ -336,11 +365,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         updatingScrollBarDirectly = true;
         verticalScroll.setValue(lineDisplay.getLineRangeVisible()[0] - (lineDisplay.getFirstVisibleLineOffset() / lineDisplay.getLineHeight()));
         updatingScrollBarDirectly = false;
-        
-        double width = lineDisplay.calculateLineWidth(document.getLongestLine());
-        horizontalScroll.setMax(width + 100.0 - getWidth());
-        horizontalScroll.setVisibleAmount(getWidth() / (horizontalScroll.getMax() + getWidth()) * horizontalScroll.getMax());
-        horizontalScroll.setVisible(allowScrollBars && width + 100 >= getWidth());
+
         
         // This will often avoid changing the children, if the window has not been resized:
         boolean needToChangeLinesAndCaret = false;
@@ -483,10 +508,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
 
     /**
      * Schedules an update of the caret graphics after the next scene layout.
-     * @param ensureCaretVisible True if we want to scroll to make sure the caret is on-screen.
+     * @param ensureCaretVisibleRequestedThisTime True if we want to scroll to make sure the caret is on-screen.
      */
-    private void scheduleCaretUpdate(boolean ensureCaretVisible)
+    private void scheduleCaretUpdate(boolean ensureCaretVisibleRequestedThisTime)
     {
+        // Passing true overrides false:
+        this.caretUpdateEnsureVisible = caretUpdateEnsureVisible || ensureCaretVisibleRequestedThisTime;
         Scene scene = getScene();
         if (scene == null || caretUpdateScheduled)
         {
@@ -494,7 +521,11 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         }
         
         JavaFXUtil.runAfterNextLayout(scene, () -> {
+            // Important that we pick up the value from the field, as an intervening request since we were scheduled
+            // may have changed the value:
+            boolean ensureCaretVisible = caretUpdateEnsureVisible;
             caretUpdateScheduled = false;
+            caretUpdateEnsureVisible = false;
             if (lineDisplay.isLineVisible(caret.getLine()))
             {
                 MarginAndTextLine line = lineDisplay.getVisibleLine(caret.getLine());
@@ -764,6 +795,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         {
             this.lineDisplay = lineDisplay;
             this.lineWrapping = lineWrapping;
+            JavaFXUtil.addStyleClass(this,"line-container");
         }
         
         @Override
@@ -868,7 +900,15 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         if (lineDisplay.isLineVisible(lineIndex))
         {
             TextLine line = lineDisplay.getVisibleLine(lineIndex).textLine;
+            // If the line needs layout, the positions won't be accurate:
             if (line.isNeedsLayout())
+                return Optional.empty();
+            // Sometimes, it seems that the line can have the CSS for the font,
+            // and claim it doesn't need layout, but the font on the Text items
+            // has not actually been switched to the right font.  In this case
+            // the positions will be inaccurate, so we should not calculate:
+            Font curFont = line.getChildren().stream().flatMap(n -> n instanceof Text ? Stream.of(((Text)n).getFont()) : Stream.empty()).findFirst().orElse(null);
+            if (curFont != null && !curFont.getFamily().equals(PrefMgr.getEditorFontFamily()))
                 return Optional.empty();
             int posInLine = leftOfCharIndex - document.getLineStart(lineIndex);
             PathElement[] elements = line.caretShape(posInLine, true);
@@ -1072,6 +1112,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition);
 
         public String getErrorAtPosition(int caretPos);
+
+        /**
+         * Gets the context menu to show.  If necessary, should be hidden before being returned
+         * by this method.
+         */
+        ContextMenu getContextMenuToShow();
     }
 
     // Use an AbstractList rather than pre-calculate, as that means we don't bother

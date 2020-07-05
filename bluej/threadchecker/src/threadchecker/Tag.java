@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,6 +54,10 @@ public enum Tag
      */
     VMEventHandler,
     /**
+     * Any thread except VMEventHandler
+     */
+    NOTVMEventHandler,
+    /**
      * May be used on any thread.
      */
     Any;
@@ -88,6 +92,8 @@ public enum Tag
             return true;
         else if (dest == Tag.FX && this == Tag.FXPlatform)
             return true; // FXPlatform can call FX, but not vice versa
+        else if (dest == NOTVMEventHandler)
+            return this != VMEventHandler;
         else
             return this == dest;
         

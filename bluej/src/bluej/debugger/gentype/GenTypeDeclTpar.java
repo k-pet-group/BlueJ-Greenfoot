@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -89,6 +89,7 @@ public class GenTypeDeclTpar extends GenTypeTpar
     /**
      * Get the upper bound (possibly an intersection type).
      */
+    @OnThread(Tag.FXPlatform)
     public GenTypeSolid getBound()
     {
         return IntersectionType.getIntersection(upperBounds);
@@ -107,6 +108,7 @@ public class GenTypeDeclTpar extends GenTypeTpar
     /* (non-Javadoc)
      * @see bluej.debugger.gentype.GenTypeTpar#mapTparsToTypes(java.util.Map)
      */
+    @OnThread(Tag.FXPlatform)
     public GenTypeParameter mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         if (tparams == null) {
@@ -131,6 +133,7 @@ public class GenTypeDeclTpar extends GenTypeTpar
      * 
      * Example: T extends Integer
      */
+    @OnThread(Tag.FXPlatform)
     public String toString(boolean stripPrefix)
     {
         //need prefix to match java.lang.Object
@@ -143,24 +146,29 @@ public class GenTypeDeclTpar extends GenTypeTpar
             return getTparName() + " extends " + getBound().toString(stripPrefix);
         }
     }
-    
+
+    @Override
+    @OnThread(Tag.FXPlatform)
     public String arrayComponentName()
     {
         return getErasedType().arrayComponentName();
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public JavaType getErasedType()
     {
         return upperBounds[0].getErasedType();
     }
 
+    @OnThread(Tag.FXPlatform)
     public void erasedSuperTypes(Set<Reflective> s)
     {
         for (int i = 0; i < upperBounds.length; i++) {
             upperBounds[i].erasedSuperTypes(s);
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass [] getReferenceSupertypes()
     {
         ArrayList<GenTypeClass> al = new ArrayList<GenTypeClass>();

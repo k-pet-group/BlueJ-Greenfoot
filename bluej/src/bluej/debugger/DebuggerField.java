@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2011,2018,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 2011,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -65,6 +65,7 @@ public abstract class DebuggerField
      * @param expectedType   the known type of the field, which may be more precise than the declared type.
      *                       May be null.
      */
+    @OnThread(Tag.FXPlatform)
     public abstract DebuggerObject getValueObject(JavaType expectedType);
 
     /**

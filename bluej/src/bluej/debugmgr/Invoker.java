@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -320,9 +320,12 @@ public class Invoker
     public void invokeInteractive()
     {
         gotError = false;
-        // check for a method call with no parameter (and not in test mode)
-        // if so, just do it
-        if ((!constructing || Config.isGreenfoot()) && !member.hasParameters() && !inTestMode())
+        // Here are the different cases for when we do/don't show an invoker dialog:
+        // - If there's parameters needed, we must always show the dialog
+        // - If there's no parameters and a void return, we never show a dialog as there's nothing to ask.
+        // - If there's no parameters to a constructor, we still show the dialog in BlueJ (we need to ask for an object name for the object bench) but not in Greenfoot
+        // - If there's no parameters and a non-void return, we show the dialog if we're in BlueJ in testing mode because they may want to add an assertion for the result
+        if ((!constructing || Config.isGreenfoot()) && !member.hasParameters() && (!inTestMode() || isVoidReturn()))
         {
             doInvocation(null, (JavaType[]) null, null);
         }
@@ -1292,6 +1295,11 @@ public class Invoker
     public void graphChanged()
     {
         // Nothing needs doing.
+    }
+
+    public boolean isVoidReturn()
+    {
+        return member.isVoid();
     }
 
     static class CleverQualifyTypeNameTransform
