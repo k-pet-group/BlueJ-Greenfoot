@@ -49,7 +49,6 @@ import bluej.stride.framedjava.slots.InfixStructured.IntCounter;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.slots.EditableSlot.MenuItems;
 import bluej.utility.javafx.DelegableScalableTextField;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;

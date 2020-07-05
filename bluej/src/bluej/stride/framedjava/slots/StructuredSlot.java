@@ -1061,9 +1061,10 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
     /**
      * Sets the relative location of the slot for screen reader
-     * @param text
      */
-    public void setAccessibilityHelpSlots(String text) {
+    public void setAccessibilityHelpSlots(String slotName) {
+        //cherry
+        String text = "You are in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
         this.getComponents().get(0).setAccessibleHelp(text);
     }
 

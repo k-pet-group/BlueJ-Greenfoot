@@ -27,16 +27,13 @@ package bluej.stride.framedjava.frames;
 
 
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
-import bluej.stride.generic.FrameContentItem;
+import bluej.stride.generic.*;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.elements.AssignElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SingleLineFrame;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
@@ -77,8 +74,8 @@ public class AssignFrame extends SingleLineFrame
         slotLHS.addClosingChar(' ');
 
         //Manvi jain
-        slotLHS.setAccessibility(" existing variable name");
-        slotRHS.setAccessibility(" new value of variable");
+//        slotLHS.setAccessibility(" existing variable name");
+//        slotRHS.setAccessibility(" new value of variable");
 
         //cherry
         frameName = "assign statement";
@@ -96,8 +93,8 @@ public class AssignFrame extends SingleLineFrame
         }
 
         //Manvi jain
-        slotLHS.setAccessibility(" existing variable name");
-        slotRHS.setAccessibility(" new value of variable");
+//        slotLHS.setAccessibility(" existing variable name");
+//        slotRHS.setAccessibility(" new value of variable");
     }
     
     public AssignFrame(InteractionManager editor, FilledExpressionSlotFragment lhs, FilledExpressionSlotFragment rhs, boolean enabled)
@@ -109,8 +106,8 @@ public class AssignFrame extends SingleLineFrame
 
 
         //Manvi jain
-        slotLHS.setAccessibility(" existing variable name");
-        slotRHS.setAccessibility(" new value of variable");
+//        slotLHS.setAccessibility(" existing variable name");
+//        slotRHS.setAccessibility(" new value of variable");
     }
 
     @Override
@@ -214,5 +211,16 @@ public class AssignFrame extends SingleLineFrame
     {
         super.setView(oldView, newView, animation);
         assignLabel.setText(newView == View.JAVA_PREVIEW ? "=" : ASSIGN_SYMBOL);
+    }
+
+    //cherry
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas) {
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            slotLHS.setAccessibilityHelpSlots("assigned variable name slot");
+            slotRHS.setAccessibilityHelpSlots("assigned value slot");
+        }
     }
 }

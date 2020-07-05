@@ -146,21 +146,20 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         JavaFXUtil.addChangeListener(finalModifier, b -> editor.modifiedFrame(this, false));
 
         //Manvi jain
-        returnType.setAccessibility("return type in method signature");
+//        returnType.setAccessibility("return type in method signature");
+//        methodName.setAccessibility("method name in method signature");
 
-        methodName.setAccessibility("method name in method signature");
-
-        for(int i=0; i<paramsPane.getSlots().size(); i++){
-
-            if(paramsPane.getSlots().size() !=  0){
-            //System.out.println(paramsPane.getSlots().get(i).getComponents());
-            int numberOfParams = paramsPane.getSlots().get(i).getComponents().size();
-
-            for(int j=0; j< numberOfParams; j++){
-                paramsPane.getSlots().get(i).getComponents().get(j).setAccessibleText("parameter name / type");
-            }
-        }
-        }
+//        for(int i=0; i<paramsPane.getSlots().size(); i++){
+//
+//            if(paramsPane.getSlots().size() !=  0){
+//            //System.out.println(paramsPane.getSlots().get(i).getComponents());
+//            int numberOfParams = paramsPane.getSlots().get(i).getComponents().size();
+//
+//            for(int j=0; j< numberOfParams; j++){
+//                paramsPane.getSlots().get(i).getComponents().get(j).setAccessibleText("parameter name / type");
+//            }
+//        }
+//        }
 
         //cherry
         frameName = "method with body";
@@ -180,8 +179,8 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        this.returnType.setAccessibility(", return type in method signature");
-        methodName.setAccessibility(", method name in method signature");
+//        this.returnType.setAccessibility(", return type in method signature");
+//        methodName.setAccessibility(", method name in method signature");
     }
 
     //cherry
@@ -488,13 +487,15 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         return false;
     }
 
+    //manvi
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            returnType.setAccessibilityHelpSlots("return type in signature of method " +getName() + " " + getParentCanvas().getParent().getHelpContext());
-            methodName.setAccessibilityHelpSlots("method name in signature of " +getName() + " " + getParentCanvas().getParent().getHelpContext());
+            returnType.setAccessibilityHelpSlots("return type slot");
+            methodName.setAccessibilityHelpSlots("method name slot" );
         }
     }
 

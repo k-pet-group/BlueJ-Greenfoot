@@ -104,7 +104,7 @@ public class ReturnFrame extends SingleLineFrame
         } );
 
         //Manvi jain
-        value.setAccessibility(" return value of method");
+//        value.setAccessibility(" return value of method");
 
         //cherry
         frameName = "return statement";
@@ -125,7 +125,7 @@ public class ReturnFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        value.setAccessibility(" return value of method");
+//        value.setAccessibility(" return value of method");
     }
 
     //cherry
@@ -209,6 +209,12 @@ public class ReturnFrame extends SingleLineFrame
         returnType.unbind();
         returnType.set(null);
         showingValue.set(false);
+
+        //cherry
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            value.setAccessibilityHelpSlots("return value slot");
+        }
     }
 
     // Called when method's return type changes to void and user tells follow-up to remove values

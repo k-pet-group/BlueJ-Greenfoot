@@ -194,9 +194,9 @@ public class VarFrame extends SingleLineFrame
         showingValue.bind(inInterfaceProperty.or(keyFocusDelayed).or(slotValueBlank.not()));
 
         //Manvi jain
-        slotType.setAccessibility(", variable type");
-        slotName.setAccessibility(", variable name");
-        slotValue.setAccessibility(", variable value");
+//        slotType.setAccessibility(", variable type");
+//        slotName.setAccessibility(", variable name");
+//        slotValue.setAccessibility(", variable value");
 
         //cherry
         frameName = "variable declaration";
@@ -220,9 +220,9 @@ public class VarFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        slotType.setAccessibility(", variable type");
-        slotName.setAccessibility(", variable name");
-        slotValue.setAccessibility(", variable value");
+//        slotType.setAccessibility(", variable type");
+//        slotName.setAccessibility(", variable name");
+//        slotValue.setAccessibility(", variable value");
     }
 
     //cherry
@@ -390,9 +390,9 @@ public class VarFrame extends SingleLineFrame
         //Manvi jain
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            slotType.setAccessibilityHelpSlots("variable type " + getParentCanvas().getParent().getHelpContext());
-            slotName.setAccessibilityHelpSlots("variable name " + getParentCanvas().getParent().getHelpContext());
-            slotValue.setAccessibilityHelpSlots("variable name " + getParentCanvas().getParent().getHelpContext());
+            slotType.setAccessibilityHelpSlots("variable type slot");
+            slotName.setAccessibilityHelpSlots("variable name slot");
+            slotValue.setAccessibilityHelpSlots("variable value slot");
         }
     }
 

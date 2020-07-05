@@ -114,7 +114,7 @@ public class CaseFrame extends SingleCanvasFrame
         paramCondition.onTextPropertyChange(updateSidebarCurried("case "));
 
         //Manvi jain
-        paramCondition.setAccessibility(" condition in case statement");
+//        paramCondition.setAccessibility(" condition in case statement");
 
         //cherry
         frameName = "case block";
@@ -127,7 +127,7 @@ public class CaseFrame extends SingleCanvasFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        paramCondition.setAccessibility("condition in case statement");
+//        paramCondition.setAccessibility("condition in case statement");
     }
 
     //cherry
@@ -280,12 +280,15 @@ public class CaseFrame extends SingleCanvasFrame
                 canvas.getBlockContents().stream().allMatch(f -> (f instanceof BlankFrame || f instanceof BreakFrame));
     }
 
+    //manvi
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            paramCondition.setAccessibilityHelpSlots("Condition in case statement" + getParentCanvas().getParent().getHelpContext());
+            //cherry
+            paramCondition.setAccessibilityHelpSlots("case statement parameter slot");
         }
     }
 

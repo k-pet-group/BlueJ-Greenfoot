@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 
 import bluej.editor.stride.FrameEditor;
 import bluej.parser.AssistContent.Access;
+import bluej.stride.generic.*;
 import javafx.application.Platform;
 import javafx.beans.binding.StringExpression;
 import javafx.scene.control.TextField;
@@ -42,10 +43,6 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.ImportElement;
 import bluej.stride.framedjava.elements.ImportElement.ImportFragment;
 import bluej.stride.framedjava.errors.CodeError;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.RecallableFocus;
-import bluej.stride.generic.SingleLineFrame;
 import bluej.stride.slots.TextSlot;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotTraversalChars;
@@ -173,8 +170,8 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         setHeaderRow(importField, previewSemi);
 
         //Manvi jain
-        importField.setAccessibilityRoleDescription(importField.getText());
-        importField.setAccessibility(" import field");
+//        importField.setAccessibilityRoleDescription(importField.getText());
+//        importField.setAccessibility(" import field");
 
         //cherry
         frameName = "import statement";
@@ -191,8 +188,8 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        importField.setAccessibilityRoleDescription(importField.getText());
-        importField.setAccessibility(" import field");
+//        importField.setAccessibilityRoleDescription(importField.getText());
+//        importField.setAccessibility(" import field");
     }
     
     // Constructor for adding new imports in response to an error-fix:
@@ -203,8 +200,8 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         this.element = new ImportElement(src, importField, frameEnabledProperty.get());
 
         //Manvi jain
-        importField.setAccessibilityRoleDescription(importField.getText());
-        importField.setAccessibility(" import field");
+//        importField.setAccessibilityRoleDescription(importField.getText());
+//        importField.setAccessibility(" import field");
     }
     
     public static FrameFactory<ImportFrame> getFactory()
@@ -257,6 +254,17 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
     public void regenerateCode()
     {
         element = new ImportElement(importField.getText(), importField, frameEnabledProperty.get());
+    }
+
+    //cherry
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas) {
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            importField.setAccessibilityHelpSlots("import value slot");
+        }
+
     }
 
     @Override

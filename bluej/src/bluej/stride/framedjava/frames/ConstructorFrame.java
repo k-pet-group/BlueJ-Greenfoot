@@ -92,13 +92,13 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         //Manvi jain
         if(superThisParams != null)
         {
-            superThisParams.setAccessibility("super constructor's parameters");
+//            superThisParams.setAccessibility("super constructor's parameters");
         }
 
         if(superThis != null)
         {
-            superThis.setAccessibilityRoleDescription("");
-            superThis.setAccessibility("super constructor options");
+//            superThis.setAccessibilityRoleDescription("");
+//            superThis.setAccessibility("super constructor options");
         }
 
         //cherry
@@ -119,16 +119,16 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
 
 
         //Manvi jain
-        if(superThisParams != null)
-        {
-            superThisParams.setAccessibility(" super constructors parameters");
-        }
-
-        if(superThis != null)
-        {
-            superThis.setAccessibilityRoleDescription("");
-            superThis.setAccessibility(" super constructor options");
-        }
+//        if(superThisParams != null)
+//        {
+//            superThisParams.setAccessibility(" super constructors parameters");
+//        }
+//
+//        if(superThis != null)
+//        {
+//            superThis.setAccessibilityRoleDescription("");
+//            superThis.setAccessibility(" super constructor options");
+//        }
     }
 
     //cherry
@@ -446,16 +446,17 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         }
     }
 
-
+    //manvi
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
             //Manvi jain
             if(superThisParams != null)
             {
-                superThisParams.setAccessibilityHelpSlots("super constructor's parameters " + getParentCanvas().getParent().getHelpContext());
+                superThisParams.setAccessibilityHelpSlots("parameters slot in super call");
             }
 
             if(superThis != null)

@@ -80,8 +80,8 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         bindHeader();
 
         //Manvi jain
-        returnType.setAccessibility("return type of method " + returnType.getText());
-        methodName.setAccessibility("method name " + methodName.getText());
+//        returnType.setAccessibility("return type of method " + returnType.getText());
+//        methodName.setAccessibility("method name " + methodName.getText());
 
         //cherry
         frameName = "method prototype";
@@ -99,8 +99,8 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        this.returnType.setAccessibility("return type of method " + this.returnType.getText());
-        this.methodName.setAccessibility("method name " + this.methodName.getText());
+//        this.returnType.setAccessibility("return type of method " + this.returnType.getText());
+//        this.methodName.setAccessibility("method name " + this.methodName.getText());
     }
 
     //cherry
@@ -234,6 +234,13 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     {
         super.updateAppearance(parentCanvas);
         parentIsClass.set(parentCanvas.getParent().getFrame() instanceof ClassFrame);
+        //cherry
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            methodName.setAccessibilityHelpSlots("method name slot");
+            returnType.setAccessibilityHelpSlots("return type slot");
+        }
+
     }
 
     @Override

@@ -118,7 +118,7 @@ public class WhileFrame extends SingleCanvasFrame
 
 
         //Manvi jain
-        paramCondition.setAccessibility(" condition in while loop");
+//        paramCondition.setAccessibility(" condition in while loop");
 
         //cherry
         frameName = "While loop";
@@ -131,7 +131,7 @@ public class WhileFrame extends SingleCanvasFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        paramCondition.setAccessibility(" condition in while loop");
+//        paramCondition.setAccessibility(" condition in while loop");
     }
     
     public WhileFrame(InteractionManager editor, List<Frame> contents)
@@ -140,7 +140,7 @@ public class WhileFrame extends SingleCanvasFrame
         getCanvas().getFirstCursor().insertFramesAfter(contents);
 
         //Manvi jain
-        paramCondition.setAccessibility(" condition in while loop");
+//        paramCondition.setAccessibility(" condition in while loop");
     }
 
     //cherry
@@ -306,10 +306,11 @@ public class WhileFrame extends SingleCanvasFrame
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        super.updateAppearance(parentCanvas);
         //Set the accessibility help of the slot in the frame
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            paramCondition.setAccessibilityHelpSlots("Condition in while loop " + getParentCanvas().getParent().getHelpContext());
+            paramCondition.setAccessibilityHelpSlots("while loop condition slot");
         }
     }
 

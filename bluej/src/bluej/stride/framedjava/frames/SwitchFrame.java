@@ -93,7 +93,7 @@ public class SwitchFrame extends MultiCanvasFrame
         setHeaderRow(new SlotLabel("("), expression, new SlotLabel(")"));
         expression.onTextPropertyChange(updateSidebarCurried("switch "));
         //Manvi jain
-        expression.setAccessibility("switch statement condition");
+//        expression.setAccessibility("switch statement condition");
     }
     
     public SwitchFrame(InteractionManager editor, ExpressionSlotFragment expression, boolean enabled)
@@ -103,7 +103,7 @@ public class SwitchFrame extends MultiCanvasFrame
         frameEnabledProperty.set(enabled);
 
         //manvi jain
-        this.expression.setAccessibility("switch statement expression ");
+//        this.expression.setAccessibility("switch statement expression ");
 
         //cherry
         frameName = "switch block";
@@ -487,13 +487,14 @@ public class SwitchFrame extends MultiCanvasFrame
         defaultLabel.setText(newView == View.JAVA_PREVIEW ? "default :" : "default");
     }
 
-
+    //manvi
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            expression.setAccessibilityHelpSlots("Condition in switch statement " + getParentCanvas().getParent().getHelpContext());
+            expression.setAccessibilityHelpSlots("switch statement slot");
         }
     }
 
