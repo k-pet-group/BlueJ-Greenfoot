@@ -309,6 +309,8 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
             {
                 delegate.caretMoved();
+                //cherry attempt: when caret moves, screenreader should read out this slot's help text
+                getScene().focusOwnerProperty().get().setAccessibleHelp(getAccessibleHelp());
             }
         });
         
