@@ -144,7 +144,8 @@ public class VarFrame extends SingleLineFrame
 
         access = new AccessPermissionSlot(editor, this, getHeaderRow(), "var-access-");
         access.setValue(AccessPermission.PRIVATE);
-
+            //Manvi jain
+        access.setAccessibilityRoleDescription("Access permission slot for variable with three options: private, protected, public" );
         slotValue = new FilledExpressionSlot(editor, this, this, getHeaderRow(), "var-value-");
         slotValue.bindTargetType(slotType.javaProperty());
         slotValue.setSimplePromptText("value");

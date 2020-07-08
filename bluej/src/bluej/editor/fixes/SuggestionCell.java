@@ -21,7 +21,8 @@
  */
 package bluej.editor.fixes;
 
-import javafx.application.Platform;
+import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -30,9 +31,6 @@ import javafx.scene.control.ListCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -106,11 +104,16 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
                 item.eligibleAt.addListener(this);
                 item.eligibleLength.addListener(this);
                 item.eligibleCanTab.addListener(this);
-                item.highlighted.addListener(this);
+               // this.setAccessibleRoleDescription(item.getDetails().choice);
             }
         });
 
         setGraphic(pane);
+        //Manvi jain
+        this.setAccessibleText("Drop down menu in choice slot");
+        if(getItem() != null){
+            this.setAccessibleRoleDescription(getItem().getDetails().choice);
+        }
     }
 
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
@@ -129,10 +132,12 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
         if (item != null && item.index != -1)
         {
             update(item.getDetails().choice, item.getDetails().suffix, item.getDetails().type, item.typeMatch, item.direct, item.eligibleAt.get(), item.eligibleLength.get(), item.eligibleCanTab.get(), item.highlighted.get());
+            setAccessibleRoleDescription(item.getDetails().choice);
         }
         else
         {
             update("", "", "", false, true, 0, 0, false, false);
+            setAccessibleRoleDescription("");
         }
     }
 
@@ -170,6 +175,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
             next.setText("");
             suffix.setText("");
         }
+
     }
 
     // We are a change listener on several properties, to update the item each time.
@@ -179,5 +185,13 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
     public void changed(ObservableValue<?> observable, Object oldValue, Object newValue)
     {
         update(itemProperty().get());
+        setAccessibleRoleDescription(itemProperty().get().getDetails().choice);
+
+    }
+
+    //Manvi jain
+    public void setAccessibility(String text)
+    {
+        this.setAccessibleText(text);
     }
 }

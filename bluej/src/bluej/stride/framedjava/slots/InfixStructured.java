@@ -1689,20 +1689,20 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     //manvi
 //                    if(getSlot() != null)
 //                        setAccessibilityRoleDescription(getSlot().getJavaCode());
-                    String printIt = "editing " + f.getText() + " ";
+                    String BracketedSlot = "editing " + f.getText() + " ";
                     BracketedStructured<INFIX, SLOT> existingParent= parent;
                     while(existingParent != null){
-                        printIt +=  " in " + existingParent.getJavaCode() ;
+                        BracketedSlot +=  " in " + existingParent.getJavaCode() ;
                         if(existingParent.getParent() != null) {
                             if(existingParent.getParent().parent == null){
-                                printIt +=  " in " + existingParent.getParent().getJavaCode();
+                                BracketedSlot +=  " in " + existingParent.getParent().getJavaCode();
                                 break;
                             }
                             existingParent = existingParent.getParent().parent;
                         }
                     }
-                    System.out.println(printIt);
-                    setAccessibilityRoleDescription(printIt);
+//                    System.out.println(BracketedSlot);
+                    setAccessibilityRoleDescription(BracketedSlot);
                     //parent
                    CaretPos overridePos = checkFieldChange(pos.index, new CaretPos(pos.index, new CaretPos(posInField+1, null)), c == '.', user, token);
                     return overridePos;
