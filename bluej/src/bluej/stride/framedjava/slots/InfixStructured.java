@@ -1066,13 +1066,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     }
 
     //cherry
-    public void setIndividualSlotText(String furtherHelp) {
+    public void setIndividualSlotText() {
         CaretPos random = new CaretPos(0,null); // this doesn't matter cuz getNodeForPos() below will return the text field anyway
         String text;
-        if (fields.size()==1) {
-            fields.get(0).getNodeForPos(random).setAccessibleHelp(furtherHelp);
-            return;
-        }
         for (int i = 0; i < fields.size(); i++) {
             if (i == 0) {
                 // first slot
@@ -1104,7 +1100,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     text += "To the left is a slot containing " + fields.get(i-1).getScreenreaderText() + ".";
                 }
             }
-            fields.get(i).getNodeForPos(random).setAccessibleHelp(text + furtherHelp);
+            fields.get(i).getNodeForPos(random).setAccessibleHelp(text);
         }
 
     }
