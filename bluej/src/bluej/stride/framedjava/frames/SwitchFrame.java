@@ -26,9 +26,6 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import bluej.Config;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
@@ -49,6 +46,9 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Container-block representing a switch-case statement.

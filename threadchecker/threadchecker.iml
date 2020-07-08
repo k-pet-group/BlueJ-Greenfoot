@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/../bluej/threadchecker/classes" />
+    <output-test url="file://$MODULE_DIR$/../bluej/threadchecker/classes" />
+    <content url="file://$MODULE_DIR$/../bluej/threadchecker">
+      <sourceFolder url="file://$MODULE_DIR$/../bluej/threadchecker/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../bluej/threadchecker/pluginsrc" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
