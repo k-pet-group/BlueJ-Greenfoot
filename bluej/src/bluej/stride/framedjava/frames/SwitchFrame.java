@@ -93,7 +93,7 @@ public class SwitchFrame extends MultiCanvasFrame
         setHeaderRow(new SlotLabel("("), expression, new SlotLabel(")"));
         expression.onTextPropertyChange(updateSidebarCurried("switch "));
         //Manvi jain
-        expression.setAccessibility("switch statement condition");
+//        expression.setAccessibility("switch statement condition");
     }
     
     public SwitchFrame(InteractionManager editor, ExpressionSlotFragment expression, boolean enabled)
@@ -103,14 +103,17 @@ public class SwitchFrame extends MultiCanvasFrame
         frameEnabledProperty.set(enabled);
 
         //manvi jain
-        this.expression.setAccessibility("switch statement expression ");
+//        this.expression.setAccessibility("switch statement expression ");
+
+        //cherry
+        frameName = "switch block";
 
     }
 
     //cherry
     public String getScreenReaderText() {
         String expressionStr;
-        if (expression.getText().equals("")) { expressionStr = "blank"; } else { expressionStr = expression.getText(); }
+        if (expression.getText().equals("")) { expressionStr = "blank"; } else { expressionStr = expression.getScreenreaderText(); }
         String text = "switch " + expressionStr;
         return text;
     }
@@ -136,8 +139,9 @@ public class SwitchFrame extends MultiCanvasFrame
         if (expression.getText().equals("")) { expressionStr = "blank"; } else { expressionStr = expression.getText(); }
 
         text = " in a 'switch' frame for expression " + expressionStr + ",";
-        text += getParentCanvas().getParentLocationDescription();
-
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
         return text;
     }
 
@@ -484,14 +488,14 @@ public class SwitchFrame extends MultiCanvasFrame
         defaultLabel.setText(newView == View.JAVA_PREVIEW ? "default :" : "default");
     }
 
-
+    //manvi
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            System.out.println("Condition in switch statement " + getParentCanvas().getParent().getHelpContext());
-            expression.setAccessibilityHelpSlots("Condition in switch statement " + getParentCanvas().getParent().getHelpContext());
+            expression.setAccessibilityHelpSlots("switch statement slot");
         }
     }
 

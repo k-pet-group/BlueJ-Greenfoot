@@ -146,6 +146,11 @@ class StringLiteralExpression implements StructuredSlotComponent
         
         return b.toString();
     }
+
+    //cherry
+    public String getScreenreaderText() {
+        return "string literal expression";
+    }
     
     @Override
     public String getJavaCode()

@@ -92,14 +92,17 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         //Manvi jain
         if(superThisParams != null)
         {
-            superThisParams.setAccessibility("super constructor's parameters");
+//            superThisParams.setAccessibility("super constructor's parameters");
         }
 
         if(superThis != null)
         {
-            superThis.setAccessibilityRoleDescription("");
-            superThis.setAccessibility("super constructor options");
+//            superThis.setAccessibilityRoleDescription("");
+//            superThis.setAccessibility("super constructor options");
         }
+
+        //cherry
+        frameName = "constructor with body";
     }
 
     public ConstructorFrame(InteractionManager editor, AccessPermissionFragment access, String documentation,
@@ -116,16 +119,16 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
 
 
         //Manvi jain
-        if(superThisParams != null)
-        {
-            superThisParams.setAccessibility(" super constructors parameters");
-        }
-
-        if(superThis != null)
-        {
-            superThis.setAccessibilityRoleDescription("");
-            superThis.setAccessibility(" super constructor options");
-        }
+//        if(superThisParams != null)
+//        {
+//            superThisParams.setAccessibility(" super constructors parameters");
+//        }
+//
+//        if(superThis != null)
+//        {
+//            superThis.setAccessibilityRoleDescription("");
+//            superThis.setAccessibility(" super constructor options");
+//        }
     }
 
     //cherry
@@ -138,10 +141,13 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
 
             paramString.append(type + " " +  name + " ");
         }
-        String text = "Constructor " + getEditor().nameProperty().get();
+        String text = "Constructor " + ScreenreaderDictionary.transcribeForScreenreader(getEditor().nameProperty().get());
         if (paramString.length() != 0) {
             text += " with parameters " + paramString.toString();
         }
+        // add documentation
+        text += ". Documentation: " + getDocumentation();
+
         return text;
     }
 
@@ -174,8 +180,9 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         if (paramString.length() != 0) {
             text += " with parameters " + paramString.toString();
         }
-        text += getParentCanvas().getParentLocationDescription();
-
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
         return text;
     }
 
@@ -440,16 +447,17 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         }
     }
 
-
+    //manvi
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
             //Manvi jain
             if(superThisParams != null)
             {
-                superThisParams.setAccessibilityHelpSlots("super constructor's parameters " + getParentCanvas().getParent().getHelpContext());
+                superThisParams.setAccessibilityHelpSlots("parameters slot in super call");
             }
 
             if(superThis != null)

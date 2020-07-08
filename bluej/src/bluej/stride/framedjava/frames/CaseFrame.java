@@ -114,7 +114,10 @@ public class CaseFrame extends SingleCanvasFrame
         paramCondition.onTextPropertyChange(updateSidebarCurried("case "));
 
         //Manvi jain
-        paramCondition.setAccessibility(" condition in case statement");
+//        paramCondition.setAccessibility(" condition in case statement");
+
+        //cherry
+        frameName = "case block";
     }
     
     public CaseFrame(InteractionManager editor, FilledExpressionSlotFragment condition, boolean enabled)
@@ -124,13 +127,13 @@ public class CaseFrame extends SingleCanvasFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        paramCondition.setAccessibility("condition in case statement");
+//        paramCondition.setAccessibility("condition in case statement");
     }
 
     //cherry
     public String getScreenReaderText() {
         String condition;
-        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
+        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getScreenreaderText(); }
         String text = "'case' frame with value" + condition;
         return text;
     }
@@ -155,7 +158,9 @@ public class CaseFrame extends SingleCanvasFrame
         String condition, text;
         if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
         text = " in a 'case' frame with value " + condition + ",";
-        text += getParentCanvas().getParentLocationDescription();
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
         return text;
     }
 
@@ -277,12 +282,15 @@ public class CaseFrame extends SingleCanvasFrame
                 canvas.getBlockContents().stream().allMatch(f -> (f instanceof BlankFrame || f instanceof BreakFrame));
     }
 
+    //manvi
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            paramCondition.setAccessibilityHelpSlots("Condition in case statement" + getParentCanvas().getParent().getHelpContext());
+            //cherry
+            paramCondition.setAccessibilityHelpSlots("case statement parameter slot");
         }
     }
 

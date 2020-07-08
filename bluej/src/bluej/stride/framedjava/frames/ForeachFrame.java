@@ -85,10 +85,13 @@ public class ForeachFrame extends SingleCanvasFrame
         collection.onTextPropertyChange(updateTriple);
 
         //Manvi jain
-        type.setAccessibility(" variable type in condition  in for each loop");
-        var.setAccessibility(" variable name in condition in for each loop");
+//        type.setAccessibility(" variable type in condition  in for each loop");
+//        var.setAccessibility(" variable name in condition in for each loop");
         //var.setAccessibilityRoleDescription(var.getText());
-        collection.setAccessibility("collection name in condition in for each loop");
+//        collection.setAccessibility("collection name in condition in for each loop");
+
+        //cherry
+        frameName = "foreach loop";
     }
     
     public ForeachFrame(InteractionManager editor, TypeSlotFragment type, NameDefSlotFragment var, ExpressionSlotFragment collection, boolean enabled) {
@@ -99,10 +102,9 @@ public class ForeachFrame extends SingleCanvasFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        this.type.setAccessibility(" variable type in condition  in for each loop");
-        this.var.setAccessibility(" variable name in condition in for each loop");
+//        this.type.setAccessibility(" variable type in condition  in for each loop");
+//        this.var.setAccessibility(" variable name in condition in for each loop");
         //this.var.setAccessibilityRoleDescription(this.var.getText());
-        this.collection.setAccessibility("collection name in condition in for each loop");
     }
     
     public ForeachFrame(InteractionManager editor, List<Frame> contents)
@@ -111,18 +113,18 @@ public class ForeachFrame extends SingleCanvasFrame
         getCanvas().getFirstCursor().insertFramesAfter(contents);
 
         //Manvi jain
-        type.setAccessibility(" variable type in condition  in for each loop");
-        var.setAccessibility(" variable name in condition in for each loop");
+//        type.setAccessibility(" variable type in condition  in for each loop");
+//        var.setAccessibility(" variable name in condition in for each loop");
         //var.setAccessibilityRoleDescription(var.getText());
-        collection.setAccessibility("collection name in condition in for each loop");
+//        collection.setAccessibility("collection name in condition in for each loop");
     }
 
     //cherry
     public String getScreenReaderText() {
         String typeString, varString, collectionString;
         if (type.getText().equals("")) { typeString = "blank"; } else { typeString = type.getText(); }
-        if (var.getText().equals("")) { varString = "blank"; } else { varString = var.getText(); }
-        if (collection.getText().equals("")) { collectionString = "blank"; } else { collectionString = collection.getText(); }
+        if (var.getText().equals("")) { varString = "blank"; } else { varString = ScreenreaderDictionary.transcribeForScreenreader(var.getText()); }
+        if (collection.getText().equals("")) { collectionString = "blank"; } else { collectionString = collection.getScreenreaderText(); }
 
         String text = "for each " + typeString + " " + varString + " in " + collectionString;
 //        System.out.println(text);
@@ -152,8 +154,9 @@ public class ForeachFrame extends SingleCanvasFrame
         if (collection.getText().equals("")) { collectionString = "blank"; } else { collectionString = collection.getText(); }
 
         text = " in a 'for each' frame that loops through every " + varString + " of type " + typeString + " in collection " + collectionString + ",";
-        text += getParentCanvas().getParentLocationDescription();
-
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
         return text;
     }
 
@@ -276,15 +279,16 @@ public class ForeachFrame extends SingleCanvasFrame
         return super.backspaceAtStart(srcRow, src);
     }
 
+    //manvi
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
-
+        super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            type.setAccessibilityHelpSlots("condition variable type in foreach loop " + getParentCanvas().getParent().getHelpContext());
-            var.setAccessibilityHelpSlots("condition variable name in foreach loop " + getParentCanvas().getParent().getHelpContext());
-            type.setAccessibilityHelpSlots("collection name in foreach loop " + getParentCanvas().getParent().getHelpContext());
+            type.setAccessibilityHelpSlots("variable type slot" );
+            var.setAccessibilityHelpSlots("variable name slot" );
+            type.setAccessibilityHelpSlots("collection name slot" );
         }
     }
 

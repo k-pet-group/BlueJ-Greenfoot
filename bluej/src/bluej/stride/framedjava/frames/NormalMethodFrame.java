@@ -41,14 +41,8 @@ import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.parser.AssistContentThreadSafe;
-import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.operations.ToggleBooleanProperty;
@@ -152,21 +146,23 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         JavaFXUtil.addChangeListener(finalModifier, b -> editor.modifiedFrame(this, false));
 
         //Manvi jain
-        returnType.setAccessibility("return type in method signature");
+//        returnType.setAccessibility("return type in method signature");
+//        methodName.setAccessibility("method name in method signature");
 
-        methodName.setAccessibility("method name in method signature");
+//        for(int i=0; i<paramsPane.getSlots().size(); i++){
+//
+//            if(paramsPane.getSlots().size() !=  0){
+//            //System.out.println(paramsPane.getSlots().get(i).getComponents());
+//            int numberOfParams = paramsPane.getSlots().get(i).getComponents().size();
+//
+//            for(int j=0; j< numberOfParams; j++){
+//                paramsPane.getSlots().get(i).getComponents().get(j).setAccessibleText("parameter name / type");
+//            }
+//        }
+//        }
 
-        for(int i=0; i<paramsPane.getSlots().size(); i++){
-
-            if(paramsPane.getSlots().size() !=  0){
-            //System.out.println(paramsPane.getSlots().get(i).getComponents());
-            int numberOfParams = paramsPane.getSlots().get(i).getComponents().size();
-
-            for(int j=0; j< numberOfParams; j++){
-                paramsPane.getSlots().get(i).getComponents().get(j).setAccessibleText("parameter name / type");
-            }
-        }
-        }
+        //cherry
+        frameName = "method with body";
     }
     
     public NormalMethodFrame(InteractionManager editor, AccessPermissionFragment access, boolean staticModifier,
@@ -183,8 +179,8 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        this.returnType.setAccessibility(", return type in method signature");
-        methodName.setAccessibility(", method name in method signature");
+//        this.returnType.setAccessibility(", return type in method signature");
+//        methodName.setAccessibility(", method name in method signature");
     }
 
     //cherry
@@ -200,13 +196,13 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         }
         // make method text
         String text, nameString, returnString;
-        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
+        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = ScreenreaderDictionary.transcribeForScreenreader(methodName.getText()); }
         if (returnType.getText().equals("")) { returnString = "blank"; } else { returnString = returnType.getText(); }
 
         if (paramString.length() != 0) {
-            text = "Method " + nameString + " with parameters " + paramString.toString() + " with " + access.getValue(AccessPermission.PUBLIC).toString() + " access and " + returnString + " return type ";
+            text = "Method " + nameString + "() with parameters " + paramString.toString() + " with " + access.getValue(AccessPermission.PUBLIC).toString() + " access and " + returnString + " return type ";
         } else {
-            text = "Method " + nameString + " with "   + access.getValue(AccessPermission.PUBLIC).toString() + " access and "+ returnString + " return type ";
+            text = "Method " + nameString + "() with "   + access.getValue(AccessPermission.PUBLIC).toString() + " access and "+ returnString + " return type ";
         }
         // add static final if present
         if (finalModifier.get()) {
@@ -215,6 +211,8 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         if (staticModifier.get()) {
             text = staticLabel.getText() + " " + text;
         }
+        // add documentation
+        text += ". Documentation: " + getDocumentation();
 //        System.out.println(text);
         return text;
     }
@@ -239,7 +237,9 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         String text, nameString;
         if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
         text = " in the method " + nameString + ",";
-        text += getParentCanvas().getParentLocationDescription();
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
 
         return text;
     }
@@ -489,15 +489,15 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         return false;
     }
 
+    //manvi
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            System.out.println("return type in signature of method " +getName() + " " + getParentCanvas().getParent().getHelpContext());
-            System.out.println("method name in signature of " +getName() + " " + getParentCanvas().getParent().getHelpContext());
-            returnType.setAccessibilityHelpSlots("return type in signature of method " +getName() + " " + getParentCanvas().getParent().getHelpContext());
-            methodName.setAccessibilityHelpSlots("method name in signature of " +getName() + " " + getParentCanvas().getParent().getHelpContext());
+            returnType.setAccessibilityHelpSlots("return type slot");
+            methodName.setAccessibilityHelpSlots("method name slot" );
         }
     }
 

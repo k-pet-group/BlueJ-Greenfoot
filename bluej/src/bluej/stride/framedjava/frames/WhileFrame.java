@@ -118,7 +118,10 @@ public class WhileFrame extends SingleCanvasFrame
 
 
         //Manvi jain
-        paramCondition.setAccessibility(" condition in while loop");
+//        paramCondition.setAccessibility(" condition in while loop");
+
+        //cherry
+        frameName = "While loop";
     }
     
     public WhileFrame(InteractionManager editor, ExpressionSlotFragment condition, boolean enabled)
@@ -128,7 +131,7 @@ public class WhileFrame extends SingleCanvasFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        paramCondition.setAccessibility(" condition in while loop");
+//        paramCondition.setAccessibility(" condition in while loop");
     }
     
     public WhileFrame(InteractionManager editor, List<Frame> contents)
@@ -137,13 +140,15 @@ public class WhileFrame extends SingleCanvasFrame
         getCanvas().getFirstCursor().insertFramesAfter(contents);
 
         //Manvi jain
-        paramCondition.setAccessibility(" condition in while loop");
+//        paramCondition.setAccessibility(" condition in while loop");
     }
 
     //cherry
     public String getScreenReaderText() {
         String condition;
-        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
+//        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
+        if (paramCondition.getScreenreaderText().equals("")) { condition = "blank"; } else { condition = paramCondition.getScreenreaderText(); }
+
         String text = "while frame with condition " + condition;
 //        System.out.println(text);
         return text;
@@ -169,8 +174,9 @@ public class WhileFrame extends SingleCanvasFrame
         String condition, text;
         if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
         text = " in a while frame with condition " + condition + ",";
-        text += getParentCanvas().getParentLocationDescription();
-
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
 //        System.out.println(text);
         return text;
     }
@@ -301,10 +307,11 @@ public class WhileFrame extends SingleCanvasFrame
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        super.updateAppearance(parentCanvas);
         //Set the accessibility help of the slot in the frame
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            paramCondition.setAccessibilityHelpSlots("Condition in while loop " + getParentCanvas().getParent().getHelpContext());
+            paramCondition.setAccessibilityHelpSlots("while loop condition slot");
         }
     }
 

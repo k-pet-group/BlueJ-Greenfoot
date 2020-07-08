@@ -64,6 +64,9 @@ public class TryFrame extends SandwichCanvasesFrame
             catchTypes.get(i).setAccessibility("catch type in try block");
             catchVars.get(i).setAccessibility("catch variable name in try block");
         }
+
+        //cherry
+        frameName = "try block";
     }
 
     /**
@@ -145,8 +148,9 @@ public class TryFrame extends SandwichCanvasesFrame
             text = " in the 'catch' section with parameter " + catchVars.get(sectionIndex-1) + " of type " + catchTypes.get(sectionIndex-1) + ",";
         }
         text += " in a 'try-catch' frame,";
-        text += getParentCanvas().getParentLocationDescription();
-
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
         return text;
     }
 
@@ -252,16 +256,17 @@ public class TryFrame extends SandwichCanvasesFrame
                 tailCanvasContents, enabled);
     }
 
-
+    //manvi
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
             for(int i=0; i<catchTypes.size(); i++)
             {
-                catchTypes.get(i).setAccessibilityHelpSlots("catch type in try block " + getParentCanvas().getParent().getHelpContext());
-                catchVars.get(i).setAccessibilityHelpSlots("catch name in try block " + getParentCanvas().getParent().getHelpContext());
+                catchTypes.get(i).setAccessibilityHelpSlots("exception type slot" );
+                catchVars.get(i).setAccessibilityHelpSlots("exception name slot" );
             }
         }
     }

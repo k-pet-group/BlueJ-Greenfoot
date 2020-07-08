@@ -195,9 +195,12 @@ public class VarFrame extends SingleLineFrame
         showingValue.bind(inInterfaceProperty.or(keyFocusDelayed).or(slotValueBlank.not()));
 
         //Manvi jain
-        slotType.setAccessibility(", variable type");
-        slotName.setAccessibility(", variable name");
-        slotValue.setAccessibility(", variable value");
+//        slotType.setAccessibility(", variable type");
+//        slotName.setAccessibility(", variable name");
+//        slotValue.setAccessibility(", variable value");
+
+        //cherry
+        frameName = "variable declaration";
         }
     
     // If varValue is null, that means the slot is not shown
@@ -218,15 +221,15 @@ public class VarFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        slotType.setAccessibility(", variable type");
-        slotName.setAccessibility(", variable name");
-        slotValue.setAccessibility(", variable value");
+//        slotType.setAccessibility(", variable type");
+//        slotName.setAccessibility(", variable name");
+//        slotValue.setAccessibility(", variable value");
     }
 
     //cherry
     public String getScreenReaderText() {
         String text, name, type, accessString;
-        if (slotName.getText().trim().isEmpty()) { name = "blank"; } else { name = slotName.getText(); }
+        if (slotName.getText().trim().isEmpty()) { name = "blank"; } else { name = ScreenreaderDictionary.transcribeForScreenreader(slotName.getText()); }
         if (slotType.getText().trim().isEmpty()) { type = "blank"; } else { type = slotType.getText(); }
         accessString = access.getValue(AccessPermission.PRIVATE).toString();
         if (accessModifier.get()) { // class field
@@ -244,7 +247,7 @@ public class VarFrame extends SingleLineFrame
         }
 
         if (showingValue.get()) {
-            text += " equals " + slotValue.getText();
+            text += " equals " + slotValue.getScreenreaderText();
         }
 //        System.out.println(text);
         return text;
@@ -388,9 +391,9 @@ public class VarFrame extends SingleLineFrame
         //Manvi jain
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            slotType.setAccessibilityHelpSlots("variable type " + getParentCanvas().getParent().getHelpContext());
-            slotName.setAccessibilityHelpSlots("variable name " + getParentCanvas().getParent().getHelpContext());
-            slotValue.setAccessibilityHelpSlots("variable name " + getParentCanvas().getParent().getHelpContext());
+            slotType.setAccessibilityHelpSlots("variable type slot");
+            slotName.setAccessibilityHelpSlots("variable name slot");
+            slotValue.setAccessibilityHelpSlots("variable value slot");
         }
     }
 

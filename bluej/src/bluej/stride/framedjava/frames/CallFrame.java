@@ -73,7 +73,10 @@ public class CallFrame extends SingleLineFrame
         content.addFocusListener(this);
 
         //Manvi jain
-        content.setAccessibility(" method name in call");
+//        content.setAccessibility(" method name in call");
+
+        //cherry
+        frameName = "method call";
     }
     
     // For replacement of AssignFrame:
@@ -84,7 +87,7 @@ public class CallFrame extends SingleLineFrame
         this.content.setSplitText(beforeCursor, afterCursor);
 
         //Manvi jain
-        content.setAccessibility(" method name in call");
+//        content.setAccessibility(" method name in call");
     }
     
     public CallFrame(InteractionManager editor, ExpressionSlotFragment e, boolean enabled)
@@ -94,13 +97,13 @@ public class CallFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        content.setAccessibility(" method name in call");
+//        content.setAccessibility(" method name in call");
     }
 
     //cherry
     public String getScreenReaderText() {
         String contentString;
-        if (content.getText().trim().equals("()")) { contentString = "blank"; } else { contentString = content.getText(); }
+        if (content.getText().trim().equals("()")) { contentString = "blank"; } else { contentString = content.getScreenreaderText(); }
         String text = "call " + contentString;
 //        System.out.println(text);
         return text;
@@ -216,12 +219,15 @@ public class CallFrame extends SingleLineFrame
         JavaFXUtil.runAfter(Duration.millis(100), content::showSuggestion);
     }
 
+    //manvi
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
+        //cherry
+        super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            content.setAccessibilityHelpSlots("method call name " + getParentCanvas().getParent().getHelpContext());
+            content.setAccessibilityHelpSlots("method name slot");
         }
     }
 }
