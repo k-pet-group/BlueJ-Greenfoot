@@ -1059,7 +1059,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         for (int i = 0; i < fields.size() - 1; i++) {
             b.append(fields.get(i).getScreenreaderText());
             if (operators.get(i) != null)
-                b.append(operators.get(i).getScreenreaderText());
+                b.append(ScreenreaderDictionary.transcribeForScreenreader(operators.get(i).getCopyText()));
         }
         b.append(fields.get(fields.size() - 1).getScreenreaderText());
         return b.toString();
@@ -1068,41 +1068,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     //cherry
     public void setIndividualSlotText() {
         CaretPos random = new CaretPos(0,null); // this doesn't matter cuz getNodeForPos() below will return the text field anyway
-        String text;
-        for (int i = 0; i < fields.size(); i++) {
-            if (i == 0) {
-                // first slot
-                text="You are in the first slot. ";
-                if (operators.get(i) != null) {
-                    text += " To the right is the operator " + operators.get(i).getScreenreaderText() + ".";
-                } else {
-                    text += " To the right is a slot containing " + fields.get(i+1).getScreenreaderText() + ".";
-                }
-            } else if (i > 0 && i < fields.size()-1) {
-                // intermediate slots
-                if (operators.get(i-1) != null) {
-                    text = "To the left is the operator " + operators.get(i-1).getScreenreaderText() + ".";
-                } else {
-                    text = "To the left is a slot containing " + fields.get(i - 1).getScreenreaderText() + ".";
-                }
-                if (operators.get(i) != null) {
-                    text += "To the right is the operator " + operators.get(i).getScreenreaderText() + ".";
-                } else {
-                    text += "To the right is a slot containing " + fields.get(i+1).getScreenreaderText() + ".";
-                }
-
-            } else {
-                // last slot
-                text="You are in the last slot. ";
-                if (operators.get(i-1) != null) {
-                    text += "To the left is the operator " + operators.get(i-1).getScreenreaderText() + ".";
-                } else {
-                    text += "To the left is a slot containing " + fields.get(i-1).getScreenreaderText() + ".";
-                }
-            }
-            fields.get(i).getNodeForPos(random).setAccessibleHelp(text);
+        for (int i = 0; i < fields.size() - 1; i++) {
+            fields.get(i).getNodeForPos(random).setAccessibleHelp("");
         }
-
     }
 
     // start is inclusive, end is exclusive
