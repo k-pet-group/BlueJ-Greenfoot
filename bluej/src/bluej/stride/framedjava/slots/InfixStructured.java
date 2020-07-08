@@ -1065,14 +1065,6 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         return b.toString();
     }
 
-    //cherry
-    public void setIndividualSlotText() {
-        CaretPos random = new CaretPos(0,null); // this doesn't matter cuz getNodeForPos() below will return the text field anyway
-        for (int i = 0; i < fields.size() - 1; i++) {
-            fields.get(i).getNodeForPos(random).setAccessibleHelp("");
-        }
-    }
-
     // start is inclusive, end is exclusive
     private String getJavaCodeForFields(int start, int end)
     {
