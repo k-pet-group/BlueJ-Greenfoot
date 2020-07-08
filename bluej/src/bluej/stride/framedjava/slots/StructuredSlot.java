@@ -1072,7 +1072,10 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     public void setAccessibilityHelpSlots(String slotName) {
         //cherry
         String text = "You are in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
-        this.getComponents().get(0).setAccessibleHelp(text);
+        // this.getComponents().get(0).setAccessibleHelp(text);
+        for (Node component : this.getComponents()) {
+            component.setAccessibleHelp(text);
+        }
     }
 
     public void addFocusListener(Frame frame) {
