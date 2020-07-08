@@ -41,15 +41,8 @@ import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.*;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeFrame<MethodProtoElement>
 {
@@ -87,8 +80,11 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         bindHeader();
 
         //Manvi jain
-        returnType.setAccessibility("return type of method " + returnType.getText());
-        methodName.setAccessibility("method name " + methodName.getText());
+//        returnType.setAccessibility("return type of method " + returnType.getText());
+//        methodName.setAccessibility("method name " + methodName.getText());
+
+        //cherry
+        frameName = "method prototype";
     }
     
     public MethodProtoFrame(final InteractionManager editor, TypeSlotFragment returnType,
@@ -103,8 +99,8 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        this.returnType.setAccessibility("return type of method " + this.returnType.getText());
-        this.methodName.setAccessibility("method name " + this.methodName.getText());
+//        this.returnType.setAccessibility("return type of method " + this.returnType.getText());
+//        this.methodName.setAccessibility("method name " + this.methodName.getText());
     }
 
     //cherry
@@ -119,7 +115,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         }
         // make method text
         String text, nameString, returnString;
-        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
+        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = ScreenreaderDictionary.transcribeForScreenreader(methodName.getText()); }
         if (returnType.getText().equals("")) { returnString = "blank"; } else { returnString = returnType.getText(); }
         if (paramString.length() != 0) {
             text = "method " + nameString + " with parameters " + paramString.toString() + " and " + returnString + " return type ";
@@ -130,6 +126,9 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         if (parentIsClass.get()) {
             text = abstractLabel.getText() + " " + text;
         }
+        // add documentation
+        text += ". Documentation: " + getDocumentation();
+
 //        System.out.println(text);
         return text;
     }
@@ -235,6 +234,13 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     {
         super.updateAppearance(parentCanvas);
         parentIsClass.set(parentCanvas.getParent().getFrame() instanceof ClassFrame);
+        //cherry
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            methodName.setAccessibilityHelpSlots("method name slot");
+            returnType.setAccessibilityHelpSlots("return type slot");
+        }
+
     }
 
     @Override

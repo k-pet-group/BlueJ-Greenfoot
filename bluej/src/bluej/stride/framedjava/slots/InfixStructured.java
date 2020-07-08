@@ -1,22 +1,22 @@
 /*
- This file is part of the BlueJ program. 
+ This file is part of the BlueJ program.
  Copyright (C) 2014,2015,2016,2017,2018,2019,2020 Michael Kölling and John Rosenberg
- 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
- 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
- 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
- This file is subject to the Classpath exception as provided in the  
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.stride.framedjava.slots;
@@ -24,6 +24,7 @@ package bluej.stride.framedjava.slots;
 import bluej.stride.framedjava.slots.StructuredSlot.SplitInfo;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.InteractionManager;
+import bluej.stride.generic.ScreenreaderDictionary;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.*;
@@ -1052,6 +1053,18 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         return b.toString();
     }
 
+    //cherry
+    public String getScreenreaderText() {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < fields.size() - 1; i++) {
+            b.append(fields.get(i).getScreenreaderText());
+            if (operators.get(i) != null)
+                b.append(ScreenreaderDictionary.transcribeForScreenreader(operators.get(i).getCopyText()));
+        }
+        b.append(fields.get(fields.size() - 1).getScreenreaderText());
+        return b.toString();
+    }
+
     // start is inclusive, end is exclusive
     private String getJavaCodeForFields(int start, int end)
     {
@@ -1607,7 +1620,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 f.setText(f.getText().substring(0, posInField), token);
                 //manvi jain
 
-                setAccessibilityRoleDescription(f.getText() + " ");
+                setAccessibilityRoleDescription(f.getScreenreaderText() + " ");
                 operators.add(pos.index, null, token);
 
                 fields.add(pos.index + 1, new BracketedStructured(editor, this, this.slot, c, "", token), token);
@@ -1675,7 +1688,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     //manvi jain
                     if (getSlot() != null)
                     {
-                        setAccessibilityRoleDescription(getSlot().getJavaCode() + " new object created ");
+                        setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " new object created ");
                     }
                     operators.add(pos.index, new Operator("new ", this), token);
                     fields.add(pos.index + 1, makeNewField(following, false), token);
@@ -1688,7 +1701,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
                     //manvi
                     if(getSlot() != null)
-                        setAccessibilityRoleDescription(getSlot().getJavaCode());
+                        setAccessibilityRoleDescription(getSlot().getScreenreaderText());
 
                    CaretPos overridePos = checkFieldChange(pos.index, new CaretPos(pos.index, new CaretPos(posInField+1, null)), c == '.', user, token);
                     return overridePos;
@@ -1735,9 +1748,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             if(getSlot() != null)
             {
                 if (getSlot().getJavaCode().charAt(0) == '\'')
-                    setAccessibilityRoleDescription(getSlot().getJavaCode() + " in apostrophe");
+                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in apostrophe");
                 else
-                    setAccessibilityRoleDescription(getSlot().getJavaCode() + " in quotation");
+                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in quotation");
             }
             return new CaretPos(pos.index, new CaretPos(posInField+1, null));
         }
@@ -2859,7 +2872,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
      * @param text
      */
     public void setAccessibilityRoleDescription(String text){
-        this.getComponents().get(0).setAccessibleRoleDescription(replaceOperatorInText(text));
+        this.getComponents().get(0).setAccessibleRoleDescription(text);
     }
 
 
@@ -2868,6 +2881,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
      * @param textIn String with operator symbol
      * @return converted String
      */
+    /** commented out by Cherry
     public String replaceOperatorInText(String textIn)
     {
         String text = textIn;
@@ -2911,7 +2925,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             }
         }
         return text;
-    }
+    } */
 
 }
 

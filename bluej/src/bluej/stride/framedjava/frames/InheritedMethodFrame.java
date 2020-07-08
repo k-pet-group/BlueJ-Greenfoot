@@ -100,8 +100,8 @@ public class InheritedMethodFrame extends SingleLineFrame
         setHeaderRow(slot, overrideLabel);
 
         //Manvi jain
-        slot.setAccessibilityRoleDescription(methodName);
-        slot.setAccessibility("Inherited method name with return type " +returnType+ " " );
+//        slot.setAccessibilityRoleDescription(methodName);
+//        slot.setAccessibility("Inherited method name with return type " +returnType+ " " );
     }
 
     private void checkForOverride()

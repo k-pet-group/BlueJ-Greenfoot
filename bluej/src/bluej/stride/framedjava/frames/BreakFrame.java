@@ -80,6 +80,9 @@ public class BreakFrame extends SingleLineFrame
     {
         super(editor, "break", "break-");
         setHeaderRow(previewSemi);
+
+        //cherry
+        frameName = "break statement";
     }
     
     public BreakFrame(InteractionManager editor, boolean enabled)

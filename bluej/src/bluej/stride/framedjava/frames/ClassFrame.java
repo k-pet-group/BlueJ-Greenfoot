@@ -198,7 +198,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
 
     //cherry
     public String getLocationDescription(FrameCanvas c) {
-        String text = " in the class " + getEditor().nameProperty().get();
+        String text = " in the class " + nameProperty().get();
         return text;
     }
 

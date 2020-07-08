@@ -81,7 +81,10 @@ public class IfFrame extends SandwichCanvasesFrame
 
 
         //Manvi Jain
-        ifCondition.setAccessibility("condition in if statement ");
+//        ifCondition.setAccessibility("condition in if statement ");
+
+        //cherry
+        frameName = "if block";
 
     }
 
@@ -95,7 +98,7 @@ public class IfFrame extends SandwichCanvasesFrame
         getFirstCanvas().getFirstCursor().insertFramesAfter(contents);
 
       // Manvi Jain
-        ifCondition.setAccessibility("condition in if statement ");
+//        ifCondition.setAccessibility("condition in if statement ");
     }
 
     /**
@@ -126,13 +129,13 @@ public class IfFrame extends SandwichCanvasesFrame
         frameEnabledProperty.set(enabled);
 
        // Manvi Jain
-        ifCondition.setAccessibility("condition in if statement ");
+//        ifCondition.setAccessibility("condition in if statement ");
     }
 
     //cherry
     public String getScreenReaderText() {
         String condition;
-        if (ifCondition.getText().equals("")) { condition = "blank"; } else { condition = ifCondition.getText(); }
+        if (ifCondition.getText().equals("")) { condition = "blank"; } else { condition = ifCondition.getScreenreaderText(); }
         String text = "if frame with condition " + condition;
         return text;
     }
@@ -168,8 +171,10 @@ public class IfFrame extends SandwichCanvasesFrame
             text = " in the 'else' section,";
         }
         text += " in an if frame with condition " + condition + ",";
-        text += getParentCanvas().getParentLocationDescription();
-//        System.out.println(text);
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
+        //        System.out.println(text);
         return text;
     }
 
@@ -259,14 +264,17 @@ public class IfFrame extends SandwichCanvasesFrame
     }
 
 
-
+    //manvi
     @Override
     public void updateAppearance(FrameCanvas parentCanvas)
     {
-
+        super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            ifCondition.setAccessibilityHelpSlots("Condition in if statement " + getParentCanvas().getParent().getHelpContext());
+            ifCondition.setAccessibilityHelpSlots("if condition slot");
+            for (ExpressionSlot slot : elseIfConditions) {
+                slot.setAccessibilityHelpSlots("else if condition slot");
+            }
         }
     }
 

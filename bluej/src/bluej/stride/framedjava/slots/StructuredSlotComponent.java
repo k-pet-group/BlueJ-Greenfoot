@@ -108,6 +108,9 @@ interface StructuredSlotComponent
     // If from is null, then use start.  If to is null, use end.  Both null thus means whole slot.
     String getCopyText(CaretPos from, CaretPos to);
 
+    //cherry
+    String getScreenreaderText();
+
     /*
      * Gets the current caret position relative to this component.
      * Returns null if this component (and its subcomponents) doesn't have focus.

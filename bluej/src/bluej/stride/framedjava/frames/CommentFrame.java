@@ -92,6 +92,9 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         //Manvi jain
         //comment.setAccessibilityRoleDescription(getComment());
         //comment.setAccessibleText(" comment text");
+
+        //cherry
+        frameName = "comment";
     }
 
     /**
@@ -115,8 +118,8 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         //}
         //Thread.currentThread().setUncaughtExceptionHandler(oldHandler);
         //Manvi jain
-        this.comment.setAccessibilityRoleDescription(getComment());
-        this.comment.setAccessibleText(" comment text");
+//        this.comment.setAccessibilityRoleDescription(getComment());
+//        this.comment.setAccessibleText(" comment text");
     }
 
     public static FrameFactory<CommentFrame> getFactory()
@@ -200,10 +203,10 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
             removeStyleClass(isInInterface(parentCanvas) ? "interface-comment-frame" : "class-comment-frame");
         }
 
-
+        //manvi
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            comment.setAccessibilityHelpSlots("comment " + getParentCanvas().getParent().getHelpContext());
+            comment.setAccessibilityHelpSlots("comment slot");
         }
     }
 
@@ -259,7 +262,7 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
     public RecallableFocus getFocusable()
     {
         //Manvi Jain
-        comment.setAccessibleText("This is manvi's comment");
+//        comment.setAccessibleText("This is manvi's comment");
         return comment;
     }
 

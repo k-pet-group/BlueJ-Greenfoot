@@ -53,6 +53,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -414,12 +415,31 @@ public class FrameCursor implements RecallableFocus
             //cherry
             if (nowFocused)
             {
+//                node.setAccessibleRole(AccessibleRole.NODE); // This causes a weird bug where the screenreader reads out the same help text for all cursors, rather than the different help text of each cursor
+                String normalText = "frame cursor normal text";
+                String helpText = "frame cursor help text";
                 if (getFrameAfter() != null)
                 {
-                    node.setAccessibleText(getFrameAfter().getScreenReaderText());
-                    node.setAccessibleHelp(getFrameAfter().getScreenReaderHelp());
+                    normalText = getFrameAfter().getScreenReaderText();
+                    helpText = "you are on a " + getFrameAfter().getFrameName() + "," + parentCanvas.getParentLocationDescription();
+                } else {
+                    normalText = "no frame selected";
+                    CanvasParent.CanvasKind area = parentCanvas.getParent().getChildKind(parentCanvas);
+                    switch(area) {
+                        case STATEMENTS:
+                            helpText = "you are " + parentCanvas.getParentLocationDescription();
+                            break;
+                        default:
+                            helpText = "you are in the " + area + " area, " + parentCanvas.getParentLocationDescription();
+                            break;
+                    }
                 }
+                node.setAccessibleText(normalText);
+                node.setAccessibleHelp(helpText);
+
+//                System.out.println("normal text: " + node.getAccessibleText() + " | help text: " + node.getAccessibleHelp() );
             }
+            //end of cherry
         });
         JavaFXUtil.addChangeListener(node.localToSceneTransformProperty(), t -> JavaFXUtil.runNowOrLater(() -> adjustDragTargetPosition()));
         

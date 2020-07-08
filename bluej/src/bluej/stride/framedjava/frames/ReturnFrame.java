@@ -104,7 +104,10 @@ public class ReturnFrame extends SingleLineFrame
         } );
 
         //Manvi jain
-        value.setAccessibility(" return value of method");
+//        value.setAccessibility(" return value of method");
+
+        //cherry
+        frameName = "return statement";
     }
     
     public ReturnFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
@@ -122,13 +125,13 @@ public class ReturnFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
 
         //Manvi jain
-        value.setAccessibility(" return value of method");
+//        value.setAccessibility(" return value of method");
     }
 
     //cherry
     public String getScreenReaderText() {
         String valueString;
-        if (value.getText().equals("")) { valueString = "blank"; } else { valueString = value.getText(); }
+        if (value.getText().equals("")) { valueString = "blank"; } else { valueString = value.getScreenreaderText(); }
         String text = "return " + valueString;
         return text;
     }
@@ -206,6 +209,12 @@ public class ReturnFrame extends SingleLineFrame
         returnType.unbind();
         returnType.set(null);
         showingValue.set(false);
+
+        //cherry
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            value.setAccessibilityHelpSlots("return value slot");
+        }
     }
 
     // Called when method's return type changes to void and user tells follow-up to remove values

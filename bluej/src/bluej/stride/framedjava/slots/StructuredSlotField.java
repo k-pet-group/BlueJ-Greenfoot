@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.utility.javafx.*;
+import bluej.stride.generic.ScreenreaderDictionary;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -48,6 +49,12 @@ import bluej.stride.framedjava.slots.InfixStructured.IntCounter;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.InteractionManager;
+import bluej.utility.javafx.DelegableScalableTextField;
+import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.HangingFlowPane;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -316,7 +323,12 @@ class StructuredSlotField implements StructuredSlotComponent
         int end = to == null ? field.getLength() : to.index;
         return field.getText().substring(start, end);
     }
-    
+
+    //cherry
+    public String getScreenreaderText() {
+        return ScreenreaderDictionary.transcribeForScreenreader(field.getText());
+    }
+
     @Override
     public String getJavaCode()
     {
