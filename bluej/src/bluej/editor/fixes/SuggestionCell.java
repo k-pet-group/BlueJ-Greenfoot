@@ -190,6 +190,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
     }
 
     //Manvi jain
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void setAccessibility(String text)
     {
         this.setAccessibleText(text);
