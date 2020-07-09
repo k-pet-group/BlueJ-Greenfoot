@@ -380,6 +380,7 @@ public class FrameCursor implements RecallableFocus
      */
     public FrameCursor(final InteractionManager editor, final FrameCanvas parentCanvas)
     {
+        node.setAccessibleRole(AccessibleRole.NODE);
         node.getStyleClass().add("frame-cursor");
         node.setMaxWidth(100);
         node.setMaxHeight(HIDE_HEIGHT);
