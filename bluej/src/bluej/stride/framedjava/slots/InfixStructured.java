@@ -1104,7 +1104,11 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     text += "To the left is a slot containing " + fields.get(i-1).getScreenreaderText() + ".";
                 }
             }
-            fields.get(i).getNodeForPos(random).setAccessibleHelp(text + furtherHelp);
+            if (fields.get(i).getComponents().size()==1) fields.get(i).getComponents().get(0).setAccessibleHelp(text + furtherHelp); // means this StructuredSlotComponent is a StructuredSlotField
+            else { // this is a BracketedStructured
+                ((BracketedStructured<INFIX,StructuredSlot<?,INFIX,?>>)fields.get(i)).set;
+            }
+//            System.out.println(fields.get(i).getNodeForPos(random).getAccessibleHelp());
         }
 
     }

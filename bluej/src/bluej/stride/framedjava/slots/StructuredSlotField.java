@@ -118,7 +118,7 @@ class StructuredSlotField implements StructuredSlotComponent
                 // In effect it moved, by gaining or losing focus:
                 parent.caretMoved();
                 //cherry attempt: when caret moves, screenreader should read out this slot's help text
-                field.getScene().focusOwnerProperty().get().setAccessibleHelp(field.getAccessibleHelp());
+//                field.getScene().focusOwnerProperty().get().setAccessibleHelp(field.getAccessibleHelp());
 
                 if (focused)
                 {

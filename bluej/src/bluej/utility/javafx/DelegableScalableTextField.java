@@ -310,7 +310,7 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
             {
                 delegate.caretMoved();
                 //cherry attempt: when caret moves, screenreader should read out this slot's help text
-                getScene().focusOwnerProperty().get().setAccessibleHelp(getAccessibleHelp());
+//                getScene().focusOwnerProperty().get().setAccessibleHelp(getAccessibleHelp());
             }
         });
         
