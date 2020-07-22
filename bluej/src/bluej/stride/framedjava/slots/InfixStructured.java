@@ -1705,20 +1705,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
 //                    if(getSlot() != null)
 //                        setAccessibilityRoleDescription(getSlot().getJavaCode());
-                    String BracketedSlot = "editing " + f.getText() + " ";
-                    BracketedStructured<INFIX, SLOT> existingParent= parent;
-                    while(existingParent != null){
-                        BracketedSlot +=  " in " + existingParent.getJavaCode() ;
-                        if(existingParent.getParent() != null) {
-                            if(existingParent.getParent().parent == null){
-                                BracketedSlot +=  " in " + existingParent.getParent().getJavaCode();
-                                break;
-                            }
-                            existingParent = existingParent.getParent().parent;
-                        }
-                    }
-//                    System.out.println(BracketedSlot);
-                    setAccessibilityRoleDescription(BracketedSlot);
+//
                     //parent
                    CaretPos overridePos = checkFieldChange(pos.index, new CaretPos(pos.index, new CaretPos(posInField+1, null)), c == '.', user, token);
                     return overridePos;
@@ -1729,6 +1716,20 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         {
             // This can occur when pasting/loading content:
             CaretPos newSubPos = ((BracketedStructured)slot).getContent().insertChar(pos.subPos, c, false, token);
+
+            String BracketedSlot = "editing " + slot.getScreenreaderText() + " ";
+            BracketedStructured<INFIX, SLOT> existingParent= parent;
+            while(existingParent != null){
+                BracketedSlot +=  " in " + existingParent.getJavaCode() ;
+                if(existingParent.getParent() != null) {
+                    if(existingParent.getParent().parent == null){
+                        BracketedSlot +=  " in " + existingParent.getParent().getJavaCode();
+                        break;
+                    }
+                    existingParent = existingParent.getParent().parent;
+                }
+            }
+            setAccessibility(BracketedSlot);
             if (newSubPos.index == Integer.MAX_VALUE)
             {
                 // Must be field following:
@@ -1738,6 +1739,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             {
                 return new CaretPos(pos.index, newSubPos);
             }
+
         }
         else if (slot instanceof StringLiteralExpression)
         {
@@ -2882,7 +2884,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     }
 
 
-    //Manvi jain
+    //Manvi
 
     /**
      * Read out the value in the slot
@@ -2892,6 +2894,16 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         this.getComponents().get(0).setAccessibleRoleDescription(text);
     }
 
+    //Manvi
+    /**
+     * Reads out information about the slot
+     */
+    public void setAccessibility(String text){
+        for(Node component: this.getComponents()){
+            component.setAccessibleText(text);
+        }
+        //this.getComponents().get(0).setAccessibleText(text);
+    }
 
     /**
      * converts all operator symbols to words for the Screenreader
