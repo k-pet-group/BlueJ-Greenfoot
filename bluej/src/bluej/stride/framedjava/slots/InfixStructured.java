@@ -1729,8 +1729,8 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     existingParent = existingParent.getParent().parent;
                 }
             }
-//                    System.out.println(BracketedSlot);
-            setAccessibilityRoleDescription(BracketedSlot);
+                    System.out.println(BracketedSlot);
+            setAccessibility(BracketedSlot + "This is a bracketed structure");
             if (newSubPos.index == Integer.MAX_VALUE)
             {
                 // Must be field following:
@@ -2885,7 +2885,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     }
 
 
-    //Manvi jain
+    //Manvi
 
     /**
      * Read out the value in the slot
@@ -2895,6 +2895,13 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         this.getComponents().get(0).setAccessibleRoleDescription(text);
     }
 
+    //Manvi
+    /**
+     * Reads out information about the slot
+     */
+    public void setAccessibility(String text){
+        this.getComponents().get(0).setAccessibleText(text);
+    }
 
     /**
      * converts all operator symbols to words for the Screenreader
