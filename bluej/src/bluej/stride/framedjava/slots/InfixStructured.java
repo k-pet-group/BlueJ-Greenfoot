@@ -2900,7 +2900,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
      */
     public void setAccessibility(String text){
         for(Node component: this.getComponents()){
-            component.setAccessibleText(text);
+            //component.setAccessibleText(text);
         }
         //this.getComponents().get(0).setAccessibleText(text);
     }
