@@ -219,8 +219,8 @@ public class AssignFrame extends SingleLineFrame
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            slotLHS.setAccessibilityHelpSlots("assigned variable name slot");
-            slotRHS.setAccessibilityHelpSlots("assigned value slot");
+            slotLHS.setAccessibilityHelpSlots("assigned variable name");
+            slotRHS.setAccessibilityHelpSlots("assigned value expression");
         }
     }
 }

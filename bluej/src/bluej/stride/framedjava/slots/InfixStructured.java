@@ -1066,49 +1066,64 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     }
 
     //cherry
+    public String getParentExpressions() {
+        String text = "";
+        if (parent != null && parent.getParent() != null) {
+            text = " in the expression " + parent.getScreenreaderText() + "," + parent.getParent().getParentExpressions();
+        }
+        return text;
+    }
+
+    //cherry
     public void setIndividualSlotText(String furtherHelp) {
         CaretPos random = new CaretPos(0,null); // this doesn't matter cuz getNodeForPos() below will return the text field anyway
-        String text;
+        String text, expressionHelp, finalText;
+        text = "";
+        expressionHelp = getParentExpressions();
         if (fields.size()==1) {
-            fields.get(0).getNodeForPos(random).setAccessibleHelp(furtherHelp);
-            return;
-        }
-        for (int i = 0; i < fields.size(); i++) {
-            if (i == 0) {
-                // first slot
-                text="You are in the first slot. ";
-                if (operators.get(i) != null) {
-                    text += " To the right is the operator " + operators.get(i).getScreenreaderText() + ".";
-                } else {
-                    text += " To the right is a slot containing " + fields.get(i+1).getScreenreaderText() + ".";
-                }
-            } else if (i > 0 && i < fields.size()-1) {
-                // intermediate slots
-                if (operators.get(i-1) != null) {
-                    text = "To the left is the operator " + operators.get(i-1).getScreenreaderText() + ".";
-                } else {
-                    text = "To the left is a slot containing " + fields.get(i - 1).getScreenreaderText() + ".";
-                }
-                if (operators.get(i) != null) {
-                    text += "To the right is the operator " + operators.get(i).getScreenreaderText() + ".";
-                } else {
-                    text += "To the right is a slot containing " + fields.get(i+1).getScreenreaderText() + ".";
-                }
+//            fields.get(0).getComponents().get(0).setAccessibleHelp(expressionHelp+furtherHelp);
+            text = "";
+        } else {
+            for (int i = 0; i < fields.size(); i++) {
+                if (i == 0) {
+                    // first slot
+                    text = "You are in the slot before ";
+                    if (operators.get(i) != null) {
+                        text += "the operator " + operators.get(i).getScreenreaderText() + ",";
+                    } else {
+                        text += "the slot " + fields.get(i + 1).getScreenreaderText() + ",";
+                    }
+                } else if (i < fields.size() - 1) {
+                    // intermediate slots
+                    if (operators.get(i - 1) != null) {
+                        text = "You are in the slot between the operator " + operators.get(i - 1).getScreenreaderText();
+                    } else {
+                        text = "You are in the slot between the slot " + fields.get(i - 1).getScreenreaderText();
+                    }
+                    if (operators.get(i) != null) {
+                        text += " and the operator " + operators.get(i).getScreenreaderText() + ",";
+                    } else {
+                        text += " and the slot " + fields.get(i + 1).getScreenreaderText() + ",";
+                    }
 
-            } else {
-                // last slot
-                text="You are in the last slot. ";
-                if (operators.get(i-1) != null) {
-                    text += "To the left is the operator " + operators.get(i-1).getScreenreaderText() + ".";
                 } else {
-                    text += "To the left is a slot containing " + fields.get(i-1).getScreenreaderText() + ".";
+                    // last slot
+                    text = "You are in the slot ";
+                    if (operators.get(i - 1) != null) {
+                        text += "after the operator " + operators.get(i - 1).getScreenreaderText() + ",";
+                    } else {
+                        text += "after the slot " + fields.get(i - 1).getScreenreaderText() + ",";
+                    }
                 }
             }
-            if (fields.get(i).getComponents().size()==1) fields.get(i).getComponents().get(0).setAccessibleHelp(text + furtherHelp); // means this StructuredSlotComponent is a StructuredSlotField
+        }
+            finalText = text + expressionHelp + furtherHelp;
+            if (fields.get(i).getComponents().size()==1) fields.get(i).getComponents().get(0).setAccessibleHelp(finalText); // means this StructuredSlotComponent is a StructuredSlotField
             else { // this is a BracketedStructured
-                ((BracketedStructured<INFIX,StructuredSlot<?,INFIX,?>>)fields.get(i)).set;
+                if (fields.get(i) instanceof BracketedStructured)
+                ((BracketedStructured<INFIX,SLOT>)fields.get(i)).getContent().setIndividualSlotText(furtherHelp);
             }
-//            System.out.println(fields.get(i).getNodeForPos(random).getAccessibleHelp());
+            System.out.println(fields.get(i).getNodeForPos(random).getAccessibleHelp());
         }
 
     }

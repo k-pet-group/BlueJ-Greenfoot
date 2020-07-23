@@ -290,7 +290,7 @@ public class CaseFrame extends SingleCanvasFrame
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
             //cherry
-            paramCondition.setAccessibilityHelpSlots("case statement parameter slot");
+            paramCondition.setAccessibilityHelpSlots("case statement parameter");
         }
     }
 

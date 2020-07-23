@@ -271,9 +271,9 @@ public class IfFrame extends SandwichCanvasesFrame
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            ifCondition.setAccessibilityHelpSlots("if condition slot");
+            ifCondition.setAccessibilityHelpSlots("if condition expression");
             for (ExpressionSlot slot : elseIfConditions) {
-                slot.setAccessibilityHelpSlots("else if condition slot");
+                slot.setAccessibilityHelpSlots("else if condition expression");
             }
         }
     }

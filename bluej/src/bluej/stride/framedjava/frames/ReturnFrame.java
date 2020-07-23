@@ -213,7 +213,7 @@ public class ReturnFrame extends SingleLineFrame
         //cherry
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            value.setAccessibilityHelpSlots("return value slot");
+            value.setAccessibilityHelpSlots("return expression");
         }
     }
 

@@ -311,7 +311,7 @@ public class WhileFrame extends SingleCanvasFrame
         //Set the accessibility help of the slot in the frame
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            paramCondition.setAccessibilityHelpSlots("while loop condition slot");
+            paramCondition.setAccessibilityHelpSlots("while condition expression");
         }
     }
 

@@ -495,7 +495,7 @@ public class SwitchFrame extends MultiCanvasFrame
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            expression.setAccessibilityHelpSlots("switch statement slot");
+            expression.setAccessibilityHelpSlots("switch statement expression");
         }
     }
 
