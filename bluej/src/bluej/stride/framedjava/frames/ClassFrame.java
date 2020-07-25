@@ -202,6 +202,11 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         return text;
     }
 
+    //cherry
+    public String getClassName() {
+        return nameProperty().get();
+    }
+
     @Override
     public Stream<EditableSlot> getPossiblyHiddenSlotsDirect()
     {

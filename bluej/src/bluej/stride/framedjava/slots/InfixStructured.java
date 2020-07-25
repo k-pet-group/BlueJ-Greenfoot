@@ -1056,10 +1056,13 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     //cherry
     public String getScreenreaderText() {
         StringBuilder b = new StringBuilder();
-        for (int i = 0; i < fields.size() - 1; i++) {
+        for (int i = 0; i < fields.size(); i++) {
             b.append(fields.get(i).getScreenreaderText());
-            if (operators.get(i) != null)
-                b.append(operators.get(i).getScreenreaderText());
+            if (!operators.isEmpty() && i < operators.size()) {
+                if (operators.get(i) != null) {
+                    b.append(operators.get(i).getScreenreaderText());
+                }
+            }
         }
         b.append(fields.get(fields.size() - 1).getScreenreaderText());
         return b.toString();
@@ -1089,20 +1092,32 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 } else if (i ==0 && fields.size()>1){
                     // first slot
                     text = "You are in the slot before ";
-                    if (operators.get(i) != null) {
-                        text += "the operator " + operators.get(i).getScreenreaderText() + ",";
+                    if (!operators.isEmpty() && i < operators.size()) {
+                        if (operators.get(i) != null) {
+                            text += "the operator " + operators.get(i).getScreenreaderText() + ",";
+                        } else {
+                            text += "the slot " + fields.get(i + 1).getScreenreaderText() + ",";
+                        }
                     } else {
                         text += "the slot " + fields.get(i + 1).getScreenreaderText() + ",";
                     }
                 } else if (i < fields.size() - 1) {
                     // intermediate slots
-                    if (operators.get(i - 1) != null) {
-                        text = "You are in the slot between the operator " + operators.get(i - 1).getScreenreaderText();
+                    if (!operators.isEmpty() && (i-1) < operators.size()) {
+                        if (operators.get(i - 1) != null) {
+                            text = "You are in the slot between the operator " + operators.get(i - 1).getScreenreaderText();
+                        } else {
+                            text = "You are in the slot between the slot " + fields.get(i - 1).getScreenreaderText();
+                        }
                     } else {
                         text = "You are in the slot between the slot " + fields.get(i - 1).getScreenreaderText();
                     }
-                    if (operators.get(i) != null) {
-                        text += " and the operator " + operators.get(i).getScreenreaderText() + ",";
+                    if (!operators.isEmpty() && i < operators.size()) {
+                        if (operators.get(i) != null) {
+                            text += " and the operator " + operators.get(i).getScreenreaderText() + ",";
+                        } else {
+                            text += " and the slot " + fields.get(i + 1).getScreenreaderText() + ",";
+                        }
                     } else {
                         text += " and the slot " + fields.get(i + 1).getScreenreaderText() + ",";
                     }
@@ -1110,15 +1125,22 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 } else {
                     // last slot
                     text = "You are in the slot ";
-                    if (operators.get(i - 1) != null) {
-                        text += "after the operator " + operators.get(i - 1).getScreenreaderText() + ",";
+                    if (!operators.isEmpty() && (i-1) < operators.size()) {
+                        if (operators.get(i - 1) != null) {
+                            text += "after the operator " + operators.get(i - 1).getScreenreaderText() + ",";
+                        } else {
+                            text += "after the slot " + fields.get(i - 1).getScreenreaderText() + ",";
+                        }
                     } else {
                         text += "after the slot " + fields.get(i - 1).getScreenreaderText() + ",";
                     }
                 }
 
                 finalText = text + expressionHelp + furtherHelp;
-                if (fields.get(i).getComponents().size()==1) fields.get(i).getComponents().get(0).setAccessibleHelp(finalText); // means this StructuredSlotComponent is a StructuredSlotField
+                if (fields.get(i).getComponents().size()==1) {
+                    // means this StructuredSlotComponent is a StructuredSlotField
+                    fields.get(i).getComponents().get(0).setAccessibleHelp(finalText);
+                }
                 else { // this is a BracketedStructured
                     if (fields.get(i) instanceof BracketedStructured)
                         ((BracketedStructured<INFIX,SLOT>)fields.get(i)).getContent().setIndividualSlotText(furtherHelp);

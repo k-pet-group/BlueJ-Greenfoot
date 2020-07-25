@@ -30,6 +30,8 @@ import java.util.Optional;
 import bluej.utility.javafx.AbstractOperation;
 import bluej.stride.framedjava.elements.ClassElement;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -176,13 +178,19 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
 
             paramString.append(type + " " +  name + " ");
         }
-        String text = " in the constructor " + getEditor().nameProperty().get();
+        String text = "", classDescription = "", className = "Undefined";
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            classDescription = getParentCanvas().getParentLocationDescription();
+            if (getParentCanvas().getParent() instanceof ClassFrame) {
+                className = ((ClassFrame)getParentCanvas().getParent()).getClassName();
+                // Note: here, editor.nameProperty().get() returns null, but the ClassFrame's nameProperty() works instead
+            }
+        }
+        text += " in the constructor " + className;
         if (paramString.length() != 0) {
             text += " with parameters " + paramString.toString();
         }
-        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
-            text += getParentCanvas().getParentLocationDescription();
-        }
+        text += classDescription;
         return text;
     }
 
