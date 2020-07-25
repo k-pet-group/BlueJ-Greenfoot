@@ -221,7 +221,7 @@ public class IfFrame extends SandwichCanvasesFrame
         elseIfConditions.add(at, elseIfCondition); //add condition to the main ifFrame.
 
 
-        elseIfCondition.setAccessibility("else if statement condition");
+//        elseIfCondition.setAccessibility("else if statement condition");
         return row;
     }
 

@@ -94,10 +94,10 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
                 extendsList.getHeaderItems()
         ));
 
-        for(int i=0; i<extendsTypes.size(); i++)
-        {
-            extendsTypes.get(i).getSlot().setAccessibility("parent class name ");
-        }
+//        for(int i=0; i<extendsTypes.size(); i++)
+//        {
+//            extendsTypes.get(i).getSlot().setAccessibility("parent class name ");
+//        }
     }
 
     //cherry

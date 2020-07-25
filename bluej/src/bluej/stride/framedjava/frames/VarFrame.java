@@ -392,7 +392,7 @@ public class VarFrame extends SingleLineFrame
         {
             slotType.setAccessibilityHelpSlots("variable type slot");
             slotName.setAccessibilityHelpSlots("variable name slot");
-            slotValue.setAccessibilityHelpSlots("variable value slot");
+            slotValue.setAccessibilityHelpSlots("variable value expression");
         }
     }
 

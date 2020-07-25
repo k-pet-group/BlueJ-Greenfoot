@@ -546,8 +546,8 @@ public class FormalParameters
             this.type = type;
             this.name = name;
 
-            this.type.setAccessibility("parameter type");
-            this.name.setAccessibility("parameter name");
+//            this.type.setAccessibility("parameter type");
+//            this.name.setAccessibility("parameter name");
         }
 /*
         public String getText()

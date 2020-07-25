@@ -34,7 +34,7 @@ public abstract class DocumentedMultiCanvasFrame extends MultiCanvasFrame
     {
         super(editor, caption, stylePrefix);
         documentationPane = new DocumentationTextArea(editor, this, this, stylePrefix);
-        documentationPane.setAccessibleText("documentation area");
+//        documentationPane.setAccessibleText("documentation area");
     }
 
     public String getDocumentation()

@@ -1070,6 +1070,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         String text = "";
         if (parent != null && parent.getParent() != null) {
             text = " in the expression " + parent.getScreenreaderText() + "," + parent.getParent().getParentExpressions();
+        } else {
+            // most top level infix
+            text = " in the expression " + getScreenreaderText() + ",";
         }
         return text;
     }
@@ -1078,14 +1081,12 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     public void setIndividualSlotText(String furtherHelp) {
         CaretPos random = new CaretPos(0,null); // this doesn't matter cuz getNodeForPos() below will return the text field anyway
         String text, expressionHelp, finalText;
-        text = "";
         expressionHelp = getParentExpressions();
-        if (fields.size()==1) {
-//            fields.get(0).getComponents().get(0).setAccessibleHelp(expressionHelp+furtherHelp);
-            text = "";
-        } else {
             for (int i = 0; i < fields.size(); i++) {
-                if (i == 0) {
+                if (i == 0 && fields.size()==1) {
+                    // first and only slot
+                    text = "You are in a slot ";
+                } else if (i ==0 && fields.size()>1){
                     // first slot
                     text = "You are in the slot before ";
                     if (operators.get(i) != null) {
@@ -1115,18 +1116,20 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                         text += "after the slot " + fields.get(i - 1).getScreenreaderText() + ",";
                     }
                 }
+
+                finalText = text + expressionHelp + furtherHelp;
+                if (fields.get(i).getComponents().size()==1) fields.get(i).getComponents().get(0).setAccessibleHelp(finalText); // means this StructuredSlotComponent is a StructuredSlotField
+                else { // this is a BracketedStructured
+                    if (fields.get(i) instanceof BracketedStructured)
+                        ((BracketedStructured<INFIX,SLOT>)fields.get(i)).getContent().setIndividualSlotText(furtherHelp);
+                }
+                System.out.println(fields.get(i).getNodeForPos(random).getAccessibleHelp());
             }
-        }
-            finalText = text + expressionHelp + furtherHelp;
-            if (fields.get(i).getComponents().size()==1) fields.get(i).getComponents().get(0).setAccessibleHelp(finalText); // means this StructuredSlotComponent is a StructuredSlotField
-            else { // this is a BracketedStructured
-                if (fields.get(i) instanceof BracketedStructured)
-                ((BracketedStructured<INFIX,SLOT>)fields.get(i)).getContent().setIndividualSlotText(furtherHelp);
-            }
-            System.out.println(fields.get(i).getNodeForPos(random).getAccessibleHelp());
         }
 
-    }
+
+
+
 
     // start is inclusive, end is exclusive
     private String getJavaCodeForFields(int start, int end)
