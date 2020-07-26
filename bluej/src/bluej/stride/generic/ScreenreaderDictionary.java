@@ -19,27 +19,27 @@ public class ScreenreaderDictionary {
         put("]"," right square bracket ");
         // punctuation
         put("#"," hash ");
-        put("~"," tilde ");
         put("_"," underscore ");
         put("@"," at sign ");
+        put(":", " colon ");
         put(";"," semicolon ");
-        put("."," dot "); // or period, point
+        put("."," dot ");
         put("\\"," back slash ");
         // arithmetic operators
         put("-"," minus "); // or negative or dash
         put("+"," plus ");
-        put("*"," times "); // or asterisk
-        put("/"," divided by "); // or forward slash
-        put("^"," power ");
-        put("%"," modulo "); // or percent
+        put("*"," times ");
+        put("/"," divided by ");
+        put("^"," caret "); // POWER OR XOR
+        put("%"," modulo ");
         put("++", " increment ");
         put("--", " decrement ");
         // assignment operators
         put("="," equal ");
         put("+=", " increment by ");
         put("-=", " decrement by ");
-        put("*=", " multiplied by ");
-        put("/=", " divided by "); // there's more
+        put("*=", " multiplied itself by ");
+        put("/=", " divided itself by "); // there's more
         // comparison operators
         put("==", " is equal to ");
         put("!=", " is not equal to ");
@@ -50,8 +50,19 @@ public class ScreenreaderDictionary {
         //logical operators
         put("&&", " logical and ");
         put("||", " logical or ");
-        put("!", " logical not "); // or exclam
-
+        put("!", " logical not ");
+        //bitwise
+        put("|", " bitwise or ");
+        put("&", " bitwise and ");
+        put("~", " bitwise not ");
+        put("<<", " zero-fill left shift ");
+        put(">>", " signed right shift ");
+        put(">>>", " zero-fill right shift");
+        // idk
+        put("..", " dot dot ");
+        put("<:", " left pointy colon ");
+        put("::", " double colon ");
+        put("->", " right arrow ");
     }};
 
     public static String transcribeForScreenreader(String inText) {
