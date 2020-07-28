@@ -107,7 +107,7 @@ public class SwitchFrame extends MultiCanvasFrame
 
         //cherry
         frameName = "switch block";
-
+        this.expression.setSlotName("switch statement expression");
     }
 
     //cherry
@@ -495,7 +495,7 @@ public class SwitchFrame extends MultiCanvasFrame
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            expression.setAccessibilityHelpSlots("switch statement expression");
+            expression.setAccessibilityHelpSlots();
         }
     }
 

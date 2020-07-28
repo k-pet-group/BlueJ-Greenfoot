@@ -67,6 +67,10 @@ public class TryFrame extends SandwichCanvasesFrame
 
         //cherry
         frameName = "try block";
+        for(int i=0; i<catchTypes.size(); i++)
+        {
+            catchTypes.get(i).setSlotName("exception type" );
+        }
     }
 
     /**
@@ -265,7 +269,7 @@ public class TryFrame extends SandwichCanvasesFrame
         {
             for(int i=0; i<catchTypes.size(); i++)
             {
-                catchTypes.get(i).setAccessibilityHelpSlots("exception type slot" );
+                catchTypes.get(i).setAccessibilityHelpSlots();
                 catchVars.get(i).setAccessibilityHelpSlots("exception name slot" );
             }
         }

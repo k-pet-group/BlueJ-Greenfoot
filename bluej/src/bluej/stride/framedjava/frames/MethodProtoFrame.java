@@ -85,6 +85,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
 
         //cherry
         frameName = "method prototype";
+        returnType.setSlotName("return type");
     }
     
     public MethodProtoFrame(final InteractionManager editor, TypeSlotFragment returnType,
@@ -238,7 +239,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
             methodName.setAccessibilityHelpSlots("method name slot");
-            returnType.setAccessibilityHelpSlots("return type slot");
+            returnType.setAccessibilityHelpSlots();
         }
 
     }

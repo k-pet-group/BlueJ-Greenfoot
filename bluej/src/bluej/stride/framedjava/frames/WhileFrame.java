@@ -122,6 +122,7 @@ public class WhileFrame extends SingleCanvasFrame
 
         //cherry
         frameName = "While loop";
+        paramCondition.setSlotName("while condition expression");
     }
     
     public WhileFrame(InteractionManager editor, ExpressionSlotFragment condition, boolean enabled)
@@ -311,7 +312,7 @@ public class WhileFrame extends SingleCanvasFrame
         //Set the accessibility help of the slot in the frame
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            paramCondition.setAccessibilityHelpSlots("while condition expression");
+            paramCondition.setAccessibilityHelpSlots();
         }
     }
 

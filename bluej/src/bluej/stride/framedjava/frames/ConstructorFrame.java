@@ -105,6 +105,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
 
         //cherry
         frameName = "constructor with body";
+        if(superThisParams!=null) superThisParams.setSlotName("parameters slot in super call");
     }
 
     public ConstructorFrame(InteractionManager editor, AccessPermissionFragment access, String documentation,
@@ -465,7 +466,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
             //Manvi jain
             if(superThisParams != null)
             {
-                superThisParams.setAccessibilityHelpSlots("parameters slot in super call");
+                superThisParams.setAccessibilityHelpSlots();
             }
 
             if(superThis != null)

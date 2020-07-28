@@ -70,6 +70,7 @@ public class ThrowFrame extends SingleLineFrame
 
         //cherry
         frameName = "throw statement";
+        param1.setSlotName("exception name");
     }
     
     public ThrowFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
@@ -143,7 +144,7 @@ public class ThrowFrame extends SingleLineFrame
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            param1.setAccessibilityHelpSlots("exception name slot");
+            param1.setAccessibilityHelpSlots();
         }
 
     }

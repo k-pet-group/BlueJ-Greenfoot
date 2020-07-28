@@ -163,6 +163,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
         //cherry
         frameName = "method with body";
+        returnType.setSlotName("return type");
     }
     
     public NormalMethodFrame(InteractionManager editor, AccessPermissionFragment access, boolean staticModifier,
@@ -496,7 +497,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            returnType.setAccessibilityHelpSlots("return type slot");
+            returnType.setAccessibilityHelpSlots();
             methodName.setAccessibilityHelpSlots("method name slot" );
         }
     }

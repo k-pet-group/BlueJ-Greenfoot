@@ -229,6 +229,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         JavaFXUtil.addChangeListener(textMirror, t -> {
             if (!editor.isLoading()) {
                 modified();
+                //cherry
+                setAccessibilityHelpSlots();
             } else {
                 parentFrame.trackBlank();
             }
@@ -1072,16 +1074,29 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         this.getComponents().get(0).setAccessibleText(text);
     }
 
+    //cherry
+    private String slotName;
+
+    //cherry
+    public void setSlotName(String name) {
+        slotName = name;
+    }
+
     /**
      * Sets the relative location of the slot for screen reader
      */
-    public void setAccessibilityHelpSlots(String slotName) {
+    public void setAccessibilityHelpSlots() {
         //cherry
-        String text = " in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
+        String text = getOverallSlotDescription();
         topLevel.setIndividualSlotText(text);
 //        for (Node component : this.getComponents()) {
 //            component.setAccessibleHelp(text);
 //        }
+    }
+
+    //cherry
+    private String getOverallSlotDescription() {
+        return " in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
     }
 
     public void addFocusListener(Frame frame) {

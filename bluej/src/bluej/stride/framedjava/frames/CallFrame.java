@@ -77,6 +77,7 @@ public class CallFrame extends SingleLineFrame
 
         //cherry
         frameName = "method call";
+        content.setSlotName("method name");
     }
     
     // For replacement of AssignFrame:
@@ -227,7 +228,7 @@ public class CallFrame extends SingleLineFrame
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            content.setAccessibilityHelpSlots("method name slot");
+            content.setAccessibilityHelpSlots();
         }
     }
 }
