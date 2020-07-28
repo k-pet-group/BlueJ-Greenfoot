@@ -256,7 +256,14 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             gc.restore();
         });
 
-        JavaFXUtil.addChangeListener(fakeCaretShowing, b -> JavaFXUtil.runNowOrLater(() -> overlay.redraw()));
+        JavaFXUtil.addChangeListener(fakeCaretShowing, b -> {
+            JavaFXUtil.runNowOrLater(() -> overlay.redraw());
+            //cherry
+            /*CaretPos pos = topLevel.getCurrentPos();
+            if (pos == null)
+                pos = mostRecentPos;
+            getComponents().get(0).getScene().getFocusOwner().setAccessibleHelp(topLevel.getNodeForPos(pos).getAccessibleHelp());*/ //attempt to set accessible text of focus owner. When slot is being edited, what exactly is focused?
+        });
 
         //cherry
         /*JavaFXUtil.addChangeListener(effectivelyFocusedProperty(), nowFocused -> {
