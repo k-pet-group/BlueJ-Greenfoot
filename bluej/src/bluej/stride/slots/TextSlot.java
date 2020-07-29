@@ -473,7 +473,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                     JavaFXUtil.runPlatformLater(() -> {
 
                         //Manvi jain
-                        setAccessibilityRoleDescription(getText());
+//                        setAccessibilityRoleDescription(getText());
                         if (suggestionDisplayProperty.get() != null)
                         {
                             String beforeNewPrefix = getText().substring(0, getStartOfCurWord());

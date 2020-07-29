@@ -161,12 +161,9 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
 
     //cherry
     public String getScreenreaderText() {
-        StringBuilder b = new StringBuilder();
-        b.append(ScreenreaderDictionary.transcribeForScreenreader(String.valueOf(opening)));
-        b.append(content.getScreenreaderText());
-        b.append(ScreenreaderDictionary.transcribeForScreenreader(String.valueOf(closing)));
-
-        return b.toString();
+        return ScreenreaderDictionary.transcribeForScreenreader(String.valueOf(opening)) +
+                content.getScreenreaderText() +
+                ScreenreaderDictionary.transcribeForScreenreader(String.valueOf(closing));
     }
     
     @Override

@@ -37,8 +37,8 @@ public abstract class DocumentedSingleLineFrame extends SingleLineFrame
         contents.setAll(documentationPane, header);
 
         //manvi jain
-        documentationPane.setAccessibilityRoleDescription(getDocumentation());
-        documentationPane.setAccessibleText(", documentation text");
+//        documentationPane.setAccessibilityRoleDescription(getDocumentation());
+//        documentationPane.setAccessibleText(", documentation text");
     }
 
     public String getDocumentation()

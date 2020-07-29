@@ -1064,7 +1064,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 }
             }
         }
-        b.append(fields.get(fields.size() - 1).getScreenreaderText());
+//        b.append(fields.get(fields.size() - 1).getScreenreaderText());
         return b.toString();
     }
 
@@ -1708,7 +1708,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 f.setText(f.getText().substring(0, posInField), token);
                 //manvi jain
 
-                setAccessibilityRoleDescription(f.getScreenreaderText() + " ");
+//                setAccessibilityRoleDescription(f.getScreenreaderText() + " ");
                 operators.add(pos.index, null, token);
 
                 fields.add(pos.index + 1, new BracketedStructured(editor, this, this.slot, c, "", token), token);
@@ -1745,10 +1745,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 String following = f.getText().substring(posInField);
                 f.setText(f.getText().substring(0, posInField), token);
                 //manvi
-                if(c == '\"')
-                    setAccessibilityRoleDescription("double quotation ");
-                else
-                    setAccessibilityRoleDescription("single quotation ");
+//                if(c == '\"')
+//                    setAccessibilityRoleDescription("double quotation ");
+//                else
+//                    setAccessibilityRoleDescription("single quotation ");
                 operators.add(pos.index, null, token);
                 fields.add(pos.index + 1, new StringLiteralExpression(c, makeNewField("", true), this), token);
                 if (pos.index + 1 >= operators.size() || operators.get(pos.index + 1) != null || fields.get(pos.index + 2) instanceof StringLiteralExpression || fields.get(pos.index + 2) instanceof BracketedStructured)
@@ -1774,10 +1774,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
                     f.setText("", token);
                     //manvi jain
-                    if (getSlot() != null)
-                    {
-                        setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " new object created ");
-                    }
+//                    if (getSlot() != null)
+//                    {
+//                        setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " new object created ");
+//                    }
                     operators.add(pos.index, new Operator("new ", this), token);
                     fields.add(pos.index + 1, makeNewField(following, false), token);
                     return new CaretPos(pos.index + 1, new CaretPos(0, null));
@@ -1788,8 +1788,8 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
 
                     //manvi
-                    if(getSlot() != null)
-                        setAccessibilityRoleDescription(getSlot().getScreenreaderText());
+//                    if(getSlot() != null)
+//                        setAccessibilityRoleDescription(getSlot().getScreenreaderText());
 
                    CaretPos overridePos = checkFieldChange(pos.index, new CaretPos(pos.index, new CaretPos(posInField+1, null)), c == '.', user, token);
                     return overridePos;
@@ -1833,13 +1833,13 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             // If it is not a quote, or it is after a backslash, insert as-is:
             f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
             //Manvi jain
-            if(getSlot() != null)
-            {
-                if (getSlot().getJavaCode().charAt(0) == '\'')
-                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in apostrophe");
-                else
-                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in quotation");
-            }
+//            if(getSlot() != null)
+//            {
+//                if (getSlot().getJavaCode().charAt(0) == '\'')
+//                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in apostrophe");
+//                else
+//                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in quotation");
+//            }
             return new CaretPos(pos.index, new CaretPos(posInField+1, null));
         }
         return null;
