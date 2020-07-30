@@ -318,7 +318,13 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
             // cherry
             @Override
             public String getLocationDescription(FrameCanvas c) {
-                return "in the class " + editor.nameProperty().get();
+                if (editor.nameProperty().get() != null) return " in the class " + editor.nameProperty().get();
+//                // paramName.textPropert() throws Null pointer exception
+//                else if (paramName.textProperty() != null) {
+//                    if (nameProperty().get() != null) return " in the class " + nameProperty().get();
+//                    else return " in the class [undefined class name in TopLevelDocumentMultiCanvasFrame]";
+//                }
+                else return " in the class [undefined class name in TopLevelDocumentMultiCanvasFrame]";
             }
 
             @Override

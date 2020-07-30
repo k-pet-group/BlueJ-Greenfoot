@@ -1145,7 +1145,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     if (fields.get(i) instanceof BracketedStructured)
                         ((BracketedStructured<INFIX,SLOT>)fields.get(i)).getContent().setIndividualSlotText(furtherHelp);
                 }
-                System.out.println(fields.get(i).getNodeForPos(random).getAccessibleHelp());
+//                System.out.println(fields.get(i).getNodeForPos(random).getAccessibleHelp());
             }
         }
 

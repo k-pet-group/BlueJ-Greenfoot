@@ -104,7 +104,8 @@ class InheritedCanvas
             //cherry
             @Override
             public String getLocationDescription(FrameCanvas c) {
-                return "in the class " + editor.nameProperty().get();
+                if (editor.nameProperty().get() != null) return " in the class " + editor.nameProperty().get();
+                else return " in the class [editor name property null in InheritedCanvas]";
             }
 
             @Override

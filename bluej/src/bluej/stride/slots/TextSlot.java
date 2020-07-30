@@ -607,6 +607,9 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         return field.getNode();
     }
 
+    //cherry
+    public Node getField() { return field.getFocusableNode(); }
+
     public void addValueListener(SlotValueListener listener)
     {
         listeners.add(listener);
@@ -1109,6 +1112,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     public void setAccessibilityHelpSlots(String slotName)
     {
         //cherry
+//        System.out.println("getting slot help text");
         String text = "You are in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
 
         field.getFocusableNode().setAccessibleHelp(text);
