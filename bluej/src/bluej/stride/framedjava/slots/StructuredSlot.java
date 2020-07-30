@@ -268,7 +268,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         //cherry
         /*JavaFXUtil.addChangeListener(effectivelyFocusedProperty(), nowFocused -> {
             if (nowFocused) {
-
+//                System.out.println("shiba");
             }
         });*/
     }
@@ -1103,7 +1103,13 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
     //cherry
     private String getOverallSlotDescription() {
-        return " in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
+        String text = "StructuredSlot";
+        try {
+            text = " in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
+        } catch (NullPointerException e) {
+            text = " in the " + slotName;
+        }
+        return text;
     }
 
     public void addFocusListener(Frame frame) {

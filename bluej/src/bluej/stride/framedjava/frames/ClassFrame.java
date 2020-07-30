@@ -173,14 +173,15 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         constructorsLabelRow = new FrameContentRow(this, constructorsLabel);
         addCanvas(constructorsLabelRow, constructorsCanvas, 1);
 
-        //Manvi jain
-//        className.getSlot().setAccessibility("class name");
-//        extendsSlot.setAccessibility(" parent class name" );
-//        for(int i=0; i<implementsList.size(); i++)
-//        {
-//            if(implementsList.get(i).getSlot() != null)
-//                implementsList.get(i).getSlot().setAccessibility("interface name");
-//        }
+        //Manvi jain, cherry
+        className.getSlot().setAccessibilityHelpSlots(" class name slot");
+        extendsSlot.setSlotName(" parent class name slot" );
+        extendsSlot.setAccessibilityHelpSlots();
+        for (TypeSlot slot : implementsSlot.getTypeSlots().collect(Collectors.toList())) {
+            System.out.println("corgi");
+            slot.setSlotName(" interface name slot ");
+            slot.setAccessibilityHelpSlots();
+        }
     }
 
     //cherry

@@ -1072,10 +1072,12 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     public String getParentExpressions() {
         String text = "";
         if (parent != null && parent.getParent() != null) {
-            text = " in the expression " + parent.getScreenreaderText() + "," + parent.getParent().getParentExpressions();
+            if (!parent.getScreenreaderText().isEmpty()) text = " in the expression " + parent.getScreenreaderText() + "," + parent.getParent().getParentExpressions();
+            else text = " in a blank expression," + parent.getParent().getParentExpressions();
         } else {
             // most top level infix
-            text = " in the expression " + getScreenreaderText() + ",";
+            if (!getScreenreaderText().isEmpty()) text = " in the expression " + getScreenreaderText() + ",";
+            else text = " in a blank expression,";
         }
         return text;
     }
