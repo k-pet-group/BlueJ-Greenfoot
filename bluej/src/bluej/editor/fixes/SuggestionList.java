@@ -21,26 +21,12 @@
  */
 package bluej.editor.fixes;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
+import bluej.Config;
+import bluej.utility.Utility;
+import bluej.utility.javafx.*;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.css.CssMetaData;
@@ -52,6 +38,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.input.KeyEvent;
@@ -64,16 +51,17 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Duration;
-
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformRunnable;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.Config;
-import bluej.utility.Utility;
-import bluej.utility.javafx.FXSupplier;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.ScalableHeightLabel;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 
 /**
@@ -133,6 +121,15 @@ public class SuggestionList
             setCellFactory(lv -> new SuggestionCell(typeWidth, clickListener));
             prefWidthProperty().bind(cssPrefWidthProperty);
         }
+
+        //MAnvi jain
+
+        public ListCell<SuggestionListItem> suggestionCell(){
+            return getCellFactory().call(this);
+        }
+//        public void setAccessibility(){
+//            this.setAccessibleRoleDescription("manvi jain");
+//        }
     }
 
     /**
@@ -350,6 +347,8 @@ public class SuggestionList
         {
             return false;
         }
+
+
 
         @OnThread(Tag.FXPlatform)
         public Pane makeDocPane()
@@ -1137,6 +1136,13 @@ public class SuggestionList
     public int getRecordingId()
     {
         return suggestionListId;
+    }
+
+    public void setListViewAccessibility(String text)
+    {
+        System.out.println(text);
+        listBox.suggestionCell().setAccessibleText("sample text");
+    listBox.setAccessibleRoleDescription(text);
     }
 
     @OnThread(Tag.FXPlatform)

@@ -380,6 +380,7 @@ public class FrameCursor implements RecallableFocus
      */
     public FrameCursor(final InteractionManager editor, final FrameCanvas parentCanvas)
     {
+        // node.setAccessibleRole(AccessibleRole.NODE); // cherry: this causes a bug where the help text for all cursors is set to the first ever one that appears. so sometimes it's empty help text
         node.getStyleClass().add("frame-cursor");
         node.setMaxWidth(100);
         node.setMaxHeight(HIDE_HEIGHT);

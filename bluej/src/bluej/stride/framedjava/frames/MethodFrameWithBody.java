@@ -87,7 +87,10 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         //Parameters
         access = new AccessPermissionSlot(editor, this, getHeaderRow(), "method-");
         access.setValue(AccessPermission.PUBLIC);
-        
+
+
+        //Manvi jain
+        access.setAccessibilityRoleDescription("Access permission slot for method with three options: private, protected, public" );
         throwsPane = new Throws(this, () -> {
             TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.THROWS_CATCH, "method-");
             s.setSimplePromptText("thrown type");

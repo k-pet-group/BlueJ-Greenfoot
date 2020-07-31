@@ -304,7 +304,8 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
      */
     @OnThread(Tag.FXPlatform)
     public void showSuggestions(T curHighlight)
-    {
+        {
+
         dropdown.set(
             new SuggestionList(editor,
                 Utility.mapList(choices, t -> new SuggestionDetails(t.toString())), null,
@@ -320,7 +321,17 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         dropdown.get().setHighlighted(curHighlight == null ? -1 : choices.indexOf(curHighlight), true);
         // Must come after we've set highlight:
         dropdown.get().updateVisual(curDisplay.getText());
-    }
+
+        String listOfChoices = "";
+        for(int i=0; i< choices.size(); i++){
+            listOfChoices += choices.get(i).toString() + ", ";
+        }
+
+        ///dropdown.get().
+            //Manvi jain
+            setAccessibility(curHighlight.name() + " access permission type in drop down menu with options " + listOfChoices);
+
+        }
 
     /**
      * If no selection has been made, defaultVal is returned.  Usually
@@ -342,6 +353,10 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         JavaFXUtil.runNowOrLater(() -> refreshError());
         JavaFXUtil.setPseudoclass("bj-transparent", isValid.apply(selection) && !dummyField.isFocused(), pane);
         editor.modifiedFrame(parentFrame, false);
+//        if(value != null) {
+//            System.out.println("current access permission is " + value.toString());
+//            setAccessibility(value.toString());
+//        }
     }
 
     @OnThread(Tag.FXPlatform)
@@ -663,6 +678,9 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
     }
 
     public void setAccessibilityRoleDescription(String text){
+//        System.out.println(text);
+       // dummyField.
+        dummyField.setAccessibleRoleDescription(text);
         this.getComponents().get(0).setAccessibleRoleDescription(text);
     }
 
@@ -672,6 +690,8 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
 
     //Manvi jain
     public void setAccessibility(String text) {
+
+        dummyField.setAccessibleText(text);
         this.getComponents().get(0).setAccessibleText(text);
     }
 

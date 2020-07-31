@@ -23,7 +23,6 @@ package bluej.stride.framedjava.slots;
 
 import java.util.stream.Stream;
 
-import bluej.stride.generic.ScreenreaderDictionary;
 import javafx.beans.binding.When;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -169,9 +168,6 @@ class Operator
     public String getCopyText()
     {
         return sourceProperty.get();
-    }
-
-    public String getScreenreaderText() { return ScreenreaderDictionary.transcribeForScreenreader(sourceProperty.get());
     }
     
     public Node getNode()
