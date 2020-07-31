@@ -269,8 +269,10 @@ public class TryFrame extends SandwichCanvasesFrame
         {
             for(int i=0; i<catchTypes.size(); i++)
             {
+                catchTypes.get(i).setSlotName("exception type slot");
                 catchTypes.get(i).setAccessibilityHelpSlots();
-                catchVars.get(i).setAccessibilityHelpSlots("exception name slot" );
+                catchVars.get(i).setSlotName("exception name slot" );
+                catchVars.get(i).setAccessibilityHelpSlots();
             }
         }
     }

@@ -174,7 +174,8 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         addCanvas(constructorsLabelRow, constructorsCanvas, 1);
 
         //Manvi jain, cherry
-        className.getSlot().setAccessibilityHelpSlots(" class name slot");
+        className.getSlot().setSlotName(" class name slot");
+        className.getSlot().setAccessibilityHelpSlots();
         extendsSlot.setSlotName(" parent class name slot" );
         extendsSlot.setAccessibilityHelpSlots();
         for (TypeSlot slot : implementsSlot.getTypeSlots().collect(Collectors.toList())) {
@@ -182,6 +183,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
             slot.setSlotName(" interface name slot ");
             slot.setAccessibilityHelpSlots();
         }
+        documentationPane.setAccessibilityHelpSlots("You are in the documentation for the class " + nameProperty().get());
     }
 
     //cherry

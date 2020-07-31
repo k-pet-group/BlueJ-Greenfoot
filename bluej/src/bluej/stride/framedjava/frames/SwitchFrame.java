@@ -106,7 +106,7 @@ public class SwitchFrame extends MultiCanvasFrame
 //        this.expression.setAccessibility("switch statement expression ");
 
         //cherry
-        frameName = "switch block";
+        frameName = "switch "  + this.expression.getScreenreaderText();
         this.expression.setSlotName("switch statement expression");
     }
 

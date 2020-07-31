@@ -104,7 +104,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         }
 
         //cherry
-        frameName = "constructor with body";
+        frameName = "constructor";
         if(superThisParams!=null) superThisParams.setSlotName("parameters slot in super call");
     }
 
@@ -463,12 +463,19 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
+            //cherry
+            documentationPane.setAccessibilityHelpSlots("You are in the documentation slot for the constructor " + getParentCanvas().getParentLocationDescription());
+            for (ParamFragment pair : paramsPane.getSlotElement()) {
+                pair.getParamType().getSlot().setSlotName(" parameter type slot ");
+                pair.getParamType().getSlot().setAccessibilityHelpSlots();
+                pair.getParamName().getSlot().setSlotName(" parameter name slot ");
+                pair.getParamName().getSlot().setAccessibilityHelpSlots();
+            }
             //Manvi jain
             if(superThisParams != null)
             {
                 superThisParams.setAccessibilityHelpSlots();
             }
-
             if(superThis != null)
             {
                 superThis.setAccessibilityHelpSlots("super constructor options " + getParentCanvas().getParent().getHelpContext());

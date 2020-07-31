@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javafx.collections.FXCollections;
@@ -94,10 +95,18 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
                 extendsList.getHeaderItems()
         ));
 
+        //manvi
 //        for(int i=0; i<extendsTypes.size(); i++)
 //        {
 //            extendsTypes.get(i).getSlot().setAccessibility("parent class name ");
 //        }
+        //cherry
+        for (TypeSlot slot : extendsList.getTypeSlots().collect(Collectors.toList())) {
+            slot.setSlotName(" interface name slot ");
+            slot.setAccessibilityHelpSlots();
+        }
+        documentationPane.setAccessibilityHelpSlots("You are in the documentation for the interface " + nameProperty().get());
+
     }
 
     //cherry

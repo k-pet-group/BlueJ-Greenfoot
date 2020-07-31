@@ -84,7 +84,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
 //        methodName.setAccessibility("method name " + methodName.getText());
 
         //cherry
-        frameName = "method prototype";
+        frameName = "method prototype "+ methodName.getText();
         returnType.setSlotName("return type");
     }
     
@@ -238,7 +238,15 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         //cherry
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            methodName.setAccessibilityHelpSlots("method name slot");
+            documentationPane.setAccessibilityHelpSlots("You are in the documentation slot for the method prototype " + methodName.getText() + getParentCanvas().getParentLocationDescription());
+            for (ParamFragment pair : paramsPane.getSlotElement()) {
+                pair.getParamType().getSlot().setSlotName(" parameter type slot ");
+                pair.getParamType().getSlot().setAccessibilityHelpSlots();
+                pair.getParamName().getSlot().setSlotName(" parameter name slot ");
+                pair.getParamName().getSlot().setAccessibilityHelpSlots();
+            }
+            methodName.setSlotName("method name slot");
+            methodName.setAccessibilityHelpSlots();
             returnType.setAccessibilityHelpSlots();
         }
 

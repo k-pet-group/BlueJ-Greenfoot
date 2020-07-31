@@ -206,7 +206,7 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         //manvi
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            comment.setAccessibilityHelpSlots("comment slot");
+            comment.setAccessibilityHelpSlots("You are in a comment slot in the " + frameName + " frame " + getParentCanvas().getParentLocationDescription());
         }
     }
 

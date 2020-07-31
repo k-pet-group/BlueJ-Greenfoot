@@ -199,7 +199,7 @@ public class VarFrame extends SingleLineFrame
 //        slotValue.setAccessibility(", variable value");
 
         //cherry
-        frameName = "variable declaration";
+        frameName = "variable declaration for " + slotName.getText();
         slotType.setSlotName("variable type");
         slotValue.setSlotName("variable value expression");
         }
@@ -393,7 +393,8 @@ public class VarFrame extends SingleLineFrame
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
             slotType.setAccessibilityHelpSlots();
-            slotName.setAccessibilityHelpSlots("variable name slot");
+            slotName.setSlotName("variable name slot");
+            slotName.setAccessibilityHelpSlots();
             slotValue.setAccessibilityHelpSlots();
         }
     }

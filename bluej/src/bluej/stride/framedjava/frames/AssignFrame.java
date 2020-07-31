@@ -78,7 +78,7 @@ public class AssignFrame extends SingleLineFrame
 //        slotRHS.setAccessibility(" new value of variable");
 
         //cherry
-        frameName = "assign statement";
+        frameName = "assign to " + slotLHS.getScreenreaderText();
         slotLHS.setSlotName("assigned variable name");
         slotRHS.setSlotName("assigned value expression");
     }

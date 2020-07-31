@@ -288,8 +288,11 @@ public class ForeachFrame extends SingleCanvasFrame
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
+            type.setSlotName("variable type slot");
             type.setAccessibilityHelpSlots();
-            var.setAccessibilityHelpSlots("variable name slot" );
+            var.setSlotName("variable name slot" );
+            var.setAccessibilityHelpSlots();
+            collection.setSlotName("collection name");
             collection.setAccessibilityHelpSlots();
         }
     }

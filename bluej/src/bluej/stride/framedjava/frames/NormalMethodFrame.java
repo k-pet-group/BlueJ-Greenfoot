@@ -162,7 +162,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 //        }
 
         //cherry
-        frameName = "method with body";
+        frameName = "method " + methodName.getText();
         returnType.setSlotName("return type");
     }
     
@@ -497,8 +497,18 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
+            //cherry
+            documentationPane.setAccessibilityHelpSlots("You are in the documentation slot for the method " + methodName.getText() + getParentCanvas().getParentLocationDescription());
+            for (ParamFragment pair : paramsPane.getSlotElement()) {
+                pair.getParamType().getSlot().setSlotName(" parameter type slot ");
+                pair.getParamType().getSlot().setAccessibilityHelpSlots();
+                pair.getParamName().getSlot().setSlotName(" parameter name slot ");
+                pair.getParamName().getSlot().setAccessibilityHelpSlots();
+            }
+            returnType.setSlotName("return type slot");
             returnType.setAccessibilityHelpSlots();
-            methodName.setAccessibilityHelpSlots("method name slot" );
+            methodName.setSlotName("method name slot");
+            methodName.setAccessibilityHelpSlots( );
         }
     }
 
