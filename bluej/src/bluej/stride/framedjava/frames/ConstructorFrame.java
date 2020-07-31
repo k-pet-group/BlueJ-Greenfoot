@@ -30,6 +30,8 @@ import java.util.Optional;
 import bluej.utility.javafx.AbstractOperation;
 import bluej.stride.framedjava.elements.ClassElement;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -102,7 +104,8 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         }
 
         //cherry
-        frameName = "constructor with body";
+        frameName = "constructor";
+        if(superThisParams!=null) superThisParams.setSlotName("parameters slot in super call");
     }
 
     public ConstructorFrame(InteractionManager editor, AccessPermissionFragment access, String documentation,
@@ -176,13 +179,19 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
 
             paramString.append(type + " " +  name + " ");
         }
-        String text = " in the constructor " + getEditor().nameProperty().get();
+        String text = "", classDescription = "", className = "Undefined";
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            classDescription = getParentCanvas().getParentLocationDescription();
+            if (getParentCanvas().getParent() instanceof ClassFrame) {
+                className = ((ClassFrame)getParentCanvas().getParent()).getClassName();
+                // Note: here, editor.nameProperty().get() returns null, but the ClassFrame's nameProperty() works instead
+            }
+        }
+        text += " in the constructor " + className;
         if (paramString.length() != 0) {
             text += " with parameters " + paramString.toString();
         }
-        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
-            text += getParentCanvas().getParentLocationDescription();
-        }
+        text += classDescription;
         return text;
     }
 
@@ -454,12 +463,19 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
+            //cherry
+            documentationPane.setAccessibilityHelpSlots("You are in the documentation slot for the constructor " + getParentCanvas().getParentLocationDescription());
+            for (ParamFragment pair : paramsPane.getSlotElement()) {
+                pair.getParamType().getSlot().setSlotName(" parameter type slot ");
+                pair.getParamType().getSlot().setAccessibilityHelpSlots();
+                pair.getParamName().getSlot().setSlotName(" parameter name slot ");
+                pair.getParamName().getSlot().setAccessibilityHelpSlots();
+            }
             //Manvi jain
             if(superThisParams != null)
             {
-                superThisParams.setAccessibilityHelpSlots("parameters slot in super call");
+                superThisParams.setAccessibilityHelpSlots();
             }
-
             if(superThis != null)
             {
                 superThis.setAccessibilityHelpSlots("super constructor options " + getParentCanvas().getParent().getHelpContext());

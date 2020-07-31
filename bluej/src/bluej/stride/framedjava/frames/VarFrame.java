@@ -200,7 +200,9 @@ public class VarFrame extends SingleLineFrame
 //        slotValue.setAccessibility(", variable value");
 
         //cherry
-        frameName = "variable declaration";
+        frameName = "variable declaration for " + slotName.getText();
+        slotType.setSlotName("variable type");
+        slotValue.setSlotName("variable value expression");
         }
     
     // If varValue is null, that means the slot is not shown
@@ -391,9 +393,10 @@ public class VarFrame extends SingleLineFrame
         //Manvi jain
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            slotType.setAccessibilityHelpSlots("variable type slot");
-            slotName.setAccessibilityHelpSlots("variable name slot");
-            slotValue.setAccessibilityHelpSlots("variable value slot");
+            slotType.setAccessibilityHelpSlots();
+            slotName.setSlotName("variable name slot");
+            slotName.setAccessibilityHelpSlots();
+            slotValue.setAccessibilityHelpSlots();
         }
     }
 

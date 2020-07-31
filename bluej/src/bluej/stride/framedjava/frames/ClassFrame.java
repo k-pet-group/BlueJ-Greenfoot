@@ -173,14 +173,17 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         constructorsLabelRow = new FrameContentRow(this, constructorsLabel);
         addCanvas(constructorsLabelRow, constructorsCanvas, 1);
 
-        //Manvi jain
-        className.getSlot().setAccessibility("class name");
-        extendsSlot.setAccessibility(" parent class name" );
-        for(int i=0; i<implementsList.size(); i++)
-        {
-            if(implementsList.get(i).getSlot() != null)
-                implementsList.get(i).getSlot().setAccessibility("interface name");
+        //Manvi jain, cherry
+        className.getSlot().setSlotName(" class name slot");
+        className.getSlot().setAccessibilityHelpSlots();
+        extendsSlot.setSlotName(" parent class name slot" );
+        extendsSlot.setAccessibilityHelpSlots();
+        for (TypeSlot slot : implementsSlot.getTypeSlots().collect(Collectors.toList())) {
+            System.out.println("corgi");
+            slot.setSlotName(" interface name slot ");
+            slot.setAccessibilityHelpSlots();
         }
+        documentationPane.setAccessibilityHelpSlots("You are in the documentation for the class " + nameProperty().get());
     }
 
     //cherry
@@ -198,8 +201,20 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
 
     //cherry
     public String getLocationDescription(FrameCanvas c) {
-        String text = " in the class " + nameProperty().get();
+        String text;
+        if (!nameProperty().get().isEmpty() && !nameProperty().get().equals("null")) {
+//            System.out.println(nameProperty().get());
+            text = " in the class " + nameProperty().get();
+        }
+        else {
+            text = " in the class [Undefined in ClassFrame name property] ";
+        }
         return text;
+    }
+
+    //cherry
+    public String getClassName() {
+        return nameProperty().get();
     }
 
     @Override

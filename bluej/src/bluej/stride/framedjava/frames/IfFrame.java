@@ -85,6 +85,10 @@ public class IfFrame extends SandwichCanvasesFrame
 
         //cherry
         frameName = "if block";
+        ifCondition.setSlotName("if condition expression");
+        for (ExpressionSlot slot : elseIfConditions) {
+            slot.setSlotName("else if condition expression");
+        }
 
     }
 
@@ -269,9 +273,9 @@ public class IfFrame extends SandwichCanvasesFrame
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            ifCondition.setAccessibilityHelpSlots("if condition slot");
+            ifCondition.setAccessibilityHelpSlots();
             for (ExpressionSlot slot : elseIfConditions) {
-                slot.setAccessibilityHelpSlots("else if condition slot");
+                slot.setAccessibilityHelpSlots();
             }
         }
     }

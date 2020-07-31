@@ -59,14 +59,18 @@ public class TryFrame extends SandwichCanvasesFrame
     {
         super(editor, "try", "catch", "finally", TRY_STYLE_PREFIX);
 
-        for(int i=0; i<catchTypes.size(); i++)
-        {
-            catchTypes.get(i).setAccessibility("catch type in try block");
-            catchVars.get(i).setAccessibility("catch variable name in try block");
-        }
+//        for(int i=0; i<catchTypes.size(); i++)
+//        {
+//            catchTypes.get(i).setAccessibility("catch type in try block");
+//            catchVars.get(i).setAccessibility("catch variable name in try block");
+//        }
 
         //cherry
         frameName = "try block";
+        for(int i=0; i<catchTypes.size(); i++)
+        {
+            catchTypes.get(i).setSlotName("exception type" );
+        }
     }
 
     /**
@@ -76,11 +80,11 @@ public class TryFrame extends SandwichCanvasesFrame
     {
         this(editor);
         getFirstCanvas().getFirstCursor().insertFramesAfter(contents);
-        for(int i=0; i<catchTypes.size(); i++)
-        {
-            catchTypes.get(i).setAccessibility("catch type in try block");
-            catchVars.get(i).setAccessibility("catch variable name in try block");
-        }
+//        for(int i=0; i<catchTypes.size(); i++)
+//        {
+//            catchTypes.get(i).setAccessibility("catch type in try block");
+//            catchVars.get(i).setAccessibility("catch variable name in try block");
+//        }
     }
 
     /**
@@ -108,11 +112,11 @@ public class TryFrame extends SandwichCanvasesFrame
         }
         frameEnabledProperty.set(enabled);
 
-        for(int i=0; i<catchTypes.size(); i++)
-        {
-            catchTypes.get(i).getSlot().setAccessibility("catch type in try block");
-            catchVars.get(i).setAccessibility("catch variable name in try block");
-        }
+//        for(int i=0; i<catchTypes.size(); i++)
+//        {
+//            catchTypes.get(i).getSlot().setAccessibility("catch type in try block");
+//            catchVars.get(i).setAccessibility("catch variable name in try block");
+//        }
     }
 
     //cherry
@@ -265,8 +269,10 @@ public class TryFrame extends SandwichCanvasesFrame
         {
             for(int i=0; i<catchTypes.size(); i++)
             {
-                catchTypes.get(i).setAccessibilityHelpSlots("exception type slot" );
-                catchVars.get(i).setAccessibilityHelpSlots("exception name slot" );
+                catchTypes.get(i).setSlotName("exception type slot");
+                catchTypes.get(i).setAccessibilityHelpSlots();
+                catchVars.get(i).setSlotName("exception name slot" );
+                catchVars.get(i).setAccessibilityHelpSlots();
             }
         }
     }

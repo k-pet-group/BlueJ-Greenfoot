@@ -1056,14 +1056,104 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     //cherry
     public String getScreenreaderText() {
         StringBuilder b = new StringBuilder();
-        for (int i = 0; i < fields.size() - 1; i++) {
+        for (int i = 0; i < fields.size(); i++) {
             b.append(fields.get(i).getScreenreaderText());
-            if (operators.get(i) != null)
-                b.append(ScreenreaderDictionary.transcribeForScreenreader(operators.get(i).getCopyText()));
+            if (!operators.isEmpty() && i < operators.size()) {
+                if (operators.get(i) != null) {
+                    b.append(operators.get(i).getScreenreaderText());
+                }
+            }
         }
-        b.append(fields.get(fields.size() - 1).getScreenreaderText());
+//        b.append(fields.get(fields.size() - 1).getScreenreaderText());
         return b.toString();
     }
+
+    //cherry
+    public String getParentExpressions() {
+        String text = "";
+        if (parent != null && parent.getParent() != null) {
+            if (!parent.getScreenreaderText().isEmpty()) text = " in the expression " + parent.getScreenreaderText() + "," + parent.getParent().getParentExpressions();
+            else text = " in a blank expression," + parent.getParent().getParentExpressions();
+        } else {
+            // most top level infix
+            if (!getScreenreaderText().isEmpty()) text = " in the expression " + getScreenreaderText() + ",";
+            else text = " in a blank expression,";
+        }
+        return text;
+    }
+
+    //cherry
+    public void setIndividualSlotText(String furtherHelp) {
+        CaretPos random = new CaretPos(0,null); // this doesn't matter cuz getNodeForPos() below will return the text field anyway
+        String text, expressionHelp, finalText;
+        expressionHelp = getParentExpressions();
+            for (int i = 0; i < fields.size(); i++) {
+                if (i == 0 && fields.size()==1) {
+                    // first and only slot
+                    text = "You are in a slot ";
+                } else if (i ==0 && fields.size()>1){
+                    // first slot
+                    text = "You are in the slot before ";
+                    if (!operators.isEmpty() && i < operators.size()) {
+                        if (operators.get(i) != null) {
+                            text += "the operator " + operators.get(i).getScreenreaderText() + ",";
+                        } else {
+                            text += "the slot " + fields.get(i + 1).getScreenreaderText() + ",";
+                        }
+                    } else {
+                        text += "the slot " + fields.get(i + 1).getScreenreaderText() + ",";
+                    }
+                } else if (i < fields.size() - 1) {
+                    // intermediate slots
+                    if (!operators.isEmpty() && (i-1) < operators.size()) {
+                        if (operators.get(i - 1) != null) {
+                            text = "You are in the slot between the operator " + operators.get(i - 1).getScreenreaderText();
+                        } else {
+                            text = "You are in the slot between the slot " + fields.get(i - 1).getScreenreaderText();
+                        }
+                    } else {
+                        text = "You are in the slot between the slot " + fields.get(i - 1).getScreenreaderText();
+                    }
+                    if (!operators.isEmpty() && i < operators.size()) {
+                        if (operators.get(i) != null) {
+                            text += " and the operator " + operators.get(i).getScreenreaderText() + ",";
+                        } else {
+                            text += " and the slot " + fields.get(i + 1).getScreenreaderText() + ",";
+                        }
+                    } else {
+                        text += " and the slot " + fields.get(i + 1).getScreenreaderText() + ",";
+                    }
+
+                } else {
+                    // last slot
+                    text = "You are in the slot ";
+                    if (!operators.isEmpty() && (i-1) < operators.size()) {
+                        if (operators.get(i - 1) != null) {
+                            text += "after the operator " + operators.get(i - 1).getScreenreaderText() + ",";
+                        } else {
+                            text += "after the slot " + fields.get(i - 1).getScreenreaderText() + ",";
+                        }
+                    } else {
+                        text += "after the slot " + fields.get(i - 1).getScreenreaderText() + ",";
+                    }
+                }
+
+                finalText = text + expressionHelp + furtherHelp;
+                if (fields.get(i).getComponents().size()==1) {
+                    // means this StructuredSlotComponent is a StructuredSlotField
+                    fields.get(i).getComponents().get(0).setAccessibleHelp(finalText);
+                }
+                else { // this is a BracketedStructured
+                    if (fields.get(i) instanceof BracketedStructured)
+                        ((BracketedStructured<INFIX,SLOT>)fields.get(i)).getContent().setIndividualSlotText(furtherHelp);
+                }
+//                System.out.println(fields.get(i).getNodeForPos(random).getAccessibleHelp());
+            }
+        }
+
+
+
+
 
     // start is inclusive, end is exclusive
     private String getJavaCodeForFields(int start, int end)
@@ -1620,7 +1710,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 f.setText(f.getText().substring(0, posInField), token);
                 //manvi jain
 
-                setAccessibilityRoleDescription(f.getScreenreaderText() + " ");
+//                setAccessibilityRoleDescription(f.getScreenreaderText() + " ");
                 operators.add(pos.index, null, token);
 
                 fields.add(pos.index + 1, new BracketedStructured(editor, this, this.slot, c, "", token), token);
@@ -1657,10 +1747,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 String following = f.getText().substring(posInField);
                 f.setText(f.getText().substring(0, posInField), token);
                 //manvi
-                if(c == '\"')
-                    setAccessibilityRoleDescription("double quotation ");
-                else
-                    setAccessibilityRoleDescription("single quotation ");
+//                if(c == '\"')
+//                    setAccessibilityRoleDescription("double quotation ");
+//                else
+//                    setAccessibilityRoleDescription("single quotation ");
                 operators.add(pos.index, null, token);
                 fields.add(pos.index + 1, new StringLiteralExpression(c, makeNewField("", true), this), token);
                 if (pos.index + 1 >= operators.size() || operators.get(pos.index + 1) != null || fields.get(pos.index + 2) instanceof StringLiteralExpression || fields.get(pos.index + 2) instanceof BracketedStructured)
@@ -1686,10 +1776,10 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
                     f.setText("", token);
                     //manvi jain
-                    if (getSlot() != null)
-                    {
-                        setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " new object created ");
-                    }
+//                    if (getSlot() != null)
+//                    {
+//                        setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " new object created ");
+//                    }
                     operators.add(pos.index, new Operator("new ", this), token);
                     fields.add(pos.index + 1, makeNewField(following, false), token);
                     return new CaretPos(pos.index + 1, new CaretPos(0, null));
@@ -1700,13 +1790,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
 
                     //manvi
-                    if(getSlot() != null)
-                        setAccessibilityRoleDescription(getSlot().getScreenreaderText());
-
 //                    if(getSlot() != null)
-//                        setAccessibilityRoleDescription(getSlot().getJavaCode());
-//
-                    //parent
+//                        setAccessibilityRoleDescription(getSlot().getScreenreaderText());
+
                    CaretPos overridePos = checkFieldChange(pos.index, new CaretPos(pos.index, new CaretPos(posInField+1, null)), c == '.', user, token);
                     return overridePos;
                 }
@@ -1716,7 +1802,8 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         {
             // This can occur when pasting/loading content:
             CaretPos newSubPos = ((BracketedStructured)slot).getContent().insertChar(pos.subPos, c, false, token);
-
+            //manvi
+            /*
             String BracketedSlot = "editing " + slot.getScreenreaderText() + " ";
             BracketedStructured<INFIX, SLOT> existingParent= parent;
             while(existingParent != null){
@@ -1729,7 +1816,8 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     existingParent = existingParent.getParent().parent;
                 }
             }
-            setAccessibility(BracketedSlot);
+            setAccessibility(BracketedSlot);*/
+            //end of manvi
             if (newSubPos.index == Integer.MAX_VALUE)
             {
                 // Must be field following:
@@ -1764,13 +1852,13 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             // If it is not a quote, or it is after a backslash, insert as-is:
             f.setText(f.getText().substring(0, posInField) + c + f.getText().substring(posInField), token);
             //Manvi jain
-            if(getSlot() != null)
-            {
-                if (getSlot().getJavaCode().charAt(0) == '\'')
-                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in apostrophe");
-                else
-                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in quotation");
-            }
+//            if(getSlot() != null)
+//            {
+//                if (getSlot().getJavaCode().charAt(0) == '\'')
+//                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in apostrophe");
+//                else
+//                    setAccessibilityRoleDescription(getSlot().getScreenreaderText() + " in quotation");
+//            }
             return new CaretPos(pos.index, new CaretPos(posInField+1, null));
         }
         return null;

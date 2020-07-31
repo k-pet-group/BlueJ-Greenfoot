@@ -262,7 +262,10 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            importField.setAccessibilityHelpSlots("import value slot");
+//            System.out.println("setting import field");
+            importField.setSlotName("import value slot");
+            importField.setAccessibilityHelpSlots();
+//            System.out.println(importField.getField().getAccessibleHelp());
         }
 
     }

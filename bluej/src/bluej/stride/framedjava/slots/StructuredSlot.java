@@ -229,6 +229,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         JavaFXUtil.addChangeListener(textMirror, t -> {
             if (!editor.isLoading()) {
                 modified();
+                //cherry
+                setAccessibilityHelpSlots();
             } else {
                 parentFrame.trackBlank();
             }
@@ -254,12 +256,19 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             gc.restore();
         });
 
-        JavaFXUtil.addChangeListener(fakeCaretShowing, b -> JavaFXUtil.runNowOrLater(() -> overlay.redraw()));
+        JavaFXUtil.addChangeListener(fakeCaretShowing, b -> {
+            JavaFXUtil.runNowOrLater(() -> overlay.redraw());
+            //cherry
+            /*CaretPos pos = topLevel.getCurrentPos();
+            if (pos == null)
+                pos = mostRecentPos;
+            getComponents().get(0).getScene().getFocusOwner().setAccessibleHelp(topLevel.getNodeForPos(pos).getAccessibleHelp());*/ //attempt to set accessible text of focus owner. When slot is being edited, what exactly is focused?
+        });
 
         //cherry
         /*JavaFXUtil.addChangeListener(effectivelyFocusedProperty(), nowFocused -> {
             if (nowFocused) {
-
+//                System.out.println("shiba");
             }
         });*/
     }
@@ -1066,16 +1075,35 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         this.getComponents().get(0).setAccessibleText(text);
     }
 
+    //cherry
+    private String slotName;
+
+    //cherry
+    public void setSlotName(String name) {
+        slotName = name;
+    }
+
     /**
      * Sets the relative location of the slot for screen reader
      */
-    public void setAccessibilityHelpSlots(String slotName) {
+    public void setAccessibilityHelpSlots() {
         //cherry
-        String text = "You are in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
-        // this.getComponents().get(0).setAccessibleHelp(text);
-        for (Node component : this.getComponents()) {
-            component.setAccessibleHelp(text);
+        String text = getOverallSlotDescription();
+        topLevel.setIndividualSlotText(text);
+//        for (Node component : this.getComponents()) {
+//            component.setAccessibleHelp(text);
+//        }
+    }
+
+    //cherry
+    private String getOverallSlotDescription() {
+        String text = "StructuredSlot";
+        try {
+            text = " in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
+        } catch (NullPointerException e) {
+            text = " in the " + slotName;
         }
+        return text;
     }
 
     public void addFocusListener(Frame frame) {

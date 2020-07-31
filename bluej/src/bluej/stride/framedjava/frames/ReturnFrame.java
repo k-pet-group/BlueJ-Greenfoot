@@ -108,6 +108,7 @@ public class ReturnFrame extends SingleLineFrame
 
         //cherry
         frameName = "return statement";
+        value.setSlotName("return expression");
     }
     
     public ReturnFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
@@ -213,7 +214,7 @@ public class ReturnFrame extends SingleLineFrame
         //cherry
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            value.setAccessibilityHelpSlots("return value slot");
+            value.setAccessibilityHelpSlots();
         }
     }
 

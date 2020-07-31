@@ -40,6 +40,7 @@ import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.BlankFrame;
 
+import bluej.stride.framedjava.frames.ClassFrame;
 import bluej.utility.javafx.ScalableHeightLabel;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
@@ -188,13 +189,16 @@ public class FrameCanvas implements FrameContentItem
         // if this canvas has no parent, (if i'm not wrong) it means this
         // canvas is exposed in the class, so the 'parent' is the class
         if (getParent()==null) {
-            if (!editorFrm.nameProperty().get().equals(null)) {
+            if (!editorFrm.nameProperty().get().isEmpty() && !editorFrm.nameProperty().get().equals("null")) {
                 return " in the class " + editorFrm.nameProperty().get();
             } else {
-                return "";
+                return " in the class [Undefined in editor name property] ";
             }
         }
-        else return getParent().getLocationDescription(this);
+        else {
+//            System.out.println("getting canvas parent description");
+            return getParent().getLocationDescription(this);
+        }
     }
 
     public VBox getSpecialBefore(FrameCursor cursor)

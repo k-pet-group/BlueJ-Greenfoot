@@ -78,7 +78,9 @@ public class AssignFrame extends SingleLineFrame
 //        slotRHS.setAccessibility(" new value of variable");
 
         //cherry
-        frameName = "assign statement";
+        frameName = "assign to " + slotLHS.getScreenreaderText();
+        slotLHS.setSlotName("assigned variable name");
+        slotRHS.setSlotName("assigned value expression");
     }
     
     // For replacement of a method call frame:
@@ -219,8 +221,8 @@ public class AssignFrame extends SingleLineFrame
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            slotLHS.setAccessibilityHelpSlots("assigned variable name slot");
-            slotRHS.setAccessibilityHelpSlots("assigned value slot");
+            slotLHS.setAccessibilityHelpSlots();
+            slotRHS.setAccessibilityHelpSlots();
         }
     }
 }

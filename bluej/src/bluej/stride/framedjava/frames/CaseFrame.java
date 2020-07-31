@@ -117,7 +117,8 @@ public class CaseFrame extends SingleCanvasFrame
 //        paramCondition.setAccessibility(" condition in case statement");
 
         //cherry
-        frameName = "case block";
+        frameName = "case " + paramCondition.getScreenreaderText();
+        paramCondition.setSlotName("case statement parameter");
     }
     
     public CaseFrame(InteractionManager editor, FilledExpressionSlotFragment condition, boolean enabled)
@@ -290,7 +291,7 @@ public class CaseFrame extends SingleCanvasFrame
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
             //cherry
-            paramCondition.setAccessibilityHelpSlots("case statement parameter slot");
+            paramCondition.setAccessibilityHelpSlots();
         }
     }
 

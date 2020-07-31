@@ -92,6 +92,8 @@ public class ForeachFrame extends SingleCanvasFrame
 
         //cherry
         frameName = "foreach loop";
+        type.setSlotName("variable type" );
+        collection.setSlotName("collection name");
     }
     
     public ForeachFrame(InteractionManager editor, TypeSlotFragment type, NameDefSlotFragment var, ExpressionSlotFragment collection, boolean enabled) {
@@ -286,9 +288,12 @@ public class ForeachFrame extends SingleCanvasFrame
         super.updateAppearance(parentCanvas);
         if(getParentCanvas() != null && getParentCanvas().getParent() != null)
         {
-            type.setAccessibilityHelpSlots("variable type slot" );
-            var.setAccessibilityHelpSlots("variable name slot" );
-            type.setAccessibilityHelpSlots("collection name slot" );
+            type.setSlotName("variable type slot");
+            type.setAccessibilityHelpSlots();
+            var.setSlotName("variable name slot" );
+            var.setAccessibilityHelpSlots();
+            collection.setSlotName("collection name");
+            collection.setAccessibilityHelpSlots();
         }
     }
 

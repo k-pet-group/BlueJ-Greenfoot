@@ -129,6 +129,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     private CodeError hoverErrorCurrentlyShown;
     // We must keep a reference to this to avoid problems with GC and weak listeners:
     private final BooleanBinding effectivelyFocusedProperty;
+    //cherry
+    private String slotName;
 
     /**
      * Creates a text slot.  Will be called from subclasses only
@@ -157,8 +159,11 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         listeners.add((slot, oldValue, newValue, parent) -> {
             if (newValue.contains(";"))
                 return false;
-            else
+            else {
+                //cherry
+                setAccessibilityHelpSlots();
                 return true;
+            }
         });
 
         effectivelyFocusedProperty = field.focusedProperty().or(suggestionDisplayProperty.isNotNull());
@@ -473,7 +478,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                     JavaFXUtil.runPlatformLater(() -> {
 
                         //Manvi jain
-                        setAccessibilityRoleDescription(getText());
+//                        setAccessibilityRoleDescription(getText());
                         if (suggestionDisplayProperty.get() != null)
                         {
                             String beforeNewPrefix = getText().substring(0, getStartOfCurWord());
@@ -606,6 +611,12 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     {
         return field.getNode();
     }
+
+    //cherry
+    public Node getField() { return field.getFocusableNode(); }
+
+    //cherry
+    public void setSlotName(String name) { slotName = name; }
 
     public void addValueListener(SlotValueListener listener)
     {
@@ -1106,11 +1117,16 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         field.getFocusableNode().setAccessibleRoleDescription(text);
     }
 
-    public void setAccessibilityHelpSlots(String slotName)
+    public void setAccessibilityHelpSlots()
     {
         //cherry
-        String text = "You are in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
-
+        String text = "TextSlot";
+//        System.out.println("getting slot help text");
+        try {
+            text = "You are in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
+        } catch (NullPointerException e) {
+                text = "You are in the " + slotName;
+        }
         field.getFocusableNode().setAccessibleHelp(text);
     }
 }
