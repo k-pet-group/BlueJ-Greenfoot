@@ -1803,6 +1803,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             // This can occur when pasting/loading content:
             CaretPos newSubPos = ((BracketedStructured)slot).getContent().insertChar(pos.subPos, c, false, token);
             //manvi
+            /*
             String BracketedSlot = "editing " + slot.getScreenreaderText() + " ";
             BracketedStructured<INFIX, SLOT> existingParent= parent;
             while(existingParent != null){
@@ -1815,7 +1816,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                     existingParent = existingParent.getParent().parent;
                 }
             }
-            setAccessibility(BracketedSlot);
+            setAccessibility(BracketedSlot);*/
             //end of manvi
             if (newSubPos.index == Integer.MAX_VALUE)
             {

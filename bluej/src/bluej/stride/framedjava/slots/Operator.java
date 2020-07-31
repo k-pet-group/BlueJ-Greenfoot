@@ -23,6 +23,7 @@ package bluej.stride.framedjava.slots;
 
 import java.util.stream.Stream;
 
+import bluej.stride.generic.ScreenreaderDictionary;
 import javafx.beans.binding.When;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -242,6 +243,10 @@ class Operator
     public Node makeDisplayClone(InteractionManager editor)
     {
         return JavaFXUtil.cloneLabel(l, editor.getFontCSS());
+    }
+
+    public String getScreenreaderText() {
+         return ScreenreaderDictionary.transcribeForScreenreader(sourceProperty.get());
     }
 
     public static enum Precedence
