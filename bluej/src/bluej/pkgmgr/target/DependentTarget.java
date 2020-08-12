@@ -510,12 +510,31 @@ public abstract class DependentTarget extends EditableTarget
     public void setState(State newState)
     {
         state.set(newState);
+        updateAccessibleName();
         repaint();
         redraw();
         for (TargetListener stateListener : stateListeners)
         {
             stateListener.stateChanged(newState);
         }
+    }
+
+    protected void updateAccessibleName()
+    {
+        String accessibleSuffix = "";
+        switch (state.get())
+        {
+            case COMPILED:
+                accessibleSuffix = "Compiled";
+                break;
+            case NEEDS_COMPILE:
+                accessibleSuffix = "Uncompiled";
+                break;
+            case HAS_ERROR:
+                accessibleSuffix = "Error";
+                break;
+        }
+        updateAccessibleName("Class", ": " + accessibleSuffix);
     }
 
     /**

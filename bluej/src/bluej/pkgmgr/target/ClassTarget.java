@@ -1993,6 +1993,7 @@ public class ClassTarget extends DependentTarget
         updateSize();
         nameLabel.setText(newDisplayName);
         setDisplayName(newDisplayName);
+        updateAccessibleName();
     }
     
     /**
