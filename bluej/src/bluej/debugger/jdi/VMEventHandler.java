@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2014,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2014,2019,2020  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -117,8 +117,10 @@ class VMEventHandler extends Thread
                     }
                     catch (VMDisconnectedException discExc)
                     {
-                        exiting.set(true);
-                        VMEventHandler.this.interrupt();
+                        // A VMDisconnectedException is always preceded by a VMDisconnectEvent (see docs of remove(), above)
+                        // Thus if we see the exception, we'll already have forwarded that event to the main process,
+                        // and we can just happily terminate our own thread:
+                        return;
                     }
                 }
             }
@@ -235,8 +237,9 @@ class VMEventHandler extends Thread
             catch (InterruptedException exc) { }
             catch (VMDisconnectedException discExc)
             {
+                // The forwarding thread should already have seen the VM disconnection itself, but just in case,
+                // we can tell it to exit now that we know about it.  This will also lead to us ending our thread:
                 exiting.set(true);
-                subThread.interrupt();
             }
         }
     }
