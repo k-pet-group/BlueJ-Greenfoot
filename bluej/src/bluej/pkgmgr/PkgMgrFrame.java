@@ -3234,7 +3234,7 @@ public class PkgMgrFrame
     private void addCtrlTabShortcut(final PkgMgrPane srcPane)
     {
         srcPane.asNode().addEventFilter(KeyEvent.KEY_PRESSED, e -> {
-            if (e.getCode() == KeyCode.TAB && e.isControlDown())
+            if ((e.getCode() == KeyCode.TAB && e.isControlDown()) || e.getCode() == KeyCode.F6)
             {
                 if (!e.isShiftDown())
                 {

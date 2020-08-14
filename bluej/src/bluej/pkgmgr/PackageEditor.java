@@ -494,7 +494,8 @@ public final class PackageEditor extends StackPane
     /**
      * Tries to focus a target in the class diagram.  If there is
      * already a selection, we focus one of the selected items.
-     * If not, we select an arbitrart target.
+     * If not, we try the most recent selection.
+     * If there wasn't one or it wasn't valid, we select an arbitrary target.
      * @return true if we found something to focus, false if there was nothing to focus.
      */
     public boolean focusSelectedOrArbitrary()
@@ -505,7 +506,8 @@ public final class PackageEditor extends StackPane
                 return false;
             else
             {
-                pkg.getVertices().get(0).requestFocus();
+                if (!selectionController.restoreRecentSelectionAndFocus(pkg.getVertices()::contains))
+                    pkg.getVertices().get(0).requestFocus();
                 return true;
             }
         }

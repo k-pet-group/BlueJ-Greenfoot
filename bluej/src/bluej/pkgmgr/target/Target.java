@@ -26,13 +26,18 @@ import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionsMenuManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
+import bluej.utility.Debug;
 import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.JavaFXUtil;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -122,16 +127,20 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     public Target(Package pkg, String identifierName, String accessibleTargetType)
     {
+        this.pkg = pkg;
+        this.identifierName = identifierName;
+        this.displayName = identifierName;
+        
         pane.setPrefWidth(calculateWidth(new Label(), identifierName));
         pane.setPrefHeight(DEF_HEIGHT);
         // We set this here rather than via CSS because we vary it dynamically:
         pane.setCursor(Cursor.HAND);
         JavaFXUtil.addStyleClass(pane, "target");
         pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
-
+        
         pane.setFocusTraversable(true);
-        pane.setAccessibleText(identifierName + (accessibleTargetType != null && !accessibleTargetType.isEmpty() ? " " + accessibleTargetType : ""));
-        pane.setAccessibleRole(AccessibleRole.NODE);
+        updateAccessibleName(accessibleTargetType, null);
+        pane.setAccessibleRole(AccessibleRole.BUTTON);
         JavaFXUtil.addFocusListener(pane, hasFocus -> {
             PackageEditor pkgEditor = pkg.getEditor();
 
@@ -332,10 +341,11 @@ public abstract class Target
 
         if (pkg == null)
             throw new NullPointerException();
+    }
 
-        this.pkg = pkg;
-        this.identifierName = identifierName;
-        this.displayName = identifierName;
+    protected void updateAccessibleName(String accessibleTargetType, String suffix)
+    {
+        pane.setAccessibleText(getIdentifierName() + (accessibleTargetType != null && !accessibleTargetType.isEmpty() ? " " + accessibleTargetType : "") + (suffix == null ? "" : suffix));
     }
 
     @OnThread(Tag.FXPlatform)
