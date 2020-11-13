@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,17 +34,19 @@ public class TeamSettings
 {
     private String protocol;
     private String server;
+    private int port;
     private String prefix;
     private String username;
     private String password;
     private String yourName;
     private String yourEmail;
     
-    public TeamSettings(String protocol, String server,
+    public TeamSettings(String protocol, String server, int port,
             String prefix, String username, String password)
     {
         this.protocol = protocol;
         this.server = server;
+        this.port = port;
         this.prefix = prefix;
         this.username = username;
         this.password = password;
@@ -58,6 +60,10 @@ public class TeamSettings
     public String getServer()
     {
         return server;
+    }
+
+    public int getPort() {
+        return port;
     }
     
     public String getPrefix()
@@ -114,12 +120,16 @@ public class TeamSettings
      * @param prefix the repository path in the server
      * @return the connection string in URI format.
      */
-    public static String getURI(String protocol, String server, String prefix){
+    public static String getURI(String protocol, String server, int port, String prefix){
         
         String gitUrl = protocol + "://";
 
 
         gitUrl += server;
+        if(port > 0) {
+            gitUrl += (":" + port);
+        }
+
         if (prefix.length() != 0 && !prefix.startsWith("/")) {
             gitUrl += "/";
         }

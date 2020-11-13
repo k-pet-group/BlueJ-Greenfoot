@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -77,6 +77,7 @@ public class TeamSettingsPanel extends VBox
     private Label passwordLabel  = new Label(Config.getString("team.settings.password"));
 
     private final TextField serverField = new TextField();
+    private final TextField portField = new TextField();
     private final TextField prefixField = new TextField();
     private final ComboBox<String> protocolComboBox = new ComboBox<>();
     private final TextField uriField = new TextField();
@@ -268,6 +269,11 @@ public class TeamSettingsPanel extends VBox
             setServer(server);
         }
 
+        int port = teamSettingsController.getPropInt(keyBase + "port");
+        if(port > 0) {
+            setPort(port);
+        }
+
         fillProtocolSelections();
         
         String protocol = readProtocolString();
@@ -318,6 +324,8 @@ public class TeamSettingsPanel extends VBox
     {
         serverField.setText(server);
     }
+
+    private void setPort(int port) { portField.setText("" + port); }
     
     /**
      * Set the protocol to that identified by the given protocol key.
@@ -367,7 +375,17 @@ public class TeamSettingsPanel extends VBox
             return null;
         }
     }
-    
+
+    private int getPort()
+    {
+        try {
+            URI uri = new URI(uriField.getText());
+            return uri.getPort();
+        } catch (URISyntaxException ex) {
+            return -1;
+        }
+    }
+
     private String getProtocolKey()
     {
         try {
@@ -396,7 +414,7 @@ public class TeamSettingsPanel extends VBox
     public TeamSettings getSettings()
     {
         TeamSettings result = new TeamSettings(getProtocolKey(),
-                getServer(), getPrefix(), getUser(), getPassword());
+                getServer(), getPort(), getPrefix(), getUser(), getPassword());
         result.setYourEmail(getYourEmail());
         result.setYourName(getYourName());
         return result;
@@ -427,12 +445,20 @@ public class TeamSettingsPanel extends VBox
     {
         prefixField.setDisable(true);
         serverField.setDisable(true);
+        portField.setDisable(true);
         protocolComboBox.setDisable(true);
         uriField.setDisable(true);
 
         if (uriField.isVisible() && uriField.getText().isEmpty()){
             //update uri.
-            uriField.setText(TeamSettings.getURI(readProtocolString(), serverField.getText(), prefixField.getText()));
+            int port  = -1;
+            try{
+                port = Integer.parseInt(portField.getText());
+            }
+            catch(NumberFormatException nex){
+            }
+
+            uriField.setText(TeamSettings.getURI(readProtocolString(), serverField.getText(), port, prefixField.getText()));
         }
 
         prefixLabel.setDisable(true);

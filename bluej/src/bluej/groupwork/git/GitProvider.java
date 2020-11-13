@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -215,6 +215,8 @@ public class GitProvider implements TeamworkProvider
         if ((server == null || server.isEmpty()) /*&& !protocol.equals("file") // file protocol is unsupported currently*/ ){
             throw new UnsupportedSettingException(Config.getString("team.error.cannotParseServer"));
         }
+
+        int port = settings.getPort(); // Port is optional, if not found it's not added to the URL
         
         String prefix = settings.getPrefix();
         if (prefix == null || prefix.isEmpty()){
@@ -232,6 +234,8 @@ public class GitProvider implements TeamworkProvider
 
         if (server != null)
             gitUrl += server;
+        if(port > 0)
+            gitUrl += (":" + port);
         if (prefix.length() != 0 && !prefix.startsWith("/")) {
             gitUrl += "/";
         }
