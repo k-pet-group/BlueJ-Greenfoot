@@ -461,15 +461,19 @@ public class TeamSettingsController
     public int getPropInt(String strname)
     {
         String result = teamProperties.getProperty(strname);
-
         int intRes = -1;
+
         if (result != null) {
             try{
                 intRes = Integer.parseInt(result);
-                intRes = Integer.parseInt(Config.getPropString(strname, null));
-
+                return intRes;
             } catch (NumberFormatException nex){
             }
+        }
+
+        try{
+            intRes = Integer.parseInt(Config.getPropString(strname, null));
+        } catch (NumberFormatException nex){
         }
 
         return intRes;
