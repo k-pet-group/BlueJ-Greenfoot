@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -329,10 +329,11 @@ public class TeamSettingsController
         
         String prefix = getPropString(keyBase + "repositoryPrefix");
         String server = getPropString(keyBase + "server");
+        int port = getPropInt(keyBase + "port");
         
         String protocol = getPropString(keyBase + "protocol");
 
-        return new TeamSettings(protocol, server, prefix, user, password);
+        return new TeamSettings(protocol, server, port, prefix, user, password);
     }
     
     /**
@@ -450,10 +451,44 @@ public class TeamSettingsController
         return result;
     }
 
+    /**
+     * get the property by the name strname. If the property is present in
+     * the project, that value is returned. If not, bluej.properties and then
+     * bluej.defs are searched. If not found or isn't a number, -1 is returned.
+     * @param strname
+     * @return
+     */
+    public int getPropInt(String strname)
+    {
+        String result = teamProperties.getProperty(strname);
+        int intRes = -1;
+
+        if (result != null) {
+            try{
+                intRes = Integer.parseInt(result);
+                return intRes;
+            } catch (NumberFormatException nex){
+            }
+        }
+
+        try{
+            intRes = Integer.parseInt(Config.getPropString(strname, null));
+        } catch (NumberFormatException nex){
+        }
+
+        return intRes;
+    }
+
     public void setPropString(String key, String value)
     {
         if (key != null && value != null)
             teamProperties.setProperty(key, value);
+    }
+
+    public void setPropInt(String key, int value)
+    {
+        if (key != null)
+            teamProperties.setProperty(key, ""+ value);
     }
     
     public void updateSettings(TeamSettings newSettings, boolean useAsDefault)
@@ -486,6 +521,11 @@ public class TeamSettingsController
         String serverValue = settings.getServer();
         if (serverValue != null)
             setPropString(serverKey, serverValue);
+
+        String portKey = keyBase + "port";
+        int portValue = settings.getPort();
+        if (portValue > 0)
+            setPropInt(portKey, portValue);
 
         String prefixKey = keyBase + "repositoryPrefix";
         String prefixValue = settings.getPrefix();
