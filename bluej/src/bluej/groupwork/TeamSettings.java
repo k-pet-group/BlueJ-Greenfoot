@@ -36,18 +36,20 @@ public class TeamSettings
     private String server;
     private int port;
     private String prefix;
+    private String branch;
     private String username;
     private String password;
     private String yourName;
     private String yourEmail;
     
     public TeamSettings(String protocol, String server, int port,
-            String prefix, String username, String password)
+            String prefix, String branch, String username, String password)
     {
         this.protocol = protocol;
         this.server = server;
         this.port = port;
         this.prefix = prefix;
+        this.branch = branch;
         this.username = username;
         this.password = password;
     }
@@ -69,6 +71,11 @@ public class TeamSettings
     public String getPrefix()
     {
         return prefix;
+    }
+
+    public String getBranch()
+    {
+        return branch;
     }
     
     public String getUserName()

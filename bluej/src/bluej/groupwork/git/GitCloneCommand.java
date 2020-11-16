@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016,2018,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@ import bluej.utility.DialogManager;
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -62,10 +63,22 @@ public class GitCloneCommand extends GitCommand
             disableFingerprintCheck(cloneCommand);
             cloneCommand.setDirectory(clonePath);
             cloneCommand.setURI(reposUrl);
-            StoredConfig repoConfig = cloneCommand.call().getRepository().getConfig(); //save the repo
+            Git git = cloneCommand.call();
+            StoredConfig repoConfig = git.getRepository().getConfig(); //save the repo
             repoConfig.setString("user", null, "name", getRepository().getYourName()); //register the user name
             repoConfig.setString("user", null, "email", getRepository().getYourEmail()); //register the user email
             repoConfig.save();
+
+            //if a specific branch has been requested in the settings, we get and checkout this branch
+            String specifiedBranch = getRepository().getBranch();
+            if(specifiedBranch != null && specifiedBranch.length() > 0) {
+                git.checkout().
+                    setCreateBranch(true).
+                    setName(specifiedBranch).
+                    setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK).
+                    setStartPoint("origin/" + specifiedBranch).
+                    call();
+            }
             
             if (!isCancelled()) {
                 return new TeamworkCommandResult();

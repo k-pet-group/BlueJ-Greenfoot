@@ -789,6 +789,8 @@ team.settings.ext=ext (using SSH)
 team.settings.pserver=pserver
 team.settings.protocol=Protocol
 team.settings.uri=Repository URI
+team.settings.branch=Branch
+team.settings.defaultBranch=Default branch
 team.settings.rememberSettings=Remember settings for future projects
 team.settings.checkConnection=Check connection
 
