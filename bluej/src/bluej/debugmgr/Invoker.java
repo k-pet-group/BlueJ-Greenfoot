@@ -507,7 +507,7 @@ public class Invoker
             }
             else {
                 ir = new MethodInvokerRecord(method.getGenericReturnType(), command + actualArgString, args);
-                objName = "result";
+                objName = "__bluej__result__";
             }
         }
 
@@ -633,7 +633,7 @@ public class Invoker
         if (hasResult) {
             if (resultType.equals(""))
                 resultType = null;
-            objName = "result";
+            objName = "__bluej__result__";
             ir = new ExpressionInvokerRecord(commandString);
         }
         else {
@@ -777,14 +777,14 @@ public class Invoker
             }
             else {
                 buffer.append("return new java.lang.Object() { ");
-                buffer.append(constype + " result;" + Config.nl);
+                buffer.append(constype + " __bluej__result__;" + Config.nl);
                 buffer.append("{ ");
                 buffer.append(paramInit);
                 if (localVars != null) {
                     writeVariables("lv:", buffer, false, localVars.getValueIterator(), nameTransform);
                 }
                 buffer.append("try {" + Config.nl);
-                buffer.append("result=(");
+                buffer.append("__bluej__result__=(");
             }
             buffer.append(callString);
             // Append a new line, as the call string may end with a //-style comment
@@ -1205,7 +1205,7 @@ public class Invoker
      * a freshly created object, a function result or an exception) and make
      * sure that it gets processed appropriately.
      * 
-     * <p>"exitStatus" and "result" fields should be set with appropriate values before
+     * <p>"exitStatus" and "__bluej__result__" fields should be set with appropriate values before
      * calling this.
      */
     @OnThread(Tag.FXPlatform)
