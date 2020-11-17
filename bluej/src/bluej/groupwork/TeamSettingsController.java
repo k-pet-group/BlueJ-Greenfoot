@@ -137,12 +137,13 @@ public class TeamSettingsController
     /**
      * Get the repository. Returns null if user credentials are required
      * but the user chooses to cancel.
+     * Second flag indicates if a share action is performed (false by default)
      */
-    public Repository trytoEstablishRepository(boolean authRequired)
+    public Repository trytoEstablishRepository(boolean authRequired, boolean isShareAction)
     {
         if (authRequired && password == null) {
             // If we don't yet know the password, prompt the user
-            if (!getTeamSettingsDialog().showAndWait().isPresent())
+            if (!getTeamSettingsDialog(isShareAction).showAndWait().isPresent())
                 return null; // user cancelled, password still null
 
             TeamSettings settings = teamSettingsDialog.getSettings();
@@ -183,7 +184,15 @@ public class TeamSettingsController
         
         return repository;
     }
-    
+
+    /**
+     * Shorthand call for the above method with default false value for isShareAction flag
+     */
+    public Repository trytoEstablishRepository(boolean authRequired)
+    {
+        return trytoEstablishRepository(authRequired, false);
+    }
+
     /**
      * Initialize the repository and make sure that authentication details (username/password) have
      * been provided.
@@ -333,7 +342,9 @@ public class TeamSettingsController
         
         String protocol = getPropString(keyBase + "protocol");
 
-        return new TeamSettings(protocol, server, port, prefix, user, password);
+        String branch = getPropString(keyBase + "branch");
+
+        return new TeamSettings(protocol, server, port, prefix, branch, user, password);
     }
     
     /**
@@ -362,11 +373,25 @@ public class TeamSettingsController
 
     /**
      * Get the team settings dialog to edit these team settings.
+     * isShareAction is used to notify the specify "share" action from BlueJ
+     */
+    public TeamSettingsDialog getTeamSettingsDialog(boolean isShareAction)
+    {
+        if (teamSettingsDialog == null) {
+            teamSettingsDialog = new TeamSettingsDialog(PkgMgrFrame.getMostRecent().getWindow(), this, isShareAction);
+            disableRepositorySettings();
+        }
+
+        return teamSettingsDialog;
+    }
+
+    /**
+     * shorthand of the above method, with default value for isShareAction to false
      */
     public TeamSettingsDialog getTeamSettingsDialog()
     {
         if (teamSettingsDialog == null) {
-            teamSettingsDialog = new TeamSettingsDialog(PkgMgrFrame.getMostRecent().getWindow(), this);
+            teamSettingsDialog = new TeamSettingsDialog(PkgMgrFrame.getMostRecent().getWindow(), this, false);
             disableRepositorySettings();
         }
 
@@ -530,6 +555,10 @@ public class TeamSettingsController
         String prefixKey = keyBase + "repositoryPrefix";
         String prefixValue = settings.getPrefix();
         setPropString(prefixKey, prefixValue);
+
+        String branchkey = keyBase + "branch";
+        String branchValue = settings.getBranch();
+        setPropString(branchkey, branchValue);
 
         String protocolKey = keyBase + "protocol";
         String protocolValue = settings.getProtocol();

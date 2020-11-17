@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -61,6 +61,7 @@ public class GitRepository implements Repository
     private String password;
     private final String yourName;
     private final String yourEmail;
+    private final String branch;
 
     /**
      * Create a Git repository when all fields are known. Usually when cloning a
@@ -68,16 +69,18 @@ public class GitRepository implements Repository
      * @param projectPath path to save the project to.
      * @param protocol protocol used when communicating to the server
      * @param reposUrl repository's path on the remote server
+     * @param branch the optional branch
      * @param userName user name to be used to authenticate on the server
      * @param password user password
      * @param yourName user name to be registered on the local git repository
      * @param yourEmail user e-mail to be registered on the local git repository
      */
-    public GitRepository(File projectPath, String protocol, String reposUrl, String userName, String password, String yourName, String yourEmail) 
+    public GitRepository(File projectPath, String protocol, String reposUrl, String branch, String userName, String password, String yourName, String yourEmail)
     {
         this.projectPath = projectPath;
         this.protocol = protocol;
         this.reposUrl = reposUrl;
+        this.branch = branch;
         this.userName = userName;
         this.password = password;
         this.yourName = yourName;
@@ -225,5 +228,9 @@ public class GitRepository implements Repository
     protected File getProjectPath() 
     {
         return this.projectPath;
+    }
+
+    public String getBranch(){
+        return branch;
     }
 }

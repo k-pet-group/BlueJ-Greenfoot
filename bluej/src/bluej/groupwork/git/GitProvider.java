@@ -183,7 +183,7 @@ public class GitProvider implements TeamworkProvider
     public Repository getRepository(File projectDir, TeamSettings settings) throws UnsupportedSettingException
     {
         try {
-            return new GitRepository(projectDir, settings.getProtocol(), makeGitUrl(settings),
+            return new GitRepository(projectDir, settings.getProtocol(), makeGitUrl(settings), settings.getBranch(),
                     settings.getUserName(), settings.getPassword(), settings.getYourName(), settings.getYourEmail());
         }
         catch (UnsupportedSettingException e) {

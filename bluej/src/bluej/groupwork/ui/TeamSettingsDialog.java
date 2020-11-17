@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 1999-2009,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -51,7 +51,7 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
      * Create a team settings dialog with a reference to the team settings
      * controller that it manipulates.
      */
-    public TeamSettingsDialog(Window owner, TeamSettingsController controller)
+    public TeamSettingsDialog(Window owner, TeamSettingsController controller, boolean isShareAction)
     {
         super(owner, "team.settings.title", "team-settings");
         setResizable(false);
@@ -64,7 +64,7 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
         setHeaderText(null);
 
         prepareButtonPane();
-        teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this);
+        teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this, isShareAction);
         getDialogPane().setContent(teamSettingsPanel);
         DialogManager.centreDialog(this);
         
