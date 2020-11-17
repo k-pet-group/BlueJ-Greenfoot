@@ -71,7 +71,7 @@ public class GitCloneCommand extends GitCommand
 
             //if a specific branch has been requested in the settings, we get and checkout this branch
             String specifiedBranch = getRepository().getBranch();
-            if(specifiedBranch != null && specifiedBranch.length() > 0) {
+            if(specifiedBranch != null && specifiedBranch.trim().length() > 0) {
                 git.checkout().
                     setCreateBranch(true).
                     setName(specifiedBranch).
