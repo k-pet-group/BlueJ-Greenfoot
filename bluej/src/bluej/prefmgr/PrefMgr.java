@@ -60,6 +60,7 @@ public class PrefMgr
     public static final String AUTO_INDENT = "bluej.editor.autoIndent";
     public static final String LINENUMBERS = "bluej.editor.displayLineNumbers";
     public static final String MATCH_BRACKETS = "bluej.editor.matchBrackets";
+    public static final String CHECK_DISKFILECHANGES = "bluej.editor.checkDiskFileChanges";
     public static final String LINK_LIB = "doctool.linkToStandardLib";
     public static final String SHOW_TEST_TOOLS = "bluej.testing.showtools";
     public static final String SHOW_TEAM_TOOLS = "bluej.teamwork.showtools";
@@ -433,6 +434,7 @@ public class PrefMgr
         flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
         flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
         flags.put(MATCH_BRACKETS, Config.getPropString(MATCH_BRACKETS, "true"));
+        flags.put(CHECK_DISKFILECHANGES, Config.getPropString(CHECK_DISKFILECHANGES, "true"));
         flags.put(LINK_LIB, Config.getPropString(LINK_LIB, "true"));
         flags.put(SHOW_TEST_TOOLS, Config.getPropString(SHOW_TEST_TOOLS, "false"));
         flags.put(SHOW_TEAM_TOOLS, Config.getPropString(SHOW_TEAM_TOOLS, "false"));

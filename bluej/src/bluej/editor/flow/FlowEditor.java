@@ -863,7 +863,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             if (watcher != null) {
                 watcher.recordSelected();
             }
-            checkForChangeOnDisk();
+            if(PrefMgr.getFlag(PrefMgr.CHECK_DISKFILECHANGES))
+                checkForChangeOnDisk();
         }
         else
         {
@@ -1454,7 +1455,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
             // Play it safe and avoid overwriting code that has been changed outside BlueJ (or at least,
             // outside *this* instance of BlueJ):
-            checkForChangeOnDisk();
+            if(PrefMgr.getFlag(PrefMgr.CHECK_DISKFILECHANGES))
+                checkForChangeOnDisk();
             if (!saveState.isChanged())
             {
                 return;
