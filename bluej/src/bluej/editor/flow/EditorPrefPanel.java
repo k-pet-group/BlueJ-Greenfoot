@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2015,2016,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2015,2016,2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -55,6 +55,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
     private CheckBox autoIndentBox;
     private CheckBox lineNumbersBox;
     private CheckBox matchBracketsBox;
+    private CheckBox checkFileChangedOnDiskBox;
     private ScopeHighlightingPrefDisplay scopeHighlightingPrefDisplay;
 
     /**
@@ -85,6 +86,9 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
             
             matchBracketsBox= new CheckBox(Config.getString("prefmgr.edit.matchBrackets"));
             topPanel.add(matchBracketsBox, 1, 1);
+
+            checkFileChangedOnDiskBox = new CheckBox(Config.getString("prefmgr.edit.checkfilechangeondisk"));
+            topPanel.add(checkFileChangedOnDiskBox, 1, 2);
             
             //colour scope highlighter slider
             Pane bottomPanel = new HBox();
@@ -106,6 +110,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
         autoIndentBox.setSelected(PrefMgr.getFlag(PrefMgr.AUTO_INDENT));
         lineNumbersBox.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
         matchBracketsBox.setSelected(PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS));
+        checkFileChangedOnDiskBox.setSelected(PrefMgr.getFlag(PrefMgr.CHECK_DISKFILECHANGES));
     }
 
     public void revertEditing(Project project)
@@ -121,6 +126,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.AUTO_INDENT, autoIndentBox.isSelected());
         PrefMgr.setFlag(PrefMgr.LINENUMBERS, lineNumbersBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.CHECK_DISKFILECHANGES, checkFileChangedOnDiskBox.isSelected());
         int strength = scopeHighlightingPrefDisplay.getStrengthValue();
         try {
             PrefMgr.setEditorFontSize(Integer.parseInt(fontText));

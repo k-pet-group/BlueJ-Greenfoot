@@ -119,6 +119,7 @@ prefmgr.edit.colortransparency=Scope Highlighting
 prefmgr.edit.usesyntaxhilighting=Use syntax highlighting
 prefmgr.edit.autoindent=Auto-indent (Enter and Tab keys)
 prefmgr.edit.displaylinenumbers=Display line numbers
+prefmgr.edit.checkfilechangeondisk=Check file changes on the disk
 prefmgr.edit.matchBrackets=Match brackets
 prefmgr.edit.keybindingstitle=Key Bindings
 prefmgr.edit.highlightLighter=Lighter
