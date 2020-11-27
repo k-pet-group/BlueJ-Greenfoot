@@ -1484,6 +1484,8 @@ public final class FlowActions
                 String toPaste = Clipboard.getSystemClipboard().getString();
                 if (toPaste != null)
                 {
+                    // Remove Windows line endings as we paste:
+                    toPaste = toPaste.replace("\r", "");
                     editor.getSourcePane().replaceSelection(toPaste);
                 }
                 if (viaContextMenu)

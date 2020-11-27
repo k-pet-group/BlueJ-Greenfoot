@@ -305,15 +305,15 @@ public class ImportScanner
         // We hide bluej.* classes as users shouldn't be accessing them:
         ClassGraph userClassGraph = new ClassGraph()
                 .overrideClassLoaders(cl.toArray(new ClassLoader[0]))
-                .blacklistPackages("bluej.*");
+                .rejectPackages("bluej.*");
         
         // We have a separate class graph for system libraries (java.*, javafx.*), from which
         // we only take public packages, thus avoiding all the com.sun classes and so on:
         // This has to be separate because enableSystemPackages() doesn't work alongside 
         // overrideClassLoaders():
         ClassGraph systemClassGraph = new ClassGraph()
-            .enableSystemPackages()
-            .whitelistPackages("java.*", "javax.*", "javafx.*");
+            .enableSystemJarsAndModules()
+            .acceptPackages("java.*", "javax.*", "javafx.*");
 
         return List.of(
             userClassGraph.enableClassInfo(),
@@ -336,6 +336,9 @@ public class ImportScanner
         
         if (classGraphs != null)
         {
+            // Special case -- ClassGraph library (deliberately) doesn't return Object in its list
+            // so we must add it ourselves to avoid problems like "Unknown type: Object" messages.
+            r.addClass("java.lang.Object");
             final int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
             for (ClassGraph classGraph : classGraphs)
             {
