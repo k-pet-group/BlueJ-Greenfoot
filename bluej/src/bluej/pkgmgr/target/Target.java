@@ -131,7 +131,7 @@ public abstract class Target
         this.identifierName = identifierName;
         this.displayName = identifierName;
         
-        pane.setPrefWidth(calculateWidth(new Label(), identifierName));
+        pane.setPrefWidth(calculateWidth(new Label(), identifierName, DEF_WIDTH));
         pane.setPrefHeight(DEF_HEIGHT);
         // We set this here rather than via CSS because we vary it dynamically:
         pane.setCursor(Cursor.HAND);
@@ -389,13 +389,13 @@ public abstract class Target
      * @return the width the target should have to fully display its name.
      */
     @OnThread(Tag.FX)
-    protected static int calculateWidth(Labeled node, String name)
+    protected static int calculateWidth(Labeled node, String name, int minWidth)
     {
         int width = 0;
         if (name != null)
             width = (int)JavaFXUtil.measureString(node, name);
-        if ((width + 20) <= DEF_WIDTH)
-            return DEF_WIDTH;
+        if ((width + 20) <= minWidth)
+            return minWidth;
         else
             return (width + 29) / PackageEditor.GRID_SIZE * PackageEditor.GRID_SIZE;
     }
