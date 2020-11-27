@@ -305,15 +305,15 @@ public class ImportScanner
         // We hide bluej.* classes as users shouldn't be accessing them:
         ClassGraph userClassGraph = new ClassGraph()
                 .overrideClassLoaders(cl.toArray(new ClassLoader[0]))
-                .blacklistPackages("bluej.*");
+                .rejectPackages("bluej.*");
         
         // We have a separate class graph for system libraries (java.*, javafx.*), from which
         // we only take public packages, thus avoiding all the com.sun classes and so on:
         // This has to be separate because enableSystemPackages() doesn't work alongside 
         // overrideClassLoaders():
         ClassGraph systemClassGraph = new ClassGraph()
-            .enableSystemPackages()
-            .whitelistPackages("java.*", "javax.*", "javafx.*");
+            .enableSystemJarsAndModules()
+            .acceptPackages("java.*", "javax.*", "javafx.*");
 
         return List.of(
             userClassGraph.enableClassInfo(),

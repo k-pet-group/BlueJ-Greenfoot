@@ -94,7 +94,7 @@ public class Boot
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext2.jar",
         "junit-*.jar", "hamcrest-core-1.3.jar", "hamcrest-library-1.3.jar", "bluej.jar",
-        "classgraph-4.2.6.jar",
+        "classgraph-4.8.90.jar",
         "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
         JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
         "lang-stride.jar",
@@ -109,7 +109,7 @@ public class Boot
     // The jar files we expect in the BlueJ lib directory
     // The first lot are the ones to run BlueJ itself
     private static final String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext2.jar",
-        "classgraph-4.2.6.jar",
+        "classgraph-4.8.90.jar",
         "commons-logging-api-1.1.2.jar",
         "diffutils-1.2.1.jar",
         "guava-17.0.jar",

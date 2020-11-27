@@ -35,7 +35,7 @@
         <include name="lib/httpmime-4.1.1.jar" />
         <include name="lib/commons-logging-api-1.1.2.jar" />
         <include name="lib/diffutils-1.2.1.jar" />
-        <include name="lib/classgraph-4.2.6.jar" />
+        <include name="lib/classgraph-4.8.90.jar" />
         <include name="lib/guava-17.0.jar" />
         <include name="lib/xom-1.2.9.jar" />
         <include name="lib/bluej.defs" />

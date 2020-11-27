@@ -71,7 +71,7 @@ license can be found in the "Apache-License-2.0.txt" file.
 
 ClassGraph library (MIT License)
 --------------------------------
-"classgraph-4.2.6.jar" is from the ClassGraph library, which allows scanning of Java
+"classgraph-4.8.90.jar" is from the ClassGraph library, which allows scanning of Java
 libraries for a list of present classes.  It is released by Luke Hutchison under
 the MIT License, and is available at https://github.com/classgraph/classgraph
 
@@ -247,7 +247,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 AppleJavaExtensions.jar                  BSD-like license
 commons-logging-api-1.1.2.jar            Apache License v2.0
-classgraph-4.2.6.jar                     MIT License
+classgraph-4.8.90.jar                     MIT License
 diffutils-1.2.1.jar                      Apache License v2.0
 guava-17.0.jar                           Apache License v2.0
 hamcrest-core-1.3.jar                    BSD License
