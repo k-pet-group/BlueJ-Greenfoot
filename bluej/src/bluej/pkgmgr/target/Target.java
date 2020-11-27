@@ -326,6 +326,12 @@ public abstract class Target
         });
 
         JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
+            // If we are not in the current selection, make us the selection:
+            if (!pkg.getEditor().getSelection().contains(Target.this))
+            {
+                pkg.getEditor().selectOnly(Target.this);
+            }
+            
             AbstractOperation.MenuItems menuItems = AbstractOperation.getMenuItems(pkg.getEditor().getSelection(), true);
             ContextMenu contextMenu = AbstractOperation.MenuItems.makeContextMenu(Map.of("", menuItems));
             if (pkg.getEditor().getSelection().size() == 1 && pkg.getEditor().getSelection().get(0) instanceof ClassTarget)
