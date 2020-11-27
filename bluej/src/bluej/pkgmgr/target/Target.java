@@ -64,8 +64,8 @@ import threadchecker.Tag;
 public abstract class Target
     implements Comparable<Target>, AbstractOperation.ContextualItem<Target>
 {
-    static final int DEF_WIDTH = 80;
-    static final int DEF_HEIGHT = 50;
+    static final int DEF_WIDTH = 120;
+    static final int DEF_HEIGHT = 70;
     static final int ARR_HORIZ_DIST = 5;
     static final int ARR_VERT_DIST = 10;
     static final int HANDLE_SIZE = 20;
