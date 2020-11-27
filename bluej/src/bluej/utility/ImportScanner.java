@@ -336,6 +336,9 @@ public class ImportScanner
         
         if (classGraphs != null)
         {
+            // Special case -- ClassGraph library (deliberately) doesn't return Object in its list
+            // so we must add it ourselves to avoid problems like "Unknown type: Object" messages.
+            r.addClass("java.lang.Object");
             final int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
             for (ClassGraph classGraph : classGraphs)
             {
