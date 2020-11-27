@@ -222,7 +222,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     // Which thread to run on.  null means we have never asked the user about it.
     private RunOnThread runOnThread;
     @OnThread(Tag.Any)
-    private final CompletableFuture<ProjectImportInformation> projectImportInformation;
+    private final CompletableFuture<ProjectImportInformation> projectImportInformation = new CompletableFuture<>();
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -331,7 +331,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                     execControls.hide();
             }
         });
-        this.projectImportInformation = new CompletableFuture<>();
         Utility.runBackground(() -> {
             projectImportInformation.complete(new ProjectImportInformation(this));
         });
