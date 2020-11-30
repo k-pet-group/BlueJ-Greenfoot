@@ -31,13 +31,6 @@ public class ObjectBackground extends ResizableCanvas
         JavaFXUtil.addChangeListenerPlatform(widthProperty(), w -> redrawContent());
         JavaFXUtil.addChangeListenerPlatform(heightProperty(), h -> redrawContent());
         JavaFXUtil.addChangeListenerPlatform(lineWidth, d -> redrawContent());
-
-        Rectangle clip = new Rectangle();
-        clip.widthProperty().bind(widthProperty());
-        clip.heightProperty().bind(heightProperty());
-        clip.setArcWidth(10.0);
-        clip.setArcHeight(10.0);
-        setClip(clip);
     }
 
     private void redrawContent()
@@ -46,12 +39,16 @@ public class ObjectBackground extends ResizableCanvas
         double w = getWidth();
         double h = getHeight();
 
+        gc.clearRect(0, 0, w, h);
+        
         final Paint fill = new javafx.scene.paint.Color(227.0 / 255.0, 71.0 / 255.0, 71.0 / 255.0, 1.0);
         gc.setFill(fill);
-        gc.fillRect(0, 0, w, h);
+        double l = lineWidth.get();
+        // Need a slightly increased corner size for the fill so that it doesn't show up outside the stroke:
+        gc.fillRoundRect(l, l, w-2*l, h-2*l, cornerSize*1.1, cornerSize*1.1);
 
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(lineWidth.get());
-        gc.strokeRoundRect(0, 0, w, h, cornerSize, cornerSize);
+        gc.strokeRoundRect(l, l, w-2*l, h-2*l, cornerSize, cornerSize);
     }
 }
