@@ -155,6 +155,8 @@
     -fx-border-style: solid outside; /* Prevents relayout when border gets thicker */
     /* We set this programatically because we vary it when the mouse moves to the bottom corner: */
     /*-fx-cursor: hand; */
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
 }
 .css-target {
     -fx-background-color: css-target;
