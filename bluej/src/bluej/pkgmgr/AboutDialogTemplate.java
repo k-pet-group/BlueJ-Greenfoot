@@ -120,7 +120,7 @@ public class AboutDialogTemplate extends Dialog<Void>
         aboutPanel.setBottom(bottom);
 
         // Create team names list
-        String teamText = String.join(", ", "Neil Brown", "Michael Kölling", "Pierre Weill-Tessier" + ".");
+        String teamText = String.join(", ", "Neil Brown", "Michael Kölling", "Charalampos Kyfonidis", "Pierre Weill-Tessier" + ".");
 
         bottom.getChildren().add(JavaFXUtil.withStyleClass(
                 new Label(Config.getString("about.theTeam") + " " + teamText),
