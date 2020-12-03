@@ -521,12 +521,16 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      * @param visible Whether to add the tab and make window visible (true), or remove the tab (false).
      *                Window is only hidden if no tabs remain (handled elsewhere in code)
      * @param tab     The tab in question
+     * @return        True if the visible state needed to be changed, false if there was nothing
+     *                that needed to be done.
      */
-    public void setWindowVisible(boolean visible, Tab tab)
+    public boolean setWindowVisible(boolean visible, Tab tab)
     {
         if (visible)
         {
-            if (!stage.isShowing()) {
+            boolean wasAlreadyShowing = stage.isShowing();
+            if (!wasAlreadyShowing)
+            {
                 if (startSize != null)
                 {
                     stage.setX(startSize.getX());
@@ -542,11 +546,16 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             if (!tabPane.getTabs().contains(tab))
             {
                 tabPane.getTabs().add(tab);
+                return true;
+            }
+            else
+            {
+                return !wasAlreadyShowing;
             }
         }
         else
         {
-            tabPane.getTabs().remove(tab);
+            return tabPane.getTabs().remove(tab);
         }
     }
     

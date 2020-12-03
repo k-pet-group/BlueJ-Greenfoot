@@ -1396,23 +1396,26 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             fxTabbedEditor.addTab(fxTab, vis, true);
         }
-        fxTabbedEditor.setWindowVisible(vis, fxTab);
+        boolean hadEffect = fxTabbedEditor.setWindowVisible(vis, fxTab);
 
         if (vis)
         {
             fxTabbedEditor.bringToFront(fxTab);
-            if (callbackOnOpen != null)
+            if (hadEffect)
             {
-                callbackOnOpen.run();
-            }
-            checkBracketStatus();
+                if (callbackOnOpen != null)
+                {
+                    callbackOnOpen.run();
+                }
+                
+                checkBracketStatus();
 
-            if (sourceIsCode && !compiledProperty.get())
-            {
-                // Schedule a compilation so we can find and display any errors:
-                scheduleCompilation(CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
+                if (sourceIsCode && !compiledProperty.get())
+                {
+                    // Schedule a compilation so we can find and display any errors:
+                    scheduleCompilation(CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
+                }
             }
-
             // Make sure caret is visible after open:
             getSourcePane().ensureCaretShowing();
             requestLayout();
