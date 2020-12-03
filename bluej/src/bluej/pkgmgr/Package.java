@@ -2947,38 +2947,34 @@ public final class Package
      */
     public boolean checkDependecyCompilationError(ClassTarget classTarget)
     {
-        boolean dependencyError = false;
-        outerloop:
         for (Dependency d : classTarget.dependencies())
         {
             ClassTarget dependent = (ClassTarget) d.getTo();
             if (dependent.getState() == State.HAS_ERROR && dependent.hasSourceCode())
             {
-                dependencyError = true;
-                break outerloop;
+                return true;
             }
             else
             {
                 List<Dependency> dependencyParents = dependent.getParents();
-                dependencyError = dependencyParents.stream()
-                        .filter(pv -> pv.getTo().getState() == State.HAS_ERROR)
-                        .findFirst().isPresent();
-                if (dependencyError)
+                if (dependencyParents.stream()
+                    .filter(pv -> pv.getTo().getState() == State.HAS_ERROR)
+                    .findFirst().isPresent())
                 {
-                    break outerloop;
+                    return true;
                 }
+                
                 //check if the dependant has parents compilation errors
                 for (Dependency parentDependency : dependencyParents)
                 {
                     ClassTarget dependencyParent = (ClassTarget) parentDependency.getTo();
-                    dependencyError = checkDependecyCompilationError(dependencyParent);
-                    if (dependencyError)
+                    if (checkDependecyCompilationError(dependencyParent))
                     {
-                        break outerloop;
+                        return true;
                     }
                 }
             }
         }
-        return dependencyError;
+        return false;
     }
 }
