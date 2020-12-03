@@ -65,11 +65,15 @@ public class ObjectBackground extends ResizableCanvas
         final Paint fill = new javafx.scene.paint.Color(227.0 / 255.0, 71.0 / 255.0, 71.0 / 255.0, 1.0);
         gc.setFill(fill);
         double l = lineWidth.get();
+        // To make sure the line is visible on the canvas and not truncated, we move the coordinates by the
+        // line width amount away from the edge.  Remember that these methods take width and height, so the
+        // width needs to subtract 2*l (one for the left, one for the right) and similar for the height.
+        
         // Need a slightly increased corner size for the fill so that it doesn't show up outside the stroke:
         gc.fillRoundRect(l, l, w-2*l, h-2*l, cornerSize*1.1, cornerSize*1.1);
 
         gc.setStroke(Color.BLACK);
-        gc.setLineWidth(lineWidth.get());
+        gc.setLineWidth(l);
         gc.strokeRoundRect(l, l, w-2*l, h-2*l, cornerSize, cornerSize);
     }
 }

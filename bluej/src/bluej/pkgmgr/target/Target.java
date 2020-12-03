@@ -397,7 +397,9 @@ public abstract class Target
         if ((width + 20) <= minWidth)
             return minWidth;
         else
-            return (width + 29) / PackageEditor.GRID_SIZE * PackageEditor.GRID_SIZE;
+            // Snap to GRID_SIZE coordinates, at the next coordinate past width + 20.
+            // e.g. GRID_SIZE=10, width = 17, snap to 40 (17 + 20 -> next snap).
+            return ((width + 20 + (PackageEditor.GRID_SIZE - 1)) / PackageEditor.GRID_SIZE) * PackageEditor.GRID_SIZE;
     }
     
     /**
