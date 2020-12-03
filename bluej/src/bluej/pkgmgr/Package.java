@@ -33,6 +33,7 @@ import java.util.*;
 
 import bluej.debugger.DebuggerObject;
 import bluej.views.CallableView;
+import com.google.common.collect.Sets;
 import javafx.application.Platform;
 
 import bluej.compiler.CompileInputFile;
@@ -2947,34 +2948,26 @@ public final class Package
      */
     public boolean checkDependecyCompilationError(ClassTarget classTarget)
     {
-        for (Dependency d : classTarget.dependencies())
+        // First calculate all dependencies, no matter how indirect,
+        // taking care to avoid an infinite loop in the case there is a mutual dependency:
+        LinkedList<ClassTarget> toCalculate = new LinkedList<>();
+        toCalculate.add(classTarget);
+        Set<ClassTarget> dependencies = Sets.newIdentityHashSet();
+        while (!toCalculate.isEmpty())
         {
-            ClassTarget dependent = (ClassTarget) d.getTo();
-            if (dependent.getState() == State.HAS_ERROR && dependent.hasSourceCode())
+            ClassTarget t = toCalculate.removeFirst();
+            for (Dependency d : t.dependencies())
             {
-                return true;
-            }
-            else
-            {
-                List<Dependency> dependencyParents = dependent.getParents();
-                if (dependencyParents.stream()
-                    .filter(pv -> pv.getTo().getState() == State.HAS_ERROR)
-                    .findFirst().isPresent())
+                ClassTarget to = (ClassTarget) d.getTo();
+                // If it's a dependency we haven't encountered before, we'll also
+                // need to calculate its dependencies:
+                if (dependencies.add(to))
                 {
-                    return true;
-                }
-                
-                //check if the dependant has parents compilation errors
-                for (Dependency parentDependency : dependencyParents)
-                {
-                    ClassTarget dependencyParent = (ClassTarget) parentDependency.getTo();
-                    if (checkDependecyCompilationError(dependencyParent))
-                    {
-                        return true;
-                    }
+                    toCalculate.add(to);
                 }
             }
         }
-        return false;
+        
+        return dependencies.stream().anyMatch(d -> d.getState() == State.HAS_ERROR && d.hasSourceCode());
     }
 }
