@@ -2432,9 +2432,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         };
 
         String[] previousTeamMembers = {
+                "Amjad Altadmri",
                 "Michael Berry",
+                "Hamza Hamza",
                 "Fabio Hedayioglu",
                 "Poul Henriksen",
+                "Davin McCall",
                 "Philip Stevens",
                 "Ian Utting",
                 "Marion Zalk",

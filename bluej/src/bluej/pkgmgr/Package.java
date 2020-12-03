@@ -1163,12 +1163,15 @@ public final class Package
         repaint();
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void repaint()
     {
-        JavaFXUtil.runNowOrLater(() -> {
-            PackageEditor ed = getEditor();
-            if (ed != null) ed.repaint();});
+        PackageEditor ed = getEditor();
+        if (ed != null)
+        {
+            ed.requestLayout();
+            JavaFXUtil.runAfterNextLayout(ed.getScene(), ed::repaint);
+        }
     }
 
     /**

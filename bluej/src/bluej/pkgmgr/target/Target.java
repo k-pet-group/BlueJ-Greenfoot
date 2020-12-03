@@ -64,8 +64,8 @@ import threadchecker.Tag;
 public abstract class Target
     implements Comparable<Target>, AbstractOperation.ContextualItem<Target>
 {
-    static final int DEF_WIDTH = 80;
-    static final int DEF_HEIGHT = 50;
+    static final int DEF_WIDTH = 120;
+    static final int DEF_HEIGHT = 70;
     static final int ARR_HORIZ_DIST = 5;
     static final int ARR_VERT_DIST = 10;
     static final int HANDLE_SIZE = 20;
@@ -131,7 +131,7 @@ public abstract class Target
         this.identifierName = identifierName;
         this.displayName = identifierName;
         
-        pane.setPrefWidth(calculateWidth(new Label(), identifierName));
+        pane.setPrefWidth(calculateWidth(new Label(), identifierName, DEF_WIDTH));
         pane.setPrefHeight(DEF_HEIGHT);
         // We set this here rather than via CSS because we vary it dynamically:
         pane.setCursor(Cursor.HAND);
@@ -326,6 +326,12 @@ public abstract class Target
         });
 
         JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
+            // If we are not in the current selection, make us the selection:
+            if (!pkg.getEditor().getSelection().contains(Target.this))
+            {
+                pkg.getEditor().selectOnly(Target.this);
+            }
+            
             AbstractOperation.MenuItems menuItems = AbstractOperation.getMenuItems(pkg.getEditor().getSelection(), true);
             ContextMenu contextMenu = AbstractOperation.MenuItems.makeContextMenu(Map.of("", menuItems));
             if (pkg.getEditor().getSelection().size() == 1 && pkg.getEditor().getSelection().get(0) instanceof ClassTarget)
@@ -383,15 +389,17 @@ public abstract class Target
      * @return the width the target should have to fully display its name.
      */
     @OnThread(Tag.FX)
-    protected static int calculateWidth(Labeled node, String name)
+    protected static int calculateWidth(Labeled node, String name, int minWidth)
     {
         int width = 0;
         if (name != null)
             width = (int)JavaFXUtil.measureString(node, name);
-        if ((width + 20) <= DEF_WIDTH)
-            return DEF_WIDTH;
+        if ((width + 20) <= minWidth)
+            return minWidth;
         else
-            return (width + 29) / PackageEditor.GRID_SIZE * PackageEditor.GRID_SIZE;
+            // Snap to GRID_SIZE coordinates, at the next coordinate past width + 20.
+            // e.g. GRID_SIZE=10, width = 17, snap to 40 (17 + 20 -> next snap).
+            return ((width + 20 + (PackageEditor.GRID_SIZE - 1)) / PackageEditor.GRID_SIZE) * PackageEditor.GRID_SIZE;
     }
     
     /**

@@ -2075,10 +2075,10 @@ public class ClassTarget extends DependentTarget
     private void updateSize()
     {
         String displayName = getDisplayName();
-        int width = calculateWidth(nameLabel, displayName);
         // Don't make size smaller if user has already resized
         // to larger than is needed for text width:
-        setSize(Math.max(width, (int)pane.getPrefWidth()), getHeight());
+        int width = calculateWidth(nameLabel, displayName, (int)pane.getPrefWidth());
+        setSize(width, getHeight());
         repaint();
     }
 
