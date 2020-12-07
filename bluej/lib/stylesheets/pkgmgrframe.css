@@ -28,6 +28,10 @@
 .pmf-central-pane {
     -fx-border-width: 1;
     -fx-border-color: pane-border-color;
+    -fx-border-radius: 10px;
+}
+.pmf-central-pane > .scroll-pane, .pmf-central-pane > .scroll-pane > .viewport {
+    -fx-background-radius: 10px;
 }
 .pmf-empty-project-msg {
     -fx-text-fill: gray;
@@ -131,6 +135,7 @@
 /* Class Diagram */
 .class-diagram, .package-target-preview {
     -fx-background-color: class-diagram;
+    -fx-background-radius: 10px;
 }
 .class-diagram:bj-drawing-extends {
     -fx-background-color: derive(class-diagram, -15%);
@@ -218,15 +223,19 @@
 
 
 /* Object Bench */
-.object-bench {
+.object-bench.scroll-pane {
     -fx-border-width: 1;
     -fx-border-color: pane-border-color;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
 }
 .object-bench > .viewport {
     -fx-background-color: object-bench;
+    -fx-background-radius: 10px;
 }
 .object-bench-panel {
     -fx-background-color: object-bench;
+    -fx-background-radius: 10px;
     /* Padding so that the fold-out arrow doesn't appear in front of any objects: */
     -fx-padding: 0 12px 0 0;
 }
@@ -249,15 +258,18 @@
 .codepad {
     -fx-border-width: 1;
     -fx-border-color: pane-border-color;
+    -fx-border-radius: 10px;
 }
 .codepad-history {
     -fx-min-height: 50;
     -fx-background-color: codepad;
+    -fx-background-radius: 10px;
 }
 .codepad-row {
     -fx-text-fill: black;
     -fx-wrap-text: false;
     -fx-background-color: codepad;
+    -fx-background-radius: 10px;
     -fx-padding: 4px 0px 0px 10px;
 }
 .codepad-row:selected {
@@ -282,6 +294,7 @@
             linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background);
        And here's our translation to use our background colour:*/
     -fx-background-color: lightgray, codepad-input;
+    -fx-background-radius: 10px;
 }
 .codepad .text-field:focused {
     -fx-background-color: black, codepad-input;
