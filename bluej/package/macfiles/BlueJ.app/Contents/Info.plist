@@ -77,6 +77,8 @@
 			<string>true</string>
 			<key>javafx.embed.singleThread</key>
 			<string>true</string>
+			<key>https.protocols</key>
+			<string>TLSv1,TLSv1.1,TLSv1.2</string> 
 		</dict>
 		<key>VMOptions</key>
         <array>

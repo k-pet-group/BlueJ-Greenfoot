@@ -478,7 +478,7 @@ bluej.vm.args=-ea
 ## Java defaults need to be modified.  
 #####################################################################
 
-bluej.windows.vm.args=
+bluej.windows.vm.args=-Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2
 
 
 #####################################################################
