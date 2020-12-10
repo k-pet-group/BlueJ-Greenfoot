@@ -315,6 +315,9 @@
 /* Preference Manager */
 .prefmgr-titled {
     -fx-collapsible: false;
+    -fx-text-overrun: center-ellipsis;
+    /* Needed to prevent some titles (especially user libraries) having very high min width: */
+    -fx-min-width: 400px;    
 }
 .prefmgr-titled > *.content {
     -fx-border-width: 0;
