@@ -477,7 +477,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     @OnThread(Tag.FXPlatform)
     public void openJavaCoreDocTab(String qualifiedClassName, String suffix)
     {
-        String target = Utility.getDocURL(qualifiedClassName, suffix);
+        Class<?> theClass = project.loadClass(qualifiedClassName);
+        // Guess java.base if we don't know the module:
+        String moduleName = theClass == null ? "java.base" : theClass.getModule().getName();
+        
+        String target = Utility.getDocURL(moduleName, qualifiedClassName, suffix);
         openWebViewTab(target);
     }
 

@@ -652,6 +652,10 @@ public final class PackageEditor extends StackPane
 
         for (UsesDependency d : usesDeps)
         {
+            // Special case - don't draw a dependency line between a Foo class and the FooTest class:
+            if (d.to instanceof DependentTarget && ((DependentTarget)d.to).getAssociation() == d.from)
+                continue;
+            
             g.setLineWidth(1.0);
             g.setLineDashes(DASHES);
             // These should all be rounded to the nearest integer+0.5 value:
