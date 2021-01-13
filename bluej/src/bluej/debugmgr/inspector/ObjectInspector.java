@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2013,2014,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2013,2014,2016,2017,2018,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,6 +40,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Screen;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
@@ -211,6 +212,8 @@ public class ObjectInspector extends Inspector
         stackPane.setBackground(null);
         BorderPane root = new BorderPane(stackPane);
         root.setBackground(null);
+        // Stop inspectors with arrays from being taller than the screen:
+        root.setMaxHeight(Screen.getScreens().stream().mapToDouble(s -> s.getBounds().getHeight() - 150).max().orElse(1000));
         Scene scene = new Scene(root);
         scene.setFill(null);
         setScene(scene);
