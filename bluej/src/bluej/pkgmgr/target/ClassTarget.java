@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,9 +40,7 @@ import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions2.*;
 import bluej.extensions2.event.ClassEvent;
-import bluej.extmgr.ClassExtensionMenu;
 import bluej.extmgr.ExtensionsManager;
-import bluej.extmgr.ExtensionsMenuManager;
 import bluej.parser.ParseFailure;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
@@ -79,16 +77,11 @@ import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -979,20 +972,41 @@ public class ClassTarget extends DependentTarget
      */
     public void invalidate()
     {
+        invalidateInclDependents(new ArrayList<>());
+    }
+
+    /**
+     * Implements invalidate().  We must keep track of which classes we've already invalidated
+     * as we traverse the dependency graph to prevent an infinite loop (in the case where
+     * A depends on B which depends on A).
+     * @param alreadyInvalidated The list of already invalidated targets in this call tree (will be modified)
+     */
+    private void invalidateInclDependents(ArrayList<ClassTarget> alreadyInvalidated)
+    {
         // Mark any current compilation as stale:
         compilationInvalid = true;
         
         if (hasSourceCode())
         {
-            markModified();
+            setState(State.NEEDS_COMPILE);
+            if (editor != null)
+            {
+                // Need to run later because we might be notified mid-edit event:
+                JavaFXUtil.runAfterCurrent(() -> editor.removeErrorHighlights());
+            }
         }
-        for (Dependency d : dependents()) {
+        
+        alreadyInvalidated.add(this);
+        
+        for (Dependency d : dependents())
+        {
             ClassTarget dependent = (ClassTarget) d.getFrom();
             
-            if (dependent.isCompiled() && dependent.hasSourceCode()) {
+            if (dependent.hasSourceCode() && !alreadyInvalidated.contains(dependent))
+            {
                 // Invalidate the dependent only if it is not already invalidated. 
                 // Will avoid going into an infinite circular loop.
-                dependent.invalidate();
+                dependent.invalidateInclDependents(alreadyInvalidated);
             }
         }
     }
