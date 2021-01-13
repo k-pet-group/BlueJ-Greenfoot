@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -984,7 +984,12 @@ public class ClassTarget extends DependentTarget
         
         if (hasSourceCode())
         {
-            markModified();
+            setState(State.NEEDS_COMPILE);
+            if (editor != null)
+            {
+                // Need to run later because we might be notified mid-edit event:
+                JavaFXUtil.runAfterCurrent(() -> editor.removeErrorHighlights());
+            }
         }
         for (Dependency d : dependents()) {
             ClassTarget dependent = (ClassTarget) d.getFrom();
