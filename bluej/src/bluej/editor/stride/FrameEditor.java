@@ -771,6 +771,7 @@ public class FrameEditor implements Editor
             }
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public void removeErrorHighlights()
             {
                 FrameEditor.this.removeErrorHighlights();
