@@ -494,20 +494,20 @@
         <mkdir dir="boot/resources/bluej"/>
         <java classname="DrawVersionOnSplash" classpath="util/classes" fork="yes" jvm="${run_java_home}/${java_command_dir_name}/java">
             <arg value="resources/unversioned-bluej-splash.png"/> <!-- original -->
-            <arg value="Version ${bluej.version}"/> <!-- text -->
+            <arg value="${bluej.version}"/> <!-- text -->
             <arg value="${bluej_home}/lib/fonts/SourceSansPro-Bold.ttf"/> <!-- font -->
             <arg value="16"/> <!-- font size -->
-            <arg value="237"/> <!-- X position -->
-            <arg value="130"/> <!-- Y position -->
+            <arg value="215"/> <!-- X position -->
+            <arg value="114"/> <!-- Y position -->
             <arg value="boot/resources/bluej/gen-bluej-splash.png"/> <!-- destination -->
         </java>
         <java classname="DrawVersionOnSplash" classpath="util/classes" fork="yes" jvm="${run_java_home}/${java_command_dir_name}/java">
             <arg value="resources/unversioned-bluej-splash@2x.png"/> <!-- original -->
-            <arg value="Version ${bluej.version}"/> <!-- text -->
+            <arg value="${bluej.version}"/> <!-- text -->
             <arg value="${bluej_home}/lib/fonts/SourceSansPro-Bold.ttf"/> <!-- font -->
             <arg value="32"/> <!-- font size -->
-            <arg value="470"/> <!-- X position -->
-            <arg value="260"/> <!-- Y position -->
+            <arg value="430"/> <!-- X position -->
+            <arg value="228"/> <!-- Y position -->
             <arg value="boot/resources/bluej/gen-bluej-splash@2x.png"/> <!-- destination -->
         </java>
     </target>
