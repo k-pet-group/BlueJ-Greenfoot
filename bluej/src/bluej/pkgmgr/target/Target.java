@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2016,2017,2018,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2013,2016,2017,2018,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -207,7 +207,7 @@ public abstract class Target
         });
 
         pane.setOnMousePressed(e -> {
-            if (e.getButton() == MouseButton.PRIMARY)
+            if (e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger() && e.isStillSincePress())
             {
                 // Dismiss context menu if the user left-clicks on the target:
                 // (Usual JavaFX behaviour is to keep the menu showing if you
@@ -228,7 +228,7 @@ public abstract class Target
             e.consume();
         });
         pane.setOnMouseDragged(e -> {
-            if (e.getButton() == MouseButton.PRIMARY && !pkg.getEditor().isCreatingExtends())
+            if (e.getButton() == MouseButton.PRIMARY && !pkg.getEditor().isCreatingExtends() && !e.isControlDown())
             {
                 if (pressIsResize && isResizable())
                 {
@@ -236,7 +236,7 @@ public abstract class Target
                     int newHeight = pkg.getEditor().snapToGrid((int) (e.getY() + (preResizeHeight - pressDeltaY)));
                     pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
                 }
-                else if (isMoveable())
+                else if (isMoveable() && !e.isStillSincePress())
                 {
                     // They didn't select us yet, but we still allow a drag-move.
                     // Select us as they start dragging:
@@ -256,7 +256,9 @@ public abstract class Target
             e.consume();
         });
         pane.setOnMouseReleased(e -> {
-            pkg.getEditor().endResize();
+            if (e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger()) {
+                pkg.getEditor().endResize();
+            }
         });
         pane.setOnKeyTyped(e -> {
             // + or - on the keyboard do a resize:
