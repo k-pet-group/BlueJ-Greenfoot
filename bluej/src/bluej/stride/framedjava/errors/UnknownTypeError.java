@@ -37,7 +37,6 @@ import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.application.Platform;
-import javafx.util.Pair;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -62,7 +61,7 @@ public class UnknownTypeError extends DirectSlotError
      * @param possibleImports The possible packages that we could import a class of this name from.
      */
     @OnThread(Tag.Any)
-    public UnknownTypeError(SlotFragment slotFragment, String typeName, FXPlatformConsumer<Pair<String,String[]>> replace, InteractionManager editor, Stream<AssistContentThreadSafe> possibleCorrections, Stream<AssistContentThreadSafe> possibleImports)
+    public UnknownTypeError(SlotFragment slotFragment, String typeName, FXPlatformConsumer<Correction.CorrectionElements> replace, InteractionManager editor, Stream<AssistContentThreadSafe> possibleCorrections, Stream<AssistContentThreadSafe> possibleImports)
     {
         super(slotFragment, DiagnosticOrigin.STRIDE_LATE);
         this.typeName = typeName;

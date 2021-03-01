@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
+import bluej.editor.fixes.Correction;
 import bluej.editor.stride.FrameEditor;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
@@ -34,7 +35,6 @@ import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXPlatformConsumer;
-import javafx.util.Pair;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -151,16 +151,18 @@ public class TypeSlotFragment extends StructuredSlotFragment
             }
             // Otherwise, give error and suggest corrections
             // The expected correction contains the type (in the pair key), and the extras the package (in the pair value), if provided.
-            FXPlatformConsumer<Pair<String, String[]>> replacer = correctionPair ->
+            FXPlatformConsumer<Correction.CorrectionElements> replacer = correctionElements ->
             {
                 // The type is always replaced by its "simple" name form, if the import doesn't exist, then we add it
                 // Note: the "simple" for may still contain a dot, for example in the case of an inner class, we propose outer.inner
                 // and in such case we need to import the declaring class
-                slot.setText(correctionPair.getKey());
-                String fullTypeName = ((correctionPair.getValue().length > 0) ? (correctionPair.getValue()[0] + ".") : "")
-                    + ((correctionPair.getKey().contains(".")) ? correctionPair.getKey().substring(0, correctionPair.getKey().lastIndexOf(".")) : correctionPair.getKey());
-                if (correctionPair.getValue()[0].length() > 0 && !editor.getFrameEditor().containsImport(fullTypeName)
-                    && !editor.getFrameEditor().containsImport(correctionPair.getValue()[0] + ".*"))
+                String correctionType = correctionElements.getPrimaryElement();
+                String correctionPackage = (correctionElements.getSecondaryElements().length > 0) ? correctionElements.getSecondaryElements()[0] : "";
+                slot.setText(correctionType);
+                String fullTypeName = ((correctionPackage.length() > 0) ? (correctionPackage + ".") : "")
+                    + ((correctionType.contains(".")) ? correctionType.substring(0, correctionType.lastIndexOf(".")) : correctionType);
+                if (correctionPackage.length() > 0 && !editor.getFrameEditor().containsImport(fullTypeName)
+                    && !editor.getFrameEditor().containsImport(correctionPackage + ".*"))
                 {
                     editor.getFrameEditor().addImportFromQuickFix(fullTypeName);
                 }
@@ -204,7 +206,7 @@ public class TypeSlotFragment extends StructuredSlotFragment
 
                 int startPosInSlot = indexList.get(i);
                 int endPosInSlot = startPosInSlot + t.length();
-                FXPlatformConsumer<Pair<String, String[]>> replace = correctionInfo -> slot.replace(startPosInSlot, endPosInSlot, false, correctionInfo.getKey());
+                FXPlatformConsumer<Correction.CorrectionElements> replace = correctionElements-> slot.replace(startPosInSlot, endPosInSlot, false, correctionElements.getPrimaryElement());
                 final UnknownTypeError error = new UnknownTypeError(this, t, replace, editor,
                         types.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().
                         flatMap(Collection::stream));

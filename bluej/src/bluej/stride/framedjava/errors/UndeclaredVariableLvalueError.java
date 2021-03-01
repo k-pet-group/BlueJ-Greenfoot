@@ -65,7 +65,7 @@ public class UndeclaredVariableLvalueError extends DirectSlotError
     {
         super(slotFragment, DiagnosticOrigin.STRIDE_LATE);
         this.assignFrame = assignFrame;
-        this.corrections.addAll(Correction.winnowAndCreateCorrections(assignFrame.getLHS().getText(), possibleCorrections.stream().map(SimpleCorrectionInfo::new), correctionPair -> assignFrame.getLHS().setText(correctionPair.getKey())));
+        this.corrections.addAll(Correction.winnowAndCreateCorrections(assignFrame.getLHS().getText(), possibleCorrections.stream().map(SimpleCorrectionInfo::new), correctionElements -> assignFrame.getLHS().setText(correctionElements.getPrimaryElement())));
         this.varName = assignFrame.getLHS().getText();
     }
     

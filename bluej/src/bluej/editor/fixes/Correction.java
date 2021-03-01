@@ -31,25 +31,22 @@ import bluej.Config;
 import bluej.parser.AssistContentThreadSafe;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
-import javafx.util.Pair;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 public class Correction extends FixSuggestion
 {
-    private final String correction;
-    private final String[] correctionExtras; //this field is used for extra information when just the correction cannot be enough
+    private final CorrectionElements correctionElements;
     private final String display;
-    private final FXPlatformConsumer<Pair<String, String[]>> replacer;
+    private final FXPlatformConsumer<CorrectionElements> replacer;
     private final static int MAX_EDIT_DISTANCE = 2;
 
     // This doesn't have to be private, but in practice you'll only ever use the
     // winnowCorrections method below
     @OnThread(Tag.Any)
-    private Correction(String correction, String[] correctionExtras, FXPlatformConsumer<Pair<String, String[]>> replacer, String display)
+    private Correction(CorrectionElements correctionElements, FXPlatformConsumer<CorrectionElements> replacer, String display)
     {
-        this.correction = correction;
-        this.correctionExtras = correctionExtras;
+        this.correctionElements = correctionElements;
         this.display = display;
         this.replacer = replacer;
     }
@@ -65,7 +62,36 @@ public class Correction extends FixSuggestion
     @OnThread(Tag.FXPlatform)
     public void execute()
     {
-        replacer.accept(new Pair(correction, correctionExtras));
+        replacer.accept(correctionElements);
+    }
+
+    @OnThread(Tag.Any)
+    // A container class that holds the elements needed for a correction:
+    // - a primary correction String element (primaryElement)
+    // - an array of secondary correction String elements (secondaryElements); empty if not required by a correction
+    public static class CorrectionElements{
+
+        private String primaryElement;
+        private String[] secondaryElements;
+
+        public CorrectionElements(String primaryElement, String[] secondaryElements){
+            this.primaryElement = primaryElement;
+            this.secondaryElements = (secondaryElements != null) ? secondaryElements : new String[]{};
+        }
+
+        // Most corrections will only need a primary correction element,
+        // this constructor allows to only set that element
+        public  CorrectionElements(String primaryElement){
+            this(primaryElement, null);
+        }
+
+        public String getPrimaryElement(){
+            return primaryElement;
+        }
+
+        public String[] getSecondaryElements(){
+            return secondaryElements;
+        }
     }
 
     @OnThread(Tag.Any)
@@ -87,11 +113,8 @@ public class Correction extends FixSuggestion
         // The String use to make a comparison with (because the actual correction may differ)
         public String getCorrectionToCompareWith();
 
-        // The actual String to correct to (used for edit distance calculation):
-        public String getCorrection();
-
-        // Any extra String elements that could be required for performing a correction
-        public String[] getCorrectionExtras();
+        // The correction elements for that correction
+        public CorrectionElements getCorrectionElements();
 
         // The text to display to the user in the fix list:
         public String getDisplay();
@@ -107,15 +130,7 @@ public class Correction extends FixSuggestion
             this.correction = correction;
         }
 
-        public String getCorrection()
-        {
-            return correction;
-        }
-
-        public String[] getCorrectionExtras()
-        {
-            return new String[]{};
-        }
+        public CorrectionElements getCorrectionElements() { return new CorrectionElements(correction); }
 
         public String getCorrectionToCompareWith()
         {
@@ -138,22 +153,19 @@ public class Correction extends FixSuggestion
             this.acts = acts;
         }
 
-        // The type may not be just the last part after "." --> for example outerClass.innerClass will be used for the type
-        // so we need to make a clear distinction between the package and the classes --> using the correction extras part below
-        public String getCorrection()
+        // The type to correct may be a nest class. So we need to distinguish the package (secondary correction elements)
+        // from the class type (primary correction element), which in the case of a nest class will be formatted as e.g. "Level1.Level2.Level3"
+        public CorrectionElements getCorrectionElements()
         {
-            if(acts.getDeclaringClass() != null)
-            {
-                return acts.getDeclaringClass() + "." + acts.getName();
-            }
-            return acts.getName();
-        }
+            String primaryCorrElement = (acts.getDeclaringClass() != null)
+                ? acts.getDeclaringClass() + "." + acts.getName()
+                : acts.getName();
 
-        // cf. previous method comment
-        public String[] getCorrectionExtras(){
-            return (acts.getPackage() == null || acts.getPackage().length() == 0 || acts.getPackage().equals("java.lang"))
+            String[] secondaryCorrElements = (acts.getPackage() == null || acts.getPackage().length() == 0 || acts.getPackage().equals("java.lang"))
                 ? new String[]{}
                 : new String[]{acts.getPackage()};
+
+            return new CorrectionElements(primaryCorrElement, secondaryCorrElements);
         }
 
         public String getCorrectionToCompareWith()
@@ -170,21 +182,21 @@ public class Correction extends FixSuggestion
     }
 
     // List is in order, best correction first (case insensitive)
-    public static List<Correction> winnowAndCreateCorrections(String cur, Stream<CorrectionInfo> possibleCorrections, FXPlatformConsumer<Pair<String, String[]>> replacer)
+    public static List<Correction> winnowAndCreateCorrections(String cur, Stream<CorrectionInfo> possibleCorrections, FXPlatformConsumer<CorrectionElements> replacer)
     {
         return winnowAndCreateCorrections(cur, possibleCorrections, replacer, false);
     }
 
     //List in order, best correction first (case sensitivity can be chosen, if true, the correction with the same value and same case isn't returned)
-    public static List<Correction> winnowAndCreateCorrections(String cur, Stream<CorrectionInfo> possibleCorrections, FXPlatformConsumer<Pair<String, String[]>> replacer, boolean caseSensitive)
+    public static List<Correction> winnowAndCreateCorrections(String cur, Stream<CorrectionInfo> possibleCorrections, FXPlatformConsumer<CorrectionElements> replacer, boolean caseSensitive)
     {
         return possibleCorrections
             .map(n -> new StringAndDist(n, Utility.editDistance(cur.toLowerCase(), n.getCorrectionToCompareWith().toLowerCase())))
             //if case sensitive search is asked for, we don't keep exact match between the type to correct and the suggestion EXCEPT for inner classes
-            .filter(sd -> sd.distance <= MAX_EDIT_DISTANCE && (!caseSensitive || (caseSensitive && (!sd.value.getCorrectionToCompareWith().equals(cur) || (sd.value.getCorrection().contains(".") && sd.value.getCorrectionToCompareWith().equals(cur))))))
+            .filter(sd -> sd.distance <= MAX_EDIT_DISTANCE && (!caseSensitive || (caseSensitive && (!sd.value.getCorrectionToCompareWith().equals(cur) || (sd.value.getCorrectionElements().getPrimaryElement().contains(".") && sd.value.getCorrectionToCompareWith().equals(cur))))))
             .sorted(Comparator.comparingInt(a -> a.distance))
             .limit(3)
-            .map(sd -> new Correction(sd.value.getCorrection(), sd.value.getCorrectionExtras(), replacer, sd.value.getDisplay()))
+            .map(sd -> new Correction(sd.value.getCorrectionElements(), replacer, sd.value.getDisplay()))
             .collect(Collectors.toList());
     }
 

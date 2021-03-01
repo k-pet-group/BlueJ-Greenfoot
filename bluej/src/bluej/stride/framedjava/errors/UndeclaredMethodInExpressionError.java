@@ -60,7 +60,7 @@ public class UndeclaredMethodInExpressionError extends DirectSlotError
         this.startPosInSlot = startPosInSlot;
         this.endPosInSlot = endPosInSlot;
 
-        corrections.addAll(Correction.winnowAndCreateCorrections(methodName, possibleCorrections.stream().distinct().map(SimpleCorrectionInfo::new), correctionPair -> slot.replace(startPosInSlot, endPosInSlot, isJavaPos(), correctionPair.getKey())));
+        corrections.addAll(Correction.winnowAndCreateCorrections(methodName, possibleCorrections.stream().distinct().map(SimpleCorrectionInfo::new), correctionElements -> slot.replace(startPosInSlot, endPosInSlot, isJavaPos(), correctionElements.getPrimaryElement())));
         slot.updateError(this);
     }
 

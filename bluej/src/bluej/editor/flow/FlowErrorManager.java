@@ -266,115 +266,7 @@ public class FlowErrorManager implements ErrorQuery
                     {
                         corrections.addAll(Correction.winnowAndCreateCorrections(typeName,
                                 possibleCorrectionsStream,
-                                correctionPair -> {
-                                    // We always try to replace only the type (which might be as outerType.innerType
-                                    // if the detect the package within the declaration, we don't check for imports, otherwise we do.
-                                    // so we need to find out what precedes the error to check for potential package name and/or partial type naming (e.g "outerClass")
-
-                                    // Here we find where to substring the whole code up to the error
-                                    // to get only the full type name part before the error (ex: "java.util.")
-                                    String codeBeforeError = editor.getText(new SourceLocation(1,1), startErrorPosSourceLocation);
-                                    //just for making sure we don't mess up when the listed characters token mentioned later are in a comment or string literal,
-                                    //we blank the literals and comments. Note that this keeps the comments token, and remove line breaks.
-                                    codeBeforeError = blankCodeCommentsAndStringLiterals(codeBeforeError,' ');
-                                    // find with our best possible where the declaration type starts: it follows either:
-                                    // - '/' for a comment, '{' for a block, ';' for after another statement, '(' or ',' for an argument,
-                                    // - operators
-                                    int startOfFullType = -1;
-                                    int currentSearchIndex = codeBeforeError.length()-1;
-                                    List<Character> searchTokens = Arrays.asList('/','{',';','(',',','?','+','-','*','%','&','|',':','!','<','>','=','^');
-                                    while(startOfFullType == -1 && currentSearchIndex >= 0)
-                                    {
-                                        if(searchTokens.contains(codeBeforeError.charAt(currentSearchIndex)))
-                                        {
-                                            //if the token if found then we set the start of the full type name right after
-                                            startOfFullType = currentSearchIndex + 1;
-                                        }
-                                        currentSearchIndex --;
-                                    }
-                                    //now remove the parts before the declaration
-                                    if(startOfFullType > -1)
-                                    {
-                                        codeBeforeError = codeBeforeError.substring(startOfFullType);
-                                    }
-                                    //finally, we remove potential keywords (such as modifiers) by search for 2 consecutive
-                                    //token (i.e. not separated by a dot) - whenever we find a dot, we keep the token before
-                                    //and all subsequent tokens: they're part of the full type name.
-                                    //In the process we keep the full type name parts in a list that we can use later
-                                    //and we keep the position information of the beginning of the type declaration
-                                    JavaLexer l = new JavaLexer(new StringReader(codeBeforeError));
-                                    List<String> fullTypePreTokens = new ArrayList<>();
-                                    boolean feedPreTokens = false;
-                                    LocatableToken lastToken = null;
-                                    int fullTypePrePos = -1;
-                                    for (LocatableToken t = l.nextToken(); t.getType() != JavaTokenTypes.EOF; t = l.nextToken())
-                                    {
-                                        if(feedPreTokens && t.getType()!= JavaTokenTypes.DOT)
-                                        {
-                                            fullTypePreTokens.add(t.getText());
-                                            continue;
-                                        }
-
-                                        if(!feedPreTokens && t.getType() == JavaTokenTypes.DOT)
-                                        {
-                                            //found a dot --> we save the previous token
-                                            fullTypePreTokens.add(lastToken.getText());
-                                            //most likely the position will need to be offset from where we started looking at the type in the code.
-                                            fullTypePrePos = (startOfFullType > -1) ? startOfFullType + lastToken.getPosition() : lastToken.getPosition();
-                                            feedPreTokens = true;
-                                            continue;
-                                        }
-
-                                        //save that token for next iteration to be able to use it if we start feeding the array
-                                        lastToken = t;
-                                    }
-
-                                    //if the error starts at "." then we need to add the last found token to the pre tokens
-                                    String codeAfterError = editor.getText(startErrorPosSourceLocation,editor.getLineColumnFromOffset(editor.getTextLength()-startPos));
-                                    if(codeAfterError.startsWith("."))
-                                    {
-                                        fullTypePreTokens.add(lastToken.getText());
-                                        //most likely the position will need to be offset from where we started looking at the type in the code.
-                                        fullTypePrePos = (startOfFullType > -1) ? startOfFullType + lastToken.getPosition() : lastToken.getPosition();
-                                    }
-
-
-                                    // now we can look how to replace the erroneous type
-                                    //Two cases can happen:
-                                    //- there is nothing about the type before the error --> replace at the error position
-                                    //- there is something about the type before the error ---> replace where the type actually starts (and if there was a package, we remove it)
-                                    //BECAUSE the "endPos" (ending position of the error) may be on the next line since we don't show
-                                    //multiline errors, we don't use the ending position of the error to select the text. Instead, we search
-                                    //for where the wrong type is after the startPos and use that position (past the wrong type of course)
-                                    int endOfWrongTypePos = startPos + codeAfterError.indexOf(typeName) + typeName.length();
-                                    if(fullTypePreTokens.size() > 0)
-                                    {
-                                        editor.setSelection(editor.getLineColumnFromOffset(fullTypePrePos), editor.getLineColumnFromOffset(fullTypePrePos));
-                                        editor.setText(editor.getLineColumnFromOffset(fullTypePrePos), editor.getLineColumnFromOffset(endOfWrongTypePos),correctionPair.getKey());
-                                    }
-                                    else{
-                                        editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
-                                        editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endOfWrongTypePos),correctionPair.getKey());
-                                    }
-
-                                    //and now that we've done the replacement, we check if an import is required
-                                    if(correctionPair.getValue().length > 0 && correctionPair.getValue()[0].length() > 0)
-                                    {
-                                         //for nested class, we only import the declaring class
-                                        String importPackageClass = correctionPair.getValue()[0]
-                                            + "."
-                                            + ((correctionPair.getKey().contains("."))
-                                                ? correctionPair.getKey().substring(0, correctionPair.getKey().lastIndexOf("."))
-                                                : correctionPair.getKey());
-                                        if(!editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(startPos)).contains("import " + importPackageClass + ";")
-                                            && !editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(startPos)).contains("import " + correctionPair.getValue()[0] + ".*;"))
-                                        {
-                                            editor.addImportFromQuickFix(importPackageClass);
-                                        }
-                                    }
-
-                                    editor.refresh();
-                                },
+                                correctionElements -> doTypeQuickFix(editor, startErrorPosSourceLocation, correctionElements, typeName),
                                 true));
                     }
                 }
@@ -409,10 +301,10 @@ public class FlowErrorManager implements ErrorQuery
                 {
                     corrections.addAll(bluej.editor.fixes.Correction.winnowAndCreateCorrections(varName,
                             possibleCorrectionsStream,
-                            correctionPair ->
+                            correctionElements ->
                             {
                                 editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
-                                editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), correctionPair.getKey());
+                                editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), correctionElements.getPrimaryElement());
                             }));
                 }
                 // If the variable is in a single line assignment (i.e. a line starting with "<var> = " then we propose declaration
@@ -468,10 +360,10 @@ public class FlowErrorManager implements ErrorQuery
                 {
                     corrections.addAll(bluej.editor.fixes.Correction.winnowAndCreateCorrections(methodName,
                             possibleCorrectionsStream,
-                            correctionPair ->
+                            correctionElements ->
                             {
                                 editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
-                                editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), correctionPair.getKey());
+                                editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), correctionElements.getPrimaryElement());
                             }));
                     editor.refresh();
                 }
@@ -671,6 +563,119 @@ public class FlowErrorManager implements ErrorQuery
 
             this.italicMessageStartIndex = italicMessageStartIndex;
             this.italicMessageEndIndex = italicMessageEndIndex;
+        }
+
+        private void doTypeQuickFix(FlowEditor editor, SourceLocation startErrorPosSourceLocation, Correction.CorrectionElements correctionElements, String typeName) {
+
+            // We always try to replace only the type (which might be as outerType.innerType
+            // if the detect the package within the declaration, we don't check for imports, otherwise we do.
+            // so we need to find out what precedes the error to check for potential package name and/or partial type naming (e.g "outerClass")
+
+            // Here we find where to substring the whole code up to the error
+            // to get only the full type name part before the error (ex: "java.util.")
+            String codeBeforeError = editor.getText(new SourceLocation(1,1), startErrorPosSourceLocation);
+            //just for making sure we don't mess up when the listed characters token mentioned later are in a comment or string literal,
+            //we blank the literals and comments. Note that this keeps the comments token, and remove line breaks.
+            codeBeforeError = blankCodeCommentsAndStringLiterals(codeBeforeError,' ');
+            // find with our best possible where the declaration type starts: it follows either:
+            // - '/' for a comment, '{' for a block, ';' for after another statement, '(' or ',' for an argument,
+            // - operators
+            int startOfFullType = -1;
+            int currentSearchIndex = codeBeforeError.length()-1;
+            List<Character> searchTokens = Arrays.asList('/','{',';','(',',','?','+','-','*','%','&','|',':','!','<','>','=','^');
+            while(startOfFullType == -1 && currentSearchIndex >= 0)
+            {
+                if(searchTokens.contains(codeBeforeError.charAt(currentSearchIndex)))
+                {
+                    //if the token if found then we set the start of the full type name right after
+                    startOfFullType = currentSearchIndex + 1;
+                }
+                currentSearchIndex --;
+            }
+            //now remove the parts before the declaration
+            if(startOfFullType > -1)
+            {
+                codeBeforeError = codeBeforeError.substring(startOfFullType);
+            }
+            //finally, we remove potential keywords (such as modifiers) by search for 2 consecutive
+            //token (i.e. not separated by a dot) - whenever we find a dot, we keep the token before
+            //and all subsequent tokens: they're part of the full type name.
+            //In the process we keep the full type name parts in a list that we can use later
+            //and we keep the position information of the beginning of the type declaration
+            JavaLexer l = new JavaLexer(new StringReader(codeBeforeError));
+            List<String> fullTypePreTokens = new ArrayList<>();
+            boolean feedPreTokens = false;
+            LocatableToken lastToken = null;
+            int fullTypePrePos = -1;
+            for (LocatableToken t = l.nextToken(); t.getType() != JavaTokenTypes.EOF; t = l.nextToken())
+            {
+                if(feedPreTokens && t.getType()!= JavaTokenTypes.DOT)
+                {
+                    fullTypePreTokens.add(t.getText());
+                    continue;
+                }
+
+                if(!feedPreTokens && t.getType() == JavaTokenTypes.DOT)
+                {
+                    //found a dot --> we save the previous token
+                    fullTypePreTokens.add(lastToken.getText());
+                    //most likely the position will need to be offset from where we started looking at the type in the code.
+                    fullTypePrePos = (startOfFullType > -1) ? startOfFullType + lastToken.getPosition() : lastToken.getPosition();
+                    feedPreTokens = true;
+                    continue;
+                }
+
+                //save that token for next iteration to be able to use it if we start feeding the array
+                lastToken = t;
+            }
+
+            //if the error starts at "." then we need to add the last found token to the pre tokens
+            String codeAfterError = editor.getText(startErrorPosSourceLocation,editor.getLineColumnFromOffset(editor.getTextLength()-startPos));
+            if(codeAfterError.startsWith("."))
+            {
+                fullTypePreTokens.add(lastToken.getText());
+                //most likely the position will need to be offset from where we started looking at the type in the code.
+                fullTypePrePos = (startOfFullType > -1) ? startOfFullType + lastToken.getPosition() : lastToken.getPosition();
+            }
+
+            String correctionType = correctionElements.getPrimaryElement();
+            String correctionPackage = (correctionElements.getSecondaryElements().length > 0) ? correctionElements.getSecondaryElements()[0] : "";
+
+            // now we can look how to replace the erroneous type
+            //Two cases can happen:
+            //- there is nothing about the type before the error --> replace at the error position
+            //- there is something about the type before the error ---> replace where the type actually starts (and if there was a package, we remove it)
+            //BECAUSE the "endPos" (ending position of the error) may be on the next line since we don't show
+            //multiline errors, we don't use the ending position of the error to select the text. Instead, we search
+            //for where the wrong type is after the startPos and use that position (past the wrong type of course)
+            int endOfWrongTypePos = startPos + codeAfterError.indexOf(typeName) + typeName.length();
+            if(fullTypePreTokens.size() > 0)
+            {
+                editor.setSelection(editor.getLineColumnFromOffset(fullTypePrePos), editor.getLineColumnFromOffset(fullTypePrePos));
+                editor.setText(editor.getLineColumnFromOffset(fullTypePrePos), editor.getLineColumnFromOffset(endOfWrongTypePos),correctionType);
+            }
+            else{
+                editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
+                editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endOfWrongTypePos),correctionType);
+            }
+
+            //and now that we've done the replacement, we check if an import is required
+            if(correctionPackage.length() > 0)
+            {
+                //for nested class, we only import the declaring class
+                String importPackageClass = correctionPackage
+                    + "."
+                    + ((correctionType.contains("."))
+                    ? correctionType.substring(0, correctionType.lastIndexOf("."))
+                    : correctionType);
+                if(!editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(startPos)).contains("import " + importPackageClass + ";")
+                    && !editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(startPos)).contains("import " + correctionPackage + ".*;"))
+                {
+                    editor.addImportFromQuickFix(importPackageClass);
+                }
+            }
+
+            editor.refresh();
         }
 
         public boolean containsPosition(int pos)

@@ -31,6 +31,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.editor.fixes.Correction;
 import bluej.editor.stride.FrameEditor;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
@@ -46,7 +47,6 @@ import bluej.stride.framedjava.frames.AssignFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
-import javafx.util.Pair;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -293,8 +293,8 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                         }
                         int startPosInSlot = token.getColumn() - 1;
                         int endPosInSlot = token.getColumn() - 1 + token.getLength();
-                        FXPlatformConsumer<Pair<String, String[]>> replace =
-                            correctionPair -> slot.replace(startPosInSlot, endPosInSlot, true, correctionPair.getKey());
+                        FXPlatformConsumer<Correction.CorrectionElements> replace =
+                            correctionElements -> slot.replace(startPosInSlot, endPosInSlot, true, correctionElements.getPrimaryElement());
                         return (DirectSlotError) new UnknownTypeError(this, typeName, replace, editor, availableTypes.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().flatMap(Collection::stream))
                         {
                             @Override
