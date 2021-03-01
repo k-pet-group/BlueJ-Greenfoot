@@ -224,7 +224,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
     /** Used to obtain javadoc for arbitrary methods */
     private final JavadocResolver javadocResolver;
-    private boolean matchBrackets;
     // Each element is size 2: beginning (incl) and end (excl)
     private final ArrayList<int[]> bracketMatches = new ArrayList<>();
     /**
@@ -721,7 +720,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
         actions.userAction();
 
-        if (matchBrackets)
+        if (PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS))
         {
             doBracketMatch();
         }
@@ -752,7 +751,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     private void doBracketMatch()
     {
-        int originalPos = getSourcePane().getCaretPosition();
         bracketMatches.clear();
         for (Integer position : getBracketMatchPositions())
         {
@@ -1429,7 +1427,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     private void checkBracketStatus()
     {
-        matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
+        boolean matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
         // tidies up leftover highlight if matching is switched off
         // while highlighting a valid bracket or refreshes bracket in open
         // editor
