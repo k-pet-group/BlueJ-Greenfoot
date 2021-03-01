@@ -155,11 +155,12 @@ public class TypeSlotFragment extends StructuredSlotFragment
             {
                 // The type is always replaced by its "simple" name form, if the import doesn't exist, then we add it
                 // Note: the "simple" for may still contain a dot, for example in the case of an inner class, we propose outer.inner
-                // and in such case we need to import the root class*((ac.getDeclaringClass() != null) ? ac.getDeclaringClass() : ac.getName())
+                // and in such case we need to import the declaring class
                 slot.setText(correctionPair.getKey());
                 String fullTypeName = ((correctionPair.getValue().length > 0) ? (correctionPair.getValue()[0] + ".") : "")
                     + ((correctionPair.getKey().contains(".")) ? correctionPair.getKey().substring(0, correctionPair.getKey().lastIndexOf(".")) : correctionPair.getKey());
-                if (correctionPair.getValue()[0].length() > 0 && !editor.getFrameEditor().containsImport(fullTypeName) && !editor.getFrameEditor().containsImport(correctionPair.getKey() + ".*"))
+                if (correctionPair.getValue()[0].length() > 0 && !editor.getFrameEditor().containsImport(fullTypeName)
+                    && !editor.getFrameEditor().containsImport(correctionPair.getValue()[0] + ".*"))
                 {
                     editor.getFrameEditor().addImportFromQuickFix(fullTypeName);
                 }

@@ -360,7 +360,7 @@ public class FlowErrorManager implements ErrorQuery
                                     //and now that we've done the replacement, we check if an import is required
                                     if(correctionPair.getValue().length > 0 && correctionPair.getValue()[0].length() > 0)
                                     {
-                                         //for nested class, we only import the root class
+                                         //for nested class, we only import the declaring class
                                         String importPackageClass = correctionPair.getValue()[0]
                                             + "."
                                             + ((correctionPair.getKey().contains("."))

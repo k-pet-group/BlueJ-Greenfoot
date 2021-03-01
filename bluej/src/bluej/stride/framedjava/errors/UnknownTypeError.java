@@ -77,7 +77,6 @@ public class UnknownTypeError extends DirectSlotError
         Platform.runLater(() -> corrections.addAll(Correction.winnowAndCreateCorrections(typeName, possibleCorrectionsList.stream().map(TypeCorrectionInfo::new), replace, true)));
         corrections.addAll(possibleImportsList.stream()
             .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName) && ac.getDeclaringClass()==null)
-            //for nested class, we only import the root class
             .flatMap(ac -> Stream.of(new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.class") + ac.getPackage() + "." +  ac.getName()), () -> editor.getFrameEditor().addImportFromQuickFix(ac.getPackage() + "." + ac.getName())),
                 new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.package") + ac.getPackage() + " (for " + ac.getName() + " class)"), () -> editor.getFrameEditor().addImportFromQuickFix(ac.getPackage() + ".*"))))
             .collect(Collectors.toList()));
