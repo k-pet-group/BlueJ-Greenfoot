@@ -381,9 +381,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <antcall target="copy-common-class">
             <param name="common.class" value="Label"/>
         </antcall>
-        <antcall target="copy-common-class">
-            <param name="common.class" value="Map"/>
-        </antcall>
     </target>
 
     <target name="copy-common-class">
