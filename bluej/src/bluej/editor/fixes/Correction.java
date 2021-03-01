@@ -1,6 +1,6 @@
-/*
+/*1
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package bluej.editor.fixes;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,22 +31,25 @@ import bluej.Config;
 import bluej.parser.AssistContentThreadSafe;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
+import javafx.util.Pair;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 public class Correction extends FixSuggestion
 {
     private final String correction;
+    private final String[] correctionExtras; //this field is used for extra information when just the correction cannot be enough
     private final String display;
-    private final FXPlatformConsumer<String> replacer;
+    private final FXPlatformConsumer<Pair<String, String[]>> replacer;
     private final static int MAX_EDIT_DISTANCE = 2;
 
     // This doesn't have to be private, but in practice you'll only ever use the
     // winnowCorrections method below
     @OnThread(Tag.Any)
-    private Correction(String correction, FXPlatformConsumer<String> replacer, String display)
+    private Correction(String correction, String[] correctionExtras, FXPlatformConsumer<Pair<String, String[]>> replacer, String display)
     {
         this.correction = correction;
+        this.correctionExtras = correctionExtras;
         this.display = display;
         this.replacer = replacer;
     }
@@ -61,7 +65,7 @@ public class Correction extends FixSuggestion
     @OnThread(Tag.FXPlatform)
     public void execute()
     {
-        replacer.accept(correction);
+        replacer.accept(new Pair(correction, correctionExtras));
     }
 
     @OnThread(Tag.Any)
@@ -86,6 +90,9 @@ public class Correction extends FixSuggestion
         // The actual String to correct to (used for edit distance calculation):
         public String getCorrection();
 
+        // Any extra String elements that could be required for performing a correction
+        public String[] getCorrectionExtras();
+
         // The text to display to the user in the fix list:
         public String getDisplay();
     }
@@ -103,6 +110,11 @@ public class Correction extends FixSuggestion
         public String getCorrection()
         {
             return correction;
+        }
+
+        public String[] getCorrectionExtras()
+        {
+            return new String[]{};
         }
 
         public String getCorrectionToCompareWith()
@@ -126,9 +138,22 @@ public class Correction extends FixSuggestion
             this.acts = acts;
         }
 
+        // The type may not be just the last part after "." --> for example outerClass.innerClass will be used for the type
+        // so we need to make a clear distinction between the package and the classes --> using the correction extras part below
         public String getCorrection()
         {
-            return acts.getPackage() == null || acts.getPackage().length() == 0 || acts.getPackage().equals("java.lang") ? acts.getName() : acts.getPackage() + "." + acts.getName();
+            if(acts.getDeclaringClass() != null)
+            {
+                return acts.getDeclaringClass() + "." + acts.getName();
+            }
+            return acts.getName();
+        }
+
+        // cf. previous method comment
+        public String[] getCorrectionExtras(){
+            return (acts.getPackage() == null || acts.getPackage().length() == 0 || acts.getPackage().equals("java.lang"))
+                ? new String[]{}
+                : new String[]{acts.getPackage()};
         }
 
         public String getCorrectionToCompareWith()
@@ -139,25 +164,27 @@ public class Correction extends FixSuggestion
         public String getDisplay()
         {
             String pkg = acts.getPackage();
-            return (pkg == null || pkg.length() == 0) ? acts.getName() : (acts.getName() + " (" + pkg + " package)");
+            String name = (acts.getDeclaringClass()!=null) ? (acts.getDeclaringClass() + "." + acts.getName()) : acts.getName();
+            return (pkg == null || pkg.length() == 0) ? name : (name + " (" + pkg + " package)");
         }
     }
 
     // List is in order, best correction first (case insensitive)
-    public static List<Correction> winnowAndCreateCorrections(String cur, Stream<CorrectionInfo> possibleCorrections, FXPlatformConsumer<String> replacer)
+    public static List<Correction> winnowAndCreateCorrections(String cur, Stream<CorrectionInfo> possibleCorrections, FXPlatformConsumer<Pair<String, String[]>> replacer)
     {
         return winnowAndCreateCorrections(cur, possibleCorrections, replacer, false);
     }
 
     //List in order, best correction first (case sensitivity can be chosen, if true, the correction with the same value and same case isn't returned)
-    public static List<Correction> winnowAndCreateCorrections(String cur, Stream<CorrectionInfo> possibleCorrections, FXPlatformConsumer<String> replacer, boolean caseSensitive)
+    public static List<Correction> winnowAndCreateCorrections(String cur, Stream<CorrectionInfo> possibleCorrections, FXPlatformConsumer<Pair<String, String[]>> replacer, boolean caseSensitive)
     {
         return possibleCorrections
             .map(n -> new StringAndDist(n, Utility.editDistance(cur.toLowerCase(), n.getCorrectionToCompareWith().toLowerCase())))
-            .filter(sd -> sd.distance <= MAX_EDIT_DISTANCE && (!caseSensitive || (caseSensitive && !sd.value.getCorrectionToCompareWith().equals(cur))))
-            .sorted((a, b) -> Integer.compare(a.distance, b.distance))
+            //if case sensitive search is asked for, we don't keep exact match between the type to correct and the suggestion EXCEPT for inner classes
+            .filter(sd -> sd.distance <= MAX_EDIT_DISTANCE && (!caseSensitive || (caseSensitive && (!sd.value.getCorrectionToCompareWith().equals(cur) || sd.value.getDisplay().contains(".")))))
+            .sorted(Comparator.comparingInt(a -> a.distance))
             .limit(3)
-            .map(sd -> new Correction(sd.value.getCorrection(), replacer, sd.value.getDisplay()))
+            .map(sd -> new Correction(sd.value.getCorrection(), sd.value.getCorrectionExtras(), replacer, sd.value.getDisplay()))
             .collect(Collectors.toList());
     }
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,6 +46,7 @@ import bluej.stride.framedjava.frames.AssignFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
+import javafx.util.Pair;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -292,8 +293,8 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                         }
                         int startPosInSlot = token.getColumn() - 1;
                         int endPosInSlot = token.getColumn() - 1 + token.getLength();
-                        FXPlatformConsumer<String> replace =
-                                s -> slot.replace(startPosInSlot, endPosInSlot, true, s);
+                        FXPlatformConsumer<Pair<String, String[]>> replace =
+                            correctionPair -> slot.replace(startPosInSlot, endPosInSlot, true, correctionPair.getKey());
                         return (DirectSlotError) new UnknownTypeError(this, typeName, replace, editor, availableTypes.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().flatMap(Collection::stream))
                         {
                             @Override

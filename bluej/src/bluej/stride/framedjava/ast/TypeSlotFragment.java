@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,6 +34,7 @@ import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXPlatformConsumer;
+import javafx.util.Pair;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -149,12 +150,18 @@ public class TypeSlotFragment extends StructuredSlotFragment
                 return;
             }
             // Otherwise, give error and suggest corrections
-            FXPlatformConsumer<String> replacer = s -> {
+            // The expected correction contains the type (in the pair key), and the extras the package (in the pair value), if provided.
+            FXPlatformConsumer<Pair<String, String[]>> replacer = correctionPair ->
+            {
                 // The type is always replaced by its "simple" name form, if the import doesn't exist, then we add it
-                slot.setText((s.contains(".") ? s.substring(s.lastIndexOf('.') + 1) : s));
-                if (s.contains(".") && !editor.getFrameEditor().containsImport(s) && !editor.getFrameEditor().containsImport(s.substring(0, s.lastIndexOf(".")) + ".*"))
+                // Note: the "simple" for may still contain a dot, for example in the case of an inner class, we propose outer.inner
+                // and in such case we need to import the root class*((ac.getDeclaringClass() != null) ? ac.getDeclaringClass() : ac.getName())
+                slot.setText(correctionPair.getKey());
+                String fullTypeName = ((correctionPair.getValue().length > 0) ? (correctionPair.getValue()[0] + ".") : "")
+                    + ((correctionPair.getKey().contains(".")) ? correctionPair.getKey().substring(0, correctionPair.getKey().lastIndexOf(".")) : correctionPair.getKey());
+                if (correctionPair.getValue()[0].length() > 0 && !editor.getFrameEditor().containsImport(fullTypeName) && !editor.getFrameEditor().containsImport(correctionPair.getKey() + ".*"))
                 {
-                    editor.getFrameEditor().addImportFromQuickFix(s);
+                    editor.getFrameEditor().addImportFromQuickFix(fullTypeName);
                 }
             };
             final UnknownTypeError error = new UnknownTypeError(this, content, replacer, editor,
@@ -196,7 +203,7 @@ public class TypeSlotFragment extends StructuredSlotFragment
 
                 int startPosInSlot = indexList.get(i);
                 int endPosInSlot = startPosInSlot + t.length();
-                FXPlatformConsumer<String> replace = s -> slot.replace(startPosInSlot, endPosInSlot, false, s);
+                FXPlatformConsumer<Pair<String, String[]>> replace = correctionInfo -> slot.replace(startPosInSlot, endPosInSlot, false, correctionInfo.getKey());
                 final UnknownTypeError error = new UnknownTypeError(this, t, replace, editor,
                         types.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().
                         flatMap(Collection::stream));
