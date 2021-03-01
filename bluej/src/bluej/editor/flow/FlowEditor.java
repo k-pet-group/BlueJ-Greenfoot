@@ -1390,16 +1390,20 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         FXTabbedEditor fxTabbedEditor = fetchTabbedEditor.getFXTabbedEditor(openInNewWindow);
 
+        boolean becameVisible = false;
         if (vis)
         {
-            fxTabbedEditor.addTab(fxTab, vis, true);
+            becameVisible = fxTabbedEditor.addTab(fxTab, vis, true);
         }
-        boolean hadEffect = fxTabbedEditor.setWindowVisible(vis, fxTab);
+        
+        // Expression order very important here; we want to always call setWindowVisible,
+        // even if becameVisible is already true, and then OR the result with becameVisible
+        becameVisible = fxTabbedEditor.setWindowVisible(vis, fxTab) || becameVisible;
 
         if (vis)
         {
             fxTabbedEditor.bringToFront(fxTab);
-            if (hadEffect)
+            if (becameVisible)
             {
                 if (callbackOnOpen != null)
                 {
