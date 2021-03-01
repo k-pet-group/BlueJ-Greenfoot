@@ -181,7 +181,7 @@ public class Correction extends FixSuggestion
         return possibleCorrections
             .map(n -> new StringAndDist(n, Utility.editDistance(cur.toLowerCase(), n.getCorrectionToCompareWith().toLowerCase())))
             //if case sensitive search is asked for, we don't keep exact match between the type to correct and the suggestion EXCEPT for inner classes
-            .filter(sd -> sd.distance <= MAX_EDIT_DISTANCE && (!caseSensitive || (caseSensitive && (!sd.value.getCorrectionToCompareWith().equals(cur) || sd.value.getDisplay().contains(".")))))
+            .filter(sd -> sd.distance <= MAX_EDIT_DISTANCE && (!caseSensitive || (caseSensitive && (!sd.value.getCorrectionToCompareWith().equals(cur) || (sd.value.getCorrection().contains(".") && sd.value.getCorrectionToCompareWith().equals(cur))))))
             .sorted(Comparator.comparingInt(a -> a.distance))
             .limit(3)
             .map(sd -> new Correction(sd.value.getCorrection(), sd.value.getCorrectionExtras(), replacer, sd.value.getDisplay()))
