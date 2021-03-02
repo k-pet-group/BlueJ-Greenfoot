@@ -67,8 +67,9 @@ public class Correction extends FixSuggestion
 
     @OnThread(Tag.Any)
     // A container class that holds the elements needed for a correction:
-    // - a primary correction String element (primaryElement)
+    // - a primary correction String element (primaryElement) e.g. in the context of type correction, the type name
     // - an array of secondary correction String elements (secondaryElements); empty if not required by a correction
+    //    e.g. in the context of type correction, a 1-length array with the package name
     public static class CorrectionElements{
 
         private String primaryElement;
@@ -153,8 +154,9 @@ public class Correction extends FixSuggestion
             this.acts = acts;
         }
 
-        // The type to correct may be a nest class. So we need to distinguish the package (secondary correction elements)
-        // from the class type (primary correction element), which in the case of a nest class will be formatted as e.g. "Level1.Level2.Level3"
+        // The type to correct may be a nest class. So we need to distinguish the package from the class type
+        // The type is saved as the primary correction element, which in the case of a nest class will be formatted as e.g. "Level1.Level2.Level3"
+        // The package is saved as 1 element of the secondary elements array (e.g. ["java.io"])
         public CorrectionElements getCorrectionElements()
         {
             String primaryCorrElement = (acts.getDeclaringClass() != null)
