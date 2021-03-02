@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
+import bluej.editor.fixes.Correction;
 import bluej.editor.stride.FrameEditor;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
@@ -149,12 +150,21 @@ public class TypeSlotFragment extends StructuredSlotFragment
                 return;
             }
             // Otherwise, give error and suggest corrections
-            FXPlatformConsumer<String> replacer = s -> {
+            // The expected correction contains the type (in the pair key), and the extras the package (in the pair value), if provided.
+            FXPlatformConsumer<Correction.CorrectionElements> replacer = correctionElements ->
+            {
                 // The type is always replaced by its "simple" name form, if the import doesn't exist, then we add it
-                slot.setText((s.contains(".") ? s.substring(s.lastIndexOf('.') + 1) : s));
-                if (s.contains(".") && !editor.getFrameEditor().containsImport(s) && !editor.getFrameEditor().containsImport(s.substring(0, s.lastIndexOf(".")) + ".*"))
+                // Note: the "simple" for may still contain a dot, for example in the case of an inner class, we propose outer.inner
+                // and in such case we need to import the declaring class
+                String correctionType = correctionElements.getPrimaryElement();
+                String correctionPackage = (correctionElements.getSecondaryElements().length > 0) ? correctionElements.getSecondaryElements()[0] : "";
+                slot.setText(correctionType);
+                String fullTypeName = ((correctionPackage.length() > 0) ? (correctionPackage + ".") : "")
+                    + ((correctionType.contains(".")) ? correctionType.substring(0, correctionType.lastIndexOf(".")) : correctionType);
+                if (correctionPackage.length() > 0 && !editor.getFrameEditor().containsImport(fullTypeName)
+                    && !editor.getFrameEditor().containsImport(correctionPackage + ".*"))
                 {
-                    editor.getFrameEditor().addImportFromQuickFix(s);
+                    editor.getFrameEditor().addImportFromQuickFix(fullTypeName);
                 }
             };
             final UnknownTypeError error = new UnknownTypeError(this, content, replacer, editor,
@@ -196,7 +206,7 @@ public class TypeSlotFragment extends StructuredSlotFragment
 
                 int startPosInSlot = indexList.get(i);
                 int endPosInSlot = startPosInSlot + t.length();
-                FXPlatformConsumer<String> replace = s -> slot.replace(startPosInSlot, endPosInSlot, false, s);
+                FXPlatformConsumer<Correction.CorrectionElements> replace = correctionElements-> slot.replace(startPosInSlot, endPosInSlot, false, correctionElements.getPrimaryElement());
                 final UnknownTypeError error = new UnknownTypeError(this, t, replace, editor,
                         types.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().
                         flatMap(Collection::stream));
