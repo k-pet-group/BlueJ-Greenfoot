@@ -218,6 +218,7 @@ public class Correction extends FixSuggestion
             "java.lang",
             "java.util",
             "javafx",
+            "java.awt",
             "javax.swing");
         return commmonPackages.contains(acts.getPackage()) || commmonPackages.stream().filter(s -> acts.getPackage().startsWith(s + ".")).collect(Collectors.toList()).size() > 0;
       }
