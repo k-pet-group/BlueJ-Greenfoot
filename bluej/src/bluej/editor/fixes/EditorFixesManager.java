@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2020,2021 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -136,7 +136,6 @@ public class EditorFixesManager
                     .forEach(imp -> imports.remove(imp.getPackage() + "." + imp.getName()));
             // Remove imports we want to hide (for instance that are unused and confusing for users)
             imports.remove("java.awt.List");
-        
         }
         catch (InterruptedException | ExecutionException ex)
         {
