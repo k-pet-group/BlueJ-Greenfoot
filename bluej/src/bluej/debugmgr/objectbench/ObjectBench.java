@@ -372,7 +372,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
             {
                 listenerList.get(i).objectEvent(
                     new ObjectBenchEvent(this,
-                        ObjectBenchEvent.OBJECT_SELECTED, wrapper));
+                        ObjectBenchEvent.OBJECT_SELECTED, new NamedValue[] {wrapper}));
             }
         }
     }

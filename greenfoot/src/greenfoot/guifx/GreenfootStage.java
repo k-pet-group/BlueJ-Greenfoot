@@ -1814,8 +1814,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             }
             else if (curPickType == PickType.LEFT_CLICK && !actors.isEmpty())
             {
-                DebuggerObject target = actors.get(0);
-                debugHandler.addSelectedObject(target, target.getGenType());
+                debugHandler.addSelectedObjects(actors);
             }
         });
     }

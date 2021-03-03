@@ -623,16 +623,18 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * @return    The name of the object as it is known to the debugger
      */
     @OnThread(Tag.FXPlatform)
-    public String addSelectedObject(DebuggerObject object, GenTypeClass type)
+    public void addSelectedObjects(List<DebuggerObject> objects)
     {
-        NamedValue selectedObject = ensureObjectOnBench(object, type);
+        NamedValue[] values = new NamedValue[objects.size()];
+        for (int i = 0; i < objects.size(); i++)
+        {
+            values[i] = ensureObjectOnBench(objects.get(i), objects.get(i).getGenType());
+        }
         
         for (ObjectBenchListener l : benchListeners)
         {
-            l.objectEvent(new ObjectBenchEvent(this, ObjectBenchEvent.OBJECT_SELECTED, selectedObject));
+            l.objectEvent(new ObjectBenchEvent(this, ObjectBenchEvent.OBJECT_SELECTED, values));
         }
-        
-        return selectedObject.getName();
     }
     
     @Override
