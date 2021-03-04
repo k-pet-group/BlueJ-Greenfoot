@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011,2012,2013,2015,2018,2019,2020 Poul Henriksen and Michael Kolling
+ Copyright (C) 2010,2011,2012,2013,2015,2018,2019,2020,2021 Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -623,16 +623,18 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * @return    The name of the object as it is known to the debugger
      */
     @OnThread(Tag.FXPlatform)
-    public String addSelectedObject(DebuggerObject object, GenTypeClass type)
+    public void addSelectedObjects(List<DebuggerObject> objects)
     {
-        NamedValue selectedObject = ensureObjectOnBench(object, type);
+        NamedValue[] values = new NamedValue[objects.size()];
+        for (int i = 0; i < objects.size(); i++)
+        {
+            values[i] = ensureObjectOnBench(objects.get(i), objects.get(i).getGenType());
+        }
         
         for (ObjectBenchListener l : benchListeners)
         {
-            l.objectEvent(new ObjectBenchEvent(this, ObjectBenchEvent.OBJECT_SELECTED, selectedObject));
+            l.objectEvent(new ObjectBenchEvent(this, ObjectBenchEvent.OBJECT_SELECTED, values));
         }
-        
-        return selectedObject.getName();
     }
     
     @Override

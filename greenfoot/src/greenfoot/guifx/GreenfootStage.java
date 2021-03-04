@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017,2018,2019,2019,2020  Poul Henriksen and Michael Kolling
+ Copyright (C) 2017,2018,2019,2019,2020,2021  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1814,8 +1814,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             }
             else if (curPickType == PickType.LEFT_CLICK && !actors.isEmpty())
             {
-                DebuggerObject target = actors.get(0);
-                debugHandler.addSelectedObject(target, target.getGenType());
+                debugHandler.addSelectedObjects(actors);
             }
         });
     }
