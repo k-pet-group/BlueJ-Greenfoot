@@ -341,7 +341,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         });
 
         // Prepare for getting the mapping between external file extensions and their associate launcher.
-        Platform.runLater(() -> {
+        JavaFXUtil.runNowOrLater(() -> {
             projectExternalFileOpenMap.complete(ExtensionsManager.getInstance().getExtFileOpenMap());
             // Refresh the UI again once we've retrieved the external file exensions that can be visible for this project
             packages.forEach((name,aPackage) -> aPackage.refreshPackage());
