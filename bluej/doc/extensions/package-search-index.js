@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"bluej.extensions2"},{"l":"bluej.extensions2.editor"},{"l":"bluej.extensions2.event"}]

@@ -398,9 +398,6 @@ pkgmgr.noClassesExisted.message=\u2196 Use the Edit menu to create or add a clas
 pkgmgr.packagemenu.open=Open
 pkgmgr.packagemenu.remove=Delete
 
-pkgmgr.cssmenu.open=Open
-pkgmgr.cssmenu.remove=Delete
-
 pkgmgr.classmenu.edit=Open Editor
 pkgmgr.classmenu.compile=Compile
 pkgmgr.classmenu.inspect=Inspect
@@ -411,6 +408,9 @@ pkgmgr.classmenu.convertToStride=Convert to Stride
 pkgmgr.classmenu.createTest=Create Test Class
 pkgmgr.classmenu.launchFX=Run JavaFX Application
 pkgmgr.classmenu.moreMethods=more methods
+
+pkgmgr.extfilemenu.open=Open (outside BlueJ)
+pkgmgr.extfilemenu.delete=Delete file
 
 pkgmgr.team.title=Teamwork
 pkgmgr.test.title=Testing

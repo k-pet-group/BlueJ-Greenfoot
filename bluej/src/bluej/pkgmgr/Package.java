@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021 Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -52,46 +52,25 @@ import bluej.debugger.*;
 import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.Invoker;
 import bluej.editor.Editor;
-import bluej.editor.TextEditor;
 import bluej.extensions2.BPackage;
 import bluej.extensions2.ExtensionBridge;
 import bluej.extensions2.SourceType;
 import bluej.extensions2.event.CompileEvent;
 import bluej.extensions2.event.CompileEvent.EventType;
 import bluej.extmgr.ExtensionsManager;
-import bluej.parser.AssistContent;
-import bluej.parser.AssistContent.CompletionKind;
-import bluej.parser.ExpressionTypeInfo;
-import bluej.parser.ParseUtils;
-import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.dependency.Dependency;
-import bluej.pkgmgr.dependency.ExtendsDependency;
-import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.*;
-import bluej.pkgmgr.target.DependentTarget.State;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
 import bluej.utility.filefilter.FrameSourceFilter;
 import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.views.CallableView;
-import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Modifier;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A Java package (collection of Java classes).
@@ -784,6 +763,10 @@ public final class Package
             {
                 target = new CSSTarget(this, new File(getPath(), identifierName));
             }
+            else if("ExternalFileTarget".equals(type))
+            {
+                target = new ExternalFileTarget(this, new File(getPath(), identifierName));
+            }
             else
             {
                 target = new ClassTarget(this, identifierName);
@@ -838,7 +821,48 @@ public final class Package
                 addTarget(target);
             }
             
-        }        
+        }
+
+        // If BlueJ, look for External File targets (as listed via BlueJ extensions):
+        if (!Config.isGreenfoot())
+        {
+            // Retrieve the external file extensions allowed by BlueJ extensions for this project
+            // We only do so when the list is ready not to block the UI
+            if(getProject().getProjectExternalFileOpenMap().isDone())
+            {
+                try
+                {
+                    Set<String> allowedExtFileExtensions = getProject().getProjectExternalFileOpenMap().get().keySet();
+                    allowedExtFileExtensions.forEach(s -> System.out.println(s));
+                    getPath().listFiles(f -> {
+                        if (f.getName().contains("."))
+                        {
+                            String fExt = f.getName().substring(f.getName().lastIndexOf(".")).toLowerCase();
+                            if (allowedExtFileExtensions.contains(fExt))
+                            {
+                                Target target = propTargets.get(f.getName());
+                                if (target == null || !(target instanceof ExternalFileTarget))
+                                {
+                                    target = new ExternalFileTarget(this, f);
+                                    synchronized (this)
+                                    {
+                                        targetsToPlace.add(target);
+                                    }
+                                }
+                                addTarget(target);
+                            }
+                        }
+                        // We just do this for running through the files, no need to actually filter them.
+                        return false;
+                    });
+                }
+                catch (InterruptedException | ExecutionException e)
+                {
+                    // If we couldn't retrieve the list of file extension, just do nothing
+                    Debug.log("Could not retrieve the external file extensions from BlueJ extensions: " + e.getMessage());
+                }
+            }
+        }
 
         // now look for Java source files that may have been
         // added to the directory

@@ -324,6 +324,10 @@ Move
 Revert
 null
 
+external-file-open-issue
+A problem occurred when trying to use the launcher defined
+for this type of external file.
+
 ask-index
 Enter array element index [...]
 Array Inspection

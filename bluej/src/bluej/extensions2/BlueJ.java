@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2018,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -85,6 +85,12 @@ public final class BlueJ
     private PreferenceGenerator currentPrefGen = null;
     private MenuGenerator currentMenuGen = null;
     private Properties localLabels;
+
+    // External file launchers information (extensions v3.1 & BlueJ 5.0.1 onwards)
+    //The list of file extensions natively supported by BlueJ which will always be ignore when BlueJ looks for external file launchers.
+    private static final List<String> blueJNativeFileExts = Collections.unmodifiableList(Arrays.asList(".java", ".class", ".css"));
+    //The list of ExternalFileLauncher objects that this extension can feed
+    private final List<ExternalFileLauncher> externalFileLaunchers = new ArrayList<>();
 
     private ArrayList<ExtensionEventListener> eventListeners;
     // This is the queue for the whole of them
@@ -298,7 +304,74 @@ public final class BlueJ
         return currentPrefGen;
     }
 
-     /**
+
+    /**
+     * Appens a list of ExternalFileLauncher objets in BlueJ's list of external file launchers.
+     * This method <i>must</i> be called within {@link Extension#startup(BlueJ)} for BlueJ to be able to retrieve the launcher(s).
+     * Calling it anywhere else will produce no effect in BlueJ.
+     *
+     * Adding launchers will not replace previously added launchers by the extension.
+     *
+     * Note that for a same external file type, the last extension loaded by BlueJ will overwrite a previously register
+     * launcher. Therefore, there is no guaranty that this extension's launcher will actually be used.
+     *
+     * @param  launchers  a list of {@link ExternalFileLauncher} to be registered in BlueJ.
+     */
+    public final void addExternalFileLauncher(List<ExternalFileLauncher> launchers)
+    {
+        if (!myWrapper.isValid())
+            throw new ExtensionUnloadedException();
+
+        for(ExternalFileLauncher launcher: launchers)
+        {
+            addExternalFileLauncher(launcher);
+        }
+    }
+
+    /**
+     * Appens an ExternalFileLauncher objet in BlueJ's list of external file launchers.
+     * This method <i>must</i> be called within {@link Extension#startup(BlueJ)} for BlueJ to be able to retrieve the launcher(s).
+     * Calling it anywhere else will produce no effect in BlueJ.
+     *
+     * Adding a launcher will not replace previously added launchers by the extension.
+     *
+     * Note that for a same external file type, the last extension loaded by BlueJ will overwrite a previously register
+     * launcher. Therefore, there is no guaranty that this extension's launcher will actually be used.
+     *
+     * @param  launcher  a {@link ExternalFileLauncher} to be registered in BlueJ.
+     */
+    public final void addExternalFileLauncher(ExternalFileLauncher launcher)
+    {
+        if (!myWrapper.isValid())
+            throw new ExtensionUnloadedException();
+
+        externalFileLaunchers.add(launcher);
+    }
+
+    /**
+     * Returns the list of launchers provided by BlueJ extensions.
+     * @see #addExternalFileLauncher(ExternalFileLauncher)
+     * @see #addExternalFileLauncher(List)
+     *
+     * @return a unmodifiable list of {@link ExternalFileLauncher} objects internally populated by BlueJ extensions.
+     */
+    public final List<ExternalFileLauncher> getExternalFileLaunchers()
+    {
+        return Collections.unmodifiableList(externalFileLaunchers);
+    }
+
+    /**
+     * Returns the list of BlueJ natively supported file extension (which will be discarded by BlueJ when registering
+     * external file launchers)
+     *
+     * @return the list of file extensions (as String objects) representing BlueJ natively supported files.
+     */
+    public static final List<String> getBlueJNativeFileExtensions()
+    {
+        return blueJNativeFileExts;
+    }
+
+    /**
      * Returns the path of the <code>&lt;BLUEJ_HOME&gt;/lib</code> system directory.
      * This can be used to locate system-wide configuration files.
      * A file can then be located within this directory.
