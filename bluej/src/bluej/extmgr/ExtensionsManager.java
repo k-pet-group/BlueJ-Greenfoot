@@ -25,7 +25,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.debugmgr.ExecutionEvent;
-import bluej.extensions2.BlueJ;
+import bluej.extensions2.ExtensionBridge;
 import bluej.extensions2.ExternalFileLauncher;
 import bluej.extensions2.event.ExtensionEvent;
 import bluej.extensions2.event.InvocationFinishedEvent;
@@ -436,18 +436,21 @@ public class ExtensionsManager
         // Then, if any ExternalFileLauncher are actually declared for an extension, we populate the map.
         // Note that safeGetExtFileLaunchers will return an empty list for older extensions, and that
         // we do not keep any extension that are already natively supported by BlueJ.
-        List<String> nativeBlueJExts = BlueJ.getBlueJNativeFileExtensions();
+        List<String> nativeBlueJExts =  ExtensionBridge.getBlueJNativeFileExtensions();
 
         for(ExtensionWrapper extension : extensions)
         {
             for(ExternalFileLauncher extFileLauncher : extension.safeGetExternalFileLaunchers())
             {
                 // We use the dot prefix in the file extension mapping.
-                String cleanedExtension = extFileLauncher.getFileExtension().toLowerCase();
+                // So we check the file extension wasn't starting with "*", and has a dot.
+                String cleanedExtension = extFileLauncher.getFileExtension().toLowerCase().trim();
+                if(cleanedExtension.startsWith("*"))
+                    cleanedExtension = cleanedExtension.substring(1);
                 if(!cleanedExtension.startsWith("."))
                     cleanedExtension = "." + cleanedExtension;
 
-                if(!(nativeBlueJExts.contains(cleanedExtension) || resMap.containsKey(cleanedExtension)))
+                if(cleanedExtension.length() > 1 && !nativeBlueJExts.contains(cleanedExtension))
                 {
                     // When more than 1 extension declare a launcher for same file type, the last from the iteration wins.
                     resMap.put(cleanedExtension, extFileLauncher.getLauncher());

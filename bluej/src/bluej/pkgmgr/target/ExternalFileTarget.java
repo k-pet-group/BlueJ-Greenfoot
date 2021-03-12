@@ -27,6 +27,7 @@ import bluej.extensions2.ExternalFileLauncher;
 import bluej.extensions2.PackageNotFoundException;
 import bluej.extensions2.ProjectNotOpenException;
 import bluej.pkgmgr.Package;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.JavaFXUtil;
@@ -88,13 +89,13 @@ public class ExternalFileTarget extends NonCodeEditableTarget
                         // We retrieve the launchers from the mapping saved for that project. Note that at this stage,
                         // the CompletableFuture object should be ready since we show the targets in the UI once retrieving
                         // the BlueJ extensions' launchers.
-                        ExternalFileLauncher.OpenExternalFileHandler launcher = target.getPackage().getProject().getProjectExternalFileOpenMap().get().get(fileExtension);
+                        ExternalFileLauncher.OpenExternalFileHandler launcher = target.getPackage().getProject().getProjectExternalFileOpenMap().get(fileExtension);
                         // If for some strange reason the launcher isn't picked (is null), the exception will be caught in the try/catch
                         launcher.openFile(((ExternalFileTarget) target).getSourceFile().getAbsolutePath());
                     }
                     catch (Exception e)
                     {
-                        e.printStackTrace();
+                        Debug.message("A problem occurred while trying to open the external target "+fileName+": " + e.getMessage());
                         // Alert the user something went wrong (the parent isn't necessary but it provides a nicer UI...)
                         Window parent = null;
                         try
@@ -103,11 +104,10 @@ public class ExternalFileTarget extends NonCodeEditableTarget
                         }
                         catch(PackageNotFoundException | ProjectNotOpenException pe)
                         {
+                            Debug.message("A problem occurred while getting the current external target's related package window: " + pe.getMessage());
                         }
-                        finally
-                        {
-                            DialogManager.showErrorFX(parent, "external-file-open-issue");
-                        }
+
+                        DialogManager.showErrorFX(parent, "external-file-open-issue");
                     }
                 }
             }

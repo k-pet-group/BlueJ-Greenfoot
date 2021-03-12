@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2016,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,14 +29,13 @@ import bluej.extmgr.ExtensionWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.DependentTarget;
 import com.sun.jdi.Value;
 import javafx.scene.control.MenuItem;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.List;
 
 
 /**
@@ -105,4 +104,15 @@ public final class ExtensionBridge
     {
         return bProject.getProject();
     }
+
+    public static final List<ExternalFileLauncher> getExternalFileLaunchers(BlueJ aBlueJ)
+    {
+        return aBlueJ.getExternalFileLaunchers();
+    }
+
+    public static final java.util.List<String> getBlueJNativeFileExtensions()
+    {
+        return BlueJ.getBlueJNativeFileExtensions();
+    }
+
 }

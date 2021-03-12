@@ -306,56 +306,27 @@ public final class BlueJ
 
 
     /**
-     * Appens a list of ExternalFileLauncher objets in BlueJ's list of external file launchers.
+     * Appends a list of ExternalFileLauncher objects in BlueJ's list of external file launchers.
      * This method <i>must</i> be called within {@link Extension#startup(BlueJ)} for BlueJ to be able to retrieve the launcher(s).
      * Calling it anywhere else will produce no effect in BlueJ.
      *
      * Adding launchers will not replace previously added launchers by the extension.
      *
      * Note that for a same external file type, the last extension loaded by BlueJ will overwrite a previously register
-     * launcher. Therefore, there is no guaranty that this extension's launcher will actually be used.
+     * launcher. Therefore, there is no guarantee that this extension's launcher will not be overwritten by another extension..
      *
      * @param  launchers  a list of {@link ExternalFileLauncher} to be registered in BlueJ.
      */
-    public final void addExternalFileLauncher(List<ExternalFileLauncher> launchers)
+    public final void addExternalFileLaunchers(List<ExternalFileLauncher> launchers)
     {
         if (!myWrapper.isValid())
             throw new ExtensionUnloadedException();
 
-        for(ExternalFileLauncher launcher: launchers)
-        {
-            addExternalFileLauncher(launcher);
-        }
+        externalFileLaunchers.addAll(launchers);
     }
 
-    /**
-     * Appens an ExternalFileLauncher objet in BlueJ's list of external file launchers.
-     * This method <i>must</i> be called within {@link Extension#startup(BlueJ)} for BlueJ to be able to retrieve the launcher(s).
-     * Calling it anywhere else will produce no effect in BlueJ.
-     *
-     * Adding a launcher will not replace previously added launchers by the extension.
-     *
-     * Note that for a same external file type, the last extension loaded by BlueJ will overwrite a previously register
-     * launcher. Therefore, there is no guaranty that this extension's launcher will actually be used.
-     *
-     * @param  launcher  a {@link ExternalFileLauncher} to be registered in BlueJ.
-     */
-    public final void addExternalFileLauncher(ExternalFileLauncher launcher)
-    {
-        if (!myWrapper.isValid())
-            throw new ExtensionUnloadedException();
-
-        externalFileLaunchers.add(launcher);
-    }
-
-    /**
-     * Returns the list of launchers provided by BlueJ extensions.
-     * @see #addExternalFileLauncher(ExternalFileLauncher)
-     * @see #addExternalFileLauncher(List)
-     *
-     * @return a unmodifiable list of {@link ExternalFileLauncher} objects internally populated by BlueJ extensions.
-     */
-    public final List<ExternalFileLauncher> getExternalFileLaunchers()
+    // Returns the list of launchers provided by BlueJ extension
+    final List<ExternalFileLauncher> getExternalFileLaunchers()
     {
         return Collections.unmodifiableList(externalFileLaunchers);
     }
@@ -366,7 +337,7 @@ public final class BlueJ
      *
      * @return the list of file extensions (as String objects) representing BlueJ natively supported files.
      */
-    public static final List<String> getBlueJNativeFileExtensions()
+    static final List<String> getBlueJNativeFileExtensions()
     {
         return blueJNativeFileExts;
     }

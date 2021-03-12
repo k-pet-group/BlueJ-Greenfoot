@@ -226,7 +226,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     private final CompletableFuture<ProjectImportInformation> projectImportInformation = new CompletableFuture<>();
 
     // For this project, the external file mapping (file extension-launcher) found from installed BlueJ extensions
-    private final CompletableFuture<Map<String, ExternalFileLauncher.OpenExternalFileHandler>> projectExternalFileOpenMap = new CompletableFuture<>();
+    private final Map<String, ExternalFileLauncher.OpenExternalFileHandler> projectExternalFileOpenMap;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -341,15 +341,13 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         });
 
         // Prepare for getting the mapping between external file extensions and their associate launcher.
-        JavaFXUtil.runNowOrLater(() -> {
-            projectExternalFileOpenMap.complete(ExtensionsManager.getInstance().getExtFileOpenMap());
-            // Refresh the UI again once we've retrieved the external file exensions that can be visible for this project
-            packages.forEach((name,aPackage) -> aPackage.refreshPackage());
-            // As we may have added new targets, we make sure the new targets are placed correctly in this package
-            // this also fixes the placement of CSS targets when added directly in the file system, in the current package
-            Package currPackage = packages.get(getInitialPackageName());
-            currPackage.setEditor(currPackage.getEditor());
-        });
+        projectExternalFileOpenMap = ExtensionsManager.getInstance().getExtFileOpenMap();
+        // Refresh the UI again once we've retrieved the external file exensions that can be visible for this project
+        packages.forEach((name,aPackage) -> aPackage.refreshPackage());
+        // As we may have added new targets, we make sure the new targets are placed correctly in this package
+        // this also fixes the placement of CSS targets when added directly in the file system, in the current package
+        Package currPackage = packages.get(getInitialPackageName());
+        currPackage.setEditor(currPackage.getEditor());
     }
 
     /**
@@ -2625,7 +2623,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         return projectImportInformation;
     }
 
-    public CompletableFuture<Map<String, ExternalFileLauncher.OpenExternalFileHandler>> getProjectExternalFileOpenMap()
+    public Map<String, ExternalFileLauncher.OpenExternalFileHandler> getProjectExternalFileOpenMap()
     {
         return projectExternalFileOpenMap;
     }

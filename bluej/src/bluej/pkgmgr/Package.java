@@ -807,37 +807,40 @@ public final class Package
         if (!Config.isGreenfoot())
         {
             File cssFiles[] = getPath().listFiles(p -> p.getName().endsWith(".css"));
-            for (File cssFile : cssFiles)
+            if(cssFiles != null)
             {
-                Target target = propTargets.get(cssFile.getName());
-                if (target == null || !(target instanceof CSSTarget))
+                for (File cssFile : cssFiles)
                 {
-                    target = new CSSTarget(this, cssFile);
-                    synchronized (this)
+                    Target target = propTargets.get(cssFile.getName());
+                    if (target == null || !(target instanceof CSSTarget))
                     {
-                        targetsToPlace.add(target);
+                        target = new CSSTarget(this, cssFile);
+                        synchronized (this)
+                        {
+                            targetsToPlace.add(target);
+                        }
                     }
+                    addTarget(target);
                 }
-                addTarget(target);
             }
-            
         }
 
         // If BlueJ, look for External File targets (as listed via BlueJ extensions):
         if (!Config.isGreenfoot())
         {
             // Retrieve the external file extensions allowed by BlueJ extensions for this project
-            // We only do so when the list is ready not to block the UI
-            if(getProject().getProjectExternalFileOpenMap().isDone())
+            // We only do so when the list has been initialised.
+            if(getProject().getProjectExternalFileOpenMap() != null)
             {
-                try
+                Set<String> allowedExtFileExtensions = getProject().getProjectExternalFileOpenMap().keySet();
+                File[] allFiles = getPath().listFiles();
+                if(allFiles != null)
                 {
-                    Set<String> allowedExtFileExtensions = getProject().getProjectExternalFileOpenMap().get().keySet();
-                    allowedExtFileExtensions.forEach(s -> System.out.println(s));
-                    getPath().listFiles(f -> {
+                    for (File f : allFiles)
+                    {
                         if (f.getName().contains("."))
                         {
-                            String fExt = f.getName().substring(f.getName().lastIndexOf(".")).toLowerCase();
+                            String fExt = f.getName().substring(f.getName().lastIndexOf(".")).toLowerCase().trim();
                             if (allowedExtFileExtensions.contains(fExt))
                             {
                                 Target target = propTargets.get(f.getName());
@@ -852,14 +855,7 @@ public final class Package
                                 addTarget(target);
                             }
                         }
-                        // We just do this for running through the files, no need to actually filter them.
-                        return false;
-                    });
-                }
-                catch (InterruptedException | ExecutionException e)
-                {
-                    // If we couldn't retrieve the list of file extension, just do nothing
-                    Debug.log("Could not retrieve the external file extensions from BlueJ extensions: " + e.getMessage());
+                    }
                 }
             }
         }

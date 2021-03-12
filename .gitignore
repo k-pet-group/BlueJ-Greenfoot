@@ -6,6 +6,7 @@
 !/bluej/.gitignore
 /bluej/package/**/*.jar
 /bluej/package/**/*.zip
+/bluej/doc/extensions/**
 
 /greenfoot/classes
 /greenfoot/native/classes

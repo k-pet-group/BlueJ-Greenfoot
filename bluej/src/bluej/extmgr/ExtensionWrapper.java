@@ -680,22 +680,6 @@ public class ExtensionWrapper
      */
     public List<ExternalFileLauncher> safeGetExternalFileLaunchers()
     {
-        // The extension may not implement the newest functionality of external file launchers:
-        // if we cannot retrieve the list of external file launchers from this extension, we simply
-        // return an empty list
-        List emptyResList = Collections.unmodifiableList(new ArrayList<>());
-        try
-        {
-            if (extensionBluej != null)
-            {
-               return extensionBluej.getExternalFileLaunchers();
-            }
-        }
-        catch (Throwable t)
-        {
-            Debug.log("Could not check external file launchers from the extension " + extensionInstance.getName());
-        }
-
-        return emptyResList;
+        return (extensionBluej != null) ? ExtensionBridge.getExternalFileLaunchers(extensionBluej) : Collections.unmodifiableList(new ArrayList<>());
     }
 }
