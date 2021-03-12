@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2014,2016,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2012,2013,2014,2016,2018,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,10 +22,7 @@
 package bluej.extmgr;
 
 import bluej.Config;
-import bluej.extensions2.BlueJ;
-import bluej.extensions2.Extension;
-import bluej.extensions2.ExtensionBridge;
-import bluej.extensions2.PreferenceGenerator;
+import bluej.extensions2.*;
 import bluej.extensions2.event.ExtensionEvent;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
@@ -36,8 +33,12 @@ import threadchecker.Tag;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.ClassNotFoundException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -671,5 +672,14 @@ public class ExtensionWrapper
             Debug.message("ExtensionWrapper.safePostGenGetMenuItem: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
         }
+    }
+
+    /**
+     * Retrieves the extension's declared ExternalFileLauncher containing the for external files extensions and their
+     * associated launcher.
+     */
+    public List<ExternalFileLauncher> safeGetExternalFileLaunchers()
+    {
+        return (extensionBluej != null) ? ExtensionBridge.getExternalFileLaunchers(extensionBluej) : Collections.unmodifiableList(new ArrayList<>());
     }
 }

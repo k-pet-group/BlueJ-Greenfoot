@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1687,6 +1687,10 @@ public class PkgMgrFrame
         
         if (oPath == null)
             return false;
+
+        if(!oPath.isDirectory())
+            return false;
+
         for (File file: oPath.listFiles())
         {
             if (file.isDirectory())

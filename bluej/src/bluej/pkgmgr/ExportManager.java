@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2016,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2014,2015,2016,2018,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -212,20 +212,23 @@ final class ExportManager
         throws IOException
     {
         File[] dir = sourceDir.listFiles();
-        for(int i = 0; i < dir.length; i++) {
-            if(dir[i].isDirectory()) {
-                if(!skipDir(dir[i], includePkg) ) {
-                    writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/",
-                                  jarOutput, includeSource, includePkg, outputFile);
+        if(dir != null)
+        {
+            for(int i = 0; i < dir.length; i++) {
+                if(dir[i].isDirectory()) {
+                    if(!skipDir(dir[i], includePkg) ) {
+                        writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/",
+                            jarOutput, includeSource, includePkg, outputFile);
+                    }
                 }
-            }
-            else {
-                // check against a list of file we don't want to export and also
-                // check that we don't try to export the jar file we are writing
-                // (hangs the machine)
-                if(!skipFile(dir[i].getName(), !includeSource, !includePkg) &&
-                    !outputFile.equals(dir[i].getCanonicalFile())) {
+                else {
+                    // check against a list of file we don't want to export and also
+                    // check that we don't try to export the jar file we are writing
+                    // (hangs the machine)
+                    if(!skipFile(dir[i].getName(), !includeSource, !includePkg) &&
+                        !outputFile.equals(dir[i].getCanonicalFile())) {
                         jarOutput.writeJarEntry(dir[i], pathPrefix + dir[i].getName());
+                    }
                 }
             }
         }

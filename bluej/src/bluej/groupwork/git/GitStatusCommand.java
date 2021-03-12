@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2018,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -216,6 +216,9 @@ public class GitStatusCommand extends GitCommand
      */
     private void addUpToDateFiles(LinkedList<TeamStatusInfo> returnInfo, File path)
     {
+        if(!path.isDirectory())
+            return;
+        
         for (File item : path.listFiles()) {
             if (filter.accept(item)) {
                 if (item.isDirectory()) {

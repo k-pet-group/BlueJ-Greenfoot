@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2012,2013,2016,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,8 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.debugmgr.ExecutionEvent;
+import bluej.extensions2.ExtensionBridge;
+import bluej.extensions2.ExternalFileLauncher;
 import bluej.extensions2.event.ExtensionEvent;
 import bluej.extensions2.event.InvocationFinishedEvent;
 import bluej.extensions2.event.PackageEvent;
@@ -36,14 +38,9 @@ import bluej.utility.javafx.FXPlatformSupplier;
 import javafx.application.Platform;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Manages extensions and provides the main interface to them. A
@@ -429,5 +426,38 @@ public class ExtensionsManager
         }
         
         return r;
+    }
+
+    public Map<String, ExternalFileLauncher.OpenExternalFileHandler> getExtFileOpenMap()
+    {
+        Map<String, ExternalFileLauncher.OpenExternalFileHandler> resMap = new HashMap<>();
+
+        // We check all loaded extensions to retrieve the ExternalFileLauncher objects they may have declared.
+        // Then, if any ExternalFileLauncher are actually declared for an extension, we populate the map.
+        // Note that safeGetExtFileLaunchers will return an empty list for older extensions, and that
+        // we do not keep any extension that are already natively supported by BlueJ.
+        List<String> nativeBlueJExts =  ExtensionBridge.getBlueJNativeFileExtensions();
+
+        for(ExtensionWrapper extension : extensions)
+        {
+            for(ExternalFileLauncher extFileLauncher : extension.safeGetExternalFileLaunchers())
+            {
+                // We use the dot prefix in the file extension mapping.
+                // So we check the file extension wasn't starting with "*", and has a dot.
+                String cleanedExtension = extFileLauncher.getFileExtension().toLowerCase().trim();
+                if(cleanedExtension.startsWith("*"))
+                    cleanedExtension = cleanedExtension.substring(1);
+                if(!cleanedExtension.startsWith("."))
+                    cleanedExtension = "." + cleanedExtension;
+
+                if(cleanedExtension.length() > 1 && !nativeBlueJExts.contains(cleanedExtension))
+                {
+                    // When more than 1 extension declare a launcher for same file type, the last from the iteration wins.
+                    resMap.put(cleanedExtension, extFileLauncher.getLauncher());
+                }
+            }
+        }
+
+        return Collections.unmodifiableMap(resMap);
     }
 }
