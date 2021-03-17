@@ -68,7 +68,8 @@ public abstract class EditableTarget extends Target
      */
     public void ensureSaved() throws IOException
     {
-        if(editor != null) {
+        if (editor != null && editor.isModified())
+        {
             editor.save();
         }
     }
