@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,6 +40,7 @@ import bluej.editor.fixes.ProjectImportInformation;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FrameShelfStorage;
 import bluej.extensions2.BProject;
+import bluej.extensions2.ExternalFileLauncher;
 import bluej.extensions2.ExtensionBridge;
 import bluej.extmgr.ExtensionsManager;
 import bluej.groupwork.Repository;
@@ -222,7 +223,10 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     // Which thread to run on.  null means we have never asked the user about it.
     private RunOnThread runOnThread;
     @OnThread(Tag.Any)
-    private final CompletableFuture<ProjectImportInformation> projectImportInformation;
+    private final CompletableFuture<ProjectImportInformation> projectImportInformation = new CompletableFuture<>();
+
+    // For this project, the external file mapping (file extension-launcher) found from installed BlueJ extensions
+    private final Map<String, ExternalFileLauncher.OpenExternalFileHandler> projectExternalFileOpenMap;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -331,10 +335,19 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                     execControls.hide();
             }
         });
-        this.projectImportInformation = new CompletableFuture<>();
+
         Utility.runBackground(() -> {
             projectImportInformation.complete(new ProjectImportInformation(this));
         });
+
+        // Prepare for getting the mapping between external file extensions and their associate launcher.
+        projectExternalFileOpenMap = ExtensionsManager.getInstance().getExtFileOpenMap();
+        // Refresh the UI again once we've retrieved the external file exensions that can be visible for this project
+        packages.forEach((name,aPackage) -> aPackage.refreshPackage());
+        // As we may have added new targets, we make sure the new targets are placed correctly in this package
+        // this also fixes the placement of CSS targets when added directly in the file system, in the current package
+        Package currPackage = packages.get(getInitialPackageName());
+        currPackage.setEditor(currPackage.getEditor());
     }
 
     /**
@@ -2610,6 +2623,11 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         return projectImportInformation;
     }
 
+    public Map<String, ExternalFileLauncher.OpenExternalFileHandler> getProjectExternalFileOpenMap()
+    {
+        return projectExternalFileOpenMap;
+    }
+
     /**
      * We fetch the display details on the debugger thread,
      * not from the FX thread, and this object allows us to capture some
@@ -2693,5 +2711,4 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             return debuggerThread;
         }
     }
-
 }

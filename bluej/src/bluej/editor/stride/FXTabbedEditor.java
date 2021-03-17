@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -430,21 +430,23 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      * @param panel The FXTab to add
      * @param visible Whether to make the FXTabbedEditor window visible 
      * @param toFront Whether to bring the tab to the front (i.e. select the tab)
+     * @return True if the tab was added, false if it was already present
      */
     @OnThread(Tag.FXPlatform)
-    public void addTab(final FXTab panel, boolean visible, boolean toFront)
+    public boolean addTab(final FXTab panel, boolean visible, boolean toFront)
     {
-        addTab(panel, visible, toFront, false);
+        return addTab(panel, visible, toFront, false);
     }
 
     @OnThread(Tag.FXPlatform)
-    public void addTab(final FXTab panel, boolean visible, boolean toFront, boolean partOfMove)
+    private boolean addTab(final FXTab panel, boolean visible, boolean toFront, boolean partOfMove)
     {
         panel.setParent(this, partOfMove);
         // This is ok to call multiple times:
         panel.initialiseFX();
         //Debug.time("initialisedFX");
-        if (!tabPane.getTabs().contains(panel)) {
+        if (!tabPane.getTabs().contains(panel))
+        {
             tabPane.getTabs().add(panel);
             if (toFront)
             {
@@ -452,6 +454,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 bringToFront(panel);
                 Platform.runLater(panel::focusWhenShown);
             }
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -477,7 +484,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     @OnThread(Tag.FXPlatform)
     public void openJavaCoreDocTab(String qualifiedClassName, String suffix)
     {
-        String target = Utility.getDocURL(qualifiedClassName, suffix);
+        Class<?> theClass = project.loadClass(qualifiedClassName);
+        // Guess java.base if we don't know the module:
+        String moduleName = theClass == null ? "java.base" : theClass.getModule().getName();
+        
+        String target = Utility.getDocURL(moduleName, qualifiedClassName, suffix);
         openWebViewTab(target);
     }
 
@@ -521,12 +532,16 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      * @param visible Whether to add the tab and make window visible (true), or remove the tab (false).
      *                Window is only hidden if no tabs remain (handled elsewhere in code)
      * @param tab     The tab in question
+     * @return        True if the visible state needed to be changed, false if there was nothing
+     *                that needed to be done.
      */
-    public void setWindowVisible(boolean visible, Tab tab)
+    public boolean setWindowVisible(boolean visible, Tab tab)
     {
         if (visible)
         {
-            if (!stage.isShowing()) {
+            boolean wasAlreadyShowing = stage.isShowing();
+            if (!wasAlreadyShowing)
+            {
                 if (startSize != null)
                 {
                     stage.setX(startSize.getX());
@@ -542,11 +557,16 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             if (!tabPane.getTabs().contains(tab))
             {
                 tabPane.getTabs().add(tab);
+                return true;
+            }
+            else
+            {
+                return !wasAlreadyShowing;
             }
         }
         else
         {
-            tabPane.getTabs().remove(tab);
+            return tabPane.getTabs().remove(tab);
         }
     }
     

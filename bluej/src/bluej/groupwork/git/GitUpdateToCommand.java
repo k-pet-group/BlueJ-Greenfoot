@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2018,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -69,7 +69,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     /**
      * Construct a GitUpdateToCommand command object.
      * 
-     * <p>Note that this always "updates to" (merges with) origin/master. The fetch should have
+     * <p>Note that this always "updates to" (merges with) origin/<default branch>. The fetch should have
      * been performed previously. 
      * 
      * @param repository  the repository
@@ -134,8 +134,8 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                     });
                 }
             });
-                        
-            merge.include(repo.getRepository().resolve("origin/master")); // merge with remote repository.
+
+            merge.include(repo.getRepository().resolve("origin/"+repo.getRepository().getBranch())); // merge with remote repository.
             MergeResult mergeResult = merge.call();
             Map<String, int[][]> allConflicts;
             

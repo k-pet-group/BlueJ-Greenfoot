@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2015,2016,2017,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,12 +37,15 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
@@ -162,9 +165,29 @@ public abstract class CallDialog extends Dialog<Void>
     @OnThread(Tag.FXPlatform)
     public void objectEvent(ObjectBenchEvent obe)
     {
-        NamedValue value = obe.getValue();
-        String name = value.getName();
-        insertText(name);
+        NamedValue[] values = obe.getValues();
+        if (values.length == 1)
+        {
+            String name = values[0].getName();
+            insertText(name);
+        }
+        else
+        {
+            // Multiple options (from Greenfoot, where actors overlap)
+            // so show a context menu:
+            ContextMenu options = new ContextMenu();
+            for (NamedValue namedValue : values)
+            {
+                options.getItems().add(JavaFXUtil.makeMenuItem(namedValue.getName(), () -> {
+                    insertText(namedValue.getName());
+                    options.hide();
+                }, null));
+            }
+            if (focusedTextField != null)
+            {
+                options.show(focusedTextField, Side.LEFT, 0, 0);
+            }
+        }
     }
 
     /**

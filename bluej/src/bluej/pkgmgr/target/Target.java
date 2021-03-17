@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2016,2017,2018,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2013,2016,2017,2018,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,13 +26,18 @@ import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionsMenuManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
+import bluej.utility.Debug;
 import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.JavaFXUtil;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -59,8 +64,8 @@ import threadchecker.Tag;
 public abstract class Target
     implements Comparable<Target>, AbstractOperation.ContextualItem<Target>
 {
-    static final int DEF_WIDTH = 80;
-    static final int DEF_HEIGHT = 50;
+    static final int DEF_WIDTH = 120;
+    static final int DEF_HEIGHT = 70;
     static final int ARR_HORIZ_DIST = 5;
     static final int ARR_VERT_DIST = 10;
     static final int HANDLE_SIZE = 20;
@@ -122,16 +127,20 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     public Target(Package pkg, String identifierName, String accessibleTargetType)
     {
-        pane.setPrefWidth(calculateWidth(new Label(), identifierName));
+        this.pkg = pkg;
+        this.identifierName = identifierName;
+        this.displayName = identifierName;
+        
+        pane.setPrefWidth(calculateWidth(new Label(), identifierName, DEF_WIDTH));
         pane.setPrefHeight(DEF_HEIGHT);
         // We set this here rather than via CSS because we vary it dynamically:
         pane.setCursor(Cursor.HAND);
         JavaFXUtil.addStyleClass(pane, "target");
         pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
-
+        
         pane.setFocusTraversable(true);
-        pane.setAccessibleText(identifierName + (accessibleTargetType != null && !accessibleTargetType.isEmpty() ? " " + accessibleTargetType : ""));
-        pane.setAccessibleRole(AccessibleRole.NODE);
+        updateAccessibleName(accessibleTargetType, null);
+        pane.setAccessibleRole(AccessibleRole.BUTTON);
         JavaFXUtil.addFocusListener(pane, hasFocus -> {
             PackageEditor pkgEditor = pkg.getEditor();
 
@@ -198,7 +207,7 @@ public abstract class Target
         });
 
         pane.setOnMousePressed(e -> {
-            if (e.getButton() == MouseButton.PRIMARY)
+            if (e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger() && e.isStillSincePress())
             {
                 // Dismiss context menu if the user left-clicks on the target:
                 // (Usual JavaFX behaviour is to keep the menu showing if you
@@ -219,7 +228,7 @@ public abstract class Target
             e.consume();
         });
         pane.setOnMouseDragged(e -> {
-            if (e.getButton() == MouseButton.PRIMARY && !pkg.getEditor().isCreatingExtends())
+            if (e.getButton() == MouseButton.PRIMARY && !pkg.getEditor().isCreatingExtends() && !e.isControlDown())
             {
                 if (pressIsResize && isResizable())
                 {
@@ -227,7 +236,7 @@ public abstract class Target
                     int newHeight = pkg.getEditor().snapToGrid((int) (e.getY() + (preResizeHeight - pressDeltaY)));
                     pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
                 }
-                else if (isMoveable())
+                else if (isMoveable() && !e.isStillSincePress())
                 {
                     // They didn't select us yet, but we still allow a drag-move.
                     // Select us as they start dragging:
@@ -247,7 +256,9 @@ public abstract class Target
             e.consume();
         });
         pane.setOnMouseReleased(e -> {
-            pkg.getEditor().endResize();
+            if (e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger()) {
+                pkg.getEditor().endResize();
+            }
         });
         pane.setOnKeyTyped(e -> {
             // + or - on the keyboard do a resize:
@@ -317,6 +328,12 @@ public abstract class Target
         });
 
         JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
+            // If we are not in the current selection, make us the selection:
+            if (!pkg.getEditor().getSelection().contains(Target.this))
+            {
+                pkg.getEditor().selectOnly(Target.this);
+            }
+            
             AbstractOperation.MenuItems menuItems = AbstractOperation.getMenuItems(pkg.getEditor().getSelection(), true);
             ContextMenu contextMenu = AbstractOperation.MenuItems.makeContextMenu(Map.of("", menuItems));
             if (pkg.getEditor().getSelection().size() == 1 && pkg.getEditor().getSelection().get(0) instanceof ClassTarget)
@@ -332,10 +349,11 @@ public abstract class Target
 
         if (pkg == null)
             throw new NullPointerException();
+    }
 
-        this.pkg = pkg;
-        this.identifierName = identifierName;
-        this.displayName = identifierName;
+    protected void updateAccessibleName(String accessibleTargetType, String suffix)
+    {
+        pane.setAccessibleText(getIdentifierName() + (accessibleTargetType != null && !accessibleTargetType.isEmpty() ? " " + accessibleTargetType : "") + (suffix == null ? "" : suffix));
     }
 
     @OnThread(Tag.FXPlatform)
@@ -373,15 +391,17 @@ public abstract class Target
      * @return the width the target should have to fully display its name.
      */
     @OnThread(Tag.FX)
-    protected static int calculateWidth(Labeled node, String name)
+    protected static int calculateWidth(Labeled node, String name, int minWidth)
     {
         int width = 0;
         if (name != null)
             width = (int)JavaFXUtil.measureString(node, name);
-        if ((width + 20) <= DEF_WIDTH)
-            return DEF_WIDTH;
+        if ((width + 20) <= minWidth)
+            return minWidth;
         else
-            return (width + 29) / PackageEditor.GRID_SIZE * PackageEditor.GRID_SIZE;
+            // Snap to GRID_SIZE coordinates, at the next coordinate past width + 20.
+            // e.g. GRID_SIZE=10, width = 17, snap to 40 (17 + 20 -> next snap).
+            return ((width + 20 + (PackageEditor.GRID_SIZE - 1)) / PackageEditor.GRID_SIZE) * PackageEditor.GRID_SIZE;
     }
     
     /**

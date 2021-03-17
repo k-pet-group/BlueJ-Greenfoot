@@ -16,11 +16,11 @@
     <property name="bluej.version.major" value="5" />
     <property name="bluej.version.minor" value="0" />
     <property name="bluej.version.release" value="0" />
-    <property name="bluej.version.suffix" value="-a11y" />
+    <property name="bluej.version.suffix" value="" />
     <!-- suffix with no spaces, eg "pre2" -->
-    <property name="bluej.version.nonspace.suffix" value="-a11y" />
+    <property name="bluej.version.nonspace.suffix" value="" />
     <!-- Suffix added after version number in output files -->
-    <property name="bluej.rcsuffix" value="-rc5"/>
+    <property name="bluej.rcsuffix" value="-rc4"/>
     
     <property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
     <property name="bluej.version.nosuffix" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}" />
@@ -92,9 +92,9 @@
         <pathelement location="${bluej_home}/lib/guava-17.0.jar"/>
         <pathelement location="${bluej_home}/lib/jsch-0.1.53.jar"/>
         <pathelement location="${bluej_home}/lib/org.eclipse.jgit-4.9.0.jar"/>
-        <pathelement location="${bluej_home}/lib/nsmenufx-2.1.4.jar"/>
+        <pathelement location="${bluej_home}/lib/nsmenufx-2.1.8.jar"/>
         <pathelement location="${bluej_home}/lib/richtextfx-fat-0.9.0.jar"/>
-        <pathelement location="${bluej_home}/lib/classgraph-4.2.6.jar"/>
+        <pathelement location="${bluej_home}/lib/classgraph-4.8.90.jar"/>
     </path>
     
     <path id="test.class.path">
@@ -126,7 +126,7 @@
                 <pathelement location="${threadchecker.build}"/>
                 <pathelement location="${threadchecker.pluginbuild}"/>
                 <path refid="javafx.class.path"/>
-                <pathelement location="${bluej_home}/lib/nsmenufx-2.1.4.jar"/>
+                <pathelement location="${bluej_home}/lib/nsmenufx-2.1.8.jar"/>
             </classpath>
             <compilerarg value="-Xmaxerrs"/><compilerarg value="100"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin"/>
@@ -494,20 +494,20 @@
         <mkdir dir="boot/resources/bluej"/>
         <java classname="DrawVersionOnSplash" classpath="util/classes" fork="yes" jvm="${run_java_home}/${java_command_dir_name}/java">
             <arg value="resources/unversioned-bluej-splash.png"/> <!-- original -->
-            <arg value="Version ${bluej.version}"/> <!-- text -->
+            <arg value="${bluej.version}"/> <!-- text -->
             <arg value="${bluej_home}/lib/fonts/SourceSansPro-Bold.ttf"/> <!-- font -->
             <arg value="16"/> <!-- font size -->
-            <arg value="237"/> <!-- X position -->
-            <arg value="130"/> <!-- Y position -->
+            <arg value="215"/> <!-- X position -->
+            <arg value="114"/> <!-- Y position -->
             <arg value="boot/resources/bluej/gen-bluej-splash.png"/> <!-- destination -->
         </java>
         <java classname="DrawVersionOnSplash" classpath="util/classes" fork="yes" jvm="${run_java_home}/${java_command_dir_name}/java">
             <arg value="resources/unversioned-bluej-splash@2x.png"/> <!-- original -->
-            <arg value="Version ${bluej.version}"/> <!-- text -->
+            <arg value="${bluej.version}"/> <!-- text -->
             <arg value="${bluej_home}/lib/fonts/SourceSansPro-Bold.ttf"/> <!-- font -->
             <arg value="32"/> <!-- font size -->
-            <arg value="470"/> <!-- X position -->
-            <arg value="260"/> <!-- Y position -->
+            <arg value="430"/> <!-- X position -->
+            <arg value="228"/> <!-- Y position -->
             <arg value="boot/resources/bluej/gen-bluej-splash@2x.png"/> <!-- destination -->
         </java>
     </target>
@@ -571,7 +571,7 @@
                      are met! -->
 
                 <exclude name="commons-logging-api-1.1.2.jar"/>
-                <exclude name="classgraph-4.2.6.jar"/>
+                <exclude name="classgraph-4.8.90.jar"/>
                 <exclude name="diffutils-1.2.1.jar"/>
                 <exclude name="guava-17.0.jar"/>
                 <exclude name="hamcrest-core-1.3.jar"/>
@@ -580,7 +580,7 @@
                 <exclude name="httpcore-4.1.jar"/>
                 <exclude name="httpmime-4.1.1.jar"/>
                 <exclude name="junit-*.jar"/>
-                <exclude name="nsmenufx-2.1.4.jar"/>
+                <exclude name="nsmenufx-2.1.8.jar"/>
                 <exclude name="opentest4j-1.2.0.jar"/>
                 <exclude name="richtextfx-fat-0.9.0.jar"/>
                 <exclude name="xom-1.2.9.jar"/>

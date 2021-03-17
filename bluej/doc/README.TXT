@@ -1,5 +1,5 @@
 
-BlueJ version 5.0.0-a11y       --        README.TXT
+BlueJ version 5.0.0       --        README.TXT
 
 Information about BlueJ
 -----------------------

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -70,6 +70,7 @@ public class TeamSettingsPanel extends VBox
     private Label prefixLabel    = new Label(Config.getString("team.settings.prefix"));
     private Label protocolLabel  = new Label(Config.getString("team.settings.protocol"));
     private Label uriLabel       = new Label(Config.getString("team.settings.uri"));
+    private Label branchLabel    = new Label(Config.getString("team.settings.branch"));
 
     private Label yourNameLabel  = new Label(Config.getString("team.settings.yourName"));
     private Label yourEmailLabel = new Label(Config.getString("team.settings.yourEmail"));
@@ -77,9 +78,11 @@ public class TeamSettingsPanel extends VBox
     private Label passwordLabel  = new Label(Config.getString("team.settings.password"));
 
     private final TextField serverField = new TextField();
+    private final TextField portField = new TextField();
     private final TextField prefixField = new TextField();
     private final ComboBox<String> protocolComboBox = new ComboBox<>();
     private final TextField uriField = new TextField();
+    private final TextField branchField = new TextField();
 
     private final TextField yourNameField = new TextField();
     private final TextField yourEmailField = new TextField();
@@ -93,12 +96,16 @@ public class TeamSettingsPanel extends VBox
 
     private CheckBox useAsDefault;
 
-    public TeamSettingsPanel(TeamSettingsController teamSettingsController, TeamSettingsDialog dialog)
+    private boolean isShareAction = false;
+
+    public TeamSettingsPanel(TeamSettingsController teamSettingsController, TeamSettingsDialog dialog, boolean isShareAction)
     {
         this.teamSettingsController = teamSettingsController;
         this.teamworkProvider = teamSettingsController.getTeamworkProvider();
 
         this.teamSettingsDialog = dialog;
+
+        this.isShareAction = isShareAction;
 
         JavaFXUtil.addStyleClass(this, "panel");
 
@@ -197,6 +204,9 @@ public class TeamSettingsPanel extends VBox
         protocolComboBox.setEditable(false);
         locationPane.addRow(0, uriLabel, uriField);
         locationPrimaryField = uriField;
+        if(!this.isShareAction)
+            locationPane.addRow(1, branchLabel, branchField);
+        branchField.setPromptText(Config.getString("team.settings.defaultBranch"));
     }
     
     /**
@@ -268,11 +278,21 @@ public class TeamSettingsPanel extends VBox
             setServer(server);
         }
 
+        int port = teamSettingsController.getPropInt(keyBase + "port");
+        if(port > 0) {
+            setPort(port);
+        }
+
         fillProtocolSelections();
         
         String protocol = readProtocolString();
         if (protocol != null){
             setProtocol(protocol);
+        }
+
+        String branch = teamSettingsController.getPropString(keyBase + "branch");
+        if (branch != null) {
+            setBranch(branch);
         }
     }
 
@@ -287,6 +307,10 @@ public class TeamSettingsPanel extends VBox
         String keyBase = "bluej.teamsettings."
             + teamworkProvider.getProviderName().toLowerCase() + ".";
         return teamSettingsController.getPropString(keyBase + "protocol");
+    }
+
+    private void setBranch(String branch){
+        branchField.setText(branch);
     }
 
     private void setUser(String user)
@@ -318,6 +342,8 @@ public class TeamSettingsPanel extends VBox
     {
         serverField.setText(server);
     }
+
+    private void setPort(int port) { portField.setText("" + port); }
     
     /**
      * Set the protocol to that identified by the given protocol key.
@@ -357,6 +383,12 @@ public class TeamSettingsPanel extends VBox
             return null;
         }
     }
+
+    private String getBranch(){
+        //the branch is an optional setting. So empty/null value is to be understood as default branch
+        return branchField.getText();
+    }
+
     
     private String getServer()
     {
@@ -367,7 +399,17 @@ public class TeamSettingsPanel extends VBox
             return null;
         }
     }
-    
+
+    private int getPort()
+    {
+        try {
+            URI uri = new URI(uriField.getText());
+            return uri.getPort();
+        } catch (URISyntaxException ex) {
+            return -1;
+        }
+    }
+
     private String getProtocolKey()
     {
         try {
@@ -396,7 +438,7 @@ public class TeamSettingsPanel extends VBox
     public TeamSettings getSettings()
     {
         TeamSettings result = new TeamSettings(getProtocolKey(),
-                getServer(), getPrefix(), getUser(), getPassword());
+                getServer(), getPort(), getPrefix(), getBranch(), getUser(), getPassword());
         result.setYourEmail(getYourEmail());
         result.setYourName(getYourName());
         return result;
@@ -421,21 +463,31 @@ public class TeamSettingsPanel extends VBox
 
     /**
      * Disable the fields used to specify the repository:
-     * prefix, server and protocol
+     * prefix, server, branch and protocol
      */
     public void disableRepositorySettings()
     {
         prefixField.setDisable(true);
+        branchField.setDisable(true);
         serverField.setDisable(true);
+        portField.setDisable(true);
         protocolComboBox.setDisable(true);
         uriField.setDisable(true);
 
         if (uriField.isVisible() && uriField.getText().isEmpty()){
             //update uri.
-            uriField.setText(TeamSettings.getURI(readProtocolString(), serverField.getText(), prefixField.getText()));
+            int port  = -1;
+            try{
+                port = Integer.parseInt(portField.getText());
+            }
+            catch(NumberFormatException nex){
+            }
+
+            uriField.setText(TeamSettings.getURI(readProtocolString(), serverField.getText(), port, prefixField.getText()));
         }
 
         prefixLabel.setDisable(true);
+        branchLabel.setDisable(true);
         serverLabel.setDisable(true);
         protocolLabel.setDisable(true);
     }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,7 +60,7 @@ public class Boot
     public static final int BLUEJ_VERSION_MAJOR = 5;
     public static final int BLUEJ_VERSION_MINOR = 0;
     public static final int BLUEJ_VERSION_RELEASE = 0;
-    public static final String BLUEJ_VERSION_SUFFIX = "-a11y";
+    public static final String BLUEJ_VERSION_SUFFIX = "";
 
     // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
     //                                                BLUEJ_VERSION_MINOR * 100 +
@@ -94,11 +94,11 @@ public class Boot
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext2.jar",
         "junit-*.jar", "hamcrest-core-1.3.jar", "hamcrest-library-1.3.jar", "bluej.jar",
-        "classgraph-4.2.6.jar",
+        "classgraph-4.8.90.jar",
         "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
         JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
         "lang-stride.jar",
-        "nsmenufx-2.1.4.jar", "richtextfx-fat-0.9.0.jar",
+        "nsmenufx-2.1.8.jar", "richtextfx-fat-0.9.0.jar",
         "guava-17.0.jar",
         "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar"};
     private static final int greenfootUserBuildJars = 4;
@@ -109,7 +109,7 @@ public class Boot
     // The jar files we expect in the BlueJ lib directory
     // The first lot are the ones to run BlueJ itself
     private static final String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext2.jar",
-        "classgraph-4.2.6.jar",
+        "classgraph-4.8.90.jar",
         "commons-logging-api-1.1.2.jar",
         "diffutils-1.2.1.jar",
         "guava-17.0.jar",
@@ -121,7 +121,7 @@ public class Boot
         "jsch-0.1.53.jar",
         "junit-*.jar",
         "lang-stride.jar",
-        "nsmenufx-2.1.4.jar",
+        "nsmenufx-2.1.8.jar",
         "org.eclipse.jgit-4.9.0.jar",
         "richtextfx-fat-0.9.0.jar",
         "slf4j-api-1.7.2.jar",
@@ -285,7 +285,7 @@ public class Boot
             @OnThread(Tag.FXPlatform)
             public Image get()
             {
-                URL url = getClass().getResource(isGreenfoot ? "gen-greenfoot-splash.png" : "gen-bluej-splash.png");
+                URL url = Boot.class.getResource(isGreenfoot ? "gen-greenfoot-splash.png" : "gen-bluej-splash.png");
                 if (url != null)
                     return new Image(url.toString());
                 else

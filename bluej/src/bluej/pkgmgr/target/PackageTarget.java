@@ -71,7 +71,7 @@ public class PackageTarget extends Target
         JavaFXUtil.addStyleClass(name, "package-target-name");
         name.setMaxWidth(9999.0);
         pane.setTop(name);
-        setSize(calculateWidth(name, baseName), DEF_HEIGHT + TAB_HEIGHT);
+        setSize(calculateWidth(name, baseName, DEF_WIDTH), DEF_HEIGHT + TAB_HEIGHT);
 
         Pane center = new Pane();
         BorderPane centerWrapper = new BorderPane(center);

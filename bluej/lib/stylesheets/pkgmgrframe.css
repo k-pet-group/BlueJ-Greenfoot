@@ -2,6 +2,7 @@
     class-target: rgb(239, 204, 149);
     test-target: rgb(166, 191, 137);
     css-target: rgb(197, 205, 206);
+    externalfile-target: rgb(156, 220, 240);
     window-background: rgb(229, 229, 229);
     class-diagram: rgb(249,247,242);
     object-bench: rgb(239,237,232);
@@ -28,6 +29,10 @@
 .pmf-central-pane {
     -fx-border-width: 1;
     -fx-border-color: pane-border-color;
+    -fx-border-radius: 5px;
+}
+.pmf-central-pane > .scroll-pane, .pmf-central-pane > .scroll-pane > .viewport {
+    -fx-background-radius: 5px;
 }
 .pmf-empty-project-msg {
     -fx-text-fill: gray;
@@ -131,6 +136,7 @@
 /* Class Diagram */
 .class-diagram, .package-target-preview {
     -fx-background-color: class-diagram;
+    -fx-background-radius: 5px;
 }
 .class-diagram:bj-drawing-extends {
     -fx-background-color: derive(class-diagram, -15%);
@@ -149,15 +155,21 @@
     -fx-border-color: black;
     -fx-border-style: solid outside;
 }
-.class-target, .package-target, .package-target-preview-item, .css-target {
+.class-target, .package-target, .package-target-preview-item, .css-target, .externalfile-target {
     -fx-border-width: 1;
     -fx-border-color: black;
     -fx-border-style: solid outside; /* Prevents relayout when border gets thicker */
     /* We set this programatically because we vary it when the mouse moves to the bottom corner: */
     /*-fx-cursor: hand; */
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
 }
 .css-target {
     -fx-background-color: css-target;
+}
+
+.externalfile-target {
+    -fx-background-color: externalfile-target;
 }
 
 .class-target, .class-target:bj-resizing, .class-target:bj-resizing:hover,
@@ -173,7 +185,7 @@
 .class-target:bj-unittest:hover {
     -fx-background-color: derive(test-target, 25%);
 }
-.class-target:bj-selected, .package-target:bj-selected, .css-target:bj-selected {
+.class-target:bj-selected, .package-target:bj-selected, .css-target:bj-selected, .externalfile-target:bj-selected {
     -fx-border-width: 3;
 }
 .class-target-name {
@@ -216,15 +228,19 @@
 
 
 /* Object Bench */
-.object-bench {
+.object-bench.scroll-pane {
     -fx-border-width: 1;
     -fx-border-color: pane-border-color;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
 }
 .object-bench > .viewport {
     -fx-background-color: object-bench;
+    -fx-background-radius: 5px;
 }
 .object-bench-panel {
     -fx-background-color: object-bench;
+    -fx-background-radius: 5px;
     /* Padding so that the fold-out arrow doesn't appear in front of any objects: */
     -fx-padding: 0 12px 0 0;
 }
@@ -247,15 +263,18 @@
 .codepad {
     -fx-border-width: 1;
     -fx-border-color: pane-border-color;
+    -fx-border-radius: 5px;
 }
 .codepad-history {
     -fx-min-height: 50;
     -fx-background-color: codepad;
+    -fx-background-radius: 5px;
 }
 .codepad-row {
     -fx-text-fill: black;
     -fx-wrap-text: false;
     -fx-background-color: codepad;
+    -fx-background-radius: 5px;
     -fx-padding: 4px 0px 0px 10px;
 }
 .codepad-row:selected {
@@ -280,6 +299,7 @@
             linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background);
        And here's our translation to use our background colour:*/
     -fx-background-color: lightgray, codepad-input;
+    -fx-background-radius: 5px;
 }
 .codepad .text-field:focused {
     -fx-background-color: black, codepad-input;

@@ -277,7 +277,7 @@ public class Utility
         return buf.toString();
     }
 
-    public static String getDocURL(String classname, String suffix)
+    public static String getDocURL(String moduleName, String classname, String suffix)
     {
         classname = classname.replace('.', '/');
         String docURL = Config.getPropString("bluej.url.javaStdLib");
@@ -286,7 +286,7 @@ public class Utility
             if (lastSlash != -1)
                 docURL = docURL.substring(0, lastSlash + 1);
         }
-        String finalURL = docURL + classname + ".html" + suffix;
+        String finalURL = docURL + moduleName + "/" + classname + ".html" + suffix;
         return finalURL;
     }
 

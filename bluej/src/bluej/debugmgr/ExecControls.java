@@ -746,8 +746,10 @@ public class ExecControls
     private static Node makeStepIntoIcon()
     {
         SVGPath path = new SVGPath();
-        // See http://jxnblk.com/paths/?d=M2%2016%20Q24%208%2038%2016%20L40%2010%20L48%2026%20L32%2034%20L34%2028%20Q22%2022%206%2028%20Z
-        path.setContent("M2 16 Q24 8 38 16 L40 10 L48 26 L32 34 L34 28 Q22 22 6 28 Z");
+        // See https://jxnblk.github.io/paths/?d=M14%2022%20L14%2040%20L28%2040%20L28%2048%20L18%2048%20L33%2058%20L48%2048%20L38%2048%20L38%2032%20L24%2032%20L24%2022%20Z
+        path.setContent("M14 22 L14 40 L28 40 L28 48 L18 48 L33 58 L48 48 L38 48 L38 32 L24 32 L24 22 Z"
+            // + "M18 60 L48 60 L48 68 L18 68 Z"
+            );
         path.setScaleX(0.75);
         path.setScaleY(0.85);
         JavaFXUtil.addStyleClass(path, "step-into-icon");

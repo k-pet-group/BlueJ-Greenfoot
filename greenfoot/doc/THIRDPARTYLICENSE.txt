@@ -71,7 +71,7 @@ license can be found in the "Apache-License-2.0.txt" file.
 
 ClassGraph library (MIT License)
 --------------------------------
-"classgraph-4.2.6.jar" is from the ClassGraph library, which allows scanning of Java
+"classgraph-4.8.90.jar" is from the ClassGraph library, which allows scanning of Java
 libraries for a list of present classes.  It is released by Luke Hutchison under
 the MIT License, and is available at https://github.com/classgraph/classgraph
 
@@ -122,7 +122,7 @@ version 1.0, as found in the "CPL-v1.0.txt" file.
 
 NSMenuFX library (3-clause BSD license)
 ---------------------------------------
-"nsmenufx-2.1.4.jar", the NSMenuFX library (https://github.com/codecentric/NSMenuFX),
+"nsmenufx-2.1.8.jar", the NSMenuFX library (https://github.com/codecentric/NSMenuFX),
 is a library to customize the OS X menu bar when it is on FX to be able to customize
 the auto-generated application menu. This version is distributed under the terms of
 the BSD license as found in the "nsmenufx-BSD.txt" file.
@@ -247,7 +247,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 AppleJavaExtensions.jar                  BSD-like license
 commons-logging-api-1.1.2.jar            Apache License v2.0
-classgraph-4.2.6.jar                     MIT License
+classgraph-4.8.90.jar                     MIT License
 diffutils-1.2.1.jar                      Apache License v2.0
 guava-17.0.jar                           Apache License v2.0
 hamcrest-core-1.3.jar                    BSD License
@@ -257,7 +257,7 @@ httpmime-4.1.1.jar                       Apache License v2.0
 jl1.0.1.jar                              Lesser GPL v2.1
 junit-4.11.jar                           Common Public License v1.0
 opencsv-2.3.jar                          Apache License v2.0
-nsmenufx-2.1.4.jar                       BSD license
+nsmenufx-2.1.8.jar                       BSD license
 richtextfx-fat-0.9.0.jar                 BSD License
 sequence-library-1.0.3.jar               BSD License
 xom-1.2.9.jar                            Lesser GPL v2.1

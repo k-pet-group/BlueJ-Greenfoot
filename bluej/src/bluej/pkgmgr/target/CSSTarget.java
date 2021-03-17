@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,10 +47,6 @@ import threadchecker.Tag;
  */
 public class CSSTarget extends NonCodeEditableTarget
 {
-    private static final String openStr = Config.getString("pkgmgr.cssmenu.open");
-    private static final String removeStr = Config.getString("pkgmgr.cssmenu.remove");
-
-
     private final File file;
 
     public CSSTarget(Package aPackage, File file)

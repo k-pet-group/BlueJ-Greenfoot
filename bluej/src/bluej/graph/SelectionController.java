@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2013,2014,2016,2017,2018,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,8 +28,11 @@ import bluej.pkgmgr.target.Target;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
+
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -57,8 +60,9 @@ public class SelectionController
     private boolean resizing = false;
 
     private TraverseStrategy traverseStragegiImpl = new TraverseStrategyImpl();
+    private ArrayList<Target> mostRecentSelection = new ArrayList<>();
 
-    
+
     /**
      * Create the controller for a given graph editor.
      * @param graphEditor
@@ -213,10 +217,12 @@ public class SelectionController
 
 
     /**
-     * Clear the current selection.
+     * Clear the current selection.  Also remembers the selection being cleared, for a future call
+     * to restoreRecentSelectionAndFocus()
      */
     public void clearSelection()
     {
+        mostRecentSelection = new ArrayList<>(getSelection()); 
         selection.clear();
     }
 
@@ -293,5 +299,30 @@ public class SelectionController
     public void addSelectionListener(FXPlatformConsumer<Collection<Target>> selectionListener)
     {
         selection.addListener(selectionListener);
+    }
+
+    /**
+     * Restores the most recently focused items before the last call to clearSelection()
+     * @param stillAValidTarget A function to check if a target is still valid (i.e. hasn't been removed)
+     * @return true if at least one item in the selection was found, selected, and focused
+     */
+    public boolean restoreRecentSelectionAndFocus(Predicate<Target> stillAValidTarget)
+    {
+        // DON'T CALL clearSelection() AS IT WILL OVERWRITE mostRecentSelection!
+        selection.clear();
+        boolean haveFocused = false;
+        for (Target target : mostRecentSelection)
+        {
+            if (stillAValidTarget.test(target))
+            {
+                selection.add(target);
+                if (!haveFocused)
+                {
+                    target.getNode().requestFocus();
+                    haveFocused = true;
+                }
+            }
+        }
+        return !selection.isEmpty();
     }
 }

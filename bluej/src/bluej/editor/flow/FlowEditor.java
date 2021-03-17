@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -224,7 +224,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
     /** Used to obtain javadoc for arbitrary methods */
     private final JavadocResolver javadocResolver;
-    private boolean matchBrackets;
     // Each element is size 2: beginning (incl) and end (excl)
     private final ArrayList<int[]> bracketMatches = new ArrayList<>();
     /**
@@ -721,7 +720,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
         actions.userAction();
 
-        if (matchBrackets)
+        if (PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS))
         {
             doBracketMatch();
         }
@@ -752,7 +751,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     private void doBracketMatch()
     {
-        int originalPos = getSourcePane().getCaretPosition();
         bracketMatches.clear();
         for (Integer position : getBracketMatchPositions())
         {
@@ -863,7 +861,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             if (watcher != null) {
                 watcher.recordSelected();
             }
-            checkForChangeOnDisk();
+            if(PrefMgr.getFlag(PrefMgr.CHECK_DISKFILECHANGES))
+                checkForChangeOnDisk();
         }
         else
         {
@@ -1391,27 +1390,34 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         FXTabbedEditor fxTabbedEditor = fetchTabbedEditor.getFXTabbedEditor(openInNewWindow);
 
+        boolean becameVisible = false;
         if (vis)
         {
-            fxTabbedEditor.addTab(fxTab, vis, true);
+            becameVisible = fxTabbedEditor.addTab(fxTab, vis, true);
         }
-        fxTabbedEditor.setWindowVisible(vis, fxTab);
+        
+        // Expression order very important here; we want to always call setWindowVisible,
+        // even if becameVisible is already true, and then OR the result with becameVisible
+        becameVisible = fxTabbedEditor.setWindowVisible(vis, fxTab) || becameVisible;
 
         if (vis)
         {
             fxTabbedEditor.bringToFront(fxTab);
-            if (callbackOnOpen != null)
+            if (becameVisible)
             {
-                callbackOnOpen.run();
-            }
-            checkBracketStatus();
+                if (callbackOnOpen != null)
+                {
+                    callbackOnOpen.run();
+                }
+                
+                checkBracketStatus();
 
-            if (sourceIsCode && !compiledProperty.get())
-            {
-                // Schedule a compilation so we can find and display any errors:
-                scheduleCompilation(CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
+                if (sourceIsCode && !compiledProperty.get())
+                {
+                    // Schedule a compilation so we can find and display any errors:
+                    scheduleCompilation(CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
+                }
             }
-
             // Make sure caret is visible after open:
             getSourcePane().ensureCaretShowing();
             requestLayout();
@@ -1425,7 +1431,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     private void checkBracketStatus()
     {
-        matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
+        boolean matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
         // tidies up leftover highlight if matching is switched off
         // while highlighting a valid bracket or refreshes bracket in open
         // editor
@@ -1454,7 +1460,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
             // Play it safe and avoid overwriting code that has been changed outside BlueJ (or at least,
             // outside *this* instance of BlueJ):
-            checkForChangeOnDisk();
+            if(PrefMgr.getFlag(PrefMgr.CHECK_DISKFILECHANGES))
+                checkForChangeOnDisk();
             if (!saveState.isChanged())
             {
                 return;
@@ -1916,7 +1923,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         setCompileStatus(compiled);
         if (compiled) {
-            errorManager.removeAllErrorHighlights();
+            removeErrorHighlights();
         }
     }
 
@@ -1942,8 +1949,14 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public boolean compileStarted(int compilationSequence)
     {
         compilationStarted = true;
-        errorManager.removeAllErrorHighlights();
+        removeErrorHighlights();
         return false;
+    }
+
+    @Override
+    public void removeErrorHighlights()
+    {
+        errorManager.removeAllErrorHighlights();
     }
 
     @Override
@@ -2085,7 +2098,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         JavaFXUtil.runAfterCurrent(() -> {
             removeSearchHighlights();
             currentSearchResult.setValue(null);
-            errorManager.removeAllErrorHighlights();
+            removeErrorHighlights();
             errorManager.documentContentChanged();
             showErrorOverlay(null, 0);
         });

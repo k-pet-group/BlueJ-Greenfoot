@@ -62,7 +62,7 @@ license can be found in the "Apache-License-2.0.txt" file.
  
 ClassGraph library (MIT License)
 --------------------------------
-"classgraph-4.2.6.jar" is from the ClassGraph library, which allows scanning of Java
+"classgraph-4.8.90.jar" is from the ClassGraph library, which allows scanning of Java
 libraries for a list of present classes.  It is released by Luke Hutchison under
 the MIT License, and is available at https://github.com/classgraph/classgraph
 
@@ -136,7 +136,7 @@ under the MIT License and is available from https://github.com/pholser/junit-qui
 
 NSMenuFX library (3-clause BSD license)
 ---------------------------------------
-"nsmenufx-2.1.4.jar", the NSMenuFX library (https://github.com/codecentric/NSMenuFX),
+"nsmenufx-2.1.8.jar", the NSMenuFX library (https://github.com/0x4a616e/NSMenuFX),
 is a library to customize the OS X menu bar when it is on FX to be able to customize
 the auto-generated application menu. This version is distributed under the terms of
 the BSD license as found in the "nsmenufx-BSD.txt" file.
@@ -234,7 +234,7 @@ SOFTWARE.
 4. SUMMARY OF THIRD-PARTY JAR FILES AND LICENSES
 
 commons-logging-api-1.1.2.jar            Apache License v2.0
-classgraph-4.2.6.jar                     MIT License
+classgraph-4.8.90.jar                     MIT License
 diffutils-1.2.1.jar                      Apache License v2.0
 generics-resolver-2.0.1.jar              MIT License
 guava-17.0.jar                           Apache License v2.0
@@ -246,7 +246,7 @@ javaruntype-1.3.jar                      Apache License v2.0
 jsch-0.1.53.jar                          BSD License
 junit-4.12.jar                           Common Public License v1.0
 junit-quickcheck-core-0.8.2.jar          MIT License
-nsmenufx-2.1.4.jar                       BSD license
+nsmenufx-2.1.8.jar                       BSD license
 ognl-3.1.12.jar                          Apache License v2.0
 org.eclipse.jgit-4.9.0.jar               Eclipse Distribution License (EDL) v1.0
 richtextfx-fat-0.9.0.jar                 BSD License

@@ -119,6 +119,7 @@ prefmgr.edit.colortransparency=Scope Highlighting
 prefmgr.edit.usesyntaxhilighting=Use syntax highlighting
 prefmgr.edit.autoindent=Auto-indent (Enter and Tab keys)
 prefmgr.edit.displaylinenumbers=Display line numbers
+prefmgr.edit.checkfilechangeondisk=Check file changes on the disk
 prefmgr.edit.matchBrackets=Match brackets
 prefmgr.edit.keybindingstitle=Key Bindings
 prefmgr.edit.highlightLighter=Lighter
@@ -397,9 +398,6 @@ pkgmgr.noClassesExisted.message=\u2196 Use the Edit menu to create or add a clas
 pkgmgr.packagemenu.open=Open
 pkgmgr.packagemenu.remove=Delete
 
-pkgmgr.cssmenu.open=Open
-pkgmgr.cssmenu.remove=Delete
-
 pkgmgr.classmenu.edit=Open Editor
 pkgmgr.classmenu.compile=Compile
 pkgmgr.classmenu.inspect=Inspect
@@ -410,6 +408,9 @@ pkgmgr.classmenu.convertToStride=Convert to Stride
 pkgmgr.classmenu.createTest=Create Test Class
 pkgmgr.classmenu.launchFX=Run JavaFX Application
 pkgmgr.classmenu.moreMethods=more methods
+
+pkgmgr.extfilemenu.open=Open (outside BlueJ)
+pkgmgr.extfilemenu.delete=Delete file
 
 pkgmgr.team.title=Teamwork
 pkgmgr.test.title=Testing
@@ -789,6 +790,8 @@ team.settings.ext=ext (using SSH)
 team.settings.pserver=pserver
 team.settings.protocol=Protocol
 team.settings.uri=Repository URI
+team.settings.branch=Branch
+team.settings.defaultBranch=Default branch
 team.settings.rememberSettings=Remember settings for future projects
 team.settings.checkConnection=Check connection
 

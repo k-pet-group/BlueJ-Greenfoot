@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2021  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,15 +35,16 @@ public class ObjectBenchEvent extends EventObject
 {
     public final static int OBJECT_SELECTED = 1;
 
-    protected NamedValue value;
+    // Can be multiple values in Greenfoot, where they can be on top of each other:
+    protected NamedValue[] values;
     protected int id;
 
-    public ObjectBenchEvent(Object source, int id, NamedValue value)
+    public ObjectBenchEvent(Object source, int id, NamedValue[] values)
     {
         super(source);
 
         this.id = id;
-        this.value = value;
+        this.values = values;
     }
 
     public int getID()
@@ -51,8 +52,8 @@ public class ObjectBenchEvent extends EventObject
         return id;
     }
 
-    public NamedValue getValue()
+    public NamedValue[] getValues()
     {
-        return value;
+        return values;
     }
 }

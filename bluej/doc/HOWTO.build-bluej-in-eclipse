@@ -141,7 +141,7 @@ Alternatively:
        - httpmime-4.1.1.jar
        - jsch-0.1.53
        - junit-4.12.jar
-       - nsmenufx-2.1.4.jar
+       - nsmenufx-2.1.8.jar
        - org.eclipse.jgit-4.9.0.jar
        - xom-1.2.9.jar
 

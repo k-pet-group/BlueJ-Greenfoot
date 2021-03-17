@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2014,2015,2016,2017,2018,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -482,8 +482,8 @@ public abstract class Inspector extends Stage
         double x = owner.getX() + (ownerScene.getWidth() / 2.0) - (dialogWidth / 2.0);
         double y = owner.getY() + titleBarHeight / 2.0 + (ownerScene.getHeight() / 2.0) - (dialogHeight / 2.0);
 
-        setX(x);
-        setY(y);
+        setX(Math.max(0, x));
+        setY(Math.max(0, y));
     }
 
     // Gets the content for the purposes of animation

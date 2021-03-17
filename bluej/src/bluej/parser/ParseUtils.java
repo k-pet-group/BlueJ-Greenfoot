@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014,2015,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2013,2014,2015,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.parser;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -88,9 +89,13 @@ public class ParseUtils
     @OnThread(Tag.FXPlatform)
     public static List<AssistContentThreadSafe> getLocalTypes(Package pkg, Class<?> superType, Set<Kind> kinds)
     {
-        return pkg.getClassTargets()
+        //We will check for each first level classes if they contain any subclasses, and add them later.
+        List<AssistContentThreadSafe> nestedTypes = new ArrayList<>();
+
+        List<AssistContentThreadSafe> resList = pkg.getClassTargets()
             .stream()
-            .filter(ct -> {
+            .filter(ct ->
+            {
                 if (superType != null)
                 {
                     ClassInfo info = ct.getSourceInfo().getInfoIfAvailable();
@@ -106,6 +111,20 @@ public class ParseUtils
                         return false;
                 }
 
+                // Check if nested classes exist for that class (only gets it for compiled class)
+                // if we can't load the inner classes, we just skip them
+                if(ct.getInnerClassFiles().length > 0)
+                {
+                    for(File innerClassFile : ct.getInnerClassFiles())
+                    {
+                        Class<?> c = pkg.getProject().loadClass(innerClassFile.getName().replaceFirst("\\.class$",""));
+                        if (c != null)
+                        {
+                           nestedTypes.add(new AssistContentThreadSafe(new ImportedTypeCompletion(c, pkg.getProject().getJavadocResolver())));
+                        }
+                    }
+                }
+
                 if (ct.isInterface())
                     return kinds.contains(Kind.INTERFACE);
                 else if (ct.isEnum())
@@ -115,6 +134,11 @@ public class ParseUtils
             })
             .map(ct -> new AssistContentThreadSafe(LocalTypeCompletion.getCompletion(ct)))
             .collect(Collectors.toList());
+
+        // Add the nest classes
+        resList.addAll(nestedTypes);
+
+        return resList;
     }
 
     /**

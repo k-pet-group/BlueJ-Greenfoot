@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2020  Michael Kolling and John Rosenberg 
+ Copyright (C) 2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -84,6 +84,7 @@ public class ProjectImportInformation
             Config.isGreenfoot() ? null : "javafx.scene.control.*",
             Config.isGreenfoot() ? null : "javafx.scene.input.*",
             Config.isGreenfoot() ? null : "javafx.scene.layout.*",
+            Config.isGreenfoot() ? null : "javafx.scene.paint.*",
             Config.isGreenfoot() ? null : "javafx.stage.*",
             Config.isGreenfoot() ? null : "javax.swing.*",
             Config.isGreenfoot() ? null : "javax.swing.event.*"

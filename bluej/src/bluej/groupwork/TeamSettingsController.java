@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -137,12 +137,13 @@ public class TeamSettingsController
     /**
      * Get the repository. Returns null if user credentials are required
      * but the user chooses to cancel.
+     * Second flag indicates if a share action is performed (false by default)
      */
-    public Repository trytoEstablishRepository(boolean authRequired)
+    public Repository trytoEstablishRepository(boolean authRequired, boolean isShareAction)
     {
         if (authRequired && password == null) {
             // If we don't yet know the password, prompt the user
-            if (!getTeamSettingsDialog().showAndWait().isPresent())
+            if (!getTeamSettingsDialog(isShareAction).showAndWait().isPresent())
                 return null; // user cancelled, password still null
 
             TeamSettings settings = teamSettingsDialog.getSettings();
@@ -183,7 +184,15 @@ public class TeamSettingsController
         
         return repository;
     }
-    
+
+    /**
+     * Shorthand call for the above method with default false value for isShareAction flag
+     */
+    public Repository trytoEstablishRepository(boolean authRequired)
+    {
+        return trytoEstablishRepository(authRequired, false);
+    }
+
     /**
      * Initialize the repository and make sure that authentication details (username/password) have
      * been provided.
@@ -329,10 +338,13 @@ public class TeamSettingsController
         
         String prefix = getPropString(keyBase + "repositoryPrefix");
         String server = getPropString(keyBase + "server");
+        int port = getPropInt(keyBase + "port");
         
         String protocol = getPropString(keyBase + "protocol");
 
-        return new TeamSettings(protocol, server, prefix, user, password);
+        String branch = getPropString(keyBase + "branch");
+
+        return new TeamSettings(protocol, server, port, prefix, branch, user, password);
     }
     
     /**
@@ -361,11 +373,25 @@ public class TeamSettingsController
 
     /**
      * Get the team settings dialog to edit these team settings.
+     * isShareAction is used to notify the specify "share" action from BlueJ
+     */
+    public TeamSettingsDialog getTeamSettingsDialog(boolean isShareAction)
+    {
+        if (teamSettingsDialog == null) {
+            teamSettingsDialog = new TeamSettingsDialog(PkgMgrFrame.getMostRecent().getWindow(), this, isShareAction);
+            disableRepositorySettings();
+        }
+
+        return teamSettingsDialog;
+    }
+
+    /**
+     * shorthand of the above method, with default value for isShareAction to false
      */
     public TeamSettingsDialog getTeamSettingsDialog()
     {
         if (teamSettingsDialog == null) {
-            teamSettingsDialog = new TeamSettingsDialog(PkgMgrFrame.getMostRecent().getWindow(), this);
+            teamSettingsDialog = new TeamSettingsDialog(PkgMgrFrame.getMostRecent().getWindow(), this, false);
             disableRepositorySettings();
         }
 
@@ -450,10 +476,44 @@ public class TeamSettingsController
         return result;
     }
 
+    /**
+     * get the property by the name strname. If the property is present in
+     * the project, that value is returned. If not, bluej.properties and then
+     * bluej.defs are searched. If not found or isn't a number, -1 is returned.
+     * @param strname
+     * @return
+     */
+    public int getPropInt(String strname)
+    {
+        String result = teamProperties.getProperty(strname);
+        int intRes = -1;
+
+        if (result != null) {
+            try{
+                intRes = Integer.parseInt(result);
+                return intRes;
+            } catch (NumberFormatException nex){
+            }
+        }
+
+        try{
+            intRes = Integer.parseInt(Config.getPropString(strname, null));
+        } catch (NumberFormatException nex){
+        }
+
+        return intRes;
+    }
+
     public void setPropString(String key, String value)
     {
         if (key != null && value != null)
             teamProperties.setProperty(key, value);
+    }
+
+    public void setPropInt(String key, int value)
+    {
+        if (key != null)
+            teamProperties.setProperty(key, ""+ value);
     }
     
     public void updateSettings(TeamSettings newSettings, boolean useAsDefault)
@@ -487,9 +547,18 @@ public class TeamSettingsController
         if (serverValue != null)
             setPropString(serverKey, serverValue);
 
+        String portKey = keyBase + "port";
+        int portValue = settings.getPort();
+        if (portValue > 0)
+            setPropInt(portKey, portValue);
+
         String prefixKey = keyBase + "repositoryPrefix";
         String prefixValue = settings.getPrefix();
         setPropString(prefixKey, prefixValue);
+
+        String branchkey = keyBase + "branch";
+        String branchValue = settings.getBranch();
+        setPropString(branchkey, branchValue);
 
         String protocolKey = keyBase + "protocol";
         String protocolValue = settings.getProtocol();

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.editor.fixes.Correction;
 import bluej.editor.stride.FrameEditor;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
@@ -292,8 +293,8 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                         }
                         int startPosInSlot = token.getColumn() - 1;
                         int endPosInSlot = token.getColumn() - 1 + token.getLength();
-                        FXPlatformConsumer<String> replace =
-                                s -> slot.replace(startPosInSlot, endPosInSlot, true, s);
+                        FXPlatformConsumer<Correction.CorrectionElements> replace =
+                            correctionElements -> slot.replace(startPosInSlot, endPosInSlot, true, correctionElements.getPrimaryElement());
                         return (DirectSlotError) new UnknownTypeError(this, typeName, replace, editor, availableTypes.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().flatMap(Collection::stream))
                         {
                             @Override
@@ -312,38 +313,42 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
 
                     // Find mistake between "=" and "==" in a conditional expression
                     List<DirectSlotError> missingDoubleEqualsErrors = new ArrayList<>();
-                    if (getErrorMessage().startsWith("incompatible types:") && getErrorMessage().endsWith("cannot be converted to boolean")
-                            && getJavaCode().charAt(getErrorStartPos()) == '=')
-                    {
-                        missingDoubleEqualsErrors.add(new MissingDoubleEqualsError(this, getErrorStartPos(), frameEditor));
-                    }
-
-                    // Find unreported exception of a method
                     List<DirectSlotError> unreportedExceptionErrors = new ArrayList<>();
-                    String exceptionType = getErrorMessage().substring("unreported exception ".length(), getErrorMessage().indexOf(';'));
-                    Platform.runLater(() -> {
-                        boolean hasAlreadyThrowsForType = false;
-                        // look for the containing method's throws content
-                        // --> we leave the loop either when we found the type or when we passed the method (break statement)
-                        FrameCanvas c = this.getSlot().getParentFrame().getParentCanvas();
-                        while (c != null && c.getParent() != null && c.getParent().getFrame() != null)
+                    String errorMessage = getErrorMessage();
+                    if (errorMessage != null)
+                    {
+                        if (errorMessage.startsWith("incompatible types:") && errorMessage.endsWith("cannot be converted to boolean")
+                            && getJavaCode().charAt(getErrorStartPos()) == '=')
                         {
-                            if (c.getParent().getFrame() instanceof MethodFrameWithBody)
+                            missingDoubleEqualsErrors.add(new MissingDoubleEqualsError(this, getErrorStartPos(), frameEditor));
+                        }
+
+                        // Find unreported exception of a method
+                        String exceptionType = errorMessage.substring("unreported exception ".length(), errorMessage.indexOf(';'));
+                        Platform.runLater(() -> {
+                            boolean hasAlreadyThrowsForType = false;
+                            // look for the containing method's throws content
+                            // --> we leave the loop either when we found the type or when we passed the method (break statement)
+                            FrameCanvas c = this.getSlot().getParentFrame().getParentCanvas();
+                            while (c != null && c.getParent() != null && c.getParent().getFrame() != null)
                             {
-                                MethodFrameWithBody methodFrame = (MethodFrameWithBody) c.getParent().getFrame();
-                                if (methodFrame.hasThrowsForType(exceptionType))
+                                if (c.getParent().getFrame() instanceof MethodFrameWithBody)
                                 {
-                                    hasAlreadyThrowsForType = true;
+                                    MethodFrameWithBody methodFrame = (MethodFrameWithBody) c.getParent().getFrame();
+                                    if (methodFrame.hasThrowsForType(exceptionType))
+                                    {
+                                        hasAlreadyThrowsForType = true;
+                                    }
                                 }
+                                c = c.getParent().getFrame().getParentCanvas();
                             }
-                            c = c.getParent().getFrame().getParentCanvas();
-                        }
-                        // The error is still seen by BlueJ when a throw statement is added, so we avoid an infinite loop
-                        if (getErrorMessage().startsWith("unreported exception ") && !hasAlreadyThrowsForType)
-                        {
-                            unreportedExceptionErrors.add(new UnreportedExceptionError(this, getErrorStartPos(), frameEditor, exceptionType, vars.keySet()));
-                        }
-                    });
+                            // The error is still seen by BlueJ when a throw statement is added, so we avoid an infinite loop
+                            if (errorMessage.startsWith("unreported exception ") && !hasAlreadyThrowsForType)
+                            {
+                                unreportedExceptionErrors.add(new UnreportedExceptionError(this, getErrorStartPos(), frameEditor, exceptionType, vars.keySet()));
+                            }
+                        });
+                    }
 
                     f.complete(Stream.concat(undeclaredVarErrors.stream(),
                             Stream.concat(undeclaredMethodErrors.stream(),

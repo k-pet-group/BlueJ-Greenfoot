@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1389,7 +1389,30 @@ public final class FlowActions
 
     private FlowAbstractAction indentAction()
     {
-        return action("indent", Category.EDIT, () -> doBlockIndent(getClearedEditor()));
+        return action("indent", Category.EDIT, () -> {
+            FlowEditor editor = getClearedEditor();
+            int caretPos = editor.getSourcePane().getCaretPosition();
+            int caretLine = getDocument().getLineFromPosition(caretPos);
+            // If the anchor is on a different line then we want to do a block indent regardless:
+            if (caretLine != getDocument().getLineFromPosition(editor.getSourcePane().getAnchorPosition()))
+            {
+                doBlockIndent(editor);
+            }
+            else
+            {
+                // If there is any text before the cursor on the current line, just insert a tab:
+                int lineStart = getDocument().getLineStart(caretLine);
+                String prefix = getDocument().getContent(lineStart, caretPos).toString();
+                if (prefix.trim().length() > 0)
+                {
+                    insertSpacedTab();
+                }
+                else
+                {
+                    doBlockIndent(editor);
+                }
+            }
+        });
     }
 
     // --------------------------------------------------------------------
@@ -1484,6 +1507,8 @@ public final class FlowActions
                 String toPaste = Clipboard.getSystemClipboard().getString();
                 if (toPaste != null)
                 {
+                    // Remove Windows line endings as we paste:
+                    toPaste = toPaste.replace("\r", "");
                     editor.getSourcePane().replaceSelection(toPaste);
                 }
                 if (viaContextMenu)

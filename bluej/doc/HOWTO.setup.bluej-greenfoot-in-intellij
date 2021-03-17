@@ -8,7 +8,7 @@ Go to Check out from Version Control->Git (in the first-run window), or, from th
 URL: https://gitlab.bluej.org/gitlab-username/bjgf.git
 Check out to wherever you want locally.  If it asks to create a project from existing sources, say yes, and select "Create project from existing sources".  Leave the project name as bjgf and accept the directory it suggests.  Project format can be left as .idea (directory based).  It may then ask if you want to overwrite the existing project directory.  Say Yes to this.  If it pops up asking to mark source roots, click Unmark All so that none are selected, then click Finish. 
 
-NOTE: WHEREVER YOU SEE "bjgf" BELOW, CHANGE THAT TO BE THE FULL PATH YOU CHECKED OUT TO.
+NOTE: WHEREVER YOU SEE "$$bjgf$$" BELOW, CHANGE THAT TO BE THE FULL PATH YOU CHECKED OUT TO.
   For example, for me, instead of bjgf in each case, I have C:\users\neil\intellij\bjgf
 
 IntelliJ will pop up dialogs often during setup asking if you want to add various files to
@@ -21,9 +21,9 @@ Go to File -> Project Structure...  and select the top Project item on the left.
   Set the language level to Java 11.
 
   Set the project-wide compiler output directory "File -> Project Structure -> Project" to
-  be bjgf/output.  We won't actually use this anyway, as we will override it for each module.
+  be $$bjgf$$/output.  We won't actually use this anyway, as we will override it for each module.
   
-In the same Project Structure window, go to the Global Libraries section (Global Libraries, not just "Libraries").  Click the plus and it will ask you to select the files to add to the new library.  Select the lib directory inside JavaFX (download OpenJFX 11 from http://openjfx.io if you haven't done so already.  Download JavaFX OS-name SDK, not just the jmods).  Once you click OK, it will show you a new library.  Unhelpfully, it will call it "lib", named after the directory you selected.  Rename the library to javafx-11 using the text field at the top.
+In the same Project Structure window, go to the Global Libraries section (Global Libraries, not just "Libraries").  Click the plus then Java and it will ask you to select the files to add to the new library.  Select the lib directory inside your JavaFX installation (download OpenJFX 11 from http://openjfx.io if you haven't done so already.  Download JavaFX OS-name SDK, not just the jmods).  Once you click OK, it will show you a new library.  Unhelpfully, it will call it "lib", named after the directory you selected.  Rename the library to javafx-11 using the text field at the top.
 
 In the same Project Structure window, go to the Libraries section.
   Add a library named "bluej-lib" containing all the JARs in the bjgf/bluej/lib directory.
@@ -47,21 +47,21 @@ In the same Project Structure window, go to the Modules section.
 
 Modules (in order):
 
-    "threadchecker" module.  Content root and module file location: bjgf/bluej/threadchecker.
-       It should automatically tag src (which is really bjgf/bluej/threadchecker/src) as a source directory.
+    "threadchecker" module.  Content root and module file location: $$bjgf$$/bluej/threadchecker.
+       It should automatically tag src (which is really $$bjgf$$/bluej/threadchecker/src) as a source directory.
        Also select "pluginsrc" and mark that as a source directory.
-       Under Paths tab, select "Use module compile output path" and enter bjgf/bluej/threadchecker/classes for both paths.
+       Under Paths tab, select "Use module compile output path" and enter $$bjgf$$/bluej/threadchecker/classes for both paths.
 
-    "bluej-boot" module.  Content root and module file location: bjgf/bluej/boot.
-       It should automatically tag src (which is really bjgf/bluej/boot/src) as a source directory.
+    "bluej-boot" module.  Content root and module file location: $$bjgf$$/bluej/boot.
+       It should automatically tag src (which is really $$bjgf$$/bluej/boot/src) as a source directory.
        Under Dependencies, click the "+" (top right of window) and select Module Dependency... and select "threadchecker".
          Click "+" again and select Library "javafx-11".
-       Under Paths tab, select "Use module compile output path" and enter bjgf/bluej/boot/classes for both paths.
+       Under Paths tab, select "Use module compile output path" and enter $$bjgf$$/bluej/boot/classes for both paths.
 
-    "bluej" module.  Content root and module file location: bjgf/bluej.
-       It should automatically tag src (which is really bjgf/bluej/src) as a source directory.
+    "bluej" module.  Content root and module file location: $$bjgf$$/bluej.
+       It should automatically tag src (which is really $$bjgf$$/bluej/src) as a source directory.
        Also select test/src, and mark that as a tests directory.
-       Under Paths, select "Use module compile output path" and enter bjgf/bluej/classes for both paths.
+       Under Paths, select "Use module compile output path" and enter $$bjgf$$/bluej/classes for both paths.
        Under Dependencies, click the "+" and select Module Dependency... and select "threadchecker".
        Similarly, click the "+" and select Module Dependency... and select "bluej-boot".
        Click the "+" and select Library and select "bluej-lib" and "javafx-11" and "testlib".
@@ -69,10 +69,10 @@ Modules (in order):
 After adding these modules, try compiling (Build menu -> Build Project).  It should be successful.
 Then to set up Greenfoot, add this additional module:
 
-    "greenfoot" module.  Content root and module file location: bjgf/greenfoot.
-       It should automatically tag src (which is really bjgf/greenfoot/src) as a source directory.
+    "greenfoot" module.  Content root and module file location: $$bjgf$$/greenfoot.
+       It should automatically tag src (which is really $$bjgf$$/greenfoot/src) as a source directory.
        Also select test/src, and mark that as a tests directory.
-       Under Paths, select "Use module compile output path" and enter bjgf/greenfoot/classes for both paths.
+       Under Paths, select "Use module compile output path" and enter $$bjgf$$/greenfoot/classes for both paths.
        Under Dependencies, click "+" and select "Module Dependency..." and select
        "threadchecker", "bluej-boot", "bluej".
        Click the "+" again and select Library and select "bluej-lib" and "greenfoot-lib" and "javafx-11".

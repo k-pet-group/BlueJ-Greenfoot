@@ -13,7 +13,7 @@ CP="$CP:$JAVAFXPATH/lib/javafx.properties.jar"
 CP="$CP:$JAVAFXPATH/lib/javafx.swing.jar"
 CP="$CP:$JAVAFXPATH/lib/javafx.web.jar"
 
-"$JAVAPATH/bin/java" -Djavafx.embed.singleThread=true -Dawt.useSystemAAFontSettings=on -Xmx512M \
+"$JAVAPATH/bin/java" -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2 -Djavafx.embed.singleThread=true -Dawt.useSystemAAFontSettings=on -Xmx512M \
     -cp "$CP" bluej.Boot \
     -greenfoot=true -bluej.compiler.showunchecked=false \
     -greenfoot.scenarios=/usr/share/doc/Greenfoot/scenarios \

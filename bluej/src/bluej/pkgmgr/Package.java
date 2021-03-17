@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021 Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,7 @@ import java.util.*;
 
 import bluej.debugger.DebuggerObject;
 import bluej.views.CallableView;
+import com.google.common.collect.Sets;
 import javafx.application.Platform;
 
 import bluej.compiler.CompileInputFile;
@@ -51,46 +52,25 @@ import bluej.debugger.*;
 import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.Invoker;
 import bluej.editor.Editor;
-import bluej.editor.TextEditor;
 import bluej.extensions2.BPackage;
 import bluej.extensions2.ExtensionBridge;
 import bluej.extensions2.SourceType;
 import bluej.extensions2.event.CompileEvent;
 import bluej.extensions2.event.CompileEvent.EventType;
 import bluej.extmgr.ExtensionsManager;
-import bluej.parser.AssistContent;
-import bluej.parser.AssistContent.CompletionKind;
-import bluej.parser.ExpressionTypeInfo;
-import bluej.parser.ParseUtils;
-import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.dependency.Dependency;
-import bluej.pkgmgr.dependency.ExtendsDependency;
-import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.*;
-import bluej.pkgmgr.target.DependentTarget.State;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
 import bluej.utility.filefilter.FrameSourceFilter;
 import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.views.CallableView;
-import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Modifier;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A Java package (collection of Java classes).
@@ -783,6 +763,10 @@ public final class Package
             {
                 target = new CSSTarget(this, new File(getPath(), identifierName));
             }
+            else if("ExternalFileTarget".equals(type))
+            {
+                target = new ExternalFileTarget(this, new File(getPath(), identifierName));
+            }
             else
             {
                 target = new ClassTarget(this, identifierName);
@@ -823,21 +807,58 @@ public final class Package
         if (!Config.isGreenfoot())
         {
             File cssFiles[] = getPath().listFiles(p -> p.getName().endsWith(".css"));
-            for (File cssFile : cssFiles)
+            if(cssFiles != null)
             {
-                Target target = propTargets.get(cssFile.getName());
-                if (target == null || !(target instanceof CSSTarget))
+                for (File cssFile : cssFiles)
                 {
-                    target = new CSSTarget(this, cssFile);
-                    synchronized (this)
+                    Target target = propTargets.get(cssFile.getName());
+                    if (target == null || !(target instanceof CSSTarget))
                     {
-                        targetsToPlace.add(target);
+                        target = new CSSTarget(this, cssFile);
+                        synchronized (this)
+                        {
+                            targetsToPlace.add(target);
+                        }
+                    }
+                    addTarget(target);
+                }
+            }
+        }
+
+        // If BlueJ, look for External File targets (as listed via BlueJ extensions):
+        if (!Config.isGreenfoot())
+        {
+            // Retrieve the external file extensions allowed by BlueJ extensions for this project
+            // We only do so when the list has been initialised.
+            if(getProject().getProjectExternalFileOpenMap() != null)
+            {
+                Set<String> allowedExtFileExtensions = getProject().getProjectExternalFileOpenMap().keySet();
+                File[] allFiles = getPath().listFiles();
+                if(allFiles != null)
+                {
+                    for (File f : allFiles)
+                    {
+                        if (f.getName().contains("."))
+                        {
+                            String fExt = f.getName().substring(f.getName().lastIndexOf(".")).toLowerCase().trim();
+                            if (allowedExtFileExtensions.contains(fExt))
+                            {
+                                Target target = propTargets.get(f.getName());
+                                if (target == null || !(target instanceof ExternalFileTarget))
+                                {
+                                    target = new ExternalFileTarget(this, f);
+                                    synchronized (this)
+                                    {
+                                        targetsToPlace.add(target);
+                                    }
+                                }
+                                addTarget(target);
+                            }
+                        }
                     }
                 }
-                addTarget(target);
             }
-            
-        }        
+        }
 
         // now look for Java source files that may have been
         // added to the directory
@@ -1163,12 +1184,15 @@ public final class Package
         repaint();
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void repaint()
     {
-        JavaFXUtil.runNowOrLater(() -> {
-            PackageEditor ed = getEditor();
-            if (ed != null) ed.repaint();});
+        PackageEditor ed = getEditor();
+        if (ed != null)
+        {
+            ed.requestLayout();
+            JavaFXUtil.runAfterNextLayout(ed.getScene(), ed::repaint);
+        }
     }
 
     /**
@@ -2944,38 +2968,26 @@ public final class Package
      */
     public boolean checkDependecyCompilationError(ClassTarget classTarget)
     {
-        boolean dependencyError = false;
-        outerloop:
-        for (Dependency d : classTarget.dependencies())
+        // First calculate all dependencies, no matter how indirect,
+        // taking care to avoid an infinite loop in the case there is a mutual dependency:
+        LinkedList<ClassTarget> toCalculate = new LinkedList<>();
+        toCalculate.add(classTarget);
+        Set<ClassTarget> dependencies = Sets.newIdentityHashSet();
+        while (!toCalculate.isEmpty())
         {
-            ClassTarget dependent = (ClassTarget) d.getTo();
-            if (dependent.getState() == State.HAS_ERROR && dependent.hasSourceCode())
+            ClassTarget t = toCalculate.removeFirst();
+            for (Dependency d : t.dependencies())
             {
-                dependencyError = true;
-                break outerloop;
-            }
-            else
-            {
-                List<Dependency> dependencyParents = dependent.getParents();
-                dependencyError = dependencyParents.stream()
-                        .filter(pv -> pv.getTo().getState() == State.HAS_ERROR)
-                        .findFirst().isPresent();
-                if (dependencyError)
+                ClassTarget to = (ClassTarget) d.getTo();
+                // If it's a dependency we haven't encountered before, we'll also
+                // need to calculate its dependencies:
+                if (dependencies.add(to))
                 {
-                    break outerloop;
-                }
-                //check if the dependant has parents compilation errors
-                for (Dependency parentDependency : dependencyParents)
-                {
-                    ClassTarget dependencyParent = (ClassTarget) parentDependency.getTo();
-                    dependencyError = checkDependecyCompilationError(dependencyParent);
-                    if (dependencyError)
-                    {
-                        break outerloop;
-                    }
+                    toCalculate.add(to);
                 }
             }
         }
-        return dependencyError;
+        
+        return dependencies.stream().anyMatch(d -> d.getState() == State.HAS_ERROR && d.hasSourceCode());
     }
 }

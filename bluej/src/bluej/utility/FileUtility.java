@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2016,2018,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016,2018,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -432,22 +432,26 @@ public class FileUtility
     {
         File[] files = startDir.listFiles();
 
-        // look for files here
-        for (int i=0; i < files.length; i++) {
-            if(files[i].isFile()) {
-                if(files[i].getName().endsWith(suffix))
-                    return files[i];
+        if(files != null)
+        {
+            // look for files here
+            for (int i=0; i < files.length; i++) {
+                if(files[i].isFile()) {
+                    if(files[i].getName().endsWith(suffix))
+                        return files[i];
+                }
+            }
+
+            // if we didn't find one, search subdirectories
+            for (int i=0; i < files.length; i++) {
+                if (files[i].isDirectory()) {
+                    File found = findFile(files[i], suffix);
+                    if(found != null)
+                        return found;
+                }
             }
         }
 
-        // if we didn't find one, search subdirectories
-        for (int i=0; i < files.length; i++) {
-            if (files[i].isDirectory()) {
-                File found = findFile(files[i], suffix);
-                if(found != null)
-                    return found;
-            }
-        }
         return null;
     }
 

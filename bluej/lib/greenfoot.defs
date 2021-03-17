@@ -159,4 +159,4 @@ greenfoot.image.create.height=150
 #greenfoot.windows.vm=X\:\\Programming Apps\\JDK_1.7.0_55
 
 # command line arguments, if any:
-greenfoot.windows.vm.args=
+greenfoot.windows.vm.args=-Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2

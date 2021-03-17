@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -174,12 +174,13 @@ public class GitStatusCommand extends GitCommand
                 }
             }
 
-            RevCommit forkPoint = findForkPoint(repo.getRepository(), "origin/master", "HEAD");
+            String defaultBranchName = repo.getRepository().getBranch();
+            RevCommit forkPoint = findForkPoint(repo.getRepository(), "origin/"+defaultBranchName, "HEAD");
             
-            //find diffs between master/head and the forkpoint.
+            //find diffs between <default branch>/head and the forkpoint.
             listOfDiffsLocal = getDiffs(repo, "HEAD", forkPoint);
             //check for differences between forkpoint and remote repo head.
-            listOfDiffsRemote = getDiffs(repo, "origin/master", forkPoint);
+            listOfDiffsRemote = getDiffs(repo, "origin/"+defaultBranchName, forkPoint);
             updateRemoteStatus(gitPath, listOfDiffsLocal, listOfDiffsRemote, returnInfo);
             
             if (returnInfo.isEmpty()){
@@ -215,6 +216,9 @@ public class GitStatusCommand extends GitCommand
      */
     private void addUpToDateFiles(LinkedList<TeamStatusInfo> returnInfo, File path)
     {
+        if(!path.isDirectory())
+            return;
+        
         for (File item : path.listFiles()) {
             if (filter.accept(item)) {
                 if (item.isDirectory()) {

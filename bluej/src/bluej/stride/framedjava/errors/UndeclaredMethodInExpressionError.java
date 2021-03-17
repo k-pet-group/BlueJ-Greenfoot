@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2014,2015,2016,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019,2020,2021 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -60,7 +60,7 @@ public class UndeclaredMethodInExpressionError extends DirectSlotError
         this.startPosInSlot = startPosInSlot;
         this.endPosInSlot = endPosInSlot;
 
-        corrections.addAll(Correction.winnowAndCreateCorrections(methodName, possibleCorrections.stream().distinct().map(SimpleCorrectionInfo::new), s -> slot.replace(startPosInSlot, endPosInSlot, isJavaPos(), s)));
+        corrections.addAll(Correction.winnowAndCreateCorrections(methodName, possibleCorrections.stream().distinct().map(SimpleCorrectionInfo::new), correctionElements -> slot.replace(startPosInSlot, endPosInSlot, isJavaPos(), correctionElements.getPrimaryElement())));
         slot.updateError(this);
     }
 
