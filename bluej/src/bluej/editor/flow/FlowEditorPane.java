@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -112,6 +112,15 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     private boolean caretUpdateScheduled;
     // If we have currently scheduled an update of the caret graphics, will we ensure caret is visible?
     private boolean caretUpdateEnsureVisible;
+    
+    // For when the user is dragging the mouse (or just holding the button down with it stationary)
+    // and the pointer is out of our bounds, requiring us to scroll:
+    private static enum DragScroll { UP_FAST, UP, DOWN, DOWN_FAST }
+    private boolean isDragScrollScheduled = false;
+    // Null when there's no current drag scroll:
+    private DragScroll offScreenDragScroll = null;
+    private double offScreenDragX = 0;
+    private double offScreenDragY = 0;
 
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
@@ -192,6 +201,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             InputMap.consume(KeyEvent.KEY_TYPED, this::keyTyped),
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
             InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged),
+            InputMap.consume(MouseEvent.MOUSE_RELEASED, this::mouseReleased),
             InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved),
             InputMap.consume(ScrollEvent.SCROLL, this::scroll)
         ));
@@ -277,16 +287,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         if (e.getButton() == MouseButton.PRIMARY)
         {
             // If shift pressed, don't move anchor; form selection instead:
-            positionCaretAtDestination(e, !e.isShiftDown());
+            boolean setAnchor = !e.isShiftDown();
+            getCaretPositionForMouseEvent(e).ifPresent(setAnchor ? this::positionCaret : p -> moveCaret(p, true));
             updateRender(true);
         }
     }
 
-    private void positionCaretAtDestination(MouseEvent e, boolean setAnchor)
-    {
-        getCaretPositionForMouseEvent(e).ifPresent(setAnchor ? this::positionCaret : this::moveCaret);
-    }
-    
     OptionalInt getCaretPositionForMouseEvent(MouseEvent e)
     {
         return getCaretPositionForLocalPoint(new Point2D(e.getX(), e.getY()));
@@ -311,9 +317,73 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     {
         if (e.getButton() == MouseButton.PRIMARY)
         {
-            positionCaretAtDestination(e, false);
-            // Don't update the anchor, though
-            updateRender(true);
+            double y = e.getY();
+            // If the user has the cursor more than this amount of pixels beyond the edge,
+            // we speed up the drag:
+            int fastDistance = 30;
+            if (y > getHeight())
+            {
+                offScreenDragScroll = y - getHeight() > fastDistance ? DragScroll.DOWN_FAST : DragScroll.DOWN;
+                y = getHeight() - 1;
+            }
+            else if (y < 0)
+            {
+                offScreenDragScroll = y < -fastDistance ? DragScroll.UP_FAST : DragScroll.UP;
+                y = 0;
+            }
+            else
+            {
+                // Drag is within pane bounds, no need to scroll:
+                offScreenDragScroll = null;
+            }
+            offScreenDragX = e.getX();
+            offScreenDragY = y;
+            // Don't update the anchor:
+            getCaretPositionForLocalPoint(new Point2D(e.getX(), y)).ifPresent(p -> moveCaret(p, false));
+            
+            if (offScreenDragScroll != null && !isDragScrollScheduled)
+            {
+                JavaFXUtil.runAfter(Duration.millis(50), this::doDragScroll);
+                isDragScrollScheduled = true;
+            }
+        }
+    }
+    
+    private void mouseReleased(MouseEvent e)
+    {
+        offScreenDragScroll = null;
+    }
+
+    /**
+     * Called regularly to continue to scroll up/down the file if the user is dragging and keeping
+     * the mouse cursor out of the window.  Will reschedule itself (this is stopped if the user
+     * releases the mouse button, in the mouseReleased button).
+     */
+    private void doDragScroll()
+    {
+        isDragScrollScheduled = false;
+        if (offScreenDragScroll != null)
+        {
+            int amount = 0;
+            switch (offScreenDragScroll)
+            {
+                case UP_FAST:
+                    amount = 50;
+                    break;
+                case UP:
+                    amount = 15;
+                    break;
+                case DOWN:
+                    amount = -15;
+                    break;
+                case DOWN_FAST:
+                    amount = -50;
+                    break;
+            }
+            scroll(0, amount);
+            getCaretPositionForLocalPoint(new Point2D(offScreenDragX, offScreenDragY)).ifPresent(p -> moveCaret(p, false));
+            JavaFXUtil.runAfter(Duration.millis(50), this::doDragScroll);
+            isDragScrollScheduled = true;
         }
     }
 
@@ -867,10 +937,15 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     
     private void scroll(ScrollEvent scrollEvent)
     {
+        scroll(scrollEvent.getDeltaX(), scrollEvent.getDeltaY());
+    }
+    
+    private void scroll(double deltaX, double deltaY)
+    {
         updatingScrollBarDirectly = true;
-        horizontalScroll.setValue(Math.max(horizontalScroll.getMin(), Math.min(horizontalScroll.getMax(), horizontalScroll.getValue() - scrollEvent.getDeltaX())));
+        horizontalScroll.setValue(Math.max(horizontalScroll.getMin(), Math.min(horizontalScroll.getMax(), horizontalScroll.getValue() - deltaX)));
         updatingScrollBarDirectly = false;
-        pendingScrollY += scrollEvent.getDeltaY();
+        pendingScrollY += deltaY;
         if (!postScrollRenderQueued)
         {
             postScrollRenderQueued = true;
@@ -978,9 +1053,14 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
      */
     public void moveCaret(int position)
     {
+        moveCaret(position, true);
+    }
+    
+    private void moveCaret(int position, boolean ensureCaretVisible)
+    {
         caret.moveTo(position);
         targetColumnForVerticalMovement = -1;
-        updateRender(true);
+        updateRender(ensureCaretVisible);
         callSelectionListeners();
     }
 

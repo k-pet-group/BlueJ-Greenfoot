@@ -2730,6 +2730,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @OnThread(Tag.FXPlatform)
     public Window getWindow()
     {
+        if (fxTabbedEditor == null)
+        {
+            return null;
+        }
         return fxTabbedEditor.getWindow();
     }
 
