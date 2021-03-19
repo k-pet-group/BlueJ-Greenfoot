@@ -1441,12 +1441,32 @@ public final class FlowActions
             {
                 if (editor.isReadOnly())
                     return;
+                // We add a smart bracket iff we just typed a curly bracket, and pressed enter
+                // immediately afterwards, which is tracked by the hasJustAddedCurlyBracket method.
+                // We need to look this up before we add the "\n", as that will clear this flag:
+                boolean addSmartBracket = editor.getSourcePane().hasJustAddedCurlyBracket();
+                SourceLocation leavingLine = editor.getCaretLocation();
+                
                 getClearedEditor().getSourcePane().replaceSelection("\n");
-                getClearedEditor().getSourcePane().ensureCaretShowing();
+                editor.getSourcePane().ensureCaretShowing();
 
                 if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
                 {
                     doIndent();
+                }
+                
+                if (PrefMgr.getFlag(PrefMgr.CLOSE_CURLY) && addSmartBracket)
+                {
+                    int openCurlyLineIndent = FlowIndent.findFirstNonIndentChar(editor.getText(new SourceLocation(leavingLine.getLine(), 1), leavingLine), true);
+                    int position = editor.getSourcePane().getCaretPosition();
+                    StringBuilder addition = new StringBuilder("\n");
+                    for (int i = 0; i < openCurlyLineIndent; i++)
+                    {
+                        addition.append(' ');
+                    }
+                    addition.append('}');
+                    editor.getSourcePane().replaceSelection(addition.toString());
+                    editor.getSourcePane().positionCaret(position);
                 }
                 //TODOFLOW
                 //editor.undoManager.breakEdit();

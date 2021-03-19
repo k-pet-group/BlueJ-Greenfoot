@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -58,6 +58,7 @@ public class PrefMgr
     // publicly accessible names for flags
     public static final String HIGHLIGHTING = "bluej.editor.syntaxHilighting";
     public static final String AUTO_INDENT = "bluej.editor.autoIndent";
+    public static final String CLOSE_CURLY = "bluej.editor.autoAddClosingCurly";
     public static final String LINENUMBERS = "bluej.editor.displayLineNumbers";
     public static final String MATCH_BRACKETS = "bluej.editor.matchBrackets";
     public static final String CHECK_DISKFILECHANGES = "bluej.editor.checkDiskFileChanges";
@@ -432,6 +433,7 @@ public class PrefMgr
         
         flags.put(HIGHLIGHTING, Config.getPropString(HIGHLIGHTING, "true"));
         flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
+        flags.put(CLOSE_CURLY, Config.getPropString(CLOSE_CURLY, "true"));
         flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
         flags.put(MATCH_BRACKETS, Config.getPropString(MATCH_BRACKETS, "true"));
         flags.put(CHECK_DISKFILECHANGES, Config.getPropString(CHECK_DISKFILECHANGES, "true"));
