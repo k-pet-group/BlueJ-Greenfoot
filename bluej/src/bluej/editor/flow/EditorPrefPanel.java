@@ -53,6 +53,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
     private TextField editorFontField;
     private CheckBox highlightingBox;
     private CheckBox autoIndentBox;
+    private CheckBox closeCurlyBox;
     private CheckBox lineNumbersBox;
     private CheckBox matchBracketsBox;
     private CheckBox checkFileChangedOnDiskBox;
@@ -77,6 +78,9 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
             topPanel.add(PrefMgrDialog.labelledItem("prefmgr.edit.editorfontsize", editorFontField), 0, 0);
             autoIndentBox = new CheckBox(Config.getString("prefmgr.edit.autoindent"));
             topPanel.add(autoIndentBox, 1, 0);
+
+            closeCurlyBox = new CheckBox(Config.getString("prefmgr.edit.closecurly"));
+            topPanel.add(closeCurlyBox, 1, 1);
             
             highlightingBox = new CheckBox(Config.getString("prefmgr.edit.usesyntaxhilighting"));
             topPanel.add(highlightingBox, 0, 1);
@@ -85,10 +89,10 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
             topPanel.add(lineNumbersBox, 0, 2);
             
             matchBracketsBox= new CheckBox(Config.getString("prefmgr.edit.matchBrackets"));
-            topPanel.add(matchBracketsBox, 1, 1);
+            topPanel.add(matchBracketsBox, 1, 2);
 
             checkFileChangedOnDiskBox = new CheckBox(Config.getString("prefmgr.edit.checkfilechangeondisk"));
-            topPanel.add(checkFileChangedOnDiskBox, 1, 2);
+            topPanel.add(checkFileChangedOnDiskBox, 1, 3);
             
             //colour scope highlighter slider
             Pane bottomPanel = new HBox();
@@ -107,6 +111,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
     {
         editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize().get()));
         highlightingBox.setSelected(PrefMgr.getFlag(PrefMgr.HIGHLIGHTING));
+        closeCurlyBox.setSelected(PrefMgr.getFlag(PrefMgr.CLOSE_CURLY));
         autoIndentBox.setSelected(PrefMgr.getFlag(PrefMgr.AUTO_INDENT));
         lineNumbersBox.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
         matchBracketsBox.setSelected(PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS));
@@ -124,6 +129,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
 
         PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, highlightingBox.isSelected());
         PrefMgr.setFlag(PrefMgr.AUTO_INDENT, autoIndentBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.CLOSE_CURLY, closeCurlyBox.isSelected());
         PrefMgr.setFlag(PrefMgr.LINENUMBERS, lineNumbersBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
         PrefMgr.setFlag(PrefMgr.CHECK_DISKFILECHANGES, checkFileChangedOnDiskBox.isSelected());

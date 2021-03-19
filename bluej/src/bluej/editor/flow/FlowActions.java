@@ -1453,7 +1453,7 @@ public final class FlowActions
                     doIndent();
                 }
                 
-                if (addSmartBracket)
+                if (PrefMgr.getFlag(PrefMgr.CLOSE_CURLY) && addSmartBracket)
                 {
                     int openCurlyLineIndent = FlowIndent.findFirstNonIndentChar(editor.getText(new SourceLocation(leavingLine.getLine(), 1), leavingLine), true);
                     int position = editor.getSourcePane().getCaretPosition();

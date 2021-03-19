@@ -58,6 +58,7 @@ public class PrefMgr
     // publicly accessible names for flags
     public static final String HIGHLIGHTING = "bluej.editor.syntaxHilighting";
     public static final String AUTO_INDENT = "bluej.editor.autoIndent";
+    public static final String CLOSE_CURLY = "bluej.editor.autoAddClosingCurly";
     public static final String LINENUMBERS = "bluej.editor.displayLineNumbers";
     public static final String MATCH_BRACKETS = "bluej.editor.matchBrackets";
     public static final String CHECK_DISKFILECHANGES = "bluej.editor.checkDiskFileChanges";
@@ -432,6 +433,7 @@ public class PrefMgr
         
         flags.put(HIGHLIGHTING, Config.getPropString(HIGHLIGHTING, "true"));
         flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
+        flags.put(CLOSE_CURLY, Config.getPropString(CLOSE_CURLY, "false"));
         flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
         flags.put(MATCH_BRACKETS, Config.getPropString(MATCH_BRACKETS, "true"));
         flags.put(CHECK_DISKFILECHANGES, Config.getPropString(CHECK_DISKFILECHANGES, "true"));
