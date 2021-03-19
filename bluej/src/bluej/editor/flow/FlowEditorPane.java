@@ -28,7 +28,6 @@ import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
 import bluej.editor.flow.TextLine.HighlightType;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -115,7 +114,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     private boolean caretUpdateEnsureVisible;
 
     // Tracked for the purposes of smart bracket adding:
-    private boolean justAddedCurlyBracket;
+    private boolean justAddedOpeningCurlyBracket;
     
     // For when the user is dragging the mouse (or just holding the button down with it stationary)
     // and the pointer is out of our bounds, requiring us to scroll:
@@ -284,7 +283,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             // Must do this last, to avoid the cursor movement in textChanged()
             // from cancelling our memory that they added a curly bracket without moving:
             if (character.equals("{"))
-                justAddedCurlyBracket = true;
+                justAddedOpeningCurlyBracket = true;
         }
         
     }
@@ -1040,7 +1039,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         caret.moveTo(position);
         anchor.moveTo(position);
         targetColumnForVerticalMovement = -1;
-        justAddedCurlyBracket = false;
+        justAddedOpeningCurlyBracket = false;
         updateRender(true);
         callSelectionListeners();
     }
@@ -1053,7 +1052,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         caret.moveTo(position);
         anchor.moveTo(position);
         targetColumnForVerticalMovement = -1;
-        justAddedCurlyBracket = false;
+        justAddedOpeningCurlyBracket = false;
         updateRender(false);
         callSelectionListeners();
     }
@@ -1070,7 +1069,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     {
         caret.moveTo(position);
         targetColumnForVerticalMovement = -1;
-        justAddedCurlyBracket = false;
+        justAddedOpeningCurlyBracket = false;
         updateRender(ensureCaretVisible);
         callSelectionListeners();
     }
@@ -1081,7 +1080,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     public void positionAnchor(int position)
     {
         anchor.moveTo(position);
-        justAddedCurlyBracket = false;
+        justAddedOpeningCurlyBracket = false;
         updateRender(false);
         callSelectionListeners();
     }
@@ -1174,7 +1173,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
      */    
     public boolean hasJustAddedCurlyBracket()
     {
-        return justAddedCurlyBracket;
+        return justAddedOpeningCurlyBracket;
     }
 
 
