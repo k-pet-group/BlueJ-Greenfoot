@@ -113,7 +113,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     // If we have currently scheduled an update of the caret graphics, will we ensure caret is visible?
     private boolean caretUpdateEnsureVisible;
 
-    // Tracked for the purposes of smart bracket adding:
+    // Tracked for the purposes of smart bracket adding.  We set this to true when
+    // the user types an '{'.  We set it to false when they either:
+    //   - type anything else
+    //   - move the caret around
+    // Thus we can determine the pattern "Typed '{', then pressed enter" from other
+    // situations (like: "typed '{', pasted some content" or "typed '{' then went up a line and pressed enter").
     private boolean justAddedOpeningCurlyBracket;
     
     // For when the user is dragging the mouse (or just holding the button down with it stationary)

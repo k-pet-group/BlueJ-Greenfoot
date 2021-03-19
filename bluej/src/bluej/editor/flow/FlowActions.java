@@ -1442,9 +1442,11 @@ public final class FlowActions
                 if (editor.isReadOnly())
                     return;
                 // We add a smart bracket iff we just typed a curly bracket, and pressed enter
-                // immediately afterwards:
-                boolean addSmartBracket = editor.getSourcePane().getSelectedText().isEmpty() && editor.getSourcePane().hasJustAddedCurlyBracket();
+                // immediately afterwards, which is tracked by the hasJustAddedCurlyBracket method.
+                // We need to look this up before we add the "\n", as that will clear this flag:
+                boolean addSmartBracket = editor.getSourcePane().hasJustAddedCurlyBracket();
                 SourceLocation leavingLine = editor.getCaretLocation();
+                
                 getClearedEditor().getSourcePane().replaceSelection("\n");
                 editor.getSourcePane().ensureCaretShowing();
 
