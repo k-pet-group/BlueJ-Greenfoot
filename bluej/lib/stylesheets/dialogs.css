@@ -403,6 +403,11 @@
     -fx-spacing: 5em;
     -fx-alignment: center;
 }
+.prefmgr-text-editor-top {
+    -fx-hgap: 1em;
+    -fx-vgap: 1em;
+    -fx-padding: 0 0 2em 0;
+}
 .prefmgr-library-listview {
     -fx-min-height: 8em;
     -fx-pref-height: 8em;

@@ -120,7 +120,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     // Thus we can determine the pattern "Typed '{', then pressed enter" from other
     // situations (like: "typed '{', pasted some content" or "typed '{' then went up a line and pressed enter").
     private boolean justAddedOpeningCurlyBracket;
-    
+
     // For when the user is dragging the mouse (or just holding the button down with it stationary)
     // and the pointer is out of our bounds, requiring us to scroll:
     private static enum DragScroll { UP_FAST, UP, DOWN, DOWN_FAST }
@@ -1068,7 +1068,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     {
         moveCaret(position, true);
     }
-    
+
     private void moveCaret(int position, boolean ensureCaretVisible)
     {
         caret.moveTo(position);
@@ -1174,7 +1174,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     /**
      * Is the user's most recent action to have typed an open curly bracket?
      * Used to decide whether to auto-add a closing curly bracket if they then press Enter.
-     */    
+     */
     public boolean hasJustAddedCurlyBracket()
     {
         return justAddedOpeningCurlyBracket;

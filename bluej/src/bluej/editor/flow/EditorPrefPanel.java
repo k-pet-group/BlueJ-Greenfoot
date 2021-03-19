@@ -28,7 +28,9 @@ import bluej.prefmgr.PrefMgrDialog;
 import bluej.prefmgr.PrefPanelListener;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -58,7 +60,8 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
     private CheckBox matchBracketsBox;
     private CheckBox checkFileChangedOnDiskBox;
     private ScopeHighlightingPrefDisplay scopeHighlightingPrefDisplay;
-
+    private TextField textFileExtensionsField; // stores the file extension list of files to be open as plain text by the editor
+    private Button textFileExtensionsDefaultButton; // button to reset the list to the default value
     /**
      * Setup the UI for the dialog and event handlers for the buttons.
      */
@@ -68,7 +71,8 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
         
         scopeHighlightingPrefDisplay=new ScopeHighlightingPrefDisplay();
 
-        List<Node> editorPanel = new ArrayList<>();
+        // Components related to the Java editor preferences
+        List<Node> javaEditorPanel = new ArrayList<>();
         {
             GridPane topPanel=new GridPane();
             JavaFXUtil.addStyleClass(topPanel, "prefmgr-java-editor-top");
@@ -100,11 +104,29 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
             bottomPanel.getChildren().add(scopeHighlightingPrefDisplay.getHighlightStrengthSlider());            
             bottomPanel.getChildren().add(scopeHighlightingPrefDisplay.getColourPalette());
                         
-            editorPanel.add(topPanel);
-            editorPanel.add(PrefMgrDialog.headedVBox("prefmgr.edit.colortransparency", Arrays.asList(bottomPanel)));
+            javaEditorPanel.add(topPanel);
+            javaEditorPanel.add(PrefMgrDialog.headedVBox("prefmgr.edit.colortransparency", Arrays.asList(bottomPanel)));
         }
-        
-        getChildren().add(PrefMgrDialog.headedVBox("prefmgr.edit.editor.title", editorPanel));
+        getChildren().add(PrefMgrDialog.headedVBox("prefmgr.edit.editor.title", javaEditorPanel));
+
+        // Components related to the text file editor
+        List<Node> textEditorPanel = new ArrayList<>();
+        {
+            GridPane textTopPanel = new GridPane();
+            JavaFXUtil.addStyleClass(textTopPanel, "prefmgr-text-editor-top");
+
+            textFileExtensionsField = new TextField();
+            textFileExtensionsField.setPrefColumnCount(20);
+            textTopPanel.add(PrefMgrDialog.labelledItem("prefmgr.edit.textfileextensions", textFileExtensionsField), 0, 0);
+
+            textFileExtensionsDefaultButton = new Button(Config.getString("prefmgr.edit.texteditor.defaultFileExtensions"));
+            textTopPanel.add(textFileExtensionsDefaultButton,1,0);
+
+            Label t = new Label(Config.getString("prefmgr.interface.language.restart"));
+            textTopPanel.add(t, 0,1);
+            textEditorPanel.add(textTopPanel);
+        }
+        getChildren().add(PrefMgrDialog.headedVBox("prefmgr.edit.editor.texteditor.title", textEditorPanel));
     }
 
     public void beginEditing(Project project)
@@ -116,6 +138,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
         lineNumbersBox.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
         matchBracketsBox.setSelected(PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS));
         checkFileChangedOnDiskBox.setSelected(PrefMgr.getFlag(PrefMgr.CHECK_DISKFILECHANGES));
+        textFileExtensionsField.setText(PrefMgr.getEditorTextFileExtensionsString().get());
     }
 
     public void revertEditing(Project project)
@@ -125,7 +148,6 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
     public void commitEditing(Project project)
     {
         String fontText = editorFontField.getText();
-        
 
         PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, highlightingBox.isSelected());
         PrefMgr.setFlag(PrefMgr.AUTO_INDENT, autoIndentBox.isSelected());
@@ -139,6 +161,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
         }
         catch (NumberFormatException nfe) { }
         PrefMgr.setScopeHighlightStrength(strength);
-    }
 
+        PrefMgr.setEditorTextFileExtensions(textFileExtensionsField.getText());
+    }
 }

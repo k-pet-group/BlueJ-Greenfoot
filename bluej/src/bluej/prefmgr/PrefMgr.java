@@ -23,9 +23,7 @@ package bluej.prefmgr;
 
 import java.awt.Font;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
@@ -86,6 +84,8 @@ public class PrefMgr
     public static final int MAX_EDITOR_FONT_SIZE = 160;
     public static final int DEFAULT_STRIDE_FONT_SIZE = 11;
     public static final int DEFAULT_JAVA_FONT_SIZE = 10;
+    public static final String DEFAULT_TEXTFILE_EXTENSIONS = ".txt, .md";
+
     // font property names
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorMacFontPropertyName = "bluej.editor.MacOS.font";
@@ -109,6 +109,10 @@ public class PrefMgr
     private static PrintSize printFontSize = PrintSize.STANDARD;
 
     // preference variables: (other than fonts)
+
+    // initialised by a call to setEditorTextFileExtensions()
+    @OnThread(Tag.FX)
+    private static final StringProperty editorTextFileExtensions = new SimpleStringProperty(DEFAULT_TEXTFILE_EXTENSIONS);
     
     /** transparency of the scope highlighting */
     @OnThread(Tag.FXPlatform)
@@ -142,6 +146,10 @@ public class PrefMgr
 
     // A property to hold the Greenfoot player's name
     private static StringProperty playerName;
+
+    // Property for the text files extensions to be opened by BlueJ as plain text files
+    private static final String editorTextFileExtensionsPropertyName = "bluej.editor.textfileextensions";
+
 
     /**
      * Private constructor to prevent instantiation
@@ -416,6 +424,9 @@ public class PrefMgr
         initEditorFontSize(Config.getPropInteger(editorFontSizePropertyName, 12));
         JavaFXUtil.addChangeListener(editorFontSize, size -> Config.putPropInteger(editorFontSizePropertyName, size.intValue()));
 
+        //set the text file extensions to be seen as plain text file by BlueJ
+        setEditorTextFileExtensions(Config.getPropString(editorTextFileExtensionsPropertyName, DEFAULT_TEXTFILE_EXTENSIONS));
+
         //bluej menu font
         int menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
         Font menuFont = Config.getFont("bluej.menu.font", "SansSerif", menuFontSize);
@@ -517,5 +528,64 @@ public class PrefMgr
         {
             return Config.getString("editor.printDialog.fontSize." + this.name().toLowerCase());
         }
+    }
+
+    // Set the text file extensions for which BlueJ opens files as text files
+    public static void setEditorTextFileExtensions(String value)
+    {
+        if (value != null && value.compareTo(editorTextFileExtensions.get()) != 0)
+        {
+            editorTextFileExtensions.set(value);
+
+            Config.putPropString(editorTextFileExtensionsPropertyName, value);
+        }
+    }
+
+    //  Returns the text file extensions (as a String) for which BlueJ opens files as text files
+    @OnThread(Tag.FXPlatform)
+    public static StringProperty getEditorTextFileExtensionsString()
+    {
+        return editorTextFileExtensions;
+    }
+
+    // Returns the formatted text file extensions (list of Strings) for which BlueJ opens files as text files
+    // The format for extensions is : ".ext" (small caps)
+    @OnThread(Tag.FXPlatform)
+    public static List<String> getEditorFormattedTextFileExtensionsList()
+    {
+        List<String> res = new ArrayList<>(); // Result initialised as empty list
+
+        String extensionsStr = getEditorTextFileExtensionsString().get();
+
+        if(extensionsStr.trim().length() > 0)
+        {
+            // Parse the extension list set in the preferences:
+            // we propose commas a separator, but we can also check for spaces and semi colons as separators;
+            // also, we remove "*" if the extenions starts with "*", and add dot if not present
+            String[] tempExtArray = extensionsStr.split(" |,|;");
+            Arrays.stream(tempExtArray).forEach(extensionCandidate ->
+            {
+                // if the candidate is empty just skip it
+                if(extensionCandidate.trim().length() > 0)
+                {
+                    // format the extensions properly
+                    String formattedExtension = (extensionCandidate.startsWith("*"))
+                        ? extensionCandidate.trim().toLowerCase().substring(1)
+                        : extensionCandidate.trim().toLowerCase();
+                    if(!formattedExtension.startsWith("."))
+                    {
+                        formattedExtension = "." + formattedExtension;
+                    }
+
+                    //check if the list doesn't already contains the formatted extension before inserting it
+                    if(!res.contains(formattedExtension))
+                    {
+                        res.add(formattedExtension);
+                    }
+                }
+            });
+        }
+
+        return Collections.unmodifiableList(res);
     }
 }
