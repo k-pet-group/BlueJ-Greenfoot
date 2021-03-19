@@ -433,7 +433,7 @@ public class PrefMgr
         
         flags.put(HIGHLIGHTING, Config.getPropString(HIGHLIGHTING, "true"));
         flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
-        flags.put(CLOSE_CURLY, Config.getPropString(CLOSE_CURLY, "false"));
+        flags.put(CLOSE_CURLY, Config.getPropString(CLOSE_CURLY, "true"));
         flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
         flags.put(MATCH_BRACKETS, Config.getPropString(MATCH_BRACKETS, "true"));
         flags.put(CHECK_DISKFILECHANGES, Config.getPropString(CHECK_DISKFILECHANGES, "true"));
