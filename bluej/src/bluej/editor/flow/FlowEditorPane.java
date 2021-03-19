@@ -28,6 +28,7 @@ import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
 import bluej.editor.flow.TextLine.HighlightType;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -112,6 +113,9 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     private boolean caretUpdateScheduled;
     // If we have currently scheduled an update of the caret graphics, will we ensure caret is visible?
     private boolean caretUpdateEnsureVisible;
+
+    // Tracked for the purposes of smart bracket adding:
+    private boolean justAddedCurlyBracket;
     
     // For when the user is dragging the mouse (or just holding the button down with it stationary)
     // and the pointer is out of our bounds, requiring us to scroll:
@@ -277,6 +281,10 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             && !event.isMetaDown()) { // Not sure about this one -- NCCB note this comment is from the original source
             replaceSelection(character);
             JavaFXUtil.runAfterCurrent(() -> scheduleCaretUpdate(true));
+            // Must do this last, to avoid the cursor movement in textChanged()
+            // from cancelling our memory that they added a curly bracket without moving:
+            if (character.equals("{"))
+                justAddedCurlyBracket = true;
         }
         
     }
@@ -1032,6 +1040,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         caret.moveTo(position);
         anchor.moveTo(position);
         targetColumnForVerticalMovement = -1;
+        justAddedCurlyBracket = false;
         updateRender(true);
         callSelectionListeners();
     }
@@ -1044,6 +1053,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         caret.moveTo(position);
         anchor.moveTo(position);
         targetColumnForVerticalMovement = -1;
+        justAddedCurlyBracket = false;
         updateRender(false);
         callSelectionListeners();
     }
@@ -1060,6 +1070,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     {
         caret.moveTo(position);
         targetColumnForVerticalMovement = -1;
+        justAddedCurlyBracket = false;
         updateRender(ensureCaretVisible);
         callSelectionListeners();
     }
@@ -1070,6 +1081,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     public void positionAnchor(int position)
     {
         anchor.moveTo(position);
+        justAddedCurlyBracket = false;
         updateRender(false);
         callSelectionListeners();
     }
@@ -1155,7 +1167,17 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         this.allowScrollBars = allowScrollBars;
         updateRender(false);
     }
-    
+
+    /**
+     * Is the user's most recent action to have typed an open curly bracket?
+     * Used to decide whether to auto-add a closing curly bracket if they then press Enter.
+     */    
+    public boolean hasJustAddedCurlyBracket()
+    {
+        return justAddedCurlyBracket;
+    }
+
+
     private void callSelectionListeners()
     {
         for (SelectionListener selectionListener : selectionListeners)
