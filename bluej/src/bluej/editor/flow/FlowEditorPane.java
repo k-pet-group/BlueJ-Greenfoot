@@ -287,8 +287,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             JavaFXUtil.runAfterCurrent(() -> scheduleCaretUpdate(true));
             // Must do this last, to avoid the cursor movement in textChanged()
             // from cancelling our memory that they added a curly bracket without moving:
-            if (character.equals("{"))
-                justAddedOpeningCurlyBracket = true;
+            justAddedOpeningCurlyBracket = character.equals("{");
         }
         
     }
