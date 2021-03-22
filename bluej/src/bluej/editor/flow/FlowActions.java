@@ -1446,7 +1446,7 @@ public final class FlowActions
                 // We need to look this up before we add the "\n", as that will clear this flag:
                 boolean addSmartBracket = editor.getSourcePane().hasJustAddedCurlyBracket();
                 SourceLocation leavingLine = editor.getCaretLocation();
-                
+
                 getClearedEditor().getSourcePane().replaceSelection("\n");
                 editor.getSourcePane().ensureCaretShowing();
 
@@ -1454,7 +1454,7 @@ public final class FlowActions
                 {
                     doIndent();
                 }
-                
+
                 if (PrefMgr.getFlag(PrefMgr.CLOSE_CURLY) && addSmartBracket)
                 {
                     int openCurlyLineIndent = FlowIndent.findFirstNonIndentChar(editor.getText(new SourceLocation(leavingLine.getLine(), 1), leavingLine), true);

@@ -125,6 +125,9 @@ prefmgr.edit.matchBrackets=Match brackets
 prefmgr.edit.keybindingstitle=Key Bindings
 prefmgr.edit.highlightLighter=Lighter
 prefmgr.edit.highlightDarker=Darker
+prefmgr.edit.editor.texteditor.title=Text editor settings
+prefmgr.edit.textfileextensions=Supported file extensions
+prefmgr.edit.texteditor.defaultFileExtensions=Reset to default
 
 # Extensions Preferences panel
 prefmgr.extensions.noContent=No extension content to display.

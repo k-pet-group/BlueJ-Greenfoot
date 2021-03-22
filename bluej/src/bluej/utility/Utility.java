@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1484,6 +1484,23 @@ public class Utility
         }
     }
 
+    /**
+     * This helper method aims at extracting the extension from a file name.
+     * @param fileName the file name to get the extension from
+     *                 
+     * @return the extension (String) in the format ".ext" or an empty value if the extension couldn't be extracted,
+     *         Note: the extension is trimmed but case isn't changed (e.g. "file.TXT" will return ".TXT")
+     */
+    
+    public static String getFileExtension(String fileName)
+    {
+        if (fileName.contains("."))
+        {
+            return fileName.substring(fileName.lastIndexOf(".")).trim();
+        }
+        return "";
+    }
+    
     /**
      * A utility class to wait for an external process to complete.
      * This allows waiting with a timeout, unlike the Process.waitFor()

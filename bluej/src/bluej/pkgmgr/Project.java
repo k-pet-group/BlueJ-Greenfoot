@@ -292,8 +292,9 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         shelfStorage = new FrameShelfStorage(this.projectDir);
         createNewFXTabbedEditor();
 
-        // Must do this after the editors have been created:
-        getPackage("").refreshPackage();
+        // Must set the package's targets after the editors have been created:
+        // As other actions are required beforehand (extensions loading) we will
+        // do the call to loadTargets() at the end.
 
         debugger = Debugger.getDebuggerImpl(getProjectDir(), getTerminal(), this);
         debugger.setUserLibraries(libraryUrls.toArray(new URL[libraryUrls.size()]));
@@ -342,11 +343,11 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
         // Prepare for getting the mapping between external file extensions and their associate launcher.
         projectExternalFileOpenMap = ExtensionsManager.getInstance().getExtFileOpenMap();
-        // Refresh the UI again once we've retrieved the external file exensions that can be visible for this project
-        packages.forEach((name,aPackage) -> aPackage.refreshPackage());
+        // Now we can load the targets for the UI as we retrieved the external file extensions that can be visible for this project
+        Package currPackage = packages.get(getInitialPackageName());
+        currPackage.loadTargets();
         // As we may have added new targets, we make sure the new targets are placed correctly in this package
         // this also fixes the placement of CSS targets when added directly in the file system, in the current package
-        Package currPackage = packages.get(getInitialPackageName());
         currPackage.setEditor(currPackage.getEditor());
     }
 
@@ -1214,7 +1215,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                     pkg = new Package(this, JavaNames.getBase(qualifiedName),
                             parent);
                     packages.put(qualifiedName, pkg);
-                    pkg.refreshPackage();
+                    pkg.loadTargets();
                 } else { // parent package does not exist. How can it not exist ?
                     pkg = null;
                 }
@@ -1351,7 +1352,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             Package pkg = new Package(this, JavaNames.getBase(qualifiedName),
                     parent);
             packages.put(qualifiedName, pkg);
-            pkg.refreshPackage();
+            pkg.loadTargets();
         } catch (IOException exc) {
             return NEW_PACKAGE_BAD_NAME;
         }
