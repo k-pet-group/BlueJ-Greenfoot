@@ -138,7 +138,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
         lineNumbersBox.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
         matchBracketsBox.setSelected(PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS));
         checkFileChangedOnDiskBox.setSelected(PrefMgr.getFlag(PrefMgr.CHECK_DISKFILECHANGES));
-        textFileExtensionsField.setText(PrefMgr.getEditorTextFileExtensionsString().get());
+        textFileExtensionsField.setText(PrefMgr.getEditorTextFileExtensionsString());
     }
 
     public void revertEditing(Project project)

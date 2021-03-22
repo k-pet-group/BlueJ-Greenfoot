@@ -70,7 +70,6 @@ import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A Java package (collection of Java classes).
@@ -117,7 +116,7 @@ public final class Package
     // Has this package been sent for data recording yet?
     private boolean recorded = false;
     /** flag to monitor that loadTargetsPackage is only called once for that package **/
-    private final AtomicBoolean hasPackageTargetsLoaded = new AtomicBoolean(false);
+    private boolean hasPackageTargetsLoaded = false;
 
     /** Reason code for displaying source line */
     private enum ShowSourceReason
@@ -735,7 +734,7 @@ public final class Package
      */
     public void loadTargets()
     {
-        if(!hasPackageTargetsLoaded.get())
+        if(!hasPackageTargetsLoaded)
         {
             // read in all the targets contained in this package
             // into this temporary map
@@ -836,12 +835,12 @@ public final class Package
 
             // Retrieve the list of external files extensions that can be dealt with by a launcher
             // exposed by a BlueJ extension -- we need to check text files and external files against that list.
-            Set<String> allowedExternalFileExtensions = getProject().getProjectExternalFileOpenMap().keySet();
+            Set<String> externalFileExtensions = getProject().getProjectExternalFileOpenMap().keySet();
 
             // Display files set as plain text file (in BlueJ's preferences)
             // Note: if the file type is assigned to a launcher by a BlueJ extension,
             // the extension takes precedence.
-           if (!Config.isGreenfoot())
+            if (!Config.isGreenfoot())
             {
                 // Retrieve the plain text file extensions set up in BlueJ's preferences
                 List<String> plainTextFileExtensions = PrefMgr.getEditorFormattedTextFileExtensionsList();
@@ -851,13 +850,13 @@ public final class Package
                     for (File f : allFiles)
                     {
                         // Don't do anything special if the the file is the readme file
-                        if(f.getName().trim().toLowerCase().compareTo(readmeName.toLowerCase()) == 0)
+                        if(f.getName().trim().equalsIgnoreCase(readmeName))
                             continue;
 
-                        if (f.getName().contains("."))
+                        String fExt = Utility.getFileExtension(f.getName()).toLowerCase();
+                        if (fExt.length() > 0)
                         {
-                            String fExt = f.getName().substring(f.getName().lastIndexOf(".")).toLowerCase().trim();
-                            if (plainTextFileExtensions.contains(fExt) && !allowedExternalFileExtensions.contains(fExt))
+                            if (plainTextFileExtensions.contains(fExt) && !externalFileExtensions.contains(fExt))
                             {
                                 Target target = propTargets.get(f.getName());
                                 if (target == null || !(target instanceof TextFileTarget))
@@ -888,10 +887,14 @@ public final class Package
                     {
                         for (File f : allFiles)
                         {
-                            if (f.getName().contains("."))
+                            // Don't do anything special if the the file is the readme file
+                            if(f.getName().trim().equalsIgnoreCase(readmeName))
+                                continue;
+                            
+                            String fExt = Utility.getFileExtension(f.getName()).toLowerCase();
+                            if (fExt.length() > 0)
                             {
-                                String fExt = f.getName().substring(f.getName().lastIndexOf(".")).toLowerCase().trim();
-                                if (allowedExternalFileExtensions.contains(fExt))
+                                if (externalFileExtensions.contains(fExt))
                                 {
                                     Target target = propTargets.get(f.getName());
                                     if (target == null || !(target instanceof ExternalFileTarget))
@@ -1043,7 +1046,7 @@ public final class Package
             }
 
             // update the flag
-            hasPackageTargetsLoaded.set(true);
+            hasPackageTargetsLoaded = true;
         }
         else
         {

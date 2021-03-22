@@ -112,7 +112,7 @@ public class PrefMgr
 
     // initialised by a call to setEditorTextFileExtensions()
     @OnThread(Tag.FX)
-    private static final StringProperty editorTextFileExtensions = new SimpleStringProperty(DEFAULT_TEXTFILE_EXTENSIONS);
+    private static String editorTextFileExtensions = DEFAULT_TEXTFILE_EXTENSIONS;
     
     /** transparency of the scope highlighting */
     @OnThread(Tag.FXPlatform)
@@ -533,9 +533,9 @@ public class PrefMgr
     // Set the text file extensions for which BlueJ opens files as text files
     public static void setEditorTextFileExtensions(String value)
     {
-        if (value != null && value.compareTo(editorTextFileExtensions.get()) != 0)
+        if (Objects.equals(value, editorTextFileExtensions))
         {
-            editorTextFileExtensions.set(value);
+            editorTextFileExtensions = value;
 
             Config.putPropString(editorTextFileExtensionsPropertyName, value);
         }
@@ -543,7 +543,7 @@ public class PrefMgr
 
     //  Returns the text file extensions (as a String) for which BlueJ opens files as text files
     @OnThread(Tag.FXPlatform)
-    public static StringProperty getEditorTextFileExtensionsString()
+    public static String getEditorTextFileExtensionsString()
     {
         return editorTextFileExtensions;
     }
@@ -555,15 +555,14 @@ public class PrefMgr
     {
         List<String> res = new ArrayList<>(); // Result initialised as empty list
 
-        String extensionsStr = getEditorTextFileExtensionsString().get();
+        String extensionsStr = getEditorTextFileExtensionsString();
 
         if(extensionsStr.trim().length() > 0)
         {
             // Parse the extension list set in the preferences:
             // we propose commas a separator, but we can also check for spaces and semi colons as separators;
             // also, we remove "*" if the extenions starts with "*", and add dot if not present
-            String[] tempExtArray = extensionsStr.split(" |,|;");
-            Arrays.stream(tempExtArray).forEach(extensionCandidate ->
+            for (String extensionCandidate : extensionsStr.split(" |,|;"))
             {
                 // if the candidate is empty just skip it
                 if(extensionCandidate.trim().length() > 0)
@@ -583,7 +582,7 @@ public class PrefMgr
                         res.add(formattedExtension);
                     }
                 }
-            });
+            }
         }
 
         return Collections.unmodifiableList(res);
