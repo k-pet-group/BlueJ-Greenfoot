@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -629,14 +629,16 @@ public class JavaFXUtil
         double scrollHeight = scrollPane.getContent().getBoundsInLocal().getHeight();
         
         Bounds b = scrollPane.getContent().sceneToLocal(target.localToScene(target.getBoundsInLocal()));
+        Bounds viewPortBounds = scrollPane.getViewportBounds();
         
+        // try to center the scrolling in the viewport
         if (scrollPane.getHbarPolicy() != ScrollBarPolicy.NEVER && scrollWidth != 0)
         {
-            scrollPane.setHvalue(b.getMinX() / scrollWidth);
+            scrollPane.setHvalue((b.getMinX() - 0.5*viewPortBounds.getWidth()) / (scrollWidth-viewPortBounds.getWidth()));
         }
         if (scrollPane.getVbarPolicy() != ScrollBarPolicy.NEVER && scrollHeight != 0)
         {
-            scrollPane.setVvalue(b.getMinY() / scrollHeight);
+            scrollPane.setVvalue((b.getMinY() - 0.5*viewPortBounds.getHeight()) / (scrollHeight-viewPortBounds.getHeight()));
         }
     }
 
@@ -1411,7 +1413,7 @@ public class JavaFXUtil
      * make sure you store a reference to the putInList expression.
      *
      * @param putInList Whether the list should contain the item (true expression) or be empty (false expression)
-     * @param items The item to put in the list when putInList is true
+     * @param item The item to put in the list when putInList is true
      * @return The ObservableList which will (or will not) contain the item.
      */
     public static <T> ObservableList<T> listBool(BooleanExpression putInList, T item)

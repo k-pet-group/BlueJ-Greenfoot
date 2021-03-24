@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2016,2017,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2013,2016,2017,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,7 +60,7 @@ public class FieldList extends ScrollPane
     private static final double ROW_HEIGHT = 30;
     
     // The actual list of fields, inside our ScrollPane:
-    private final ContentPane content = new ContentPane();
+    private final ContentPane content = new ContentPane(this);
     // The latest data:
     private final List<FieldInfo> curData = new ArrayList<>();
     // The currently selected row index:
@@ -186,8 +186,10 @@ public class FieldList extends ScrollPane
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private static class ContentPane extends Region
     {
-        public ContentPane()
+        private static FieldList parentList = null;
+        public ContentPane(FieldList parentList)
         {
+            this.parentList = parentList;
             getStyleClass().add("field-list-content");
         }
         
@@ -224,6 +226,14 @@ public class FieldList extends ScrollPane
                 children.get(i + 1).resizeRelocate(outerPadding.getLeft() + leftWidth, y, rightWidth, ROW_HEIGHT);
                 y += ROW_HEIGHT;
             }
+            
+            // As we redraw the containers, we need to refresh the selection to make sure it can be shown properly
+            if(parentList !=null)
+            {
+                int currentSelectIndex = parentList.selectedRow.get();
+                parentList.select(-1);
+                parentList.select(currentSelectIndex);
+            }            
         }
 
         // Make parent method public:
