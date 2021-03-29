@@ -1949,7 +1949,7 @@ public class PkgMgrFrame
                 "Italian",      "Angelo Papadia and Luzio Menna",
                 "Montenegrin",  "Omer Djokic",
                 "Persian",      "M. Shahdoost",
-                "Portuguese",   "Fabio Hedayioglu and Fred Guedes Pereira",
+                "Portuguese",   "Marco Aurelio Souza Mangan, Fabio Hedayioglu, and Fred Guedes Pereira",
                 "Russian",      "Sergey Zemlyannikov",
                 "Slovak",       "Roman Horváth",
                 "Spanish",      "Aldo Mettini, Viviana Marcela Alvarez Tomé, and José Ramón Puente Lerma",

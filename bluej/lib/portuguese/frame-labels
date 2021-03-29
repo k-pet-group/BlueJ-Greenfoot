@@ -1,20 +1,65 @@
 # Frame Catalogue:
-frame.catalogue.title=Folha de dicas
+frame.catalogue.title=Folha de Dicas
 frame.catalogue.commands=Comandos
 frame.catalogue.shortcuts=Atalhos
 frame.catalogue.selection=Englobar Sele\u00e7\u00e3o
-frame.catalogue.codecompletion=Complementa\u00e7\u00e3o de c\u00f3digo
-frame.catalogue.codecompletion.hide=Esconder complementa\u00e7\u00e3o de c\u00f3digo
+frame.catalogue.codecompletion=Complementar c\u00f3digo
+frame.catalogue.codecompletion.hide=Esconder completar c\u00f3digo
 frame.catalogue.codecompletion.up=Mover para cima
 frame.catalogue.codecompletion.down=Mover para baixo
 frame.catalogue.codecompletion.select=Selecionar
-
 frame.catalogue.birdseye.exit=Sair da vis\u00e3o geral
 frame.catalogue.birdseye.up=Mover para cima
 frame.catalogue.birdseye.down=Mover para baixo
 frame.catalogue.birdseye.select=Selecionar
-
 frame.catalogue.examples=Exemplos
+frame.catalogue.hint.move=Mover 3 c\u00e9lulas para frente
+frame.catalogue.hint.turn=Girar 5 graus para direita 
+frame.catalogue.hint.removeobject=Remover atores Crab sobrepostos
+
+
+# Stride Dictionary:
+stride.dictionary.call.method.name=Chamar m\u00e9todo
+stride.dictionary.call.method.description=Chama um m\u00e9todo
+stride.dictionary.blank.name=Branco
+stride.dictionary.blank.description=Uma linha em branco
+stride.dictionary.comment.name=Coment\u00e1rio
+stride.dictionary.comment.description=Um coment\u00e1rio de c\u00f3digo
+stride.dictionary.assignment.name=Atribui\u00e7\u00e3o
+stride.dictionary.assignment.description=Atribui um valor para um campo ou uma vari\u00e1vel
+stride.dictionary.abstract.method.name=M\u00e9todo abstrato
+stride.dictionary.abstract.method.interface.description=Um m\u00e9todo de uma interface
+stride.dictionary.abstract.method.class.description=Um m\u00e9todo abstrato de uma classe
+stride.dictionary.break.name=Break
+stride.dictionary.break.description=Sai do la\u00e7o
+stride.dictionary.constructor.name=Construtor
+stride.dictionary.constructor.description=Um construtor de uma classe
+stride.dictionary.case.name=Case (Switch)
+stride.dictionary.case.description=Processa um valor espec\u00edfico
+stride.dictionary.constant.name=Declara\u00e7\u00e3o de constante
+stride.dictionary.constant.description=Declara uma constante
+stride.dictionary.for.each.name=For-each
+stride.dictionary.for.each.description=Executa um la\u00e7o sobre uma cole\u00e7\u00e3o
+stride.dictionary.if.name=If
+stride.dictionary.if.description=Execu\u00e7\u00e3o do If
+stride.dictionary.else.name=Else
+stride.dictionary.else.description=Execu\u00e7\u00e3o do Else 
+stride.dictionary.import.name=Import
+stride.dictionary.import.description=Importa uma classe ou pacote
+stride.dictionary.method.name=M\u00e9todo
+stride.dictionary.method.description=Um m\u00e9todo de uma classe
+stride.dictionary.return.name=Return
+stride.dictionary.return.description=Retorna de um m\u00e9todo
+stride.dictionary.switch.name=Switch
+stride.dictionary.switch.description=Escolhe entre diversos casos
+stride.dictionary.variable.name=Declara\u00e7\u00e3o de vari\u00e1vel
+stride.dictionary.variable.description=Declara uma vari\u00e1vel
+stride.dictionary.while.name=While
+stride.dictionary.while.description=La\u00e7o com pr\u00e9-condi\u00e7\u00e3o
+stride.dictionary.throw.name=Throw
+stride.dictionary.throw.description=Lan\u00e7a uma exce\u00e7\u00e3o
+stride.dictionary.try.name=Try/catch
+stride.dictionary.try.description=Bloco do Try
 
 
 # Error Bar:
@@ -23,19 +68,113 @@ frame.error.overview.bar.error.plural=erros
 frame.error.overview.bar.error.none=Sem erros
 frame.error.overview.bar.error.editing=Editando
 
+
+# Class menu:
+frame.classmenu.title=Classe
+frame.classmenu.close=Fechar
+frame.classmenu.move=Mover aba...
+frame.classmenu.move.new=Para nova janela
+frame.classmenu.move.existing=Janela
+frame.classmenu.print=Imprimir
+frame.classmenu.compile=Compilar
+
+
+# Web/documentation menu
+frame.webmenu.title=Documenta\u00E7\u00E3o
+frame.webmenu.open.external=Abrir em Navegador Externo
+
+
+# Edit menu:
+frame.editmenu.title=Editar
+
+
 # Slot menu:
 frame.slot.cut=Recortar
 frame.slot.copy=Copiar
 frame.slot.paste=Colar
-frame.slot.recent=Valores recentes
+frame.slot.recent=Valores Recentes
+frame.slot.goto=Ir para a defini\u00e7\u00e3o de $$
 
 
 # View menu:
-frame.viewmenu.title=Ver
+frame.viewmenu.title=Exibir
 frame.viewmenu.nextError=Pr\u00f3ximo erro
 frame.viewmenu.cheatsheet=Folha de dicas
 frame.viewmenu.birdseye=Vis\u00e3o geral
+frame.viewmenu.birdseye.doc=Vis\u00e3o geral (com documenta\u00e7\u00e3o)
 frame.viewmenu.java=Visualiza\u00e7\u00e3o em Java
 frame.viewmenu.fontbigger=Aumentar tamanho da fonte
 frame.viewmenu.fontsmaller=Diminuir tamanho da fonte
-frame.viewmenu.fontdefault=Redefinir o tamanho da fonte para o padr\u00e3o
+frame.viewmenu.fontdefault=Redefinir o tamanho da fonte
+
+
+# Information:
+# The '$$' will be replaced by the name of the superclass:
+frame.class.inherited.from=Herdado de $$
+
+frame.undobanner.text=Voc\u00ea removeu uma grande quantidade de c\u00f3digo.  Se n\u00e3o era essa sua inten\u00e7\u00e3o, voc\u00ea pode
+frame.undobanner.button=Desfazer esta remo\u00e7\u00e3o
+frame.undobanner.close=Fechar
+
+stride.convert.unsupported.feature=Caracter\u00edstica n\u00e3o dispon\u00edvel na Stride
+stride.convert.unsupported.modifier=Modificador n\u00e3o dispon\u00edvel na Stride
+stride.convert.warnings.title=Java para Stride: caracter\u00edsticas n\u00e3o dispon\u00edveis
+stride.convert.warnings=A convers\u00e3o de Java para Stride foi bem-sucedida, mas com os seguintes avisos
+stride.convert.paste.errors.title=Colar Stride: Erro
+stride.convert.paste.errors=O c\u00f3digo Stride da \u00e1rea de transfer\u00eancia n\u00e3o \u00e9 v\u00e1lido e a tentativa de convers\u00e3o de Java para Stride falhou, com os seguintes erros
+stride.convert.whole.errors.title=Convers\u00e3o para Stride: Erro
+stride.convert.whole.errors=A convers\u00e3o de Java para Stride falhou, com os seguintes erros
+stride.convert.error.stride=Erro ao tentar descompactar o c\u00f3digo Stride
+stride.convert.error.java=Erro ao tentar analisar Java para convers\u00e3o em Stride
+convert.to.stride.class=Converter para Stride
+convert.to.java.title=Converter para Java?
+convert.to.java.message=Ocorrer\u00e1 uma convers\u00e3o de Stride para uma classe Java. Continuar?
+convert.to.stride.title=Converter para Stride?
+convert.to.stride.message=Isso converter\u00e1 a classe Java em Stride. Esta opera\u00e7\u00e3o pode n\u00e3o ser revers\u00edvel se o c\u00f3digo Java tiver recursos n\u00e3o dispon\u00edveis na Stride. Continuar?
+convert.to.stride.error.title=Erro inesperado
+convert.to.stride.error.message=Erro inesperado durante a convers\u00e3o de Java para Stride.
+
+
+# Editor
+frame.editor.toplevel.doc.prompt=Escreva uma descri\u00e7\u00e3o de sua classe $CLASSNAME $CAPTION aqui...
+frame.editor.toplevel.package.prompt=nome do pacote
+frame.editor.param.prompt=nome $CAPTION 
+frame.editor.label.imports=Importa\u00e7\u00f5es
+frame.editor.label.fields=Campos
+frame.editor.label.constructors=Construtores
+frame.editor.label.methods=M\u00e9todos
+
+frame.class.add.extends=Acrescentar 'extends'
+frame.class.add.extends.declaration=Acrescentar declara\u00e7\u00e3o 'extends' 
+frame.class.add.implements=Acrescentar 'implements'
+frame.class.add.super=Acrescentar chamada para super(..) 
+frame.class.add.this=Acrescentar chamada para this(..) 
+frame.class.add.throw=Acrescentar declara\u00e7\u00e3o throws 
+frame.class.constructor.doc.prompt=Descreva seu construtor aqui...
+frame.class.method.doc.prompt=Descreva seu m\u00e9todo aqui...
+frame.class.overrides.from=sobrescrever m\u00e9todo de $$
+frame.class.remove.extends.from=Remover 'extends $$'
+frame.class.remove.implements=Remover 'implements $$'
+frame.class.remove.super=Remover chamada para super/this 
+frame.class.toggle.abstract=Alternar concreto e abstrato
+frame.switch.remove.default=Remover default, manter conte\u00fado
+frame.switch.remove.switch=Remover switch/cases, manter conte\u00fado
+
+
+# Operations
+frame.operation.change=Modificar
+frame.operation.change.to.abstract=para abstrato
+frame.operation.change.to.constructor=para construtor
+frame.operation.change.to.method=para m\u00e9todo normal
+frame.operation.copy=Copiar
+frame.operation.copy.as.image=Copiar como Imagem
+frame.operation.copy.as.java=Copiar como Java
+frame.operation.cut=Recortar
+frame.operation.delete=Excluir
+frame.operation.delete.outer=Excluir quadro externo
+frame.operation.disable=Desabilitar
+frame.operation.enable=Habilitar
+frame.operation.make=Fazer $$
+frame.operation.paste=Colar
+frame.operation.remove=Remover $$
+frame.operation.toggle=Alternar $$

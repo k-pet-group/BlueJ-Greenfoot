@@ -1,0 +1,13 @@
+BJ000
+A declara\u00e7\u00e3o de m\u00E9todo deve ser seguida de um corpo de m\u00E9todo (ou "throws", ou ";")
+
+BJ001
+"(" ausente; "if"/"while"/"switch" devem ser seguidos por "(" -
+voc\u00EA esqueceu de colocar "(" / ")" ao redor da condi\u00e7\u00e3o?  
+
+BJ002
+"(" ausente; Voc\u00EA precisa de um par "(" / ")" ao redor da condi\u00e7\u00e3o
+(e "{" / "}" ao redor do corpo do la\u00e7o).
+
+BJ003
+";" faltando aqui.
