@@ -113,6 +113,7 @@ public @OnThread(Tag.FXPlatform) class FlowFXTab extends FXTab
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public FXTabbedEditor getParent()
     {
         return parent;
