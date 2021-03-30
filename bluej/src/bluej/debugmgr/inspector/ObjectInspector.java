@@ -93,10 +93,11 @@ public class ObjectInspector extends Inspector
     private int selectedIndex;
 
     /**
-     * array of Integers representing the array indexes from a large array that
-     * have been selected for viewing
+     * List of indexes from a large array that have been selected for viewing
      */
-    //protected TreeSet arraySet = null;
+    private List<Integer> extraArrayIndexesToShow = new ArrayList<>();
+    private int extraArrayIndexInList = -1;
+    private int extraArraySlotIndex = -1;
 
     /**
      * list which is built when viewing an array that records the object slot
@@ -402,7 +403,6 @@ public class ObjectInspector extends Inspector
     private void selectArrayElement()
     {
         String response = DialogManager.askStringFX(this, "ask-index");
-
         if (response != null) {
             try {
                 int slot = Integer.parseInt(response);
@@ -417,13 +417,28 @@ public class ObjectInspector extends Inspector
                                 isPublic ? newIr : null, this, null);
                     }
                     else {
-                        // it is not an object - a primitive, so lets
-                        // just display it in the array list display
-                        setButtonsEnabled(false, false);
-                        //arraySet.add(new Integer(slot));
-                        // TODO: this is currently broken. Primitive array elements re just
-                        //       not displayed right now. Would need to be added to display list.
-                        update();
+                        // It is not an object - a primitive, we update the array list display,
+                        // we add this element as an "extra" index to show (unless it is already there, then just select
+                        extraArraySlotIndex = slot; // set the slot index to be able to retrieve it's position in the list
+                        if(!extraArrayIndexesToShow.contains(slot))
+                        {
+                            extraArrayIndexesToShow.add(slot);
+                            update();
+                        }
+                        else 
+                        {
+                            // Retrieve the right index in the list
+                            extraArrayIndexInList = indexToSlotList.indexOf(extraArraySlotIndex);
+                        }
+                        
+                        // Select the right row (as we have [...], the actual index and slot index maybe different, we need it find it)
+                        // Make sure graphics are refreshed by changing the selection back and forth:
+                        fieldList.select(-1);
+                        fieldList.select(extraArrayIndexInList);
+                        
+                        //reset the indexes indicators
+                        extraArraySlotIndex = -1;
+                        extraArrayIndexInList = -1;
                     }
                 }
                 else { // not within array bounds
@@ -466,7 +481,10 @@ public class ObjectInspector extends Inspector
      * the array. When a selected element is chosen indexToSlot allows the
      * selection to be converted to the original array element position.
      * 
-     * @param fullArrayFieldList
+     * When an element from the [...] section is queried, we had it inside the list
+     * (depending on the index, we can have more than [...] eventually.
+     * 
+     * @param arrayObject
      *            the full field list for an array
      * @return the compressed array
      */
@@ -476,6 +494,8 @@ public class ObjectInspector extends Inspector
         // according to the java spec...
         indexToSlotList = new LinkedList<Integer>();
         indexToSlotList.add(0, Integer.valueOf(ARRAY_LENGTH_SLOT_VALUE));
+        
+        int arrayTotalLength = arrayObject.getElementCount();
 
         // the +1 here is due to the fact that if we do not have at least one
         // more than
@@ -483,26 +503,59 @@ public class ObjectInspector extends Inspector
         // in displaying
         // the ... elements because there would be no elements for them to
         // reveal
-        if (arrayObject.getElementCount() > (VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL + 2)) {
-
+        if (arrayTotalLength > (VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL + extraArrayIndexesToShow.size() + 2))
+        {
             // the destination list
             List<FieldInfo> newArray = new ArrayList<FieldInfo>(2 + VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL);
-            newArray.add(0, new FieldInfo("int length", "" + arrayObject.getElementCount()));
-            for (int i = 0; i <= VISIBLE_ARRAY_START; i++) {
+            newArray.add(0, new FieldInfo("int length", "" + arrayTotalLength));
+            for (int i = 0; i <= VISIBLE_ARRAY_START; i++)
+            {
                 // first 40 elements are displayed as per normal
                 newArray.add(new FieldInfo("[" + i + "]", arrayObject.getElementValueString(i)));
                 indexToSlotList.add(i);
+                //set the list position index for the request slot
+                if(i == extraArraySlotIndex)
+                {
+                    extraArrayIndexInList = newArray.size() - 1;
+                }
             }
 
-            // now the first of our expansion slots
-            newArray.add(new FieldInfo("[...]", ""));
-            indexToSlotList.add(Integer.valueOf(ARRAY_QUERY_SLOT_VALUE));
+            // now the first of our expansion slots unless when an extra queried value was requested
+            boolean hasExpansion = false;
+            for(int i = VISIBLE_ARRAY_START + 1; i < arrayTotalLength - VISIBLE_ARRAY_TAIL; i++)
+            {
+                if(extraArrayIndexesToShow.contains(i))
+                {
+                    //add a normal field
+                    newArray.add(new FieldInfo("[" + i + "]", arrayObject.getElementValueString(i)));
+                    indexToSlotList.add(i);
+                    hasExpansion = false;
+                    //set the list position index for the request slot
+                    if(i == extraArraySlotIndex)
+                    {
+                        extraArrayIndexInList = newArray.size() - 1;
+                    }
+                }
+                else if(!hasExpansion)
+                {
+                    newArray.add(new FieldInfo("[...]", ""));
+                    indexToSlotList.add(Integer.valueOf(ARRAY_QUERY_SLOT_VALUE));
+                    hasExpansion = true;
+                }
+            }
 
-            for (int i = VISIBLE_ARRAY_TAIL; i > 0; i--) {
+            // tail part
+            for (int i = VISIBLE_ARRAY_TAIL; i > 0; i--)
+            {
                 // last 5 elements are displayed
-                int elNum = arrayObject.getElementCount() - i;
+                int elNum = arrayTotalLength - i;
                 newArray.add(new FieldInfo("[" + elNum + "]", arrayObject.getElementValueString(elNum)));
-                indexToSlotList.add(arrayObject.getElementCount() - i);
+                indexToSlotList.add(arrayTotalLength - i);
+                //set the list position index for the request slot
+                if((arrayTotalLength-i) == extraArraySlotIndex)
+                {
+                    extraArrayIndexInList = newArray.size() - 1;
+                }
             }
             return newArray;
         }
