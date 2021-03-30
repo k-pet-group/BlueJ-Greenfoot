@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2012,2013,2014,2016,2017,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2012,2013,2014,2016,2017,2019,2021  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -741,6 +741,24 @@ public class EditorParser extends JavaParser
         beginNode(insPos);
         scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(loopNode);
+    }
+
+    @Override
+    protected void beginSwitchLabelBlock(LocatableToken token)
+    {
+        JavaParentNode loopNode = new InnerNode(scopeStack.peek());
+        loopNode.setInner(true);
+        int curOffset = getTopNodeOffset();
+        int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
+        beginNode(insPos);
+        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
+        scopeStack.push(loopNode);
+    }
+
+    @Override
+    protected void endSwitchLabelBlock(LocatableToken token)
+    {
+        endTopNode(token, false);
     }
     
     @Override

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2017 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2017,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1325,16 +1325,16 @@ public class JavaStrideParser extends JavaParser
     }
 
     @Override
-    protected void gotSwitchCase()
+    protected void gotSwitchCase(LocatableToken token)
     {
-        super.gotSwitchCase();
+        super.gotSwitchCase(token);
         withExpression(e -> switchHandlers.peek().gotCase(e));
     }
 
     @Override
-    protected void gotSwitchDefault()
+    protected void gotSwitchDefault(LocatableToken token)
     {
-        super.gotSwitchDefault();
+        super.gotSwitchDefault(token);
         switchHandlers.peek().gotDefault();
     }
 

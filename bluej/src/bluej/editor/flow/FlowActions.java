@@ -784,6 +784,7 @@ public final class FlowActions
         int pos = textPane.getCaretPosition();
 
         boolean isOpenBrace = false;
+        boolean isColonOperatorDelimiter = false;
         boolean isCommentEnd = false, isCommentEndOnly = false;
 
         // if there is any text before the cursor, just insert a tab
@@ -821,12 +822,13 @@ public final class FlowActions
         else {
             isCommentEnd = prevLineText.trim().endsWith("*/");
             isCommentEndOnly = prevLineText.trim().equals("*/");
+            isColonOperatorDelimiter = prevLineText.trim().matches(".*(\\s|\\{|;|^)(case\\s+[^:]*|default\\s*):$");
         }
 
         int indentPos = FlowIndent.findFirstNonIndentChar(prevLineText, isCommentEnd);
         String indent = prevLineText.substring(0, indentPos);
 
-        if (isOpenBrace) {
+        if (isOpenBrace || isColonOperatorDelimiter) {
             indentPos += tabSize;
         }
 
@@ -850,7 +852,7 @@ public final class FlowActions
         indentPos = FlowIndent.findFirstNonIndentChar(lineText, true);
         char firstChar = lineText.isEmpty() ? '\u0000' : lineText.charAt(indentPos);
         textPane.getDocument().replaceText(lineStart, lineStart + indentPos, "");
-        String newIndent = nextIndent(indent, isOpenBrace, isCommentEndOnly);
+        String newIndent = nextIndent(indent, (isOpenBrace || isColonOperatorDelimiter), isCommentEndOnly);
         if (firstChar == '*') {
             newIndent = newIndent.replace('*', ' ');
         }
