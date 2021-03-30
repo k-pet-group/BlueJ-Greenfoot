@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,10 +25,7 @@ import static bluej.parser.JavaErrorCodes.*;
 import static bluej.parser.lexer.JavaTokenTypes.*;
 
 import java.io.Reader;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenFilter;
@@ -50,6 +47,12 @@ public class JavaParser
 {
     protected JavaTokenFilter tokenStream;
     protected LocatableToken lastToken;
+    
+    // Flags to detect if the parser is currently in a switch label statement (case or default).
+    // We need to keep a list of flags indicating if we're in a label (case or default) for a switch 
+    // since we could have nested switches. The flag is set to true when a case or default is encountered,
+    // and only if there is a switch notified (not empty list...).
+    private List<Boolean> isInSwitchLabelBlockFlags = new ArrayList<>();
 
     public static TokenStream getLexer(Reader r)
     {
@@ -252,6 +255,10 @@ public class JavaParser
     protected void beginSwitchStmt(LocatableToken token) { }
     
     protected void beginSwitchBlock(LocatableToken token) { }
+    
+    protected void beginSwitchLabelBlock(LocatableToken token) { }
+    
+    protected void endSwitchLabelBlock(LocatableToken token) { }
     
     protected void endSwitchBlock(LocatableToken token) { }
     
@@ -1461,23 +1468,37 @@ public class JavaParser
             case 8: // LITERAL_switch
                 return parseSwitchStatement(token);
             case 9: // LITERAL_case
-                gotSwitchCase();
+                gotSwitchCase(token);
                 parseExpression();
                 token = nextToken();
-                if (token.getType() != JavaTokenTypes.COLON) {
+                if (token.getType() != JavaTokenTypes.COLON)
+                {
                     error("Expecting ':' at end of case expression");
                     tokenStream.pushBack(token);
                     return null;
+                }
+                if(isInSwitchLabelBlockFlags.size() > 0)
+                {
+                    isInSwitchLabelBlockFlags.set(isInSwitchLabelBlockFlags.size()-1, true);
+                    beginSwitchLabelBlock(token);
+                    parseStatement();      
                 }
                 return token;
             case 10: // LITERAL_default
-                gotSwitchDefault();
+                gotSwitchDefault(token);
                 token = nextToken();
-                if (token.getType() != JavaTokenTypes.COLON) {
+                if (token.getType() != JavaTokenTypes.COLON) 
+                {
                     error("Expecting ':' at end of case expression");
                     tokenStream.pushBack(token);
                     return null;
                 }
+                if(isInSwitchLabelBlockFlags.size() > 0)
+                {
+                    isInSwitchLabelBlockFlags.set(isInSwitchLabelBlockFlags.size()-1, true);
+                    beginSwitchLabelBlock(token);
+                    parseStatement();
+                };
                 return token;
             case 11: // LITERAL_continue
             case 12: // LITERAL_break
@@ -1674,9 +1695,21 @@ public class JavaParser
         }
     }
 
-    protected void gotSwitchCase() { }
-
-    protected void gotSwitchDefault() { }
+    protected void gotSwitchCase(LocatableToken token) 
+    {
+        // if there was already a switch label (case or default) block being parsed, we notify the parser we finished
+        if(isInSwitchLabelBlockFlags.size() > 0 && isInSwitchLabelBlockFlags.get(isInSwitchLabelBlockFlags.size()-1).booleanValue()){
+            endSwitchLabelBlock(token);
+        }
+    }
+    
+    protected void gotSwitchDefault(LocatableToken token) 
+    {
+        // if there was already a switch label (case or default) block being parsed, we notify the parser we finished
+        if(isInSwitchLabelBlockFlags.size() > 0 && isInSwitchLabelBlockFlags.get(isInSwitchLabelBlockFlags.size()-1).booleanValue()){
+            endSwitchLabelBlock(token);
+        }
+    }
 
     protected void gotThrow(LocatableToken token) { }
 
@@ -1853,9 +1886,10 @@ public class JavaParser
 
     protected void gotAssert() { }
 
-    /** Parse a "switch(...) {  }" statement. */
+    /** Parse a "switch(...) { }" statement. Note: inner labels (case/default) are treated specially from BlueJ 5.0.1 */
     public LocatableToken parseSwitchStatement(LocatableToken token)
     {
+        isInSwitchLabelBlockFlags.add(false);
         beginSwitchStmt(token);
         token = nextToken();
         if (token.getType() != JavaTokenTypes.LPAREN) {
@@ -1885,12 +1919,21 @@ public class JavaParser
         if (token.getType() != JavaTokenTypes.RCURLY) {
             error("Missing '}' at end of 'switch' statement block");
             tokenStream.pushBack(token);
+            if(isInSwitchLabelBlockFlags.get(isInSwitchLabelBlockFlags.size()-1).booleanValue())
+            {
+               endSwitchLabelBlock(token);
+            }
             endSwitchBlock(token);
             endSwitchStmt(token, false);
             return null;
         }
+        if(isInSwitchLabelBlockFlags.get(isInSwitchLabelBlockFlags.size()-1).booleanValue())
+        {
+            endSwitchLabelBlock(token);
+        }
         endSwitchBlock(token);
         endSwitchStmt(token, true);
+        isInSwitchLabelBlockFlags.remove(isInSwitchLabelBlockFlags.size() - 1);
         return token;
     }
     
@@ -2485,7 +2528,6 @@ public class JavaParser
      * @param speculative
      * @param ttokens
      * @return
-     * @throws TokenStreamException
      */
     private int parseBaseType(boolean speculative, List<LocatableToken> ttokens)
     {
