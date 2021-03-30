@@ -1390,14 +1390,22 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         final FXTabbedEditor fxTabbedEditor;
         boolean becameVisible = false;
-        if (vis && (openInNewWindow || fxTab.getParent() == null))
+        FXTabbedEditor tabParent = fxTab.getParent();
+        if (!vis && tabParent == null)
         {
+            // If we already aren't in a window and are being told to hide, nothing to do:
+            return;
+        }
+        else if (vis && (openInNewWindow || tabParent == null))
+        {
+            // We only need a new window to be in if we're being told to show in a new window,
+            // or we're being told to show and we don't have a window:
             fxTabbedEditor = fetchTabbedEditor.getFXTabbedEditor(openInNewWindow);
             becameVisible = fxTabbedEditor.addTab(fxTab, vis, true);
         }
         else
         {
-            fxTabbedEditor = fxTab.getParent();
+            fxTabbedEditor = tabParent;
         }
         
         // Expression order very important here; we want to always call setWindowVisible,
