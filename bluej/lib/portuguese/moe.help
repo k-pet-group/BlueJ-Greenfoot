@@ -4,7 +4,7 @@
 # Parte do ambiente de desenvolvimento de programas BlueJ.
 #
 
-## fun\u00e7\u00f5es de edi\u00e7\u00e3o
+## funções de edição
 
 delete-previous=\n Apaga o caractere antes do cursor.
 delete-next=\n Apaga o caractere ap\u00f3s o cursor.
@@ -15,16 +15,20 @@ cut-line=\n Recorta a linha corrente para a \u00e1rea de transfer\u00eancia. \n 
 cut-end-of-line=\n Recorta o final da linha corrente para a \u00e1rea de transfer\u00eancia.
 cut-word=\n Recorta a palavra corrente para a \u00e1rea de transfer\u00eancia. \n Recortes sucessivos s\u00e3o adicionados \u00e0 \u00e1rea de transfer\u00eancia.
 cut-end-of-word=\n Recorta o final da palavra corrente para a \u00e1rea de transfer\u00eancia.\n Recortes sucessivos s\u00e3o adicionados \u00e0 \u00e1rea de transfer\u00eancia.
-paste-from-clipboard=\n Colam o texto da \u00e1rea de transfer\u00eancia para\n a posi\u00e7\u00e3o atual do cursor.
-indent=\n Se 'endentar' estiver selecionado nas prefer\u00eancias do editor, endenta as\n linhas acima. Do contr\u00e1rio, insere um caractere de tabula\u00e7\u00e3o (tab). 
+paste-from-clipboard=\n Cola o texto da \u00e1rea de transfer\u00eancia para\n a posi\u00e7\u00e3o atual do cursor.
+indent=\n Se 'indentar' estiver selecionado nas prefer\u00eancias do editor, indenta as\n linhas acima. Do contr\u00e1rio, insere um caractere de tabula\u00e7\u00e3o (tab). 
 insert-tab=\n Insere um caractere TAB.
-new-line=\n Insere uma quebra de linha. Se 'endentar' estiver selecionado\n nas prefer\u00eancias do editor, segue a endenta\u00e7\u00e3o da linha acima.
-insert-break=\n Insere uma quebra de linha sem tentar endentar.
+new-line=\n Insere uma quebra de linha. Se 'indentar' estiver selecionado\n nas prefer\u00eancias do editor, segue a indenta\u00e7\u00e3o da linha acima.
+insert-break=\n Insere uma quebra de linha sem tentar indentar.
 insert-method=\n Insere um esqueleto de m\u00e9todo Java no texto.
+add-javadoc=\n Insere um coment\u00e1rio Javadoc ao m\u00e9todo corrente, se n\u00e3o existe um coment\u00eario.
 comment-block=\n Comenta as linhas selecionadas. O coment\u00e1rio pode ser facilmente\n removido posteriormente (veja uncomment-block).
 uncomment-block=\n Remove s\u00edmbolos de coment\u00e1rios do in\u00edcio das linhas selecionadas.\n Veja tamb\u00e9m comment-block.
-indent-block=\n Adiciona um n\u00edvel de endenta\u00e7\u00e3o a cada linha selecionada\n (ou \u00e0 linha corrente, se n\u00e3o houver nenhuma sele\u00e7\u00e3o).
-deindent-block=\n Remove um n\u00edvel de endenta\u00e7\u00e3o de cada linha selecionada\n (ou \u00e0 linha corrente, se n\u00e3o houver nenhuma sele\u00e7\u00e3o).
+indent-block=\n Adiciona um n\u00edvel de indenta\u00e7\u00e3o a cada linha selecionada\n (ou \u00e0 linha corrente, se n\u00e3o houver nenhuma sele\u00e7\u00e3o).
+deindent-block=\n Remove um n\u00edvel de indenta\u00e7\u00e3o de cada linha selecionada\n (ou \u00e0 linha corrente, se n\u00e3o houver nenhuma sele\u00e7\u00e3o).
+increase-font=\n Aumenta o tamanho da fonte
+decrease-font=\n Diminui o tamanho da fonte
+code-completion=\n Auxilia a completar o c\u00f3digo-fonte
 
 select-word=\n Seleciona a palavra corrente (dispon\u00edvel tamb\u00e9m com\n left-mouse-button: double-click).
 select-line=\n Seleciona a linha corrente (dispon\u00edvel tamb\u00e9m com\n left-mouse-button: triple-click).
@@ -48,7 +52,7 @@ selection-begin=\n Move o final da sele\u00e7\u00e3o para o in\u00edcio do texto
 selection-end=\n Move o final da sele\u00e7\u00e3o para o final do texto.
 unselect=\n Remove a sele\u00e7\u00e3o (n\u00e3o o texto selecionado!).
 
-## fun\u00e7\u00f5es de movimenta\u00e7\u00e3o e rolagem
+## funções de movimentação e rolagem
 
 caret-backward=\n Move o cursor um caratere para tr\u00e1s.
 caret-forward=\n Move o cursor um caratere para frente.
@@ -67,7 +71,7 @@ page-down=\n Move o cursor uma p\u00e1gina para baixo.
 caret-begin=\n Move o cursor para o in\u00edcio do texto.
 caret-end=\n Move o cursor para o final do texto.
 
-## fun\u00e7\u00f5es de classe
+## funções de classe
 
 save=\n Salva esta classe. Note que \u00e9 raro salvar explicitamente\n uma classe porque a opera\u00e7\u00e3o fechar faz isso automaticamente.
 close=\n Salva a classe. O c\u00f3digo \u00e9 salvo automaticamente.
@@ -75,35 +79,35 @@ print=\n Abre o di\u00e1logo imprimir para iniciar a impress\u00e3o
 page-setup=\n Abre um di\u00e1logo de configura\u00e7\u00e3o da p\u00e1gina para defini\u00e7\u00e3o de um layout.
 
 
-## fun\u00e7\u00f5es de customiza\u00e7\u00e3o
+## funções de customização
 
-key-bindings=\n Visualiza e troca os atalhos de teclas das fun\u00e7\u00f5es do Moe.
+key-bindings=\n Exibe e troca os atalhos de teclas das fun\u00e7\u00f5es do Moe.
 preferences=\n Especifica algumas configura\u00e7\u00f5es de prefer\u00eancias para o editor.
 
 
-## fun\u00e7\u00f5es de ajuda
+## funções de ajuda
 
 describe-key=\n Ap\u00f3s chamar esta fun\u00e7\u00e3o, pressione uma tecla. O nome da\n fun\u00e7\u00e3o associada a esta tecla \u00e9 exibido.
 help-mouse=\n Exibe as associa\u00e7\u00f5es dos bot\u00f5es do mouse.
-show-manual=\n Abre um browser web com o Manual do Usu\u00e1rio do Moe.
+show-manual=\n Abre um navegador Web com o Manual do Usu\u00e1rio do Moe.
 about-editor=\n Exibe uma nota curta sobre o Moe.
 
 
-## fun\u00e7\u00f5es miscel\u00e2neas
+## funções diversas
 
 undo=\n Desfaz as \u00faltimas opera\u00e7\u00f5es de edi\u00e7\u00e3o. (Elas podem ser refeitas com 'redo'.)
 redo=\n Refaz as \u00faltimas opera\u00e7\u00f5es que foram desfeitas.
 
-find=\n Abre um di\u00e1logo para pesquisa de strings no texto. O di\u00e1logo\n permite que a pesquisa seja iniciada para frente ou para tr\u00e1s.
-find-next= Se houver uma sele\u00e7\u00e3o, procura por uma nova ocorr\u00eancia do texto selecionado. Se n\u00e3o\n houver nenhuma sele\u00e7\u00e3o, procura novamente pelo mesmo string usado na\n \u00faltima pesquisa. P\u00e1ra no final do texto. Se for chamada novamente no final do texto,\n volta a procurar a partir do in\u00edcio.
+find=\n Abre um di\u00e1logo para pesquisa de textos no documento. O di\u00e1logo\n permite que a pesquisa seja iniciada para frente ou para tr\u00e1s.
+find-next= Se houver uma sele\u00e7\u00e3o, procura por uma nova ocorr\u00eancia do texto selecionado. Se n\u00e3o\n houver nenhuma sele\u00e7\u00e3o, procura novamente pelo mesmo texto usado na\n \u00faltima pesquisa. Encerra ao final do texto. Se for chamada novamente no final do texto,\n volta a procurar a partir do in\u00edcio.
 find-next-backward=\n O mesmo que find-next, mas pesquisa para cima e n\u00e3o para baixo.
-replace=\n Substitui um string por outro.
+replace=\n Substitui um texto por outro.
 
 compile=\n Compila a classe corrente. A classe \u00e9 salva automaticamente\n antes da compila\u00e7\u00e3o.
-toggle-interface-view=\n Alterna a exibi\u00e7\u00e3o do editor entre interface e c\u00f3digo fonte.\n A interface exibe a documenta\u00e7\u00e3o Javadoc da classe.
-toggle-breakpoint=\n P\u00f5e ou retira um breakpoint na linha corrente.
+toggle-interface-view=\n Alterna a exibi\u00e7\u00e3o do editor entre documenta\u00e7\u00e3o e c\u00f3digo-fonte.
+toggle-breakpoint=\n P\u00f5e ou retira um ponto de interrup\u00e7\u00e3o na linha corrente.
 
-## Texto de ajuda para associa\u00e7\u00f5es de teclas
+## Texto de ajuda para associações de teclas
 
 press-key=\n  Pressione a tecla que voc\u00ea deseja adicionar...
 cannot-redefine=\n  Teclas de caracteres imprim\u00edveis n\u00e3o podem ser redefinidas.

@@ -1,27 +1,27 @@
 README - <bluej-home>/lib/<language>/templates/newclass/README
 --------------------------------------------------------------
 
-Este diret\u0443rio cont\u0439m templates de classes do BleuJ.
+Esta pasta cont\u0439m modelos de classes do BlueJ.
 
-Este templates aparecem como op\u0437\u0445es no di\u0431logo "Nova Classe" 
+Este modelos aparecem como op\u0437\u0445es no di\u0431logo "Nova Classe" 
 do ambiente BlueJ
 
 
-Mudando templates
-------------------
-Os templates podem ser alterados facilmente pela edi\u0437\u0433o destes arquivos.
+Mudando modelos
+---------------
+Os modelos podem ser facilmente alterados editando esses arquivos.
 
 
-Adicionando novos templates
---------------------
-Para adicionar um template, crie um novo arquivo neste diret\u0443rio com uma
-extens\u0433o ".tmpl" (por exemplo, mainclass.tmpl").
+Adicionando novos modelos
+-------------------------
+Para adicionar um modelo, crie um novo arquivo nesta pasta com uma
+extens\u0433o ".tmpl" (por exemplo, "mainclass.tmpl").
 
-Nomes de applets, interfaces ou classes abstratas devem come\u0437ar com
-"applet", "interface" ou "abstract", respectivamente. Qualquer outra coisa
-ser\u0431 tratada como uma classe padr\u0433o.
+Nomes de applets, interfaces, classes abstratas, testes de unidades ou enumerações devem come\u0437ar com
+"applet", "interface" ou "abstract", "unittest" ou "enum" respectivamente. Todo o resto
+ser\u0431 tratado como uma classe padr\u0433o.
 
-Por default, este template ser\u0431 listado no di\u0431logo Nova Classe, ao final da
+Por default, este modelo ser\u0431 listado no di\u0431logo Nova Classe, ao final da
 lista de op\u0437\u0445es e com o nome base do arquivo ("mainclass").
 
 O nome que aparece no di\u0431logo pode ser definido pela propriedade
@@ -30,11 +30,11 @@ encontra-se em <bluej-home>/lib/<language>/labels). Por exemplo, definindo
 
    pkgmgr.newClass.mainclass=Classe com Main
 
-resultar\u0431 no string "Classe com Main" aparecendo no di\u0431logo como uma
+resultar\u0431 em "Classe com Main" aparecendo no di\u0431logo como uma
 nova op\u0437\u0433o.
 
-A posi\u0437\u0433o na lista pode ser especificada adicionando este template \u0430
+A posi\u0437\u0433o na lista pode ser especificada adicionando este modelo ('template') \u0430
 lista especificada na propriedade "bluej.classTemplates" do arquivo de
-defini\u0437\u0445es do BlueJ (<bluej-home>/lib/bluej.defs). Todos os templates
-listados ali aparecer\u0433o na ordem especificada. Outros templates neste 
-diret\u0443rio aparecer\u0433o na lista numa ordem aleat\u0443ria
+defini\u0437\u0445es do BlueJ (<bluej-home>/lib/bluej.defs). Todos os modelos
+listados ali aparecer\u0433o na ordem especificada. Outras modelos neste 
+pastas aparecer\u0433o na lista numa ordem aleat\u0443ria
