@@ -75,6 +75,7 @@ import java.util.stream.Stream;
 @OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public class FlowEditorPane extends Region implements JavaSyntaxView.Display
 {
+    public static final Duration SCROLL_DELAY = Duration.millis(50);
     private final LineDisplay lineDisplay;
     private final FlowEditorPaneListener listener;
 
@@ -94,7 +95,6 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     
     private ErrorQuery errorQuery = () -> Collections.emptyList();
     
-    private final List<IndexRange> errorUnderlines = new ArrayList<>();
     private final LineContainer lineContainer;
     private final ScrollBar verticalScroll;
     private final ScrollBar horizontalScroll;
@@ -210,8 +210,10 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
             InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged),
             InputMap.consume(MouseEvent.MOUSE_RELEASED, this::mouseReleased),
-            InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved),
-            InputMap.consume(ScrollEvent.SCROLL, this::scroll)
+            InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved)
+            // Note: we deliberately do not handle scroll events here, and instead
+            // handle them in MarginAndTextLine.  See the comments there for more info.
+            // InputMap.consume(ScrollEvent.SCROLL, this::scroll)
         ));
 
         JavaFXUtil.addChangeListenerPlatform(widthProperty(), w -> updateRender(false));
@@ -393,7 +395,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             }
             scroll(0, amount);
             getCaretPositionForLocalPoint(new Point2D(offScreenDragX, offScreenDragY)).ifPresent(p -> moveCaret(p, false));
-            JavaFXUtil.runAfter(Duration.millis(50), this::doDragScroll);
+            JavaFXUtil.runAfter(SCROLL_DELAY, this::doDragScroll);
             isDragScrollScheduled = true;
         }
     }
@@ -945,8 +947,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         lineDisplay.scrollTo(lineIndex, 0.0);
         updateRender(false);
     }
-    
-    private void scroll(ScrollEvent scrollEvent)
+
+    /**
+     * Called when a scroll event has occurred on one of the text lines in the editor
+     * @param scrollEvent The scroll event that occurred.
+     */
+    public void scrollEventOnTextLine(ScrollEvent scrollEvent)
     {
         scroll(scrollEvent.getDeltaX(), scrollEvent.getDeltaY());
     }
@@ -960,7 +966,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         if (!postScrollRenderQueued)
         {
             postScrollRenderQueued = true;
-            JavaFXUtil.runAfter(Duration.millis(50), () -> {
+            JavaFXUtil.runAfter(SCROLL_DELAY, () -> {
                 postScrollRenderQueued = false;
                 lineDisplay.scrollBy(pendingScrollY, document.getLineCount());
                 pendingScrollY = 0;
@@ -1223,6 +1229,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
          * by this method.
          */
         ContextMenu getContextMenuToShow();
+
+        /**
+         * Called when a scroll event has occurred on one of the text lines in the editor
+         * @param scrollEvent The scroll event that occurred.
+         */
+        public void scrollEventOnTextLine(ScrollEvent scrollEvent);
     }
 
     // Use an AbstractList rather than pre-calculate, as that means we don't bother
