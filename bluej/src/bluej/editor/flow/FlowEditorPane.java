@@ -94,7 +94,6 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     
     private ErrorQuery errorQuery = () -> Collections.emptyList();
     
-    private final List<IndexRange> errorUnderlines = new ArrayList<>();
     private final LineContainer lineContainer;
     private final ScrollBar verticalScroll;
     private final ScrollBar horizontalScroll;
