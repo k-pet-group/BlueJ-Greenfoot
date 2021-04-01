@@ -23,7 +23,6 @@
 }
 .field-list .inspector-field-value-label {
     -fx-alignment: baseline-center;
-    -fx-label-padding: 3;
     -fx-background-color: transparent, white;
     -fx-background-insets: 0, 3;
     -fx-text-fill: black !important;
