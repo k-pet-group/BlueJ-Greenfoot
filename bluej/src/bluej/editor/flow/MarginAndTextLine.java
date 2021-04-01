@@ -24,6 +24,7 @@ package bluej.editor.flow;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
+import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.StringExpression;
@@ -34,6 +35,7 @@ import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
@@ -87,7 +89,7 @@ public class MarginAndTextLine extends Region
     private final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
     final TextLine textLine;
 
-    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformSupplier<Boolean> onClick, FXPlatformSupplier<ContextMenu> getContextMenuToShow)
+    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformSupplier<Boolean> onClick, FXPlatformSupplier<ContextMenu> getContextMenuToShow, FXConsumer<ScrollEvent> onScroll)
     {
         this.dividerLine = new Line(LINE_X, 0.5, LINE_X, 1);
         dividerLine.getStyleClass().add("flow-margin-line");
@@ -129,6 +131,21 @@ public class MarginAndTextLine extends Region
             breakpointHoverTooltip.setText(breakpointHoverUsualText);
             breakpointHoverTooltip.setShowDelay(Duration.seconds(1));
             setMarginGraphics(EnumSet.copyOf(displayItems));
+        });
+        
+        // It would be neater to handle the scroll events in FlowEditorPane.  However
+        // there is an issue on Mac because the scroll gesture on the track pad uses
+        // the lowest node in the tree as a target, which is this MarginAndTextLine
+        // (because our children have setMouseTransparent(true)).  When this line scrolls
+        // out of view it disrupts the scroll events being fed to our parent nodes,
+        // including FlowEditorPane.  So the scroll gesture appeared to stop as soon
+        // as the line under the mouse cursor went out of view.  However the event is still
+        // delivered to this target even after it's gone out of view, so we just redirect
+        // the scroll events to the FlowEditorPane and it all works out.
+        // The explanation and inspiration came from a similar issue in Flowless https://github.com/FXMisc/Flowless/issues/56
+        // and the commit which fixed it: https://github.com/FXMisc/Flowless/pull/64/commits/040613b3e4e9837c30ca86e09d10c06d8b5270b8
+        addEventHandler(ScrollEvent.ANY, e -> {
+            onScroll.accept(e);
         });
 
         // Context menu to show or hide line numbers

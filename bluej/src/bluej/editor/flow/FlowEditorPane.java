@@ -210,8 +210,10 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
             InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged),
             InputMap.consume(MouseEvent.MOUSE_RELEASED, this::mouseReleased),
-            InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved),
-            InputMap.consume(ScrollEvent.SCROLL, this::scroll)
+            InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved)
+            // Note: we deliberately do not handle scroll events here, and instead
+            // handle them in MarginAndTextLine.  See the comments there for more info.
+            // InputMap.consume(ScrollEvent.SCROLL, this::scroll)
         ));
 
         JavaFXUtil.addChangeListenerPlatform(widthProperty(), w -> updateRender(false));
@@ -945,8 +947,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         lineDisplay.scrollTo(lineIndex, 0.0);
         updateRender(false);
     }
-    
-    private void scroll(ScrollEvent scrollEvent)
+
+    /**
+     * Called when a scroll event has occurred on one of the text lines in the editor
+     * @param scrollEvent The scroll event that occurred.
+     */
+    public void scrollEventOnTextLine(ScrollEvent scrollEvent)
     {
         scroll(scrollEvent.getDeltaX(), scrollEvent.getDeltaY());
     }
@@ -1223,6 +1229,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
          * by this method.
          */
         ContextMenu getContextMenuToShow();
+
+        /**
+         * Called when a scroll event has occurred on one of the text lines in the editor
+         * @param scrollEvent The scroll event that occurred.
+         */
+        public void scrollEventOnTextLine(ScrollEvent scrollEvent);
     }
 
     // Use an AbstractList rather than pre-calculate, as that means we don't bother

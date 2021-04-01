@@ -118,6 +118,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -356,6 +357,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         public ContextMenu getContextMenuToShow()
         {
             return null;
+        }
+
+        @Override
+        public void scrollEventOnTextLine(ScrollEvent e)
+        {
         }
     }
 
@@ -3146,6 +3152,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             Debug.reportError(e);
         }
+    }
+
+    @Override
+    public void scrollEventOnTextLine(ScrollEvent e)
+    {
+        flowEditorPane.scrollEventOnTextLine(e);
     }
 
     /**
