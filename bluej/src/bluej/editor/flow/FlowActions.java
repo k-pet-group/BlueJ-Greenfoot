@@ -822,7 +822,7 @@ public final class FlowActions
         else {
             isCommentEnd = prevLineText.trim().endsWith("*/");
             isCommentEndOnly = prevLineText.trim().equals("*/");
-            isColonOperatorDelimiter = prevLineText.trim().matches(".*(\\s|\\{|;|^)(case\\s+[^:]*|default\\s*):$");
+            isColonOperatorDelimiter = prevLineText.trim().matches("^\\s*(case\\s+[^:]*|default\\s*):$");                                                                                    
         }
 
         int indentPos = FlowIndent.findFirstNonIndentChar(prevLineText, isCommentEnd);

@@ -93,7 +93,11 @@ public class ObjectInspector extends Inspector
     private int selectedIndex;
 
     /**
-     * List of indexes from a large array that have been selected for viewing
+     * List of indexes from a large array that have been selected for viewing:
+     * extraArrayIndexesToShow is the list of array indexes that are not shown in the UI ([...]) but explicitly requested by the user
+     * extraArraySlotIndex is a request array index (slot) by the user
+     * extraArraySlotIndex is the corresponding index of the requested array index (extraArraySlotIndex) in the UI list,
+     *                     as a large array is truncated, the index of the array and the index in the UI list may be different
      */
     private List<Integer> extraArrayIndexesToShow = new ArrayList<>();
     private int extraArrayIndexInList = -1;
@@ -420,10 +424,26 @@ public class ObjectInspector extends Inspector
                         // It is not an object - a primitive, we update the array list display,
                         // we add this element as an "extra" index to show (unless it is already there, then just select
                         extraArraySlotIndex = slot; // set the slot index to be able to retrieve it's position in the list
-                        if(!extraArrayIndexesToShow.contains(slot))
+                        if (!extraArrayIndexesToShow.contains(slot))
                         {
                             extraArrayIndexesToShow.add(slot);
+                            // The call to update will redraw the list, which will set a value for extraArrayIndexInList
+                            // that informs of the actual position of the request slot in the UI list.
                             update();
+                            // There is a strange behaviour with ScrollPane being overwriting our scroll values (after
+                            // the selection has been made). The only way we found to get through it is to call the helper
+                            // JavaFXUtil.runAfterNextLayout twice (once doesn't work)
+                            JavaFXUtil.runAfterNextLayout(this.getScene(), () -> {
+                                JavaFXUtil.runAfterNextLayout(this.getScene(), () -> {
+                                    // As we redraw the containers, we need to refresh the selection to make sure it can be shown properly
+                                    if (fieldList != null)
+                                    {
+                                        int currentSelectIndex = fieldList.selectedIndexProperty().get();
+                                        fieldList.select(-1);
+                                        fieldList.select(currentSelectIndex);
+                                    }
+                                });
+                            });
                         }
                         else 
                         {

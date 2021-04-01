@@ -736,29 +736,13 @@ public class EditorParser extends JavaParser
     {
         JavaParentNode loopNode = new InnerNode(scopeStack.peek());
         loopNode.setInner(true);
+        // We specifically mark this node as Switch Block node to allow proper indentation in auto-indentation.
+        loopNode.markAsSwitchBlockNode();
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(loopNode);
-    }
-
-    @Override
-    protected void beginSwitchLabelBlock(LocatableToken token)
-    {
-        JavaParentNode loopNode = new InnerNode(scopeStack.peek());
-        loopNode.setInner(true);
-        int curOffset = getTopNodeOffset();
-        int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
-        beginNode(insPos);
-        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
-        scopeStack.push(loopNode);
-    }
-
-    @Override
-    protected void endSwitchLabelBlock(LocatableToken token)
-    {
-        endTopNode(token, false);
     }
     
     @Override

@@ -1325,16 +1325,16 @@ public class JavaStrideParser extends JavaParser
     }
 
     @Override
-    protected void gotSwitchCase(LocatableToken token)
+    protected void gotSwitchCase()
     {
-        super.gotSwitchCase(token);
+        super.gotSwitchCase();
         withExpression(e -> switchHandlers.peek().gotCase(e));
     }
 
     @Override
-    protected void gotSwitchDefault(LocatableToken token)
+    protected void gotSwitchDefault()
     {
-        super.gotSwitchDefault(token);
+        super.gotSwitchDefault();
         switchHandlers.peek().gotDefault();
     }
 
