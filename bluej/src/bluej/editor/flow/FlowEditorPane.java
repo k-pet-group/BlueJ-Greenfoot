@@ -75,6 +75,7 @@ import java.util.stream.Stream;
 @OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public class FlowEditorPane extends Region implements JavaSyntaxView.Display
 {
+    public static final Duration SCROLL_DELAY = Duration.millis(50);
     private final LineDisplay lineDisplay;
     private final FlowEditorPaneListener listener;
 
@@ -392,7 +393,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             }
             scroll(0, amount);
             getCaretPositionForLocalPoint(new Point2D(offScreenDragX, offScreenDragY)).ifPresent(p -> moveCaret(p, false));
-            JavaFXUtil.runAfter(Duration.millis(50), this::doDragScroll);
+            JavaFXUtil.runAfter(SCROLL_DELAY, this::doDragScroll);
             isDragScrollScheduled = true;
         }
     }
@@ -959,7 +960,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         if (!postScrollRenderQueued)
         {
             postScrollRenderQueued = true;
-            JavaFXUtil.runAfter(Duration.millis(50), () -> {
+            JavaFXUtil.runAfter(SCROLL_DELAY, () -> {
                 postScrollRenderQueued = false;
                 lineDisplay.scrollBy(pendingScrollY, document.getLineCount());
                 pendingScrollY = 0;
