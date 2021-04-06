@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -53,6 +53,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
+import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -97,7 +98,24 @@ public class FrameCursor implements RecallableFocus
     private ContextMenu menu;
     private final FrameCanvas parentCanvas;
     
-    private final Button node = new Button();
+    private final Button node = new Button(){
+        // Babis
+        @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+        public Object queryAccessibleAttribute(AccessibleAttribute accessibleAttribute, Object... objects) {
+            switch (accessibleAttribute) {
+                case TEXT:
+                    return normalText;
+                case HELP:
+                    return helpText;
+                default:
+                    return super.queryAccessibleAttribute(accessibleAttribute, objects);
+            }
+        }
+    };
+
+    private String normalText;
+    private String helpText;
 
     @OnThread(Tag.FXPlatform)
     public boolean keyTyped(final InteractionManager editor, final FrameCanvas parentCanvas, char key, boolean ctrlDown)
@@ -411,6 +429,35 @@ public class FrameCursor implements RecallableFocus
             {
                 animateShowHide(nowFocused, false);
             }
+
+            //cherry
+            if (nowFocused)
+            {
+//                node.setAccessibleRole(AccessibleRole.NODE); // This causes a weird bug where the screenreader reads out the same help text for all cursors, rather than the different help text of each cursor
+                this.normalText = "frame cursor normal text";
+                this.helpText = "frame cursor help text";
+                if (getFrameAfter() != null)
+                {
+                    this.normalText = getFrameAfter().getScreenReaderText();
+                    this.helpText = "you are before a" + getFrameAfter().getFrameName() + "," + parentCanvas.getParentLocationDescription();
+                }
+                else
+                {
+                    this.normalText = "no frame selected";
+                    CanvasParent.CanvasKind area = parentCanvas.getParent().getChildKind(parentCanvas);
+                    switch(area)
+                    {
+                        case STATEMENTS:
+                            this.helpText = "you are " + parentCanvas.getParentLocationDescription();
+                            break;
+                        default:
+                            this.helpText = "you are in the " + area + " area, " + parentCanvas.getParentLocationDescription();
+                            break;
+                    }
+                }
+            }
+            //end of cherry
+
         });
         JavaFXUtil.addChangeListener(node.localToSceneTransformProperty(), t -> JavaFXUtil.runNowOrLater(() -> adjustDragTargetPosition()));
         

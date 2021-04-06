@@ -38,6 +38,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Bounds;
+import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
@@ -48,6 +49,8 @@ import javafx.scene.layout.VBox;
 
 import bluej.Config;
 import bluej.stride.generic.InteractionManager;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This is a class to make sure a TextArea always resizes to fit its content.
@@ -71,9 +74,29 @@ public class ScrollFreeTextArea
     private boolean initialised = false;
     private double blankHeight;
     private double suggestedOneLineHeight;
+
+    private String screenReaderText="";
+    private String screenReaderHelp="";
+    private String screenReaderRoleDescriptor="";
+
     public ScrollFreeTextArea(InteractionManager editor)
     {
-        this.textArea = new TextArea();
+        this.textArea = new TextArea(){
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public Object queryAccessibleAttribute(AccessibleAttribute accessibleAttribute, Object... objects) {
+                switch (accessibleAttribute) {
+                    case TEXT:
+                        return screenReaderText;
+                    case HELP:
+                        return screenReaderHelp;
+                    case ROLE_DESCRIPTION:
+                        return screenReaderRoleDescriptor;
+                    default:
+                        return super.queryAccessibleAttribute(accessibleAttribute, objects);
+                }
+            }
+        };
         // We hold a reference to an off-screen TextArea with identical content and width, which we
         // use to determine the ideal height of our TextArea.  We bind to offScreen's height
         // via the contentHeight property, below
@@ -374,5 +397,20 @@ public class ScrollFreeTextArea
 
     static {
         Config.addEditorStylesheets(scene);
+    }
+
+    //Manvi Jain
+    public void setScreenReaderText(String text)
+    {
+        this.screenReaderText = text;
+    }
+
+    public void setScreenReaderRoleDescription(String text){
+        this.screenReaderRoleDescriptor = text;
+    }
+
+    public void setScreenReaderHelpSlots(String helpText)
+    {
+        this.screenReaderHelp = helpText;
     }
 }

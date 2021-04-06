@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -255,8 +255,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         });
         
         JavaFXUtil.addChangeListener(fakeCaretShowing, b -> JavaFXUtil.runNowOrLater(() -> overlay.redraw()));
+
     }
-    
     
     
  // Errors:
@@ -506,6 +506,11 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     public String getText()
     {
         return topLevel.getCopyText(null, null);
+    }
+
+    //cherry
+    public String getScreenreaderText() {
+        return topLevel.getScreenreaderText();
     }
 
     @Override
@@ -760,7 +765,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         
         suggestionField = field;
         suggestionNode = field.getComponents().get(0);
-        
+
         FXPlatformConsumer<SuggestionList> withSuggList = suggList -> {
             suggestionDisplay = suggList;
             updateSuggestions(true);
@@ -1163,11 +1168,59 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         lostFocusActions.add(action);
     }
 
+    //cherry
+    /**
+     * Sets the immediate parent of the slot or description of slot
+     * @param text
+     */
+    public void setAccessibility(String text) {
+        this.getComponents().get(0).setAccessibleText(text);
+//        suggestionField.setscre
+//        topLevel.set
+    }
+
+    //cherry
+    private String slotName;
+
+    //cherry
+    public void setSlotName(String name) {
+        slotName = name;
+    }
+
+    //cherry
+    /**
+     * Sets the relative location of the slot for screen reader
+     */
+    public void setAccessibilityHelpSlots() {
+        //cherry
+        String text = getOverallSlotDescription();
+        topLevel.setIndividualSlotText(text);
+//        for (Node component : this.getComponents()) {
+//            component.setAccessibleHelp(text);
+//        }
+    }
+
+    //cherry
+    private String getOverallSlotDescription() {
+        String text = "StructuredSlot";
+        try
+        {
+            text = " in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
+        }
+        catch (NullPointerException e)
+        {
+            text = " in the " + slotName;
+        }
+        finally {
+            return text;
+        }
+    }
+
     public void addFocusListener(Frame frame)
     {
         onLostFocus(frame::checkForEmptySlot);
     }
-    
+
     // package-visible
     ErrorUnderlineCanvas getOverlay()
     {
@@ -1596,7 +1649,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         // Defeat thread-checker:
         return modificationReturn((FXFunction<ModificationToken, T>)(modificationAction::apply));
     }
-    
+
     //package-visible
     // See modificationReturn
     void modification(FXConsumer<ModificationToken> modificationAction)

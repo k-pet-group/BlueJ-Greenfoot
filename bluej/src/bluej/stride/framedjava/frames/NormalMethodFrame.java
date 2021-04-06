@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,14 +41,8 @@ import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.parser.AssistContentThreadSafe;
-import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.operations.ToggleBooleanProperty;
@@ -150,6 +144,10 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
         JavaFXUtil.addChangeListener(staticModifier, b -> editor.modifiedFrame(this, false));
         JavaFXUtil.addChangeListener(finalModifier, b -> editor.modifiedFrame(this, false));
+
+        //cherry
+        frameName = "method " + methodName.getText();
+        returnType.setSlotName("return type");
     }
     
     public NormalMethodFrame(InteractionManager editor, AccessPermissionFragment access, boolean staticModifier,
@@ -164,6 +162,52 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         this.returnType.setText(returnType);
         methodName.setText(name);
         frameEnabledProperty.set(enabled);
+    }
+
+    //cherry
+    public String getScreenReaderText() {
+        // build string out of all params
+        StringBuilder paramString = new StringBuilder();
+        String name, type;
+
+        for(ParamFragment pair : paramsPane.getSlotElement()) {
+            name = (pair.getParamName().getSlot().getText().equals(""))? "blank": pair.getParamName().getSlot().getText();
+            type = (pair.getParamType().getSlot().getText().equals(""))? "blank" : pair.getParamType().getSlot().getText();
+            paramString.append(type + " " +  name + " ");
+        }
+        // make method text
+        String text, nameString, returnString;
+        nameString = (methodName.getText().equals(""))? "blank" : ScreenreaderDictionary.transcribeForScreenreader(methodName.getText());
+        returnString = (returnType.getText().equals(""))? "blank" : returnType.getText();
+
+        if (paramString.length() != 0) {
+            text = "Method " + nameString + "() with parameters " + paramString.toString() + " with " + access.getValue(AccessPermission.PUBLIC).toString() + " access and " + returnString + " return type ";
+        } else {
+            text = "Method " + nameString + "() with "   + access.getValue(AccessPermission.PUBLIC).toString() + " access and "+ returnString + " return type ";
+        }
+        // add static final if present
+        if (finalModifier.get()) {
+            text = finalLabel.getText() + " " + text;
+        }
+        if (staticModifier.get()) {
+            text = staticLabel.getText() + " " + text;
+        }
+        // append documentation
+        text += ". Documentation: " + getDocumentation();
+
+        return text;
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String text, nameString;
+        nameString = (methodName.getText().equals(""))? "blank" : methodName.getText();
+        text = " in the method " + nameString + ",";
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
+
+        return text;
     }
 
     @Override
@@ -409,5 +453,39 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             return true;
         }
         return false;
+    }
+
+    //manvi
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            //cherry
+            documentationPane.setScreenReaderHelpSlots("You are in the documentation slot for the method " + methodName.getText() + getParentCanvas().getParentLocationDescription());
+            for (ParamFragment pair : paramsPane.getSlotElement()) {
+                pair.getParamType().getSlot().setSlotName(" parameter type slot ");
+                pair.getParamType().getSlot().setAccessibilityHelpSlots();
+                pair.getParamName().getSlot().setSlotName(" parameter name slot ");
+                pair.getParamName().getSlot().setScreenReaderHelpSlots();
+            }
+            returnType.setSlotName("return type slot");
+            returnType.setAccessibilityHelpSlots();
+            methodName.setSlotName("method name slot");
+            methodName.setScreenReaderHelpSlots( );
+        }
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in method " +getName() + " " + parent;
     }
 }

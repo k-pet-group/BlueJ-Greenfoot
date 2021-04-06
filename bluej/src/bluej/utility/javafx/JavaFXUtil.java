@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -883,7 +883,7 @@ public class JavaFXUtil
         // According to docs for isPopupTrigger, we need this handler on pressed and released:
         node.addEventHandler(MouseEvent.MOUSE_PRESSED, popupHandler);
         node.addEventHandler(MouseEvent.MOUSE_RELEASED, popupHandler);
-        
+
         
         node.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.CONTEXT_MENU || Arrays.asList(otherKeys).contains(e.getCode()))
@@ -1411,7 +1411,7 @@ public class JavaFXUtil
      * make sure you store a reference to the putInList expression.
      *
      * @param putInList Whether the list should contain the item (true expression) or be empty (false expression)
-     * @param items The item to put in the list when putInList is true
+     * @param item The item to put in the list when putInList is true
      * @return The ObservableList which will (or will not) contain the item.
      */
     public static <T> ObservableList<T> listBool(BooleanExpression putInList, T item)

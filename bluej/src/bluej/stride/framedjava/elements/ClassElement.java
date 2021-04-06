@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -308,8 +308,13 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     {
         frame = new ClassFrame(editor, projectResolver, packageName, imports, documentation, abstractModifier, className, extendsName, implementsList, isEnable());
         fields.forEach(member -> frame.getfieldsCanvas().insertBlockAfter(member.createFrame(editor), null));
-        constructors.forEach(member -> frame.getConstructorsCanvas().insertBlockAfter(member.createFrame(editor), null));
-        methods.forEach(member -> frame.getMethodsCanvas().insertBlockAfter(member.createFrame(editor), null));
+        constructors.forEach(member ->{
+                    frame.getConstructorsCanvas().insertBlockAfter(member.createFrame(editor), null);
+                }
+        );
+        methods.forEach(member -> {
+            frame.getMethodsCanvas().insertBlockAfter(member.createFrame(editor), null);
+        });
         return frame;
     }
     

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -103,10 +103,15 @@ public interface CanvasParent extends CursorFinder
 
     Frame getFrame();
 
+    //cherry
+    String getLocationDescription(FrameCanvas c);
+
     enum CanvasKind
     {
         FIELDS, CONSTRUCTORS, METHODS, STATEMENTS, IMPORTS;
     }
+
+    String getHelpContext();
     
     default CanvasKind getChildKind(FrameCanvas c) { return CanvasKind.STATEMENTS; }
 }

@@ -202,6 +202,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public Object queryAccessibleAttribute(AccessibleAttribute accessibleAttribute, Object... objects)
     {
         switch (accessibleAttribute)
@@ -874,6 +875,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         if (!postScrollRenderQueued)
         {
             postScrollRenderQueued = true;
+            JavaFXUtil.runAfter(Duration.millis(25), () -> {
+                postScrollRenderQueued = false;
+                lineDisplay.scrollBy(pendingScrollY, document.getLineCount());
+                pendingScrollY = 0;
+                updateRender(false);
+            });
             JavaFXUtil.runAfter(Duration.millis(50), () -> {
                 postScrollRenderQueued = false;
                 lineDisplay.scrollBy(pendingScrollY, document.getLineCount());

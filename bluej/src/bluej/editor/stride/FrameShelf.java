@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -105,6 +105,11 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
         shelfPane.setStyle(getFontCSS().get());
         this.centralStorage = storage;
         storage.registerShelf(this);
+    }
+
+    // From Cherry
+    public String getLocationDescription() {
+        return "";
     }
 
     @Override
@@ -456,6 +461,11 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
+    public String getLocationDescription(FrameCanvas c) {
+        return null;
+    }
+
+    @Override
     public CanvasKind getChildKind(FrameCanvas c)
     {
         return null; // TODO
@@ -605,5 +615,12 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
         for (int i = 0; i < framesElement.getChildElements().size(); i++) {
             canvas.insertBlockAfter(Loader.loadElement(framesElement.getChildElements().get(i)).createFrame(this), null);
         }
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext(){
+        //not applicable
+        return "";
     }
 }

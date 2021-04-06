@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,9 +27,8 @@ import java.util.Collections;
 import java.util.List;
 
 import bluej.stride.framedjava.slots.TypeSlot;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.FrameContentItem;
-import bluej.stride.generic.FrameCursor;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
@@ -41,12 +40,6 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.ForeachElement;
 import bluej.stride.framedjava.frames.BreakFrame.BreakEncloser;
 import bluej.stride.framedjava.slots.EachExpressionSlot;
-import bluej.stride.generic.ExtensionDescription;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SingleCanvasFrame;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
@@ -90,6 +83,11 @@ public class ForeachFrame extends SingleCanvasFrame
         type.onTextPropertyChange(updateTriple);
         JavaFXUtil.addChangeListener(var.textProperty(), updateTriple);
         collection.onTextPropertyChange(updateTriple);
+
+        //cherry
+        frameName = "foreach loop";
+        type.setSlotName("variable type" );
+        collection.setSlotName("collection name");
     }
     
     public ForeachFrame(InteractionManager editor, TypeSlotFragment type, NameDefSlotFragment var, ExpressionSlotFragment collection, boolean enabled) {
@@ -104,6 +102,41 @@ public class ForeachFrame extends SingleCanvasFrame
     {
         this(editor);
         getCanvas().getFirstCursor().insertFramesAfter(contents);
+    }
+
+    //cherry
+    public String getScreenReaderText() {
+        String typeString, varString, collectionString;
+
+        typeString = (type.getText().equals(""))? "blank" : type.getText();
+        varString = (var.getText().equals(""))? "blank" : ScreenreaderDictionary.transcribeForScreenreader(var.getText());
+        collectionString = (collection.getText().equals(""))? "blank" : collection.getScreenreaderText();
+
+        return "for each " + typeString + " " + varString + " in " + collectionString;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
+
+    //cherry
+    public String getLocationDescription() {
+        String text, typeString, varString, collectionString;
+        typeString = (type.getText().equals(""))? "blank" : type.getText();
+        varString = (var.getText().equals(""))? "blank" : var.getText();
+        collectionString = (collection.getText().equals(""))? "blank" : collection.getText();
+
+        text = " in a 'for each' frame that loops through every " + varString + " of type " + typeString + " in collection " + collectionString + ",";
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
+        return text;
     }
 
     @Override
@@ -177,7 +210,12 @@ public class ForeachFrame extends SingleCanvasFrame
                 Arrays.asList(new ExtensionDescription('\b', "Remove loop, keep contents", () ->
                         new PullUpContentsOperation(getEditor()).activate(this), false, ExtensionSource.INSIDE_FIRST)));
     }
-    
+
+    @Override
+    public String getLocationDescription(FrameCanvas c) {
+        return null;
+    }
+
     @Override
     public List<String> getDeclaredVariablesWithin(FrameCanvas c)
     {
@@ -222,6 +260,34 @@ public class ForeachFrame extends SingleCanvasFrame
             return true;
         }
         return super.backspaceAtStart(srcRow, src);
+    }
+
+    //manvi
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            type.setSlotName("variable type slot");
+            type.setAccessibilityHelpSlots();
+            var.setSlotName("variable name slot" );
+            var.setScreenReaderHelpSlots();
+            collection.setSlotName("collection name");
+            collection.setAccessibilityHelpSlots();
+        }
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in for each loop " + parent;
     }
 
 }

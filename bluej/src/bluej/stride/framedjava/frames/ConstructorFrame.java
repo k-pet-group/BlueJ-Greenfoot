@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import bluej.stride.generic.*;
 import bluej.utility.javafx.AbstractOperation;
 import javafx.beans.binding.DoubleExpression;
 import javafx.collections.FXCollections;
@@ -48,14 +49,7 @@ import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.SuperThisParamsExpressionSlot;
-import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.ChoiceSlot;
@@ -95,6 +89,12 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
                 paramsPane.getSlots(),
                 throwsPane.getHeaderItems()
         ));
+
+        //cherry
+        frameName = "constructor";
+        if(superThisParams!=null) {
+            superThisParams.setSlotName("parameters slot in super call");
+        }
     }
 
     public ConstructorFrame(InteractionManager editor, AccessPermissionFragment access, String documentation,
@@ -107,6 +107,66 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
             addSuperThis(delegate, delegateParams);
         }
         frameEnabledProperty.set(enabled);
+    }
+
+    //cherry
+    public String getScreenReaderText() {
+
+        String text = "Constructor " + ScreenreaderDictionary.transcribeForScreenreader(getEditor().nameProperty().get());
+
+        StringBuilder paramString = getParamString();
+        if (paramString.length() != 0) {
+            text += " with parameters " + paramString.toString();
+        }
+        // add documentation
+        text += ". Documentation: " + getDocumentation();
+
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
+
+    //cherry
+    public String getLocationDescription() {
+
+        StringBuilder paramString = getParamString();
+
+        String text = "", classDescription = "", className = "Undefined";
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            classDescription = getParentCanvas().getParentLocationDescription();
+            if (getParentCanvas().getParent() instanceof ClassFrame) {
+                className = ((ClassFrame)getParentCanvas().getParent()).getClassName();
+                // Note: here, editor.nameProperty().get() returns null, but the ClassFrame's nameProperty() works instead
+            }
+        }
+        text += " in the constructor " + className;
+        if (paramString.length() != 0) {
+            text += " with parameters " + paramString.toString();
+        }
+        text += classDescription;
+        return text;
+    }
+
+    private StringBuilder getParamString()
+    {
+        StringBuilder paramString = new StringBuilder();
+        for(ParamFragment pair : paramsPane.getSlotElement())
+        {
+            String name, type;
+            name = (pair.getParamName().getSlot().getText().equals(""))? "blank" : pair.getParamName().getSlot().getText();
+            type = (pair.getParamType().getSlot().getText().equals(""))? "blank" :  pair.getParamType().getSlot().getText();
+
+            paramString.append(type + " " +  name + " ");
+        }
+        return paramString;
     }
 
     public static FrameFactory<ConstructorFrame> getFactory() {
@@ -219,6 +279,11 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
             return Arrays.asList(new ExtensionDescription('\b', Config.getString("frame.class.remove.super"),
                     () -> removeSuperThis(), true, ExtensionSource.INSIDE_FIRST));
         }
+    }
+
+    @Override
+    public String getLocationDescription(FrameCanvas c) {
+        return null;
     }
 
     @Override
@@ -367,5 +432,44 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
                 });
             }
         }
+    }
+
+    //manvi
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            //cherry
+            documentationPane.setScreenReaderHelpSlots("You are in the documentation slot for the constructor " + getParentCanvas().getParentLocationDescription());
+            for (ParamFragment pair : paramsPane.getSlotElement()) {
+                pair.getParamType().getSlot().setSlotName(" parameter type slot ");
+                pair.getParamType().getSlot().setAccessibilityHelpSlots();
+                pair.getParamName().getSlot().setSlotName(" parameter name slot ");
+                pair.getParamName().getSlot().setScreenReaderHelpSlots();
+            }
+            //Manvi jain
+            if(superThisParams != null)
+            {
+                superThisParams.setAccessibilityHelpSlots();
+            }
+            if(superThis != null)
+            {
+                superThis.setAccessibilityHelpSlots("super constructor options " + getParentCanvas().getParent().getHelpContext());
+            }
+        }
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent =
+        (getParentCanvas() != null && getParentCanvas().getParent() != null)?
+            getParentCanvas().getParent().getHelpContext():
+            "";
+
+        return "in constructor " + parent;
     }
 }

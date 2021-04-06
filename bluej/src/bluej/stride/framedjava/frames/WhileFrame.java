@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -121,6 +121,10 @@ public class WhileFrame extends SingleCanvasFrame
         replaceMenu.getItems().addAll(forMenu, new SeparatorMenuItem(), ifMenu, ifElseMenu);
         */
         paramCondition.onTextPropertyChange(updateSidebarCurried("while "));
+
+        //cherry
+        frameName = "While loop";
+        paramCondition.setSlotName("while condition expression");
     }
     
     public WhileFrame(InteractionManager editor, ExpressionSlotFragment condition, boolean enabled)
@@ -135,7 +139,36 @@ public class WhileFrame extends SingleCanvasFrame
         this(editor);
         getCanvas().getFirstCursor().insertFramesAfter(contents);
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        String condition;
+        condition = (paramCondition.getScreenreaderText().equals(""))? "blank" : paramCondition.getScreenreaderText();
+        return "while frame with condition " + condition;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String condition, text;
+        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
+        text = " in a while frame with condition " + condition + ",";
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
+        return text;
+    }
+
+
     /**
      * Replace statement with a "for" loop, transferring over loop body and header.
      */
@@ -255,5 +288,33 @@ public class WhileFrame extends SingleCanvasFrame
         super.setView(oldView, newView, animateProgress);
         if (isFrameEnabled()  && (oldView == View.JAVA_PREVIEW || newView == View.JAVA_PREVIEW))
             canvas.previewCurly(newView == View.JAVA_PREVIEW, header.getLeftFirstItem() + tweakCurlyX(), tweakOpeningCurlyY(), animateProgress);
+    }
+
+    //Manvi jain
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        super.updateAppearance(parentCanvas);
+        //Set the accessibility help of the slot in the frame
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            paramCondition.setAccessibilityHelpSlots();
+        }
+    }
+
+
+    /**
+     * returns the position of the frame as a String
+     * @return
+     */
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in while loop " + parent ;
     }
 }

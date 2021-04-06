@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -180,6 +180,30 @@ public class FrameCanvas implements FrameContentItem
     public CanvasParent getParent()
     {
         return parentBlock;
+    }
+
+    //cherry
+    public String getParentLocationDescription()
+    {
+        // if this canvas has no parent, (if i'm not wrong) it means this
+        // canvas is exposed in the class, so the 'parent' is the class
+        if(getParent() != null && getParent().getLocationDescription(this) != null)
+        {
+            return getParent().getLocationDescription(this);
+        }
+        else
+        {
+            try
+            {
+                return " in the class " + editorFrm.nameProperty().get();
+            }
+            catch (Exception e)
+            {
+                return " in the class [Undefined in editor name property] ";
+            }
+        }
+
+
     }
 
     public VBox getSpecialBefore(FrameCursor cursor)

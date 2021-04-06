@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -106,6 +106,10 @@ public class ReturnFrame extends SingleLineFrame
             if ("void".equals(returnType.get()) && value.getText().isEmpty())
                 showingValue.set(false);
         } );
+
+        //cherry
+        frameName = "return statement";
+        value.setSlotName("return expression");
     }
     
     public ReturnFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
@@ -121,6 +125,23 @@ public class ReturnFrame extends SingleLineFrame
             showingValue.set(false);
         }
         frameEnabledProperty.set(enabled);
+    }
+
+    //cherry
+    public String getScreenReaderText() {
+        String valueString;
+        valueString = (value.getText().equals(""))? "blank" : value.getScreenreaderText();
+        return "return " + valueString;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
     }
 
     @Override
@@ -180,6 +201,12 @@ public class ReturnFrame extends SingleLineFrame
         returnType.unbind();
         returnType.set(null);
         showingValue.set(false);
+
+        //cherry
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            value.setAccessibilityHelpSlots();
+        }
     }
 
     // Called when method's return type changes to void and user tells follow-up to remove values

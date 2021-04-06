@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ package bluej.stride.framedjava.frames;
 
 import java.util.List;
 
+import bluej.stride.generic.FrameCanvas;
 import javafx.beans.property.SimpleIntegerProperty;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
@@ -63,6 +64,10 @@ public class ThrowFrame extends SingleLineFrame
         param1 = new FilledExpressionSlot(editor, this, this, getHeaderRow(), "throw-");
         param1.setSimplePromptText("expression");
         setHeaderRow(param1, previewSemi);
+
+        //cherry
+        frameName = "throw " + param1.getScreenreaderText();
+        param1.setSlotName("exception name");
     }
     
     public ThrowFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
@@ -70,6 +75,23 @@ public class ThrowFrame extends SingleLineFrame
         this(editor);
         param1.setText(val);
         frameEnabledProperty.set(enabled);
+    }
+
+    //cherry
+    public String getScreenReaderText() {
+        String thrown;
+        thrown = (param1.getText().equals(""))? "blank" : param1.getScreenreaderText();
+        return "throw " + thrown;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
     }
 
     @Override
@@ -100,5 +122,15 @@ public class ThrowFrame extends SingleLineFrame
                 return ThrowFrame.class;
             }
         };
+    }
+
+    //cherry
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas) {
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            param1.setAccessibilityHelpSlots();
+        }
     }
 }

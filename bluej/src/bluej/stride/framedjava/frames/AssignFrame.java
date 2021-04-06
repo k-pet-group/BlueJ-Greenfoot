@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,16 +27,13 @@ package bluej.stride.framedjava.frames;
 
 
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
-import bluej.stride.generic.FrameContentItem;
+import bluej.stride.generic.*;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.elements.AssignElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SingleLineFrame;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
@@ -75,6 +72,11 @@ public class AssignFrame extends SingleLineFrame
         
         slotLHS.addClosingChar('=');
         slotLHS.addClosingChar(' ');
+
+        // Cherry
+        frameName = "assignment frame ";// + slotLHS.getScreenreaderText();
+        slotLHS.setSlotName("assigned variable name");
+        slotRHS.setSlotName("assigned value expression");
     }
     
     // For replacement of a method call frame:
@@ -126,7 +128,26 @@ public class AssignFrame extends SingleLineFrame
             }
         };
     }
-    
+
+    //From Cherry
+    public String getScreenReaderText() {
+        String lhs, rhs;
+        lhs = (slotLHS.getText().trim().isEmpty())? "blank" : slotLHS.getScreenreaderText();
+        rhs = (slotRHS.getText().trim().isEmpty())? "blank" : slotRHS.getScreenreaderText();
+        String text = "assign " + lhs + " with " + rhs;
+        return text;
+    }
+
+    //From Cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
+
     public ExpressionSlot<? extends ExpressionSlotFragment> getLHS()
     {
         return slotLHS;
@@ -173,5 +194,16 @@ public class AssignFrame extends SingleLineFrame
     {
         super.setView(oldView, newView, animation);
         assignLabel.setText(newView == View.JAVA_PREVIEW ? "=" : ASSIGN_SYMBOL);
+    }
+
+    //cherry
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas) {
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            slotLHS.setAccessibilityHelpSlots();
+            slotRHS.setAccessibilityHelpSlots();
+        }
     }
 }

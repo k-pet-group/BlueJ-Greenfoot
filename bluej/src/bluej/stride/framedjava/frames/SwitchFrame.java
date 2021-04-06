@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -108,6 +108,40 @@ public class SwitchFrame extends MultiCanvasFrame
         this(editor);
         this.expression.setText(expression);
         frameEnabledProperty.set(enabled);
+
+        //cherry
+        frameName = "switch "  + this.expression.getScreenreaderText();
+        this.expression.setSlotName("switch statement expression");
+    }
+
+    //cherry
+    public String getScreenReaderText() {
+        String expressionStr;
+        if (expression.getText().equals("")) { expressionStr = "blank"; } else { expressionStr = expression.getScreenreaderText(); }
+        String text = "switch " + expressionStr;
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String expressionStr, text;
+        expressionStr = (expression.getText().equals(""))? "blank" : expression.getText();
+
+        text = " in a 'switch' frame for expression " + expressionStr + ",";
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
+        return text;
     }
 
     public boolean addDefault()
@@ -450,5 +484,29 @@ public class SwitchFrame extends MultiCanvasFrame
         });
 
         defaultLabel.setText(newView == View.JAVA_PREVIEW ? "default :" : "default");
+    }
+
+
+    //manvi
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            expression.setAccessibilityHelpSlots();
+        }
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in switch statement " + parent;
     }
 }

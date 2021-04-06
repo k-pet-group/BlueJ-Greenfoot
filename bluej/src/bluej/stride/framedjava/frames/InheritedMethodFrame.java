@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -113,6 +113,41 @@ public class InheritedMethodFrame extends SingleLineFrame
             }
         });
     }
+
+    //cherry
+    public String getScreenReaderText() {
+        StringBuilder paramString = new StringBuilder();
+        for(ParamInfo pair : params) {
+            paramString.append(pair.getUnqualifiedType() + " " +  pair.getDummyName() + " ");
+        }
+        String text = "Method " + methodName;
+        if (paramString.length() != 0)
+        {
+            text += " with parameters " + paramString.toString() + " with " + access.toString() + " access and " + returnType + " return type ";
+        }
+        else
+        {
+            text += " with "   + access.toString() + " access and "+ returnType + " return type ";
+        }
+        /*if (finalModifier.get()) {
+            text = finalLabel.getText() + " " + text;
+        }
+        if (staticModifier.get()) {
+            text = staticLabel.getText() + " " + text;
+        }*/
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
+
 
     @Override
     public boolean canDrag()
