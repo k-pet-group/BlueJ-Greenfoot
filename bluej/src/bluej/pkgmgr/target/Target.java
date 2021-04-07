@@ -193,6 +193,9 @@ public abstract class Target
                     }
                 }
                 updateCursor(e, false);
+                if(showingContextMenu.isShowing()){
+                    showingContextMenu.hide();
+                }
                 if (isSelected())
                     pane.requestFocus();
             }
@@ -251,6 +254,9 @@ public abstract class Target
                     int newY = pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY));
                     pkg.getEditor().moveBy(newX - preMoveX, newY - preMoveY);
                     updateCursor(e, true);
+                }
+                if(showingContextMenu.isShowing()){
+                    showingContextMenu.hide();
                 }
             }
             e.consume();
