@@ -533,7 +533,7 @@ public class PrefMgr
     // Set the text file extensions for which BlueJ opens files as text files
     public static void setEditorTextFileExtensions(String value)
     {
-        if (Objects.equals(value, editorTextFileExtensions))
+        if (!editorTextFileExtensions.equals(value))
         {
             editorTextFileExtensions = value;
 

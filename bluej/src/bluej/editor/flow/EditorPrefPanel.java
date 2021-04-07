@@ -120,6 +120,10 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
             textTopPanel.add(PrefMgrDialog.labelledItem("prefmgr.edit.textfileextensions", textFileExtensionsField), 0, 0);
 
             textFileExtensionsDefaultButton = new Button(Config.getString("prefmgr.edit.texteditor.defaultFileExtensions"));
+            textFileExtensionsDefaultButton.setOnAction((event) -> {
+                // Reset the default value of the text extensions
+                textFileExtensionsField.setText(PrefMgr.DEFAULT_TEXTFILE_EXTENSIONS);
+            });
             textTopPanel.add(textFileExtensionsDefaultButton,1,0);
 
             Label t = new Label(Config.getString("prefmgr.interface.language.restart"));
