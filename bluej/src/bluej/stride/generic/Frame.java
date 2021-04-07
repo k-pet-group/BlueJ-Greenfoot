@@ -146,8 +146,11 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         return ((vowels.contains(frameName.charAt(0)))?"n ":" ")+frameName;
     }
 
-    //cherry
-    public abstract String getScreenReaderText();
+    //cherry - Babis, I made it to return the frameName by default.
+    public String getScreenReaderText()
+    {
+        return frameName;
+    }
 
     //cherry
     public abstract String getScreenReaderHelp();

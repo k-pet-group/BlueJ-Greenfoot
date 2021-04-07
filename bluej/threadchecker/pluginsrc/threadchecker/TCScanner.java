@@ -206,7 +206,6 @@ class TCScanner extends TreePathScanner<Void, Void>
         // This is actually thread-safe:
         methodAnns.add(new MethodRef("javax.swing.JComponent", "getClientProperty", new LocatedTag(Tag.Any, false, false, "<Swing client properties>")));
         methodAnns.add(new MethodRef("javax.swing.JComponent", "putClientProperty", new LocatedTag(Tag.Any, false, false, "<Swing client properties>")));
-//        methodAnns.add(new MethodRef("javafx.scene.Node", "queryAccessibleAttribute", new LocatedTag(Tag.FXPlatform, false, false, "<queryAccessibleAttribute>")));
 
         classAnns.put("java.awt.event.InputEvent", new LocatedTag(Tag.Any, false, true, "<AWT>"));
         classAnns.put("java.awt.event.ComponentEvent", new LocatedTag(Tag.Any, false, true, "<AWT>"));

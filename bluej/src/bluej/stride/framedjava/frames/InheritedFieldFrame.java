@@ -35,11 +35,7 @@ public class InheritedFieldFrame extends SingleLineFrame
     public InheritedFieldFrame(InteractionManager editor, AccessPermission access, String type, String name)
     {
         super(editor, access + " \t" + type + " " + name, "inherited-field-");
-    }
-
-    //cherry
-    public String getScreenReaderText() {
-        return "inherited field frame";
+        frameName = "inherited field frame";
     }
 
     //cherry

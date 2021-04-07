@@ -110,16 +110,13 @@ public class SwitchFrame extends MultiCanvasFrame
         frameEnabledProperty.set(enabled);
 
         //cherry
-        frameName = "switch "  + this.expression.getScreenreaderText();
+        frameName = "switch block"  + this.expression.getScreenreaderText();
         this.expression.setSlotName("switch statement expression");
     }
 
-    //cherry
+    @Override
     public String getScreenReaderText() {
-        String expressionStr;
-        if (expression.getText().equals("")) { expressionStr = "blank"; } else { expressionStr = expression.getScreenreaderText(); }
-        String text = "switch " + expressionStr;
-        return text;
+        return frameName+" with condition "+ expression.getScreenreaderText();
     }
 
     //cherry

@@ -160,8 +160,9 @@ class StructuredSlotField implements StructuredSlotComponent
                 field.setContextMenu(AbstractOperation.MenuItems.makeContextMenu(parent.getSlot().getMenuItems(true)));
             }
         });
-        if (!stringLiteral)
+        if (!stringLiteral) {
             updateBreaks();
+        }
     }
 
     /**

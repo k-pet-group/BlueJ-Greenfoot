@@ -64,7 +64,6 @@ public class TryFrame extends SandwichCanvasesFrame
     private static final String TRY_STYLE_PREFIX = "try-";
     private final List<TypeSlot> catchTypes = new ArrayList<>();
     private final List<VariableNameDefTextSlot> catchVars = new ArrayList<>();
-
     /**
      * Default constructor.
      */
@@ -87,6 +86,7 @@ public class TryFrame extends SandwichCanvasesFrame
     {
         this(editor);
         getFirstCanvas().getFirstCursor().insertFramesAfter(contents);
+        frameName = "try block";
     }
 
     /**
@@ -113,12 +113,8 @@ public class TryFrame extends SandwichCanvasesFrame
             finallyContents.forEach(f -> getTailCanvas().insertBlockAfter(f, null));
         }
         frameEnabledProperty.set(enabled);
-    }
 
-    //cherry
-    public String getScreenReaderText() {
-        String text = "try frame ";
-        return text;
+        frameName = "try block";
     }
 
     //cherry

@@ -92,11 +92,12 @@ public class CallFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
     }
 
-    //cherry
+    //cherry & Babis
+    @Override
     public String getScreenReaderText() {
         String contentString;
         contentString = (content.getText().trim().equals("()"))? "blank" : content.getScreenreaderText();
-        return "call " + contentString;
+        return frameName + contentString;
     }
 
     //cherry

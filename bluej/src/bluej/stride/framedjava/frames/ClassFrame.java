@@ -183,11 +183,8 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
             slot.setAccessibilityHelpSlots();
         }
         documentationPane.setScreenReaderHelpSlots("You are in the documentation for the class " + nameProperty().get());
-    }
 
-    //cherry
-    public String getScreenReaderText() {
-        return "class frame";
+        frameName = "class frame";
     }
 
     //cherry

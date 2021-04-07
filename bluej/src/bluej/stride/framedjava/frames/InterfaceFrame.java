@@ -104,11 +104,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
         }
         documentationPane.setScreenReaderHelpSlots("You are in the documentation for the interface " + nameProperty().get());
 
-    }
-
-    //cherry
-    public String getScreenReaderText() {
-        return "interface frame";
+        frameName = "interface frame";
     }
 
     //cherry

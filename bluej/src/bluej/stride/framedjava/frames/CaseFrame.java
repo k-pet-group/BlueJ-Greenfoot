@@ -129,7 +129,7 @@ public class CaseFrame extends SingleCanvasFrame
     public String getScreenReaderText() {
         String condition;
         condition = (paramCondition.getText().equals(""))? "blank" : paramCondition.getScreenreaderText();
-        return "'case' frame with value" + condition;
+        return "'case' frame with value " + condition;
     }
 
     //cherry

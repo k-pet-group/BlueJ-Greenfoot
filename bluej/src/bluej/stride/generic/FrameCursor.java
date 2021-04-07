@@ -54,6 +54,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.scene.AccessibleAttribute;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -108,6 +109,10 @@ public class FrameCursor implements RecallableFocus
                     return normalText;
                 case HELP:
                     return helpText;
+                case ROLE:
+                    return AccessibleRole.PAGE_ITEM; // This was the only AccessibleRole that Mac's VoiceOver was not saying something that does not make sense
+                case ROLE_DESCRIPTION:
+                    return ""; // If we leave the default it always says it is a "Button"
                 default:
                     return super.queryAccessibleAttribute(accessibleAttribute, objects);
             }

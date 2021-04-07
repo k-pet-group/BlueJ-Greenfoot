@@ -45,12 +45,6 @@ public class BlankFrame extends SingleLineFrame implements CodeFrame<BlankElemen
         frameName = "blank line";
     }
 
-
-    //cherry
-    public String getScreenReaderText() {
-        return "empty line";
-    }
-
     //cherry
     /**
      * Get the help text of this frame, to pass to setAccessibilityHelp().
