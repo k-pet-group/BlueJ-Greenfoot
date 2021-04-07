@@ -61,6 +61,9 @@ abstract class FXTab extends Tab
         setOnSelectionChanged(e -> {
             JavaFXUtil.runAfterCurrent(this::focusWhenShown);
         });
+        setOnClosed(e -> {
+            setParent(null, false);
+        });
     }
 
     /**

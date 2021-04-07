@@ -1443,6 +1443,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             getSourcePane().ensureCaretShowing();
             requestLayout();
         }
+        else
+        {
+            if (tabParent != null)
+                tabParent.close(fxTab);
+        }
     }
 
     /**
