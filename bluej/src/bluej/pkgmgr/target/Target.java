@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr.target;
 
+import bluej.Config;
 import bluej.extmgr.ClassExtensionMenu;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionsMenuManager;
@@ -118,6 +119,12 @@ public abstract class Target
     // Is the target directly resizable?  Readmes and test classes are not.
     @OnThread(Tag.FX)
     private boolean resizable = true;
+    // Because tghe mouse movement may be faster than the mouseEventHandler trigger,
+    // this may cause the mouse X and Y to move further than the threshold for the
+    // corner handle and thus be missed. Result is that we stop resizing and start
+    // dragging. That's why we need this flag.
+    @OnThread(Tag.FX)
+    private boolean resizing = false;
 
     /**
      * Create a new target with default size.
@@ -169,11 +176,13 @@ public abstract class Target
         });
 
         pane.setOnMouseClicked(e -> {
-            if (e.getClickCount() > 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger() && e.isStillSincePress())
+
+            if (e.getClickCount() > 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
             {
                 doubleClick(e.isShiftDown());
             }
-            else if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger() && e.isStillSincePress())
+
+            else if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
             {
                 // We first check if the user was drawing an extends arrow,
                 // in which case a click will finish that off.
@@ -192,7 +201,6 @@ public abstract class Target
                     }
                 }
                 updateCursor(e, false);
-                showingMenu(null);
                 if (isSelected())
                     pane.requestFocus();
             }
@@ -205,14 +213,13 @@ public abstract class Target
         pane.setOnMouseExited(e -> {
             pkg.getEditor().setMouseLeft(this);
         });
-
         pane.setOnMousePressed(e -> {
 
             // Need position relative to the editor to set new position:
             pressDeltaX = e.getX();
             pressDeltaY = e.getY();
-            
-            if (e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger() && e.isStillSincePress())
+
+            if (e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
             {
                 // Dismiss context menu if the user left-clicks on the target:
                 // (Usual JavaFX behaviour is to keep the menu showing if you
@@ -234,9 +241,13 @@ public abstract class Target
             {
                 if (isSelected() && cursorAtResizeCorner(e) && isResizable())
                 {
+                    resizing = true;
                     int newWidth = pkg.getEditor().snapToGrid((int) (e.getX() + (preResizeWidth - pressDeltaX)));
                     int newHeight = pkg.getEditor().snapToGrid((int) (e.getY() + (preResizeHeight - pressDeltaY)));
-                    pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
+                    //We nee the following if to avoid resizing to 0 when first clicking on the resize toggle
+                    if( newWidth != preResizeWidth && newHeight != preResizeHeight) {
+                        pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
+                    }
                 }
                 else if (isMoveable() && !e.isStillSincePress())
                 {
@@ -250,9 +261,7 @@ public abstract class Target
                     // Need position relative to the editor to set new position:
                     Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
                     int newX = pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX ));
-//                    System.out.println("x= "+p.getX()+" deltaX= "+pressDeltaX +" newX= "+newX);
                     int newY = pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY));
-//                    System.out.println("y= "+p.getY()+" deltaY= "+pressDeltaY +" newY= "+newY);
                     pkg.getEditor().moveBy(newX - preMoveX, newY - preMoveY);
                     updateCursor(e, true);
                 }
@@ -264,6 +273,7 @@ public abstract class Target
             if (e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger()) {
                 pkg.getEditor().endResize();
             }
+            resizing = false;
         });
         pane.setOnKeyTyped(e -> {
             // + or - on the keyboard do a resize:
@@ -383,7 +393,7 @@ public abstract class Target
     protected boolean cursorAtResizeCorner(MouseEvent e)
     {
         // Check if it's in the 45-degree corner in the bottom right:
-        return e.getX() + e.getY() >= getWidth() + getHeight() - RESIZE_CORNER_SIZE;
+        return (e.getX() + e.getY() >= getWidth() + getHeight() - RESIZE_CORNER_SIZE) || resizing;
     }
 
     /**
