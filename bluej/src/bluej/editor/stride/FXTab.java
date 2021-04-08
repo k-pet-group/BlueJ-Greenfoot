@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2015,2016,2018,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2015,2016,2018,2020,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -60,6 +60,9 @@ abstract class FXTab extends Tab
         this.showCatalogue = showCatalogue;
         setOnSelectionChanged(e -> {
             JavaFXUtil.runAfterCurrent(this::focusWhenShown);
+        });
+        setOnClosed(e -> {
+            setParent(null, false);
         });
     }
 

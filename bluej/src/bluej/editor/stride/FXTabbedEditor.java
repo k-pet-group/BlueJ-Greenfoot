@@ -88,6 +88,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -551,6 +552,20 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 }
                 //Debug.time("Showing");
                 stage.show();
+                if (startSize == null)
+                {
+                    List<Point2D> otherWindowPositions = project.getAllFXTabbedEditorWindows().stream().filter(w -> w != this).map(w -> new Point2D(w.getX(), w.getY())).collect(Collectors.toList());
+                    // Check we're not exactly at the same place as another window:
+                    Point2D us = new Point2D(stage.getX(), stage.getY());
+                    // Avoid an infinite loop, e.g. if we're near the screen edge and aren't allowed to move off it by the OS:
+                    int attempts = 0;
+                    while (otherWindowPositions.contains(us) && attempts++ < 5)
+                    {
+                        stage.setX(32 + stage.getX());
+                        stage.setY(32 + stage.getY());
+                        us = new Point2D(stage.getX(), stage.getY());
+                    }
+                }
                 //Debug.time("Shown");
                 //org.scenicview.ScenicView.show(stage.getScene());
             }

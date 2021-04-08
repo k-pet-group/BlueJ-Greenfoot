@@ -1402,10 +1402,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             // If we already aren't in a window and are being told to hide, nothing to do:
             return;
         }
+        // We only need a new window to be in if we're being told to show in a new window,
+        // or we're being told to show and we don't have a window:
         else if (vis && (openInNewWindow || tabParent == null))
         {
-            // We only need a new window to be in if we're being told to show in a new window,
-            // or we're being told to show and we don't have a window:
+            // If there is an existing parent, we need to leave it:
+            if (tabParent != null)
+                tabParent.close(fxTab);
             fxTabbedEditor = fetchTabbedEditor.getFXTabbedEditor(openInNewWindow);
             becameVisible = fxTabbedEditor.addTab(fxTab, vis, true);
         }
@@ -1439,6 +1442,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             // Make sure caret is visible after open:
             getSourcePane().ensureCaretShowing();
             requestLayout();
+        }
+        else
+        {
+            // Need to remove ourselves from our parent so that we get allocated to the
+            // default window if we are opened again:
+            if (tabParent != null)
+                tabParent.close(fxTab);
         }
     }
 
