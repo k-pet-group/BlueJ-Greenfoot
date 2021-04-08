@@ -86,10 +86,6 @@ public abstract class Target
     private int preResizeWidth;
     @OnThread(Tag.FXPlatform)
     private int preResizeHeight;
-    // Keeps track of whether a mouse button press at the current position
-    // would be a resize.
-    @OnThread(Tag.FXPlatform)
-    private boolean pressIsResize;
     // The position of the mouse press (e.g. for positioning/sizing)
     // relative to the pane:
     @OnThread(Tag.FXPlatform)
@@ -99,6 +95,8 @@ public abstract class Target
     // The currently showing context menu (if any).  Null if no menu showing.
     @OnThread(Tag.FXPlatform)
     private ContextMenu showingContextMenu;
+    @OnThread(Tag.FXPlatform)
+    private boolean movable;
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private String identifierName; // the name handle for this target within
@@ -130,6 +128,7 @@ public abstract class Target
         this.pkg = pkg;
         this.identifierName = identifierName;
         this.displayName = identifierName;
+        movable = true;
         
         pane.setPrefWidth(calculateWidth(new Label(), identifierName, DEF_WIDTH));
         pane.setPrefHeight(DEF_HEIGHT);
@@ -193,9 +192,7 @@ public abstract class Target
                     }
                 }
                 updateCursor(e, false);
-                if(showingContextMenu.isShowing()){
-                    showingContextMenu.hide();
-                }
+                showingMenu(null);
                 if (isSelected())
                     pane.requestFocus();
             }
@@ -210,6 +207,11 @@ public abstract class Target
         });
 
         pane.setOnMousePressed(e -> {
+
+            // Need position relative to the editor to set new position:
+            pressDeltaX = e.getX();
+            pressDeltaY = e.getY();
+            
             if (e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger() && e.isStillSincePress())
             {
                 // Dismiss context menu if the user left-clicks on the target:
@@ -217,13 +219,10 @@ public abstract class Target
                 // click the menu's parent but I think users will expect it to
                 // dismiss if they click anywhere besides the menu.)
                 showingMenu(null);
-                pressDeltaX = e.getX();
-                pressDeltaY = e.getY();
                 // Check if it's in the corner (and selected), in which case it will be a resize:
-                pressIsResize = isSelected() && cursorAtResizeCorner(e);
                 // This will save the positions of everything currently selected,
                 // including us (by calling us back via savePreMove/savePreResize):
-                if (pressIsResize && isResizable())
+                if (isSelected() && cursorAtResizeCorner(e) && isResizable())
                     pkg.getEditor().startedResize();
                 else
                     pkg.getEditor().startedMove();
@@ -233,7 +232,7 @@ public abstract class Target
         pane.setOnMouseDragged(e -> {
             if (e.getButton() == MouseButton.PRIMARY && !pkg.getEditor().isCreatingExtends() && !e.isControlDown())
             {
-                if (pressIsResize && isResizable())
+                if (isSelected() && cursorAtResizeCorner(e) && isResizable())
                 {
                     int newWidth = pkg.getEditor().snapToGrid((int) (e.getX() + (preResizeWidth - pressDeltaX)));
                     int newHeight = pkg.getEditor().snapToGrid((int) (e.getY() + (preResizeHeight - pressDeltaY)));
@@ -250,14 +249,14 @@ public abstract class Target
                     }
                     // Need position relative to the editor to set new position:
                     Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
-                    int newX = pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX));
+                    int newX = pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX ));
+//                    System.out.println("x= "+p.getX()+" deltaX= "+pressDeltaX +" newX= "+newX);
                     int newY = pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY));
+//                    System.out.println("y= "+p.getY()+" deltaY= "+pressDeltaY +" newY= "+newY);
                     pkg.getEditor().moveBy(newX - preMoveX, newY - preMoveY);
                     updateCursor(e, true);
                 }
-                if(showingContextMenu.isShowing()){
-                    showingContextMenu.hide();
-                }
+                showingMenu(null);
             }
             e.consume();
         });
@@ -675,13 +674,13 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     public boolean isMoveable()
     {
-        return false;
+        return movable;
     }
 
     @OnThread(Tag.FXPlatform)
     public void setIsMoveable(boolean b)
     {
-        
+        movable = b;
     }
 
     /**
