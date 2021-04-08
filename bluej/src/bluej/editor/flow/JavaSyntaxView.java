@@ -857,9 +857,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
         
         int column = document.getColumnFromPosition(startOffset);
+        // If it's the left edge no need to calculate further, must be zero:
+        if (column == 0)
+            return OptionalInt.of(0);
         int line = document.getLineFromPosition(startOffset);
         CharSequence lineText = new Element(line).getText();
-        boolean allSpaces = (column == 0) || lineText.subSequence(0, column).codePoints().allMatch(n -> n == ' ');
+        boolean allSpaces = lineText.subSequence(0, column).codePoints().allMatch(n -> n == ' ');
 
         if (!display.isLineVisible(line) && (!allSpaces || cachedSpaceSizes.size() <= 4))
         {
