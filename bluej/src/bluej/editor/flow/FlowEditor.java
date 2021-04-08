@@ -1445,6 +1445,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
         else
         {
+            // Need to remove ourselves from our parent so that we get allocated to the
+            // default window if we are opened again:
             if (tabParent != null)
                 tabParent.close(fxTab);
         }
