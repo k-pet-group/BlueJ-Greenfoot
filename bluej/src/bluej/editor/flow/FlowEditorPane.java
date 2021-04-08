@@ -1186,6 +1186,11 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         return justAddedOpeningCurlyBracket;
     }
 
+    @Override
+    public double getWidthOfText(String content)
+    {
+        return lineDisplay.calculateLineWidth(content);
+    }
 
     private void callSelectionListeners()
     {

@@ -3281,6 +3281,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             {
                 // Nothing to do?
             }
+
+            @Override
+            public double getWidthOfText(String content)
+            {
+                return lineDisplay.calculateLineWidth(content);
+            }
         }, flowEditorPaneListener, this.javaSyntaxView.getEntityResolver(), PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING));
         javaSyntaxView.enableParser(true);
         StyledLines allLines = new StyledLines(doc, lineStylerWrapper[0]);
