@@ -1943,7 +1943,7 @@ public class PkgMgrFrame
                 "Danish",       "Jacob Nordfalk",
                 "Dutch",        "Kris Coolsaet",
                 "French",       "Laurent Pierron",
-                "German",       "Michael Kolling, Stefan Mueller, Thomas Röfer, and Martin Schleyer",
+                "German",       "Michael Kölling, Stefan Mueller, Thomas Röfer, and Martin Schleyer",
                 "Greek",        "Ioannis G. Baltopoulos",
                 "Hindi",        "Tajvir Singh",
                 "Italian",      "Angelo Papadia and Luzio Menna",
