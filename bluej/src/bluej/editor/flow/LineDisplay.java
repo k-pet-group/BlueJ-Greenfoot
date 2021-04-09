@@ -292,7 +292,12 @@ public class LineDisplay
             firstVisibleLineIndex = line;
             firstVisibleLineOffset = 0;
         }
-        else if (line >= firstVisibleLineIndex + visibleLines.size() - 1)
+        // Not an else as there is a case where the line is fully visible, but the user has deleted so much code
+        // that the class is now smaller than the window, and the scroll may be invalid (e.g. we may only
+        // see the last two lines on the screen, meaning we should scroll up, which is actually best done
+        // by the scroll down code)
+        if (line >= firstVisibleLineIndex + visibleLines.size() - 1
+            || (visibleLines.size() * lineHeightEstimate < getHeight.get() && firstVisibleLineIndex > 0))
         {            
             // Scroll down:
             double singleLineHeight = lineHeightEstimate;
