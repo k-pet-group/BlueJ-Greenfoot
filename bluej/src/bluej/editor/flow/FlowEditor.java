@@ -58,6 +58,8 @@ import bluej.parser.ParseUtils;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.lexer.JavaLexer;
+import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -141,17 +143,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import javax.swing.text.DefaultEditorKit;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -2684,6 +2676,69 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
     }
 
+    /**
+     * For a given type (an AssistContentThreadSafe object), checks if the imports
+     * of the current file contains the type or its package 
+     * (in other words, if the current class imports this type)
+     *
+     * Note: for types contained in the "java.lang" package,
+     * we don't check and return true since this package is natively
+     * included.
+     *
+     * @param type the AssistContentThreadSafe object representing the type to check
+     * @result a boolean value indicating if this type is imported in the user code
+     */
+    public boolean checkTypeIsImported(AssistContentThreadSafe type)
+    {
+        if (type.getPackage().equals("java.lang"))
+            return true;
+
+        // In order to make sure we retrieve the imports from the user's code in the best fashion,
+        // we use the java lexer to get the imports listed in the code. When we find a class definition,
+        // we stop looking for imports: imports are to be declared beforehand so no point going further.
+        List<String> userCodeImportsList = new ArrayList<>();
+        boolean parsingUserCodeImport = false;
+        StringBuilder userCodeImportSB = new StringBuilder();
+        JavaLexer l = new JavaLexer(new StringReader(this.getText(new SourceLocation(1, 1), getLineColumnFromOffset(getTextLength()))));
+        for (LocatableToken t = l.nextToken(); t.getType() != JavaTokenTypes.EOF && t.getType() != JavaTokenTypes.LITERAL_class; t = l.nextToken())
+        {
+            switch (t.getType())
+            {
+                case JavaTokenTypes.LITERAL_import:
+                    parsingUserCodeImport = true;
+                    break;
+                case JavaTokenTypes.SEMI:
+                    if (parsingUserCodeImport)
+                    {
+                        // the end of a user code import has been found, we add it in the list
+                        userCodeImportsList.add(userCodeImportSB.toString());
+                        userCodeImportSB.setLength(0); //to clear the string builder for the next iteration
+                        parsingUserCodeImport = false;
+                    }
+                    break;
+                default:
+                    // when we've notified an import is being parsed, we just concatenate the token to the string buffer;
+                    // otherwise, nothing to do, we continue the iteration
+                    if (parsingUserCodeImport)
+                    {
+                        userCodeImportSB.append(t.getText());
+                    }
+                    break;
+            }
+        }
+
+        // At this point, we can check if the type is imported.
+        // That is, that either the type is solely imported or its package is imported.
+        // For nested types, we also need to check the declaring class.
+        // Note that the flag "parsingUserCodeImport" might be still true in the case of a wrongly written user
+        // code. But then, we don't use that current parsing as it is anyway faulty.
+        return (userCodeImportsList.contains(type.getPackage() + "." + type.getName())
+            || (type.getDeclaringClass() != null && userCodeImportsList.contains(type.getPackage() + "." + type.getDeclaringClass()))
+            || (type.getDeclaringClass() != null && type.getDeclaringClass().contains(".") 
+                && userCodeImportsList.contains(type.getPackage() + "." + type.getDeclaringClass().substring(0, type.getDeclaringClass().indexOf("."))))
+            || userCodeImportsList.contains(type.getPackage() + ".*"));
+    }
+
     @Override
     public void setHeaderImage(Image image)
     {
@@ -3538,15 +3593,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
             String errorMessage = ParserMessageHandler.getMessageForCode(details.message);
             TextFlow tf = null;
-            if (details.italicMessageStartIndex == -1 || details.italicMessageEndIndex == -1)
+            if (details.getItalicMessageStartIndex() == -1 || details.getItalicMessageEndIndex() == -1)
             {
                 tf = new TextFlow(new Label(errorMessage));
-            } else
+            } 
+            else
             {
-                Label beforeItalicText = (details.italicMessageStartIndex > 0) ? new Label(errorMessage.substring(0, details.italicMessageStartIndex)) : new Label("");
-                Label italicText = new Label(errorMessage.substring(details.italicMessageStartIndex, details.italicMessageEndIndex));
+                int italicStartIndex = details.getItalicMessageStartIndex();
+                int italicEndIndex = details.getItalicMessageEndIndex();
+                Label beforeItalicText = (italicStartIndex > 0) ? new Label(errorMessage.substring(0, italicStartIndex)) : new Label("");
+                Label italicText = new Label(errorMessage.substring(italicStartIndex, italicEndIndex));
                 JavaFXUtil.withStyleClass(italicText, "error-fix-display-italic");
-                Label afterItalicText = (details.italicMessageEndIndex < errorMessage.length() - 1) ? new Label(errorMessage.substring(details.italicMessageEndIndex)) : new Label("");
+                Label afterItalicText = (italicEndIndex < errorMessage.length() - 1) ? new Label(errorMessage.substring(italicEndIndex)) : new Label("");
                 tf = new TextFlow(beforeItalicText, italicText, afterItalicText);
             }
 
