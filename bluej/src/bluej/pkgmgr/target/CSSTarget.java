@@ -30,8 +30,10 @@ import bluej.editor.flow.FlowEditor;
 import bluej.pkgmgr.target.actions.EditAction;
 import bluej.pkgmgr.target.actions.RemoveAction;
 import bluej.utility.javafx.AbstractOperation;
+import bluej.utility.javafx.ResizableCanvas;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.geometry.Pos;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 
@@ -59,6 +61,7 @@ public class CSSTarget extends NonCodeEditableTarget
         Label name = new Label(file.getName());
         BorderPane.setAlignment(name, Pos.CENTER);
         pane.setTop(name);
+
     }
 
     @Override
@@ -133,4 +136,5 @@ public class CSSTarget extends NonCodeEditableTarget
 
         props.put(prefix + ".type", "CSSTarget");
     }
+
 }

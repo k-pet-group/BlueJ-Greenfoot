@@ -131,7 +131,7 @@ public class ClassTarget extends DependentTarget
 
     private static final String STEREOTYPE_OPEN = "\u00AB"; //"<<";
     private static final String STEREOTYPE_CLOSE = "\u00BB"; //">>";
-    private static final double RESIZE_CORNER_GAP = 4;
+
 
     // temporary file name extension to trick windows if changing case only in
     // class name
@@ -184,9 +184,7 @@ public class ClassTarget extends DependentTarget
     private boolean visible = true;
     private static String[] pseudos;
 
-    // The body of the class target which goes hashed, etc:
-    @OnThread(Tag.FX)
-    private ResizableCanvas canvas;
+
     private Label stereotypeLabel;
     private boolean isFront = true;
     @OnThread(Tag.FX)
@@ -245,17 +243,6 @@ public class ClassTarget extends DependentTarget
         stereotypeLabel.managedProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
         JavaFXUtil.addStyleClass(stereotypeLabel, "class-target-extra");
         pane.setTop(new VBox(stereotypeLabel, nameLabel));
-        canvas = new ResizableCanvas()
-        {
-            @Override
-            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-            public void resize(double width, double height)
-            {
-                super.resize(width, height);
-                redraw();
-            }
-        };
-        pane.setCenter(canvas);
 
         // We need to add label to the stack pane element
         // to be used later for visual indication that class lacks source
@@ -2269,6 +2256,10 @@ public class ClassTarget extends DependentTarget
     @Override
     protected void redraw()
     {
+        //first remove any resizing lines
+        removeResizingLines();
+
+        // Then clear the canvas
         GraphicsContext g = canvas.getGraphicsContext2D();
         double width = canvas.getWidth();
         double height = canvas.getHeight();
@@ -2285,15 +2276,8 @@ public class ClassTarget extends DependentTarget
             g.fillRect(0, 0, width, height);
         }
 
-        if (this.selected && isResizable())
-        {
-            g.setStroke(javafx.scene.paint.Color.BLACK);
-            g.setLineDashes();
-            g.setLineWidth(1.0);
-            // Draw the marks in the corner to indicate resizing is possible:
-            g.strokeLine(width - RESIZE_CORNER_SIZE, height, width, height - RESIZE_CORNER_SIZE);
-            g.strokeLine(width - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP, height, width, height - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP);
-        }
+        //draw the resizing lines if needed
+        drawResizingLines();
     }
 
     /**

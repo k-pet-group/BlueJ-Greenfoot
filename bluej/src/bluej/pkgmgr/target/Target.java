@@ -35,11 +35,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import bluej.utility.javafx.ResizableCanvas;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
@@ -54,6 +57,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.Node;
 
+import javafx.scene.shape.Line;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -75,6 +79,7 @@ public abstract class Target
     static final int SHAD_SIZE = 4;
     private static final double SHADOW_RADIUS = 3.0;
     protected static final double RESIZE_CORNER_SIZE = 16;
+    protected static final double RESIZE_CORNER_GAP = 4;
 
     // Store the position before moving, and size before resizing.
     // Not because we allow cancelling (we don't), but because we move/resize
@@ -126,6 +131,14 @@ public abstract class Target
     @OnThread(Tag.FX)
     private boolean resizing = false;
 
+    // The body of the class target which goes hashed, etc:
+    @OnThread(Tag.FX)
+    protected ResizableCanvas canvas;
+
+    @OnThread(Tag.FXPlatform)
+    private Line line1;
+    private Line line2;
+
     /**
      * Create a new target with default size.
      */
@@ -143,7 +156,20 @@ public abstract class Target
         pane.setCursor(Cursor.HAND);
         JavaFXUtil.addStyleClass(pane, "target");
         pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
-        
+
+        canvas = new ResizableCanvas()
+        {
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public void resize(double width, double height)
+            {
+                redraw();
+                super.resize(width, height);
+            }
+        };
+
+        pane.setCenter(canvas);
+
         pane.setFocusTraversable(true);
         updateAccessibleName(accessibleTargetType, null);
         pane.setAccessibleRole(AccessibleRole.BUTTON);
@@ -522,6 +548,49 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     protected void redraw()
     {
+        removeResizingLines();
+        drawResizingLines();
+    }
+
+    //This is called on the redraw method of each subclass that needs the lines drawn
+    @OnThread(Tag.FXPlatform)
+    protected void drawResizingLines()
+    {
+        if (this.selected && isResizable() && line1==null && line2==null)
+        {
+            line1 = new Line(pane.getWidth() - RESIZE_CORNER_SIZE, pane.getHeight(), pane.getWidth(), pane.getHeight() - RESIZE_CORNER_SIZE);
+            line2 = new Line(pane.getWidth() - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP, pane.getHeight(), pane.getWidth(), pane.getHeight() - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP);
+            pane.getChildren().add(line1);
+            pane.getChildren().add(line2);
+
+//          The following code is the alternative to draw the two lines through the canvas.
+//          However, this approach does not work for all the subclasses (e.g. PackageTarget.java --> because
+//          it's got a pane inside the canvas).
+//          _____________________________________
+//          GraphicsContext g = canvas.getGraphicsContext2D();
+//          double width = canvas.getWidth();
+//          double height = canvas.getHeight();
+//          g.setStroke(javafx.scene.paint.Color.BLACK);
+//          g.setLineDashes();
+//          g.setLineWidth(1.0);
+//          // Draw the marks in the corner to indicate resizing is possible:
+//          g.strokeLine(width - RESIZE_CORNER_SIZE, height, width, height - RESIZE_CORNER_SIZE);
+//          g.strokeLine(width - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP, height, width, height - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP);
+        }
+    }
+
+    // Remove the two resizing lines on the bottom right of a target.
+    @OnThread(Tag.FXPlatform)
+    protected void removeResizingLines()
+    {
+        // If there are more than two children in the pane, that means that we have two lines
+        // So remove them
+        if(isResizable() && pane.getChildren().size() > 2 && line1 != null && line2 != null)
+        {
+            pane.getChildren().remove(2,pane.getChildren().size());
+            line1 = null;
+            line2 = null;
+        }
     }
 
     /*
@@ -668,6 +737,8 @@ public abstract class Target
         pane.setPrefWidth(width);
         pane.setPrefHeight(height);
         repaint();
+        // The next line is needed for the PackageTargets so that two resizingLines are properly redrawn when moving or resizing
+        redraw();
     }
 
     @OnThread(Tag.FXPlatform)
