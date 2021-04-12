@@ -2696,9 +2696,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      * included.
      *
      * @param type the AssistContentThreadSafe object representing the type to check
+     * @param checkStrictInnerTypeImport indicates whether, for inner types, the import is strictly targeting the inner class
+     *                                   ("import package.OuterType.InnerType" or "import package.OuterType.*") and NOT the outer class  
      * @result a boolean value indicating if this type is imported in the user code
      */
-    public boolean checkTypeIsImported(AssistContentThreadSafe type)
+    public boolean checkTypeIsImported(AssistContentThreadSafe type, boolean checkStrictInnerTypeImport)
     {
         if (type.getPackage().equals("java.lang"))
             return true;
@@ -2708,9 +2710,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         // we stop looking for imports: imports are to be declared beforehand so no point going further.
         List<String> userCodeImportsList = new ArrayList<>();
         boolean parsingUserCodeImport = false;
+        boolean isInImportComment = false;
         StringBuilder userCodeImportSB = new StringBuilder();
         JavaLexer l = new JavaLexer(new StringReader(this.getText(new SourceLocation(1, 1), getLineColumnFromOffset(getTextLength()))));
-        for (LocatableToken t = l.nextToken(); t.getType() != JavaTokenTypes.EOF && t.getType() != JavaTokenTypes.LITERAL_class; t = l.nextToken())
+        for (LocatableToken t = l.nextToken(); t.getType() != JavaTokenTypes.EOF && t.getType() != JavaTokenTypes.LITERAL_class 
+            && t.getType() != JavaTokenTypes.LITERAL_interface && t.getType() != JavaTokenTypes.LITERAL_enum; t = l.nextToken())
         {
             switch (t.getType())
             {
@@ -2725,11 +2729,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                         userCodeImportSB.setLength(0); //to clear the string builder for the next iteration
                         parsingUserCodeImport = false;
                     }
-                    break;
+                    break; 
+                case JavaTokenTypes.ML_COMMENT:
+                    // Multiline comments inside an import shouldn't be picked up when constructing the userCodeImportSB string,
+                    // (the following method will activate/deactive picking up comments for well formatted comments...)
+                    if(parsingUserCodeImport){
+                        isInImportComment = (t.getText().equals("/*"));
+                    }
+                    break;        
                 default:
                     // when we've notified an import is being parsed, we just concatenate the token to the string buffer;
                     // otherwise, nothing to do, we continue the iteration
-                    if (parsingUserCodeImport)
+                    if (parsingUserCodeImport && !isInImportComment)
                     {
                         userCodeImportSB.append(t.getText());
                     }
@@ -2742,11 +2753,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         // For nested types, we also need to check the declaring class.
         // Note that the flag "parsingUserCodeImport" might be still true in the case of a wrongly written user
         // code. But then, we don't use that current parsing as it is anyway faulty.
-        return (userCodeImportsList.contains(type.getPackage() + "." + type.getName())
-            || (type.getDeclaringClass() != null && userCodeImportsList.contains(type.getPackage() + "." + type.getDeclaringClass()))
-            || (type.getDeclaringClass() != null && type.getDeclaringClass().contains(".") 
-                && userCodeImportsList.contains(type.getPackage() + "." + type.getDeclaringClass().substring(0, type.getDeclaringClass().indexOf("."))))
-            || userCodeImportsList.contains(type.getPackage() + ".*"));
+        return ((type.getDeclaringClass() == null && userCodeImportsList.contains(type.getPackage() + "." + type.getName()))
+            || (type.getDeclaringClass() != null && !checkStrictInnerTypeImport && userCodeImportsList.contains(type.getPackage() + "." + type.getDeclaringClass()))
+            || (type.getDeclaringClass() != null && userCodeImportsList.contains(type.getPackage() + "." + type.getDeclaringClass() + ".*"))
+            || (type.getDeclaringClass() != null && userCodeImportsList.contains(type.getPackage() + "." + type.getDeclaringClass() + "." + type.getName()))
+            || (!checkStrictInnerTypeImport && userCodeImportsList.contains(type.getPackage() + ".*")));
     }
 
     @Override

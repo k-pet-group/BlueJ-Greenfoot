@@ -514,7 +514,6 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
         {
             if(parentNode.getNodeType() == NODETYPE_SELECTION || parentNode.getNodeType() == NODETYPE_ITERATION)
             {
-                System.out.println("THATS RIGHT WERE IN A CONTRL");
                 return true;
             }
             if (parentNode.parentNode != null)
