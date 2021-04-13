@@ -32,6 +32,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -122,6 +123,7 @@ public class FieldList extends ScrollPane
             JavaFXUtil.addStyleClass(valueLabel, "inspector-field-value-label");
             Label descriptionLabel = new Label(field.getDescription());
             JavaFXUtil.addStyleClass(descriptionLabel, "inspector-field-description");
+            descriptionLabel.setTextOverrun(OverrunStyle.LEADING_WORD_ELLIPSIS);
             children.add(descriptionLabel);
             children.add(wrapper);
 
