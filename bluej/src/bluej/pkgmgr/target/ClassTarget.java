@@ -305,8 +305,6 @@ public class ClassTarget extends DependentTarget
                 updateSize();
             });
         });
-
-
     }
 
     /**
