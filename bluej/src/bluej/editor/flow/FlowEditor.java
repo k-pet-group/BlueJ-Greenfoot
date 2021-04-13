@@ -2710,7 +2710,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         // we stop looking for imports: imports are to be declared beforehand so no point going further.
         List<String> userCodeImportsList = new ArrayList<>();
         boolean parsingUserCodeImport = false;
-        boolean isInImportComment = false;
         StringBuilder userCodeImportSB = new StringBuilder();
         JavaLexer l = new JavaLexer(new StringReader(this.getText(new SourceLocation(1, 1), getLineColumnFromOffset(getTextLength()))));
         for (LocatableToken t = l.nextToken(); t.getType() != JavaTokenTypes.EOF && t.getType() != JavaTokenTypes.LITERAL_class 
@@ -2732,15 +2731,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                     break; 
                 case JavaTokenTypes.ML_COMMENT:
                     // Multiline comments inside an import shouldn't be picked up when constructing the userCodeImportSB string,
-                    // (the following method will activate/deactive picking up comments for well formatted comments...)
-                    if(parsingUserCodeImport){
-                        isInImportComment = (t.getText().equals("/*"));
-                    }
                     break;        
                 default:
                     // when we've notified an import is being parsed, we just concatenate the token to the string buffer;
                     // otherwise, nothing to do, we continue the iteration
-                    if (parsingUserCodeImport && !isInImportComment)
+                    if (parsingUserCodeImport)
                     {
                         userCodeImportSB.append(t.getText());
                     }
