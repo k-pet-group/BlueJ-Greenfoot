@@ -16,5 +16,5 @@ CP="$CP:$JAVAFXJARS"
 JFXRTOPT="-javafxpath=$JAVAFXPATH"
 JFXRTOPT2="-javafxjars=$JAVAFXJARS"
 
-"$JAVAPATH/bin/java" -Dawt.useSystemAAFontSettings=on -Xmx512M \
+"$JAVAPATH/bin/java" -Djdk.gtk.version=2 -Dawt.useSystemAAFontSettings=on -Xmx512M \
     -cp "$CP" bluej.Boot ${JFXRTOPT:+"$JFXRTOPT"} ${JFXRTOPT2:+"$JFXRTOPT2"} "$@"
