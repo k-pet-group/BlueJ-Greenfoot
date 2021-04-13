@@ -28,7 +28,7 @@
     -fx-text-fill: black !important;
 }
 .field-list .inspector-field-value-wrapper {
-    -fx-padding:  0 2 0 2;
+    -fx-padding:  0 5 0 5;
     -fx-alignment: baseline-center;
     -fx-background-color: transparent, black, white;
     -fx-background-insets: 0, 2, 3;
