@@ -131,6 +131,12 @@ public abstract class Target
     @OnThread(Tag.FX)
     private boolean resizing = false;
 
+    // We need to avoid triggering resize while moving a class around.
+    // If you are moving something and fastly point the mouse on the
+    // resizing edge, the moving action becomes resizing.
+    @OnThread(Tag.FX)
+    private boolean moving = false;
+
     // The body of the class target which goes hashed, etc:
     @OnThread(Tag.FX)
     protected ResizableCanvas canvas;
@@ -255,17 +261,20 @@ public abstract class Target
                 // Check if it's in the corner (and selected), in which case it will be a resize:
                 // This will save the positions of everything currently selected,
                 // including us (by calling us back via savePreMove/savePreResize):
-                if (isSelected() && cursorAtResizeCorner(e) && isResizable())
+                if (isSelected() && cursorAtResizeCorner(e) && isResizable()) {
                     pkg.getEditor().startedResize();
-                else
+                }
+                else {
                     pkg.getEditor().startedMove();
+                    moving = true;
+                }
             }
             e.consume();
         });
         pane.setOnMouseDragged(e -> {
             if (e.getButton() == MouseButton.PRIMARY && !pkg.getEditor().isCreatingExtends() && !e.isControlDown())
             {
-                if (isSelected() && cursorAtResizeCorner(e) && isResizable())
+                if (isSelected() && cursorAtResizeCorner(e) && isResizable() && !moving)
                 {
                     resizing = true;
                     int newWidth = pkg.getEditor().snapToGrid((int) (e.getX() + (preResizeWidth - pressDeltaX)));
@@ -290,6 +299,7 @@ public abstract class Target
                     int newY = pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY));
                     pkg.getEditor().moveBy(newX - preMoveX, newY - preMoveY);
                     updateCursor(e, true);
+                    moving = true;
                 }
                 showingMenu(null);
             }
@@ -300,6 +310,7 @@ public abstract class Target
                 pkg.getEditor().endResize();
             }
             resizing = false;
+            moving = false;
         });
         pane.setOnKeyTyped(e -> {
             // + or - on the keyboard do a resize:
