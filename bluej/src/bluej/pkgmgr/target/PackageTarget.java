@@ -63,9 +63,6 @@ public class PackageTarget extends Target
     static final String openStr = Config.getString("pkgmgr.packagemenu.open");
     static final String removeStr = Config.getString("pkgmgr.packagemenu.remove");
 
-    @OnThread(Tag.FXPlatform)
-    private boolean isMoveable = true;
-
     public PackageTarget(Package pkg, String baseName)
     {
         super(pkg, baseName, "Package");
@@ -270,18 +267,6 @@ public class PackageTarget extends Target
     public void setSize(int width, int height)
     {
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public boolean isMoveable()
-    {
-        return isMoveable;
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public void setIsMoveable(boolean isMoveable)
-    {
-        this.isMoveable = isMoveable;
     }
     
     private static class OpenPkgAction extends AbstractOperation<Target>

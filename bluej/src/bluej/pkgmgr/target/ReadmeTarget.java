@@ -177,6 +177,12 @@ public class ReadmeTarget extends NonCodeEditableTarget
     {
         // The user is not permitted to remove the readmefile
     }
+
+    @OnThread(Tag.FXPlatform)
+    public boolean isMoveable()
+    {
+        return false;
+    }
         
     @Override
     public @OnThread(Tag.FXPlatform) void setSelected(boolean selected)

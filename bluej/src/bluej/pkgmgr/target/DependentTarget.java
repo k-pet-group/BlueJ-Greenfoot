@@ -70,6 +70,8 @@ public abstract class DependentTarget extends EditableTarget
     @OnThread(value = Tag.Any,requireSynchronized = true)
     protected DependentTarget assoc;
 
+    boolean isMovable = true;
+
     /**
      * Create a new target belonging to the specified package.
      */
@@ -499,7 +501,19 @@ public abstract class DependentTarget extends EditableTarget
         if (getState() == State.COMPILED)
             setState(State.NEEDS_COMPILE);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
+    public void setIsMoveable(boolean isMovable)
+    {
+        this.isMovable = isMovable;
+    }
+
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public  boolean isMoveable() {
+        return false;
+    }
+
     /**
      * Change the state of this target. The target will be repainted to show the
      * new state.

@@ -181,12 +181,6 @@ public class ExternalFileTarget extends NonCodeEditableTarget
     }
 
     @Override
-    public @OnThread(Tag.FXPlatform) boolean isMoveable()
-    {
-        return true;
-    }
-
-    @Override
     public @OnThread(Tag.FX) boolean isResizable()
     {
         return true;

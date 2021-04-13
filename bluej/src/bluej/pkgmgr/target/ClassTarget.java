@@ -169,7 +169,6 @@ public class ClassTarget extends DependentTarget
     // Whether the current compilation is invalid due to edits since compilation began
     private boolean compilationInvalid = false;
 
-    private boolean isMoveable = true;
     private SourceType sourceAvailable;
     // Part of keeping track of number of editors opened, for Greenfoot phone home:
     private boolean hasBeenOpened = false;
@@ -203,6 +202,10 @@ public class ClassTarget extends DependentTarget
     private boolean drawingExtends = false;
     private Label nameLabel;
     private Label noSourceLabel;
+
+    // The body of the class target which goes hashed, etc:
+    @OnThread(Tag.FX)
+    protected ResizableCanvas canvas;
 
     /**
      * Create a new class target in package 'pkg'.
@@ -243,6 +246,19 @@ public class ClassTarget extends DependentTarget
         stereotypeLabel.managedProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
         JavaFXUtil.addStyleClass(stereotypeLabel, "class-target-extra");
         pane.setTop(new VBox(stereotypeLabel, nameLabel));
+
+        canvas = new ResizableCanvas()
+        {
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public void resize(double width, double height)
+            {
+                super.resize(width, height);
+                redraw();
+            }
+        };
+
+        pane.setCenter(canvas);
 
         // We need to add label to the stack pane element
         // to be used later for visual indication that class lacks source
@@ -289,6 +305,8 @@ public class ClassTarget extends DependentTarget
                 updateSize();
             });
         });
+
+
     }
 
     /**
@@ -2465,21 +2483,6 @@ public class ClassTarget extends DependentTarget
         sourceAvailable = SourceType.Stride;
     }
 
-    public boolean isMoveable()
-    {
-        return isMoveable;
-    }
-
-    /**
-     * Set whether this ClassTarget can be moved by the user (dragged around).
-     * This is set false for unit tests which are associated with another class.
-     * 
-     */
-    public void setIsMoveable(boolean isMoveable)
-    {
-        this.isMoveable = isMoveable;
-    }
-    
     /**
      * perform interactive method call
      */

@@ -940,7 +940,6 @@ public final class PackageEditor extends StackPane
         }
     }
 
-
     /**
      * Started a move operation on the selection
      */
@@ -948,9 +947,9 @@ public final class PackageEditor extends StackPane
     public void startedResize()
     {
         for (Target element : selectionController.getSelection())
-       {
+        {
             if (element.isResizable())
-           {
+            {
                 element.savePreResize();
                 JavaFXUtil.setPseudoclass("bj-resizing", true, element.getNode());
             }

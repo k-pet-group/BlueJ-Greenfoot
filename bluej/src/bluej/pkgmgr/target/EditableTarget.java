@@ -40,7 +40,7 @@ import threadchecker.Tag;
  *
  * @author  Michael Cahill
  */
-public abstract class EditableTarget extends Target
+public abstract class  EditableTarget extends Target
     implements EditorWatcher
 {
     public static final String MENU_STYLE_INBUILT = "class-action-inbuilt";
@@ -140,7 +140,5 @@ public abstract class EditableTarget extends Target
     }
 
     // --- end of EditorWatcher interface ---
-
-
 
 }

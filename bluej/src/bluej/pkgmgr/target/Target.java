@@ -101,8 +101,6 @@ public abstract class Target
     // The currently showing context menu (if any).  Null if no menu showing.
     @OnThread(Tag.FXPlatform)
     private ContextMenu showingContextMenu;
-    @OnThread(Tag.FXPlatform)
-    private boolean movable;
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private String identifierName; // the name handle for this target within
@@ -137,10 +135,6 @@ public abstract class Target
     @OnThread(Tag.FX)
     private boolean moving = false;
 
-    // The body of the class target which goes hashed, etc:
-    @OnThread(Tag.FX)
-    protected ResizableCanvas canvas;
-
     @OnThread(Tag.FXPlatform)
     private Line line1;
     private Line line2;
@@ -154,8 +148,7 @@ public abstract class Target
         this.pkg = pkg;
         this.identifierName = identifierName;
         this.displayName = identifierName;
-        movable = true;
-        
+
         pane.setPrefWidth(calculateWidth(new Label(), identifierName, DEF_WIDTH));
         pane.setPrefHeight(DEF_HEIGHT);
         // We set this here rather than via CSS because we vary it dynamically:
@@ -163,18 +156,7 @@ public abstract class Target
         JavaFXUtil.addStyleClass(pane, "target");
         pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
 
-        canvas = new ResizableCanvas()
-        {
-            @Override
-            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-            public void resize(double width, double height)
-            {
-                redraw();
-                super.resize(width, height);
-            }
-        };
 
-        pane.setCenter(canvas);
 
         pane.setFocusTraversable(true);
         updateAccessibleName(accessibleTargetType, null);
@@ -596,9 +578,10 @@ public abstract class Target
     {
         // If there are more than two children in the pane, that means that we have two lines
         // So remove them
-        if(isResizable() && pane.getChildren().size() > 2 && line1 != null && line2 != null)
+        if(isResizable() && line1 != null && line2 != null)
         {
-            pane.getChildren().remove(2,pane.getChildren().size());
+            int size = pane.getChildren().size();
+            pane.getChildren().remove(size-2,size);
             line1 = null;
             line2 = null;
         }
@@ -766,13 +749,7 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     public boolean isMoveable()
     {
-        return movable;
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public void setIsMoveable(boolean b)
-    {
-        movable = b;
+        return true;
     }
 
     /**
