@@ -32,6 +32,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -122,6 +123,7 @@ public class FieldList extends ScrollPane
             JavaFXUtil.addStyleClass(valueLabel, "inspector-field-value-label");
             Label descriptionLabel = new Label(field.getDescription());
             JavaFXUtil.addStyleClass(descriptionLabel, "inspector-field-description");
+            descriptionLabel.setTextOverrun(OverrunStyle.LEADING_WORD_ELLIPSIS);
             children.add(descriptionLabel);
             children.add(wrapper);
 
@@ -186,6 +188,9 @@ public class FieldList extends ScrollPane
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private static class ContentPane extends Region
     {
+        private static final int MIN_LEFT = 50;
+        private static final int LARGEST_SENSIBLE_RIGHT = 500;
+
         public ContentPane()
         {
             getStyleClass().add("field-list-content");
@@ -194,28 +199,53 @@ public class FieldList extends ScrollPane
         @Override
         protected void layoutChildren()
         {
+            // If you have a large label and large value, and resize it from minimum to maximum, the space gets gradually allocated as follows:
+            // - The label has a minimum size of 50 pixels
+            // - The rest is allocated to the value, up until it has taken up 500 pixels
+            // - Then the space is allocated to the label until the label fully fits
+            // - Then the space is allocated to the value until it fully fits
+            // - After that, any remaining space is allocated 25% to the label and 75% to the value
+            
             Insets outerPadding = getInsets();
+            double widthMinusPadding = getWidth() - (outerPadding.getLeft() + outerPadding.getRight());
             List<Node> children = getChildren();
-            double largestLeft = 0;
+            // We make the left labels at least 50 pixels wide so they don't shrink to just "..."
+            // if there are large values on the right
+            double largestMinLeft = MIN_LEFT;
+            double largestPrefLeft = largestMinLeft;
             double largestRight = 0;
+            
             for (int i = 0; i < children.size(); i += 2)
             {
-                largestLeft = Math.max(largestLeft, children.get(i).prefWidth(ROW_HEIGHT));
+                largestMinLeft = Math.max(largestMinLeft, children.get(i).minWidth(ROW_HEIGHT));
+                largestPrefLeft = Math.max(largestPrefLeft, children.get(i).prefWidth(ROW_HEIGHT));
                 largestRight = Math.max(largestRight, children.get(i + 1).prefWidth(ROW_HEIGHT));
             }
             
             double leftWidth;
-            if (largestLeft + largestRight <= getWidth())
+            if (largestPrefLeft + largestRight <= widthMinusPadding)
             {
-                // Share any spare width among both sides equally:
-                leftWidth = largestLeft + (getWidth() - largestLeft - largestRight) * 0.5;
+                // We are bigger than we need to be.
+                // Share any spare width such that the right-hand side gets three-quarters of it:
+                leftWidth = largestPrefLeft + (widthMinusPadding - largestPrefLeft - largestRight) * 0.25f;
             }
             else
             {
-                // We'll have to truncate, so we truncate the right which can be any width, whereas the left is likely to be smaller:
-                leftWidth = largestLeft;
+                // We'll have to truncate.  The decision on how to truncate is a bit difficult because our
+                // lack of sufficient width could be because:
+                //  - the user has resized the inspector window to be unreasonably small
+                //  - the variable name and/or type is very long
+                //  - the value (especially String values) is very long
+                // In general we want to give available space to the right-hand side, but not if it wants to be huge
+                // So we restrict its asked for space to 500 pixels
+                // (Don't forget this is only if there isn't room for everything; if there is we won't reach here)
+                largestRight = Math.min(Math.max(widthMinusPadding - largestPrefLeft, LARGEST_SENSIBLE_RIGHT), largestRight);
+                
+                // Then we set the left-width to be what's left-over from the largestRight, but no smaller than its minimum space:
+                leftWidth = Math.max(widthMinusPadding - largestRight, largestMinLeft);
             }
-            double rightWidth = getWidth() - leftWidth - outerPadding.getLeft() - outerPadding.getRight();
+            
+            double rightWidth = widthMinusPadding - leftWidth;
             
             double y = outerPadding.getTop();
             for (int i = 0; i < children.size(); i += 2)
@@ -237,14 +267,19 @@ public class FieldList extends ScrollPane
         protected double computePrefWidth(double height)
         {
             List<Node> children = getChildren();
-            double largestLeft = 0;
+            double largestLeft = MIN_LEFT;
             double largestRight = 0;
             for (int i = 0; i < children.size(); i += 2)
             {
                 largestLeft = Math.max(largestLeft, children.get(i).prefWidth(height));
                 largestRight = Math.max(largestRight, children.get(i + 1).prefWidth(height));
             }
-            return Math.min(300.0, largestLeft) + Math.min(500.0, largestRight);
+            // We don't make our preferred width to be the actual sum of 
+            // the largest preferred left + largest preferred right
+            // because this may be massive and cause very wide inspector
+            // windows.  So we cap the left at 150 and the right at
+            // LARGEST_SENSIBLE_RIGHT (currently 500):
+            return Math.min(150, largestLeft) + Math.min(LARGEST_SENSIBLE_RIGHT, largestRight) + getPadding().getLeft() + getPadding().getRight();
         }
     }
 }        

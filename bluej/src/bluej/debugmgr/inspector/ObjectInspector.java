@@ -209,8 +209,8 @@ public class ObjectInspector extends Inspector
         button.setDefaultButton(true);
         stackPane = new StackPane(new ObjectBackground(CORNER_SIZE, new ReadOnlyDoubleWrapper(3.0)), contentPane);
         Rectangle clip = new Rectangle();
-        clip.widthProperty().bind(widthProperty());
-        clip.heightProperty().bind(heightProperty());
+        clip.widthProperty().bind(stackPane.widthProperty());
+        clip.heightProperty().bind(stackPane.heightProperty());
         clip.setArcWidth(CORNER_SIZE);
         clip.setArcHeight(CORNER_SIZE);
         stackPane.setClip(clip);
