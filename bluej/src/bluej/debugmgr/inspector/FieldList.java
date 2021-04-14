@@ -226,7 +226,7 @@ public class FieldList extends ScrollPane
             if (largestPrefLeft + largestRight <= widthMinusPadding)
             {
                 // We are bigger than we need to be.
-                // Share any spare width among both sides equally:
+                // Share any spare width such that the right-hand side gets three-quarters of it:
                 leftWidth = largestPrefLeft + (widthMinusPadding - largestPrefLeft - largestRight) * 0.25f;
             }
             else
@@ -274,6 +274,11 @@ public class FieldList extends ScrollPane
                 largestLeft = Math.max(largestLeft, children.get(i).prefWidth(height));
                 largestRight = Math.max(largestRight, children.get(i + 1).prefWidth(height));
             }
+            // We don't make our preferred width to be the actual sum of 
+            // the largest preferred left + largest preferred right
+            // because this may be massive and cause very wide inspector
+            // windows.  So we cap the left at 150 and the right at
+            // LARGEST_SENSIBLE_RIGHT (currently 500):
             return Math.min(150, largestLeft) + Math.min(LARGEST_SENSIBLE_RIGHT, largestRight) + getPadding().getLeft() + getPadding().getRight();
         }
     }
