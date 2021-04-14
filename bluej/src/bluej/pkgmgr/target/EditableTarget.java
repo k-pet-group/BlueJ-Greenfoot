@@ -30,6 +30,8 @@ import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.actions.EditableTargetOperation;
 import bluej.prefmgr.PrefMgrDialog;
+import bluej.utility.javafx.ResizableCanvas;
+import javafx.scene.canvas.GraphicsContext;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -38,10 +40,11 @@ import threadchecker.Tag;
  *
  * @author  Michael Cahill
  */
-public abstract class EditableTarget extends Target
+public abstract class  EditableTarget extends Target
     implements EditorWatcher
 {
     public static final String MENU_STYLE_INBUILT = "class-action-inbuilt";
+
     public final static String editStr = Config.getString("pkgmgr.classmenu.edit");
     public final static String removeStr = Config.getString("pkgmgr.classmenu.remove");
     protected Editor editor;

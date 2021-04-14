@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr.target;
 
+import bluej.Config;
 import bluej.extmgr.ClassExtensionMenu;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionsMenuManager;
@@ -34,7 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import bluej.utility.javafx.ResizableCanvas;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.AccessibleAttribute;
@@ -53,6 +56,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.Node;
 
+import javafx.scene.shape.Line;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -74,6 +78,7 @@ public abstract class Target
     static final int SHAD_SIZE = 4;
     private static final double SHADOW_RADIUS = 3.0;
     protected static final double RESIZE_CORNER_SIZE = 16;
+    protected static final double RESIZE_CORNER_GAP = 4;
 
     // Store the position before moving, and size before resizing.
     // Not because we allow cancelling (we don't), but because we move/resize
@@ -86,10 +91,6 @@ public abstract class Target
     private int preResizeWidth;
     @OnThread(Tag.FXPlatform)
     private int preResizeHeight;
-    // Keeps track of whether a mouse button press at the current position
-    // would be a resize.
-    @OnThread(Tag.FXPlatform)
-    private boolean pressIsResize;
     // The position of the mouse press (e.g. for positioning/sizing)
     // relative to the pane:
     @OnThread(Tag.FXPlatform)
@@ -120,6 +121,22 @@ public abstract class Target
     // Is the target directly resizable?  Readmes and test classes are not.
     @OnThread(Tag.FX)
     private boolean resizable = true;
+    // Because tghe mouse movement may be faster than the mouseEventHandler trigger,
+    // this may cause the mouse X and Y to move further than the threshold for the
+    // corner handle and thus be missed. Result is that we stop resizing and start
+    // dragging. That's why we need this flag.
+    @OnThread(Tag.FX)
+    private boolean resizing = false;
+
+    // We need to avoid triggering resize while moving a class around.
+    // If you are moving something and fastly point the mouse on the
+    // resizing edge, the moving action becomes resizing.
+    @OnThread(Tag.FX)
+    private boolean moving = false;
+
+    @OnThread(Tag.FXPlatform)
+    private Line line1;
+    private Line line2;
 
     /**
      * Create a new target with default size.
@@ -130,14 +147,16 @@ public abstract class Target
         this.pkg = pkg;
         this.identifierName = identifierName;
         this.displayName = identifierName;
-        
+
         pane.setPrefWidth(calculateWidth(new Label(), identifierName, DEF_WIDTH));
         pane.setPrefHeight(DEF_HEIGHT);
         // We set this here rather than via CSS because we vary it dynamically:
         pane.setCursor(Cursor.HAND);
         JavaFXUtil.addStyleClass(pane, "target");
         pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
-        
+
+
+
         pane.setFocusTraversable(true);
         updateAccessibleName(accessibleTargetType, null);
         pane.setAccessibleRole(AccessibleRole.BUTTON);
@@ -170,11 +189,13 @@ public abstract class Target
         });
 
         pane.setOnMouseClicked(e -> {
-            if (e.getClickCount() > 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger() && e.isStillSincePress())
+
+            if (e.getClickCount() > 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
             {
                 doubleClick(e.isShiftDown());
             }
-            else if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger() && e.isStillSincePress())
+
+            else if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
             {
                 // We first check if the user was drawing an extends arrow,
                 // in which case a click will finish that off.
@@ -205,36 +226,44 @@ public abstract class Target
         pane.setOnMouseExited(e -> {
             pkg.getEditor().setMouseLeft(this);
         });
-
         pane.setOnMousePressed(e -> {
-            if (e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger() && e.isStillSincePress())
+
+            // Need position relative to the editor to set new position:
+            pressDeltaX = e.getX();
+            pressDeltaY = e.getY();
+
+            if (e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
             {
                 // Dismiss context menu if the user left-clicks on the target:
                 // (Usual JavaFX behaviour is to keep the menu showing if you
                 // click the menu's parent but I think users will expect it to
                 // dismiss if they click anywhere besides the menu.)
                 showingMenu(null);
-                pressDeltaX = e.getX();
-                pressDeltaY = e.getY();
                 // Check if it's in the corner (and selected), in which case it will be a resize:
-                pressIsResize = isSelected() && cursorAtResizeCorner(e);
                 // This will save the positions of everything currently selected,
                 // including us (by calling us back via savePreMove/savePreResize):
-                if (pressIsResize && isResizable())
+                if (isSelected() && cursorAtResizeCorner(e) && isResizable()) {
                     pkg.getEditor().startedResize();
-                else
+                }
+                else {
                     pkg.getEditor().startedMove();
+                    moving = true;
+                }
             }
             e.consume();
         });
         pane.setOnMouseDragged(e -> {
             if (e.getButton() == MouseButton.PRIMARY && !pkg.getEditor().isCreatingExtends() && !e.isControlDown())
             {
-                if (pressIsResize && isResizable())
+                if (isSelected() && cursorAtResizeCorner(e) && isResizable() && !moving)
                 {
+                    resizing = true;
                     int newWidth = pkg.getEditor().snapToGrid((int) (e.getX() + (preResizeWidth - pressDeltaX)));
                     int newHeight = pkg.getEditor().snapToGrid((int) (e.getY() + (preResizeHeight - pressDeltaY)));
-                    pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
+                    //We nee the following if to avoid resizing to 0 when first clicking on the resize toggle
+                    if( newWidth != preResizeWidth && newHeight != preResizeHeight) {
+                        pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
+                    }
                 }
                 else if (isMoveable() && !e.isStillSincePress())
                 {
@@ -247,11 +276,13 @@ public abstract class Target
                     }
                     // Need position relative to the editor to set new position:
                     Point2D p = pkg.getEditor().sceneToLocal(e.getSceneX(), e.getSceneY());
-                    int newX = pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX));
+                    int newX = pkg.getEditor().snapToGrid((int) (p.getX() - pressDeltaX ));
                     int newY = pkg.getEditor().snapToGrid((int) (p.getY() - pressDeltaY));
                     pkg.getEditor().moveBy(newX - preMoveX, newY - preMoveY);
                     updateCursor(e, true);
+                    moving = true;
                 }
+                showingMenu(null);
             }
             e.consume();
         });
@@ -259,6 +290,8 @@ public abstract class Target
             if (e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger()) {
                 pkg.getEditor().endResize();
             }
+            resizing = false;
+            moving = false;
         });
         pane.setOnKeyTyped(e -> {
             // + or - on the keyboard do a resize:
@@ -378,7 +411,7 @@ public abstract class Target
     protected boolean cursorAtResizeCorner(MouseEvent e)
     {
         // Check if it's in the 45-degree corner in the bottom right:
-        return e.getX() + e.getY() >= getWidth() + getHeight() - RESIZE_CORNER_SIZE;
+        return (e.getX() + e.getY() >= getWidth() + getHeight() - RESIZE_CORNER_SIZE) || resizing;
     }
 
     /**
@@ -507,6 +540,50 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     protected void redraw()
     {
+        removeResizingLines();
+        drawResizingLines();
+    }
+
+    //This is called on the redraw method of each subclass that needs the lines drawn
+    @OnThread(Tag.FXPlatform)
+    protected void drawResizingLines()
+    {
+        if (this.selected && isResizable() && line1==null && line2==null)
+        {
+            line1 = new Line(pane.getWidth() - RESIZE_CORNER_SIZE, pane.getHeight(), pane.getWidth(), pane.getHeight() - RESIZE_CORNER_SIZE);
+            line2 = new Line(pane.getWidth() - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP, pane.getHeight(), pane.getWidth(), pane.getHeight() - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP);
+            pane.getChildren().add(line1);
+            pane.getChildren().add(line2);
+
+//          The following code is the alternative to draw the two lines through the canvas.
+//          However, this approach does not work for all the subclasses (e.g. PackageTarget.java --> because
+//          it's got a pane inside the canvas).
+//          _____________________________________
+//          GraphicsContext g = canvas.getGraphicsContext2D();
+//          double width = canvas.getWidth();
+//          double height = canvas.getHeight();
+//          g.setStroke(javafx.scene.paint.Color.BLACK);
+//          g.setLineDashes();
+//          g.setLineWidth(1.0);
+//          // Draw the marks in the corner to indicate resizing is possible:
+//          g.strokeLine(width - RESIZE_CORNER_SIZE, height, width, height - RESIZE_CORNER_SIZE);
+//          g.strokeLine(width - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP, height, width, height - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP);
+        }
+    }
+
+    // Remove the two resizing lines on the bottom right of a target.
+    @OnThread(Tag.FXPlatform)
+    protected void removeResizingLines()
+    {
+        // If there are more than two children in the pane, that means that we have two lines
+        // So remove them
+        if(isResizable() && line1 != null && line2 != null)
+        {
+            int size = pane.getChildren().size();
+            pane.getChildren().remove(size-2,size);
+            line1 = null;
+            line2 = null;
+        }
     }
 
     /*
@@ -653,6 +730,8 @@ public abstract class Target
         pane.setPrefWidth(width);
         pane.setPrefHeight(height);
         repaint();
+        // The next line is needed for the PackageTargets so that two resizingLines are properly redrawn when moving or resizing
+        redraw();
     }
 
     @OnThread(Tag.FXPlatform)
@@ -669,13 +748,7 @@ public abstract class Target
     @OnThread(Tag.FXPlatform)
     public boolean isMoveable()
     {
-        return false;
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public void setIsMoveable(boolean b)
-    {
-        
+        return true;
     }
 
     /**

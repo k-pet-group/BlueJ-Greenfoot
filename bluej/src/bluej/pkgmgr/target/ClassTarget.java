@@ -131,7 +131,7 @@ public class ClassTarget extends DependentTarget
 
     private static final String STEREOTYPE_OPEN = "\u00AB"; //"<<";
     private static final String STEREOTYPE_CLOSE = "\u00BB"; //">>";
-    private static final double RESIZE_CORNER_GAP = 4;
+
 
     // temporary file name extension to trick windows if changing case only in
     // class name
@@ -169,7 +169,6 @@ public class ClassTarget extends DependentTarget
     // Whether the current compilation is invalid due to edits since compilation began
     private boolean compilationInvalid = false;
 
-    private boolean isMoveable = true;
     private SourceType sourceAvailable;
     // Part of keeping track of number of editors opened, for Greenfoot phone home:
     private boolean hasBeenOpened = false;
@@ -184,9 +183,7 @@ public class ClassTarget extends DependentTarget
     private boolean visible = true;
     private static String[] pseudos;
 
-    // The body of the class target which goes hashed, etc:
-    @OnThread(Tag.FX)
-    private ResizableCanvas canvas;
+
     private Label stereotypeLabel;
     private boolean isFront = true;
     @OnThread(Tag.FX)
@@ -205,6 +202,10 @@ public class ClassTarget extends DependentTarget
     private boolean drawingExtends = false;
     private Label nameLabel;
     private Label noSourceLabel;
+
+    // The body of the class target which goes hashed, etc:
+    @OnThread(Tag.FX)
+    protected ResizableCanvas canvas;
 
     /**
      * Create a new class target in package 'pkg'.
@@ -245,6 +246,7 @@ public class ClassTarget extends DependentTarget
         stereotypeLabel.managedProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
         JavaFXUtil.addStyleClass(stereotypeLabel, "class-target-extra");
         pane.setTop(new VBox(stereotypeLabel, nameLabel));
+
         canvas = new ResizableCanvas()
         {
             @Override
@@ -255,6 +257,7 @@ public class ClassTarget extends DependentTarget
                 redraw();
             }
         };
+
         pane.setCenter(canvas);
 
         // We need to add label to the stack pane element
@@ -2269,6 +2272,10 @@ public class ClassTarget extends DependentTarget
     @Override
     protected void redraw()
     {
+        //first remove any resizing lines
+        removeResizingLines();
+
+        // Then clear the canvas
         GraphicsContext g = canvas.getGraphicsContext2D();
         double width = canvas.getWidth();
         double height = canvas.getHeight();
@@ -2285,15 +2292,8 @@ public class ClassTarget extends DependentTarget
             g.fillRect(0, 0, width, height);
         }
 
-        if (this.selected && isResizable())
-        {
-            g.setStroke(javafx.scene.paint.Color.BLACK);
-            g.setLineDashes();
-            g.setLineWidth(1.0);
-            // Draw the marks in the corner to indicate resizing is possible:
-            g.strokeLine(width - RESIZE_CORNER_SIZE, height, width, height - RESIZE_CORNER_SIZE);
-            g.strokeLine(width - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP, height, width, height - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP);
-        }
+        //draw the resizing lines if needed
+        drawResizingLines();
     }
 
     /**
@@ -2481,21 +2481,6 @@ public class ClassTarget extends DependentTarget
         sourceAvailable = SourceType.Stride;
     }
 
-    public boolean isMoveable()
-    {
-        return isMoveable;
-    }
-
-    /**
-     * Set whether this ClassTarget can be moved by the user (dragged around).
-     * This is set false for unit tests which are associated with another class.
-     * 
-     */
-    public void setIsMoveable(boolean isMoveable)
-    {
-        this.isMoveable = isMoveable;
-    }
-    
     /**
      * perform interactive method call
      */
