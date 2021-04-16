@@ -1843,14 +1843,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         switchToSourceView();
 
-        if (isBreak)
-        {
-            removeStepMark();
-            currentStepLineIndex = lineNumber - 1;
-            flowEditorPane.setLineMarginGraphics(currentStepLineIndex, calculateMarginDisplay(currentStepLineIndex));
-            // We also reapply scopes:
-            flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
-        }
+        
+        removeStepMark();
+        currentStepLineIndex = lineNumber - 1;
+        flowEditorPane.setLineMarginGraphics(currentStepLineIndex, calculateMarginDisplay(currentStepLineIndex));
+        // We also reapply scopes:
+        flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
 
         // Scroll to the line:
         flowEditorPane.positionCaret(getOffsetFromLineColumn(new SourceLocation(lineNumber, 1)));
