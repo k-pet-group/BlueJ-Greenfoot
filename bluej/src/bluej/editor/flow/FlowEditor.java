@@ -40,7 +40,6 @@ import bluej.editor.flow.FlowEditorPane.SelectionListener;
 import bluej.editor.flow.FlowEditorPane.StyledLines;
 import bluej.editor.flow.FlowErrorManager.ErrorDetails;
 import bluej.editor.flow.JavaSyntaxView.Display;
-import bluej.editor.flow.JavaSyntaxView.ParagraphAttribute;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
 import bluej.editor.flow.StatusLabel.Status;
@@ -130,7 +129,6 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow.AnchorLocation;
@@ -989,7 +987,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             }
             else
             {
-                userSave();
+                try
+                {
+                    save();
+                }
+                catch (IOException ioe) {}
+                // Note we can safely ignore the exception here: a message has
+                // already been displayed in the editor status bar by the save() method
             }
         }
     }
@@ -2060,23 +2064,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                     mayHaveBreakpoints = true;
                 }
             }
-        }
-    }
-
-     /**
-     * User requests "save"
-     */
-    public void userSave()
-    {
-        if (saveState.isSaved())
-            info.message(Config.getString("editor.info.noChanges"));
-        else {
-            try {
-                save();
-            }
-            catch (IOException ioe) {}
-            // Note we can safely ignore the exception here: a message has
-            // already been displayed in the editor status bar
         }
     }
 
