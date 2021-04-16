@@ -396,10 +396,13 @@ public class LineDisplay
             {
                 // Can't use parentToLocal if layout bounds may be out of date:
                 Point2D pointInLocal = new Point2D(localPoint.getX() - currentlyVisibleLine.getLayoutX() - MarginAndTextLine.TEXT_LEFT_EDGE + horizScrollProperty.get(), localPoint.getY() - currentlyVisibleLine.getLayoutY());
-                HitInfo hitInfo = currentlyVisibleLine.textLine.hitTest(pointInLocal);
-                if (hitInfo != null)
+                if (pointInLocal.getX() >= 0)
                 {
-                    return new int[] {i + firstVisibleLineIndex, hitInfo.getInsertionIndex()};
+                    HitInfo hitInfo = currentlyVisibleLine.textLine.hitTest(pointInLocal);
+                    if (hitInfo != null)
+                    {
+                        return new int[]{i + firstVisibleLineIndex, hitInfo.getInsertionIndex()};
+                    }
                 }
             }
         }

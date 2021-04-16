@@ -188,7 +188,9 @@ public final class FlowActions
         {
             Nodes.addInputMap(getTextComponent(), InputMap.sequence(
                     InputMap.consume(MouseEvent.MOUSE_CLICKED, e -> {
-                        if (e.getButton() == MouseButton.PRIMARY)
+                        // The first click will have positioned the caret, but we must still make sure
+                        // that we are positioned over the editor and not, for example, over the left margin:
+                        if (e.getButton() == MouseButton.PRIMARY && editor.getSourcePane().getCaretPositionForMouseEvent(e).isPresent())
                         {
                             if (e.getClickCount() == 2)
                             {
