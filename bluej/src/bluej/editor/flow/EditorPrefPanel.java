@@ -126,7 +126,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
             });
             textTopPanel.add(textFileExtensionsDefaultButton,1,0);
 
-            Label t = new Label(Config.getString("prefmgr.interface.language.restart"));
+            Label t = new Label(Config.getString("prefmgr.interface.text.restart"));
             textTopPanel.add(t, 0,1);
             textEditorPanel.add(textTopPanel);
         }
