@@ -1437,20 +1437,20 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    public String breakpointToggleEvent(int lineNo, boolean set)
+    public boolean breakpointToggleEvent(int lineNo, boolean set)
     {
         if (isCompiled()) {
-            String possibleError = getPackage().getDebugger().toggleBreakpoint(getQualifiedName(), lineNo, set, null);
+            boolean nowSet = getPackage().getDebugger().toggleBreakpoint(getQualifiedName(), lineNo, set, null);
 
-            if (possibleError == null && getPackage() != null)
+            if (nowSet == set && getPackage() != null)
             {
                 DataCollector.debuggerBreakpointToggle(getPackage(), getSourceFile(), lineNo, set);
             }
             
-            return possibleError;
+            return nowSet;
         }
         else {
-            return Config.getString("pkgmgr.breakpointMsg");
+            return false;
         }
     }
     

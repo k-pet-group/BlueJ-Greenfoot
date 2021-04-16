@@ -62,9 +62,9 @@ public interface EditorWatcher
      * Called by Editor to set/clear a breakpoint
      * @param lineNo the line number of the breakpoint
      * @param set    whether the breakpoint is set (true) or cleared
-     * @return             An error message or null if okay.
+     * @return             True if there is now a breakpoint on the line, false if not
      */
-    String breakpointToggleEvent(int lineNo, boolean set);
+    boolean breakpointToggleEvent(int lineNo, boolean set);
 
     /**
      * Called by Editor when documentation is to be compiled

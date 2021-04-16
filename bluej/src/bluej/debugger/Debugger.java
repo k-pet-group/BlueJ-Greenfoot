@@ -289,11 +289,10 @@ public abstract class Debugger
      * @param line       The line number of the breakpoint.
      * @param set        True to set, false to clear a breakpoint.
      * @param properties Extra properties to set on the breakpoint.  Can (and usually should) be null.
-     * @return           a string of the error message generated performing
-     *                   this operation or null
+     * @return           True if the breakpoint is now set, false if it is not
      */
     @OnThread(Tag.FXPlatform)
-    public abstract String toggleBreakpoint(String className, int line,
+    public abstract boolean toggleBreakpoint(String className, int line,
                                             boolean set, Map<String, String> properties);
 
     /**
@@ -303,11 +302,10 @@ public abstract class Debugger
      * @param line       The line number of the breakpoint.
      * @param set        True to set, false to clear a breakpoint.
      * @param properties Extra properties to set on the breakpoint.  Can (and usually should) be null.
-     * @return           a string of the error message generated performing
-     *                   this operation or null
+     * @return           true if there is now a breakpoint set, false if there is not
      */
     @OnThread(Tag.FXPlatform)
-    public abstract String toggleBreakpoint(String className, String method, boolean set,
+    public abstract boolean toggleBreakpoint(String className, String method, boolean set,
                                             Map<String,String> properties);
     
     /**
@@ -319,11 +317,10 @@ public abstract class Debugger
      * @param line       The line number of the breakpoint.
      * @param set        True to set, false to clear a breakpoint.
      * @param properties Extra properties to set on the breakpoint.  Can (and usually should) be null.
-     * @return           a string of the error message generated performing
-     *                   this operation or null
+     * @return           true if the breakpoint is now set, false if it is not
      */
     @OnThread(Tag.Any)
-    public abstract String toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set,
+    public abstract boolean toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set,
             Map<String, String> properties);
 
     /**

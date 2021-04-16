@@ -120,9 +120,9 @@ public class TestBasicEditorDisplay extends FXTest
             }
 
             @Override
-            public String breakpointToggleEvent(int lineNo, boolean set)
+            public boolean breakpointToggleEvent(int lineNo, boolean set)
             {
-                return null;
+                return false;
             }
 
             @Override
