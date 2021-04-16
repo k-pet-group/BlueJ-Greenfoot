@@ -375,6 +375,7 @@ public class ExecControls
     public static SourceLocation [] getFilteredStack(List<SourceLocation> stack)
     {
         int first = -1;
+        int newInstanceCallsBeganAt = -1;
         int i;
         for (i = 0; i < stack.size(); i++) {
             SourceLocation loc = stack.get(i);
@@ -395,12 +396,26 @@ public class ExecControls
             if (Config.isGreenfoot() && className.startsWith("greenfoot.core.Simulation")) {
                 break;
             }
+
+            // This check must go after the others, or we'll set newInstanceCallsBeganAt to -1 before we break:
+            if (className.startsWith("jdk.internal.reflect") || className.startsWith("java.lang.reflect.Constructor"))
+            {
+                if (newInstanceCallsBeganAt == -1)
+                {
+                    newInstanceCallsBeganAt = i;
+                }
+            }
+            else
+                newInstanceCallsBeganAt = -1;
             
             // Topmost stack location shown will have source available!
             if (first == -1 && loc.getFileName() != null) {
                 first = i;
             }
         }
+        // If we saw a newInstance call chain just before we stopped, get rid of that too:
+        if (newInstanceCallsBeganAt != -1)
+            i = newInstanceCallsBeganAt;
         
         if (first == -1 || i == 0) {
             return new SourceLocation[0];
