@@ -457,11 +457,14 @@ public class ExecControls
                 String classSourceName = thread.getClassSourceName(index);
                 int lineNumber = thread.getLineNumber(index);
                 DebuggerObject currentObject = thread.getCurrentObject(index);
-                Platform.runLater(() -> project.showSource(thread,
+                Platform.runLater(() -> {
+                    project.removeStepMarks();
+                    project.showSource(thread,
                         aClass,
                         classSourceName,
                         lineNumber,
-                        currentObject));
+                        currentObject);
+                });
             }
         }
     }
