@@ -510,8 +510,9 @@ public abstract class DependentTarget extends EditableTarget
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public  boolean isMoveable() {
-        return false;
+    public  boolean isMoveable()
+    {
+        return isMovable;
     }
 
     /**
