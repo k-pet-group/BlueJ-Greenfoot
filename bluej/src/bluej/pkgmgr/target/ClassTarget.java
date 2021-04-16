@@ -471,6 +471,8 @@ public class ClassTarget extends DependentTarget
             Project proj = getPackage().getProject();
             proj.removeInspectorInstance(qualifiedName);
             
+            super.setState(newState);
+
             // Notify extensions if necessary.
             if (newState == State.COMPILED)
             {
@@ -481,8 +483,6 @@ public class ClassTarget extends DependentTarget
             }
             ClassEvent event = new ClassEvent(getPackage(), getBClass(), newState == State.COMPILED, newState == State.HAS_ERROR);
             ExtensionsManager.getInstance().delegateEvent(event);
-
-            super.setState(newState);
         }
     }
 
