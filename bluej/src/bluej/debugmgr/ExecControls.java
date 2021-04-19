@@ -43,6 +43,7 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Orientation;
@@ -310,6 +311,21 @@ public class ExecControls
                 sel.update();
             }
             setThreadDetails(sel);
+            if (threadList != null)
+            {
+                Platform.runLater(() -> {
+                    // Don't refresh if it's showing because it will mess with user's click behaviour:
+                    if (!threadList.isShowing())
+                    {
+                        // Force a refresh by remembering old items and selection, then blanking them and setting them again:
+                        ObservableList<DebuggerThreadDetails> items = threadList.getItems();
+                        int selection = threadList.getSelectionModel().getSelectedIndex();
+                        threadList.setItems(FXCollections.observableArrayList());
+                        threadList.setItems(items);
+                        threadList.getSelectionModel().select(selection);
+                    }
+                });
+            }
         }
     }
 
