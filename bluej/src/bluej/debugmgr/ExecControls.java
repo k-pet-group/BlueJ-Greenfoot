@@ -154,6 +154,7 @@ public class ExecControls
     // The currently selected thread
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private DebuggerThreadDetails selectedThread;
+    private Label stackPlaceholder;
 
 
     /**
@@ -348,6 +349,7 @@ public class ExecControls
             cannotHalt.set(true);
             cannotStepOrContinue.set(true);
             stackList.getItems().clear();
+            stackPlaceholder.setText(Config.getString("debugger.noThreadSelected"));
         }
         else
         {
@@ -356,6 +358,7 @@ public class ExecControls
                 selectedThread = dt;
             }
             project.getDebugger().runOnEventHandler(() -> setThreadDetails(dt));
+            stackPlaceholder.setText(removeHTML(Config.getString("debugger.threadRunning")));
         }
     }
 
@@ -585,9 +588,9 @@ public class ExecControls
                 stackFrameSelectionChanged(thread, index.intValue(), showSource);
             });
         });
-        Label placeholder = new Label(removeHTML(Config.getString("debugger.threadRunning")));
-        placeholder.setTextAlignment(TextAlignment.CENTER);
-        stackList.setPlaceholder(placeholder);
+        stackPlaceholder = new Label(removeHTML(Config.getString("debugger.threadRunning")));
+        stackPlaceholder.setTextAlignment(TextAlignment.CENTER);
+        stackList.setPlaceholder(stackPlaceholder);
 
         if (debuggerThreads != null)
         {
