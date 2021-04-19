@@ -566,7 +566,8 @@ debugger.execControls.terminateButtonText = Terminate
 
 debugger.options = Options
 debugger.hideSystemThreads = Hide system threads
-debugger.threadRunning = <html><center>Thread is running.<br>Threads must be stopped to view details.</html>
+debugger.threadRunning = <html><center>Thread is running or finished.<br>Threads must be stopped to view details.</html>
+debugger.noThreadSelected = No thread selected.
 
 # DialogManager labels
 

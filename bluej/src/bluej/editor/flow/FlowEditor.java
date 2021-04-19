@@ -257,22 +257,19 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         return editorContextMenu;
     }
 
-    // Returns true if successfully flipped, false if not.
+    // Returns state of breakpoint afterwards: true if present, false if not
     private boolean toggleBreakpointForLine(int lineIndex)
     {
-        if (watcher.breakpointToggleEvent(lineIndex + 1, !breakpoints.get(lineIndex)) == null)
+        boolean hasBreakpoint = watcher.breakpointToggleEvent(lineIndex + 1, !breakpoints.get(lineIndex));
+        breakpoints.set(lineIndex, hasBreakpoint);
+        if (hasBreakpoint)
         {
-            breakpoints.flip(lineIndex);
-            if(breakpoints.get(lineIndex))
-            {
-                mayHaveBreakpoints = true;
-            }
-            flowEditorPane.setLineMarginGraphics(lineIndex, calculateMarginDisplay(lineIndex));
-            // We also reapply scopes:
-            flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
-            return true;
+            mayHaveBreakpoints = true;
         }
-        return false;
+        flowEditorPane.setLineMarginGraphics(lineIndex, calculateMarginDisplay(lineIndex));
+        // We also reapply scopes:
+        flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
+        return hasBreakpoint;
     }
 
     public void toggleBreakpoint()
@@ -1847,14 +1844,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         switchToSourceView();
 
-        if (isBreak)
-        {
-            removeStepMark();
-            currentStepLineIndex = lineNumber - 1;
-            flowEditorPane.setLineMarginGraphics(currentStepLineIndex, calculateMarginDisplay(currentStepLineIndex));
-            // We also reapply scopes:
-            flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
-        }
+        
+        removeStepMark();
+        currentStepLineIndex = lineNumber - 1;
+        flowEditorPane.setLineMarginGraphics(currentStepLineIndex, calculateMarginDisplay(currentStepLineIndex));
+        // We also reapply scopes:
+        flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
 
         // Scroll to the line:
         flowEditorPane.positionCaret(getOffsetFromLineColumn(new SourceLocation(lineNumber, 1)));
@@ -2046,6 +2041,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             {
                 flowEditorPane.setLineMarginGraphics(lineIndex, calculateMarginDisplay(lineIndex));
             }
+            // We also reapply scopes:
+            flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
             mayHaveBreakpoints = false;
         }
     }
@@ -2053,18 +2050,27 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void reInitBreakpoints()
     {
-        if (mayHaveBreakpoints) {
+        if (mayHaveBreakpoints)
+        {
             mayHaveBreakpoints = false;
             for (int i = 1; i <= numberOfLines(); i++)
             {
                 if (breakpoints.get(i))
                 {
                     if (watcher != null)
-                        watcher.breakpointToggleEvent(i + 1, true);
-                    mayHaveBreakpoints = true;
+                    {
+                        boolean wasSet = watcher.breakpointToggleEvent(i + 1, true);
+                        breakpoints.set(i, wasSet);
+                        if (wasSet)
+                        {
+                            mayHaveBreakpoints = true;
+                        }
+                    }
                 }
             }
         }
+        // Reapply scopes:
+        flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
     }
 
     /**

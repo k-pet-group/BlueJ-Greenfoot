@@ -531,9 +531,10 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     private void setSpecialBreakpoints(final Debugger debugger)
     {
         for (String method : INVOKE_METHODS) {
-            String err = debugger.toggleBreakpoint(simulationClass, method, true, Collections.singletonMap(SIMULATION_INVOKE_KEY, "yes"));
-            if (err != null) {
-                Debug.reportError("Problem setting special breakpoint: " + err);
+            boolean nowSet = debugger.toggleBreakpoint(simulationClass, method, true, Collections.singletonMap(SIMULATION_INVOKE_KEY, "yes"));
+            if (!nowSet)
+            {
+                Debug.reportError("Problem setting special Greenfoot breakpoint");
             }
         }
     }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -62,9 +62,9 @@ public interface EditorWatcher
      * Called by Editor to set/clear a breakpoint
      * @param lineNo the line number of the breakpoint
      * @param set    whether the breakpoint is set (true) or cleared
-     * @return             An error message or null if okay.
+     * @return             True if there is now a breakpoint on the line, false if not
      */
-    String breakpointToggleEvent(int lineNo, boolean set);
+    boolean breakpointToggleEvent(int lineNo, boolean set);
 
     /**
      * Called by Editor when documentation is to be compiled

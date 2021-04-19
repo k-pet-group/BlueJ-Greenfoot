@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1393,14 +1393,14 @@ public class VMReference
      * @param line
      *            The line number of the breakpoint.
      * @param properties The collection of properties to set on the breakpoint.  Can be null.
-     * @return null if there was no problem, or an error string
+     * @return true if the breakpoint is now set, false if it is not
      */
     @OnThread(Tag.FXPlatform)
-    String setBreakpoint(String className, int line, Map<String, String> properties)
+    boolean setBreakpoint(String className, int line, Map<String, String> properties)
     {
         Location location = loadClassesAndFindLine(className, line);
         if (location == null) {
-            return Config.getString("debugger.jdiDebugger.noCodeMsg");
+            return false;
         }
         EventRequestManager erm = machine.eventRequestManager();
         BreakpointRequest bpreq = erm.createBreakpointRequest(location);
@@ -1413,7 +1413,7 @@ public class VMReference
         }
         bpreq.enable();
 
-        return null;
+        return true;
     }
 
     String setBreakpoint(ReferenceType classType, int line, Map<String, String> properties)
@@ -1448,7 +1448,7 @@ public class VMReference
     
     // As above but sets the breakpoint on the first line of a given method
     @OnThread(Tag.FXPlatform)
-    String setBreakpoint(String className, String methodName, Map<String, String> properties)
+    boolean setBreakpoint(String className, String methodName, Map<String, String> properties)
     {
         try {
             loadClass(className);
@@ -1456,15 +1456,15 @@ public class VMReference
             Location loc = findMethodLocation(classType, methodName);
             return setBreakpoint(className, loc.lineNumber(), properties);
         } catch (ClassNotFoundException e) {
-            return "Could not find class: " + className; 
+            return false; 
         }
     }
     
-    String setBreakpoint(ReferenceType classType, String methodName, Map<String, String> properties)
+    boolean setBreakpoint(ReferenceType classType, String methodName, Map<String, String> properties)
     {
         Location loc = findMethodLocation(classType, methodName);
         setBreakpoint(loc, properties);
-        return null;
+        return true;
     }    
     
 
@@ -1475,56 +1475,49 @@ public class VMReference
      *            The class in which to clear the breakpoints.
      * @param line
      *            The line number of the breakpoint.
-     * @return null if there was no problem, or an error string
+     * @return true if there is now a breakpoint set, false if there is not
      */
     @OnThread(Tag.FXPlatform)
-    String clearBreakpoint(String className, int line)
+    boolean clearBreakpoint(String className, int line)
     {
         Location location = loadClassesAndFindLine(className, line);
         if (location == null) {
-            return Config.getString("debugger.jdiDebugger.noCodeMsg");
+            return false;
         }
 
         return clearBreakpoint(location);
     }
     
     // As above but clears the breakpoint in a given method (as set by the corresponding setBreakpoint method that takes a method name)
-    String clearBreakpoint(String className, String methodName)
+    boolean clearBreakpoint(String className, String methodName)
     {
         try {
             ClassType classType = (ClassType)findClassByName(className);
             Location loc = findMethodLocation(classType, methodName);
             return clearBreakpoint(loc);
         }  catch (ClassNotFoundException e) {
-            return "Could not find class: " + className; 
+            return false; 
         }
     }
     
-    String clearBreakpoint(ReferenceType classType, String methodName)
+    boolean clearBreakpoint(ReferenceType classType, String methodName)
     {
         Location loc = findMethodLocation(classType, methodName);
         return clearBreakpoint(loc);
     }
     
-    String clearBreakpoint(Location location)
+    boolean clearBreakpoint(Location location)
     {
         EventRequestManager erm = machine.eventRequestManager();
-        boolean found = false;
         List<BreakpointRequest> list = erm.breakpointRequests();
         for (int i = 0; i < list.size(); i++) {
             BreakpointRequest bp = list.get(i);
             if (bp.location().equals(location)) {
                 erm.deleteEventRequest(bp);
-                found = true;
             }
         }
-        // bp not found
-        if (found) {
-            return null;
-        }
-        else {
-            return Config.getString("debugger.jdiDebugger.noBreakpointMsg");
-        }
+        // Whether we removed it or not, there's no longer a breakpoint:
+        return false;
     }
 
     
