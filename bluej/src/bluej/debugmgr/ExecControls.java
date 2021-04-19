@@ -312,7 +312,7 @@ public class ExecControls
                 sel.update();
             }
             setThreadDetails(sel);
-            if (threadList != null)
+            if (!isSingleThreadMode())
             {
                 Platform.runLater(() -> {
                     // Don't refresh if it's showing because it will mess with user's click behaviour:
