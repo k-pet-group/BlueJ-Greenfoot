@@ -1128,7 +1128,8 @@ public class ClassTarget extends DependentTarget
         if (compilationInvalid)
         {
             // We pass "classesKept" as false since the generated classes are invalid now:
-            editor.compileFinished(successful, false);
+            if (editor != null)
+                editor.compileFinished(successful, false);
             return;
         }
         
