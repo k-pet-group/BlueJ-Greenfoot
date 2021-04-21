@@ -324,30 +324,33 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                         }
 
                         // Find unreported exception of a method
-                        String exceptionType = errorMessage.substring("unreported exception ".length(), errorMessage.indexOf(';'));
-                        Platform.runLater(() -> {
-                            boolean hasAlreadyThrowsForType = false;
-                            // look for the containing method's throws content
-                            // --> we leave the loop either when we found the type or when we passed the method (break statement)
-                            FrameCanvas c = this.getSlot().getParentFrame().getParentCanvas();
-                            while (c != null && c.getParent() != null && c.getParent().getFrame() != null)
-                            {
-                                if (c.getParent().getFrame() instanceof MethodFrameWithBody)
+                        if (errorMessage.startsWith("unreported exception ") && errorMessage.contains(";"))
+                        {
+                            String exceptionType = errorMessage.substring("unreported exception ".length(), errorMessage.indexOf(';'));
+                            Platform.runLater(() -> {
+                                boolean hasAlreadyThrowsForType = false;
+                                // look for the containing method's throws content
+                                // --> we leave the loop either when we found the type or when we passed the method (break statement)
+                                FrameCanvas c = this.getSlot().getParentFrame().getParentCanvas();
+                                while (c != null && c.getParent() != null && c.getParent().getFrame() != null)
                                 {
-                                    MethodFrameWithBody methodFrame = (MethodFrameWithBody) c.getParent().getFrame();
-                                    if (methodFrame.hasThrowsForType(exceptionType))
+                                    if (c.getParent().getFrame() instanceof MethodFrameWithBody)
                                     {
-                                        hasAlreadyThrowsForType = true;
+                                        MethodFrameWithBody methodFrame = (MethodFrameWithBody) c.getParent().getFrame();
+                                        if (methodFrame.hasThrowsForType(exceptionType))
+                                        {
+                                            hasAlreadyThrowsForType = true;
+                                        }
                                     }
+                                    c = c.getParent().getFrame().getParentCanvas();
                                 }
-                                c = c.getParent().getFrame().getParentCanvas();
-                            }
-                            // The error is still seen by BlueJ when a throw statement is added, so we avoid an infinite loop
-                            if (errorMessage.startsWith("unreported exception ") && !hasAlreadyThrowsForType)
-                            {
-                                unreportedExceptionErrors.add(new UnreportedExceptionError(this, getErrorStartPos(), frameEditor, exceptionType, vars.keySet()));
-                            }
-                        });
+                                // The error is still seen by BlueJ when a throw statement is added, so we avoid an infinite loop
+                                if (errorMessage.startsWith("unreported exception ") && !hasAlreadyThrowsForType)
+                                {
+                                    unreportedExceptionErrors.add(new UnreportedExceptionError(this, getErrorStartPos(), frameEditor, exceptionType, vars.keySet()));
+                                }
+                            });
+                        }
                     }
 
                     f.complete(Stream.concat(undeclaredVarErrors.stream(),
