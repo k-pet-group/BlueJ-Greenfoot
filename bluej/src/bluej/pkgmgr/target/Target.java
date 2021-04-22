@@ -255,15 +255,15 @@ public abstract class Target
         pane.setOnMouseDragged(e -> {
             if (e.getButton() == MouseButton.PRIMARY && !pkg.getEditor().isCreatingExtends() && !e.isControlDown())
             {
-                if (isSelected() && cursorAtResizeCorner(e) && isResizable() && !moving)
+                if (isSelected() && isResizable() && resizing && !moving)
                 {
-                    resizing = true;
                     int newWidth = pkg.getEditor().snapToGrid((int) (e.getX() + (preResizeWidth - pressDeltaX)));
                     int newHeight = pkg.getEditor().snapToGrid((int) (e.getY() + (preResizeHeight - pressDeltaY)));
-                    //We nee the following if to avoid resizing to 0 when first clicking on the resize toggle
-                    if( newWidth != preResizeWidth && newHeight != preResizeHeight) {
-                        pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
-                    }
+                    pkg.getEditor().resizeBy(newWidth - preResizeWidth, newHeight - preResizeHeight);
+                }
+                else if (isSelected() && cursorAtResizeCorner(e) && isResizable() && !moving)
+                {
+                    resizing = true;
                 }
                 else if (isMoveable() && !e.isStillSincePress())
                 {
