@@ -226,11 +226,9 @@ public class PkgMgrFrame
     private ExportManager exporter;
 
     @OnThread(Tag.FX)
-    private Property<Stage> stageProperty;
+    private final Property<Stage> stageProperty;
     @OnThread(Tag.FX)
-    private Property<BorderPane> paneProperty;
-    @OnThread(Tag.FXPlatform)
-    private FXPlatformRunnable cancelWiggle;
+    private final Property<BorderPane> paneProperty;
     @OnThread(Tag.FXPlatform)
     private VBox toolPanel;
     @OnThread(Tag.FXPlatform)
