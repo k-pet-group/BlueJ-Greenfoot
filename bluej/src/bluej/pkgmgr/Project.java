@@ -341,6 +341,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             projectImportInformation.complete(new ProjectImportInformation(this));
         });
 
+        ExtensionsManager.getInstance().projectOpening(this);
         // Prepare for getting the mapping between external file extensions and their associate launcher.
         projectExternalFileOpenMap = ExtensionsManager.getInstance().getExtFileOpenMap();
         // Now we can load the targets for the UI as we retrieved the external file extensions that can be visible for this project
@@ -550,7 +551,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             proj.initialPackageName = startingPackageName;
         }
 
-        ExtensionsManager.getInstance().projectOpening(proj);
         DataCollector.projectOpened(proj, ExtensionsManager.getInstance().getLoadedExtensions(proj));
 
         proj.getImportScanner().startScanning();

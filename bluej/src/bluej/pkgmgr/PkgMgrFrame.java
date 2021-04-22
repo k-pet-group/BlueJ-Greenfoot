@@ -226,11 +226,9 @@ public class PkgMgrFrame
     private ExportManager exporter;
 
     @OnThread(Tag.FX)
-    private Property<Stage> stageProperty;
+    private final Property<Stage> stageProperty;
     @OnThread(Tag.FX)
-    private Property<BorderPane> paneProperty;
-    @OnThread(Tag.FXPlatform)
-    private FXPlatformRunnable cancelWiggle;
+    private final Property<BorderPane> paneProperty;
     @OnThread(Tag.FXPlatform)
     private VBox toolPanel;
     @OnThread(Tag.FXPlatform)
@@ -2508,14 +2506,26 @@ public class PkgMgrFrame
     }
 
     /**
-     * Ask the user to confirm removal of package.
+     * Ask the user to confirm removal of class.
      * 
-     * @return zero if the user confirms removal.
+     * @return true if the user confirms removal.
      */
     @OnThread(Tag.FXPlatform)
     public boolean askRemoveClass()
     {
         int response = DialogManager.askQuestionFX(getWindow(), "really-remove-class");
+        return response == 0;
+    }
+
+    /**
+     * Ask the user to confirm removal of some files.
+     *
+     * @return true if the user confirms removal.
+     */
+    @OnThread(Tag.FXPlatform)
+    public boolean askRemoveFiles()
+    {
+        int response = DialogManager.askQuestionFX(getWindow(), "really-remove-files");
         return response == 0;
     }
 

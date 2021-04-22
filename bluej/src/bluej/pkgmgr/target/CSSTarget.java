@@ -28,16 +28,13 @@ import java.util.Properties;
 
 import bluej.editor.flow.FlowEditor;
 import bluej.pkgmgr.target.actions.EditAction;
-import bluej.pkgmgr.target.actions.RemoveAction;
+import bluej.pkgmgr.target.actions.RemoveEditableTargetAction;
 import bluej.utility.javafx.AbstractOperation;
-import bluej.utility.javafx.ResizableCanvas;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.geometry.Pos;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 
-import bluej.Config;
 import bluej.editor.Editor;
 import bluej.pkgmgr.Package;
 import bluej.utility.javafx.JavaFXUtil;
@@ -81,7 +78,7 @@ public class CSSTarget extends NonCodeEditableTarget
     @Override
     public List<? extends AbstractOperation<Target>> getContextOperations()
     {
-        return List.of(new EditAction(), new RemoveAction());
+        return List.of(new EditAction(), new RemoveEditableTargetAction());
     }
 
     @Override

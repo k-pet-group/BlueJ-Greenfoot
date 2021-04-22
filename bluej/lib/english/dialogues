@@ -218,6 +218,14 @@ Remove
 Cancel
 null
 
+really-remove-files
+This will delete the files from
+the directory and cannot be undone.
+Do you want to continue?
+Remove
+Cancel
+null
+
 really-remove-package
 Removing this package will permanently
 delete the package directory (including ALL

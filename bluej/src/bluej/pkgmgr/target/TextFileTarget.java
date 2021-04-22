@@ -25,7 +25,7 @@ import bluej.editor.Editor;
 import bluej.editor.flow.FlowEditor;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.actions.EditAction;
-import bluej.pkgmgr.target.actions.RemoveAction;
+import bluej.pkgmgr.target.actions.RemoveEditableTargetAction;
 import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
@@ -76,7 +76,7 @@ public class TextFileTarget extends NonCodeEditableTarget
     @Override
     public List<? extends AbstractOperation<Target>> getContextOperations()
     {
-        return List.of(new EditAction(), new RemoveAction());
+        return List.of(new EditAction(), new RemoveEditableTargetAction());
     }
 
     @Override
