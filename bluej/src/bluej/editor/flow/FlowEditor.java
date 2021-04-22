@@ -2615,38 +2615,57 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         int currentCaretPos = flowEditorPane.getSelectionStart();
         List<CharSequence> docLines = document.getLines();
         boolean isLineAfterImportBlank = docLines.get(0).toString().isBlank();
+        // We look if the cursor (the error) is at an import statement. We could just look on the line but because we cannot be sure
+        // the users have writting the import statement on a single line, we need to look up from the beginning of the code text.
+        SourceLocation errorSourceLocation = getLineColumnFromOffset(currentCaretPos);
+        String beforeErrorLineContent = getText(new SourceLocation(1,1), errorSourceLocation);
+        boolean isErrorInImportStatement = checkCodeIsOnImportStatement(beforeErrorLineContent);
 
         // Look for existing imports and package statement to find where the new import needs to be inserted.
         // We suppose package and import statements may be placed anywhere if the class contains comments...
-        boolean hasImports = docLines.stream().filter(charSequence -> charSequence.toString().startsWith("import ")).count() > 0;
-        boolean hasPackage = docLines.stream().filter(charSequence -> charSequence.toString().startsWith("package ")).count() > 0;
-        if (hasImports || hasPackage)
+        // However, if the error is on an import statement itself, that's the entire statement that we correct.
+        if(isErrorInImportStatement)
         {
-            boolean passedImport = false, passedPackage = false;
-            for (CharSequence charseq : docLines)
-            {
-                boolean isLineImport = charseq.toString().startsWith("import ");
-                boolean isLinePackage = charseq.toString().startsWith("package ");
-                passedImport |= isLineImport;
-                passedPackage |= isLinePackage;
-
-                // We found the place to add the import when we've passed all imports or when we only search for the package and passed it
-                if ((hasImports && !isLineImport && passedImport) || (!hasImports && passedPackage && !isLinePackage))
-                {
-                    isLineAfterImportBlank = charseq.toString().isBlank();
-                    break;
-                }
-
-                // Update the offset when we continue in the loop
-                importOffset += charseq.length() + 1;
-            }
+            int errorImportStatementStartIndex = beforeErrorLineContent.lastIndexOf("import ");
+            // Look where is the end of the import we are in. As for the "before" part, we can't assume the statement is written on a single line
+            String afterErrorLineContent = getText(errorSourceLocation, getLineColumnFromOffset(getTextLength()));
+            int errorImportStatementEndIndex = afterErrorLineContent.indexOf(";");
+            String fullImportStr = "import " + importName;
+            flowEditorPane.select(currentCaretPos - (beforeErrorLineContent.length() - errorImportStatementStartIndex), currentCaretPos + errorImportStatementEndIndex);
+            insertText(fullImportStr, false);
         }
+        else 
+        {
+            boolean hasImports = docLines.stream().filter(charSequence -> charSequence.toString().startsWith("import ")).count() > 0;
+            boolean hasPackage = docLines.stream().filter(charSequence -> charSequence.toString().startsWith("package ")).count() > 0;
+            if (hasImports || hasPackage)
+            {
+                boolean passedImport = false, passedPackage = false;
+                for (CharSequence charseq : docLines)
+                {
+                    boolean isLineImport = charseq.toString().startsWith("import ");
+                    boolean isLinePackage = charseq.toString().startsWith("package ");
+                    passedImport |= isLineImport;
+                    passedPackage |= isLinePackage;
 
-        String fullImportStr = "import " + importName + ((isLineAfterImportBlank) ? ";\n" : ";\n\n");
-        flowEditorPane.select(importOffset, importOffset);
-        insertText(fullImportStr, false);
-        int newCaretPos = (currentCaretPos >= importOffset) ? (currentCaretPos + fullImportStr.length()) : currentCaretPos;
-        flowEditorPane.select(newCaretPos, newCaretPos);
+                    // We found the place to add the import when we've passed all imports or when we only search for the package and passed it
+                    if ((hasImports && !isLineImport && passedImport) || (!hasImports && passedPackage && !isLinePackage))
+                    {
+                        isLineAfterImportBlank = charseq.toString().isBlank();
+                        break;
+                    }
+
+                    // Update the offset when we continue in the loop
+                    importOffset += charseq.length() + 1;
+                }
+            }
+
+            String fullImportStr = "import " + importName + ((isLineAfterImportBlank) ? ";\n" : ";\n\n");
+            flowEditorPane.select(importOffset, importOffset);
+            insertText(fullImportStr, false);
+            int newCaretPos = (currentCaretPos >= importOffset) ? (currentCaretPos + fullImportStr.length()) : currentCaretPos;
+            flowEditorPane.select(newCaretPos, newCaretPos);   
+        }
 
         refresh();
     }
@@ -2679,6 +2698,38 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
     }
 
+    /**
+     * Check if that portion of code is within an import statement
+     * (the caret being assumed to be at the end of the code portion)
+     * 
+     * @param code the portion of code to check
+     */
+    private boolean checkCodeIsOnImportStatement(String code)
+    {
+        JavaLexer l = new JavaLexer(new StringReader(code));
+        boolean isInImportStatement = false;
+        for (LocatableToken t = l.nextToken(); t.getType() != JavaTokenTypes.EOF && t.getType() != JavaTokenTypes.LITERAL_class
+            && t.getType() != JavaTokenTypes.LITERAL_interface && t.getType() != JavaTokenTypes.LITERAL_enum; t = l.nextToken())
+        {
+            switch (t.getType())
+            {
+                case JavaTokenTypes.LITERAL_import:
+                    isInImportStatement = true;
+                    break;
+                case JavaTokenTypes.SEMI:
+                    if (isInImportStatement)
+                    {
+                        isInImportStatement = false;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        return isInImportStatement;
+    }
+    
     /**
      * For a given type (an AssistContentThreadSafe object), checks if the imports
      * of the current file contains the type or its package 
