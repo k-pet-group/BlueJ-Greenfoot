@@ -2506,14 +2506,26 @@ public class PkgMgrFrame
     }
 
     /**
-     * Ask the user to confirm removal of package.
+     * Ask the user to confirm removal of class.
      * 
-     * @return zero if the user confirms removal.
+     * @return true if the user confirms removal.
      */
     @OnThread(Tag.FXPlatform)
     public boolean askRemoveClass()
     {
         int response = DialogManager.askQuestionFX(getWindow(), "really-remove-class");
+        return response == 0;
+    }
+
+    /**
+     * Ask the user to confirm removal of some files.
+     *
+     * @return true if the user confirms removal.
+     */
+    @OnThread(Tag.FXPlatform)
+    public boolean askRemoveFiles()
+    {
+        int response = DialogManager.askQuestionFX(getWindow(), "really-remove-files");
         return response == 0;
     }
 

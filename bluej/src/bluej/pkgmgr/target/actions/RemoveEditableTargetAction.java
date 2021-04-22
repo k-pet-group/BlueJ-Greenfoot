@@ -44,4 +44,16 @@ public class RemoveEditableTargetAction extends EditableTargetOperation
     {
         target.remove();
     }
+
+    @Override
+    protected boolean confirm(List<EditableTarget> editableTargets)
+    {
+        if (!editableTargets.isEmpty())
+        {
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame(editableTargets.get(0).getPackage());
+            if (pmf != null && pmf.askRemoveFiles())
+                return true;
+        }
+        return false;
+    }
 }

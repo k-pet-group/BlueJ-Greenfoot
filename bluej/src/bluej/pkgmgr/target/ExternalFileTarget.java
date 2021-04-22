@@ -27,6 +27,7 @@ import bluej.extensions2.ExternalFileLauncher;
 import bluej.extensions2.PackageNotFoundException;
 import bluej.extensions2.ProjectNotOpenException;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.AbstractOperation;
@@ -43,6 +44,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Target class for external files not natively supported by BlueJ
@@ -131,10 +134,17 @@ public class ExternalFileTarget extends NonCodeEditableTarget
         @Override
         public void activate(List<Target> targets)
         {
-            for (bluej.pkgmgr.target.Target target : targets)
+            List<ExternalFileTarget> extTargets = targets.stream().flatMap(t -> t instanceof ExternalFileTarget ? Stream.of((ExternalFileTarget)t) : Stream.empty()).collect(Collectors.toList());
+            if (!extTargets.isEmpty())
             {
-                if (target instanceof ExternalFileTarget)
-                    target.remove();
+                PkgMgrFrame pmf = PkgMgrFrame.findFrame(extTargets.get(0).getPackage());
+                if (pmf != null && pmf.askRemoveFiles())
+                {
+                    for (ExternalFileTarget extTarget : extTargets)
+                    {
+                        extTarget.remove();
+                    }
+                }
             }
         }
 
