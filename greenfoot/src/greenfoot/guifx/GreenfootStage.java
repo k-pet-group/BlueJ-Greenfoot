@@ -119,6 +119,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -268,12 +269,17 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         // The parameter types of the construction:
         private final JavaType[] paramTypes;
 
-        private Region makePreviewNode(ImageView imageView)
+        private Region makePreviewNode(ImageView imageView, String className)
         {
             ImageView cannotDropIcon = new ImageView(this.getClass().getClassLoader().getResource("noParking.png").toExternalForm());
             cannotDropIcon.visibleProperty().bind(cannotDrop);
+            Text newLabel = new Text("new " + className + "()");
+            newLabel.setFill(Color.WHITE);
+            newLabel.setStroke(Color.WHITE);
+            
+            StackPane.setAlignment(newLabel, Pos.TOP_CENTER);
             StackPane.setAlignment(cannotDropIcon, Pos.CENTER);
-            StackPane stackPane = new StackPane(imageView, cannotDropIcon);
+            StackPane stackPane = new StackPane(imageView, newLabel, cannotDropIcon);
             stackPane.setEffect(new DropShadow(10.0, 3.0, 3.0, Color.BLACK));
             return stackPane;
         }
@@ -289,7 +295,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         public NewActor(ImageView imageView, DebuggerObject actorObject,
                 InvokerRecord ir, JavaType[] paramTypes)
         {
-            this.previewNode = makePreviewNode(imageView);
+            this.previewNode = makePreviewNode(imageView, "");
             this.actorObject = actorObject;
             this.invokerRecord = ir;
             this.paramTypes = paramTypes;
@@ -305,7 +311,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
          */
         public NewActor(ImageView imageView, String typeName)
         {
-            this.previewNode = makePreviewNode(imageView);
+            this.previewNode = makePreviewNode(imageView, typeName);
             this.actorObject = null;
             this.invokerRecord = null;
             this.paramTypes = null;
