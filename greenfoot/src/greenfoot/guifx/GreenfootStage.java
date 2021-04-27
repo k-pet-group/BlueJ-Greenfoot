@@ -39,6 +39,7 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.Invoker;
+import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -1727,17 +1728,19 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 // If single actor, show simple context menu:
                 if (!actors.isEmpty())
                 {
+                    NamedValue[] namesForActors = debugHandler.nameObjects(actors);
                     // This is a list of menus; if there's only one we'll display
                     // directly in context menu.  If there's more than one, we'll
                     // have a higher level menu to pick between them.
                     List<Menu> actorMenus = new ArrayList<>();
-                    for (DebuggerObject actor : actors)
+                    for (int i = 0; i < actors.size(); i++)
                     {
+                        DebuggerObject actor = actors.get(i);
                         Target target = project.getTarget(actor.getClassName());
                         // Should always be ClassTarget, but check in case:
                         if (target instanceof ClassTarget)
                         {
-                            Menu menu = new Menu(actor.getClassName());
+                            Menu menu = new Menu(namesForActors[i].getName() + ":" + actor.getClassName());
                             ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), new RecordInvoke(actor), "", true);
                             menu.getItems().add(makeInspectMenuItem(actor));
                             //add a listener to the action event on the items in the sub-menu to hide the context menus
