@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * @author Michael Berry
  * @author Neil Brown
  * 
- * Copyright (c) 2011,2013,2014,2018
+ * Copyright (c) 2011,2013,2014,2018,2021
  */
 public class GifImage
 {
@@ -25,8 +25,6 @@ public class GifImage
     private int currentIndex;
     /** The time passed since the last frame in ms. */
     private long time;
-    /** The GIF file that contains the animation. */
-    private String file;
     /** Whether the animation is paused or not. */
     private boolean pause;
 
@@ -36,10 +34,9 @@ public class GifImage
      */
     public GifImage(String file)
     {
-        this.file = file;
         pause = false;
         if(file.toLowerCase().endsWith(".gif")) {
-            loadImages();
+            loadImages(file);
         }
         else {
             images = new GreenfootImage[] {new GreenfootImage(file)};
@@ -103,7 +100,7 @@ public class GifImage
     /**
      * Load the images
      */
-    private void loadImages()
+    private void loadImages(String file)
     {
         GifDecoder decode = new GifDecoder();
         decode.read(file);
