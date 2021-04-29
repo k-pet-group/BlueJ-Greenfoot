@@ -47,6 +47,25 @@ public class GifImage
     }
 
     /**
+     * Copy the given GifImage.  This is faster, and uses less memory, than loading the same
+     * GIF multiple times.  The current play state (position in the GIF, paused state) is copied
+     * from the given GifImage, but after that they can be independently played/paused.
+     * 
+     * The images making up the GIF are shared between the two images, so any modifications to
+     * the images will be shared in both GIFs.  You can call this constructor on the same source
+     * GIF multiple times.
+     * @param copyFrom The GifImage to copy from.
+     */
+    public GifImage(GifImage copyFrom)
+    {
+        pause = copyFrom.pause;
+        images = copyFrom.images.clone();
+        delay = copyFrom.delay.clone();
+        currentIndex = copyFrom.currentIndex;
+        time = copyFrom.time;
+    }
+
+    /**
      * Get all the images used in the animation
      * @return a list of GreenfootImages, corresponding to each frame.
      */
