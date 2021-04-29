@@ -39,6 +39,7 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.Invoker;
+import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -118,6 +119,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -267,12 +269,17 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         // The parameter types of the construction:
         private final JavaType[] paramTypes;
 
-        private Region makePreviewNode(ImageView imageView)
+        private Region makePreviewNode(ImageView imageView, String className)
         {
             ImageView cannotDropIcon = new ImageView(this.getClass().getClassLoader().getResource("noParking.png").toExternalForm());
             cannotDropIcon.visibleProperty().bind(cannotDrop);
+            Text newLabel = new Text("new " + className + "()");
+            newLabel.setFill(Color.WHITE);
+            newLabel.setStroke(Color.WHITE);
+            
+            StackPane.setAlignment(newLabel, Pos.TOP_CENTER);
             StackPane.setAlignment(cannotDropIcon, Pos.CENTER);
-            StackPane stackPane = new StackPane(imageView, cannotDropIcon);
+            StackPane stackPane = new StackPane(imageView, newLabel, cannotDropIcon);
             stackPane.setEffect(new DropShadow(10.0, 3.0, 3.0, Color.BLACK));
             return stackPane;
         }
@@ -288,7 +295,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         public NewActor(ImageView imageView, DebuggerObject actorObject,
                 InvokerRecord ir, JavaType[] paramTypes)
         {
-            this.previewNode = makePreviewNode(imageView);
+            this.previewNode = makePreviewNode(imageView, "");
             this.actorObject = actorObject;
             this.invokerRecord = ir;
             this.paramTypes = paramTypes;
@@ -304,7 +311,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
          */
         public NewActor(ImageView imageView, String typeName)
         {
-            this.previewNode = makePreviewNode(imageView);
+            this.previewNode = makePreviewNode(imageView, typeName);
             this.actorObject = null;
             this.invokerRecord = null;
             this.paramTypes = null;
@@ -1727,19 +1734,21 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 // If single actor, show simple context menu:
                 if (!actors.isEmpty())
                 {
+                    NamedValue[] namesForActors = debugHandler.nameObjects(actors);
                     // This is a list of menus; if there's only one we'll display
                     // directly in context menu.  If there's more than one, we'll
                     // have a higher level menu to pick between them.
                     List<Menu> actorMenus = new ArrayList<>();
-                    for (DebuggerObject actor : actors)
+                    for (int i = 0; i < actors.size(); i++)
                     {
+                        DebuggerObject actor = actors.get(i);
                         Target target = project.getTarget(actor.getClassName());
                         // Should always be ClassTarget, but check in case:
                         if (target instanceof ClassTarget)
                         {
-                            Menu menu = new Menu(actor.getClassName());
+                            Menu menu = new Menu(namesForActors[i].getName() + ":" + actor.getClassName());
                             ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), new RecordInvoke(actor), "", true);
-                            menu.getItems().add(makeInspectMenuItem(actor));
+                            menu.getItems().add(makeInspectMenuItem(actor, namesForActors[i].getName()));
                             //add a listener to the action event on the items in the sub-menu to hide the context menus
                             for (MenuItem menuItem : menu.getItems())
                             {
@@ -1750,9 +1759,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                             JavaFXUtil.addStyleClass(removeItem, MENU_STYLE_INBUILT);
                             removeItem.setOnAction(e -> {
                                 project.getDebugger().instantiateClass(
-                                        "greenfoot.core.RemoveFromWorldHelper",
-                                        new String[]{"java.lang.Object"},
-                                        new DebuggerObject[]{actor});
+                                    "greenfoot.core.RemoveFromWorldHelper",
+                                    new String[]{"java.lang.Object"},
+                                    new DebuggerObject[]{actor});
                                 saveTheWorldRecorder.removeActor(actor);
                             });
                             menu.getItems().add(removeItem);
@@ -1789,8 +1798,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                         });
                         ObjectWrapper.createMethodMenuItems(contextMenu.getItems(),
                                 project.loadClass(world.getClassName()), new RecordInvoke(world), "", true);
-                        contextMenu.getItems().add(makeInspectMenuItem(world));
-
+                        contextMenu.getItems().add(makeInspectMenuItem(world, debugHandler.nameObjects(List.of(world))[0].getName()));
+                        
                         MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
                         JavaFXUtil.addStyleClass(saveTheWorld, MENU_STYLE_INBUILT);
                         saveTheWorld.setOnAction(e -> {
@@ -1834,13 +1843,13 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     /**
      * Makes a MenuItem with an Inspect command for the given debugger object
      */
-    private MenuItem makeInspectMenuItem(DebuggerObject debuggerObject)
+    private MenuItem makeInspectMenuItem(DebuggerObject debuggerObject, String name)
     {
         MenuItem inspectItem = new MenuItem(Config.getString("debugger.objectwrapper.inspect"));
         JavaFXUtil.addStyleClass(inspectItem, MENU_STYLE_INBUILT);
         inspectItem.setOnAction(e -> {
             InvokerRecord ir = new ObjectInspectInvokerRecord(debuggerObject.getClassName());
-            project.getInspectorInstance(debuggerObject, debuggerObject.getClassName(), project.getUnnamedPackage(), ir, this, null);  // shows the inspector
+            project.getInspectorInstance(debuggerObject, name, project.getUnnamedPackage(), ir, this, null);  // shows the inspector
         });
         return inspectItem;
     }
