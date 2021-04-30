@@ -494,6 +494,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             // We send a reset to make a new world after the project properties have been sent across:
             constructingWorld = true;
+            project.getTerminal().activate(true);
             debugHandler.getVmComms().instantiateWorld(lastInstantiatedWorldName);
             saveTheWorldRecorder.recordingValid();
             updateBackgroundMessage();
@@ -640,6 +641,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 && hasNoArgConstructor(currentWorld.getTypeReflective()))
         {
             constructingWorld = true;
+            project.getTerminal().activate(true);
             debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
         }
         debugHandler.simulationThreadResumeOnResetClick();
@@ -1664,6 +1666,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         // initial discard must still have succeeded:
         waitingForDiscard = false;
         constructingWorld = false;
+        project.getTerminal().activate(false);
         if (!worldPresent)
         {
             worldDisplay.greyOutWorld();
@@ -1987,6 +1990,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         Platform.runLater(() -> {
             worldInstantiationError = true;
             constructingWorld = false;
+            project.getTerminal().activate(false);
             // This will update the background message:
             worldVisible.set(false);
         });
@@ -2629,6 +2633,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     if ((name == null) || (name.length() == 0))
                         name = "result";
 
+                    project.getTerminal().activate(false);
                     debugHandler.addObject(result, result.getGenType(), name);
                     project.getDebugger().addObject(project.getPackage("").getId(), name, result);
                     
@@ -2645,6 +2650,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 public void putException(ExceptionDescription exception, InvokerRecord ir)
                 {
                     constructingWorld = false;
+                    project.getTerminal().activate(false);
                     updateBackgroundMessage();
                     super.putException(exception, ir);
                 }
@@ -2653,6 +2659,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 public void putError(String msg, InvokerRecord ir)
                 {
                     constructingWorld = false;
+                    project.getTerminal().activate(false);
                     updateBackgroundMessage();
                     super.putError(msg, ir);
                 }
@@ -2666,6 +2673,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 @Override
                 protected void addInteraction(InvokerRecord ir)
                 {
+                    project.getTerminal().activate(false);
                     saveTheWorldRecorder.callStaticMethod(cv.getClassName(), ((MethodView) cv).getMethod(),
                             ir.getArgumentValues(), cv.getParamTypes(false));
                 }
@@ -2674,6 +2682,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
         // create an Invoker to handle the actual invocation
         if (ProjectUtils.checkDebuggerState(project, this)) {
+            project.getTerminal().activate(true);
             new Invoker(this, pkg, cv, watcher, pkg.getCallHistory(), debugHandler, debugHandler,
                     project.getDebugger(), null).invokeInteractive();
         }
