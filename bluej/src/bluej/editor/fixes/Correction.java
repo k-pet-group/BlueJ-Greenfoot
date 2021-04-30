@@ -214,12 +214,13 @@ public class Correction extends FixSuggestion
     @OnThread(Tag.Any)
     public static boolean isClassInUsualPackagesForCorrections(AssistContentThreadSafe acts)
     {
-        List<String> commmonPackages = Arrays.asList(
+        List<String> commonPackages = Arrays.asList(
             "java.lang",
+            "java.io",
             "java.util",
             "javafx",
             "java.awt",
             "javax.swing");
-        return commmonPackages.contains(acts.getPackage()) || commmonPackages.stream().filter(s -> acts.getPackage().startsWith(s + ".")).collect(Collectors.toList()).size() > 0;
+        return commonPackages.contains(acts.getPackage()) || commonPackages.stream().filter(s -> acts.getPackage().startsWith(s + ".")).collect(Collectors.toList()).size() > 0;
       }
 }
