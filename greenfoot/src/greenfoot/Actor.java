@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016,2018,2019  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016,2018,2019,2021  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -52,7 +52,8 @@ public abstract class Actor
     private static final String NO_WORLD = "An actor is trying to access the world, when no world has been instantiated.";
 
     /** Error message to display when trying to use methods that requires the actor be in a world. */
-    private static final String ACTOR_NOT_IN_WORLD = "Actor not in world. An attempt was made to use the actor's location while it is not in the world. Either it has not yet been inserted, or it has been removed.";
+    private static final String ACTOR_NEVER_IN_WORLD = "Actor not in world. You must add it to a world before you can call this method.";
+    private static final String ACTOR_LEFT_WORLD = "Actor has been removed from the world.";
 
     /** Counter of number of actors constructed, used as a hash value */
     private static int sequenceNumber = 0;
@@ -85,6 +86,9 @@ public abstract class Actor
 
     /** Reference to the world that this actor is a part of. */
     World world;
+    
+    // The stack trace for when this actor was last removed from a world (null if it has never been in a world).
+    private Throwable lastWorldRemovalTrace = null;
 
     /** The image for this actor. */
     private GreenfootImage image;
@@ -509,9 +513,11 @@ public abstract class Actor
      * 
      * @param world
      */
-    void setWorld(World world)
+    void setWorld(World world, Throwable stackTrace)
     {
         this.world = world;
+        if (world == null)
+            lastWorldRemovalTrace = stackTrace;
     }
 
     /**
@@ -529,7 +535,7 @@ public abstract class Actor
         this.y = y;
         boundingRect = null;
 
-        this.setWorld(world);
+        this.setWorld(world, null);
         
         // This call is not necessary, however setLocation may be overridden
         // so it must still be called. (Asteroids scenario relies on setLocation
@@ -710,7 +716,10 @@ public abstract class Actor
     private void failIfNotInWorld()
     {
         if(world == null) {
-            throw new IllegalStateException(ACTOR_NOT_IN_WORLD);
+            if (lastWorldRemovalTrace == null)
+                throw new IllegalStateException(ACTOR_NEVER_IN_WORLD);
+            else
+                throw new IllegalStateException(ACTOR_LEFT_WORLD, lastWorldRemovalTrace);
         }
     }
     
