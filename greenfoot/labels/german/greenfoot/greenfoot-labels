@@ -56,6 +56,7 @@ new.sub.class=Neue Unterklasse...
 stride.new.project=Neues Stride Szenario...
 java.new.project=Neues Java Szenario...
 open.project=\u00D6ffnen...
+open.gfar.project=GFAR \u00f6ffnen...
 open.recentProject=Letzte Szenarien
 remove.class=Entfernen
 remove.selected=Klasse entfernen
@@ -281,7 +282,7 @@ soundRecorder.closeQuestion=Der Klang wurde seit dem letzten Speichern ver\u00E4
 # Import
 import.import=Importieren
 import.dialogTitle=Importiere Klasse
-import.action=Importortiere Klasse...
+import.action=Importiere Klasse...
 import.restartMessage=Damit dieses Projekt richtig arbeiten kann, muss Greenfoot neu gestartet werden.
 set.player=Name des Spielers setzen
 playername.dialog.title=Name des Spielers setzen
@@ -305,6 +306,7 @@ menu.controls=Ausf\u00FChren
 menu.debugger=Debugger anzeigen
 
 menu.soundRecorder=Klang-Rekorder anzeigen
+menu.tools.recompileAll=Szenario (re-)kompilieren
 
 menu.help=Hilfe
 menu.help.about=\u00DCber Greenfoot...
@@ -345,7 +347,7 @@ greenfoot.cannotFindAPIDocumentation=Die API-Dokumentation scheint zu fehlen, od
 sound-line-unavailable= Der Zugriff auf die Sound-Karte ist nicht m\u00F6glich. Falls Sie eine Sound-\nKarte installiert haben, pr\u00FCfen Sie Ihre Systemeinstellungen, und schlie\u00DFen Sie  \nalle anderen Programme, die die Sound-Karte benutzen k\u00F6nnten.
 
 # MainFrame central messages
-centrePanel.message.openScenario=\u2196 Erzeugen oder \u00d6ffnen Sie ein Szenario im Szenario Men\u00fc
+centrePanel.message.openScenario=\u2196 Erzeugen oder \u00f6ffnen Sie ein Szenario im Szenario Men\u00fc
 centrePanel.message.createWorldClass=Erzeugen Sie eine neue Unterklasse der Klasse 'World'
 centrePanel.message.compile=Die Klasse 'World' scheint einen Fehler aufzuweisen, \u00dcberpr\u00fcfen Sie dies um das Szenario zu initialisieren \u2197
 centrePanel.message.initialising=Die Welt wurde erstellt...
