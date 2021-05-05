@@ -239,6 +239,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         scene = new Scene(new StackPane(menuAndTabPane, dragPane, dragCursorPane, overlayPane.getNode()), 800, 700);
         stage.setScene(scene);
         Config.addEditorStylesheets(scene);
+        JavaFXUtil.addMacMinimiseShortcutHandler(stage);
 
         tabPane.getStyleClass().add("tabbed-editor");
 

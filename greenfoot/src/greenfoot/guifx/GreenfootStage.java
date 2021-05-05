@@ -1423,6 +1423,13 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     private void setupKeyAndMouseHandlers()
     {
         getScene().addEventFilter(KeyEvent.ANY, e -> {
+            // We handle this here because we don't want the input to go through to the user's scenario code:
+            if (Config.isMacOS() && e.getEventType() == KeyEvent.KEY_PRESSED && e.getCode() == KeyCode.M && e.isMetaDown())
+            {
+                setIconified(true);
+                return;
+            }
+            
             if (project == null)
             {
                 return;

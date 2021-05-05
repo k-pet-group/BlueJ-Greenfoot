@@ -1101,7 +1101,7 @@ public final class FlowActions
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F7), "uncomment-block");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F6), "indent-block");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F5), "deindent-block");
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.M, SHORTCUT_MASK), "insert-method");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.M, SHORTCUT_MASK, KeyCombination.SHIFT_DOWN), "insert-method");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.TAB), "indent");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.TAB, KeyCombination.SHIFT_DOWN), "de-indent");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, SHORTCUT_MASK), "insert-tab");
