@@ -53,10 +53,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseButton;
+import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -80,7 +77,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import com.sun.jdi.VMDisconnectedException;
 
@@ -210,6 +206,7 @@ public class ExecControls
         Scene scene = new Scene(fxContent);
         Config.addDebuggerStylesheets(scene);
         window.setScene(scene);
+        JavaFXUtil.addMacMinimiseShortcutHandler(window);
         Config.loadAndTrackPositionAndSize(window, "bluej.debugger");
         window.setOnShown(e -> {
             DataCollector.debuggerChangeVisible(project, true);

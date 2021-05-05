@@ -486,6 +486,7 @@ public class PkgMgrFrame
             stage.setScene(scene);
             stage.setWidth(800.0);
             stage.setHeight(600.0);
+            JavaFXUtil.addMacMinimiseShortcutHandler(stage);
             // This sets the window position so call it before showing:
             stageProperty.setValue(stage);
             paneProperty.setValue(rootPlusMenu);

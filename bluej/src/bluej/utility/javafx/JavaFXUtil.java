@@ -831,6 +831,22 @@ public class JavaFXUtil
     }
 
     /**
+     * Add a keyboard handler to the scene that listens for Cmd-M presses
+     * and minimises the window.  Does nothing if not on Mac.
+     * @param window The target window to minimise.  Make sure that you
+     *               have called setScene() before you call this method!
+     */
+    public static void addMacMinimiseShortcutHandler(Stage window)
+    {
+        window.getScene().addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (Config.isMacOS() && e.getCode() == KeyCode.M && e.isMetaDown() && !e.isShiftDown())
+            {
+                window.setIconified(true);
+            }
+        });
+    }
+
+    /**
      * A builder pattern for lists.
      */
     public static class ListBuilder<T>
