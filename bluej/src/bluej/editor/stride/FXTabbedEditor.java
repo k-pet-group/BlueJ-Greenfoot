@@ -546,8 +546,9 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             {
                 if (startSize != null)
                 {
-                    stage.setX(startSize.getX());
-                    stage.setY(startSize.getY());
+                    Point2D topLeft = Config.ensureOnScreen((int)startSize.getX(), (int)startSize.getY());
+                    stage.setX(topLeft.getX());
+                    stage.setY(topLeft.getY());
                     stage.setWidth(startSize.getWidth());
                     stage.setHeight(startSize.getHeight());
                 }
@@ -912,24 +913,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     private List<FXTab> getFXTabs()
     {
         return Utility.mapList(tabPane.getTabs(), t -> (FXTab)t);
-    }
-
-    @OnThread(Tag.Swing)
-    public void setPosition(int x, int y)
-    {
-        Platform.runLater(() -> {
-            stage.setX(x);
-            stage.setY(y);
-        });
-    }
-
-    @OnThread(Tag.Swing)
-    public void setSize(int width, int height)
-    {
-        Platform.runLater(() -> {
-            stage.setWidth(width);
-            stage.setHeight(height);
-        });
     }
 
     public void setTitleStatus(String status)
