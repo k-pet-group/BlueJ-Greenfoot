@@ -507,13 +507,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         scenarioInfo = new ScenarioInfo(lastSavedProperties);
         String xPosition = lastSavedProperties.getProperty("xPosition");
         String yPosition = lastSavedProperties.getProperty("yPosition");
-        if (xPosition != null)
+        
+        if (xPosition != null && yPosition != null)
         {
-            setX(Double.valueOf(xPosition));
-        }
-        if (yPosition != null)
-        {
-            setY(Double.valueOf(yPosition));
+            Point2D location = Config.ensureOnScreen(Double.valueOf(xPosition).intValue(), Double.valueOf(yPosition).intValue());
+            setX(location.getX());
+            setY(location.getY());
         }
 
         String width = lastSavedProperties.getProperty("width");
