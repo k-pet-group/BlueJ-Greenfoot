@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018,2019  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018,2019,2021  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -610,6 +610,7 @@ public class VMCommsSimulation
     @OnThread(Tag.Simulation)
     public void userCodeStarting()
     {
+        startOfCurExecution = System.currentTimeMillis();
     }
 
     /**
@@ -619,6 +620,7 @@ public class VMCommsSimulation
     @OnThread(Tag.Simulation)
     public void userCodeStopped(boolean suggestRepaint)
     {
+        startOfCurExecution = 0L;
         if (suggestRepaint)
         {
             paintRemote(PaintWhen.FORCE);
