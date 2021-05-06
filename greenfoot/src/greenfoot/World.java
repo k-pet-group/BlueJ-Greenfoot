@@ -521,8 +521,12 @@ public abstract class World
      * Repaints the world. 
      */
     public void repaint() 
-    {   
-        WorldHandler.getInstance().repaintAndWait();
+    {
+        WorldHandler instance = WorldHandler.getInstance();
+        if (instance != null)
+        {
+            instance.repaintAndWait();
+        }
     }
         
     /**
