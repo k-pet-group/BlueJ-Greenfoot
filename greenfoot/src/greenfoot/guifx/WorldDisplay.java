@@ -126,13 +126,26 @@ public class WorldDisplay extends StackPane
         askPane.focusTextEntry();
         askPane.setWithAnswer(ans -> {
             // Reverse the above GUI changes then pass it on:
+            cancelAsk();
+            withAnswer.accept(ans);
+        });
+    }
+
+    /**
+     * Cancel any currently showing ask request; hide the ask pane.
+     */
+    public void cancelAsk()
+    {
+        boolean wasAsking = askPane.isVisible();
+        if (wasAsking)
+        {
             askPane.setVisible(false);
             imageView.setDisable(false);
+            imageView.setDisable(false);
             imageView.setEffect(null);
-            withAnswer.accept(ans);
             // Put focus back on the world display:
             requestFocus();
-        });
+        }
     }
 
     /**

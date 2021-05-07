@@ -321,6 +321,10 @@ public class VMCommsMain implements Closeable
             stage.receivedAsk(promptCodepoints);
             promptCodepoints = null;
         }
+        else
+        {
+            stage.cancelAsk();
+        }
 
         stage.setLastUserExecutionStartTime(lastExecStartTime, delayLoop);
             

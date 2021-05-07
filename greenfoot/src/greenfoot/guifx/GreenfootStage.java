@@ -1695,6 +1695,14 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         // the world may not be visible if the ask is during world construction and there was not previously a world:
         worldVisible.set(true);
     }
+
+    /**
+     * Cancel any currently showing ask request; hide the ask pane.
+     */
+    public void cancelAsk()
+    {
+        worldDisplay.cancelAsk();
+    }
     
     /**
      * Performs a pick request on the debug VM at given coordinates.
@@ -2012,6 +2020,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         Platform.runLater(() -> {
             // We must reset the debug VM related state ready for the new debug VM:
             worldDisplay.setImage(null);
+            worldDisplay.cancelAsk();
             worldInstantiationError = false;
             settingSpeedFromSimulation = false;
             constructingWorld = false;
