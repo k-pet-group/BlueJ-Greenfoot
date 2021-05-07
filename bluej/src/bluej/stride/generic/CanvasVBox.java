@@ -159,6 +159,8 @@ class CanvasVBox extends BetterVBox
     private final DoubleProperty leftMarginScale = new SimpleDoubleProperty(1.0);
     
     private final HashSet<Node> frameNodes = new HashSet<>(); // read-only, for doing margins
+    
+    private final Pane emptyFramePaddingPane = new Pane();
 
     public CanvasVBox(double minWidth, ObservableList<Frame> frames)
     {
@@ -197,6 +199,32 @@ class CanvasVBox extends BetterVBox
         ChangeListener bk = (a, b, c) -> updateBackground();
         backgroundColorProperty.addListener(bk);
         backgroundRadiusProperty.addListener(bk);
+    }
+    
+    public void addEmptyFramePadding()
+    {
+        if(!getChildren().contains(emptyFramePaddingPane))
+        {
+            // This is a bit hacky too. To keep empty frames behaving as any other when the cursor get in/our, 
+            // we use a sort of "padding" node that acts as a filler so that the visual effect of only what is
+            // before/after the current frame moves, instead of the whole page. This filler is added when a frame
+            // is created, and is shown is made empty (of frames) and hidden when another frame is added
+            getChildren().add(emptyFramePaddingPane);
+        }
+    }
+    
+    // Shows the empty frame padding pane
+    public void showEmptyFramePadding()
+    {
+        emptyFramePaddingPane.setMinHeight(cssMinHeightProperty.get());
+        emptyFramePaddingPane.setMaxHeight(cssMinHeightProperty.get());
+        emptyFramePaddingPane.setPrefHeight(cssMinHeightProperty.get());
+        emptyFramePaddingPane.setManaged(true);
+    }
+
+    // Hides the empty frame padding pane
+    public void hideEmptyFramePadding(){
+        emptyFramePaddingPane.setManaged(false);
     }
 
     private void updateBackground()

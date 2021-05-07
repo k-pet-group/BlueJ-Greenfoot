@@ -131,7 +131,8 @@ public class FrameCanvas implements FrameContentItem
     {
         if (cursors.size() > 0 && cursors.size() != blockContents.size() + 1)
             throw new IllegalStateException("Canvas: cursors and blocks out of length sync");
-        if (canvas.getChildren().size() != cursors.size() + blockContents.size() + specials.size())
+        // Checks that the children is matching the number of cursors + number of frames + the empty frame pane (+1)
+        if (canvas.getChildren().size() != cursors.size() + blockContents.size() + specials.size() + 1)
             throw new IllegalStateException("Canvas: children out of length sync");
         for (int i = 0; i < cursors.size(); i++)
         {
@@ -243,6 +244,13 @@ public class FrameCanvas implements FrameContentItem
         }
         if (index < 0)
             throw new IllegalArgumentException("insertBlockBefore: canvas does not contain specified cursor");
+
+        // Hides the empty frame pane if the frame is currently empty
+        if(blockContents.size() == 0)
+        {
+            canvas.hideEmptyFramePadding();
+        }
+        
         int childIndex = childCursorIndex(index);
         FrameCursor newCursor = editorFrm.createCursor(this);
         VBox special = new VBox();
@@ -280,6 +288,13 @@ public class FrameCanvas implements FrameContentItem
         }
         if (index < 0)
             throw new IllegalArgumentException("insertBlockAfter: canvas does not contain specified cursor");
+        
+        // Hides the empty frame pane if the frame is currently empty
+        if(blockContents.size() == 0)
+        {
+            canvas.hideEmptyFramePadding();    
+        }
+        
         int childIndex = childCursorIndex(index);
         FrameCursor newCursor = editorFrm.createCursor(this);
         VBox special = new VBox();
@@ -791,14 +806,15 @@ public class FrameCanvas implements FrameContentItem
         
         
         FrameCursor topCursor = editor.createCursor(this);
-        //c.setTranslateY(-3);
-        //topCursor.setTranslateX(2);
         cursors.add(topCursor);
         canvas.getChildren().add(0, topCursor.getNode());
         
         VBox topSpecial = new VBox();
         specials.add(topSpecial);
         canvas.getChildren().add(1, topSpecial);
+        
+        // We add an empty frame padding pane in the frame (cf details in CanvasVBox)
+        canvas.addEmptyFramePadding();
     
         editorFrm = editor;
     }
@@ -826,39 +842,6 @@ public class FrameCanvas implements FrameContentItem
         });
     }
     
-    /**
-     * Get the code inside this section, as text
-     * @return code contained in this container
-     */
-    /*
-    @Override
-    public String toCode(String prefix)
-    {
-        String code = "";
-        for (CodeFrame b : getBlocksSubtype(CodeFrame.class))
-        {
-            //If it's code
-            code += b.toCode("    " + prefix) + "\n";
-        }
-        return code;
-    }
-    */
-    /*
-    public void setSelectionScope(SelectionScope scope)
-    {
-        selectionScope = scope;
-        for (Block bl : getBlocksSubtype(Block.class))
-        {
-            bl.setSelectionScope(scope);
-        }
-    }
-    
-    public SelectionScope getSelectionScope()
-    {
-        return selectionScope;
-    }
-    */
-    
     public void focusTopCursor()
     {
         FrameCursor firstCursor = getFirstCursor();
@@ -880,42 +863,17 @@ public class FrameCanvas implements FrameContentItem
             return false;
     }
 
-    /*
-    @Override
-    public boolean acceptsType(Class<? extends Block> blockClass) {
-        //Don't accept blocks for the parameter-canvas
-        if (blockClass.equals(MethodParameter.class))
-        {
-            return false;
-        }
-        //Don't put methods inside other things - unless it's a class or a commented-out section (you can't put a method in a loop)
-        if (MethodBlock.class.isAssignableFrom(blockClass) && !allowsMethods())
-        {
-            return false;
-        }
-        //Only allow certain statements inside a class?
-        if (isClassCanvas())
-        {
-            if (MethodBlock.class.isAssignableFrom(blockClass))
-                return true;
-            if (blockClass.equals(CommentBlock.class))
-                return true;
-            if (blockClass.equals(MultiCommentBlock.class))
-                return true;
-            if (blockClass.equals(VarBlock.class))
-                return true;
-            if (blockClass.equals(ObjectBlock.class))
-                return true;
-            return false;
-        }
-        //Otherwise
-        return true;
-    }
-    */
-
     public void cleanup()
     {
         getBlockContents().forEach(f -> f.cleanup());        
+    }
+    
+    public void showEmptyFramePadding(){
+        canvas.showEmptyFramePadding();
+    }
+
+    public void hideEmptyFramePadding(){
+        canvas.hideEmptyFramePadding();
     }
 
     public Stream<HeaderItem> getHeaderItems()

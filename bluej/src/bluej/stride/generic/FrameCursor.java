@@ -53,6 +53,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -408,7 +409,8 @@ public class FrameCursor implements RecallableFocus
             // Oddly, we can get told we are focused even after we have left the Scene,
             // so we add a check here to guard against that:
             if (node.getScene() != null)
-            {
+            { 
+                System.out.println(node);
                 animateShowHide(nowFocused, false);
             }
         });
@@ -581,8 +583,15 @@ public class FrameCursor implements RecallableFocus
         
         //If we're the only item in a canvas, don't animate:
         if (getParentCanvas().blockCount() == 0) {
+            System.out.println("in animate with no block for cursor " + node + " and show="+show + " animate=" + animate);
             node.maxHeightProperty().unbind();
             node.setMaxHeight(show ? FULL_HEIGHT : HIDE_HEIGHT);
+            if(show){
+                getParentCanvas().showEmptyFramePadding();
+            }
+            else{
+                getParentCanvas().hideEmptyFramePadding();
+            }
         }
         else {
             if (show) {
