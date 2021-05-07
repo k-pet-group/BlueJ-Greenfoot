@@ -33,6 +33,7 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
@@ -97,7 +98,7 @@ public class VMCommsMain implements Closeable
     private FileLock putLock;
     private FileLock syncLock;
 
-    private int lastSeq = 0;
+    private final AtomicInteger lastSeq = new AtomicInteger(0);
     private final List<Command> pendingCommands = new ArrayList<>();
     private int setSpeedCommandCount = 0;
     private int lastPaintSeq = -1;
@@ -339,7 +340,7 @@ public class VMCommsMain implements Closeable
 
         // We are holding the lock for the main put area:
         sharedMemory.position(1);
-        sharedMemory.put(-lastSeq);
+        sharedMemory.put(-lastSeq.get());
         sharedMemory.put(lastConsumedImg);
         writeCommands(pendingCommands);
         
@@ -352,10 +353,10 @@ public class VMCommsMain implements Closeable
             syncLock.release();
 
             int seq = sharedMemory.get(USER_AREA_OFFSET);
-            if (seq > lastSeq)
+            if (seq > lastSeq.get())
             {
                 // The client VM has painted a new frame for us:
-                lastSeq = seq;
+                lastSeq.set(seq);
 
                 synchronized (this)
                 {
@@ -625,7 +626,7 @@ public class VMCommsMain implements Closeable
      */
     public void vmTerminated()
     {
-        lastSeq = 0;
+        lastSeq.set(0);
         pendingCommands.clear();
         setSpeedCommandCount = 0;
         lastAnswer = -1;
