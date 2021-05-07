@@ -649,4 +649,12 @@ public class VMCommsMain implements Closeable
     {
         pendingCommands.add(new Command(focused ? COMMAND_WORLD_FOCUS_GAINED : COMMAND_WORLD_FOCUS_LOST));
     }
+
+    /**
+     * Gets the last sequence identifier that we've received from the user VM
+     */
+    public int getLastSeq()
+    {
+        return lastSeq.get();
+    }
 }

@@ -156,9 +156,10 @@ public class VMCommsSimulation
      */
     @SuppressWarnings("resource")
     @OnThread(Tag.Any)
-    public VMCommsSimulation(ShadowProjectProperties projectProperties, String shmFilePath, int fileSize)
+    public VMCommsSimulation(ShadowProjectProperties projectProperties, String shmFilePath, int fileSize, int seqStart)
     {
         this.projectProperties = projectProperties;
+        this.seq = seqStart;
         worldRenderer = new WorldRenderer();
         try
         {
