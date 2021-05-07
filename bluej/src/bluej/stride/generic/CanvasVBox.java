@@ -208,7 +208,7 @@ class CanvasVBox extends BetterVBox
             // This is a bit hacky too. To keep empty frames behaving as any other when the cursor get in/our, 
             // we use a sort of "padding" node that acts as a filler so that the visual effect of only what is
             // before/after the current frame moves, instead of the whole page. This filler is added when a frame
-            // is created, and is shown is made empty (of frames) and hidden when another frame is added
+            // is created, is shown when the frame is becomes empty (of frames) and is hidden when another frame is added
             getChildren().add(emptyFramePaddingPane);
         }
     }
