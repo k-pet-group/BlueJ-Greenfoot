@@ -1691,6 +1691,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         worldDisplay.ensureAsking(new String(promptCodepoints, 0, promptCodepoints.length), (String s) -> {
             debugHandler.getVmComms().sendAnswer(s);
         });
+        // Make sure world is visible so that the ask pane is actually visible;
+        // the world may not be visible if the ask is during world construction and there was not previously a world:
+        worldVisible.set(true);
     }
     
     /**
