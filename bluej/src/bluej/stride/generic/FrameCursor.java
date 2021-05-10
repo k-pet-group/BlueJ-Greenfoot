@@ -435,15 +435,6 @@ public class FrameCursor implements RecallableFocus
     {        
         node.setOpacity(show ? 1.0 : 0.0);
         node.setMaxHeight(show ? FULL_HEIGHT : HIDE_HEIGHT);
-
-        if (getParentCanvas().blockCount() == 0) {
-            if(show){
-                getParentCanvas().showEmptyFramePadding();
-            }
-            else{
-                getParentCanvas().hideEmptyFramePadding();
-            }
-        }
     }
 
     @OnThread(Tag.FXPlatform)

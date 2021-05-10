@@ -54,6 +54,7 @@ import javafx.scene.effect.PerspectiveTransform;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -74,8 +75,9 @@ import threadchecker.Tag;
  *     - "special"
  *     - frame
  *  - One final cursor
+ *  - An empty frame padding pane (used to keep navigation smooth with empty frames, in the sense of how the user sees frames)  
  *
- * Thus, even when there are no subframes, there is always one cursor in the canvas.
+ * Thus, even when there are no subframes, there is always one cursor and the empty frame padding pane in the canvas.
  * 
  * The "special" is a VBox to which you can add extra content between frames,
  * such as error messages or popup meta-information about a frame.
@@ -98,6 +100,8 @@ public class FrameCanvas implements FrameContentItem
 
     private final SimpleBooleanProperty showingProperty = new SimpleBooleanProperty(true);
     private boolean animateLeftMarginScale;
+    
+    private final Pane emptyFramePaddingPane = new Pane(); // the padding pane used to fill up empty frames (cf constructor for details)
 
     private int childBlockIndex(int blockIndex)
     {
@@ -248,7 +252,7 @@ public class FrameCanvas implements FrameContentItem
         // Hides the empty frame pane if the frame is currently empty
         if(blockContents.size() == 0)
         {
-            canvas.hideEmptyFramePadding();
+            hideEmptyFramePadding();
         }
         
         int childIndex = childCursorIndex(index);
@@ -292,7 +296,7 @@ public class FrameCanvas implements FrameContentItem
         // Hides the empty frame pane if the frame is currently empty
         if(blockContents.size() == 0)
         {
-            canvas.hideEmptyFramePadding();    
+            hideEmptyFramePadding();    
         }
         
         int childIndex = childCursorIndex(index);
@@ -326,6 +330,11 @@ public class FrameCanvas implements FrameContentItem
         specials.remove(index);
         b.cleanup();
         b.setParentCanvas(null);
+        
+        //if the frame is now empty, we need to show the empty padding pane
+        if(blockContents.size() == 0){
+            showEmptyFramePadding();
+        }
         validate();
     }
     
@@ -813,9 +822,16 @@ public class FrameCanvas implements FrameContentItem
         specials.add(topSpecial);
         canvas.getChildren().add(1, topSpecial);
         
-        // We add an empty frame padding pane in the frame (cf details in CanvasVBox)
-        canvas.addEmptyFramePadding();
-    
+        // To keep empty frames behaving as any other when the cursor get in/our, 
+        // we use a sort of "padding" node that acts as a filler so that the visual effect of only what is
+        // before/after the current frame moves, instead of the whole page. This filler is added when a frame
+        // is created (so, here) and is shown when the frame is becomes empty* and is hidden when another frame* is added
+        // (*) in the sense of the user's point of view
+        emptyFramePaddingPane.minHeightProperty().bind(canvas.getMinHeighProperty());
+        emptyFramePaddingPane.maxHeightProperty().bind(canvas.getMinHeighProperty());
+        emptyFramePaddingPane.prefHeightProperty().bind(canvas.getMinHeighProperty());
+        canvas.getChildren().add(emptyFramePaddingPane);
+       
         editorFrm = editor;
     }
     
@@ -868,12 +884,14 @@ public class FrameCanvas implements FrameContentItem
         getBlockContents().forEach(f -> f.cleanup());        
     }
     
-    public void showEmptyFramePadding(){
-        canvas.showEmptyFramePadding();
+    public void showEmptyFramePadding()
+    {
+        emptyFramePaddingPane.setManaged(true);
     }
 
-    public void hideEmptyFramePadding(){
-        canvas.hideEmptyFramePadding();
+    public void hideEmptyFramePadding()
+    {
+        emptyFramePaddingPane.setManaged(false);
     }
 
     public Stream<HeaderItem> getHeaderItems()
