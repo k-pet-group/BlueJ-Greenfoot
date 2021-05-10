@@ -959,7 +959,15 @@ public class ExecServer
 
     private static void runOnTargetThread(RunnableThrows runnable) throws Throwable
     {
-        if (threadToRunOn == RUN_ON_DEFAULT_THREAD)
+        int theThreadToRunOn;
+        Consumer<Runnable> theCustomThreadRunner;
+        synchronized (ExecServer.class)
+        {
+            theThreadToRunOn = ExecServer.threadToRunOn;
+            theCustomThreadRunner = ExecServer.customThreadRunner;
+        }
+
+        if (theThreadToRunOn == RUN_ON_DEFAULT_THREAD)
         {
             runnable.run();
         }
@@ -978,20 +986,20 @@ public class ExecServer
                     f.complete(Optional.of(t));
                 }
             };
-            if (threadToRunOn == RUN_ON_FX_THREAD)
+            if (theThreadToRunOn == RUN_ON_FX_THREAD)
             {
                 // Initialise FX toolkit in case the user hasn't:
                 SwingUtilities.invokeAndWait(() -> new JFXPanel());
                 // Then call runLater:
                 Platform.runLater(wrapped);
             }
-            else if (threadToRunOn == RUN_ON_SWING_THREAD)
+            else if (theThreadToRunOn == RUN_ON_SWING_THREAD)
             {
                 SwingUtilities.invokeLater(wrapped);
             }
-            else if (threadToRunOn == RUN_ON_CUSTOM_THREAD && customThreadRunner != null)
+            else if (theThreadToRunOn == RUN_ON_CUSTOM_THREAD && theCustomThreadRunner != null)
             {
-                customThreadRunner.accept(wrapped);
+                theCustomThreadRunner.accept(wrapped);
             }
             Optional<Throwable> t = f.get();
             if (t.isPresent())
@@ -1064,7 +1072,7 @@ public class ExecServer
     /**
      * Execute user code using the custom "runLater" action.
      */
-    public static void setCustomRunOnThread(Consumer<Runnable> customThreadRunner)
+    public static synchronized void setCustomRunOnThread(Consumer<Runnable> customThreadRunner)
     {
         ExecServer.threadToRunOn = RUN_ON_CUSTOM_THREAD;
         ExecServer.customThreadRunner = customThreadRunner;
