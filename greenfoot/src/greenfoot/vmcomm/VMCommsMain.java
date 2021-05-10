@@ -630,7 +630,7 @@ public class VMCommsMain implements Closeable
      */
     public void vmTerminated()
     {
-        lastSeq.set(0);
+        lastSeq.addAndGet(1000);
         pendingCommands.clear();
         setSpeedCommandCount = 0;
         lastAnswer = -1;

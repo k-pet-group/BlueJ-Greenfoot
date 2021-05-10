@@ -486,7 +486,7 @@ public class ProjectManager
                 shmFile == null ? "" : shmFile.getAbsolutePath(),
                 Integer.toString(greenfootDebugHandler.getShmFileSize()),
                 // New VM starts at old one + 1000 so it's definitely after any final events we get from the dying VM:
-                Integer.toString(greenfootDebugHandler.getLastSeq() + 1000) };
+                Integer.toString(greenfootDebugHandler.getLastSeq()) };
 
         Package pkg = project.getPackage("");
         final Debugger debugger = pkg.getProject().getDebugger();
