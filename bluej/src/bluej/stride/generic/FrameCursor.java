@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -53,6 +53,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -165,9 +166,8 @@ public class FrameCursor implements RecallableFocus
                     editor.beginRecordingState(FrameCursor.this);
                     editor.recordEdits(StrideEditReason.FLUSH);
 
-                    //Don't animate our removal when adding blocks,
-                    //just disappear:
-                    disappear();
+                    // Hide the cursor:
+                    showHide(false);
 
                     Frame newFrame;
                     if (selection) {
@@ -190,7 +190,7 @@ public class FrameCursor implements RecallableFocus
 
 
                     if (!newFrame.focusWhenJustAdded()) {
-                        appear(); // Reverse the disappear above; we are still focused, since the frame had nothing to focus on
+                        showHide(true); // Reverse the hiding above; we are still focused, since the frame had nothing to focus on
                         editor.updateCatalog(FrameCursor.this);
                     }
                     if (ctrlDown)
@@ -238,138 +238,7 @@ public class FrameCursor implements RecallableFocus
         return parentCanvas.getCursors().indexOf(this);
     }
 
-    public static void editorClosing(InteractionManager editor)
-    {
-        shrinkingHeightBindings.remove(editor);
-    }
-
-    /**
-     * As the cursor moves up/down, we want to make it look like the blocks are sliding out of the
-     * way for the cursor.  To achieve this, we actually shrink old cursor positions while
-     * growing new position.
-     * 
-     * To link the size of the growing new position to the old shrinking positions we maintain
-     * a list of current shrinkers in this class, and bind our property to their size.
-     * Then we bind the height of the growing portion to be the target, minus this total height
-     * of remaining shrinkers.
-     */
-    private static class TotalHeightBinding extends IntegerBinding
-    {
-        private static final Duration DEFAULT_DURATION = Duration.millis(100);
-        // The shortest between cursor movements that we will not animate:
-        public static final long ANIMATE_GAP = 800L;
-        private Set<NumberExpressionBase> shrinkingSpace = new HashSet<>();
-        private FrameCursor growing;
-        // Note we must track shrink and grow separately because they usually
-        // come in pairs, so we don't want the cursor losing focus on the shrink
-        // to prevent animating the grow of the cursor gaining focus:
-        private long lastShrink = 0;
-        private long lastGrow = 0;
-        
-        public synchronized void shrink(FrameCursor c, double target, boolean animate)
-        {
-            if (animate && System.currentTimeMillis() - lastShrink < ANIMATE_GAP)
-            {
-                // Don't animate if they user is going fast up and down,
-                // as it costs a lot of time in large canvases:
-                animate = false;
-            }
-
-            // If we were previously growing, untag ourselves:
-            if (growing == c) {
-                growing = null;
-            }
-            
-            // Animate using integer property to avoid floating point half-height problems:
-            // We definitely want this -- otherwise you get odd effects
-            SimpleIntegerProperty heightProp = new SimpleIntegerProperty((int)c.node.getMaxHeight());
-            c.node.maxHeightProperty().bind(heightProp);
-            if (animate)
-            {
-                c.animation = new Timeline(new KeyFrame(DEFAULT_DURATION, new KeyValue(heightProp, target)));
-                c.animation.play();
-            }
-            else
-            {
-                heightProp.set((int)target);
-            }
-            
-            shrinkingSpace.add(c.node.maxHeightProperty()); //Must match remove() in remove()
-            bind(c.node.maxHeightProperty()); // Must match unbind() in remove()
-
-            lastShrink = System.currentTimeMillis();
-        }
-        
-        private synchronized void remove(FrameCursor c)
-        {
-            shrinkingSpace.remove(c.node.maxHeightProperty()); //Must match add in shrink()
-            unbind(c.node.maxHeightProperty()); // Must match bind() in shrink()
-            if (shrinkingSpace.isEmpty() && growing != null)
-            {
-                // If no one is shrinking, all animations are done:
-                growing.node.maxHeightProperty().unbind();
-                growing = null;
-            }
-        }
-        
-        
-        @Override
-        protected int computeValue()
-        {
-            int height = 0;
-            for (Iterator<NumberExpressionBase> it = shrinkingSpace.iterator(); it.hasNext();)
-            {
-                NumberExpressionBase val = it.next();
-                int h = (int)Math.ceil(val.doubleValue());
-                height += h - HIDE_HEIGHT;
-                // If any have zero height, we can remove them to avoid clogging up our set:
-                if (h == 0)
-                {
-                    it.remove();
-                    unbind(val);
-                }
-            }
-            return height;
-        }
-
-        public synchronized void grow(FrameCursor c, int target, boolean animate)
-        {
-            if (animate && System.currentTimeMillis() - lastGrow < ANIMATE_GAP)
-            {
-                // Don't animate if they user is going fast up and down,
-                // as it costs a lot of time in large canvases:
-                animate = false;
-            }
-
-            remove(c);
-            growing = c;
-            
-            //Add dummy shrinking cursor, in case no-one is shrinking, e.g. if we came from a slot:
-            if (shrinkingSpace.isEmpty())
-            {
-                IntegerProperty dummy = new SimpleIntegerProperty(target - (int)c.node.getMaxHeight() + HIDE_HEIGHT);
-                bind(dummy);
-                shrinkingSpace.add(dummy);
-                if (animate)
-                {
-                    Animation anim = new Timeline(new KeyFrame(DEFAULT_DURATION, new KeyValue(dummy, HIDE_HEIGHT)));
-                    anim.play();
-                }
-                else
-                {
-                    dummy.set(HIDE_HEIGHT);
-                }
-            }
-            
-            growing.node.maxHeightProperty().bind(Bindings.max(HIDE_HEIGHT, new ReadOnlyIntegerWrapper(target).subtract(this)));
-
-            lastGrow = System.currentTimeMillis();
-        }
-    }
-
-    private static final Map<InteractionManager, TotalHeightBinding> shrinkingHeightBindings = new IdentityHashMap<>();
     private final InteractionManager editor;
-    private Timeline animation;
     private Canvas redCross;
     private Canvas copyingPlus;
     private ImageView dragTargetOverlayFake;
@@ -389,27 +258,19 @@ public class FrameCursor implements RecallableFocus
         }
         
         this.editor = editor;
-        if (editor != null)
-        {
-            shrinkingHeightBindings.putIfAbsent(editor, new TotalHeightBinding()); 
-        }
         
         // Bind min and pref size to max size:
         node.minWidthProperty().bind(node.maxWidthProperty());
         node.prefWidthProperty().bind(node.maxWidthProperty());
         node.minHeightProperty().bind(node.maxHeightProperty());
         node.prefHeightProperty().bind(node.maxHeightProperty());
-
-        // We must start by insta-shrinking, so that the height bindings get set-up correctly
-        // for the cursor:
-        shrinkingHeightBindings.get(editor).shrink(this,HIDE_HEIGHT,false);
-                                
+        
         JavaFXUtil.addChangeListener(node.focusedProperty(), nowFocused -> {
             // Oddly, we can get told we are focused even after we have left the Scene,
             // so we add a check here to guard against that:
             if (node.getScene() != null)
-            {
-                animateShowHide(nowFocused, false);
+            { 
+                showHide(nowFocused);
             }
         });
         JavaFXUtil.addChangeListener(node.localToSceneTransformProperty(), t -> JavaFXUtil.runNowOrLater(() -> adjustDragTargetPosition()));
@@ -570,30 +431,10 @@ public class FrameCursor implements RecallableFocus
         });
     }
 
-    private void animateShowHide(boolean show, boolean animate)
-    {
-        // Stop any previous resizing animation:
-        if (animation != null) {
-            animation.stop();
-        }
-        
+    private void showHide(boolean show)
+    {        
         node.setOpacity(show ? 1.0 : 0.0);
-        
-        //If we're the only item in a canvas, don't animate:
-        if (getParentCanvas().blockCount() == 0) {
-            node.maxHeightProperty().unbind();
-            node.setMaxHeight(show ? FULL_HEIGHT : HIDE_HEIGHT);
-        }
-        else {
-            if (show) {
-                shrinkingHeightBindings.get(editor).grow(FrameCursor.this, FULL_HEIGHT, animate);
-            }
-            else {
-                TotalHeightBinding heightBinding = shrinkingHeightBindings.get(editor);
-                if (heightBinding != null) // Can be null when closing the editor
-                    heightBinding.shrink(FrameCursor.this, HIDE_HEIGHT, animate);
-            }
-        }
+        node.setMaxHeight(show ? FULL_HEIGHT : HIDE_HEIGHT);
     }
 
     @OnThread(Tag.FXPlatform)
@@ -609,7 +450,7 @@ public class FrameCursor implements RecallableFocus
         }
         
         // Must resize before setting drag class:
-        animateShowHide(true, false);
+        showHide(true);
         setDragClass(chosen);
         updateDragCopyState(copying);
     }
@@ -696,7 +537,7 @@ public class FrameCursor implements RecallableFocus
     @OnThread(Tag.FXPlatform)
     public void stopShowAsDropTarget()
     {
-        animateShowHide(false, false);
+        showHide(false);
         setDragClass(-1);
     }
     
@@ -802,18 +643,6 @@ public class FrameCursor implements RecallableFocus
     public Bounds getSceneBounds()
     {
         return node.localToScene(node.getBoundsInLocal());
-    }
-    
-    /** Vanish without animating */
-    protected void disappear()
-    {
-        animateShowHide(false, false);
-    }
-
-    /** Appear without animating */
-    protected void appear()
-    {
-        animateShowHide(true, false);
     }
     
     public InteractionManager getEditor()
