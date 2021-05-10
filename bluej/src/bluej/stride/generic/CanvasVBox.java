@@ -199,7 +199,7 @@ class CanvasVBox extends BetterVBox
         backgroundRadiusProperty.addListener(bk);
     }
     
-    public SimpleStyleableDoubleProperty getMinHeighProperty(){
+    public SimpleStyleableDoubleProperty cssMinHeightProperty(){
         return cssMinHeightProperty;
     }
 

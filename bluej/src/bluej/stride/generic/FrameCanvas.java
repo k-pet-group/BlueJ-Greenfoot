@@ -827,9 +827,9 @@ public class FrameCanvas implements FrameContentItem
         // before/after the current frame moves, instead of the whole page. This filler is added when a frame
         // is created (so, here) and is shown when the frame is becomes empty* and is hidden when another frame* is added
         // (*) in the sense of the user's point of view
-        emptyFramePaddingPane.minHeightProperty().bind(canvas.getMinHeighProperty());
-        emptyFramePaddingPane.maxHeightProperty().bind(canvas.getMinHeighProperty());
-        emptyFramePaddingPane.prefHeightProperty().bind(canvas.getMinHeighProperty());
+        emptyFramePaddingPane.minHeightProperty().bind(canvas.cssMinHeightProperty());
+        emptyFramePaddingPane.maxHeightProperty().bind(canvas.cssMinHeightProperty());
+        emptyFramePaddingPane.prefHeightProperty().bind(canvas.cssMinHeightProperty());
         canvas.getChildren().add(emptyFramePaddingPane);
        
         editorFrm = editor;
