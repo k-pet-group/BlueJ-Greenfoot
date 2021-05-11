@@ -64,6 +64,7 @@ import bluej.utility.FileUtility;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformFunction;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.CallableView;
@@ -136,6 +137,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.IntBuffer;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static bluej.pkgmgr.target.EditableTarget.MENU_STYLE_INBUILT;
 import static greenfoot.vmcomm.Command.*;
@@ -199,6 +201,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     private boolean atBreakpoint = false;
     private boolean simulationRunning = false;
     private boolean waitingForDiscard = false;
+    
+    private final Queue<FXPlatformRunnable> executeAfterReady = new LinkedList<>();
 
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
@@ -478,7 +482,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             @Override
             public void handle(long now)
             {
-                debugHandler.getVmComms().checkIO(GreenfootStage.this);
+                if (debugHandler.getVmComms().checkIO(GreenfootStage.this))
+                {
+                    // Shouldn't execute directly, because we're in an animation timer and shouldn't block:
+                    executeAfterReady.forEach(JavaFXUtil::runAfterCurrent);
+                    executeAfterReady.clear();
+                }
             }
         };
         vmCommsHandler.start();
@@ -2024,7 +2033,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             worldInstantiationError = false;
             settingSpeedFromSimulation = false;
             constructingWorld = false;
-            lastExecStartTime = 0L;
+            setLastUserExecutionStartTime(0L, false);
             atBreakpoint = false;
             nextPickId = 1;
             curPickRequest = 0;
@@ -2613,6 +2622,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
     @Override
     public void callStaticMethodOrConstructor(CallableView cv)
+    {
+        executeAfterReady.add(() -> callStaticMethodOrConstructorOnceReady(cv));
+    }
+
+    private void callStaticMethodOrConstructorOnceReady(CallableView cv)
     {
         ResultWatcher watcher = null;
         Package pkg = project.getPackage("");
