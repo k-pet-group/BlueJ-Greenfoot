@@ -98,6 +98,7 @@ public class VMCommsMain implements Closeable
     private FileLock putLock;
     private FileLock syncLock;
 
+    // Needs to be AtomicInteger because it's modified from multiple threads:
     private final AtomicInteger lastSeq = new AtomicInteger(0);
     private final List<Command> pendingCommands = new ArrayList<>();
     private int setSpeedCommandCount = 0;

@@ -141,7 +141,6 @@ public class WorldDisplay extends StackPane
         {
             askPane.setVisible(false);
             imageView.setDisable(false);
-            imageView.setDisable(false);
             imageView.setEffect(null);
             // Put focus back on the world display:
             requestFocus();

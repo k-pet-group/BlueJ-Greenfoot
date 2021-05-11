@@ -485,7 +485,8 @@ public class ProjectManager
                 tmpPropsFile == null ? "" : tmpPropsFile.getAbsolutePath(),
                 shmFile == null ? "" : shmFile.getAbsolutePath(),
                 Integer.toString(greenfootDebugHandler.getShmFileSize()),
-                // New VM starts at old one + 1000 so it's definitely after any final events we get from the dying VM:
+                // New VM starts at old last seq so that it's  after any final events we get from the dying VM:
+                // (especially since the seq will have had 1000 added when the last VM was terminated)
                 Integer.toString(greenfootDebugHandler.getLastSeq()) };
 
         Package pkg = project.getPackage("");
