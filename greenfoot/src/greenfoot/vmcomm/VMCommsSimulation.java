@@ -381,14 +381,7 @@ public class VMCommsSimulation
                 }
 
                 // Write the status of the delay loop
-                if (delayLoopEntered == true)
-                {
-                    sharedMemory.put(1);
-                }
-                else
-                {
-                    sharedMemory.put(0);
-                }
+                sharedMemory.put(delayLoopEntered ? 1 : 0);
             }
 
             putLock.release();

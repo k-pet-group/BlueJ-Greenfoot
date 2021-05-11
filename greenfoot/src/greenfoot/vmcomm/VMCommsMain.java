@@ -438,14 +438,7 @@ public class VMCommsMain implements Closeable
                     }
 
                     int delayLoopStatus = sharedMemory.get();
-                    if (delayLoopStatus == 1)
-                    {
-                        delayLoop = true;
-                    }
-                    else
-                    {
-                        delayLoop = false;
-                    }
+                    delayLoop = delayLoopStatus == 1;
                 }
             }
         }
