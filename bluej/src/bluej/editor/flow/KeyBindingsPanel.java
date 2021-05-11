@@ -319,7 +319,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         if (action != null)
         {
             FlowActions.removeKeyCombinationForActionToAllEditors(keyList.getSelectionModel().getSelectedItem(), action);
-            updateKeyList(functionList.getSelectionModel().getSelectedItem());
+            updateKeyList(action);
         }
     }
 
