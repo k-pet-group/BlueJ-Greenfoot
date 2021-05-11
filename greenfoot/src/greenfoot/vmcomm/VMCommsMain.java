@@ -427,9 +427,10 @@ public class VMCommsMain implements Closeable
                     worldCellSize = sharedMemory.get();
                     
                     int askId = sharedMemory.get();
-                    if (askId > 0 && askId > lastAnswer)
+                    if (askId > 0)
                     {
-                        this.askId = askId;
+                        if (askId > lastAnswer)
+                            this.askId = askId;
                         // Length followed by codepoints for the prompt string:
                         int askLength = sharedMemory.get();
                         promptCodepoints = new int[askLength];
