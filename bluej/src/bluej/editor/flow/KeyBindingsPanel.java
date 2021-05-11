@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016,2019,2021  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -315,8 +315,12 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         if(index == -1)
             return;             // deselection event - ignore
 
-        actions.removeKeyStrokeBinding(keyList.getSelectionModel().getSelectedItem());
-        updateKeyList(functionList.getSelectionModel().getSelectedItem());
+        String action = functionList.getSelectionModel().getSelectedItem();
+        if (action != null)
+        {
+            FlowActions.removeKeyCombinationForActionToAllEditors(keyList.getSelectionModel().getSelectedItem(), action);
+            updateKeyList(action);
+        }
     }
 
     /**

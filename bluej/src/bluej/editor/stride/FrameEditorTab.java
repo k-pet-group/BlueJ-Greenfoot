@@ -944,6 +944,12 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     void resetFontSize()
     {
         PrefMgr.strideFontSizeProperty().set(PrefMgr.DEFAULT_STRIDE_FONT_SIZE);
+        // Update the bird view current focused frame if bird view is enabled
+        // The frame isn't change right away so we need to do it at the next next layout
+        if(viewProperty.get().isBirdseye())
+        {
+            JavaFXUtil.runAfterNextLayout(getTabPane().getScene(), () -> JavaFXUtil.runAfterNextLayout(getTabPane().getScene(),() -> calculateBirdseyeRectangle()));
+        }
     }
 
     @OnThread(Tag.FXPlatform)
@@ -1965,6 +1971,12 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     {
         final IntegerProperty fontSize = PrefMgr.strideFontSizeProperty();
         Utility.decreaseFontSize(fontSize);
+        // Update the bird view current focused frame if bird view is enabled
+        // The frame isn't change right away so we need to do it at the next next layout
+        if(viewProperty.get().isBirdseye())
+        {
+            JavaFXUtil.runAfterNextLayout(getTabPane().getScene(), () -> JavaFXUtil.runAfterNextLayout(getTabPane().getScene(),() -> calculateBirdseyeRectangle()));
+        }
     }
 
     //package-visible
@@ -1973,6 +1985,12 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     {
         final IntegerProperty fontSize = PrefMgr.strideFontSizeProperty();
         Utility.increaseFontSize(fontSize);
+        // Update the bird view current focused frame if bird view is enabled
+        // The frame isn't change right away so we need to do it at the next next layout
+        if(viewProperty.get().isBirdseye())
+        {
+            JavaFXUtil.runAfterNextLayout(getTabPane().getScene(), () -> JavaFXUtil.runAfterNextLayout(getTabPane().getScene(),() -> calculateBirdseyeRectangle()));
+        }
     }
 
     @Override
