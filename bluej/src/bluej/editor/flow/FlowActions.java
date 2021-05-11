@@ -32,6 +32,7 @@ import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
@@ -91,7 +92,7 @@ public final class FlowActions
     private static final Modifier SHORTCUT_MASK = KeyCombination.SHORTCUT_DOWN;
     private static final Modifier[] SHIFT_SHORTCUT_MASK = { KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN};
     // Must be weak to allow unused actions to be GCed:
-    private static final Set<FlowActions> allActions = Collections.newSetFromMap(new WeakHashMap<>());
+    private static final WeakHashMap<FlowEditor, FlowActions> allActions = new WeakHashMap<FlowEditor, FlowActions >();
 
     // -------- INSTANCE VARIABLES --------
     private final FlowEditor editor;
@@ -204,6 +205,9 @@ public final class FlowActions
                     })
             ));
         }
+        
+        //add the actions to "allActions"
+        actions.values().forEach(flowAction -> allActions.put(editor, this));
     }
 
     // package-visible
@@ -521,7 +525,7 @@ public final class FlowActions
      */
     public static void addKeyCombinationForActionToAllEditors(KeyCodeCombination key, String actionName)
     {
-        allActions.forEach(flowAction -> flowAction.addKeyCombinationForAction(key, actionName));
+        allActions.values().forEach(flowAction -> flowAction.addKeyCombinationForAction(key, actionName));
     }
 
     /**
@@ -533,6 +537,27 @@ public final class FlowActions
         if (action != null)
         {
             keymap.put(key, action);
+            updateKeymap();
+        }
+    }
+
+    /**
+     * Remove a key binding from the action table.
+     */
+    public static void removeKeyCombinationForActionToAllEditors(KeyCodeCombination key, String actionName)
+    {
+        allActions.values().forEach(flowAction -> flowAction.removeKeyCombinationForAction(key, actionName));
+    }
+
+    /**
+     * Remove a key binding from the action table.
+     */
+    private void removeKeyCombinationForAction(KeyCodeCombination key, String actionName)
+    {
+        FlowAbstractAction action = actions.get(actionName);
+        if (action != null)
+        {
+            keymap.remove(key, action);
             updateKeymap();
         }
     }
@@ -1133,7 +1158,9 @@ public final class FlowActions
         // cursor block
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, SHORTCUT_MASK), "increase-font");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, SHORTCUT_MASK), "decrease-font");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SUBTRACT, KeyCombination.SHORTCUT_DOWN), "decrease-font"); //support for the numpad - (which is the only "minus" symbol supported on the French keyboard)
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.DIGIT0, SHORTCUT_MASK), "reset-font");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.NUMPAD0, SHORTCUT_MASK), "reset-font"); //support of the numpad 0
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, SHIFT_SHORTCUT_MASK), "autoindent");
     }
