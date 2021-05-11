@@ -218,6 +218,14 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     {
         return vmComms.getSharedFileSize();
     }    
+
+    /**
+     * Gets the last sequence identifier that we've received from the user VM
+     */
+    public int getLastSeq()
+    {
+        return vmComms.getLastSeq();
+    }
     
     /**
      * Get the recorder instance which tracks actor creation.

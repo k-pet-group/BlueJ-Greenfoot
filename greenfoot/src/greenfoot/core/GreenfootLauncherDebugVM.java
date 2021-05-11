@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2013,2014,2015,2018,2019  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2013,2014,2015,2018,2019,2021  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -56,7 +56,7 @@ public class GreenfootLauncherDebugVM
      * @param prjDir         The project directory
      * @param rmiServiceName  The name of the RMI service to connect to
      */
-    public GreenfootLauncherDebugVM(String prjDir, String libDirPath, String userPrefDirPath, String propsFilePath, String shmFilePath, String shmFileSize)
+    public GreenfootLauncherDebugVM(String prjDir, String libDirPath, String userPrefDirPath, String propsFilePath, String shmFilePath, String shmFileSize, String seqStart)
     {
         instance = this;
         
@@ -92,7 +92,7 @@ public class GreenfootLauncherDebugVM
                 Debug.setDebugStream(new PrintWriter(System.err));
                 
                 GreenfootUtil.initialise(GreenfootUtilDelegateIDE.getInstance());
-                GreenfootMain.initialize(prjDir, shmFilePath, Integer.parseInt(shmFileSize));
+                GreenfootMain.initialize(prjDir, shmFilePath, Integer.parseInt(shmFileSize), Integer.parseInt(seqStart));
             }
         }.start();
     }

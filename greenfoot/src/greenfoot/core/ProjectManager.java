@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2015,2017,2018,2019  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2015,2017,2018,2019,2021  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -484,7 +484,10 @@ public class ProjectManager
                 Config.getUserConfigDir().getAbsolutePath(),
                 tmpPropsFile == null ? "" : tmpPropsFile.getAbsolutePath(),
                 shmFile == null ? "" : shmFile.getAbsolutePath(),
-                Integer.toString(greenfootDebugHandler.getShmFileSize()) };
+                Integer.toString(greenfootDebugHandler.getShmFileSize()),
+                // New VM starts at old last seq so that it's  after any final events we get from the dying VM:
+                // (especially since the seq will have had 1000 added when the last VM was terminated)
+                Integer.toString(greenfootDebugHandler.getLastSeq()) };
 
         Package pkg = project.getPackage("");
         final Debugger debugger = pkg.getProject().getDebugger();

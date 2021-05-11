@@ -1691,6 +1691,17 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         worldDisplay.ensureAsking(new String(promptCodepoints, 0, promptCodepoints.length), (String s) -> {
             debugHandler.getVmComms().sendAnswer(s);
         });
+        // Make sure world is visible so that the ask pane is actually visible;
+        // the world may not be visible if the ask is during world construction and there was not previously a world:
+        worldVisible.set(true);
+    }
+
+    /**
+     * Cancel any currently showing ask request; hide the ask pane.
+     */
+    public void cancelAsk()
+    {
+        worldDisplay.cancelAsk();
     }
     
     /**
@@ -2009,6 +2020,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         Platform.runLater(() -> {
             // We must reset the debug VM related state ready for the new debug VM:
             worldDisplay.setImage(null);
+            worldDisplay.cancelAsk();
             worldInstantiationError = false;
             settingSpeedFromSimulation = false;
             constructingWorld = false;
