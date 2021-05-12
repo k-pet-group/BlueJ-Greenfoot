@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ package bluej.stride.framedjava.frames;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import bluej.Config;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
@@ -158,22 +159,31 @@ public class SwitchFrame extends MultiCanvasFrame
         List<Frame> casesFrames = new ArrayList<>(casesCanvas.getBlockContents());
         casesFrames.forEach(c -> casesCanvas.removeBlock(c));
         final List<Frame> contents = new ArrayList<>();
+        final AtomicBoolean previousCaseIsEmpty = new AtomicBoolean(true);
         casesFrames.forEach(c -> {
-                    // Add a BlankFrame before each case
+                // Add a BlankFrame before each case only if that's not the first case in the switch, that the content isn't empty
+                // and that the previous case wasn't empty
+                // (note that we already don't have the BreakFrame from the case content when calling getValidPulledStatements())
+                List<Frame> caseFrameContent = ((CaseFrame) c).getValidPulledStatements();
+                caseFrameContent.forEach(child -> ((CaseFrame) c).getCanvas().removeBlock(child));
+                if (!previousCaseIsEmpty.get() && caseFrameContent.size() > 0)
                     contents.add(new BlankFrame(editor));
-                    contents.addAll(((CaseFrame) c).getValidPulledStatements());
-                }
+                contents.addAll(caseFrameContent);
+                previousCaseIsEmpty.set(contents.isEmpty());
+            }
         );
         getCursorBefore().insertFramesAfter(contents);
 
         if (defaultCanvas != null) {
-            // Add a BlankFrame in between
-            getCursorBefore().insertBlockAfter(new BlankFrame(getEditor()));
-
-            // defaultCanvas
             // Make copy because we're about to modify the contents:
             List<Frame> defaultContents = new ArrayList<>(defaultCanvas.getBlockContents());
             defaultContents.forEach(c -> defaultCanvas.removeBlock(c));
+
+            // Add a BlankFrame in between (if there were cases and the content of default isn't empty
+            // (note that here a default frame isn't empty is something else than a BreakFrame is found)
+            if (!previousCaseIsEmpty.get() && defaultContents.stream().anyMatch(f -> !(f instanceof  BreakFrame)))
+                defaultContents.add(0, new BlankFrame(editor));
+            
             getCursorBefore().insertFramesAfter(defaultContents);
         }
         //notify the editor that a change has been occurred. That will trigger a file save
@@ -192,11 +202,16 @@ public class SwitchFrame extends MultiCanvasFrame
         }
         else {
             List<Frame> contents = frame.getValidPulledStatements();
+            contents.forEach(child -> frame.getCanvas().removeBlock(child));
             CaseFrame previous = (CaseFrame) casesCanvas.getBlockContents().get(index - 1);
-            // Add a BlankFrame in between
-            previous.getLastInternalCursor().insertBlockAfter(new BlankFrame(getEditor()));
-            previous.getLastInternalCursor().insertFramesAfter(contents);
+            FrameCursor previousCursor = previous.getLastInternalCursor();
+            previousCursor.insertFramesAfter(contents);
+            // Add a BlankFrame in between only if the content we pull isn't empty and the destination isn't empty
+            // (note that it will already not contain a BreakFrame when we call getValidPulledStatements())
+            if(previousCursor.getCursorIndex() > 0 && contents.size() > 0)
+                previousCursor.insertBlockAfter(new BlankFrame(getEditor()));
             casesCanvas.removeBlock(frame);
+            previousCursor.requestFocus();
         }
         //notify the editor that a change has been occurred. That will trigger a file save
         editor.modifiedFrame(this, false);
@@ -214,15 +229,17 @@ public class SwitchFrame extends MultiCanvasFrame
         }
         else {
             List<Frame> defaultContents = new ArrayList<>(defaultCanvas.getBlockContents());
-            defaultContents.forEach(frame -> frame.setParentCanvas(null));
             defaultContents.forEach(c -> defaultCanvas.removeBlock(c));
 
             CaseFrame previous = (CaseFrame) casesCanvas.getBlockContents().get(casesCount - 1);
-            // Add a BlankFrame in between
-            previous.getLastInternalCursor().insertBlockAfter(new BlankFrame(getEditor()));
-            previous.getLastInternalCursor().insertFramesAfter(defaultContents);
-
+            FrameCursor previousCursor = previous.getLastInternalCursor();
+            previousCursor.insertFramesAfter(defaultContents);
+            // Add a BlankFrame in between only if the content we pull isn't empty and the destination isn't empty
+            // (here, meaning it has any other frame than a BreakFrame)
+            if (previousCursor.getCursorIndex() > 0 && defaultContents.stream().anyMatch(f -> !(f instanceof BreakFrame)))
+                previousCursor.insertBlockAfter(new BlankFrame(getEditor()));
             removeDefault();
+            previousCursor.requestFocus();
         }
         //notify the editor that a change has been occurred. That will trigger a file save
         editor.modifiedFrame(this, false);

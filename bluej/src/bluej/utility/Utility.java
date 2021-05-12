@@ -416,7 +416,6 @@ public class Utility
      * it returns false.
      * 
      * @param p
-     * @param url
      * @param cmd2
      */
     private static void runUnixWebBrowser(Process p, String cmd2)
@@ -670,7 +669,7 @@ public class Utility
      * Converts tabs in a String into a specified number of spaces. It assumes
      * that beginning of String is the starting point of tab offsets.
      * 
-     * @param original the String to convert
+     * @param originalString the String to convert
      * @param tabSize number of spaces to be inserted in place of tab
      * @return the String with spaces replacing tabs (if tabs present).
      */
@@ -1051,23 +1050,6 @@ public class Utility
         
         return strings;        
     }
-    
-    /**
-     * Set background colour of a JEditorPane.
-     * based on fix from: https://community.oracle.com/thread/1356459
-     * @param JEditorPane     the pane to apply the background colour to
-     * @param color           the colour to be applied to the panel.
-     */
-    @OnThread(Tag.Swing)
-    public static void setJEditorPaneBackground(javax.swing.JEditorPane jEditorPane, Color color)
-    {
-        Color bgColor = new Color(250, 246, 229);
-        UIDefaults defaults = new UIDefaults();
-        defaults.put("EditorPane[Enabled].backgroundPainter", bgColor);
-        jEditorPane.putClientProperty("Nimbus.Overrides", defaults);
-        jEditorPane.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
-        jEditorPane.setBackground(bgColor);
-    }
 
     // Damerau-Levenshtein distance
     public static int editDistance(String s, String t)
@@ -1139,23 +1121,13 @@ public class Utility
      */
     public static <T7> Collector<T7, ArrayList<T7>, ArrayList<T7>> intersperse(Supplier<T7> makeInbetween)
     {
-        return Collector.of(ArrayList::new, new BiConsumer<ArrayList<T7>, T7>()
-        {
-            @Override
-            public void accept(ArrayList<T7> l, T7 x)
-            {
-                if (!l.isEmpty())
-                    l.add(makeInbetween.get());
-                l.add(x);
-            }
-        }, new BinaryOperator<ArrayList<T7>>()
-        {
-            @Override
-            public ArrayList<T7> apply(ArrayList<T7> a, ArrayList<T7> b)
-            {
-                a.addAll(b);
-                return a;
-            }
+        return Collector.of(ArrayList::new, (l, x) -> {
+            if (!l.isEmpty() && ((!(x instanceof List)) || ((x instanceof List) && !(((List)x).isEmpty()))))
+                l.add(makeInbetween.get());
+            l.add(x);
+        }, (a, b) -> {
+            a.addAll(b);
+            return a;
         });
     }
 
@@ -1164,14 +1136,7 @@ public class Utility
      */
     public static <T8> Collector<T8, ArrayList<T8>, ArrayList<T8>> intersperse(T8 inbetween)
     {
-        return intersperse(new Supplier<T8>()
-        {
-            @Override
-            public T8 get()
-            {
-                return inbetween;
-            }
-        });
+        return intersperse(() -> inbetween);
     }
     
     // Interleaves two streams.  Returns first element of a, then first element of b,
