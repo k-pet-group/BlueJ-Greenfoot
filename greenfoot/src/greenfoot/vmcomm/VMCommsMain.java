@@ -133,6 +133,7 @@ public class VMCommsMain implements Closeable
     private final Thread ioThread;
 
     private boolean delayLoop;
+    private boolean vmReadyForInvocations = false;
     private int askId = -1;
 
     /**
@@ -275,11 +276,11 @@ public class VMCommsMain implements Closeable
      * Check for input / send output, and apply received data to the stage.
      */
     @OnThread(Tag.FXPlatform)
-    public synchronized void checkIO(GreenfootStage stage)
+    public synchronized boolean checkIO(GreenfootStage stage)
     {
         if (checkingIO)
         {
-            return; // avoid re-entrancy
+            return vmReadyForInvocations; // avoid re-entrancy
         }
         
         checkingIO = true;
@@ -332,6 +333,7 @@ public class VMCommsMain implements Closeable
         checkingIO = false;
         
         notifyAll(); // wake IO thread
+        return vmReadyForInvocations;
     }
 
     /**
@@ -427,9 +429,10 @@ public class VMCommsMain implements Closeable
                     worldCellSize = sharedMemory.get();
                     
                     int askId = sharedMemory.get();
-                    if (askId > 0 && askId > lastAnswer)
+                    if (askId > 0)
                     {
-                        this.askId = askId;
+                        if (askId > lastAnswer)
+                            this.askId = askId;
                         // Length followed by codepoints for the prompt string:
                         int askLength = sharedMemory.get();
                         promptCodepoints = new int[askLength];
@@ -437,14 +440,9 @@ public class VMCommsMain implements Closeable
                     }
 
                     int delayLoopStatus = sharedMemory.get();
-                    if (delayLoopStatus == 1)
-                    {
-                        delayLoop = true;
-                    }
-                    else
-                    {
-                        delayLoop = false;
-                    }
+                    delayLoop = delayLoopStatus == 1;
+                    int vmReadyStatus = sharedMemory.get();
+                    vmReadyForInvocations = vmReadyStatus == 1;
                 }
             }
         }
@@ -640,6 +638,10 @@ public class VMCommsMain implements Closeable
         // Zero the buffer:
         sharedMemoryByte.position(0);
         sharedMemoryByte.put(new byte[fileSize], 0, fileSize);
+        synchronized (this)
+        {
+            vmReadyForInvocations = false;
+        }
     }
 
     /**

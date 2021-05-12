@@ -178,6 +178,7 @@ public class GreenfootMain extends Thread
                     // Want to execute this after the simulation has been initialised:
                     ExecServer.setCustomRunOnThread(r -> Simulation.getInstance().runLater(r::run));
 
+                    vmComms.markVMReady();
                     // Config is initialized in GreenfootLauncherDebugVM
 
                 }

@@ -64,6 +64,7 @@ import bluej.utility.FileUtility;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformFunction;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.CallableView;
@@ -136,6 +137,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.IntBuffer;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static bluej.pkgmgr.target.EditableTarget.MENU_STYLE_INBUILT;
 import static greenfoot.vmcomm.Command.*;
@@ -199,6 +201,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     private boolean atBreakpoint = false;
     private boolean simulationRunning = false;
     private boolean waitingForDiscard = false;
+    
+    // Tasks to add to executeAfterReady after the VM has been terminated:
+    private final Queue<FXPlatformRunnable> executeAfterTermination = new LinkedList<>();
+    // Tasks to be run once the VM has initialised:
+    private final Queue<FXPlatformRunnable> executeAfterReady = new LinkedList<>();
 
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
@@ -478,7 +485,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             @Override
             public void handle(long now)
             {
-                debugHandler.getVmComms().checkIO(GreenfootStage.this);
+                if (debugHandler.getVmComms().checkIO(GreenfootStage.this))
+                {
+                    // Shouldn't execute directly, because we're in an animation timer and shouldn't block:
+                    executeAfterReady.forEach(JavaFXUtil::runAfterCurrent);
+                    executeAfterReady.clear();
+                }
             }
         };
         vmCommsHandler.start();
@@ -639,9 +651,21 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         if (currentWorld != null && currentWorld.isCompiled()
                 && hasNoArgConstructor(currentWorld.getTypeReflective()))
         {
-            constructingWorld = true;
-            project.getTerminal().activate(true);
-            debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
+            // Must store this first, because if they have to terminate the VM it won't be available after:
+            String curWorld = currentWorld.getQualifiedName();
+            
+            suggestTerminateIfAskingThenRun(() -> {
+                constructingWorld = true;
+                project.getTerminal().activate(true);
+                debugHandler.getVmComms().instantiateWorld(curWorld);
+            });
+        }
+        else if (constructingWorld && worldDisplay.isAsking())
+        {
+            // Could be that we haven't got a world yet, but there is one being constructed
+            // and waiting for an ask response: we should offer to terminate, but then
+            // we deliberately won't make a new world (they can do it if they want it):
+            suggestTerminateIfAskingThenRun(() -> {});
         }
         debugHandler.simulationThreadResumeOnResetClick();
         saveTheWorldRecorder.recordingValid();
@@ -2024,7 +2048,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             worldInstantiationError = false;
             settingSpeedFromSimulation = false;
             constructingWorld = false;
-            lastExecStartTime = 0L;
+            setLastUserExecutionStartTime(0L, false);
             atBreakpoint = false;
             nextPickId = 1;
             curPickRequest = 0;
@@ -2035,6 +2059,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             // This will set up pendingCommands, ready for when
             // the new debug VM can process data:
             loadAndMirrorProperties();
+            
+            if (executeAfterTermination != null)
+            {
+                executeAfterReady.addAll(executeAfterTermination);
+                executeAfterTermination.clear();
+            }
         });
     }
 
@@ -2611,8 +2641,39 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         }
     }
 
+    /**
+     * Checks if there is currently a Greenfoot.ask prompt showing and then:
+     *  - If there is an ask prompt showing, asks the user if they want to terminate VM or cancel, and then:
+     *     - If they terminate, add the given runnable to the queue to be run after the VM restarts.
+     *     - If they cancel, do nothing.
+     *  - If there is not an ask prompt showing, run the given runnable as soon as the VM is ready.
+     *  
+     *  In neither case will it actually run the runnable now, so do not assume it has been run!
+     */
+    private void suggestTerminateIfAskingThenRun(FXPlatformRunnable runAfterward)
+    {
+        if (worldDisplay.isAsking())
+        {
+            if (0 == DialogManager.askQuestionFX(this, "terminate-for-reset"))
+            {
+                // Agreed to terminate:
+                executeAfterTermination.add(runAfterward);
+                project.restartVM();
+            }
+        }
+        else
+        {
+            executeAfterReady.add(runAfterward);
+        }
+    }
+
     @Override
     public void callStaticMethodOrConstructor(CallableView cv)
+    {
+        suggestTerminateIfAskingThenRun(() -> callStaticMethodOrConstructorNowReady(cv));
+    }
+
+    private void callStaticMethodOrConstructorNowReady(CallableView cv)
     {
         ResultWatcher watcher = null;
         Package pkg = project.getPackage("");

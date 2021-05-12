@@ -46,6 +46,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -147,6 +148,7 @@ public class VMCommsSimulation
     private World world;
     // Size of the shared memory file
     private final int fileSize;
+    private final AtomicBoolean userVMReadyForInvocations = new AtomicBoolean(false);
 
     /**
      * Construct a VMCommsSimulation.
@@ -199,6 +201,11 @@ public class VMCommsSimulation
             this.worldCounter += 1;
             this.world = world;
         }
+    }
+
+    public void markVMReady()
+    {
+        userVMReadyForInvocations.set(true);
     }
 
     public static enum PaintWhen { FORCE, IF_DUE }
@@ -381,14 +388,8 @@ public class VMCommsSimulation
                 }
 
                 // Write the status of the delay loop
-                if (delayLoopEntered == true)
-                {
-                    sharedMemory.put(1);
-                }
-                else
-                {
-                    sharedMemory.put(0);
-                }
+                sharedMemory.put(delayLoopEntered ? 1 : 0);
+                sharedMemory.put(userVMReadyForInvocations.get() ? 1 : 0);
             }
 
             putLock.release();
