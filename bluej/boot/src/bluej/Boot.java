@@ -91,7 +91,7 @@ public class Boot
     private static final String JLAYER_MP3_JAR = "jl1.0.1.jar";
     // Jars that should be included with exported scenarios
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};
-    private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
+    private static final String[] greenfootUserJars = { "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext2.jar",
         "junit-*.jar", "hamcrest-core-1.3.jar", "hamcrest-library-1.3.jar", "bluej.jar",
         "classgraph-4.8.90.jar",
