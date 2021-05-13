@@ -34,7 +34,8 @@ import threadchecker.Tag;
 /**
  * A GUI handler for Greenfoot.
  * 
- * @author Davin McCall
+ * IMPORTANT: the name of this class is referenced in a String in bluej.Main
+ * so if you ever want to rename this class, you'll need to rename it there too.
  */
 @OnThread(Tag.FXPlatform)
 public class GreenfootGuiHandler implements GuiHandler

@@ -55,7 +55,6 @@ public class GreenfootExtension extends Extension
     public void startup(BlueJ bluej)
     {
         theBlueJ = bluej;
-        Main.setGuiHandler(new GreenfootGuiHandler());
     }
 
     /**

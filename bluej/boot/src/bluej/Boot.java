@@ -554,7 +554,7 @@ public class Boot
  
             // Construct a bluej.Main object. This starts BlueJ "proper".
             Class<?> mainClass = Class.forName("bluej.Main", true, runtimeLoader);
-            mainClass.getDeclaredConstructor().newInstance();
+            mainClass.getDeclaredConstructor(ClassLoader.class).newInstance(runtimeLoader);
             
         } catch (ClassNotFoundException | InstantiationException | NoSuchMethodException 
                 | InvocationTargetException | IllegalAccessException exc) {
