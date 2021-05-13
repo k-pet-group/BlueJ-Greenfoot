@@ -1122,7 +1122,7 @@ public class Utility
     public static <T7> Collector<T7, ArrayList<T7>, ArrayList<T7>> intersperse(Supplier<T7> makeInbetween)
     {
         return Collector.of(ArrayList::new, (l, x) -> {
-            if (!l.isEmpty() && ((!(x instanceof List)) || ((x instanceof List) && !(((List)x).isEmpty()))))
+            if (!l.isEmpty())
                 l.add(makeInbetween.get());
             l.add(x);
         }, (a, b) -> {

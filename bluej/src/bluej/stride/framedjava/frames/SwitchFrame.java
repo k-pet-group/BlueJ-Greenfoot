@@ -28,7 +28,6 @@ package bluej.stride.framedjava.frames;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import bluej.Config;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
@@ -84,8 +83,7 @@ public class SwitchFrame extends MultiCanvasFrame
 
         casesCanvas = new JavaCanvas(editor, this, SWITCH_STYLE_PREFIX, false);
         addCanvas(null, casesCanvas);
-
-
+        
         //Parameters
         expression = new FilledExpressionSlot(editor, this, this, getHeaderRow(), SWITCH_STYLE_PREFIX){
             @Override
@@ -159,19 +157,19 @@ public class SwitchFrame extends MultiCanvasFrame
         List<Frame> casesFrames = new ArrayList<>(casesCanvas.getBlockContents());
         casesFrames.forEach(c -> casesCanvas.removeBlock(c));
         final List<Frame> contents = new ArrayList<>();
-        final AtomicBoolean previousCaseIsEmpty = new AtomicBoolean(true);
-        casesFrames.forEach(c -> {
-                // Add a BlankFrame before each case only if that's not the first case in the switch, that the content isn't empty
-                // and that the previous case wasn't empty
-                // (note that we already don't have the BreakFrame from the case content when calling getValidPulledStatements())
-                List<Frame> caseFrameContent = ((CaseFrame) c).getValidPulledStatements();
-                caseFrameContent.forEach(child -> ((CaseFrame) c).getCanvas().removeBlock(child));
-                if (!previousCaseIsEmpty.get() && caseFrameContent.size() > 0)
-                    contents.add(new BlankFrame(editor));
-                contents.addAll(caseFrameContent);
-                previousCaseIsEmpty.set(contents.isEmpty());
-            }
-        );
+        boolean previousCaseIsEmpty = true;
+        for (Frame caseFrame : casesFrames)
+        {
+            // Add a BlankFrame before each case only if that's not the first case in the switch, that the content isn't empty
+            // and that the previous case wasn't empty
+            // (note that we already don't have the BreakFrame from the case content when calling getValidPulledStatements())
+            List<Frame> caseFrameContent = ((CaseFrame) caseFrame).getValidPulledStatements();
+            caseFrameContent.forEach(child -> ((CaseFrame) caseFrame).getCanvas().removeBlock(child));
+            if (!previousCaseIsEmpty && caseFrameContent.size() > 0)
+                contents.add(new BlankFrame(editor));
+            contents.addAll(caseFrameContent);
+            previousCaseIsEmpty = contents.isEmpty();
+        }
         getCursorBefore().insertFramesAfter(contents);
 
         if (defaultCanvas != null) {
@@ -181,7 +179,7 @@ public class SwitchFrame extends MultiCanvasFrame
 
             // Add a BlankFrame in between (if there were cases and the content of default isn't empty
             // (note that here a default frame isn't empty is something else than a BreakFrame is found)
-            if (!previousCaseIsEmpty.get() && defaultContents.stream().anyMatch(f -> !(f instanceof  BreakFrame)))
+            if (!previousCaseIsEmpty && defaultContents.stream().anyMatch(f -> !(f instanceof  BreakFrame)))
                 defaultContents.add(0, new BlankFrame(editor));
             
             getCursorBefore().insertFramesAfter(defaultContents);

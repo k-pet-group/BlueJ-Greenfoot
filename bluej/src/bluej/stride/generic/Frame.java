@@ -1122,7 +1122,9 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             List<Frame> contents = new ArrayList<>(canvas.getBlockContents());
             contents.forEach(c -> canvas.removeBlock(c));
             return contents;
-        }).collect(Utility.<List<Frame>>intersperse(() -> Arrays.<Frame>asList(new BlankFrame(editor)))).toArray(new List[0])));
+        })
+            .filter(list -> !list.isEmpty())
+            .collect(Utility.<List<Frame>>intersperse(() -> Arrays.<Frame>asList(new BlankFrame(editor)))).toArray(new List[0])));
     }
 
     /**
