@@ -1394,7 +1394,7 @@ public class ClassTarget extends DependentTarget
     {
         Project proj = getPackage().getProject();
 
-        new Thread() {
+        new Thread("Load and inspect class") {
             @Override
             @OnThread(Tag.Worker)
             public void run() {

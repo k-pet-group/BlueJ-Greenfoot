@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -129,7 +129,7 @@ public class Main
         CompletableFuture<Stage> futureMainWindow = new CompletableFuture<>();
         // Must do this after Config initialisation:
         if (!Config.isGreenfoot())
-            new Thread(() -> fetchAndShowCentralMsg(PrefMgr.getFlag(PrefMgr.NEWS_TESTING) ?  TESTING_MESSAGE_ROOT : MESSAGE_ROOT, futureMainWindow)).start();
+            new Thread(() -> fetchAndShowCentralMsg(PrefMgr.getFlag(PrefMgr.NEWS_TESTING) ?  TESTING_MESSAGE_ROOT : MESSAGE_ROOT, futureMainWindow), "Fetching news message").start();
 
         if (guiHandler == null) {
             guiHandler = new BlueJGuiHandler();
@@ -153,7 +153,7 @@ public class Main
         });
 
         // Send usage data back to bluej.org
-        new Thread() {
+        new Thread("Updating central stats") {
             @Override
             public void run()
             {

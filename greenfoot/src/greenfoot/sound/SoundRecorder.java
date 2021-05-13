@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2010,2016,2021  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -124,7 +124,7 @@ public class SoundRecorder
                 }
             };
 
-            new Thread(rec).start();
+            new Thread(rec, "Start sound recording").start();
             
             return partialResult;
         }

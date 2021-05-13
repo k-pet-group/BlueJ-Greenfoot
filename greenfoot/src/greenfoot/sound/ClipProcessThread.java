@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2012,2021  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,7 +37,7 @@ public class ClipProcessThread implements Runnable
     
     public ClipProcessThread()
     {
-        thread = new Thread(this);
+        thread = new Thread(this, "Clip process");
         thread.setDaemon(true);
         thread.start();
     }
@@ -51,7 +51,7 @@ public class ClipProcessThread implements Runnable
             // When running online, threads can be terminated willy-nilly, but
             // static state is kept. We need to check for this:
             if (! thread.isAlive()) {
-                thread = new Thread(this);
+                thread = new Thread(this, "Clip process");
                 thread.setDaemon(true);
                 thread.start();
             }

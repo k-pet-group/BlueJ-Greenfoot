@@ -500,7 +500,7 @@ public class ProjectManager
             argObjects[i] = debugger.getMirror(consParams[i]);
         }
         
-        new Thread()
+        new Thread("Opening Greenfoot")
         {
             public void run()
             {

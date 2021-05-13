@@ -400,7 +400,7 @@ public class Utility
 
             final String command2 = cmd2;
             final Process process = p;
-            new Thread() {
+            new Thread("Running web browser") {
                 @Override
                 public void run()
                 {
@@ -1478,7 +1478,7 @@ public class Utility
         
         public ProcessWaiter(final Process p)
         {
-            new Thread() {
+            new Thread("Waiting for process") {
                 @Override
                 public void run() {
                     try {

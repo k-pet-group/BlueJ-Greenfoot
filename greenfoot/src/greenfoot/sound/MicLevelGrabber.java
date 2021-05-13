@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2011,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2011,2016,2021  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -108,7 +108,7 @@ public class MicLevelGrabber
     {
         if (!running) {
             running = true;
-            new Thread(updator).start();
+            new Thread(updator, "Update mic level").start();
         }
     }
 

@@ -156,7 +156,7 @@ public class VMCommsMain implements Closeable
         putLock = fc.lock(SERVER_AREA_OFFSET_BYTES, SERVER_AREA_SIZE_BYTES, false);
         syncLock = fc.lock(SYNC_AREA_OFFSET_BYTES, SYNC_AREA_SIZE_BYTES, false);
         
-        ioThread = new Thread() {
+        ioThread = new Thread("VMCommsMain") {
             @OnThread(Tag.Worker)
             public void run()
             {

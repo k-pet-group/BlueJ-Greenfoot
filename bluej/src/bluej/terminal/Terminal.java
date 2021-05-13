@@ -500,7 +500,7 @@ public final class Terminal
                     job.endJob();
                     printProgressDialog.finished();
                 }
-            }).start();
+            }, "Print text").start();
             printProgressDialog.showAndWait();
         }
     }
