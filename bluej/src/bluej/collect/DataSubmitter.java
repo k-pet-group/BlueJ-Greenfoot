@@ -141,8 +141,7 @@ class DataSubmitter
                         if (Boot.isTrialRecording()) {
                             // If we just gave up, and we are specifically in a trial, show a dialog
                             // to the user warning them of this:
-                            if (!Config.isGreenfoot()) // Greenfoot shows the dialog on the Greenfoot VM, only show if we are BlueJ:
-                                new DataSubmissionFailedDialog().show();
+                            new DataSubmissionFailedDialog().show();
                             Project.getProjects().forEach(project -> project.setAllEditorStatus(" - NOT RECORDING"));
                         }
                     });

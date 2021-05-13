@@ -45,7 +45,7 @@ import threadchecker.Tag;
  * 
  * @author Poul Henriksen
  */
-public class GreenfootExtension extends Extension implements ApplicationListener
+public class GreenfootExtension extends Extension
 {
     private BlueJ theBlueJ;
 
@@ -56,30 +56,6 @@ public class GreenfootExtension extends Extension implements ApplicationListener
     {
         theBlueJ = bluej;
         Main.setGuiHandler(new GreenfootGuiHandler());
-
-        // We can do this at any point, because although the submission failure may have already
-        // happened, the event is re-issued to new listeners.
-        bluej.addApplicationListener(new ApplicationListener()
-        {
-            @Override
-            public void blueJReady(ApplicationEvent event)
-            {
-
-            }
-
-            @Override
-            public void dataSubmissionFailed(ApplicationEvent event)
-            {
-                if (Boot.isTrialRecording())
-                {
-                    Platform.runLater(() -> {
-                        new DataSubmissionFailedDialog().show();
-                    });
-                }
-            }
-        });
-
-        theBlueJ.addApplicationListener(this);
     }
 
     /**
@@ -128,17 +104,4 @@ public class GreenfootExtension extends Extension implements ApplicationListener
         }
     }
     
-    // ------------- ApplicationListener interface ------------
-    
-    @Override
-    public void blueJReady(ApplicationEvent event)
-    {
-
-    }
-
-    @Override
-    public void dataSubmissionFailed(ApplicationEvent event)
-    {
-
-    }
 }
