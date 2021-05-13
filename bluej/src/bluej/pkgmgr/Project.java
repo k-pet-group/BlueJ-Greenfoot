@@ -1641,7 +1641,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         if (! Config.isGreenfoot()) {
             // dispose windows for local classes. Should not run user code
             // on the event queue, so run it in a separate thread.
-            new Thread() {
+            new Thread("Dispose windows") {
                 @OnThread(Tag.Worker)
                 public void run() {
                     getDebugger().disposeWindows();

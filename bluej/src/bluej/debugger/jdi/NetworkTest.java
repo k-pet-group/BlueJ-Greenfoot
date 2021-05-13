@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2011  Michael Kölling and John Rosenberg 
+ Copyright (C) 2011,2021  Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -121,7 +121,7 @@ public class NetworkTest
             final ServerSocket ss = new ServerSocket(0, 50, loopAddr);
             Debug.message("Successful.");
             
-            Thread t = new Thread() {
+            Thread t = new Thread("Network test") {
                 @Override
                 @OnThread(Tag.Worker)
                 public void run()

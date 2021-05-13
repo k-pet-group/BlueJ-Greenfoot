@@ -172,7 +172,7 @@ public class VMCommsSimulation
             putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
                     fileSize - VMCommsMain.USER_AREA_OFFSET_BYTES, false);
             
-            new Thread() {
+            new Thread("VMCommsSimulation") {
                 @OnThread(value = Tag.Worker,ignoreParent = true)
                 public void run()
                 {

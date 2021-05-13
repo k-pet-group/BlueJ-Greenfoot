@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016,2019,2021  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -143,6 +143,7 @@ public class DocuGenerator
         public DocuRunStarter(String[] call, File result, File log, 
                               String header, boolean browse)
         {
+            super("DocuRun");
             docuCall = call;
             showFile = result;
             logFile = log;
@@ -264,6 +265,7 @@ public class DocuGenerator
         @OnThread(Tag.Any)
         public EchoThread(InputStream r,OutputStream out)
         {
+            super("Echo Stream");
             readStream = r;
             outStream = out;
         }

@@ -727,7 +727,7 @@ public class Boot
         public void start(Stage s) throws Exception {
             Platform.setImplicitExit(false);
             s.setTitle("BlueJ");
-            new Thread(() -> subMain()).start();
+            new Thread(() -> subMain(), "subMain thread").start();
         }
         
     }

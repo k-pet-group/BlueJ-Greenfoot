@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -517,7 +517,7 @@ public class UnitTestClassRole extends ClassRole
 
         // Avoid running test setup (which is user code) on the event thread.
         // Run it on a new thread instead.
-        new Thread() {
+        new Thread("Run test setup") {
             @OnThread(value = Tag.Worker, ignoreParent = true)
             public void run() {
 

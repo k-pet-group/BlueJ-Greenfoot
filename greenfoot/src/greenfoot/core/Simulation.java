@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011,2012,2013,2014,2016,2019  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2012,2013,2014,2016,2019,2021  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -125,7 +125,7 @@ public class Simulation extends Thread
     @OnThread(Tag.Any)
     private Simulation()
     {
-        this.setName("SimulationThread");
+        super("SimulationThread");
         setPriority(Thread.MIN_PRIORITY);
         paused = true;
         speed = 50;

@@ -513,7 +513,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
 
         loading = true;
         FrameEditor frameEditor = getFrameEditor();
-        new Thread() {
+        new Thread("Load Stride class " + titleLabel.getText()) {
             @OnThread(value = Tag.FX, ignoreParent = true)
             public void run()
             {

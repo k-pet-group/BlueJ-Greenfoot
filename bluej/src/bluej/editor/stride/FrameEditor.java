@@ -1163,7 +1163,7 @@ public class FrameEditor implements Editor
         // We must start these futures going on the FX thread
         List<Future<List<DirectSlotError>>> futures = allElements.flatMap(e -> e.findDirectLateErrors(panel, rootPathMap)).collect(Collectors.toList());
         // Then wait for them on another thread
-        new Thread() {
+        new Thread("Slot error finder") {
             @Override
             @OnThread(Tag.Worker)
             public void run()

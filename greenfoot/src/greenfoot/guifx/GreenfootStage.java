@@ -1342,7 +1342,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                                 newActorProperty.get().paramTypes);
                         // Can't place same instance twice:
                         newActorProperty.set(null);
-                        new Thread()
+                        new Thread("Add actor on click")
                         {
                             public void run()
                             {
@@ -1353,7 +1353,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     else
                     {
                         // Must be shift-clicking; will need to make a new instance:
-                        new Thread() {
+                        new Thread("Add actor on shift click") {
                             public void run()
                             {
                                 DebuggerResult result = project.getDebugger()
@@ -2622,7 +2622,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             }
             
             // Shouldn't wait on debug VM in the UI thread, so run in a separate thread:
-            new Thread()
+            new Thread("Setting constructed world")
             {
                 public void run()
                 {

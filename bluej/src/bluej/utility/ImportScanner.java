@@ -269,7 +269,7 @@ public class ImportScanner
                 // cause a deadlock because there are no background threads
                 // available, as they are all blocked waiting for this
                 // future to complete):
-                new Thread() { public void run()
+                new Thread("Import scanner") { public void run()
                 {
                     RootPackageInfo rootPkg = findAllTypes();
                     try

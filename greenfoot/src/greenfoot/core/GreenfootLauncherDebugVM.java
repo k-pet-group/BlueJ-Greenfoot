@@ -62,7 +62,7 @@ public class GreenfootLauncherDebugVM
         
         // This constructor is called on BlueJ's "server" thread, so we do the rest in
         // another thread to avoid holding the server thread lock:
-        new Thread() {
+        new Thread("Launching Greenfoot VM") {
             public void run() {     
                 Properties properties = new Properties();
                 try

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -521,7 +521,7 @@ public class Invoker
             
             // We must however do so in a seperate thread. Otherwise a constructor which
             // goes into an infinite loop can hang BlueJ.
-            new Thread() {
+            new Thread("Invocation result") {
                 @OnThread(Tag.Worker)
                 public void run() {
                     Platform.runLater(Invoker.this::closeCallDialog);
@@ -1177,7 +1177,7 @@ public class Invoker
     {
         final String shellClassName = JavaNames.combineNames(pkgName, shellName);
         
-        new Thread() {
+        new Thread("Shell class runner") {
             public void run() {
                 try {
                     DebuggerResult result = debugger.runClassMain(shellClassName);
