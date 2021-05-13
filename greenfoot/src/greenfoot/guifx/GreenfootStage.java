@@ -1963,6 +1963,10 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     @Override
     public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence)
     {
+        // Do a Garbage Collection to finalize any garbage JdiObjects, thereby
+        // allowing objects on the remote VM to be garbage collected.
+        System.gc();
+        
         // We only create the world if the window is focused, otherwise
         // we let it remain greyed out:
         if (isFocused())

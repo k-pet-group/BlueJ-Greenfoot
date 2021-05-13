@@ -79,29 +79,6 @@ public class GreenfootExtension extends Extension implements ApplicationListener
             }
         });
 
-        bluej.addCompileListener(new CompileListener() {
-
-            @Override
-            public void compileWarning(CompileEvent event) { }
-
-            @Override
-            public void compileSucceeded(CompileEvent event)
-            {
-                // Do a Garbage Collection to finalize any garbage JdiObjects, thereby
-                // allowing objects on the remote VM to be garbage collected.
-                System.gc();
-            }
-
-            @Override
-            public void compileStarted(CompileEvent event) { }
-
-            @Override
-            public void compileFailed(CompileEvent event) { }
-
-            @Override
-            public void compileError(CompileEvent event) { }
-        });
-
         theBlueJ.addApplicationListener(this);
     }
 
