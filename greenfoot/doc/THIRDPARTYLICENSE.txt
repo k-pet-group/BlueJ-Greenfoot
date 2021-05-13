@@ -113,11 +113,11 @@ It is distributed under the terms of the LGPL v2.1, as found in the
 "GNU-LGPL-v2.1.txt" file.
 
 
-JUnit (Common Public License v1.0)
+JUnit (Eclipse Public License v2.0)
 ----------------------------------
-"junit-4.11.jar" is part of the JUnit unit testing library (http://junit.org/) which is
-used by Greenfoot. It is distributed under the terms of the Common Public License
-version 1.0, as found in the "CPL-v1.0.txt" file.
+"junit-*.jar" are part of the JUnit unit testing library (http://junit.org/) which is
+used by Greenfoot. It is distributed under the terms of the Eclipse Public License
+version 2.0, as found in the "EPL-v2.0.txt" file.
 
 
 NSMenuFX library (3-clause BSD license)
