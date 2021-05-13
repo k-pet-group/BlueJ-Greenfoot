@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1122,7 +1122,9 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             List<Frame> contents = new ArrayList<>(canvas.getBlockContents());
             contents.forEach(c -> canvas.removeBlock(c));
             return contents;
-        }).collect(Utility.<List<Frame>>intersperse(() -> Arrays.<Frame>asList(new BlankFrame(editor)))).toArray(new List[0])));
+        })
+            .filter(list -> !list.isEmpty())
+            .collect(Utility.<List<Frame>>intersperse(() -> Arrays.<Frame>asList(new BlankFrame(editor)))).toArray(new List[0])));
     }
 
     /**
