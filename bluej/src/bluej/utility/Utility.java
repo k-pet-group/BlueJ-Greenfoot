@@ -1410,6 +1410,7 @@ public class Utility
         
         public ExternalProcessLogger(String processName, String command, Process process)
         {
+            super("ExternalProcessLogger");
             this.processName = processName;
             commandAsStr = command;
             p = process;

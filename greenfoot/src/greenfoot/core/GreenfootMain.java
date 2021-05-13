@@ -45,7 +45,7 @@ import threadchecker.Tag;
  * 
  * @author Poul Henriksen
  */
-public class GreenfootMain extends Thread
+public class GreenfootMain
 {
     public static enum VersionInfo {
         /** The project API version matches the greenfoot API version */

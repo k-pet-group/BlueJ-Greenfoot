@@ -51,7 +51,7 @@ public class ClipProcessThread implements Runnable
             // When running online, threads can be terminated willy-nilly, but
             // static state is kept. We need to check for this:
             if (! thread.isAlive()) {
-                thread = new Thread(this, "Clip process");
+                thread = new Thread(this, "Clip process restart");
                 thread.setDaemon(true);
                 thread.start();
             }
