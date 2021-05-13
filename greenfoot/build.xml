@@ -60,8 +60,6 @@
 
     <!-- Location of the bluej lib dir -->
     <property name="bluej.lib.greenfoot"  location="${bluej_home}/lib/greenfoot"/>
-    <!-- Location of the where the greenfoot.jar should be placed-->
-    <property name="bluej.extensions.lib"  location="${bluej_home}/lib/extensions2"/>
     
     <!-- Name and location of the jlayer jar -->  
     <property name="jlayer.jar.name" value="jl1.0.1.jar"/>  
@@ -202,7 +200,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <tstamp/>
         <!-- Create the build directory structure used by compile -->
         <mkdir dir="${build}"/>
-        <mkdir dir="${bluej.extensions.lib}"/>
         <copy  todir="${build}">
             <fileset dir="${images}"/>
             <fileset dir="lib"/>
@@ -314,9 +311,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
 
     <target name="ready-to-run" depends="check-bluej-compiled, update-images, compile, copy-imagelib, copy-common-classes, build-standalone-jar, create-api-doc, copy-apidocs, copy-labels, compile-test" description="Builds everything so it is ready to run" >
         <!-- Put everything in ${build} into the the jar file-->
-        <jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
+        <jar jarfile="${bluej_home}/lib/greenfoot.jar" basedir="${build}">
             <manifest>
-                <attribute name="Main-Class" value="greenfoot.extension.GreenfootExtension" />
                 <attribute name="Class-Path" value="." />
             </manifest>
         </jar>
@@ -546,8 +542,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </delete>
         <!-- API doc -->
         <delete dir="${apidoc}"/>
-        <!-- Greenfoot jar -->
-        <delete file="${bluej.extensions.lib}/greenfoot.jar"/>
     
         <delete dir="${bluej.lib.greenfoot}"/>
         <delete dir="${bluej_home}/package/scenarios"/>

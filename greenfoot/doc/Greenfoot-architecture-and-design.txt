@@ -33,9 +33,8 @@ The BlueJ part of Greenfoot launches first. BlueJ is run in a special "Greenfoot
 which changes certain aspects of its behaviour; so, there is some Greenfoot-specific code
 in BlueJ (however this is and should be kept to a practical minimum).
 
-BlueJ will load Greenfoot as an extension - the class GreenfootExtension is loaded
-and the startup method is called. At this point Greenfoot registers an event listener
-(using BlueJ's extensions mechanism) to be notified when BlueJ has finished starting up.
+BlueJ will load Greenfoot via dynamic class loading if in the Greenfoot mode by  
+instantiating the greenfoot.guifx.GreenfootGuiHandler class and setting it as the GUI handler.
 
 When BlueJ has completed normal startup, it calls the initialOpenComplete() method of the
 greenfoot.guifx.GreenfootGuiHandler class, which proceeds to create the user interface
