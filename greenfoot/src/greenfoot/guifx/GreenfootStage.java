@@ -669,6 +669,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         }
         debugHandler.simulationThreadResumeOnResetClick();
         saveTheWorldRecorder.recordingValid();
+        highlightObject(null);
     }
     
     /**
