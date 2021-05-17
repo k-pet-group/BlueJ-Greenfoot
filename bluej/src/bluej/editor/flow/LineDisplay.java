@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -140,7 +140,7 @@ public class LineDisplay
             int lineIndex = firstVisibleLineIndex;
             while (lines.hasNext())
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k), () -> flowEditorPaneListener.getContextMenuToShow()));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k), () -> flowEditorPaneListener.getContextMenuToShow(), flowEditorPaneListener::scrollEventOnTextLine));
                 line.textLine.setText(lines.next(), xTranslate, false, fontCSS);
                 lineIndex += 1;
             }
@@ -156,7 +156,7 @@ public class LineDisplay
             int lineIndex;
             for (lineIndex = firstVisibleLineIndex; lineIndex < allLines.size() && totalHeightSoFar < height; lineIndex += 1)
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k), () -> flowEditorPaneListener.getContextMenuToShow()));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k), () -> flowEditorPaneListener.getContextMenuToShow(), flowEditorPaneListener::scrollEventOnTextLine));
                 line.textLine.setText(allLines.get(lineIndex), xTranslate, true, fontCSS);
                 double lineHeight = calculateLineHeight(allLines.get(lineIndex), width);
                 totalHeightSoFar += snapHeight.apply(lineHeight);
@@ -292,7 +292,12 @@ public class LineDisplay
             firstVisibleLineIndex = line;
             firstVisibleLineOffset = 0;
         }
-        else if (line >= firstVisibleLineIndex + visibleLines.size() - 1)
+        // Not an else as there is a case where the line is fully visible, but the user has deleted so much code
+        // that the class is now smaller than the window, and the scroll may be invalid (e.g. we may only
+        // see the last two lines on the screen, meaning we should scroll up, which is actually best done
+        // by the scroll down code)
+        if (line >= firstVisibleLineIndex + visibleLines.size() - 1
+            || (visibleLines.size() * lineHeightEstimate < getHeight.get() && firstVisibleLineIndex > 0))
         {            
             // Scroll down:
             double singleLineHeight = lineHeightEstimate;
@@ -391,10 +396,13 @@ public class LineDisplay
             {
                 // Can't use parentToLocal if layout bounds may be out of date:
                 Point2D pointInLocal = new Point2D(localPoint.getX() - currentlyVisibleLine.getLayoutX() - MarginAndTextLine.TEXT_LEFT_EDGE + horizScrollProperty.get(), localPoint.getY() - currentlyVisibleLine.getLayoutY());
-                HitInfo hitInfo = currentlyVisibleLine.textLine.hitTest(pointInLocal);
-                if (hitInfo != null)
+                if (pointInLocal.getX() >= 0)
                 {
-                    return new int[] {i + firstVisibleLineIndex, hitInfo.getInsertionIndex()};
+                    HitInfo hitInfo = currentlyVisibleLine.textLine.hitTest(pointInLocal);
+                    if (hitInfo != null)
+                    {
+                        return new int[]{i + firstVisibleLineIndex, hitInfo.getInsertionIndex()};
+                    }
                 }
             }
         }

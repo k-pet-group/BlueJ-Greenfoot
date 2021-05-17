@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016,2021  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -463,7 +463,7 @@ public abstract class World
         else if (objectsDisordered != objectsInPaintOrder && objectsInPaintOrder != null) {
             objectsInPaintOrder.remove(object);
         }
-        object.setWorld(null);
+        object.setWorld(null, new ActorRemovedFromWorld());
     }
 
     /**
@@ -521,8 +521,12 @@ public abstract class World
      * Repaints the world. 
      */
     public void repaint() 
-    {   
-        WorldHandler.getInstance().repaintAndWait();
+    {
+        WorldHandler instance = WorldHandler.getInstance();
+        if (instance != null)
+        {
+            instance.repaintAndWait();
+        }
     }
         
     /**

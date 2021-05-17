@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -629,14 +629,20 @@ public class JavaFXUtil
         double scrollHeight = scrollPane.getContent().getBoundsInLocal().getHeight();
         
         Bounds b = scrollPane.getContent().sceneToLocal(target.localToScene(target.getBoundsInLocal()));
-        
+        Bounds viewPortBounds = scrollPane.getViewportBounds();
+
+        // try to center the scrolling in the viewport
         if (scrollPane.getHbarPolicy() != ScrollBarPolicy.NEVER && scrollWidth != 0)
         {
-            scrollPane.setHvalue(b.getMinX() / scrollWidth);
+            double hValue = (b.getMinX() - 0.5*viewPortBounds.getWidth()) / (scrollWidth-viewPortBounds.getWidth());
+            // clamp the value between 0 and 1 to make sure we're in the scrolling values range
+            scrollPane.setHvalue((hValue < 0) ? 0 : (hValue > 1) ? 1 : hValue);
         }
         if (scrollPane.getVbarPolicy() != ScrollBarPolicy.NEVER && scrollHeight != 0)
         {
-            scrollPane.setVvalue(b.getMinY() / scrollHeight);
+            double vValue = (b.getMinY() - 0.5*viewPortBounds.getHeight()) / (scrollHeight-viewPortBounds.getHeight());
+            // clamp the value between 0 and 1 to make sure we're in the scrolling values range
+            scrollPane.setVvalue((vValue < 0) ? 0 : (vValue > 1) ? 1 : vValue);
         }
     }
 
@@ -822,6 +828,22 @@ public class JavaFXUtil
                 }
             });
         }
+    }
+
+    /**
+     * Add a keyboard handler to the scene that listens for Cmd-M presses
+     * and minimises the window.  Does nothing if not on Mac.
+     * @param window The target window to minimise.  Make sure that you
+     *               have called setScene() before you call this method!
+     */
+    public static void addMacMinimiseShortcutHandler(Stage window)
+    {
+        window.getScene().addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (Config.isMacOS() && e.getCode() == KeyCode.M && e.isMetaDown() && !e.isShiftDown())
+            {
+                window.setIconified(true);
+            }
+        });
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -62,6 +62,7 @@ import java.awt.desktop.QuitResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -117,7 +118,7 @@ public class Main
      * the first package manager frame.
      */
     @OnThread(Tag.Any)
-    public Main()
+    public Main(ClassLoader runtimeClassLoader)
     {
         Boot boot = Boot.getInstance();
         final String[] args = Boot.cmdLineArgs;
@@ -129,10 +130,28 @@ public class Main
         CompletableFuture<Stage> futureMainWindow = new CompletableFuture<>();
         // Must do this after Config initialisation:
         if (!Config.isGreenfoot())
-            new Thread(() -> fetchAndShowCentralMsg(PrefMgr.getFlag(PrefMgr.NEWS_TESTING) ?  TESTING_MESSAGE_ROOT : MESSAGE_ROOT, futureMainWindow)).start();
+            new Thread(() -> fetchAndShowCentralMsg(PrefMgr.getFlag(PrefMgr.NEWS_TESTING) ?  TESTING_MESSAGE_ROOT : MESSAGE_ROOT, futureMainWindow), "Fetching news message").start();
 
-        if (guiHandler == null) {
-            guiHandler = new BlueJGuiHandler();
+        if (guiHandler == null)
+        {
+            if (Config.isGreenfoot())
+            {
+                // We can't directly reference the GreenfootGuiHandler class because this code
+                // runs in BlueJ and Greenfoot -- in BlueJ this class won't even be present.
+                // So we have to load dynamically via the class loader and hardcode the class name here:                
+                try
+                {
+                    guiHandler = (GuiHandler) runtimeClassLoader.loadClass("greenfoot.guifx.GreenfootGuiHandler").getDeclaredConstructor().newInstance();
+                }
+                catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)
+                {
+                    Debug.reportError(e);
+                }
+            }
+            else
+            {
+                guiHandler = new BlueJGuiHandler();
+            }
         }
         
         // Note we must do this OFF the AWT dispatch thread. On MacOS X, if the
@@ -153,7 +172,7 @@ public class Main
         });
 
         // Send usage data back to bluej.org
-        new Thread() {
+        new Thread("Updating central stats") {
             @Override
             public void run()
             {

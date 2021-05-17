@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -893,10 +893,10 @@ public class JdiDebugger extends Debugger
      * @param set
      *            True to set, false to clear a breakpoint.
      * 
-     * @return null if there was no problem, or an error string
+     * @return true if the breakpoint is now set, false if it is now not set
      */
     @OnThread(Tag.FXPlatform)
-    public String toggleBreakpoint(String className, int line, boolean set, Map<String, String> properties)
+    public boolean toggleBreakpoint(String className, int line, boolean set, Map<String, String> properties)
     {
         // Debug.message("[toggleBreakpoint]: " + className + " line " + line);
 
@@ -911,13 +911,13 @@ public class JdiDebugger extends Debugger
                 }
             }
             else {
-                return "VM terminated.";
+                return false;
             }
         }
         catch (Exception e) {
             Debug.reportError("breakpoint error: " + e);
             e.printStackTrace(System.out);
-            return Config.getString("debugger.jdiDebugger.internalErrorMsg");
+            return false;
         }
     }
     
@@ -925,7 +925,7 @@ public class JdiDebugger extends Debugger
      * @see bluej.debugger.Debugger#toggleBreakpoint(java.lang.String, java.lang.String, boolean, java.util.Map)
      */
     @OnThread(Tag.FXPlatform)
-    public String toggleBreakpoint(String className, String method, boolean set, Map<String, String> properties)
+    public boolean toggleBreakpoint(String className, String method, boolean set, Map<String, String> properties)
     {
         VMReference vmr = getVM();
         try {
@@ -938,13 +938,13 @@ public class JdiDebugger extends Debugger
                 }
             }
             else {
-                return "VM terminated.";
+                return false;
             }
         }
         catch (Exception e) {
             Debug.reportError("breakpoint error: " + e);
             e.printStackTrace(System.out);
-            return Config.getString("debugger.jdiDebugger.internalErrorMsg");
+            return false;
         }
     }
     
@@ -952,7 +952,7 @@ public class JdiDebugger extends Debugger
      * @see bluej.debugger.Debugger#toggleBreakpoint(bluej.debugger.DebuggerClass, java.lang.String, boolean, java.util.Map)
      */
     @OnThread(Tag.Any)
-    public String toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set, Map<String, String> properties)
+    public boolean toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set, Map<String, String> properties)
     {
         VMReference vmr = getVM();
         try {
@@ -966,13 +966,13 @@ public class JdiDebugger extends Debugger
                 }
             }
             else {
-                return "VM terminated.";
+                return false;
             }
         }
         catch (Exception e) {
             Debug.reportError("breakpoint error: " + e);
             e.printStackTrace(System.out);
-            return Config.getString("debugger.jdiDebugger.internalErrorMsg");
+            return false;
         }
     }
 
@@ -1136,7 +1136,9 @@ public class JdiDebugger extends Debugger
     {
         @OnThread(Tag.Any)
         MachineLoaderThread()
-        {}
+        {
+            super("Machine Loader");
+        }
 
         @OnThread(value = Tag.Worker, ignoreParent = true)
         public void run()

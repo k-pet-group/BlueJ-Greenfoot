@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2014,2019,2020  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2014,2019,2020,2021  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -100,7 +100,7 @@ class VMEventHandler extends Thread
         this.vm = vm;
         // Start a simple thread to forward events from the vmm eventQueue into our own queue:
         // We have to do this so we can listen to multiple incoming event sources in our own thread:
-        subThread = new Thread()
+        subThread = new Thread("VM Event Handler Helper")
         {
             @Override
             public void run()

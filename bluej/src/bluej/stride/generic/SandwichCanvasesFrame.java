@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -136,11 +136,10 @@ public abstract class SandwichCanvasesFrame extends MultiCanvasFrame
         List<Frame> contents = new ArrayList<>(canvas.getBlockContents());
         contents.forEach(frame -> {
             canvas.removeBlock(frame);
-            frame.setParentCanvas(null);
         });
         cursor.insertFramesAfter(contents);
-        // Add a BlankFrame in between in case there were any contents
-        if (!contents.isEmpty()) {
+        // Add a BlankFrame in between in case what we pull has any content and the destination isn't empty
+        if (cursor.getCursorIndex() > 0 && !contents.isEmpty()) {
             cursor.insertBlockAfter(new BlankFrame(editor));
         }
         removeCanvas(canvas);

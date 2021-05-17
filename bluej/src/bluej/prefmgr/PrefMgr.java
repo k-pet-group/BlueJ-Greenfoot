@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,9 +23,7 @@ package bluej.prefmgr;
 
 import java.awt.Font;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
@@ -58,6 +56,7 @@ public class PrefMgr
     // publicly accessible names for flags
     public static final String HIGHLIGHTING = "bluej.editor.syntaxHilighting";
     public static final String AUTO_INDENT = "bluej.editor.autoIndent";
+    public static final String CLOSE_CURLY = "bluej.editor.autoAddClosingCurly";
     public static final String LINENUMBERS = "bluej.editor.displayLineNumbers";
     public static final String MATCH_BRACKETS = "bluej.editor.matchBrackets";
     public static final String CHECK_DISKFILECHANGES = "bluej.editor.checkDiskFileChanges";
@@ -85,6 +84,8 @@ public class PrefMgr
     public static final int MAX_EDITOR_FONT_SIZE = 160;
     public static final int DEFAULT_STRIDE_FONT_SIZE = 11;
     public static final int DEFAULT_JAVA_FONT_SIZE = 10;
+    public static final String DEFAULT_TEXTFILE_EXTENSIONS = ".txt, .md";
+
     // font property names
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorMacFontPropertyName = "bluej.editor.MacOS.font";
@@ -108,6 +109,10 @@ public class PrefMgr
     private static PrintSize printFontSize = PrintSize.STANDARD;
 
     // preference variables: (other than fonts)
+
+    // initialised by a call to setEditorTextFileExtensions()
+    @OnThread(Tag.FX)
+    private static String editorTextFileExtensions = DEFAULT_TEXTFILE_EXTENSIONS;
     
     /** transparency of the scope highlighting */
     @OnThread(Tag.FXPlatform)
@@ -141,6 +146,10 @@ public class PrefMgr
 
     // A property to hold the Greenfoot player's name
     private static StringProperty playerName;
+
+    // Property for the text files extensions to be opened by BlueJ as plain text files
+    private static final String editorTextFileExtensionsPropertyName = "bluej.editor.textfileextensions";
+
 
     /**
      * Private constructor to prevent instantiation
@@ -415,6 +424,9 @@ public class PrefMgr
         initEditorFontSize(Config.getPropInteger(editorFontSizePropertyName, 12));
         JavaFXUtil.addChangeListener(editorFontSize, size -> Config.putPropInteger(editorFontSizePropertyName, size.intValue()));
 
+        //set the text file extensions to be seen as plain text file by BlueJ
+        setEditorTextFileExtensions(Config.getPropString(editorTextFileExtensionsPropertyName, DEFAULT_TEXTFILE_EXTENSIONS));
+
         //bluej menu font
         int menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
         Font menuFont = Config.getFont("bluej.menu.font", "SansSerif", menuFontSize);
@@ -432,6 +444,7 @@ public class PrefMgr
         
         flags.put(HIGHLIGHTING, Config.getPropString(HIGHLIGHTING, "true"));
         flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
+        flags.put(CLOSE_CURLY, Config.getPropString(CLOSE_CURLY, "true"));
         flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
         flags.put(MATCH_BRACKETS, Config.getPropString(MATCH_BRACKETS, "true"));
         flags.put(CHECK_DISKFILECHANGES, Config.getPropString(CHECK_DISKFILECHANGES, "true"));
@@ -515,5 +528,63 @@ public class PrefMgr
         {
             return Config.getString("editor.printDialog.fontSize." + this.name().toLowerCase());
         }
+    }
+
+    // Set the text file extensions for which BlueJ opens files as text files
+    public static void setEditorTextFileExtensions(String value)
+    {
+        if (!editorTextFileExtensions.equals(value))
+        {
+            editorTextFileExtensions = value;
+
+            Config.putPropString(editorTextFileExtensionsPropertyName, value);
+        }
+    }
+
+    //  Returns the text file extensions (as a String) for which BlueJ opens files as text files
+    @OnThread(Tag.FXPlatform)
+    public static String getEditorTextFileExtensionsString()
+    {
+        return editorTextFileExtensions;
+    }
+
+    // Returns the formatted text file extensions (list of Strings) for which BlueJ opens files as text files
+    // The format for extensions is : ".ext" (small caps)
+    @OnThread(Tag.FXPlatform)
+    public static List<String> getEditorFormattedTextFileExtensionsList()
+    {
+        List<String> res = new ArrayList<>(); // Result initialised as empty list
+
+        String extensionsStr = getEditorTextFileExtensionsString();
+
+        if(extensionsStr.trim().length() > 0)
+        {
+            // Parse the extension list set in the preferences:
+            // we propose commas a separator, but we can also check for spaces and semi colons as separators;
+            // also, we remove "*" if the extenions starts with "*", and add dot if not present
+            for (String extensionCandidate : extensionsStr.split(" |,|;"))
+            {
+                // if the candidate is empty just skip it
+                if(extensionCandidate.trim().length() > 0)
+                {
+                    // format the extensions properly
+                    String formattedExtension = (extensionCandidate.startsWith("*"))
+                        ? extensionCandidate.trim().toLowerCase().substring(1)
+                        : extensionCandidate.trim().toLowerCase();
+                    if(!formattedExtension.startsWith("."))
+                    {
+                        formattedExtension = "." + formattedExtension;
+                    }
+
+                    //check if the list doesn't already contains the formatted extension before inserting it
+                    if(!res.contains(formattedExtension))
+                    {
+                        res.add(formattedExtension);
+                    }
+                }
+            }
+        }
+
+        return Collections.unmodifiableList(res);
     }
 }

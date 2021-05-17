@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2018 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2018,2021 Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,7 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
@@ -97,7 +98,8 @@ public class VMCommsMain implements Closeable
     private FileLock putLock;
     private FileLock syncLock;
 
-    private int lastSeq = 0;
+    // Needs to be AtomicInteger because it's modified from multiple threads:
+    private final AtomicInteger lastSeq = new AtomicInteger(0);
     private final List<Command> pendingCommands = new ArrayList<>();
     private int setSpeedCommandCount = 0;
     private int lastPaintSeq = -1;
@@ -131,6 +133,7 @@ public class VMCommsMain implements Closeable
     private final Thread ioThread;
 
     private boolean delayLoop;
+    private boolean vmReadyForInvocations = false;
     private int askId = -1;
 
     /**
@@ -153,7 +156,7 @@ public class VMCommsMain implements Closeable
         putLock = fc.lock(SERVER_AREA_OFFSET_BYTES, SERVER_AREA_SIZE_BYTES, false);
         syncLock = fc.lock(SYNC_AREA_OFFSET_BYTES, SYNC_AREA_SIZE_BYTES, false);
         
-        ioThread = new Thread() {
+        ioThread = new Thread("VMCommsMain") {
             @OnThread(Tag.Worker)
             public void run()
             {
@@ -273,11 +276,11 @@ public class VMCommsMain implements Closeable
      * Check for input / send output, and apply received data to the stage.
      */
     @OnThread(Tag.FXPlatform)
-    public synchronized void checkIO(GreenfootStage stage)
+    public synchronized boolean checkIO(GreenfootStage stage)
     {
         if (checkingIO)
         {
-            return; // avoid re-entrancy
+            return vmReadyForInvocations; // avoid re-entrancy
         }
         
         checkingIO = true;
@@ -320,12 +323,17 @@ public class VMCommsMain implements Closeable
             stage.receivedAsk(promptCodepoints);
             promptCodepoints = null;
         }
+        else
+        {
+            stage.cancelAsk();
+        }
 
         stage.setLastUserExecutionStartTime(lastExecStartTime, delayLoop);
             
         checkingIO = false;
         
         notifyAll(); // wake IO thread
+        return vmReadyForInvocations;
     }
 
     /**
@@ -339,7 +347,7 @@ public class VMCommsMain implements Closeable
 
         // We are holding the lock for the main put area:
         sharedMemory.position(1);
-        sharedMemory.put(-lastSeq);
+        sharedMemory.put(-lastSeq.get());
         sharedMemory.put(lastConsumedImg);
         writeCommands(pendingCommands);
         
@@ -352,10 +360,10 @@ public class VMCommsMain implements Closeable
             syncLock.release();
 
             int seq = sharedMemory.get(USER_AREA_OFFSET);
-            if (seq > lastSeq)
+            if (seq > lastSeq.get())
             {
                 // The client VM has painted a new frame for us:
-                lastSeq = seq;
+                lastSeq.set(seq);
 
                 synchronized (this)
                 {
@@ -421,9 +429,10 @@ public class VMCommsMain implements Closeable
                     worldCellSize = sharedMemory.get();
                     
                     int askId = sharedMemory.get();
-                    if (askId > 0 && askId > lastAnswer)
+                    if (askId > 0)
                     {
-                        this.askId = askId;
+                        if (askId > lastAnswer)
+                            this.askId = askId;
                         // Length followed by codepoints for the prompt string:
                         int askLength = sharedMemory.get();
                         promptCodepoints = new int[askLength];
@@ -431,14 +440,9 @@ public class VMCommsMain implements Closeable
                     }
 
                     int delayLoopStatus = sharedMemory.get();
-                    if (delayLoopStatus == 1)
-                    {
-                        delayLoop = true;
-                    }
-                    else
-                    {
-                        delayLoop = false;
-                    }
+                    delayLoop = delayLoopStatus == 1;
+                    int vmReadyStatus = sharedMemory.get();
+                    vmReadyForInvocations = vmReadyStatus == 1;
                 }
             }
         }
@@ -625,7 +629,7 @@ public class VMCommsMain implements Closeable
      */
     public void vmTerminated()
     {
-        lastSeq = 0;
+        lastSeq.addAndGet(1000);
         pendingCommands.clear();
         setSpeedCommandCount = 0;
         lastAnswer = -1;
@@ -634,6 +638,10 @@ public class VMCommsMain implements Closeable
         // Zero the buffer:
         sharedMemoryByte.position(0);
         sharedMemoryByte.put(new byte[fileSize], 0, fileSize);
+        synchronized (this)
+        {
+            vmReadyForInvocations = false;
+        }
     }
 
     /**
@@ -643,5 +651,13 @@ public class VMCommsMain implements Closeable
     public synchronized void worldFocusChanged(boolean focused)
     {
         pendingCommands.add(new Command(focused ? COMMAND_WORLD_FOCUS_GAINED : COMMAND_WORLD_FOCUS_LOST));
+    }
+
+    /**
+     * Gets the last sequence identifier that we've received from the user VM
+     */
+    public int getLastSeq()
+    {
+        return lastSeq.get();
     }
 }

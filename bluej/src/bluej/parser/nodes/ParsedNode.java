@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2014,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2010,2011,2014,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -463,6 +463,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
 
     public ParsedNode getContainingMethodOrClassNode(int pos)
     {
+        // First locate the deepest node matching the current position
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, 0);
         if (child != null)
             return child.getNode().getContainingMethodOrClassNode(pos - child.getPosition());
@@ -471,9 +472,9 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
         // So we get back to the last named node parent to this leaf.
         if (this.parentNode == null)
             return null;
-
+        
         ParsedNode parentNode = this.parentNode;
-        while (parentNode.getName() == null)
+        while (parentNode.getName() == null || (parentNode.getNodeType() != NODETYPE_METHODDEF && parentNode.getNodeType() != NODETYPE_TYPEDEF))
         {
             if (parentNode.parentNode != null)
             {
@@ -481,6 +482,46 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
             }
         }
         return parentNode;
+    }
+
+    /**
+     * For the current position, find out from the nodes tree if we are inside a control
+     * statement. That is, in one of the following constructs (such as in if(...), for(...))
+     * Note: this checks the control statement and NOT the inner statements (for example,
+     * "if(..x..)" and not "if(...) {...x...}", where x is the position we're at.
+     * 
+     * @param pos the current position from the root node
+     * @return a boolean indication is the current position is into a control statement
+     */
+    public boolean isCurrentlyInControlStatement(int pos)
+    {
+        // First locate the deepest node matching the current position
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, 0);
+        if (child != null)
+            return child.getNode().isCurrentlyInControlStatement(pos - child.getPosition());
+
+        // Now roll up the parents until we find a control statement OR reached a method/type definition
+        if (this.parentNode == null)
+            return false;
+
+        ParsedNode parentNode = this.parentNode;
+        // We loop to get parents of that noode until:
+        // - we find a method or class (in that case we've passed the scope of the current location node anyway so it's good to stop
+        // or
+        // - we find a parent that is an inner node : that would mean that we are either INSIDE the control statement OR there is no
+        //   control statement for the current position at all
+        while ((parentNode.getNodeType() != NODETYPE_METHODDEF && parentNode.getNodeType() != NODETYPE_TYPEDEF && !(parentNode instanceof  InnerNode)))
+        {
+            if(parentNode.getNodeType() == NODETYPE_SELECTION || parentNode.getNodeType() == NODETYPE_ITERATION)
+            {
+                return true;
+            }
+            if (parentNode.parentNode != null)
+            {
+                parentNode = parentNode.parentNode;
+            }
+        }
+        return false;
     }
 
     /**

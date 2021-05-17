@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2019,2021  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.editor.flow;
 
 import bluej.Config;
 import bluej.editor.flow.Document.Bias;
+import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
@@ -145,7 +146,6 @@ public class FlowIndent
             
             // If the element overlaps at all with our area of interest:
             if (el.getEndOffset() > startp.getPosition() && el.getStartOffset() < endp.getPosition()) {
-
                 boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(doc, el));
                 DocumentAction update = null;
     
@@ -186,17 +186,37 @@ public class FlowIndent
     private static String calculateIndent(Element el,
             NodeAndPosition<ParsedNode> start, IndentCalculator startIC, Document doc)
     {
+        // A special case here for switch statements. Since the scope in a switch is for the whole switch,
+        // we cannot add a new node in the scope stack parser. Consequence: the indentation is the same for
+        // all lines within the switch. The special case here allows us to check if the node for the currently 
+        // checked element is in a switch, and if so, we do the slightly wacky (but working):
+        // we double up indentation within the switch block, and "remove" one indentation for the "case"
+        // and "default" labels - instead of solely relying only on the nodes' hierarchy as we do normally
+        
         int pos = el.getStartOffset() + findFirstNonIndentChar(getElementContents(doc, el), true);
         if (pos >= start.getPosition() && pos < start.getEnd()) {
             // The slightly awkward way to loop through the children of "start":
             for (Iterator<NodeAndPosition<ParsedNode>> i = start.getNode().getChildren(start.getPosition()); i.hasNext();) {
                 NodeAndPosition<ParsedNode> nap = i.next();
-                String inner = calculateIndent(el, nap, startIC.getForChild(nap.getNode()), doc);
-                if (inner != null) {
+               
+                boolean isInSwitchBlock = (nap.getNode() instanceof  JavaParentNode) && ((JavaParentNode)nap.getNode()).isSwitchBlockNode();
+                String inner = calculateIndent(el, nap, startIC.getForChild(nap.getNode(), isInSwitchBlock), doc);
+                if (inner != null) 
+                {
                     return inner;
                 }
             }
-            return startIC.getCurIndent(doc.getContent(pos, pos + 1).charAt(0));
+            
+            String inner = startIC.getCurIndent(doc.getContent(pos, pos + 1).charAt(0));
+            // For "case" and "default", we make sure that double indentation is changed to a single indentation
+            // so that these line are not kept indented the same as their content.
+            // It will produce a wrong indentation when "case" or "default" is used *outside* a switch... but that is
+            // a wrong code the user wrote anyway...
+            if(inner.length() >= NodeIndentCalculator.tabSize && getElementContents(doc, el).toString().trim().matches("(case |(default(\\s|:))).*"))
+            {
+                inner = inner.substring(0, inner.length() - NodeIndentCalculator.tabSize);
+            }
+            return inner;
         }
         else {
             return null;
@@ -204,13 +224,13 @@ public class FlowIndent
     }
 
     /**
-     * Loops through the children of the specified {@link root} to look for methods
+     * Loops through the children of the specified root to look for methods
      * that have no space between them, then recursively looks at the children
      * to see if they have any inner methods.
      *
      * <p>When it does identify two methods with no gap in between them it adds
      * a new {@link DocumentAddLineAction} object with the current position
-     * to the {@link updates} list.
+     * to the updates list.
      * @param root      Node to look inside of.
      * @param map       Map of the document used to get the lines of the method.
      * @param updates   List to update with new actions where needed.
@@ -267,8 +287,11 @@ public class FlowIndent
         /**
          * Gets the IndentCalculator for the given child node of the node that this
          * IndentCalculator instance corresponds to
+         * 
+         * For the very specific situation of switch statements, we need to double
+         * the indentation of the switch content. cf calculateIndent() for details
          */
-        public IndentCalculator getForChild(ParsedNode n);
+        public IndentCalculator getForChild(ParsedNode n, boolean doubleIndentation);
         /**
          * Gets the indent for a line in the current node that begins with the
          * given character.  This allows for comments (such as this one right here)
@@ -282,7 +305,7 @@ public class FlowIndent
      */
     private static class RootIndentCalculator implements IndentCalculator
     {
-        public IndentCalculator getForChild(ParsedNode n)
+        public IndentCalculator getForChild(ParsedNode n, boolean doubleIndentation)
         {
             return new NodeIndentCalculator("", n);
         }
@@ -321,12 +344,14 @@ public class FlowIndent
             this.parent = parent;
         }
 
-        public IndentCalculator getForChild(ParsedNode child)
+        public IndentCalculator getForChild(ParsedNode child, boolean doubleIndentation)
         {
             String newIndent = existingIndent;
-
+            
             if (child.isInner()) {
-                newIndent += STANDARD_INDENT;
+                // Double indentation is needed in the specific situation when we find "switch" nodes
+                // cf calculateIndent() for more explanations
+                newIndent += (doubleIndentation) ? (STANDARD_INDENT+ STANDARD_INDENT) : STANDARD_INDENT;
             }
             else if (! child.isContainer() && ! parent.isContainer() && ! parent.isInner()) {
                 newIndent += CONTINUATION_INDENT;
@@ -340,9 +365,8 @@ public class FlowIndent
             if (parent.getNodeType() == ParsedNode.NODETYPE_COMMENT && beginsWith == '*') {
                 return existingIndent + COMMENT_ASTERISK_INDENT;
             }
-            else {
-                return existingIndent;
-            }
+            
+            return existingIndent;            
         }
     }
 

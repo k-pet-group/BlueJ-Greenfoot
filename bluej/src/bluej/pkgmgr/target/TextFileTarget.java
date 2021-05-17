@@ -21,44 +21,42 @@
  */
 package bluej.pkgmgr.target;
 
+import bluej.editor.Editor;
+import bluej.editor.flow.FlowEditor;
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.target.actions.EditAction;
+import bluej.pkgmgr.target.actions.RemoveEditableTargetAction;
+import bluej.utility.javafx.AbstractOperation;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 
-import bluej.editor.flow.FlowEditor;
-import bluej.pkgmgr.target.actions.EditAction;
-import bluej.pkgmgr.target.actions.RemoveEditableTargetAction;
-import bluej.utility.javafx.AbstractOperation;
-import javafx.beans.property.ReadOnlyBooleanWrapper;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-
-import bluej.editor.Editor;
-import bluej.pkgmgr.Package;
-import bluej.utility.javafx.JavaFXUtil;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-
 /**
- * A CSS file in the package directory.
+ * A text file in the package directory (text files extensions are listed in BlueJ's preferences.
  */
-public class CSSTarget extends NonCodeEditableTarget
+public class TextFileTarget extends NonCodeEditableTarget
 {
     private final File file;
 
-    public CSSTarget(Package aPackage, File file)
+    public TextFileTarget(Package aPackage, File file)
     {
-        super(aPackage, file.getName(), "" /* CSS already in name */);
+        super(aPackage, file.getName(), "");
         this.file = file;
 
-        JavaFXUtil.addStyleClass(pane, "css-target");
-        JavaFXUtil.addStyleClass(pane, "css-target-id-" + file.getName().replace(".", "-"));
+        JavaFXUtil.addStyleClass(pane, "text-target");
+        JavaFXUtil.addStyleClass(pane, "text-target-id-" + file.getName().replace(".", "-"));
         Label name = new Label(file.getName());
         BorderPane.setAlignment(name, Pos.CENTER);
         pane.setTop(name);
-
     }
 
     @Override
@@ -125,6 +123,6 @@ public class CSSTarget extends NonCodeEditableTarget
     {
         super.save(props, prefix);
 
-        props.put(prefix + ".type", "CSSTarget");
+        props.put(prefix + ".type", "TextTarget");
     }
 }

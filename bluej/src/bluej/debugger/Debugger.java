@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -289,11 +289,10 @@ public abstract class Debugger
      * @param line       The line number of the breakpoint.
      * @param set        True to set, false to clear a breakpoint.
      * @param properties Extra properties to set on the breakpoint.  Can (and usually should) be null.
-     * @return           a string of the error message generated performing
-     *                   this operation or null
+     * @return           True if the breakpoint is now set, false if it is not
      */
     @OnThread(Tag.FXPlatform)
-    public abstract String toggleBreakpoint(String className, int line,
+    public abstract boolean toggleBreakpoint(String className, int line,
                                             boolean set, Map<String, String> properties);
 
     /**
@@ -303,11 +302,10 @@ public abstract class Debugger
      * @param line       The line number of the breakpoint.
      * @param set        True to set, false to clear a breakpoint.
      * @param properties Extra properties to set on the breakpoint.  Can (and usually should) be null.
-     * @return           a string of the error message generated performing
-     *                   this operation or null
+     * @return           true if there is now a breakpoint set, false if there is not
      */
     @OnThread(Tag.FXPlatform)
-    public abstract String toggleBreakpoint(String className, String method, boolean set,
+    public abstract boolean toggleBreakpoint(String className, String method, boolean set,
                                             Map<String,String> properties);
     
     /**
@@ -319,11 +317,10 @@ public abstract class Debugger
      * @param line       The line number of the breakpoint.
      * @param set        True to set, false to clear a breakpoint.
      * @param properties Extra properties to set on the breakpoint.  Can (and usually should) be null.
-     * @return           a string of the error message generated performing
-     *                   this operation or null
+     * @return           true if the breakpoint is now set, false if it is not
      */
     @OnThread(Tag.Any)
-    public abstract String toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set,
+    public abstract boolean toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set,
             Map<String, String> properties);
 
     /**

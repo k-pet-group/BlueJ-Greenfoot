@@ -88,6 +88,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -238,6 +239,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         scene = new Scene(new StackPane(menuAndTabPane, dragPane, dragCursorPane, overlayPane.getNode()), 800, 700);
         stage.setScene(scene);
         Config.addEditorStylesheets(scene);
+        JavaFXUtil.addMacMinimiseShortcutHandler(stage);
 
         tabPane.getStyleClass().add("tabbed-editor");
 
@@ -544,13 +546,28 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             {
                 if (startSize != null)
                 {
-                    stage.setX(startSize.getX());
-                    stage.setY(startSize.getY());
+                    Point2D topLeft = Config.ensureOnScreen((int)startSize.getX(), (int)startSize.getY());
+                    stage.setX(topLeft.getX());
+                    stage.setY(topLeft.getY());
                     stage.setWidth(startSize.getWidth());
                     stage.setHeight(startSize.getHeight());
                 }
                 //Debug.time("Showing");
                 stage.show();
+                if (startSize == null)
+                {
+                    List<Point2D> otherWindowPositions = project.getAllFXTabbedEditorWindows().stream().filter(w -> w != this).map(w -> new Point2D(w.getX(), w.getY())).collect(Collectors.toList());
+                    // Check we're not exactly at the same place as another window:
+                    Point2D us = new Point2D(stage.getX(), stage.getY());
+                    // Avoid an infinite loop, e.g. if we're near the screen edge and aren't allowed to move off it by the OS:
+                    int attempts = 0;
+                    while (otherWindowPositions.contains(us) && attempts++ < 5)
+                    {
+                        stage.setX(32 + stage.getX());
+                        stage.setY(32 + stage.getY());
+                        us = new Point2D(stage.getX(), stage.getY());
+                    }
+                }
                 //Debug.time("Shown");
                 //org.scenicview.ScenicView.show(stage.getScene());
             }
@@ -896,24 +913,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     private List<FXTab> getFXTabs()
     {
         return Utility.mapList(tabPane.getTabs(), t -> (FXTab)t);
-    }
-
-    @OnThread(Tag.Swing)
-    public void setPosition(int x, int y)
-    {
-        Platform.runLater(() -> {
-            stage.setX(x);
-            stage.setY(y);
-        });
-    }
-
-    @OnThread(Tag.Swing)
-    public void setSize(int width, int height)
-    {
-        Platform.runLater(() -> {
-            stage.setWidth(width);
-            stage.setHeight(height);
-        });
     }
 
     public void setTitleStatus(String status)

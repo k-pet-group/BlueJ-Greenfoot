@@ -39,6 +39,7 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.Invoker;
+import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -63,6 +64,7 @@ import bluej.utility.FileUtility;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformFunction;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.CallableView;
@@ -118,6 +120,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -134,6 +137,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.IntBuffer;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static bluej.pkgmgr.target.EditableTarget.MENU_STYLE_INBUILT;
 import static greenfoot.vmcomm.Command.*;
@@ -197,6 +201,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     private boolean atBreakpoint = false;
     private boolean simulationRunning = false;
     private boolean waitingForDiscard = false;
+    
+    // Tasks to add to executeAfterReady after the VM has been terminated:
+    private final Queue<FXPlatformRunnable> executeAfterTermination = new LinkedList<>();
+    // Tasks to be run once the VM has initialised:
+    private final Queue<FXPlatformRunnable> executeAfterReady = new LinkedList<>();
 
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
@@ -267,12 +276,17 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         // The parameter types of the construction:
         private final JavaType[] paramTypes;
 
-        private Region makePreviewNode(ImageView imageView)
+        private Region makePreviewNode(ImageView imageView, String className)
         {
             ImageView cannotDropIcon = new ImageView(this.getClass().getClassLoader().getResource("noParking.png").toExternalForm());
             cannotDropIcon.visibleProperty().bind(cannotDrop);
+            Text newLabel = new Text("new " + className + "()");
+            newLabel.setFill(Color.WHITE);
+            newLabel.setStroke(Color.WHITE);
+            
+            StackPane.setAlignment(newLabel, Pos.TOP_CENTER);
             StackPane.setAlignment(cannotDropIcon, Pos.CENTER);
-            StackPane stackPane = new StackPane(imageView, cannotDropIcon);
+            StackPane stackPane = new StackPane(imageView, newLabel, cannotDropIcon);
             stackPane.setEffect(new DropShadow(10.0, 3.0, 3.0, Color.BLACK));
             return stackPane;
         }
@@ -288,7 +302,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         public NewActor(ImageView imageView, DebuggerObject actorObject,
                 InvokerRecord ir, JavaType[] paramTypes)
         {
-            this.previewNode = makePreviewNode(imageView);
+            this.previewNode = makePreviewNode(imageView, "");
             this.actorObject = actorObject;
             this.invokerRecord = ir;
             this.paramTypes = paramTypes;
@@ -304,7 +318,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
          */
         public NewActor(ImageView imageView, String typeName)
         {
-            this.previewNode = makePreviewNode(imageView);
+            this.previewNode = makePreviewNode(imageView, typeName);
             this.actorObject = null;
             this.invokerRecord = null;
             this.paramTypes = null;
@@ -471,7 +485,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             @Override
             public void handle(long now)
             {
-                debugHandler.getVmComms().checkIO(GreenfootStage.this);
+                if (debugHandler.getVmComms().checkIO(GreenfootStage.this))
+                {
+                    // Shouldn't execute directly, because we're in an animation timer and shouldn't block:
+                    executeAfterReady.forEach(JavaFXUtil::runAfterCurrent);
+                    executeAfterReady.clear();
+                }
             }
         };
         vmCommsHandler.start();
@@ -487,6 +506,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             // We send a reset to make a new world after the project properties have been sent across:
             constructingWorld = true;
+            project.getTerminal().activate(true);
             debugHandler.getVmComms().instantiateWorld(lastInstantiatedWorldName);
             saveTheWorldRecorder.recordingValid();
             updateBackgroundMessage();
@@ -499,13 +519,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         scenarioInfo = new ScenarioInfo(lastSavedProperties);
         String xPosition = lastSavedProperties.getProperty("xPosition");
         String yPosition = lastSavedProperties.getProperty("yPosition");
-        if (xPosition != null)
+        
+        if (xPosition != null && yPosition != null)
         {
-            setX(Double.valueOf(xPosition));
-        }
-        if (yPosition != null)
-        {
-            setY(Double.valueOf(yPosition));
+            Point2D location = Config.ensureOnScreen(Double.valueOf(xPosition).intValue(), Double.valueOf(yPosition).intValue());
+            setX(location.getX());
+            setY(location.getY());
         }
 
         String width = lastSavedProperties.getProperty("width");
@@ -632,8 +651,21 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         if (currentWorld != null && currentWorld.isCompiled()
                 && hasNoArgConstructor(currentWorld.getTypeReflective()))
         {
-            constructingWorld = true;
-            debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
+            // Must store this first, because if they have to terminate the VM it won't be available after:
+            String curWorld = currentWorld.getQualifiedName();
+            
+            suggestTerminateIfAskingThenRun(() -> {
+                constructingWorld = true;
+                project.getTerminal().activate(true);
+                debugHandler.getVmComms().instantiateWorld(curWorld);
+            });
+        }
+        else if (constructingWorld && worldDisplay.isAsking())
+        {
+            // Could be that we haven't got a world yet, but there is one being constructed
+            // and waiting for an ask response: we should offer to terminate, but then
+            // we deliberately won't make a new world (they can do it if they want it):
+            suggestTerminateIfAskingThenRun(() -> {});
         }
         debugHandler.simulationThreadResumeOnResetClick();
         saveTheWorldRecorder.recordingValid();
@@ -1310,7 +1342,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                                 newActorProperty.get().paramTypes);
                         // Can't place same instance twice:
                         newActorProperty.set(null);
-                        new Thread()
+                        new Thread("Add actor on click")
                         {
                             public void run()
                             {
@@ -1321,7 +1353,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     else
                     {
                         // Must be shift-clicking; will need to make a new instance:
-                        new Thread() {
+                        new Thread("Add actor on shift click") {
                             public void run()
                             {
                                 DebuggerResult result = project.getDebugger()
@@ -1414,6 +1446,13 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     private void setupKeyAndMouseHandlers()
     {
         getScene().addEventFilter(KeyEvent.ANY, e -> {
+            // We handle this here because we don't want the input to go through to the user's scenario code:
+            if (Config.isMacOS() && e.getEventType() == KeyEvent.KEY_PRESSED && e.getCode() == KeyCode.M && e.isMetaDown())
+            {
+                setIconified(true);
+                return;
+            }
+            
             if (project == null)
             {
                 return;
@@ -1657,6 +1696,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         // initial discard must still have succeeded:
         waitingForDiscard = false;
         constructingWorld = false;
+        project.getTerminal().activate(false);
         if (!worldPresent)
         {
             worldDisplay.greyOutWorld();
@@ -1675,6 +1715,17 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         worldDisplay.ensureAsking(new String(promptCodepoints, 0, promptCodepoints.length), (String s) -> {
             debugHandler.getVmComms().sendAnswer(s);
         });
+        // Make sure world is visible so that the ask pane is actually visible;
+        // the world may not be visible if the ask is during world construction and there was not previously a world:
+        worldVisible.set(true);
+    }
+
+    /**
+     * Cancel any currently showing ask request; hide the ask pane.
+     */
+    public void cancelAsk()
+    {
+        worldDisplay.cancelAsk();
     }
     
     /**
@@ -1727,19 +1778,21 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 // If single actor, show simple context menu:
                 if (!actors.isEmpty())
                 {
+                    NamedValue[] namesForActors = debugHandler.nameObjects(actors);
                     // This is a list of menus; if there's only one we'll display
                     // directly in context menu.  If there's more than one, we'll
                     // have a higher level menu to pick between them.
                     List<Menu> actorMenus = new ArrayList<>();
-                    for (DebuggerObject actor : actors)
+                    for (int i = 0; i < actors.size(); i++)
                     {
+                        DebuggerObject actor = actors.get(i);
                         Target target = project.getTarget(actor.getClassName());
                         // Should always be ClassTarget, but check in case:
                         if (target instanceof ClassTarget)
                         {
-                            Menu menu = new Menu(actor.getClassName());
+                            Menu menu = new Menu(namesForActors[i].getName() + ":" + actor.getClassName());
                             ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), new RecordInvoke(actor), "", true);
-                            menu.getItems().add(makeInspectMenuItem(actor));
+                            menu.getItems().add(makeInspectMenuItem(actor, namesForActors[i].getName()));
                             //add a listener to the action event on the items in the sub-menu to hide the context menus
                             for (MenuItem menuItem : menu.getItems())
                             {
@@ -1750,9 +1803,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                             JavaFXUtil.addStyleClass(removeItem, MENU_STYLE_INBUILT);
                             removeItem.setOnAction(e -> {
                                 project.getDebugger().instantiateClass(
-                                        "greenfoot.core.RemoveFromWorldHelper",
-                                        new String[]{"java.lang.Object"},
-                                        new DebuggerObject[]{actor});
+                                    "greenfoot.core.RemoveFromWorldHelper",
+                                    new String[]{"java.lang.Object"},
+                                    new DebuggerObject[]{actor});
                                 saveTheWorldRecorder.removeActor(actor);
                             });
                             menu.getItems().add(removeItem);
@@ -1789,8 +1842,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                         });
                         ObjectWrapper.createMethodMenuItems(contextMenu.getItems(),
                                 project.loadClass(world.getClassName()), new RecordInvoke(world), "", true);
-                        contextMenu.getItems().add(makeInspectMenuItem(world));
-
+                        contextMenu.getItems().add(makeInspectMenuItem(world, debugHandler.nameObjects(List.of(world))[0].getName()));
+                        
                         MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
                         JavaFXUtil.addStyleClass(saveTheWorld, MENU_STYLE_INBUILT);
                         saveTheWorld.setOnAction(e -> {
@@ -1834,13 +1887,13 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     /**
      * Makes a MenuItem with an Inspect command for the given debugger object
      */
-    private MenuItem makeInspectMenuItem(DebuggerObject debuggerObject)
+    private MenuItem makeInspectMenuItem(DebuggerObject debuggerObject, String name)
     {
         MenuItem inspectItem = new MenuItem(Config.getString("debugger.objectwrapper.inspect"));
         JavaFXUtil.addStyleClass(inspectItem, MENU_STYLE_INBUILT);
         inspectItem.setOnAction(e -> {
             InvokerRecord ir = new ObjectInspectInvokerRecord(debuggerObject.getClassName());
-            project.getInspectorInstance(debuggerObject, debuggerObject.getClassName(), project.getUnnamedPackage(), ir, this, null);  // shows the inspector
+            project.getInspectorInstance(debuggerObject, name, project.getUnnamedPackage(), ir, this, null);  // shows the inspector
         });
         return inspectItem;
     }
@@ -1910,6 +1963,10 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     @Override
     public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence)
     {
+        // Do a Garbage Collection to finalize any garbage JdiObjects, thereby
+        // allowing objects on the remote VM to be garbage collected.
+        System.gc();
+        
         // We only create the world if the window is focused, otherwise
         // we let it remain greyed out:
         if (isFocused())
@@ -1978,6 +2035,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         Platform.runLater(() -> {
             worldInstantiationError = true;
             constructingWorld = false;
+            project.getTerminal().activate(false);
             // This will update the background message:
             worldVisible.set(false);
         });
@@ -1990,10 +2048,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         Platform.runLater(() -> {
             // We must reset the debug VM related state ready for the new debug VM:
             worldDisplay.setImage(null);
+            worldDisplay.cancelAsk();
             worldInstantiationError = false;
             settingSpeedFromSimulation = false;
             constructingWorld = false;
-            lastExecStartTime = 0L;
+            setLastUserExecutionStartTime(0L, false);
             atBreakpoint = false;
             nextPickId = 1;
             curPickRequest = 0;
@@ -2004,6 +2063,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             // This will set up pendingCommands, ready for when
             // the new debug VM can process data:
             loadAndMirrorProperties();
+            
+            if (executeAfterTermination != null)
+            {
+                executeAfterReady.addAll(executeAfterTermination);
+                executeAfterTermination.clear();
+            }
         });
     }
 
@@ -2561,7 +2626,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             }
             
             // Shouldn't wait on debug VM in the UI thread, so run in a separate thread:
-            new Thread()
+            new Thread("Setting constructed world")
             {
                 public void run()
                 {
@@ -2580,8 +2645,39 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         }
     }
 
+    /**
+     * Checks if there is currently a Greenfoot.ask prompt showing and then:
+     *  - If there is an ask prompt showing, asks the user if they want to terminate VM or cancel, and then:
+     *     - If they terminate, add the given runnable to the queue to be run after the VM restarts.
+     *     - If they cancel, do nothing.
+     *  - If there is not an ask prompt showing, run the given runnable as soon as the VM is ready.
+     *  
+     *  In neither case will it actually run the runnable now, so do not assume it has been run!
+     */
+    private void suggestTerminateIfAskingThenRun(FXPlatformRunnable runAfterward)
+    {
+        if (worldDisplay.isAsking())
+        {
+            if (0 == DialogManager.askQuestionFX(this, "terminate-for-reset"))
+            {
+                // Agreed to terminate:
+                executeAfterTermination.add(runAfterward);
+                project.restartVM();
+            }
+        }
+        else
+        {
+            executeAfterReady.add(runAfterward);
+        }
+    }
+
     @Override
     public void callStaticMethodOrConstructor(CallableView cv)
+    {
+        suggestTerminateIfAskingThenRun(() -> callStaticMethodOrConstructorNowReady(cv));
+    }
+
+    private void callStaticMethodOrConstructorNowReady(CallableView cv)
     {
         ResultWatcher watcher = null;
         Package pkg = project.getPackage("");
@@ -2620,6 +2716,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     if ((name == null) || (name.length() == 0))
                         name = "result";
 
+                    project.getTerminal().activate(false);
                     debugHandler.addObject(result, result.getGenType(), name);
                     project.getDebugger().addObject(project.getPackage("").getId(), name, result);
                     
@@ -2636,6 +2733,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 public void putException(ExceptionDescription exception, InvokerRecord ir)
                 {
                     constructingWorld = false;
+                    project.getTerminal().activate(false);
                     updateBackgroundMessage();
                     super.putException(exception, ir);
                 }
@@ -2644,6 +2742,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 public void putError(String msg, InvokerRecord ir)
                 {
                     constructingWorld = false;
+                    project.getTerminal().activate(false);
                     updateBackgroundMessage();
                     super.putError(msg, ir);
                 }
@@ -2657,6 +2756,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 @Override
                 protected void addInteraction(InvokerRecord ir)
                 {
+                    project.getTerminal().activate(false);
                     saveTheWorldRecorder.callStaticMethod(cv.getClassName(), ((MethodView) cv).getMethod(),
                             ir.getArgumentValues(), cv.getParamTypes(false));
                 }
@@ -2665,6 +2765,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
         // create an Invoker to handle the actual invocation
         if (ProjectUtils.checkDebuggerState(project, this)) {
+            project.getTerminal().activate(true);
             new Invoker(this, pkg, cv, watcher, pkg.getCallHistory(), debugHandler, debugHandler,
                     project.getDebugger(), null).invokeInteractive();
         }

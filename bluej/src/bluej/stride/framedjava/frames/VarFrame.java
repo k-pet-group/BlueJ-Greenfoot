@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
+import bluej.stride.generic.FrameCursor;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -170,7 +171,7 @@ public class VarFrame extends SingleLineFrame implements CodeFrame<VarElement>, 
                 JavaFXUtil.listBool(accessModifier, access),
                 JavaFXUtil.listBool(staticModifier, staticLabel),
                 JavaFXUtil.listBool(finalModifier, finalLabel),
-                FXCollections.observableArrayList(slotType, slotName),
+                FXCollections.observableArrayList(slotType, new SlotLabel(" "), slotName),
                 JavaFXUtil.listBool(showingValue, List.of(assignLabel, slotValue)),
                 FXCollections.observableArrayList(previewSemi)
         ));

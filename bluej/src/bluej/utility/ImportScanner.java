@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2019,2020,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -181,7 +181,42 @@ public class ImportScanner
                 if (subPackages.containsKey(s))
                     return subPackages.get(s).getImportedTypes(prefix + s + ".", idents, javadocResolver);
                 else
+                {
+                    // Maybe the next identifier isn't a package, but a class (that is, the outer class of an inner class)
+                    // So we first try to see if that's the case
+                    String currentClassIdentifier = s;
+                    AssistContentThreadSafe ac = null;
+                    do
+                    {
+
+                        if (currentClassIdentifier.equals("*"))
+                        {
+                            // Return all types:
+                            // Take a copy in case it causes problems that getType modifies the collection
+                            Collection<String> typeNames = new ArrayList<>(types.keySet());
+                            String outerClassName = currentClassIdentifier.replace(".*", "");
+                            return typeNames.stream().map(t -> getType(prefix, t, javadocResolver)).filter(acts -> acts != null && acts.getDeclaringClass() != null && acts.getDeclaringClass().equals(outerClassName)).collect(Collectors.toList());
+                        }
+
+                        ac = getType(prefix, s, javadocResolver);
+                        if (ac != null)
+                        {
+                            if (idents.hasNext())
+                            {
+                                // not yet done with the class part, we continue by appending the inner class
+                                currentClassIdentifier = idents.next();
+                                s += ("$" + currentClassIdentifier); // class loader needs $ as a separator between classes
+                            } 
+                            else
+                                return Collections.singletonList(ac);
+                        }
+                    }
+                    while (ac != null);
+
+                    // If at this stage we've not returned from the while loop then 
+                    // it means that the import was erroneous: we can return empty.
                     return Collections.emptyList();
+                }
             }
             else
             {
@@ -234,7 +269,7 @@ public class ImportScanner
                 // cause a deadlock because there are no background threads
                 // available, as they are all blocked waiting for this
                 // future to complete):
-                new Thread() { public void run()
+                new Thread("Import scanner") { public void run()
                 {
                     RootPackageInfo rootPkg = findAllTypes();
                     try

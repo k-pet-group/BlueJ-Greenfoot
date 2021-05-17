@@ -218,6 +218,14 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     {
         return vmComms.getSharedFileSize();
     }    
+
+    /**
+     * Gets the last sequence identifier that we've received from the user VM
+     */
+    public int getLastSeq()
+    {
+        return vmComms.getLastSeq();
+    }
     
     /**
      * Get the recorder instance which tracks actor creation.
@@ -531,9 +539,10 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     private void setSpecialBreakpoints(final Debugger debugger)
     {
         for (String method : INVOKE_METHODS) {
-            String err = debugger.toggleBreakpoint(simulationClass, method, true, Collections.singletonMap(SIMULATION_INVOKE_KEY, "yes"));
-            if (err != null) {
-                Debug.reportError("Problem setting special breakpoint: " + err);
+            boolean nowSet = debugger.toggleBreakpoint(simulationClass, method, true, Collections.singletonMap(SIMULATION_INVOKE_KEY, "yes"));
+            if (!nowSet)
+            {
+                Debug.reportError("Problem setting special Greenfoot breakpoint");
             }
         }
     }
@@ -625,18 +634,30 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     @OnThread(Tag.FXPlatform)
     public void addSelectedObjects(List<DebuggerObject> objects)
     {
-        NamedValue[] values = new NamedValue[objects.size()];
-        for (int i = 0; i < objects.size(); i++)
-        {
-            values[i] = ensureObjectOnBench(objects.get(i), objects.get(i).getGenType());
-        }
-        
+        NamedValue[] values = nameObjects(objects);
+
         for (ObjectBenchListener l : benchListeners)
         {
             l.objectEvent(new ObjectBenchEvent(this, ObjectBenchEvent.OBJECT_SELECTED, values));
         }
     }
-    
+
+    /**
+     * Names each of the objects
+     * @param objects The list of debugger objects to name.
+     * @return An array of NamedValue, with index 0 corresponding to index 0 in the objects parameter, index 1 to index 1, etc.
+     */
+    @OnThread(Tag.FXPlatform)
+    public NamedValue[] nameObjects(List<DebuggerObject> objects)
+    {
+        NamedValue[] values = new NamedValue[objects.size()];
+        for (int i = 0; i < objects.size(); i++)
+        {
+            values[i] = ensureObjectOnBench(objects.get(i), objects.get(i).getGenType());
+        }
+        return values;
+    }
+
     @Override
     public void addObjectBenchListener(ObjectBenchListener l)
     {

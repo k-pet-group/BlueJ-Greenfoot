@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2013,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,10 +35,15 @@ import java.util.List;
 import java.util.Properties;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
+import javafx.scene.shape.Line;
+import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
+import javafx.scene.paint.ImagePattern;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -57,9 +62,6 @@ public class PackageTarget extends Target
 
     static final String openStr = Config.getString("pkgmgr.packagemenu.open");
     static final String removeStr = Config.getString("pkgmgr.packagemenu.remove");
-
-    @OnThread(Tag.FXPlatform)
-    private boolean isMoveable = true;
 
     public PackageTarget(Package pkg, String baseName)
     {
@@ -265,18 +267,6 @@ public class PackageTarget extends Target
     public void setSize(int width, int height)
     {
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public boolean isMoveable()
-    {
-        return isMoveable;
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public void setIsMoveable(boolean isMoveable)
-    {
-        this.isMoveable = isMoveable;
     }
     
     private static class OpenPkgAction extends AbstractOperation<Target>

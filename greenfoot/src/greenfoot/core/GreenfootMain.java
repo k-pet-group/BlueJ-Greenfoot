@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2013,2014,2015,2016,2017,2018,2019  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2013,2014,2015,2016,2017,2018,2019,2021  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,7 +45,7 @@ import threadchecker.Tag;
  * 
  * @author Poul Henriksen
  */
-public class GreenfootMain extends Thread
+public class GreenfootMain
 {
     public static enum VersionInfo {
         /** The project API version matches the greenfoot API version */
@@ -86,11 +86,11 @@ public class GreenfootMain extends Thread
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      */
     @OnThread(Tag.Any)
-    public static void initialize(String projDir, String shmFilePath, int shmFileSize)
+    public static void initialize(String projDir, String shmFilePath, int shmFileSize, int seqStart)
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         if (instance == null) {
-            instance = new GreenfootMain(projDir, shmFilePath, shmFileSize);
+            instance = new GreenfootMain(projDir, shmFilePath, shmFileSize, seqStart);
         }
     }
 
@@ -108,7 +108,7 @@ public class GreenfootMain extends Thread
      * Constructor is private. This class is initialised via the 'initialize'
      * method (above).
      */
-    private GreenfootMain(String projDir, String shmFilePath, int shmFileSize)
+    private GreenfootMain(String projDir, String shmFilePath, int shmFileSize, int seqStart)
     {
         instance = this;
         try {
@@ -125,7 +125,7 @@ public class GreenfootMain extends Thread
                     Platform.setImplicitExit(false);
 
                     // Some first-time initializations
-                    VMCommsSimulation vmComms = new VMCommsSimulation(projectProperties, shmFilePath, shmFileSize);
+                    VMCommsSimulation vmComms = new VMCommsSimulation(projectProperties, shmFilePath, shmFileSize, seqStart);
 
                     WorldHandlerDelegateIDE worldHandlerDelegate = new WorldHandlerDelegateIDE(vmComms);
                     WorldHandler.initialise(worldHandlerDelegate);
@@ -178,6 +178,7 @@ public class GreenfootMain extends Thread
                     // Want to execute this after the simulation has been initialised:
                     ExecServer.setCustomRunOnThread(r -> Simulation.getInstance().runLater(r::run));
 
+                    vmComms.markVMReady();
                     // Config is initialized in GreenfootLauncherDebugVM
 
                 }

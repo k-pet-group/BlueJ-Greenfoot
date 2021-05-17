@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2015,2021  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -187,6 +187,7 @@ public class ExternalAppLauncher
 
         public StreamRedirector(InputStream source, OutputStream target)
         {
+            super("Stream redirector");
             this.source = source;
             this.target = target;
         }

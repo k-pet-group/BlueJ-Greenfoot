@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2018,2019  Poul Henriksen and Michael Kolling
+ Copyright (C) 2018,2019,2021  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,7 +34,8 @@ import threadchecker.Tag;
 /**
  * A GUI handler for Greenfoot.
  * 
- * @author Davin McCall
+ * IMPORTANT: the name of this class is referenced in a String in bluej.Main
+ * so if you ever want to rename this class, you'll need to rename it there too.
  */
 @OnThread(Tag.FXPlatform)
 public class GreenfootGuiHandler implements GuiHandler

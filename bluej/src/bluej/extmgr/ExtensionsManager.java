@@ -150,8 +150,8 @@ public class ExtensionsManager
             if (!thisFile.getName().endsWith(".jar"))
                 continue;
 
-            // Greenfoot does not need extensions to be loaded except greenfoot.jar
-            if (!Config.isGreenfoot() || (Config.isGreenfoot() && thisFile.getName().equals("greenfoot.jar")))
+            // Greenfoot does not need extensions to be loaded
+            if (!Config.isGreenfoot())
             {
                 // Ok, lets try to get a wrapper up and running
                 ExtensionWrapper aWrapper = new ExtensionWrapper(getPrefManager(), thisFile);
@@ -428,7 +428,7 @@ public class ExtensionsManager
         return r;
     }
 
-    public Map<String, ExternalFileLauncher.OpenExternalFileHandler> getExtFileOpenMap()
+    public Map<String, ExternalFileLauncher.OpenExternalFileHandler> getExtFileOpenMap(Project onThisProject)
     {
         Map<String, ExternalFileLauncher.OpenExternalFileHandler> resMap = new HashMap<>();
 
@@ -440,6 +440,9 @@ public class ExtensionsManager
 
         for(ExtensionWrapper extension : extensions)
         {
+            if (skipThisMenu(onThisProject, extension.getProject()))
+                continue;
+            
             for(ExternalFileLauncher extFileLauncher : extension.safeGetExternalFileLaunchers())
             {
                 // We use the dot prefix in the file extension mapping.

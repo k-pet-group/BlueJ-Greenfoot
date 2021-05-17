@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2012,2013,2014,2016,2017,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2012,2013,2014,2016,2017,2019,2021  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -736,6 +736,8 @@ public class EditorParser extends JavaParser
     {
         JavaParentNode loopNode = new InnerNode(scopeStack.peek());
         loopNode.setInner(true);
+        // We specifically mark this node as Switch Block node to allow proper indentation in auto-indentation.
+        loopNode.markAsSwitchBlockNode();
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);

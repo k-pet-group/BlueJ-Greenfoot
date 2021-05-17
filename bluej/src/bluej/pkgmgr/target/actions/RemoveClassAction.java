@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2020 Michael Kölling and John Rosenberg 
+ Copyright (C) 2020,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,7 +42,7 @@ public class RemoveClassAction extends ClassTargetOperation
     protected void execute(ClassTarget target)
     {
         PkgMgrFrame pmf = PkgMgrFrame.findFrame(target.getPackage());
-        if (pmf.askRemoveClass())
+        if (pmf != null && pmf.askRemoveClass())
         {
             target.remove();
         }

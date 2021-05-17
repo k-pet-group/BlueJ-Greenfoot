@@ -15,7 +15,7 @@
      After changing the version number the target "update-version-number" should be run -->
     <property name="bluej.version.major" value="5" />
     <property name="bluej.version.minor" value="0" />
-    <property name="bluej.version.release" value="0" />
+    <property name="bluej.version.release" value="1" />
     <property name="bluej.version.suffix" value="" />
     <!-- suffix with no spaces, eg "pre2" -->
     <property name="bluej.version.nonspace.suffix" value="" />
@@ -52,7 +52,6 @@
     <property name="editor.jar" value="${bluej_home}/lib/bluejeditor.jar"/>
     <property name="extension2.jar" value="${bluej_home}/lib/bluejext2.jar"/>
     <property name="lang-stride.jar" value="${bluej_home}/lib/lang-stride.jar"/>
-    <property name="greenfoot-native.jar" value="${bluej_home}/lib/greenfoot-native.jar"/>
     <property name="bluej-junit-ext.jar" value="${bluej_home}/lib/userlib/bluej-junit-ext.jar"/>
 
     <path id="javafx.class.path">
@@ -300,8 +299,6 @@
     </target>
 
     <target name="run">
-        <!-- delete the greenfoot jar (if it exists) since it screws up BlueJ -->
-        <delete quiet="true" file="${extensions.lib}/greenfoot.jar"/>
         <!-- run the java code built into the jar files -->
         <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/${java_command_dir_name}/java">
             <!-- Include the following line to enable attachment of the Netbeans debugger
@@ -521,11 +518,8 @@
         <!-- Used by jar installer: greenfoot-splash.png -->
         <delete file="package/greenfoot-splash.png" />
         <delete dir="lib/greenfoot" />
-        <delete quiet="false" file="${greenfoot-native.jar}" />
+        <delete file="lib/greenfoot.jar" />
         <delete dir="package/scenarios" />
-        <delete>
-            <fileset file="lib/extensions2/greenfoot.jar"/>
-        </delete>
         
         <delete includeEmptyDirs="true">
             <fileset dir="lib">
@@ -560,7 +554,7 @@
                 <include name="*.jar"/>
                 <exclude name="bluej*.jar"/>
                 <exclude name="lang-stride.jar"/>
-                <exclude name="greenfoot-native.jar"/>
+                <exclude name="greenfoot.jar"/>
 
                 <!-- Now we exclude all files for which the license is correctly noted in the
                      THIRDPARTYLICENSE.txt file and for which a copy of the license is in the

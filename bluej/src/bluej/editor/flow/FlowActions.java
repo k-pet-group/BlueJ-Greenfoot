@@ -32,6 +32,7 @@ import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
@@ -91,7 +92,7 @@ public final class FlowActions
     private static final Modifier SHORTCUT_MASK = KeyCombination.SHORTCUT_DOWN;
     private static final Modifier[] SHIFT_SHORTCUT_MASK = { KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN};
     // Must be weak to allow unused actions to be GCed:
-    private static final Set<FlowActions> allActions = Collections.newSetFromMap(new WeakHashMap<>());
+    private static final WeakHashMap<FlowEditor, FlowActions> allActions = new WeakHashMap<FlowEditor, FlowActions >();
 
     // -------- INSTANCE VARIABLES --------
     private final FlowEditor editor;
@@ -188,7 +189,9 @@ public final class FlowActions
         {
             Nodes.addInputMap(getTextComponent(), InputMap.sequence(
                     InputMap.consume(MouseEvent.MOUSE_CLICKED, e -> {
-                        if (e.getButton() == MouseButton.PRIMARY)
+                        // The first click will have positioned the caret, but we must still make sure
+                        // that we are positioned over the editor and not, for example, over the left margin:
+                        if (e.getButton() == MouseButton.PRIMARY && editor.getSourcePane().getCaretPositionForMouseEvent(e).isPresent())
                         {
                             if (e.getClickCount() == 2)
                             {
@@ -202,6 +205,9 @@ public final class FlowActions
                     })
             ));
         }
+        
+        //add the actions to "allActions"
+        actions.values().forEach(flowAction -> allActions.put(editor, this));
     }
 
     // package-visible
@@ -519,7 +525,7 @@ public final class FlowActions
      */
     public static void addKeyCombinationForActionToAllEditors(KeyCodeCombination key, String actionName)
     {
-        allActions.forEach(flowAction -> flowAction.addKeyCombinationForAction(key, actionName));
+        allActions.values().forEach(flowAction -> flowAction.addKeyCombinationForAction(key, actionName));
     }
 
     /**
@@ -531,6 +537,27 @@ public final class FlowActions
         if (action != null)
         {
             keymap.put(key, action);
+            updateKeymap();
+        }
+    }
+
+    /**
+     * Remove a key binding from the action table.
+     */
+    public static void removeKeyCombinationForActionToAllEditors(KeyCodeCombination key, String actionName)
+    {
+        allActions.values().forEach(flowAction -> flowAction.removeKeyCombinationForAction(key, actionName));
+    }
+
+    /**
+     * Remove a key binding from the action table.
+     */
+    private void removeKeyCombinationForAction(KeyCodeCombination key, String actionName)
+    {
+        FlowAbstractAction action = actions.get(actionName);
+        if (action != null)
+        {
+            keymap.remove(key, action);
             updateKeymap();
         }
     }
@@ -784,6 +811,7 @@ public final class FlowActions
         int pos = textPane.getCaretPosition();
 
         boolean isOpenBrace = false;
+        boolean isColonOperatorDelimiter = false;
         boolean isCommentEnd = false, isCommentEndOnly = false;
 
         // if there is any text before the cursor, just insert a tab
@@ -821,12 +849,13 @@ public final class FlowActions
         else {
             isCommentEnd = prevLineText.trim().endsWith("*/");
             isCommentEndOnly = prevLineText.trim().equals("*/");
+            isColonOperatorDelimiter = prevLineText.trim().matches("^\\s*(case\\s+[^:]*|default\\s*):$");                                                                                    
         }
 
         int indentPos = FlowIndent.findFirstNonIndentChar(prevLineText, isCommentEnd);
         String indent = prevLineText.substring(0, indentPos);
 
-        if (isOpenBrace) {
+        if (isOpenBrace || isColonOperatorDelimiter) {
             indentPos += tabSize;
         }
 
@@ -850,7 +879,7 @@ public final class FlowActions
         indentPos = FlowIndent.findFirstNonIndentChar(lineText, true);
         char firstChar = lineText.isEmpty() ? '\u0000' : lineText.charAt(indentPos);
         textPane.getDocument().replaceText(lineStart, lineStart + indentPos, "");
-        String newIndent = nextIndent(indent, isOpenBrace, isCommentEndOnly);
+        String newIndent = nextIndent(indent, (isOpenBrace || isColonOperatorDelimiter), isCommentEndOnly);
         if (firstChar == '*') {
             newIndent = newIndent.replace('*', ' ');
         }
@@ -1097,7 +1126,7 @@ public final class FlowActions
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F7), "uncomment-block");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F6), "indent-block");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F5), "deindent-block");
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.M, SHORTCUT_MASK), "insert-method");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.M, SHORTCUT_MASK, KeyCombination.SHIFT_DOWN), "insert-method");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.TAB), "indent");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.TAB, KeyCombination.SHIFT_DOWN), "de-indent");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, SHORTCUT_MASK), "insert-tab");
@@ -1129,7 +1158,9 @@ public final class FlowActions
         // cursor block
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, SHORTCUT_MASK), "increase-font");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, SHORTCUT_MASK), "decrease-font");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SUBTRACT, KeyCombination.SHORTCUT_DOWN), "decrease-font"); //support for the numpad - (which is the only "minus" symbol supported on the French keyboard)
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.DIGIT0, SHORTCUT_MASK), "reset-font");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.NUMPAD0, SHORTCUT_MASK), "reset-font"); //support of the numpad 0
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, SHIFT_SHORTCUT_MASK), "autoindent");
     }
@@ -1206,7 +1237,8 @@ public final class FlowActions
 
     private FlowAbstractAction saveAction()
     {
-        return action("save", Category.CLASS, () -> getClearedEditor().userSave());
+        // cancelFreshState() handles scheduling a compilation after the save:
+        return action("save", Category.CLASS, () -> getClearedEditor().cancelFreshState());
     }
     // --------------------------------------------------------------------
 
@@ -1441,12 +1473,32 @@ public final class FlowActions
             {
                 if (editor.isReadOnly())
                     return;
+                // We add a smart bracket iff we just typed a curly bracket, and pressed enter
+                // immediately afterwards, which is tracked by the hasJustAddedCurlyBracket method.
+                // We need to look this up before we add the "\n", as that will clear this flag:
+                boolean addSmartBracket = editor.getSourcePane().hasJustAddedCurlyBracket();
+                SourceLocation leavingLine = editor.getCaretLocation();
+
                 getClearedEditor().getSourcePane().replaceSelection("\n");
-                getClearedEditor().getSourcePane().ensureCaretShowing();
+                editor.getSourcePane().ensureCaretShowing();
 
                 if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
                 {
                     doIndent();
+                }
+
+                if (PrefMgr.getFlag(PrefMgr.CLOSE_CURLY) && addSmartBracket)
+                {
+                    int openCurlyLineIndent = FlowIndent.findFirstNonIndentChar(editor.getText(new SourceLocation(leavingLine.getLine(), 1), leavingLine), true);
+                    int position = editor.getSourcePane().getCaretPosition();
+                    StringBuilder addition = new StringBuilder("\n");
+                    for (int i = 0; i < openCurlyLineIndent; i++)
+                    {
+                        addition.append(' ');
+                    }
+                    addition.append('}');
+                    editor.getSourcePane().replaceSelection(addition.toString());
+                    editor.getSourcePane().positionCaret(position);
                 }
                 //TODOFLOW
                 //editor.undoManager.breakEdit();

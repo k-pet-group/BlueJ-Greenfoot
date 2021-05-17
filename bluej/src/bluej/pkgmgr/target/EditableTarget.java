@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014,2016,2017,2018,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2013,2014,2016,2017,2018,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,8 @@ import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.actions.EditableTargetOperation;
 import bluej.prefmgr.PrefMgrDialog;
+import bluej.utility.javafx.ResizableCanvas;
+import javafx.scene.canvas.GraphicsContext;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -38,10 +40,11 @@ import threadchecker.Tag;
  *
  * @author  Michael Cahill
  */
-public abstract class EditableTarget extends Target
+public abstract class  EditableTarget extends Target
     implements EditorWatcher
 {
     public static final String MENU_STYLE_INBUILT = "class-action-inbuilt";
+
     public final static String editStr = Config.getString("pkgmgr.classmenu.edit");
     public final static String removeStr = Config.getString("pkgmgr.classmenu.remove");
     protected Editor editor;
@@ -68,7 +71,8 @@ public abstract class EditableTarget extends Target
      */
     public void ensureSaved() throws IOException
     {
-        if(editor != null) {
+        if (editor != null && editor.isModified())
+        {
             editor.save();
         }
     }
@@ -124,8 +128,8 @@ public abstract class EditableTarget extends Target
     /*
      * Called by Editor when a breakpoint is been set/cleared
      */
-    public String breakpointToggleEvent(int lineNo, boolean set)
-    { return null; }
+    public boolean breakpointToggleEvent(int lineNo, boolean set)
+    { return false; }
 
     public void clearAllBreakpoints() { }
 

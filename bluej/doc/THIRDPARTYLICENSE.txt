@@ -122,7 +122,7 @@ which is used by Bluej. It is distributed under the terms of a BSD-style license
 as found in the "jsch-BSD.txt" file.
 
 
-JUnit (Eclipse Public License v1.0)
+JUnit (Eclipse Public License v2.0)
 ----------------------------------
 "junit-*.jar" are part of the JUnit unit testing library (http://junit.org/) which is
 used by BlueJ. It is distributed under the terms of the Eclipse Public License
@@ -244,7 +244,6 @@ httpcore-4.1.jar                         Apache License v2.0
 httpmime-4.1.1.jar                       Apache License v2.0
 javaruntype-1.3.jar                      Apache License v2.0
 jsch-0.1.53.jar                          BSD License
-junit-4.12.jar                           Common Public License v1.0
 junit-quickcheck-core-0.8.2.jar          MIT License
 nsmenufx-2.1.8.jar                       BSD license
 ognl-3.1.12.jar                          Apache License v2.0

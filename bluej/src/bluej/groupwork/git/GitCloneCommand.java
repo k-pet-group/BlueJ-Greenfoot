@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2018,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2018,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,6 +34,7 @@ import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.errors.NoRemoteRepositoryException;
 import org.eclipse.jgit.errors.TransportException;
 import org.eclipse.jgit.lib.StoredConfig;
@@ -85,7 +86,7 @@ public class GitCloneCommand extends GitCommand
             }
             
             return new TeamworkCommandAborted();
-        } catch (GitAPIException | IOException ex) {
+        } catch (GitAPIException | JGitInternalException | IOException ex) {
             if (ex.getCause() instanceof NoRemoteRepositoryException){
                 String message = DialogManager.getMessage("team-noRepository-uri", ex.getLocalizedMessage());
                 return new TeamworkCommandError(message, message);

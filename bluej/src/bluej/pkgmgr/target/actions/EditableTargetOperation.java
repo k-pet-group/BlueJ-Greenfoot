@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2020 Michael Kölling and John Rosenberg 
+ Copyright (C) 2020,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,8 @@ import threadchecker.Tag;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @OnThread(Tag.FXPlatform)
 public abstract class EditableTargetOperation extends AbstractOperation<Target>
@@ -50,13 +52,20 @@ public abstract class EditableTargetOperation extends AbstractOperation<Target>
     @Override
     public final void activate(List<Target> targets)
     {
-        for (Target target : targets)
+        List<EditableTarget> editableTargets = targets.stream().flatMap(t -> t instanceof EditableTarget ? Stream.of((EditableTarget)t) : Stream.empty()).collect(Collectors.toList());
+        if (!editableTargets.isEmpty() && confirm(editableTargets))
         {
-            if (target instanceof EditableTarget)
+            for (EditableTarget target : editableTargets)
             {
-                executeEditable((EditableTarget) target);
+                executeEditable(target);
             }
         }
+    }
+    
+    // For overriding by subclasses, to show an "are you sure?" dialog if needed.
+    protected boolean confirm(List<EditableTarget> editableTargets)
+    {
+        return true;
     }
 
     protected abstract void executeEditable(EditableTarget target);

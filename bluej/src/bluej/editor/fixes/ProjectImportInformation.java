@@ -72,6 +72,7 @@ public class ProjectImportInformation
         rarerImports = Arrays.asList(
             Config.isGreenfoot() ? null : "java.awt.*",
             Config.isGreenfoot() ? null : "java.awt.event.*",
+            "java.nio.file.*",
             "java.net.*",
             "java.text.*",
             "java.util.concurrent.*",

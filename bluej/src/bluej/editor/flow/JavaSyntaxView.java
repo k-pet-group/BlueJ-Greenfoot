@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -856,10 +856,24 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             return OptionalInt.empty();
         }
         
+        while (cachedSpaceSizes.size() < 8)
+        {
+            // Must be at least eight:
+            String spaces = "        ";
+            double indent = display.getWidthOfText(spaces.substring(0, cachedSpaceSizes.size()));
+            // Should be at least two pixels per space; if we see less than that, probably not laid out yet:
+            if (indent >= cachedSpaceSizes.size() * 2)
+                cachedSpaceSizes.add(indent);
+        }
+        
+        
         int column = document.getColumnFromPosition(startOffset);
+        // If it's the left edge no need to calculate further, must be zero:
+        if (column == 0)
+            return OptionalInt.of(0);
         int line = document.getLineFromPosition(startOffset);
         CharSequence lineText = new Element(line).getText();
-        boolean allSpaces = (column == 0) || lineText.subSequence(0, column).codePoints().allMatch(n -> n == ' ');
+        boolean allSpaces = lineText.subSequence(0, column).codePoints().allMatch(n -> n == ' ');
 
         if (!display.isLineVisible(line) && (!allSpaces || cachedSpaceSizes.size() <= 4))
         {
@@ -923,36 +937,26 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         {
             // All spaces, we can use/update cached space indents
             int numberOfSpaces = column;
-            while (numberOfSpaces >= cachedSpaceSizes.size())
+            if (numberOfSpaces >= cachedSpaceSizes.size())
             {
-                // We have more spaces than the cache; we must update it if we can
-                Optional<Double> leftEdge = Optional.empty();
-                if (!duringUpdate)
+                // If we've got a few spaces, we can make a reasonable estimate, on the basis
+                // that space characters are going to be the same width as each other.
+                if (cachedSpaceSizes.size() >= 4)
                 {
-                    leftEdge = display.getLeftEdgeX(startOffset - numberOfSpaces + cachedSpaceSizes.size());
+                    int highestSpaces = cachedSpaceSizes.size() - 1;
+                    double highestWidth = cachedSpaceSizes.get(highestSpaces) - cachedSpaceSizes.get(0);
+                    return OptionalInt.of((int) (highestWidth / highestSpaces * numberOfSpaces
+                        + cachedSpaceSizes.get(0)));
                 }
-                // If the character isn't on screen, we're not going to be able to calculate indent,
-                // and we know we haven't got a cached indent, so give up:
-                if (!leftEdge.isPresent())
+                else
                 {
-                    // If we've got a few spaces, we can make a reasonable estimate, on the basis
-                    // that space characters are going to be the same width as each other.
-                    if (cachedSpaceSizes.size() >= 4)
-                    {
-                        int highestSpaces = cachedSpaceSizes.size() - 1;
-                        double highestWidth = cachedSpaceSizes.get(highestSpaces) - cachedSpaceSizes.get(0); 
-                        return OptionalInt.of((int)(highestWidth / highestSpaces * numberOfSpaces
-                                + cachedSpaceSizes.get(0)));
-                    }
                     return OptionalInt.empty();
                 }
-                double indent = leftEdge.get();
-                // Should be at least two pixels per space; if we see less than that, probably not laid out yet:
-                if (indent < cachedSpaceSizes.size() * 2)
-                    return OptionalInt.empty();
-                cachedSpaceSizes.add(indent);
             }
-            return OptionalInt.of(cachedSpaceSizes.get(numberOfSpaces).intValue());
+            else
+            {
+                return OptionalInt.of(cachedSpaceSizes.get(numberOfSpaces).intValue());
+            }
         }
         else
         {
@@ -2629,6 +2633,9 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         public void applyScopeBackgrounds(Map<Integer, List<BackgroundItem>> scopeBackgrounds);
 
         public void repaint();
+
+        // Gets pixel width of the given text if it was to be displayed in the editor:
+        public double getWidthOfText(String content);
     }
 
     /**

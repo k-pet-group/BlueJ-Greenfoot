@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,6 +43,7 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Orientation;
@@ -52,10 +53,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseButton;
+import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -79,7 +77,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import com.sun.jdi.VMDisconnectedException;
 
@@ -153,6 +150,7 @@ public class ExecControls
     // The currently selected thread
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private DebuggerThreadDetails selectedThread;
+    private Label stackPlaceholder;
 
 
     /**
@@ -208,6 +206,7 @@ public class ExecControls
         Scene scene = new Scene(fxContent);
         Config.addDebuggerStylesheets(scene);
         window.setScene(scene);
+        JavaFXUtil.addMacMinimiseShortcutHandler(window);
         Config.loadAndTrackPositionAndSize(window, "bluej.debugger");
         window.setOnShown(e -> {
             DataCollector.debuggerChangeVisible(project, true);
@@ -310,6 +309,21 @@ public class ExecControls
                 sel.update();
             }
             setThreadDetails(sel);
+            if (!isSingleThreadMode())
+            {
+                Platform.runLater(() -> {
+                    // Don't refresh if it's showing because it will mess with user's click behaviour:
+                    if (!threadList.isShowing())
+                    {
+                        // Force a refresh by remembering old items and selection, then blanking them and setting them again:
+                        ObservableList<DebuggerThreadDetails> items = threadList.getItems();
+                        int selection = threadList.getSelectionModel().getSelectedIndex();
+                        threadList.setItems(FXCollections.observableArrayList());
+                        threadList.setItems(items);
+                        threadList.getSelectionModel().select(selection);
+                    }
+                });
+            }
         }
     }
 
@@ -332,6 +346,7 @@ public class ExecControls
             cannotHalt.set(true);
             cannotStepOrContinue.set(true);
             stackList.getItems().clear();
+            stackPlaceholder.setText(Config.getString("debugger.noThreadSelected"));
         }
         else
         {
@@ -340,6 +355,7 @@ public class ExecControls
                 selectedThread = dt;
             }
             project.getDebugger().runOnEventHandler(() -> setThreadDetails(dt));
+            stackPlaceholder.setText(removeHTML(Config.getString("debugger.threadRunning")));
         }
     }
 
@@ -375,6 +391,7 @@ public class ExecControls
     public static SourceLocation [] getFilteredStack(List<SourceLocation> stack)
     {
         int first = -1;
+        int newInstanceCallsBeganAt = -1;
         int i;
         for (i = 0; i < stack.size(); i++) {
             SourceLocation loc = stack.get(i);
@@ -395,12 +412,26 @@ public class ExecControls
             if (Config.isGreenfoot() && className.startsWith("greenfoot.core.Simulation")) {
                 break;
             }
+
+            // This check must go after the others, or we'll set newInstanceCallsBeganAt to -1 before we break:
+            if (className.startsWith("jdk.internal.reflect") || className.startsWith("java.lang.reflect.Constructor"))
+            {
+                if (newInstanceCallsBeganAt == -1)
+                {
+                    newInstanceCallsBeganAt = i;
+                }
+            }
+            else
+                newInstanceCallsBeganAt = -1;
             
             // Topmost stack location shown will have source available!
             if (first == -1 && loc.getFileName() != null) {
                 first = i;
             }
         }
+        // If we saw a newInstance call chain just before we stopped, get rid of that too:
+        if (newInstanceCallsBeganAt != -1)
+            i = newInstanceCallsBeganAt;
         
         if (first == -1 || i == 0) {
             return new SourceLocation[0];
@@ -442,11 +473,14 @@ public class ExecControls
                 String classSourceName = thread.getClassSourceName(index);
                 int lineNumber = thread.getLineNumber(index);
                 DebuggerObject currentObject = thread.getCurrentObject(index);
-                Platform.runLater(() -> project.showSource(thread,
+                Platform.runLater(() -> {
+                    project.removeStepMarks();
+                    project.showSource(thread,
                         aClass,
                         classSourceName,
                         lineNumber,
-                        currentObject));
+                        currentObject);
+                });
             }
         }
     }
@@ -551,9 +585,9 @@ public class ExecControls
                 stackFrameSelectionChanged(thread, index.intValue(), showSource);
             });
         });
-        Label placeholder = new Label(removeHTML(Config.getString("debugger.threadRunning")));
-        placeholder.setTextAlignment(TextAlignment.CENTER);
-        stackList.setPlaceholder(placeholder);
+        stackPlaceholder = new Label(removeHTML(Config.getString("debugger.threadRunning")));
+        stackPlaceholder.setTextAlignment(TextAlignment.CENTER);
+        stackList.setPlaceholder(stackPlaceholder);
 
         if (debuggerThreads != null)
         {

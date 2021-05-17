@@ -70,11 +70,10 @@ import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import java.util.concurrent.ExecutionException;
 
 /**
  * A Java package (collection of Java classes).
- * 
+ *
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
@@ -96,7 +95,7 @@ public final class Package
      */
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private PackageFile packageFile;
-    
+
     /** Readme file name */
     public static final String readmeName = "README.TXT";
 
@@ -116,6 +115,8 @@ public final class Package
     private final List<Target> targetsToPlace = new ArrayList<>();
     // Has this package been sent for data recording yet?
     private boolean recorded = false;
+    /** flag to monitor that loadTargetsPackage is only called once for that package **/
+    private boolean hasPackageTargetsLoaded = false;
 
     /** Reason code for displaying source line */
     private enum ShowSourceReason
@@ -123,7 +124,7 @@ public final class Package
         STEP_OR_HALT,    // a step or other halt 
         BREAKPOINT_HIT,  // a breakpoint was hit
         FRAME_SELECTED;   // the stack frame was selected in the debugger
-        
+
         /**
          * Check whether this reason corresponds to a suspension event (breakpoint/step/etc).
          */
@@ -132,7 +133,7 @@ public final class Package
             return this == STEP_OR_HALT || this == BREAKPOINT_HIT;
         }
     }
-    
+
     /**
      * In the top left corner of each package we have a fixed target - either a
      * ParentPackageTarget or a ReadmeTarget. These are there locations
@@ -175,16 +176,16 @@ public final class Package
      * to be brought to the front
      */
     private String lastSourceName = "";
-    
+
     /** determines the maximum length of the CallHistory of a package */
     public static final int HISTORY_LENGTH = 6;
-    
+
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private PackageListener editor;
 
     private PackageUI ui;
-    
-    @OnThread(Tag.FXPlatform)    
+
+    @OnThread(Tag.FXPlatform)
     private List<PackageListener> listeners = new ArrayList<>();
 
     //package-visible
@@ -204,20 +205,20 @@ public final class Package
 
     @OnThread(value = Tag.FXPlatform)
     private final List<Dependency> extendsArrows = new ArrayList<>();
-    
+
     /** True if we currently have a compile queued up waiting for debugger to become idle */
     @OnThread(Tag.FXPlatform)
     private boolean waitingForIdleToCompile = false;
-    
+
     /** Whether we have issued a package compilation, and not yet seen its conclusion */
     private boolean currentlyCompiling = false;
-    
+
     /** Whether a compilation has been queued (behind the current compile job). Only one compile can be queued. */
     private boolean queuedCompile = false;
     private CompileReason queuedReason;
-    
+
     private final List<FXCompileObserver> compileObservers = new ArrayList<>();
-    
+
     /** File pointing at the directory for this package */
     @OnThread(Tag.Any)
     private File dir;
@@ -289,7 +290,7 @@ public final class Package
 
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private BPackage singleBPackage;  // Every Package has none or one BPackage
-    
+
     /**
      * Return the extensions BPackage associated with this Package.
      * There should be only one BPackage object associated with each Package.
@@ -299,8 +300,8 @@ public final class Package
     public synchronized final BPackage getBPackage ()
     {
         if ( singleBPackage == null )
-          singleBPackage = ExtensionBridge.newBPackage(this);
-          
+            singleBPackage = ExtensionBridge.newBPackage(this);
+
         return singleBPackage;
     }
 
@@ -363,7 +364,7 @@ public final class Package
 
     /**
      * get the readme target for this package
-     *  
+     *
      */
     public synchronized ReadmeTarget getReadmeTarget()
     {
@@ -373,7 +374,7 @@ public final class Package
 
     /**
      * Construct a path for this package relative to the project.
-     * 
+     *
      * @return The relative path.
      */
     private File getRelativePath()
@@ -396,12 +397,12 @@ public final class Package
 
     /**
      * Return a file object of the directory location of this package.
-     * 
+     *
      * @return The file object representing the full path to the packages
      *         directory
      */
     @OnThread(Tag.Any)
-    public File getPath() 
+    public File getPath()
     {
         return dir;
     }
@@ -448,7 +449,7 @@ public final class Package
 
     /**
      * Return an array of package objects which are nested one level below us.
-     * 
+     *
      * @param getUncached   should be true if unopened packages should be included
      */
     protected synchronized List<Package> getChildren(boolean getUncached)
@@ -505,7 +506,7 @@ public final class Package
                 addListener(ed);
             }
         }
-        
+
         if (ed == null) {
             fireClosedEvent();
         }
@@ -533,7 +534,7 @@ public final class Package
             ed.graphChanged();
         }
     }
-    
+
     /**
      * Get the editor for this package, as a PackageEditor. This should be considered deprecated;
      * use getUI() instead if possible. May return null.
@@ -543,7 +544,7 @@ public final class Package
     {
         return (PackageEditor) editor;
     }
-    
+
     /**
      * Set the UI controller for this package.
      */
@@ -551,7 +552,7 @@ public final class Package
     {
         this.ui = ui;
     }
-    
+
     /**
      * Retrieve the UI controller for this package. (May return null if no UI has been set; however,
      * most operations requiring the UI should be performed in contexts where the UI has been set, so
@@ -569,7 +570,7 @@ public final class Package
     {
         listeners.add(pl);
     }
-    
+
     /**
      * Remove a listener for this package.
      */
@@ -577,7 +578,7 @@ public final class Package
     {
         listeners.remove(pl);
     }
-    
+
     /**
      * Fire a "package closed" event to listeners.
      */
@@ -591,7 +592,7 @@ public final class Package
             l.graphClosed();
         }
     }
-    
+
     /**
      * Fire a "graph changed" event to listeners.
      */
@@ -603,7 +604,7 @@ public final class Package
             l.graphChanged();
         }
     }
-    
+
     /**
      * Get the package properties, as most recently saved. The returned Properties set should be considered
      * immutable.
@@ -617,7 +618,7 @@ public final class Package
     /**
      * Get the currently selected Targets. It will return an empty array if no
      * target is selected.
-     * 
+     *
      * @return the currently selected array of Targets.
      */
     @OnThread(Tag.Any)
@@ -631,7 +632,7 @@ public final class Package
      * a set which is returned. Will delete any __SHELL files which are found in
      * the directory and will ignore any single .class files which do not
      * contain public classes.
-     * 
+     *
      * The returned set is guaranteed to be only valid Java identifiers.
      */
     private Set<String> findTargets(File path)
@@ -660,14 +661,14 @@ public final class Package
             if (javaFileName.indexOf('$') == -1)
                 interestingSet.add(javaFileName);
         }
-        
+
         for (int i = 0; i < frameSrcFiles.length; i++) {
             String frameFileName = JavaNames.stripSuffix(frameSrcFiles[i].getName(), "." + SourceType.Stride.toString().toLowerCase());
 
             // check if the name would be a valid java name
             if (!JavaNames.isIdentifier(frameFileName))
                 continue;
-            
+
             interestingSet.add(frameFileName);
         }
 
@@ -712,141 +713,155 @@ public final class Package
     /**
      * Load the elements of a package from a specified directory. If the package
      * file (bluej.pkg) is not found, an IOException is thrown.
-     * 
-     * <p>This does not cause targets to be loaded. Use refreshPackage() for that.
+     *
+     * <p>This does not cause targets to be loaded. Use loadTargets() for that.
      */
     public synchronized void load()
         throws IOException
     {
         // read the package properties
-        
+
         packageFile = getPkgFile();
-        
+
         // try to load the package file for this package
         packageFile.load(lastSavedProps);
     }
-    
+
     /**
-     * Refresh the targets and dependency arrows in the package, based on whatever
-     * is actually on disk.
+     * Loads the targets and dependency arrows in the package, based on whatever is actually on disk.
+     *
+     * This method should be called once and subsequent calls are made disabled via the flag hasPackageTargetsLoaded
      */
-    public void refreshPackage()
+    public void loadTargets()
     {
-        // read in all the targets contained in this package
-        // into this temporary map
-        Map<String,Target> propTargets = new HashMap<String,Target>();
+        if(!hasPackageTargetsLoaded)
+        {
+            // read in all the targets contained in this package
+            // into this temporary map
+            Map<String,Target> propTargets = new HashMap<String,Target>();
 
-        int numTargets = 0, numDependencies = 0;
+            int numTargets = 0, numDependencies = 0;
 
-        try {
-            numTargets = Integer.parseInt(lastSavedProps.getProperty("package.numTargets", "0"));
-            numDependencies = Integer.parseInt(lastSavedProps.getProperty("package.numDependencies", "0"));
-        }
-        catch (Exception e) {
-            synchronized (this)
-            {
-                Debug.reportError("Error loading from package file " + packageFile + ": " + e, e);
+            try {
+                numTargets = Integer.parseInt(lastSavedProps.getProperty("package.numTargets", "0"));
+                numDependencies = Integer.parseInt(lastSavedProps.getProperty("package.numDependencies", "0"));
             }
-            return;
-        }
-
-        for (int i = 0; i < numTargets; i++) {
-            Target target;
-            String type = lastSavedProps.getProperty("target" + (i + 1) + ".type");
-            String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
-
-            if ("PackageTarget".equals(type))
-            {
-                target = new PackageTarget(this, identifierName);
-            }
-            else if ("CSSTarget".equals(type))
-            {
-                target = new CSSTarget(this, new File(getPath(), identifierName));
-            }
-            else if("ExternalFileTarget".equals(type))
-            {
-                target = new ExternalFileTarget(this, new File(getPath(), identifierName));
-            }
-            else
-            {
-                target = new ClassTarget(this, identifierName);
-            }
-
-            target.load(lastSavedProps, "target" + (i + 1));
-            propTargets.put(identifierName, target);
-        }
-
-        addImmovableTargets();
-        
-        // make our Package targets reflect what is actually on disk
-        // note that we consider this on-disk version the master
-        // version so if we have a class target called Foo but we
-        // discover a directory call Foo, a PackageTarget will be
-        // inserted to replace the ClassTarget
-        File subDirs[] = getPath().listFiles(new SubPackageFilter());
-        
-        for (int i = 0; i < subDirs.length; i++) {
-            // first check if the directory name would be a valid package name
-            if (!JavaNames.isIdentifier(subDirs[i].getName()))
-                continue;
-
-            Target target = propTargets.get(subDirs[i].getName());
-
-            if (target == null || !(target instanceof PackageTarget)) {
-                target = new PackageTarget(this, subDirs[i].getName());
+            catch (Exception e) {
                 synchronized (this)
                 {
-                    targetsToPlace.add(target);
+                    Debug.reportError("Error loading from package file " + packageFile + ": " + e, e);
                 }
+                return;
             }
 
-            addTarget(target);
-        }
-        
-        // If BlueJ, look for CSS targets:
-        if (!Config.isGreenfoot())
-        {
-            File cssFiles[] = getPath().listFiles(p -> p.getName().endsWith(".css"));
-            if(cssFiles != null)
-            {
-                for (File cssFile : cssFiles)
+            for (int i = 0; i < numTargets; i++) {
+                Target target;
+                String type = lastSavedProps.getProperty("target" + (i + 1) + ".type");
+                String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
+
+                if ("PackageTarget".equals(type))
                 {
-                    Target target = propTargets.get(cssFile.getName());
-                    if (target == null || !(target instanceof CSSTarget))
+                    target = new PackageTarget(this, identifierName);
+                }
+                else if ("CSSTarget".equals(type))
+                {
+                    target = new CSSTarget(this, new File(getPath(), identifierName));
+                }
+                else if ("TextTarget".equals(type))
+                {
+                    target = new TextFileTarget(this, new File(getPath(), identifierName));
+                }
+                else if ("ExternalFileTarget".equals(type))
+                {
+                    target = new ExternalFileTarget(this, new File(getPath(), identifierName));
+                }
+                else
+                {
+                    target = new ClassTarget(this, identifierName);
+                }
+
+                target.load(lastSavedProps, "target" + (i + 1));
+                propTargets.put(identifierName, target);
+            }
+
+            addImmovableTargets();
+
+            // make our Package targets reflect what is actually on disk
+            // note that we consider this on-disk version the master
+            // version so if we have a class target called Foo but we
+            // discover a directory call Foo, a PackageTarget will be
+            // inserted to replace the ClassTarget
+            File subDirs[] = getPath().listFiles(new SubPackageFilter());
+
+            for (int i = 0; i < subDirs.length; i++) {
+                // first check if the directory name would be a valid package name
+                if (!JavaNames.isIdentifier(subDirs[i].getName()))
+                    continue;
+
+                Target target = propTargets.get(subDirs[i].getName());
+
+                if (target == null || !(target instanceof PackageTarget)) {
+                    target = new PackageTarget(this, subDirs[i].getName());
+                    synchronized (this)
                     {
-                        target = new CSSTarget(this, cssFile);
-                        synchronized (this)
-                        {
-                            targetsToPlace.add(target);
-                        }
+                        targetsToPlace.add(target);
                     }
-                    addTarget(target);
+                }
+
+                addTarget(target);
+            }
+
+            // If BlueJ, look for CSS targets:
+            if (!Config.isGreenfoot())
+            {
+                File cssFiles[] = getPath().listFiles(p -> p.getName().endsWith(".css"));
+                if(cssFiles != null)
+                {
+                    for (File cssFile : cssFiles)
+                    {
+                        Target target = propTargets.get(cssFile.getName());
+                        if (target == null || !(target instanceof CSSTarget))
+                        {
+                            target = new CSSTarget(this, cssFile);
+                            synchronized (this)
+                            {
+                                targetsToPlace.add(target);
+                            }
+                        }
+                        addTarget(target);
+                    }
                 }
             }
-        }
 
-        // If BlueJ, look for External File targets (as listed via BlueJ extensions):
-        if (!Config.isGreenfoot())
-        {
-            // Retrieve the external file extensions allowed by BlueJ extensions for this project
-            // We only do so when the list has been initialised.
-            if(getProject().getProjectExternalFileOpenMap() != null)
+            // Retrieve the list of external files extensions that can be dealt with by a launcher
+            // exposed by a BlueJ extension -- we need to check text files and external files against that list.
+            Set<String> externalFileExtensions = getProject().getProjectExternalFileOpenMap().keySet();
+
+            // Display files set as plain text file (in BlueJ's preferences)
+            // Note: if the file type is assigned to a launcher by a BlueJ extension,
+            // the extension takes precedence.
+            if (!Config.isGreenfoot())
             {
-                Set<String> allowedExtFileExtensions = getProject().getProjectExternalFileOpenMap().keySet();
+                // Retrieve the plain text file extensions set up in BlueJ's preferences
+                List<String> plainTextFileExtensions = PrefMgr.getEditorFormattedTextFileExtensionsList();
                 File[] allFiles = getPath().listFiles();
                 if(allFiles != null)
                 {
                     for (File f : allFiles)
                     {
-                        if (f.getName().contains("."))
+                        // Don't do anything special if the the file is the readme file
+                        if(f.getName().trim().equalsIgnoreCase(readmeName))
+                            continue;
+
+                        String fExt = Utility.getFileExtension(f.getName()).toLowerCase();
+                        if (fExt.length() > 0)
                         {
-                            String fExt = f.getName().substring(f.getName().lastIndexOf(".")).toLowerCase().trim();
-                            if (allowedExtFileExtensions.contains(fExt))
+                            if (plainTextFileExtensions.contains(fExt) && !externalFileExtensions.contains(fExt))
                             {
                                 Target target = propTargets.get(f.getName());
-                                if (target == null || !(target instanceof ExternalFileTarget))
+                                if (target == null || !(target instanceof TextFileTarget))
                                 {
-                                    target = new ExternalFileTarget(this, f);
+                                    target = new TextFileTarget(this, f);
                                     synchronized (this)
                                     {
                                         targetsToPlace.add(target);
@@ -858,141 +873,188 @@ public final class Package
                     }
                 }
             }
-        }
 
-        // now look for Java source files that may have been
-        // added to the directory
-        Set<String> interestingSet = findTargets(getPath());
 
-        // also we migrate targets from propTargets across
-        // to our real list of targets in this loop.
-        Iterator<String> it = interestingSet.iterator();
-        while (it.hasNext()) {
-            String targetName = it.next();
-
-            Target target = propTargets.get(targetName);
-            if (target == null || !(target instanceof ClassTarget)) {
-                target = new ClassTarget(this, targetName);
-                synchronized (this)
+            // If BlueJ, look for External File targets (as listed via BlueJ extensions):
+            if (!Config.isGreenfoot())
+            {
+                // Retrieve the external file extensions allowed by BlueJ extensions for this project
+                // We only do so when the list has been initialised.
+                if(getProject().getProjectExternalFileOpenMap() != null)
                 {
-                    targetsToPlace.add(target);
-                }
-            }
-            addTarget(target);
-        }
-
-        if (!recorded)
-        {
-            DataCollector.packageOpened(this);
-            recorded = true;
-        }
-
-
-        List<Target> targetsCopy;
-        synchronized (this)
-        {
-            targetsCopy = targets.toList();
-        }
-        
-        // Start with all classes in the normal (compiled) state.
-        for (Target target : targetsCopy) {
-            if (target instanceof ClassTarget) {
-                ClassTarget ct = (ClassTarget) target;
-                ct.setState(State.COMPILED);
-            }
-        }
-
-        // Fix up dependency information
-        for (int i = 0; i < numDependencies; i++) {
-            String type = lastSavedProps.getProperty("dependency" + (i + 1) + ".type");
-
-            if ("UsesDependency".equals(type)) {
-                try
-                {
-                    UsesDependency newDep = new UsesDependency(this, lastSavedProps, "dependency" + (i + 1));
-                    addDependency(newDep, false);
-                }
-                catch (Dependency.DependencyNotFoundException e)
-                {
-                    Debug.reportError(e);
-                }
-            }
-        }
-        recalcArrows();
-
-        // Update class states. We do this before updating roles (or anything else
-        // which analyses the source) because the analysis does symbol resolution, and
-        // that depends on having the correct compiled state.
-        LinkedList<ClassTarget> invalidated = new LinkedList<ClassTarget>();
-        for (Target target : targetsCopy) {
-
-            if (target instanceof ClassTarget) {
-                ClassTarget ct = (ClassTarget) target;
-                if (ct.isCompiled() && !ct.upToDate()) {
-                    ct.setState(State.NEEDS_COMPILE);
-                    invalidated.add(ct);
-                }
-            }
-        }
-        
-        while (! invalidated.isEmpty()) {
-            ClassTarget ct = invalidated.removeFirst();
-            for (Dependency dependent : ct.dependentsAsList()) {
-                DependentTarget dt = dependent.getFrom();
-                if (dt instanceof ClassTarget) {
-                    ClassTarget dep = (ClassTarget) dt;
-                    if (dep.isCompiled() && dep.hasSourceCode()) {
-                        dep.setState(State.NEEDS_COMPILE);
-                        invalidated.add(dep);
+                    File[] allFiles = getPath().listFiles();
+                    if(allFiles != null)
+                    {
+                        for (File f : allFiles)
+                        {
+                            // Don't do anything special if the the file is the readme file
+                            if(f.getName().trim().equalsIgnoreCase(readmeName))
+                                continue;
+                            
+                            String fExt = Utility.getFileExtension(f.getName()).toLowerCase();
+                            if (fExt.length() > 0)
+                            {
+                                if (externalFileExtensions.contains(fExt))
+                                {
+                                    Target target = propTargets.get(f.getName());
+                                    if (target == null || !(target instanceof ExternalFileTarget))
+                                    {
+                                        target = new ExternalFileTarget(this, f);
+                                        synchronized (this)
+                                        {
+                                            targetsToPlace.add(target);
+                                        }
+                                    }
+                                    addTarget(target);
+                                }
+                            }
+                        }
                     }
                 }
             }
-        }
-        
-        // Update class roles
-        for (Target target : targetsCopy) {
 
-            if (target instanceof ClassTarget) {
-                ClassTarget ct = (ClassTarget) target;
-                if (ct.isCompiled()) {
-                    Class<?> cl = loadClass(ct.getQualifiedName());
-                    ct.determineRole(cl);
-                    ct.analyseDependencies(cl);
-                    ct.analyseTypeParams(cl);
-                    if (cl == null) {
+            // now look for Java source files that may have been
+            // added to the directory
+            Set<String> interestingSet = findTargets(getPath());
+
+            // also we migrate targets from propTargets across
+            // to our real list of targets in this loop.
+            Iterator<String> it = interestingSet.iterator();
+            while (it.hasNext()) {
+                String targetName = it.next();
+
+                Target target = propTargets.get(targetName);
+                if (target == null || !(target instanceof ClassTarget)) {
+                    target = new ClassTarget(this, targetName);
+                    synchronized (this)
+                    {
+                        targetsToPlace.add(target);
+                    }
+                }
+                addTarget(target);
+            }
+
+            if (!recorded)
+            {
+                DataCollector.packageOpened(this);
+                recorded = true;
+            }
+
+
+            List<Target> targetsCopy;
+            synchronized (this)
+            {
+                targetsCopy = targets.toList();
+            }
+
+            // Start with all classes in the normal (compiled) state.
+            for (Target target : targetsCopy) {
+                if (target instanceof ClassTarget) {
+                    ClassTarget ct = (ClassTarget) target;
+                    ct.setState(State.COMPILED);
+                }
+            }
+
+            // Fix up dependency information
+            for (int i = 0; i < numDependencies; i++) {
+                String type = lastSavedProps.getProperty("dependency" + (i + 1) + ".type");
+
+                if ("UsesDependency".equals(type)) {
+                    try
+                    {
+                        UsesDependency newDep = new UsesDependency(this, lastSavedProps, "dependency" + (i + 1));
+                        addDependency(newDep, false);
+                    }
+                    catch (Dependency.DependencyNotFoundException e)
+                    {
+                        Debug.reportError(e);
+                    }
+                }
+            }
+            recalcArrows();
+
+            // Update class states. We do this before updating roles (or anything else
+            // which analyses the source) because the analysis does symbol resolution, and
+            // that depends on having the correct compiled state.
+            LinkedList<ClassTarget> invalidated = new LinkedList<ClassTarget>();
+            for (Target target : targetsCopy) {
+
+                if (target instanceof ClassTarget) {
+                    ClassTarget ct = (ClassTarget) target;
+                    if (ct.isCompiled() && !ct.upToDate()) {
                         ct.setState(State.NEEDS_COMPILE);
-                    }
-                }
-                else {
-                    ct.analyseSource();
-                    try {
-                        if ( !ct.getSourceType().equals(SourceType.Stride))
-                            ct.enforcePackage(getQualifiedName());
-                    }
-                    catch (IOException ioe) {
-                        Debug.message("Error enforcing class package: " + ioe.getLocalizedMessage());
+                        invalidated.add(ct);
                     }
                 }
             }
+
+            while (! invalidated.isEmpty()) {
+                ClassTarget ct = invalidated.removeFirst();
+                for (Dependency dependent : ct.dependentsAsList()) {
+                    DependentTarget dt = dependent.getFrom();
+                    if (dt instanceof ClassTarget) {
+                        ClassTarget dep = (ClassTarget) dt;
+                        if (dep.isCompiled() && dep.hasSourceCode()) {
+                            dep.setState(State.NEEDS_COMPILE);
+                            invalidated.add(dep);
+                        }
+                    }
+                }
+            }
+
+            // Update class roles
+            for (Target target : targetsCopy) {
+
+                if (target instanceof ClassTarget) {
+                    ClassTarget ct = (ClassTarget) target;
+                    if (ct.isCompiled()) {
+                        Class<?> cl = loadClass(ct.getQualifiedName());
+                        ct.determineRole(cl);
+                        ct.analyseDependencies(cl);
+                        ct.analyseTypeParams(cl);
+                        if (cl == null) {
+                            ct.setState(State.NEEDS_COMPILE);
+                        }
+                    }
+                    else {
+                        ct.analyseSource();
+                        try {
+                            if ( !ct.getSourceType().equals(SourceType.Stride))
+                                ct.enforcePackage(getQualifiedName());
+                        }
+                        catch (IOException ioe) {
+                            Debug.message("Error enforcing class package: " + ioe.getLocalizedMessage());
+                        }
+                    }
+                }
+            }
+
+            // our associations are based on name so we mustn't deal with
+            // them until all classes/packages have been loaded
+            for (int i = 0; i < numTargets; i++) {
+                String assoc = lastSavedProps.getProperty("target" + (i + 1) + ".association");
+                String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
+
+                if (assoc != null) {
+                    Target t1 = getTarget(identifierName), t2 = getTarget(assoc);
+
+                    if (t1 != null && t2 != null && t1 instanceof DependentTarget) {
+                        DependentTarget dt = (DependentTarget) t1;
+                        dt.setAssociation((DependentTarget)t2);
+                    }
+                }
+            }
+
+            // update the flag
+            hasPackageTargetsLoaded = true;
         }
-
-        // our associations are based on name so we mustn't deal with
-        // them until all classes/packages have been loaded
-        for (int i = 0; i < numTargets; i++) {
-            String assoc = lastSavedProps.getProperty("target" + (i + 1) + ".association");
-            String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
-
-            if (assoc != null) {
-                Target t1 = getTarget(identifierName), t2 = getTarget(assoc);
-
-                if (t1 != null && t2 != null && t1 instanceof DependentTarget) {
-                    DependentTarget dt = (DependentTarget) t1;
-                    dt.setAssociation((DependentTarget)t2);
-                }
-            }
+        else
+        {
+            // nothing special to do, but in case it helps to debug BlueJ, keep a log information
+            Debug.log("Cannot instantiate Package.loadTargets() more than once for a package (package name: "+this.getBaseName()+")");
         }
     }
-    
+
     /**
      * Returns the file containing information about the package.
      * For BlueJ this is package.bluej (or for older versions bluej.pkg) 
@@ -1007,7 +1069,7 @@ public final class Package
     /**
      * Position a target which has been added, based on the layout file
      * (if an entry exists) or find a suitable position otherwise.
-     * 
+     *
      * @param t  the target to position
      */
     public void positionNewTarget(Target t)
@@ -1029,11 +1091,11 @@ public final class Package
         // If we get here, then we didn't find a location for the target
         getEditor().findSpaceForVertex(t);
     }
-    
+
     /**
      * Add our immovable targets (the readme file, and possibly a link to the
      * parent package)
-     */ 
+     */
     private void addImmovableTargets()
     {
         Target t = new ReadmeTarget(this);
@@ -1054,12 +1116,12 @@ public final class Package
 
     /**
      * Reload a package.
-     * 
+     *
      * This means we check the existing directory contents and compare it
      * against the targets we have in the package. Any new directories or java
      * source is added to the package. This function will not remove targets
      * that have had their corresponding on disk counterparts removed.
-     * 
+     *
      * Any new source files will have their package lines updated to match the
      * package we are in.
      */
@@ -1141,7 +1203,7 @@ public final class Package
         if (ed != null)
             ed.graphChanged();
     }
-    
+
     /**
      * ReRead the pkg file and update the position of the targets in the graph
      * @throws IOException
@@ -1168,7 +1230,7 @@ public final class Package
             }
             return;
         }
-        
+
         for (int i = 0; i < numTargets; i++) {
             String identifierName = props.getProperty("target" + (i + 1) + ".name");
             int x = Integer.parseInt(props.getProperty("target" + (i + 1) + ".x"));
@@ -1302,7 +1364,7 @@ public final class Package
         }
         getEditor().findSpaceForVertex(t);
         t.analyseSource();
-        
+
         DataCollector.addClass(this, t);
 
         return NO_ERROR;
@@ -1327,7 +1389,7 @@ public final class Package
 
     /**
      * Add a new package target to this package.
-     * 
+     *
      * @param packageName The basename of the package to add
      */
     public PackageTarget addPackage(String packageName)
@@ -1383,7 +1445,7 @@ public final class Package
 
         return l;
     }
-    
+
     /**
      * Find and compile all uncompiled classes, and get reports of compilation
      * status/results via the specified CompileObserver.
@@ -1392,7 +1454,7 @@ public final class Package
      * in the idle state (or at least not when executing user code). A new
      * project classloader will be created which can be used to load the
      * newly compiled classes, once they are ready.
-     * 
+     *
      * @param compObserver  An observer to be notified of compilation progress.
      *                  The callback methods will be called on the Swing EDT.
      *                  The 'endCompile' method will always be called; other
@@ -1452,7 +1514,7 @@ public final class Package
             }
         }
     }
-    
+
     /**
      * Find and compile all uncompiled classes.
      * <p>
@@ -1463,7 +1525,7 @@ public final class Package
      */
     public void compile(CompileReason reason, CompileType type)
     {
-        if (! currentlyCompiling) { 
+        if (! currentlyCompiling) {
             currentlyCompiling = true;
             compile(new FXCompileObserver() {
                 // The return of this method will be ignored,
@@ -1471,11 +1533,11 @@ public final class Package
                 @Override
                 @OnThread(Tag.FXPlatform)
                 public boolean compilerMessage(Diagnostic diagnostic, CompileType type) { return false; }
-                
+
                 @Override
                 @OnThread(Tag.FXPlatform)
                 public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence) { }
-                
+
                 @Override
                 @OnThread(Tag.FXPlatform)
                 public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type2, int compilationSequence)
@@ -1495,7 +1557,7 @@ public final class Package
             queuedReason = reason;
         }
     }
-    
+
     /**
      * Compile a single class.
      */
@@ -1503,7 +1565,7 @@ public final class Package
     {
         compile(ct, false, null, reason, type);
     }
-    
+
     /**
      * Compile a single class.
      */
@@ -1637,7 +1699,7 @@ public final class Package
             }
         }
     }
-    
+
     /**
      * Compile a class together with its dependencies, as necessary.
      */
@@ -1648,7 +1710,7 @@ public final class Package
         }
 
         Set<ClassTarget> toCompile = new HashSet<ClassTarget>();
-        
+
         try {
             List<ClassTarget> queue = new LinkedList<ClassTarget>();
             toCompile.add(t);
@@ -1732,7 +1794,7 @@ public final class Package
         showMessage("compile-while-executing");
         return false;
     }
-    
+
     /**
      * Compile the package, but only when the debugger is in an idle state.
      * @param specificTarget The single classtarget to compile; if null then will compile whole package.
@@ -1770,9 +1832,9 @@ public final class Package
                         }
                     }
                 };
-                
+
                 getDebugger().addDebuggerListener(dlistener);
-                
+
                 // Potential race: the debugger may have gone idle just before we added the listener.
                 // Check for that now:
                 if (isDebuggerIdle()) {
@@ -1786,7 +1848,7 @@ public final class Package
 
     /**
      * Generate documentation for this package.
-     * 
+     *
      * @return "" if everything was alright, an error message otherwise.
      */
     public String generateDocumentation()
@@ -1798,7 +1860,7 @@ public final class Package
 
     /**
      * Generate documentation for class in this ClassTarget.
-     * 
+     *
      * @param ct
      *            the class to generate docs for
      */
@@ -1879,7 +1941,7 @@ public final class Package
 
     /**
      * remove the arrow representing the given dependency
-     * 
+     *
      * @param d  the dependency to remove
      */
     @OnThread(Tag.FXPlatform)
@@ -1955,7 +2017,7 @@ public final class Package
             from.getEditor().removeExtendsClass(info);
         }
     }
-    
+
     /**
      * Lay out the arrows between targets.
      */
@@ -1975,7 +2037,7 @@ public final class Package
 
     /**
      * Return the target with name "identifierName".
-     * 
+     *
      * @param identifierName
      *            the unique name of a target.
      * @return the target with name "tname" if existent, null otherwise.
@@ -1991,7 +2053,7 @@ public final class Package
 
     /**
      * Return the dependent target with name "identifierName".
-     * 
+     *
      * @param identifierName
      *            the unique name of a target.
      * @return the target with name "tname" if existent and if it is a
@@ -2009,7 +2071,7 @@ public final class Package
         return null;
     }
 
-    
+
     /**
      * Returns an ArrayList of ClassTargets holding all targets of this package.
      * @return a not null but possibly empty array list of ClassTargets for this package.
@@ -2059,7 +2121,7 @@ public final class Package
 
     /**
      * Test whether a file instance denotes a BlueJ or Greenfoot package directory depending on which mode we are in.
-     * 
+     *
      * @param f
      *            the file instance that is tested for denoting a BlueJ package.
      * @return true if f denotes a directory and a BlueJ package.
@@ -2069,10 +2131,10 @@ public final class Package
     {
         if(Config.isGreenfoot())
             return GreenfootProjectFile.exists(f);
-        else 
+        else
             return BlueJPackageFile.exists(f);
     }
-    
+
     /**
      * Test whether this name is the name of a package file.
      */
@@ -2081,7 +2143,7 @@ public final class Package
     {
         if(Config.isGreenfoot())
             return GreenfootProjectFile.isProjectFileName(name);
-        else 
+        else
             return BlueJPackageFile.isPackageFileName(name);
     }
 
@@ -2125,7 +2187,7 @@ public final class Package
      * code with the relevant line highlighted.
      *
      * Note: source name is the unqualified name of the file (no path attached)
-     * 
+     *
      * @return true if the debugger display is already taken care of, or
      * false if you still want to show the ExecControls window afterwards.
      */
@@ -2143,7 +2205,7 @@ public final class Package
             {
                 getUI().highlightObject(currentObject);
             }
-            
+
             return targetEditor.setStepMark(lineNo, msg, reason.isSuspension(), thread);
         }
         else if (reason == ShowSourceReason.BREAKPOINT_HIT) {
@@ -2161,13 +2223,13 @@ public final class Package
     public void showSource(String sourcename, int lineNo)
     {
         String msg = " ";
-        
+
         boolean bringToFront = !sourcename.equals(lastSourceName);
         lastSourceName = sourcename;
 
         showEditorMessage(new File(getPath(), sourcename).getPath(), lineNo, msg, false, bringToFront);
     }
-    
+
     /**
      * An interface for message "calculators" which can produce enhanced diagnostic messages when
      * given a reference to the editor in which a compilation error occurred.
@@ -2177,28 +2239,28 @@ public final class Package
         /**
          * Produce a diagnostic message for the given editor.
          * This should produce something half-way helpful if null is passed.
-         * 
+         *
          * @param e  The editor where the original error occurred (null if it cannot be determined).
          */
         public String calculateMessage(Editor e);
     }
-    
+
     /**
      * Attempt to display (in the corresponding editor) an error message associated with a
      * specific line in a class. This is done by opening the class's source, highlighting the line
      * and showing the message in the editor's information area. If the filename specified does
      * not exist, the message is not shown.
-     * 
+     *
      * @return true if the message was displayed; false if there was no suitable class.
      */
     private boolean showEditorMessage(String filename, int lineNo, final String message,
-            boolean beep, boolean bringToFront)
+                                      boolean beep, boolean bringToFront)
     {
         Editor targetEditor = editorForTarget(filename, bringToFront);
         if (targetEditor == null)
         {
             Debug.message("Error or exception for source not in project: " + filename + ", line " +
-                    lineNo + ": " + message);
+                lineNo + ": " + message);
             return false;
         }
 
@@ -2210,7 +2272,7 @@ public final class Package
      * Find or open the Editor for a given source file. The editor is opened and displayed if it is not
      * currently visible. If the source file is in another package, a package editor frame will be
      * opened for that package.
-     * 
+     *
      * @param filename   The source file name, which should be a full absolute path
      * @param bringToFront  True if the editor should be brought to the front of the window z-order
      * @return  The editor for the given source file, or null if there is no editor.
@@ -2223,21 +2285,21 @@ public final class Package
         }
 
         ClassTarget ct = (ClassTarget) t;
-        
+
         Editor targetEditor = ct.getEditor();
         if (targetEditor != null) {
             if (! targetEditor.isOpen() || bringToFront) {
                 ct.open();;
             }
         }
-        
+
         return targetEditor;
     }
-    
+
     /**
      * Find the target for a given source file. If the target is in another package, a package editor
      * frame is opened for the package (if not open already).
-     * 
+     *
      * @param filename  The source file name
      * @return  The corresponding target, or null if the target doesn't exist.
      */
@@ -2247,17 +2309,17 @@ public final class Package
         if (fullName == null) {
             return null;
         }
-        
+
         String packageName = JavaNames.getPrefix(fullName);
         String className = JavaNames.getBase(fullName);
-        
+
         Target t = null;
 
         // check if the error is from a file belonging to another package
         if (! packageName.equals(getQualifiedName())) {
 
             Package pkg = getProject().getPackage(packageName);
-            
+
             if (pkg != null) {
                 PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
 
@@ -2273,10 +2335,10 @@ public final class Package
         else {
             t = getTarget(className);
         }
-        
+
         return t;
     }
-    
+
     /**
      * An enumeration for indicating whether a compilation diagnostic was actually displayed to the
      * user.
@@ -2286,10 +2348,10 @@ public final class Package
         // Reminds me of http://thedailywtf.com/Articles/What_Is_Truth_0x3f_.aspx :-)
         ERROR_SHOWN, ERROR_NOT_SHOWN, EDITOR_NOT_FOUND
     }
-    
+
     /**
      * Display a compiler diagnostic (error or warning) in the appropriate editor window.
-     * 
+     *
      * @param diagnostic   The diagnostic to display
      * @param messageCalc  The message "calculator", which returns a modified version of the message;
      *                     may be null, in which case the original message is shown unmodified.
@@ -2302,12 +2364,12 @@ public final class Package
         if (fileName == null) {
             return ErrorShown.EDITOR_NOT_FOUND;
         }
-        
+
         Target target = getTargetForSource(fileName);
         if (! (target instanceof ClassTarget)) {
             return ErrorShown.EDITOR_NOT_FOUND;
         }
-        
+
         ClassTarget t = (ClassTarget) target;
 
         Editor targetEditor = t.getEditor();
@@ -2315,7 +2377,7 @@ public final class Package
             if (messageCalc != null) {
                 diagnostic.setMessage(messageCalc.calculateMessage(targetEditor));
             }
-            
+
             if (project.isClosing()) {
                 return ErrorShown.ERROR_NOT_SHOWN;
             }
@@ -2324,7 +2386,7 @@ public final class Package
         }
         else {
             Debug.message(t.getDisplayName() + ", line" + diagnostic.getStartLine() +
-                    ": " + diagnostic.getMessage());
+                ": " + diagnostic.getMessage());
             return ErrorShown.EDITOR_NOT_FOUND;
         }
     }
@@ -2340,7 +2402,7 @@ public final class Package
             msg = Config.getString("debugger.accessibility.breakpoint");
             msg = msg.replace("$", thread.getName());
         }
-        
+
         if (!showSource(thread, classSourceName, lineNumber, ShowSourceReason.BREAKPOINT_HIT, msg, currentObject))
         {
             getProject().getExecControls().show();
@@ -2360,7 +2422,7 @@ public final class Package
             msg = breakpoint ? Config.getString("debugger.accessibility.breakpoint") : Config.getString("debugger.accessibility.paused");
             msg = msg.replace("$", thread.getName());
         }
-        
+
         ShowSourceReason reason = breakpoint ? ShowSourceReason.BREAKPOINT_HIT : ShowSourceReason.STEP_OR_HALT;
         if (!showSource(thread, classSourceName, lineNumber, reason, msg, currentObject))
         {
@@ -2377,7 +2439,7 @@ public final class Package
     {
         showSource(thread, sourceName, lineNumber, ShowSourceReason.FRAME_SELECTED, null, currentObject);
     }
-    
+
     /**
      * Display an exception message. This is almost the same as "errorMessage"
      * except for different help texts.
@@ -2389,10 +2451,10 @@ public final class Package
             reportException(exception.getText());
             return;
         }
-        
+
         String message = text + ":\n" + exception.getText();
         List<SourceLocation> stack = exception.getStack();
-        
+
         if ((stack == null) || (stack.size() == 0)) {
             // Stack empty or missing. This can happen when an exception is
             // thrown from the code pad for instance.
@@ -2422,10 +2484,10 @@ public final class Package
             showMessageWithText("error-in-file", loc.getClassName() + ":" + loc.getLineNumber() + "\n" + message);
         }
     }
-    
+
     /**
      * Displays the given class at the given line number (due to an exception, usually clicked-on stack trace).
-     * 
+     *
      *  Simpler than the other exceptionMessage method because it requires less details 
      */
     public void exceptionMessage(String className, int lineNumber)
@@ -2449,20 +2511,20 @@ public final class Package
      * <p>
      * If it is not in a jar file it returns the original resource path
      * (URL).
-     * 
+     *
      * @param c  The class to get the path to
      * @return A string indicating the path of the jar file (if applicable
      * and if not, it returns the path/URL to the resource)
      */
     protected static String getResourcePath(Class<?> c)
-    { 
+    {
         URL srcUrl = c.getResource(c.getSimpleName()+".class");
         try {
             if (srcUrl != null) {
                 if (srcUrl.getProtocol().equals("file")) {
                     File srcFile = new File(srcUrl.toURI());
                     return srcFile.toString();
-                }  
+                }
                 if (srcUrl.getProtocol().equals("jar")){
                     //it should be of this format
                     //jar:file:/path!/class 
@@ -2471,7 +2533,7 @@ public final class Package
                     if (subUrl.startsWith("file:")) {
                         return new File(new URI(subUrl)).toString();
                     }
-                    
+
                     if (classIndex!=-1){
                         return srcUrl.toString().substring(4, classIndex);
                     }
@@ -2487,7 +2549,7 @@ public final class Package
         }
         return srcUrl.toString();
     }
-    
+
     /**
      * Check whether a loaded class was actually loaded from the specified class file
      * @param c  The loaded class
@@ -2520,7 +2582,7 @@ public final class Package
         }
         return true;
     }
-    
+
     // ---- bluej.compiler.CompileObserver interfaces ----
 
     /**
@@ -2533,7 +2595,7 @@ public final class Package
         implements FXCompileObserver
     {
         protected List<FXCompileObserver> chainedObservers;
-        
+
         /**
          * Construct a new QuietPackageCompileObserver. The chained observers (if
          * non-empty list) are notified about each event.
@@ -2542,7 +2604,7 @@ public final class Package
         {
             this.chainedObservers = new ArrayList<>(chainedObservers);
         }
-        
+
         private void markAsCompiling(CompileInputFile[] sources, int compilationSequence)
         {
             for (int i = 0; i < sources.length; i++) {
@@ -2628,7 +2690,7 @@ public final class Package
             }
             return shown;
         }
-        
+
         private void errorMessage(String filename, int [] errorPosition, String message, CompileType type)
         {
             // Send a compilation Error event to extensions.
@@ -2684,7 +2746,7 @@ public final class Package
                     }
                 }
                 t.setQueued(false);
-                
+
                 if (t.isCompiled())
                 {
                     //check if there already exists a class in a library with that name 
@@ -2722,13 +2784,13 @@ public final class Package
             {
                 classTarget.analyseAfterCompile();
             }
-            
+
             if (type.keepClasses())
             {
                 setStatus(compileDone);
             }
             fireChangedEvent();
-            
+
             // Send a compilation done event to extensions.
             EventType eventType = successful ? CompileEvent.EventType.COMPILE_DONE_EVENT : CompileEvent.EventType.COMPILE_FAILED_EVENT;
             CompileEvent aCompileEvent = new CompileEvent(eventType, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
@@ -2747,7 +2809,7 @@ public final class Package
     private class PackageCompileObserver extends QuietPackageCompileObserver
     {
         private int numErrors = 0;
-        
+
         /**
          * Construct a new PackageCompileObserver. The chained observer (if specified)
          * is notified when the compilation ends.
@@ -2756,14 +2818,14 @@ public final class Package
         {
             super(chainedObservers);
         }
-        
+
         @Override
         public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
         {
             numErrors = 0;
             super.startCompile(sources, reason, type, compilationSequence);
         }
-        
+
         @Override
         public boolean compilerMessage(Diagnostic diagnostic, CompileType type)
         {
@@ -2773,10 +2835,10 @@ public final class Package
             }
             else {
                 return warningMessage(diagnostic.getFileName(), (int) diagnostic.getStartLine(),
-                        diagnostic.getMessage());
+                    diagnostic.getMessage());
             }
         }
-        
+
         /**
          * Display an error message associated with a specific line in a class.
          * This is done by opening the class's source, highlighting the line and
@@ -2854,7 +2916,7 @@ public final class Package
 
     /**
      * get history of invocation calls
-     * 
+     *
      * @return CallHistory object
      */
     public CallHistory getCallHistory()
@@ -2987,7 +3049,7 @@ public final class Package
                 }
             }
         }
-        
+
         return dependencies.stream().anyMatch(d -> d.getState() == State.HAS_ERROR && d.hasSourceCode());
     }
 }

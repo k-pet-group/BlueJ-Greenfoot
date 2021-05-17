@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2014,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2014,2016,2017,2019, 2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -70,6 +70,13 @@ public abstract class JavaParentNode extends ParentParsedNode
     
     protected Map<String,ParsedNode> classNodes = new HashMap<>();
     protected Map<String,Set<FieldNode>> variables = new HashMap<>();
+    
+    // This flag is specifically used for handling the indentation of switches statements:
+    // the scope in switch statements are for the whole switch, so we cannot
+    // add a new node in the scope stack when a statement label (case/default) is found. 
+    // Therefore, everything in a switch block node are statements, and the auto-indentation 
+    // works it out to check if we're in a switch block and do the proper indentation.
+    private boolean isSwitchBlockNode = false;
 
     public JavaParentNode(JavaParentNode parent)
     {
@@ -175,6 +182,18 @@ public abstract class JavaParentNode extends ParentParsedNode
     {
         return classNodes.get(name);
     }
+    
+    // Sets the flag indicating that the node is a Switch Block to true.
+    public void  markAsSwitchBlockNode()
+    {
+        isSwitchBlockNode = true;
+    }
+
+    // Gets the flag indicating if the node is a Switch Label Block 
+    public boolean isSwitchBlockNode()
+    {
+        return isSwitchBlockNode;
+    }    
 
     // =================== EntityResolver interface ====================
     

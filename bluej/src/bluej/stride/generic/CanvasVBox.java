@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -197,6 +197,10 @@ class CanvasVBox extends BetterVBox
         ChangeListener bk = (a, b, c) -> updateBackground();
         backgroundColorProperty.addListener(bk);
         backgroundRadiusProperty.addListener(bk);
+    }
+    
+    public SimpleStyleableDoubleProperty cssMinHeightProperty(){
+        return cssMinHeightProperty;
     }
 
     private void updateBackground()

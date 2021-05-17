@@ -118,12 +118,16 @@ prefmgr.edit.editorfontsize=Font size
 prefmgr.edit.colortransparency=Scope Highlighting
 prefmgr.edit.usesyntaxhilighting=Use syntax highlighting
 prefmgr.edit.autoindent=Auto-indent (Enter and Tab keys)
+prefmgr.edit.closecurly=Automatically add closing curly bracket '}'
 prefmgr.edit.displaylinenumbers=Display line numbers
 prefmgr.edit.checkfilechangeondisk=Check file changes on the disk
 prefmgr.edit.matchBrackets=Match brackets
 prefmgr.edit.keybindingstitle=Key Bindings
 prefmgr.edit.highlightLighter=Lighter
 prefmgr.edit.highlightDarker=Darker
+prefmgr.edit.editor.texteditor.title=Text editor settings
+prefmgr.edit.textfileextensions=Supported file extensions
+prefmgr.edit.texteditor.defaultFileExtensions=Reset to default
 
 # Extensions Preferences panel
 prefmgr.extensions.noContent=No extension content to display.
@@ -133,6 +137,7 @@ prefmgr.interface.title=Interface
 prefmgr.interface.language.title=Language selection
 prefmgr.interface.language=Language
 prefmgr.interface.language.restart=You will need to restart $APPNAME for the language setting to take effect.
+prefmgr.interface.text.restart=You will need to restart $APPNAME for the setting to take effect.
 prefmgr.accessibility.title=Accessibility
 prefmgr.accessibility.support=Accessibility Mode [only for use with screen readers]
 
@@ -561,7 +566,8 @@ debugger.execControls.terminateButtonText = Terminate
 
 debugger.options = Options
 debugger.hideSystemThreads = Hide system threads
-debugger.threadRunning = <html><center>Thread is running.<br>Threads must be stopped to view details.</html>
+debugger.threadRunning = <html><center>Thread is running or finished.<br>Threads must be stopped to view details.</html>
+debugger.noThreadSelected = No thread selected.
 
 # DialogManager labels
 

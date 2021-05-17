@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016,2017,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2015,2016,2017,2019,2020,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -190,7 +190,7 @@ class FrameMenuManager extends TabMenuManager
         {
             PrintProgressDialog printProgressDialog = new PrintProgressDialog(parentWindow, false);
             FXRunnable printAction = editor.getFrameEditor().printTo(job, PrefMgr.PrintSize.STANDARD, false, false, printProgressDialog.getWithinFileUpdater());
-            new Thread()
+            new Thread("Print Stride")
             {
                 @Override
                 @OnThread(value = Tag.FX, ignoreParent = true)

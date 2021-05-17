@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018,2019  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018,2019,2021  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,6 +46,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -147,6 +148,7 @@ public class VMCommsSimulation
     private World world;
     // Size of the shared memory file
     private final int fileSize;
+    private final AtomicBoolean userVMReadyForInvocations = new AtomicBoolean(false);
 
     /**
      * Construct a VMCommsSimulation.
@@ -156,9 +158,10 @@ public class VMCommsSimulation
      */
     @SuppressWarnings("resource")
     @OnThread(Tag.Any)
-    public VMCommsSimulation(ShadowProjectProperties projectProperties, String shmFilePath, int fileSize)
+    public VMCommsSimulation(ShadowProjectProperties projectProperties, String shmFilePath, int fileSize, int seqStart)
     {
         this.projectProperties = projectProperties;
+        this.seq = seqStart;
         worldRenderer = new WorldRenderer();
         try
         {
@@ -169,7 +172,7 @@ public class VMCommsSimulation
             putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
                     fileSize - VMCommsMain.USER_AREA_OFFSET_BYTES, false);
             
-            new Thread() {
+            new Thread("VMCommsSimulation") {
                 @OnThread(value = Tag.Worker,ignoreParent = true)
                 public void run()
                 {
@@ -198,6 +201,11 @@ public class VMCommsSimulation
             this.worldCounter += 1;
             this.world = world;
         }
+    }
+
+    public void markVMReady()
+    {
+        userVMReadyForInvocations.set(true);
     }
 
     public static enum PaintWhen { FORCE, IF_DUE }
@@ -380,14 +388,8 @@ public class VMCommsSimulation
                 }
 
                 // Write the status of the delay loop
-                if (delayLoopEntered == true)
-                {
-                    sharedMemory.put(1);
-                }
-                else
-                {
-                    sharedMemory.put(0);
-                }
+                sharedMemory.put(delayLoopEntered ? 1 : 0);
+                sharedMemory.put(userVMReadyForInvocations.get() ? 1 : 0);
             }
 
             putLock.release();
@@ -610,6 +612,7 @@ public class VMCommsSimulation
     @OnThread(Tag.Simulation)
     public void userCodeStarting()
     {
+        startOfCurExecution = System.currentTimeMillis();
     }
 
     /**
@@ -619,6 +622,7 @@ public class VMCommsSimulation
     @OnThread(Tag.Simulation)
     public void userCodeStopped(boolean suggestRepaint)
     {
+        startOfCurExecution = 0L;
         if (suggestRepaint)
         {
             paintRemote(PaintWhen.FORCE);

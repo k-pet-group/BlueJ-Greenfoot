@@ -266,8 +266,8 @@ public class CaseFrame extends SingleCanvasFrame
     public List<Frame> getValidPulledStatements()
     {
         List<Frame> contents = canvas.getBlockContents().filtered(f -> !(f instanceof BreakFrame));
-        contents.forEach(frame -> frame.setParentCanvas(null));
-        return contents;
+        // Returns a copy of the contents
+        return new ArrayList<>(contents);
     }
 
     public boolean isAlmostBlank()

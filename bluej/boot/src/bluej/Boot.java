@@ -59,7 +59,7 @@ public class Boot
     // and then the update-version target should be executed.
     public static final int BLUEJ_VERSION_MAJOR = 5;
     public static final int BLUEJ_VERSION_MINOR = 0;
-    public static final int BLUEJ_VERSION_RELEASE = 0;
+    public static final int BLUEJ_VERSION_RELEASE = 1;
     public static final String BLUEJ_VERSION_SUFFIX = "";
 
     // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
@@ -91,7 +91,7 @@ public class Boot
     private static final String JLAYER_MP3_JAR = "jl1.0.1.jar";
     // Jars that should be included with exported scenarios
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};
-    private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
+    private static final String[] greenfootUserJars = { "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext2.jar",
         "junit-*.jar", "hamcrest-core-1.3.jar", "hamcrest-library-1.3.jar", "bluej.jar",
         "classgraph-4.8.90.jar",
@@ -102,7 +102,7 @@ public class Boot
         "guava-17.0.jar",
         "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar"};
     private static final int greenfootUserBuildJars = 4;
-    public static String GREENFOOT_VERSION = "3.6.1";
+    public static String GREENFOOT_VERSION = "3.7.0";
     public static String GREENFOOT_API_VERSION = "3.0.0";
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
@@ -554,7 +554,7 @@ public class Boot
  
             // Construct a bluej.Main object. This starts BlueJ "proper".
             Class<?> mainClass = Class.forName("bluej.Main", true, runtimeLoader);
-            mainClass.getDeclaredConstructor().newInstance();
+            mainClass.getDeclaredConstructor(ClassLoader.class).newInstance(runtimeLoader);
             
         } catch (ClassNotFoundException | InstantiationException | NoSuchMethodException 
                 | InvocationTargetException | IllegalAccessException exc) {
@@ -727,7 +727,7 @@ public class Boot
         public void start(Stage s) throws Exception {
             Platform.setImplicitExit(false);
             s.setTitle("BlueJ");
-            new Thread(() -> subMain()).start();
+            new Thread(() -> subMain(), "subMain thread").start();
         }
         
     }
