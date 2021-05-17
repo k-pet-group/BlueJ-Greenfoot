@@ -138,7 +138,6 @@ public class IfFrame extends SandwichCanvasesFrame
         };
         elseIfCondition.setSimplePromptText("condition");
         elseIfCondition.setTargetType("boolean");
-        elseIfCondition.onTextPropertyChange(updateSidebarCurried("elseif "));
 
         if (slots != null) {
             if (slots.size() != 1) {
