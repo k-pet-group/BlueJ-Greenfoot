@@ -102,6 +102,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.CacheHint;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -287,6 +288,10 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             StackPane.setAlignment(cannotDropIcon, Pos.CENTER);
             StackPane stackPane = new StackPane(imageView, newLabel, cannotDropIcon);
             stackPane.setEffect(new DropShadow(10.0, 3.0, 3.0, Color.BLACK));
+            // Need to cache to speed up display when we move it around to follow the mouse:
+            stackPane.setCache(true);
+            stackPane.setCacheShape(true);
+            stackPane.setCacheHint(CacheHint.QUALITY);
             return stackPane;
         }
 
