@@ -982,3 +982,6 @@
 .var-frame .preview-semi {
    -fx-label-padding: 0 0 0 -1;
 }
+.break-frame .preview-semi {
+   -fx-label-padding: 0 0 0 -1;
+}
