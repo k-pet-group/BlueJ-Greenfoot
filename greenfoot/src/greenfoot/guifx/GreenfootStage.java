@@ -102,6 +102,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.CacheHint;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -276,18 +277,21 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         // The parameter types of the construction:
         private final JavaType[] paramTypes;
 
-        private Region makePreviewNode(ImageView imageView, String className)
+        private Region makePreviewNode(ImageView imageView, String invocation)
         {
             ImageView cannotDropIcon = new ImageView(this.getClass().getClassLoader().getResource("noParking.png").toExternalForm());
             cannotDropIcon.visibleProperty().bind(cannotDrop);
-            Text newLabel = new Text("new " + className + "()");
-            newLabel.setFill(Color.WHITE);
-            newLabel.setStroke(Color.WHITE);
+            Text newLabel = new Text(invocation);
+            newLabel.getStyleClass().add("actor-preview-text");
             
             StackPane.setAlignment(newLabel, Pos.TOP_CENTER);
             StackPane.setAlignment(cannotDropIcon, Pos.CENTER);
             StackPane stackPane = new StackPane(imageView, newLabel, cannotDropIcon);
             stackPane.setEffect(new DropShadow(10.0, 3.0, 3.0, Color.BLACK));
+            // Need to cache to speed up display when we move it around to follow the mouse:
+            stackPane.setCache(true);
+            stackPane.setCacheShape(true);
+            stackPane.setCacheHint(CacheHint.QUALITY);
             return stackPane;
         }
 
@@ -302,7 +306,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         public NewActor(ImageView imageView, DebuggerObject actorObject,
                 InvokerRecord ir, JavaType[] paramTypes)
         {
-            this.previewNode = makePreviewNode(imageView, "");
+            this.previewNode = makePreviewNode(imageView, ir.toExpression());
             this.actorObject = actorObject;
             this.invokerRecord = ir;
             this.paramTypes = paramTypes;
@@ -318,7 +322,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
          */
         public NewActor(ImageView imageView, String typeName)
         {
-            this.previewNode = makePreviewNode(imageView, typeName);
+            this.previewNode = makePreviewNode(imageView, "new " + typeName + "()");
             this.actorObject = null;
             this.invokerRecord = null;
             this.paramTypes = null;
@@ -669,6 +673,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         }
         debugHandler.simulationThreadResumeOnResetClick();
         saveTheWorldRecorder.recordingValid();
+        highlightObject(null);
     }
     
     /**
@@ -2927,6 +2932,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void highlightObject(DebuggerObject currentObject)
     {
         JavaType actorType = new GenTypeClass(new JavaReflective(Actor.class));

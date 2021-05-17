@@ -2087,12 +2087,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
         respondingToChange = true;
 
-        if (!saveState.isChanged()) {
+        if (!ignoreChanges && !saveState.isChanged()) {
             saveState.setState(Status.CHANGED);
             setChanged();
         }
 
-        if (linesRemoved > 0 || linesAdded > 0) // For a multi-line change, always compile:
+        if (!ignoreChanges && (linesRemoved > 0 || linesAdded > 0)) // For a multi-line change, always compile:
         {
             saveState.setState(Status.CHANGED);
             setChanged();
