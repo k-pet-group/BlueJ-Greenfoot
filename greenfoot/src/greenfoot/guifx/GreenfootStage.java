@@ -2932,6 +2932,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void highlightObject(DebuggerObject currentObject)
     {
         JavaType actorType = new GenTypeClass(new JavaReflective(Actor.class));
