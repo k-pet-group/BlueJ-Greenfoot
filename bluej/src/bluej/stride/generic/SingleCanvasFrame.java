@@ -221,11 +221,6 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
         return content -> sidebar.textProperty().set(prefix + "(" + content + ")");
     }
 
-    protected void setSidebar(String content)
-    {
-        sidebar.setText(content);
-    }
-
     @Override
     public double lowestCursorY()
     {
