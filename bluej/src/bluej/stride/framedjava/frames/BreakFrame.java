@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@
 package bluej.stride.framedjava.frames;
 
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -137,6 +138,9 @@ public class BreakFrame extends SingleLineFrame
     private void adjustOverlayBounds()
     {
         if (outer == null || rectangle == null || overlay == null)
+            return;
+        // Don't attempt to look up bounds while loading off-thread:
+        if (!Platform.isFxApplicationThread())
             return;
 
         final double ourX = getNode().localToScene(0, 0).getX();

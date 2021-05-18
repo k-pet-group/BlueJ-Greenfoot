@@ -573,7 +573,7 @@
 .switch-frame:bj-java-preview { -fx-background-color: switch-frame-java; -fx-border-color: switch-border-java; }
 .switch-frame-canvas:bj-non-empty, .try-catch-frame-canvas:bj-non-empty,
   .switch-frame-canvas:bj-non-empty:bj-java-preview, .try-catch-frame-canvas:bj-non-empty:bj-java-preview {
-   -bj-background-color: transparent; -bj-border-width: 0; -bj-border-color: transparent;
+   -bj-background-color: transparent; -bj-border-width: 1; -bj-border-color: frame-canvas-border;
 }
 .switch-sidelabel { -fx-text-fill: switch-sidelabel; }
 .switch-sidelabel:bj-java-preview { -fx-text-fill: switch-frame-java; }
@@ -980,5 +980,8 @@
    -fx-label-padding: 0 0 0 -5;
 }
 .var-frame .preview-semi {
+   -fx-label-padding: 0 0 0 -1;
+}
+.break-frame .preview-semi {
    -fx-label-padding: 0 0 0 -1;
 }

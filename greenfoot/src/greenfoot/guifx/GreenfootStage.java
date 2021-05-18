@@ -651,17 +651,20 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         //we pause before reset to prevent waiting too long in a delay between act frames
         debugHandler.getVmComms().pauseSimulation();
 
-        discardWorld();
         if (currentWorld != null && currentWorld.isCompiled()
                 && hasNoArgConstructor(currentWorld.getTypeReflective()))
         {
             // Must store this first, because if they have to terminate the VM it won't be available after:
-            String curWorld = currentWorld.getQualifiedName();
-            
+            ClassTarget curWorld = currentWorld;
+
             suggestTerminateIfAskingThenRun(() -> {
+                doWorldDiscard();
                 constructingWorld = true;
                 project.getTerminal().activate(true);
-                debugHandler.getVmComms().instantiateWorld(curWorld);
+                debugHandler.getVmComms().instantiateWorld(curWorld.getQualifiedName());
+                // currentWorld will have been set to null when the VM terminated,
+                // so we must set it back again:
+                currentWorld = curWorld;
             });
         }
         else if (constructingWorld && worldDisplay.isAsking())
@@ -669,8 +672,24 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             // Could be that we haven't got a world yet, but there is one being constructed
             // and waiting for an ask response: we should offer to terminate, but then
             // we deliberately won't make a new world (they can do it if they want it):
-            suggestTerminateIfAskingThenRun(() -> {});
+            suggestTerminateIfAskingThenRun(() -> {
+                doWorldDiscard();
+            });
         }
+        else
+        {
+            // Not a reset so much as a discard world:
+            doWorldDiscard();
+        }
+        
+    }
+
+    /**
+     * Helper method used by doReset() to discard the world
+     */
+    private void doWorldDiscard()
+    {
+        discardWorld();
         debugHandler.simulationThreadResumeOnResetClick();
         saveTheWorldRecorder.recordingValid();
         highlightObject(null);

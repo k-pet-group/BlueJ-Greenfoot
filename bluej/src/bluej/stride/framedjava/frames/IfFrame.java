@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -138,7 +138,6 @@ public class IfFrame extends SandwichCanvasesFrame
         };
         elseIfCondition.setSimplePromptText("condition");
         elseIfCondition.setTargetType("boolean");
-        elseIfCondition.onTextPropertyChange(updateSidebarCurried("elseif "));
 
         if (slots != null) {
             if (slots.size() != 1) {
