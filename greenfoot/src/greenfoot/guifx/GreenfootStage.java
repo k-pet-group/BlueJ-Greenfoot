@@ -306,7 +306,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         public NewActor(ImageView imageView, DebuggerObject actorObject,
                 InvokerRecord ir, JavaType[] paramTypes)
         {
-            this.previewNode = makePreviewNode(imageView, ir.toExpression());
+            this.previewNode = makePreviewNode(imageView, "");
             this.actorObject = actorObject;
             this.invokerRecord = ir;
             this.paramTypes = paramTypes;
