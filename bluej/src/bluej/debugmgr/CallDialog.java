@@ -36,6 +36,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.geometry.VPos;
@@ -185,7 +186,11 @@ public abstract class CallDialog extends Dialog<Void>
             }
             if (focusedTextField != null)
             {
-                options.show(focusedTextField, Side.LEFT, 0, 0);
+                Point2D screenPosition = obe.getScreenPosition();
+                // Shouldn't be null but fallback is to position it below the text field
+                if (screenPosition == null)
+                    screenPosition = focusedTextField.localToScreen(new Point2D(0, focusedTextField.getHeight()));
+                options.show(focusedTextField, screenPosition.getX(), screenPosition.getY());
             }
         }
     }
