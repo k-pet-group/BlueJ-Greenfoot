@@ -379,9 +379,7 @@
 .text-slot {
     -fx-padding: -2 -3 -1 -1;
 }
-.choice-slot {
-    -fx-padding: -1 -1 -1 -1;
-}
+
 .expression-slot-field {
     -fx-padding: -2 0 -1 0;
 }

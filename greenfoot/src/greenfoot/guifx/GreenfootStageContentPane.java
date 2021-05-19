@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2018  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2018,2021  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -85,6 +85,10 @@ class GreenfootStageContentPane extends Pane
             // Everyone can have what they want, width-wise:
             classDiagramWidth = idealClassDiagramWidth;
         }
+        
+        // To avoid some wrong GUI effect when OS scaling is not to 100%:
+        classDiagramWidth = snapSizeX(classDiagramWidth);
+        
         // Make sure the width is not smaller than a minimum required
         // to show the share button properly.
         classDiagramWidth = Math.max(classDiagramWidth, shareButtonWidth + 2 * CLASS_DIAGRAM_PADDING);
