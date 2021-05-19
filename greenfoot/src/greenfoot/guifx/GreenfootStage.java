@@ -1572,7 +1572,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             if (paused)
             { 
                 Point2D worldPos = worldDisplay.sceneToWorld(new Point2D(e.getSceneX(), e.getSceneY()));
-                pickRequest(worldPos.getX(), worldPos.getY(), PickType.CONTEXT_MENU);
+                pickRequest(worldPos, PickType.CONTEXT_MENU);
             }
         });
         worldDisplay.getImageView().addEventFilter(MouseEvent.ANY, e -> {
@@ -1591,7 +1591,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     hideContextMenu();
                     if (paused)
                     {
-                        pickRequest(worldPos.getX(), worldPos.getY(), PickType.LEFT_CLICK);
+                        pickRequest(worldPos, PickType.LEFT_CLICK);
                     }
                 }
                 eventType = MOUSE_CLICKED;
@@ -1603,7 +1603,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 {
                     // Begin a drag. We do this on MOUSE_PRESSED, because MOUSE_DRAG_DETECTED requires
                     // several pixels of movement, which might take us off the actor if it is small.
-                    pickRequest(worldPos.getX(), worldPos.getY(), PickType.DRAG);
+                    pickRequest(worldPos, PickType.DRAG);
                 }
             }
             else if (e.getEventType() == MouseEvent.MOUSE_RELEASED)
@@ -1755,21 +1755,21 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     /**
      * Performs a pick request on the debug VM at given coordinates.
      */
-    private void pickRequest(double x, double y, PickType pickType)
+    private void pickRequest(Point2D worldPosition, PickType pickType)
     {
         curPickType = pickType;
         Debugger debugger = project.getDebugger();
         // Bit hacky to pass positions as strings, but mirroring the values as integers
         // would have taken a lot of code changes to route through to VMReference:
-        DebuggerObject xObject = debugger.getMirror("" + (int) x);
-        DebuggerObject yObject = debugger.getMirror("" + (int) y);
+        DebuggerObject xObject = debugger.getMirror("" + (int) worldPosition.getX());
+        DebuggerObject yObject = debugger.getMirror("" + (int) worldPosition.getY());
         int thisPickId = nextPickId++;
         DebuggerObject pickIdObject = debugger.getMirror("" + thisPickId);
         String requestTypeString = pickType == PickType.DRAG ? "drag" : "";
         DebuggerObject requestTypeObject = debugger.getMirror(requestTypeString);
         // One pick at a time only:
         curPickRequest = thisPickId;
-        curPickPoint = new Point2D(x, y);
+        curPickPoint = worldPosition;
         
 
         // Need to find out which actors are at the point.  Do this in background thread to
