@@ -199,6 +199,12 @@ public abstract class CallDialog extends Dialog<Void>
                 if (screenPosition == null)
                     screenPosition = focusedTextField.localToScreen(new Point2D(0, focusedTextField.getHeight()));
                 actorPickMenu.show(focusedTextField, screenPosition.getX(), screenPosition.getY());
+                // Because the menu is shown for the text field, even if it's somewhere over the world,
+                // we actually need to focus the dialog again and the text field, in order for the menu
+                // to show properly.  Without this, it doesn't get highlighting properly on the menu items
+                // as you mouse over them:
+                ((Stage)focusedTextField.getScene().getWindow()).toFront();
+                focusedTextField.requestFocus();
             }
         }
     }
