@@ -1987,6 +1987,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     @Override
     public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence)
     {
+        // If project is null, this is the end of a compile left-over from a project
+        // that has just been closed; ignore it:
+        if (project == null)
+            return;
+        
         // Do a Garbage Collection to finalize any garbage JdiObjects, thereby
         // allowing objects on the remote VM to be garbage collected.
         System.gc();
