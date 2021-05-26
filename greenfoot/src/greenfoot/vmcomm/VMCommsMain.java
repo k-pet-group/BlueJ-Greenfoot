@@ -135,6 +135,7 @@ public class VMCommsMain implements Closeable
     private boolean delayLoop;
     private boolean vmReadyForInvocations = false;
     private int askId = -1;
+    private boolean workerWaiting = false;
 
     /**
      * Constructor for VMCommsMain. Creates a temporary file and maps it into memory.
@@ -480,7 +481,9 @@ public class VMCommsMain implements Closeable
         {
             try
             {
+                workerWaiting = true;
                 wait();
+                workerWaiting = false;
             }
             catch (InterruptedException ie)
             {
@@ -627,21 +630,31 @@ public class VMCommsMain implements Closeable
      * The debug VM has terminated.  We re-use the same shared memory file,
      * so we must reset our state ready for a new debug VM.
      */
-    public void vmTerminated()
+    @OnThread(Tag.VMEventHandler)
+    public synchronized void vmTerminated()
     {
+        // We should only interfere with the worker thread's state if it's currently in its waiting phase:
+        while (!workerWaiting)
+        {
+            try
+            {
+                wait();
+            }
+            catch (InterruptedException e)
+            {
+            }
+        }
         lastSeq.addAndGet(1000);
-        pendingCommands.clear();
+        pendingCommands.clear();        
         setSpeedCommandCount = 0;
         lastAnswer = -1;
         previousStoppedWithErrorCount = 0;
         prevWorldCounter = 0;
+        
         // Zero the buffer:
         sharedMemoryByte.position(0);
         sharedMemoryByte.put(new byte[fileSize], 0, fileSize);
-        synchronized (this)
-        {
-            vmReadyForInvocations = false;
-        }
+        vmReadyForInvocations = false;
     }
 
     /**
