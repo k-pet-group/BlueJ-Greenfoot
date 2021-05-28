@@ -1731,13 +1731,14 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     /**
      * An "ask" request has been received from the remote VM.
      * 
+     * @param askId The identification number of the ask request
      * @param promptCodepoints   the codepoints making up the prompt string.
      */
-    public void receivedAsk(int[] promptCodepoints)
+    public void receivedAsk(int askId, int[] promptCodepoints)
     {
         // Tell worldDisplay to ask:
         worldDisplay.ensureAsking(new String(promptCodepoints, 0, promptCodepoints.length), (String s) -> {
-            debugHandler.getVmComms().sendAnswer(s);
+            debugHandler.getVmComms().sendAnswer(askId, s);
         });
         // Make sure world is visible so that the ask pane is actually visible;
         // the world may not be visible if the ask is during world construction and there was not previously a world:
