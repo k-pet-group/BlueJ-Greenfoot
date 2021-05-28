@@ -321,7 +321,7 @@ public class VMCommsMain implements Closeable
         
         if (promptCodepoints != null && askId > lastAnswer)
         {
-            stage.receivedAsk(promptCodepoints);
+            stage.receivedAsk(askId, promptCodepoints);
             promptCodepoints = null;
         }
         else
@@ -512,12 +512,12 @@ public class VMCommsMain implements Closeable
     /**
      * Send an answer (after receving an "ask" request).
      */
-    public synchronized void sendAnswer(String answer)
+    public synchronized void sendAnswer(int askIdBeingAnswered, String answer)
     {
         Command answerCommand = new Command(COMMAND_ANSWERED, answer.codePoints().toArray());
         pendingCommands.add(answerCommand);
         // Remember that we've now answered:
-        lastAnswer = answerCommand.commandSequence;
+        lastAnswer = askIdBeingAnswered;
     }
     
     /**
