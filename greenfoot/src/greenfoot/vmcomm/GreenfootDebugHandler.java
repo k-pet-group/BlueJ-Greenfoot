@@ -60,6 +60,7 @@ import bluej.debugmgr.objectbench.ObjectBenchListener;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
+import javafx.geometry.Point2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -632,13 +633,13 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * @return    The name of the object as it is known to the debugger
      */
     @OnThread(Tag.FXPlatform)
-    public void addSelectedObjects(List<DebuggerObject> objects)
+    public void addSelectedObjects(List<DebuggerObject> objects, Point2D screenPosition)
     {
         NamedValue[] values = nameObjects(objects);
 
         for (ObjectBenchListener l : benchListeners)
         {
-            l.objectEvent(new ObjectBenchEvent(this, ObjectBenchEvent.OBJECT_SELECTED, values));
+            l.objectEvent(new ObjectBenchEvent(this, ObjectBenchEvent.OBJECT_SELECTED, values, screenPosition));
         }
     }
 

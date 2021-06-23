@@ -24,6 +24,7 @@ package bluej.debugmgr.objectbench;
 import java.util.*;
 
 import bluej.debugmgr.NamedValue;
+import javafx.geometry.Point2D;
 
 /**
  * The event which occurs when  performing actions with the ObjectBench.
@@ -34,17 +35,20 @@ import bluej.debugmgr.NamedValue;
 public class ObjectBenchEvent extends EventObject
 {
     public final static int OBJECT_SELECTED = 1;
-
+    
     // Can be multiple values in Greenfoot, where they can be on top of each other:
-    protected NamedValue[] values;
-    protected int id;
+    private final NamedValue[] values;
+    private final int id;
+    // Will be null outside Greenfoot:
+    private final Point2D screenPosition;
 
-    public ObjectBenchEvent(Object source, int id, NamedValue[] values)
+    public ObjectBenchEvent(Object source, int id, NamedValue[] values, Point2D screenPosition)
     {
         super(source);
 
         this.id = id;
         this.values = values;
+        this.screenPosition = screenPosition;
     }
 
     public int getID()
@@ -55,5 +59,14 @@ public class ObjectBenchEvent extends EventObject
     public NamedValue[] getValues()
     {
         return values;
+    }
+
+    /**
+     * If applicable (e.g. a Greenfoot actor) returns an array with X, Y position.
+     * If not applicable, returns null.
+     */
+    public Point2D getScreenPosition()
+    {
+        return screenPosition;
     }
 }

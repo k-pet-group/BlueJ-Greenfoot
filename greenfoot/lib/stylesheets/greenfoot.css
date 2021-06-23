@@ -209,3 +209,12 @@
 .control-panel .speed-panel {
     -fx-hgap: 10;
 }
+.actor-preview-text {
+    -fx-text-alignment: center;
+    -fx-font-size: 14pt;
+    -fx-font-weight: bold;
+    -fx-fill: white;
+    -fx-stroke: black;
+    -fx-stroke-type: outside;
+    -fx-stroke-width: 1px;
+}

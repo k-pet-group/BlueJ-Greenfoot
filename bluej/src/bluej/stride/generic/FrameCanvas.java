@@ -855,6 +855,9 @@ public class FrameCanvas implements FrameContentItem
         emptyFramePaddingPane.maxHeightProperty().bind(canvas.cssMinHeightProperty());
         emptyFramePaddingPane.prefHeightProperty().bind(canvas.cssMinHeightProperty());
         canvas.getChildren().add(emptyFramePaddingPane);
+        // Must be mouse transparent to avoid capturing clicks.  It's empty, but should probably also be invisible just in case:
+        emptyFramePaddingPane.setMouseTransparent(true);
+        emptyFramePaddingPane.setVisible(false);
        
         editorFrm = editor;
     }

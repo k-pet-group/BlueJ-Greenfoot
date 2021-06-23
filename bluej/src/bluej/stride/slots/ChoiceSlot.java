@@ -185,7 +185,6 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
             }  
         };
         curDisplay.prefWidthProperty().bind(calcWidth);
-        futureDisplay.prefWidthProperty().bind(calcWidth);
         dummyField.prefWidthProperty().bind(calcWidth);
         dummyField.translateXProperty().bind(new DoubleBinding() {
             { super.bind(curDisplay.fontProperty());

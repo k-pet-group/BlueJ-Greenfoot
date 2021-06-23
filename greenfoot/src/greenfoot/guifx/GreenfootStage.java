@@ -102,6 +102,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.CacheHint;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -276,18 +277,21 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         // The parameter types of the construction:
         private final JavaType[] paramTypes;
 
-        private Region makePreviewNode(ImageView imageView, String className)
+        private Region makePreviewNode(ImageView imageView, String invocation)
         {
             ImageView cannotDropIcon = new ImageView(this.getClass().getClassLoader().getResource("noParking.png").toExternalForm());
             cannotDropIcon.visibleProperty().bind(cannotDrop);
-            Text newLabel = new Text("new " + className + "()");
-            newLabel.setFill(Color.WHITE);
-            newLabel.setStroke(Color.WHITE);
+            Text newLabel = new Text(invocation);
+            newLabel.getStyleClass().add("actor-preview-text");
             
             StackPane.setAlignment(newLabel, Pos.TOP_CENTER);
             StackPane.setAlignment(cannotDropIcon, Pos.CENTER);
             StackPane stackPane = new StackPane(imageView, newLabel, cannotDropIcon);
             stackPane.setEffect(new DropShadow(10.0, 3.0, 3.0, Color.BLACK));
+            // Need to cache to speed up display when we move it around to follow the mouse:
+            stackPane.setCache(true);
+            stackPane.setCacheShape(true);
+            stackPane.setCacheHint(CacheHint.QUALITY);
             return stackPane;
         }
 
@@ -318,7 +322,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
          */
         public NewActor(ImageView imageView, String typeName)
         {
-            this.previewNode = makePreviewNode(imageView, typeName);
+            this.previewNode = makePreviewNode(imageView, "new " + typeName + "()");
             this.actorObject = null;
             this.invokerRecord = null;
             this.paramTypes = null;
@@ -647,17 +651,20 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         //we pause before reset to prevent waiting too long in a delay between act frames
         debugHandler.getVmComms().pauseSimulation();
 
-        discardWorld();
         if (currentWorld != null && currentWorld.isCompiled()
                 && hasNoArgConstructor(currentWorld.getTypeReflective()))
         {
             // Must store this first, because if they have to terminate the VM it won't be available after:
-            String curWorld = currentWorld.getQualifiedName();
-            
+            ClassTarget curWorld = currentWorld;
+
             suggestTerminateIfAskingThenRun(() -> {
+                doWorldDiscard();
                 constructingWorld = true;
                 project.getTerminal().activate(true);
-                debugHandler.getVmComms().instantiateWorld(curWorld);
+                debugHandler.getVmComms().instantiateWorld(curWorld.getQualifiedName());
+                // currentWorld will have been set to null when the VM terminated,
+                // so we must set it back again:
+                currentWorld = curWorld;
             });
         }
         else if (constructingWorld && worldDisplay.isAsking())
@@ -665,10 +672,27 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             // Could be that we haven't got a world yet, but there is one being constructed
             // and waiting for an ask response: we should offer to terminate, but then
             // we deliberately won't make a new world (they can do it if they want it):
-            suggestTerminateIfAskingThenRun(() -> {});
+            suggestTerminateIfAskingThenRun(() -> {
+                doWorldDiscard();
+            });
         }
+        else
+        {
+            // Not a reset so much as a discard world:
+            doWorldDiscard();
+        }
+        
+    }
+
+    /**
+     * Helper method used by doReset() to discard the world
+     */
+    private void doWorldDiscard()
+    {
+        discardWorld();
         debugHandler.simulationThreadResumeOnResetClick();
         saveTheWorldRecorder.recordingValid();
+        highlightObject(null);
     }
     
     /**
@@ -1548,7 +1572,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             if (paused)
             { 
                 Point2D worldPos = worldDisplay.sceneToWorld(new Point2D(e.getSceneX(), e.getSceneY()));
-                pickRequest(worldPos.getX(), worldPos.getY(), PickType.CONTEXT_MENU);
+                pickRequest(worldPos, PickType.CONTEXT_MENU);
             }
         });
         worldDisplay.getImageView().addEventFilter(MouseEvent.ANY, e -> {
@@ -1567,7 +1591,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     hideContextMenu();
                     if (paused)
                     {
-                        pickRequest(worldPos.getX(), worldPos.getY(), PickType.LEFT_CLICK);
+                        pickRequest(worldPos, PickType.LEFT_CLICK);
                     }
                 }
                 eventType = MOUSE_CLICKED;
@@ -1579,7 +1603,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 {
                     // Begin a drag. We do this on MOUSE_PRESSED, because MOUSE_DRAG_DETECTED requires
                     // several pixels of movement, which might take us off the actor if it is small.
-                    pickRequest(worldPos.getX(), worldPos.getY(), PickType.DRAG);
+                    pickRequest(worldPos, PickType.DRAG);
                 }
             }
             else if (e.getEventType() == MouseEvent.MOUSE_RELEASED)
@@ -1707,13 +1731,14 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     /**
      * An "ask" request has been received from the remote VM.
      * 
+     * @param askId The identification number of the ask request
      * @param promptCodepoints   the codepoints making up the prompt string.
      */
-    public void receivedAsk(int[] promptCodepoints)
+    public void receivedAsk(int askId, int[] promptCodepoints)
     {
         // Tell worldDisplay to ask:
         worldDisplay.ensureAsking(new String(promptCodepoints, 0, promptCodepoints.length), (String s) -> {
-            debugHandler.getVmComms().sendAnswer(s);
+            debugHandler.getVmComms().sendAnswer(askId, s);
         });
         // Make sure world is visible so that the ask pane is actually visible;
         // the world may not be visible if the ask is during world construction and there was not previously a world:
@@ -1731,21 +1756,21 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     /**
      * Performs a pick request on the debug VM at given coordinates.
      */
-    private void pickRequest(double x, double y, PickType pickType)
+    private void pickRequest(Point2D worldPosition, PickType pickType)
     {
         curPickType = pickType;
         Debugger debugger = project.getDebugger();
         // Bit hacky to pass positions as strings, but mirroring the values as integers
         // would have taken a lot of code changes to route through to VMReference:
-        DebuggerObject xObject = debugger.getMirror("" + (int) x);
-        DebuggerObject yObject = debugger.getMirror("" + (int) y);
+        DebuggerObject xObject = debugger.getMirror("" + (int) worldPosition.getX());
+        DebuggerObject yObject = debugger.getMirror("" + (int) worldPosition.getY());
         int thisPickId = nextPickId++;
         DebuggerObject pickIdObject = debugger.getMirror("" + thisPickId);
         String requestTypeString = pickType == PickType.DRAG ? "drag" : "";
         DebuggerObject requestTypeObject = debugger.getMirror(requestTypeString);
         // One pick at a time only:
         curPickRequest = thisPickId;
-        curPickPoint = new Point2D(x, y);
+        curPickPoint = worldPosition;
         
 
         // Need to find out which actors are at the point.  Do this in background thread to
@@ -1867,7 +1892,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             }
             else if (curPickType == PickType.LEFT_CLICK && !actors.isEmpty())
             {
-                debugHandler.addSelectedObjects(actors);
+                debugHandler.addSelectedObjects(actors, worldDisplay.worldToScreen(curPickPoint));
             }
         });
     }
@@ -1963,6 +1988,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     @Override
     public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence)
     {
+        // If project is null, this is the end of a compile left-over from a project
+        // that has just been closed; ignore it:
+        if (project == null)
+            return;
+        
         // Do a Garbage Collection to finalize any garbage JdiObjects, thereby
         // allowing objects on the remote VM to be garbage collected.
         System.gc();
@@ -2927,6 +2957,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void highlightObject(DebuggerObject currentObject)
     {
         JavaType actorType = new GenTypeClass(new JavaReflective(Actor.class));

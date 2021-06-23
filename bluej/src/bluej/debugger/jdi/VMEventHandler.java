@@ -212,6 +212,10 @@ class VMEventHandler extends Thread
                         // do some processing with this event
                         // this calls back into VMReference
                         handleEvent(ev, examineSaidSkipUpdates, gotBPEvent);
+                        if (ev instanceof VMDisconnectEvent)
+                        {
+                            exiting.set(true);
+                        }
                     }
 
                     // resume the VM
