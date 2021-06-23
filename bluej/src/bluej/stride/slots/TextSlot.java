@@ -1099,12 +1099,6 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         return Math.min(4, getText().length());
     }
 
-    //Manvi jain
-    public void setAccessibility(String text)
-    {
-        field.setscreenReaderText(text);
-    }
-
     public void setScreenReaderRoleDescription(String text){
         field.setscreenReaderRoleDescriptor(text);
     }
