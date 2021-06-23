@@ -183,13 +183,6 @@ public class CallFrame extends SingleLineFrame
         }
     }
 
-    // Manvi or Cherry
-    @Override
-    public void focusName()
-    {
-        super.focusName();
-    }
-
     private void deleteOurselves()
     {
         FrameCanvas parentCanvas = getParentCanvas();
