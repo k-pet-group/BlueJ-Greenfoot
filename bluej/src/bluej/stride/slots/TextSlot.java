@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -129,6 +129,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     private CodeError hoverErrorCurrentlyShown;
     // We must keep a reference to this to avoid problems with GC and weak listeners:
     private final BooleanBinding effectivelyFocusedProperty;
+    //cherry
+   private String slotName;
 
     /**
      * Creates a text slot.  Will be called from subclasses only
@@ -151,14 +153,18 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             throw new IllegalArgumentException("frameParent and codeFrameParent are not same object");
         this.row = row;
         field = new SlotTextField(stylePrefix, row.getOverlay());
+
         editor.setupFocusableSlotComponent(this, field.getFocusableNode(), completionCalculator != null, row::getExtensions, hints);
         
         // Always disallow semi-colons:
         listeners.add((slot, oldValue, newValue, parent) -> {
             if (newValue.contains(";"))
                 return false;
-            else
+            else {
+                //cherry
+                setScreenReaderHelpSlots();
                 return true;
+            }
         });
 
         effectivelyFocusedProperty = field.focusedProperty().or(suggestionDisplayProperty.isNotNull());
@@ -401,8 +407,6 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                     }
             });
             
-            
-            
             //When focus leaves, if this is still blank, keep white. If has been filled in, blend in transparent with background.
             JavaFXUtil.addFocusListener(getFocusableNode(), newValue -> {
                     if (newValue)
@@ -515,6 +519,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             // Need to allow parent's constructor to execute, and
             // need to be in the scene:
             JavaFXUtil.onceInScene(getNode(), () -> setContextMenu(AbstractOperation.MenuItems.makeContextMenu(getMenuItems(true))));
+
         }
 
         public final int getCaretPosition()
@@ -580,6 +585,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         }
 
 
+
         public TextOverlayPosition getOverlayLocation(int caretPos)
         {
             double x;
@@ -599,6 +605,12 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     {
         return field.getNode();
     }
+
+    //cherry
+    public Node getField() { return field.getFocusableNode(); }
+
+    //cherry
+    public void setSlotName(String name) { slotName = name; }
 
     public void addValueListener(SlotValueListener listener)
     {
@@ -1085,5 +1097,28 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     {
         // We put a ceiling of 4 keypresses, approximating code completion:
         return Math.min(4, getText().length());
+    }
+
+    //Manvi jain
+    public void setAccessibility(String text)
+    {
+        field.setscreenReaderText(text);
+    }
+
+    public void setScreenReaderRoleDescription(String text){
+        field.setscreenReaderRoleDescriptor(text);
+    }
+
+    public void setScreenReaderHelpSlots()
+    {
+        //cherry
+        String text = "TextSlot";
+        try {
+            text = "You are in the " + slotName + " in the " + getParentFrame().getFrameName() + " frame " + getParentFrame().getParentCanvas().getParentLocationDescription();
+        }
+        catch (NullPointerException e) {
+            text = "You are in the " + slotName;
+        }
+        field.setscreenReaderHelp(text);
     }
 }

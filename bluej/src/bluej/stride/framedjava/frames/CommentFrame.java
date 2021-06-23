@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -95,6 +95,9 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         });
         // Make sure diagonal line canvas is created and drawn on:
         getDiagonalLineCanvas();
+
+        //cherry
+        frameName = "comment";
     }
 
     /**
@@ -136,6 +139,22 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
             }
         };
     }
+
+    //cherry
+    public String getScreenReaderText() {
+        String commentString = (comment.getText().equals(""))? "blank" : comment.getText();
+        return "comment. " + commentString;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
     
     private Canvas getDiagonalLineCanvas()
     {
@@ -173,6 +192,12 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         else
         {
             removeStyleClass(isInInterface(parentCanvas) ? "interface-comment-frame" : "class-comment-frame");
+        }
+
+        //manvi
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            comment.setScreenReaderHelpSlots("You are in a comment slot in the " + frameName + " frame " + getParentCanvas().getParentLocationDescription());
         }
     }
 

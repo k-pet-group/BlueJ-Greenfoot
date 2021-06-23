@@ -35,11 +35,7 @@ import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.SandwichCanvasesElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SandwichCanvasesFrame;
+import bluej.stride.generic.*;
 import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Debug;
@@ -81,6 +77,14 @@ public class IfFrame extends SandwichCanvasesFrame
         ifCondition.setTargetType("boolean");
         ifCondition.onTextPropertyChange(updateSidebarCurried("if "));
         setHeaderRow(new SlotLabel(" (", "if-bracket-opening"), ifCondition, new SlotLabel(")"));
+
+        //cherry
+        frameName = "if block";
+        ifCondition.setSlotName("if condition expression");
+        for (ExpressionSlot slot : elseIfConditions) {
+            slot.setSlotName("else if condition expression");
+        }
+
     }
     
     /**
@@ -118,6 +122,48 @@ public class IfFrame extends SandwichCanvasesFrame
             elseContents.forEach(f -> getTailCanvas().insertBlockAfter(f, null));
         }
         frameEnabledProperty.set(enabled);
+    }
+
+    //cherry
+    public String getScreenReaderText() {
+        String condition;
+        condition = (ifCondition.getText().equals(""))? "blank" : ifCondition.getScreenreaderText();
+        return "if frame with condition " + condition;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String condition, text;
+        condition = (ifCondition.getText().equals(""))? "blank" :  ifCondition.getText();
+        int sectionIndex = canvases.indexOf(c);
+        if (sectionIndex==0) {
+            // "then" section
+            text = " in the body of ";
+        }
+        else if (sectionIndex > 0 && sectionIndex < canvases.size()-1) {
+            // "elseif" section
+            text = " in the 'elseif' body with condition " + elseIfConditions.get(sectionIndex-1).getText() + ", of";
+        }
+        else {
+            // "else" section
+            text = " in the 'else' body, of";
+        }
+        text += "an if frame with condition " + condition + ",";
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
+
+        return text;
     }
 
     @Override
@@ -199,4 +245,32 @@ public class IfFrame extends SandwichCanvasesFrame
         return new IfElement(this, ifCondition.getSlotElement(), firstCanvasContents, elseIfConditionsCode,
                 intermediateCanvasesContents, tailCanvasContents, enabled);
     }
+
+    //manvi
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            ifCondition.setAccessibilityHelpSlots();
+            for (ExpressionSlot slot : elseIfConditions) {
+                slot.setAccessibilityHelpSlots();
+            }
+        }
+    }
+
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in if statement " + parent;
+    }
+
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2017,2018,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -71,6 +71,10 @@ public class CallFrame extends SingleLineFrame
 
         content.onTextPropertyChange(s -> checkForTopLevelEquals());
         content.addFocusListener(this);
+
+        //cherry
+        frameName = "method call";
+        content.setSlotName("method name");
     }
     
     // For replacement of AssignFrame:
@@ -87,6 +91,25 @@ public class CallFrame extends SingleLineFrame
         this.content.setText(e);
         frameEnabledProperty.set(enabled);
     }
+
+    //cherry & Babis
+    @Override
+    public String getScreenReaderText() {
+        String contentString;
+        contentString = (content.getText().trim().equals("()"))? "blank" : content.getScreenreaderText();
+        return frameName + contentString;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
+
 
     @Override
     public void regenerateCode()
@@ -175,5 +198,17 @@ public class CallFrame extends SingleLineFrame
         // Add a delay so that the frame gets displayed first, otherwise
         // the code suggestions can show at the wrong position:
         JavaFXUtil.runAfter(Duration.millis(100), content::showSuggestion);
+    }
+
+    //manvi
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        //cherry
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            content.setAccessibilityHelpSlots();
+        }
     }
 }

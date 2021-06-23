@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -172,6 +172,41 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         this.constructorsCanvas = new FrameCanvas(editor, this, "class-");
         constructorsLabelRow = new FrameContentRow(this, constructorsLabel);
         addCanvas(constructorsLabelRow, constructorsCanvas, 1);
+
+        //Manvi jain, cherry
+        className.getSlot().setSlotName(" class name slot");
+        className.getSlot().setScreenReaderHelpSlots();
+        extendsSlot.setSlotName(" parent class name slot" );
+        extendsSlot.setAccessibilityHelpSlots();
+        for (TypeSlot slot : implementsSlot.getTypeSlots().collect(Collectors.toList())) {
+            slot.setSlotName(" interface name slot ");
+            slot.setAccessibilityHelpSlots();
+        }
+        documentationPane.setScreenReaderHelpSlots("You are in the documentation for the class " + nameProperty().get());
+
+        frameName = "class frame";
+    }
+
+    //cherry
+    public String getScreenReaderHelp() {
+        return "";
+    }
+
+    //cherry
+    public String getLocationDescription() {
+        String text;
+        if (!nameProperty().get().isEmpty() && !nameProperty().get().equals("null")) {
+            text = " in the class " + nameProperty().get();
+        }
+        else {
+            text = " in the class [Undefined in ClassFrame name property] ";
+        }
+        return text;
+    }
+
+    //cherry
+    public String getClassName() {
+        return nameProperty().get();
     }
 
     @Override
@@ -282,15 +317,21 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
 
         return Utility.nonNulls(Arrays.asList(abstractExtension, extendsExtension, implementsExtension));
     }
-/*
-    private void removeExtends()
-    {
-        showingExtends.set(false);
-        paramClassName.requestFocus(Focus.RIGHT);
-        extendsSlot.setText("");
-        editor.modifiedFrame(this, false);
+
+    @Override
+    public String getLocationDescription(FrameCanvas c) {
+        return null;
     }
-*/
+
+    /*
+        private void removeExtends()
+        {
+            showingExtends.set(false);
+            paramClassName.requestFocus(Focus.RIGHT);
+            extendsSlot.setText("");
+            editor.modifiedFrame(this, false);
+        }
+    */
     @Override
     @OnThread(Tag.FXPlatform)
     public void saved()
@@ -897,4 +938,12 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         }
         return super.backspaceAtStart(srcRow, src);
     }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        return "in class " + nameProperty().get();
+    }
 }
+

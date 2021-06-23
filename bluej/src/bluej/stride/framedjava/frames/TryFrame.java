@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,13 +64,19 @@ public class TryFrame extends SandwichCanvasesFrame
     private static final String TRY_STYLE_PREFIX = "try-";
     private final List<TypeSlot> catchTypes = new ArrayList<>();
     private final List<VariableNameDefTextSlot> catchVars = new ArrayList<>();
-
     /**
      * Default constructor.
      */
     private TryFrame(InteractionManager editor)
     {
         super(editor, "try", "catch", "finally", TRY_STYLE_PREFIX);
+
+        //cherry
+        frameName = "try block";
+        for(TypeSlot catchType: catchTypes)
+        {
+            catchType.setSlotName("exception type" );
+        }
     }
 
     /**
@@ -80,6 +86,7 @@ public class TryFrame extends SandwichCanvasesFrame
     {
         this(editor);
         getFirstCanvas().getFirstCursor().insertFramesAfter(contents);
+        frameName = "try block";
     }
 
     /**
@@ -106,6 +113,36 @@ public class TryFrame extends SandwichCanvasesFrame
             finallyContents.forEach(f -> getTailCanvas().insertBlockAfter(f, null));
         }
         frameEnabledProperty.set(enabled);
+
+        frameName = "try block";
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String text = "";
+        int sectionIndex = canvases.indexOf(c);
+        if (sectionIndex==0) {
+            // "try" section
+            text = " in the 'try' section,";
+        } else {
+            // "catch" section
+            text = " in the 'catch' section with parameter " + catchVars.get(sectionIndex-1) + " of type " + catchTypes.get(sectionIndex-1) + ",";
+        }
+        text += " in a 'try-catch' frame,";
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
+        return text;
     }
 
     @Override
@@ -207,5 +244,33 @@ public class TryFrame extends SandwichCanvasesFrame
         return new TryElement(this, firstCanvasContents, Utility.mapList(catchTypes, TypeSlot::getSlotElement),
                 Utility.mapList(catchVars, VariableNameDefTextSlot::getSlotElement), intermediateCanvasesContents,
                 tailCanvasContents, enabled);
+    }
+
+    //manvi
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            for(int i=0; i<catchTypes.size(); i++)
+            {
+                catchTypes.get(i).setSlotName("exception type slot");
+                catchTypes.get(i).setAccessibilityHelpSlots();
+                catchVars.get(i).setSlotName("exception name slot" );
+                catchVars.get(i).setScreenReaderHelpSlots();
+            }
+        }
+    }
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in try block " + parent;
     }
 }

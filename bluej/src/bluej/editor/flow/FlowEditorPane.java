@@ -94,7 +94,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     private LineStyler lineStyler = (i, s) -> Collections.singletonList(new StyledSegment(Collections.emptyList(), s.toString()));
     
     private ErrorQuery errorQuery = () -> Collections.emptyList();
-    
+
     private final LineContainer lineContainer;
     private final ScrollBar verticalScroll;
     private final ScrollBar horizontalScroll;
@@ -222,6 +222,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public Object queryAccessibleAttribute(AccessibleAttribute accessibleAttribute, Object... objects)
     {
         switch (accessibleAttribute)
@@ -353,7 +354,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             offScreenDragY = y;
             // Don't update the anchor:
             getCaretPositionForLocalPoint(new Point2D(e.getX(), y)).ifPresent(p -> moveCaret(p, false));
-            
+
             if (offScreenDragScroll != null && !isDragScrollScheduled)
             {
                 JavaFXUtil.runAfter(Duration.millis(50), this::doDragScroll);
@@ -361,7 +362,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             }
         }
     }
-    
+
     private void mouseReleased(MouseEvent e)
     {
         offScreenDragScroll = null;
@@ -956,7 +957,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     {
         scroll(scrollEvent.getDeltaX(), scrollEvent.getDeltaY());
     }
-    
+
     private void scroll(double deltaX, double deltaY)
     {
         updatingScrollBarDirectly = true;

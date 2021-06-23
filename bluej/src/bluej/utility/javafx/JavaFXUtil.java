@@ -630,7 +630,7 @@ public class JavaFXUtil
         
         Bounds b = scrollPane.getContent().sceneToLocal(target.localToScene(target.getBoundsInLocal()));
         Bounds viewPortBounds = scrollPane.getViewportBounds();
-        
+
         // try to center the scrolling in the viewport
         if (scrollPane.getHbarPolicy() != ScrollBarPolicy.NEVER && scrollWidth != 0)
         {
@@ -905,7 +905,7 @@ public class JavaFXUtil
         // According to docs for isPopupTrigger, we need this handler on pressed and released:
         node.addEventHandler(MouseEvent.MOUSE_PRESSED, popupHandler);
         node.addEventHandler(MouseEvent.MOUSE_RELEASED, popupHandler);
-        
+
         
         node.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.CONTEXT_MENU || Arrays.asList(otherKeys).contains(e.getCode()))

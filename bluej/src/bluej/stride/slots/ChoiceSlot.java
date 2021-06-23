@@ -41,6 +41,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Pos;
+import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.Label;
@@ -98,6 +99,8 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
     // We must keep a reference to this to avoid problems with GC and weak listeners:
     private final BooleanBinding effectivelyFocusedProperty;
 
+    private String accessibleText="";
+
     public ChoiceSlot(final InteractionManager editor, Frame parentFrame, FrameContentRow row, final List<T> choices, Function<T, Boolean> isValid, final String stylePrefix, Map<T, String> hints)
     {
         this.editor = editor;
@@ -108,7 +111,22 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         dummyField = new DummyTextField();
         curDisplay = new SlotLabel("");
         futureDisplay = new Label();
-        pane = new StackPane();
+
+        // Accessibility - Babis
+        pane = new StackPane(){
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public Object queryAccessibleAttribute(AccessibleAttribute accessibleAttribute, Object... objects) {
+                switch (accessibleAttribute) {
+                    case ROLE_DESCRIPTION:
+                        return "Access permission slot for method with three options:"+
+                                choices.stream().map(Object::toString).collect(Collectors.joining(", ")); // Returns all the options in a row, like "private, protected, public"
+                    case TEXT:
+                        return accessibleText;
+                }
+                return super.queryAccessibleAttribute(accessibleAttribute, objects);
+            }
+        };
         errorMarker = new ErrorUnderlineCanvas(pane);
         //completeDisplay goes first because it must be underneath curDisplay, which must be underneath the dummy text field 
         pane.getChildren().addAll(futureDisplay, curDisplay.getNode(), dummyField, errorMarker.getNode());
@@ -189,7 +207,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
 
         setValue(null);
     }
-    
+
     @OnThread(Tag.FXPlatform)
     class ChoiceSuggestionListener implements SuggestionListListener
     {
@@ -200,7 +218,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
             editor.endRecordingState(ChoiceSlot.this);
             row.focusRight(ChoiceSlot.this);
         }
-        
+
         @Override
         public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
         {
@@ -319,6 +337,16 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         dropdown.get().setHighlighted(curHighlight == null ? -1 : choices.indexOf(curHighlight), true);
         // Must come after we've set highlight:
         dropdown.get().updateVisual(curDisplay.getText());
+
+        //Manvi jain
+        String listOfChoices = "";
+        for(T choice: choices){
+            listOfChoices += choice.toString() + ", ";
+        }
+
+        //Manvi jain
+        this.accessibleText = curHighlight.name() + " access permission type in drop down menu with options " + listOfChoices;
+
     }
 
     /**
@@ -659,5 +687,16 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
     {
         // Not much effort to select choice, and often left as-is; approximate as one keypress:
         return 1;
+    }
+
+    public List<T> getChoices(){
+        return choices;
+    }
+
+
+
+    //Manvi Jain
+    public void setAccessibilityHelpSlots(String helpText) {
+        this.getComponents().get(0).setAccessibleRoleDescription(helpText);
     }
 }

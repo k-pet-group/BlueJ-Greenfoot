@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javafx.collections.FXCollections;
@@ -93,6 +94,27 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
                 FXCollections.observableArrayList(paramName),
                 extendsList.getHeaderItems()
         ));
+
+
+        //cherry
+        for (TypeSlot slot : extendsList.getTypeSlots().collect(Collectors.toList()))
+        {
+            slot.setSlotName(" interface name slot ");
+            slot.setAccessibilityHelpSlots();
+        }
+        documentationPane.setScreenReaderHelpSlots("You are in the documentation for the interface " + nameProperty().get());
+
+        frameName = "interface frame";
+    }
+
+    //cherry
+    public String getScreenReaderHelp() {
+        return "";
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        return  "in the interface " + nameProperty().get();
     }
 
     protected Frame findASpecialMethod()
@@ -292,5 +314,12 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
     protected List<SlotLabel> getCanvasLabels()
     {
         return Arrays.asList(importsLabel, fieldsLabel, methodsLabel);
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        return "in interface " ;
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,6 +40,19 @@ public class BlankFrame extends SingleLineFrame implements CodeFrame<BlankElemen
     public BlankFrame(InteractionManager editor)
     {
         super(editor, "", "blank-");
+
+        //cherry
+        frameName = "blank line";
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
     }
 
     @Override

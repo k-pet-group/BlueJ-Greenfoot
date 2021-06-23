@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2016,2017,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -315,6 +315,18 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
                 return TopLevelDocumentMultiCanvasFrame.this;
             }
 
+            // cherry
+            @Override
+            public String getLocationDescription(FrameCanvas c) {
+                if (editor.nameProperty().get() != null) return " in the class " + editor.nameProperty().get();
+//                // paramName.textPropert() throws Null pointer exception
+//                else if (paramName.textProperty() != null) {
+//                    if (nameProperty().get() != null) return " in the class " + nameProperty().get();
+//                    else return " in the class [undefined class name in TopLevelDocumentMultiCanvasFrame]";
+//                }
+                else return " in the class [undefined class name in TopLevelDocumentMultiCanvasFrame]";
+            }
+
             @Override
             public InteractionManager getEditor()
             {
@@ -326,6 +338,11 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
             {
                 return CanvasKind.IMPORTS;
             }
+
+            //Manvi jain
+            @Override
+            public String getHelpContext(){ return "" ; }
+
         }, stylePrefix + "import-");
 
         importCanvas.setAnimateLeftMarginScale(true);
@@ -555,5 +572,9 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
     }
 
     protected abstract List<SlotLabel> getCanvasLabels();
+
+    //Manvi jain
+    @Override
+    public String getHelpContext(){ return "" ; }
 
 }

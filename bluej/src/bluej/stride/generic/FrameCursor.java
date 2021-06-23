@@ -54,6 +54,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.scene.AccessibleAttribute;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -98,7 +100,28 @@ public class FrameCursor implements RecallableFocus
     private ContextMenu menu;
     private final FrameCanvas parentCanvas;
     
-    private final Button node = new Button();
+    private final Button node = new Button(){
+        // Babis
+        @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+        public Object queryAccessibleAttribute(AccessibleAttribute accessibleAttribute, Object... objects) {
+            switch (accessibleAttribute) {
+                case TEXT:
+                    return normalText;
+                case HELP:
+                    return helpText;
+                case ROLE:
+                    return AccessibleRole.PAGE_ITEM; // This was the only AccessibleRole that Mac's VoiceOver was not saying something that does not make sense
+                case ROLE_DESCRIPTION:
+                    return ""; // If we leave the default it always says it is a "Button"
+                default:
+                    return super.queryAccessibleAttribute(accessibleAttribute, objects);
+            }
+        }
+    };
+
+    private String normalText;
+    private String helpText;
 
     @OnThread(Tag.FXPlatform)
     public boolean keyTyped(final InteractionManager editor, final FrameCanvas parentCanvas, char key, boolean ctrlDown)
@@ -264,14 +287,43 @@ public class FrameCursor implements RecallableFocus
         node.prefWidthProperty().bind(node.maxWidthProperty());
         node.minHeightProperty().bind(node.maxHeightProperty());
         node.prefHeightProperty().bind(node.maxHeightProperty());
-        
+
         JavaFXUtil.addChangeListener(node.focusedProperty(), nowFocused -> {
             // Oddly, we can get told we are focused even after we have left the Scene,
             // so we add a check here to guard against that:
             if (node.getScene() != null)
-            { 
+            {
                 showHide(nowFocused);
             }
+
+            //cherry
+            if (nowFocused)
+            {
+//                node.setAccessibleRole(AccessibleRole.NODE); // This causes a weird bug where the screenreader reads out the same help text for all cursors, rather than the different help text of each cursor
+                this.normalText = "frame cursor normal text";
+                this.helpText = "frame cursor help text";
+                if (getFrameAfter() != null)
+                {
+                    this.normalText = getFrameAfter().getScreenReaderText();
+                    this.helpText = "you are before a" + getFrameAfter().getFrameName() + "," + parentCanvas.getParentLocationDescription();
+                }
+                else
+                {
+                    this.normalText = "no frame selected";
+                    CanvasParent.CanvasKind area = parentCanvas.getParent().getChildKind(parentCanvas);
+                    switch(area)
+                    {
+                        case STATEMENTS:
+                            this.helpText = "you are " + parentCanvas.getParentLocationDescription();
+                            break;
+                        default:
+                            this.helpText = "you are in the " + area + " area, " + parentCanvas.getParentLocationDescription();
+                            break;
+                    }
+                }
+            }
+            //end of cherry
+
         });
         JavaFXUtil.addChangeListener(node.localToSceneTransformProperty(), t -> JavaFXUtil.runNowOrLater(() -> adjustDragTargetPosition()));
         
@@ -432,7 +484,7 @@ public class FrameCursor implements RecallableFocus
     }
 
     private void showHide(boolean show)
-    {        
+    {
         node.setOpacity(show ? 1.0 : 0.0);
         node.setMaxHeight(show ? FULL_HEIGHT : HIDE_HEIGHT);
     }
@@ -644,7 +696,7 @@ public class FrameCursor implements RecallableFocus
     {
         return node.localToScene(node.getBoundsInLocal());
     }
-    
+
     public InteractionManager getEditor()
     {
         return this.editor;

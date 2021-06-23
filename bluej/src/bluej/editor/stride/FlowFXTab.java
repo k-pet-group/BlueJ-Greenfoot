@@ -175,6 +175,8 @@ public @OnThread(Tag.FXPlatform) class FlowFXTab extends FXTab
         return windowTitleProperty;
     }
 
+
+
     public FlowEditor getFlowEditor()
     {
         return flowEditor;

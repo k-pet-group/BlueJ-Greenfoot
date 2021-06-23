@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import bluej.stride.generic.ScreenreaderDictionary;
 import bluej.utility.javafx.*;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ObjectProperty;
@@ -110,6 +111,9 @@ class StructuredSlotField implements StructuredSlotComponent
                 shrinkGrow.run();
                 // In effect it moved, by gaining or losing focus:
                 parent.caretMoved();
+                // cherry attempt: when caret moves, screenreader should read out this slot's help text
+                // field.getScene().focusOwnerProperty().get().setAccessibleHelp(field.getAccessibleHelp());
+
                 if (focused)
                 {
                     parent.getSlot().notifyGainFocus(StructuredSlotField.this);
@@ -156,8 +160,9 @@ class StructuredSlotField implements StructuredSlotComponent
                 field.setContextMenu(AbstractOperation.MenuItems.makeContextMenu(parent.getSlot().getMenuItems(true)));
             }
         });
-        if (!stringLiteral)
+        if (!stringLiteral) {
             updateBreaks();
+        }
     }
 
     /**
@@ -315,7 +320,12 @@ class StructuredSlotField implements StructuredSlotComponent
         int end = to == null ? field.getLength() : to.index;
         return field.getText().substring(start, end);
     }
-    
+
+    //cherry
+    public String getScreenreaderText() {
+        return ScreenreaderDictionary.transcribeForScreenreader(field.getText());
+    }
+
     @Override
     public String getJavaCode()
     {

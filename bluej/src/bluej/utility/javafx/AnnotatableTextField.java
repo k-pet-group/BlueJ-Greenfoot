@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,201,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,6 +36,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.css.PseudoClass;
 import javafx.event.EventHandler;
+import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.IndexRange;
@@ -64,10 +65,29 @@ public class AnnotatableTextField
     private final StackPane pane;
     private final ErrorUnderlineCanvas errorMarker;
     private final BooleanProperty fakeCaretShowing = new SimpleBooleanProperty(false);
-    
+    private String screenReaderText="";
+    private String screenReaderHelp="";
+    private String screenReaderRoleDescriptor="";
+
     public AnnotatableTextField(String str, ErrorUnderlineCanvas overlay, boolean startHidden)
     {
-        field = new ScalableHeightTextField(str, startHidden);
+        field = new ScalableHeightTextField(str, startHidden){
+            // Accessibility Babis
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public Object queryAccessibleAttribute(AccessibleAttribute accessibleAttribute, Object... objects) {
+                switch (accessibleAttribute) {
+                    case TEXT:
+                        return screenReaderText;
+                    case HELP:
+                        return screenReaderHelp;
+                    case ROLE_DESCRIPTION:
+                        return screenReaderRoleDescriptor;
+                    default:
+                        return super.queryAccessibleAttribute(accessibleAttribute, objects);
+                }
+            }
+        };
         field.focusedProperty().addListener((a, b, newVal) -> {
             // When focus changes, adjust bj-empty pseudoclass:
             JavaFXUtil.setPseudoclass("bj-empty", newVal.booleanValue() == false && field.getLength() == 0, field);                
@@ -389,7 +409,6 @@ public class AnnotatableTextField
         return JavaFXUtil.measureString(field, text, font, true, true);
     }
 
-
     public boolean hasSelection()
     {
         return field.getAnchor() != field.getCaretPosition();
@@ -408,5 +427,17 @@ public class AnnotatableTextField
     public StringProperty styleProperty()
     {
         return field.styleProperty();
+    }
+
+    public void setscreenReaderText(String screenReaderText) {
+        this.screenReaderText = screenReaderText;
+    }
+
+    public void setscreenReaderHelp(String screenReaderHelp) {
+        this.screenReaderHelp = screenReaderHelp;
+    }
+
+    public void setscreenReaderRoleDescriptor(String screenReaderRoleDescriptor) {
+        this.screenReaderRoleDescriptor = screenReaderRoleDescriptor;
     }
 }

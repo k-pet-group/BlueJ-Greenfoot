@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -85,6 +85,10 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         getHeaderRow().getNode().getStyleClass().add("method-header");
 
         bindHeader();
+
+        //cherry
+        frameName = "method prototype "+ methodName.getText();
+        returnType.setSlotName("return type");
     }
     
     public MethodProtoFrame(final InteractionManager editor, TypeSlotFragment returnType,
@@ -98,7 +102,47 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         setDocumentation(documentation);
         frameEnabledProperty.set(enabled);
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        StringBuilder paramString = new StringBuilder();
+        String name, type;
+
+        for(ParamFragment pair : paramsPane.getSlotElement()) {
+            name = (pair.getParamName().getSlot().getText().equals(""))? "blank": pair.getParamName().getSlot().getText();
+            type = (pair.getParamType().getSlot().getText().equals(""))? "blank" : pair.getParamType().getSlot().getText();
+            paramString.append(type + " " +  name + " ");
+        }
+        // make method text
+        String text, nameString, returnString;
+        nameString = (methodName.getText().equals(""))? "blank" : ScreenreaderDictionary.transcribeForScreenreader(methodName.getText());
+        returnString = (returnType.getText().equals(""))? "blank" : returnType.getText();
+
+        if (paramString.length() != 0) {
+            text = "method " + nameString + " with parameters " + paramString.toString() + " and " + returnString + " return type ";
+        } else {
+            text = "method " + nameString + " with " + returnString + " return type ";
+        }
+        // add abstract if this method is in a class (not interface)
+        if (parentIsClass.get()) {
+            text = abstractLabel.getText() + " " + text;
+        }
+        // add documentation
+        text += ". Documentation: " + getDocumentation();
+
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
+
     private void bindHeader()
     {
         getHeaderRow().bindContentsConcat(FXCollections.observableArrayList(
@@ -184,6 +228,21 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     {
         super.updateAppearance(parentCanvas);
         parentIsClass.set(parentCanvas.getParent().getFrame() instanceof ClassFrame);
+
+        //cherry
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            documentationPane.setScreenReaderHelpSlots("You are in the documentation slot for the method prototype " + methodName.getText() + getParentCanvas().getParentLocationDescription());
+            for (ParamFragment pair : paramsPane.getSlotElement()) {
+                pair.getParamType().getSlot().setSlotName(" parameter type slot ");
+                pair.getParamType().getSlot().setAccessibilityHelpSlots();
+                pair.getParamName().getSlot().setSlotName(" parameter name slot ");
+                pair.getParamName().getSlot().setScreenReaderHelpSlots();
+            }
+            methodName.setSlotName("method name slot");
+            methodName.setScreenReaderHelpSlots();
+            returnType.setAccessibilityHelpSlots();
+        }
     }
 
     @Override

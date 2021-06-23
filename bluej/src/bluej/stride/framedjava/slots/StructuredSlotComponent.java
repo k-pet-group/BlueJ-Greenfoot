@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -107,6 +107,9 @@ interface StructuredSlotComponent
 
     // If from is null, then use start.  If to is null, use end.  Both null thus means whole slot.
     String getCopyText(CaretPos from, CaretPos to);
+
+    //cherry
+    String getScreenreaderText();
 
     /*
      * Gets the current caret position relative to this component.

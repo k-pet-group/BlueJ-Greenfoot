@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
+  Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -100,7 +100,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         //Parameters
         access = new AccessPermissionSlot(editor, this, getHeaderRow(), "method-");
         access.setValue(AccessPermission.PUBLIC);
-        
+
         throwsPane = new Throws(this, () -> {
             TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.THROWS_CATCH, "method-");
             s.setSimplePromptText("thrown type");
@@ -338,10 +338,20 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         // Method blocks don't show anything in the sidebar
         //setSidebar(param2.textProperty());
     }
-    
+
     protected List<ParamFragment> generateParams()
     {
         return paramsPane.getSlotElement();
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
     }
 
     @Override

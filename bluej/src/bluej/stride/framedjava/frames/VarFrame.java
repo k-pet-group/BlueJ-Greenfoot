@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.slots.TypeSlot;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameCursor;
 import javafx.beans.property.BooleanProperty;
@@ -47,13 +48,6 @@ import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.VarElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.CanvasParent;
-import bluej.stride.generic.ExtensionDescription;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SingleLineFrame;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.stride.slots.AccessPermissionSlot;
@@ -77,8 +71,7 @@ import threadchecker.Tag;
  * A variable/object declaration block (with optional init)
  * @author Fraser McKay
  */
-public class VarFrame extends SingleLineFrame
-  implements CodeFrame<VarElement>, DebuggableFrame
+public class VarFrame extends SingleLineFrame implements CodeFrame<VarElement>, DebuggableFrame
 {
     private static final String STATIC_NAME = "static";
     private static final String FINAL_NAME = "final";
@@ -122,13 +115,11 @@ public class VarFrame extends SingleLineFrame
         // Renaming fields is more difficult (could be accesses in other classes)
         // so for now we stick to renaming local vars:
         slotName = new VariableNameDefTextSlot(editor, this, getHeaderRow(), () -> isField(getParentCanvas()), "var-name-");
-        
+
         slotName.addValueListener(new SlotValueListener()
         {
-
             @Override
-            public boolean valueChanged(HeaderItem slot, String oldValue,
-                                        String newValue, FocusParent<HeaderItem> parent)
+            public boolean valueChanged(HeaderItem slot, String oldValue, String newValue, FocusParent<HeaderItem> parent)
             {
                 return true;
             }
@@ -147,7 +138,7 @@ public class VarFrame extends SingleLineFrame
                 backspaceAtStart(getHeaderRow(), slot);
             }
         });
-        
+
         slotName.setPromptText("name");
         
         slotType = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.DECLARATION, "var-type-");
@@ -175,8 +166,6 @@ public class VarFrame extends SingleLineFrame
         };
         slotName.addValueListener(new SlotTraversalChars(runAddValSlot, SlotTraversalChars.ASSIGN_LHS.getChars()));
 
-        
-
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(headerCaptionLabel),
                 JavaFXUtil.listBool(accessModifier, access),
@@ -202,8 +191,13 @@ public class VarFrame extends SingleLineFrame
         // are problems with focusing the slot and then it disappears:
         ReadOnlyBooleanProperty keyFocusDelayed = JavaFXUtil.delay(hasKeyboardFocus, Duration.ZERO, Duration.millis(100));
         showingValue.bind(inInterfaceProperty.or(keyFocusDelayed).or(slotValueBlank.not()));
+
+        //cherry
+        frameName = "variable declaration for " + slotName.getText();
+        slotType.setSlotName("variable type");
+        slotValue.setSlotName("variable value expression");
     }
-    
+
     // If varValue is null, that means the slot is not shown
     // If accessValue is null, that means the slot is not shown
     public VarFrame(InteractionManager editor, AccessPermissionFragment accessValue, boolean staticModifier, boolean finalModifier,
@@ -221,6 +215,43 @@ public class VarFrame extends SingleLineFrame
         }
         frameEnabledProperty.set(enabled);
     }
+
+    //cherry
+    public String getScreenReaderText() {
+        String text, name, type, accessString;
+        name = (slotName.getText().trim().isEmpty())? "blank" : ScreenreaderDictionary.transcribeForScreenreader(slotName.getText());
+        type = (slotType.getText().trim().isEmpty())? "blank" : slotType.getText();
+        accessString = access.getValue(AccessPermission.PRIVATE).toString();
+        if (accessModifier.get()) { // class field
+            text = "field " + name + " of type " + type + " with " + accessString + " access ";
+            if (finalModifier.get()) {
+                text = finalLabel.getText() + " " + text;
+            }
+            if (staticModifier.get()) {
+                text = staticLabel.getText() + " " + text;
+            }
+        } else if (finalModifier.get()) { // local constant
+            text = "constant " + name + " of type " + type;
+        } else { // local variable
+            text = "variable " + name + " of type " + type;
+        }
+
+        if (showingValue.get()) {
+            text += " equals " + slotValue.getScreenreaderText();
+        }
+        return text;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
+
 
     @Override
     public void regenerateCode()
@@ -337,6 +368,15 @@ public class VarFrame extends SingleLineFrame
             // We must use transparency, not adding/removing, to maintain the same indentation in each frame
             headerCaptionLabel.setText("var ");
             JavaFXUtil.setPseudoclass("bj-transparent", isAfterVarFrame(parentCanvas), headerCaptionLabel.getNode());
+        }
+
+        //Manvi jain
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            slotType.setAccessibilityHelpSlots();
+            slotName.setSlotName("variable name slot");
+            slotName.setScreenReaderHelpSlots();
+            slotValue.setAccessibilityHelpSlots();
         }
     }
 

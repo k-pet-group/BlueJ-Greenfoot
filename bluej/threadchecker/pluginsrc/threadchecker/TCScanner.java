@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -206,7 +206,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         // This is actually thread-safe:
         methodAnns.add(new MethodRef("javax.swing.JComponent", "getClientProperty", new LocatedTag(Tag.Any, false, false, "<Swing client properties>")));
         methodAnns.add(new MethodRef("javax.swing.JComponent", "putClientProperty", new LocatedTag(Tag.Any, false, false, "<Swing client properties>")));
-        
+
         classAnns.put("java.awt.event.InputEvent", new LocatedTag(Tag.Any, false, true, "<AWT>"));
         classAnns.put("java.awt.event.ComponentEvent", new LocatedTag(Tag.Any, false, true, "<AWT>"));
         classAnns.put("java.awt.event.KeyEvent", new LocatedTag(Tag.Any, false, true, "<AWT>"));

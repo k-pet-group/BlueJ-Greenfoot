@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2015,2016,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -101,6 +101,18 @@ class InheritedCanvas
                 return classFrame;
             }
 
+            //cherry
+            @Override
+            public String getLocationDescription(FrameCanvas c)
+            {
+                return " in the class " + (
+                        (editor.nameProperty().get() != null)?
+                                editor.nameProperty().get() :
+                                "[editor name property null in InheritedCanvas]"
+                );
+            }
+
+
             @Override
             public InteractionManager getEditor()
             {
@@ -112,6 +124,14 @@ class InheritedCanvas
             {
                 // No need to do anything on modification, as it was programmatic
             }
+
+            //Manvi jain
+            @Override
+            public String getHelpContext()
+            {
+                return "" ;
+            }
+
         }, "class-inherited-")
         {
 

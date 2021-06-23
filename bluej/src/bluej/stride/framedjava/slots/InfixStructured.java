@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -280,8 +280,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         this.parent = wrapper;
         this.closingChars.addAll(Arrays.asList(closingChars));
         this.slot = slot;
-        
+
         this.textProperty.set(initialContent);
+
         // When starting, add just one empty field:
         fields.add(makeNewField(initialContent, false), token);
 
@@ -588,7 +589,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 start = cur;
                 end = anchorPos;
             }
-            
+
             slot.drawSelection(getAllStartEndPositionsBetween(start, end).collect(Collectors.toList()));
         }
     }
@@ -1051,6 +1052,125 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         b.append(fields.get(end.index).getCopyText(null, end.subPos));
         return b.toString();
     }
+
+    //cherry
+    public String getScreenreaderText() {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < fields.size(); i++) {
+            b.append(fields.get(i).getScreenreaderText());
+            if (!operators.isEmpty() && i < operators.size()) {
+                if (operators.get(i) != null) {
+                    b.append(operators.get(i).getScreenreaderText());
+                }
+            }
+        }
+        return b.toString();
+    }
+
+    //cherry
+    public String getParentExpressions() {
+        String text = "";
+        if (parent != null && parent.getParent() != null)
+        {
+            if (!parent.getScreenreaderText().isEmpty())
+            {
+                text = " in the expression " + parent.getScreenreaderText() + "," + parent.getParent().getParentExpressions();
+            }
+            else
+            {
+                text = " in a blank expression," + parent.getParent().getParentExpressions();
+            }
+        }
+        else
+        {
+            // most top level infix
+            if (!getScreenreaderText().isEmpty())
+            {
+                text = " in the expression " + getScreenreaderText() + ",";
+            }
+            else
+            {
+                text = " in a blank expression,";
+            }
+        }
+        return text;
+    }
+
+    //cherry
+    public void setIndividualSlotText(String furtherHelp) {
+        CaretPos random = new CaretPos(0,null); // this doesn't matter cuz getNodeForPos() below will return the text field anyway
+        String text, finalText;
+
+        for (int i = 0; i < fields.size(); i++)
+        {
+            if (i == 0 && fields.size()==1)
+            {
+                // first and only slot
+                text = "You are in a slot ";
+            }
+            else if (i ==0 && fields.size()>1)
+            {
+                // first slot
+                text = "You are in the slot before ";
+                if (!operators.isEmpty() && i < operators.size() && operators.get(i) != null)
+                {
+                    text += "the operator " + operators.get(i).getScreenreaderText() + ",";
+                }
+                else
+                {
+                    text += "the slot " + fields.get(i + 1).getScreenreaderText() + ",";
+                }
+            }
+            else if (i < fields.size() - 1)
+            {
+                // intermediate slots
+                if (!operators.isEmpty() && (i-1) < operators.size() && operators.get(i - 1) != null)
+                {
+                    text = "You are in the slot between the operator " + operators.get(i - 1).getScreenreaderText();
+                }
+                else
+                {
+                    text = "You are in the slot between the slot " + fields.get(i - 1).getScreenreaderText();
+                }
+
+                if (!operators.isEmpty() && i < operators.size() && operators.get(i) != null)
+                {
+                    text += " and the operator " + operators.get(i).getScreenreaderText() + ",";
+                }
+                else
+                {
+                    text += " and the slot " + fields.get(i + 1).getScreenreaderText() + ",";
+                }
+
+            }
+            else
+                {
+                // last slot
+                text = "You are in the slot ";
+                if (!operators.isEmpty() && (i-1) < operators.size() && operators.get(i - 1) != null)
+                {
+                    text += "after the operator " + operators.get(i - 1).getScreenreaderText() + ",";
+                }
+                else
+                {
+                    text += "after the slot " + fields.get(i - 1).getScreenreaderText() + ",";
+                }
+            }
+
+            finalText = text + getParentExpressions() + furtherHelp;
+            if (fields.get(i).getComponents().size()==1)
+            {
+                // means this StructuredSlotComponent is a StructuredSlotField
+                fields.get(i).getComponents().get(0).setAccessibleHelp(finalText);
+            }
+            else
+            { // this is a BracketedStructured
+                if (fields.get(i) instanceof BracketedStructured)
+                    ((BracketedStructured<INFIX,SLOT>)fields.get(i)).getContent().setIndividualSlotText(furtherHelp);
+            }
+        }
+    }
+
 
     // start is inclusive, end is exclusive
     private String getJavaCodeForFields(int start, int end)
@@ -2822,5 +2942,6 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             this.levels = levels;
         }
     }
+
 }
 

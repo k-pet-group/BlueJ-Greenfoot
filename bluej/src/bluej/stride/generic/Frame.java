@@ -138,10 +138,33 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     private final BooleanProperty disabledRoot = new SimpleBooleanProperty(true);
     private final String stylePrefix;
 
+    //cherry
+    public String getFrameName()
+    {
+        ArrayList<Character> vowels = new ArrayList<Character>(Arrays.asList('a', 'e', 'h', 'i', 'o'));
+        // add an 'n' before vowels for better pronunciation
+        return ((vowels.contains(frameName.charAt(0)))?"n ":" ")+frameName;
+    }
+
+    //cherry - Babis, I made it to return the frameName by default.
+    public String getScreenReaderText()
+    {
+        return frameName;
+    }
+
+    //cherry
+    public abstract String getScreenReaderHelp();
+
     public final String getStylePrefix()
     {
         return stylePrefix;
     }
+
+
+    private String name ;
+
+    //cherry
+    protected String frameName;
 
     // Called when frame has lost direct focus (i.e. is not in its own slots; it could
     // be in the slots or canvas of a child frame).  Overridden in subclasses.

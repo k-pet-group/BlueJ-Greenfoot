@@ -1,6 +1,7 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
+
+ Copyright (C) 2014,2015,2016,2018,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import bluej.stride.generic.ScreenreaderDictionary;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -156,6 +158,13 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
             b.append(closing);
         
         return b.toString();
+    }
+
+    //cherry
+    public String getScreenreaderText() {
+        return ScreenreaderDictionary.transcribeForScreenreader(String.valueOf(opening)) +
+                content.getScreenreaderText() +
+                ScreenreaderDictionary.transcribeForScreenreader(String.valueOf(closing));
     }
     
     @Override

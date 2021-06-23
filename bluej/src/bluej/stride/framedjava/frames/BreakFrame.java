@@ -81,12 +81,25 @@ public class BreakFrame extends SingleLineFrame
     {
         super(editor, "break", "break-");
         setHeaderRow(previewSemi);
+
+        //cherry
+        frameName = "break statement";
     }
     
     public BreakFrame(InteractionManager editor, boolean enabled)
     {
         this(editor);
         frameEnabledProperty.set(enabled);
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
     }
         
     @Override

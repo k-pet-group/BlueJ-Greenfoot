@@ -112,6 +112,10 @@ public class CaseFrame extends SingleCanvasFrame
         replaceMenu.getItems().addAll(forMenu, new SeparatorMenuItem(), ifMenu, ifElseMenu);
         */
         paramCondition.onTextPropertyChange(updateSidebarCurried("case "));
+
+        //cherry
+        frameName = "case " + paramCondition.getScreenreaderText();
+        paramCondition.setSlotName("case statement parameter");
     }
     
     public CaseFrame(InteractionManager editor, FilledExpressionSlotFragment condition, boolean enabled)
@@ -120,7 +124,35 @@ public class CaseFrame extends SingleCanvasFrame
         paramCondition.setText(condition);
         frameEnabledProperty.set(enabled);
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        String condition;
+        condition = (paramCondition.getText().equals(""))? "blank" : paramCondition.getScreenreaderText();
+        return "'case' frame with value " + condition;
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return  "you are "+ getParentCanvas().getParentLocationDescription();
+    }
+
+    //cherry
+    public String getLocationDescription() {
+        String condition, text;
+        condition = paramCondition.getText().equals("")? "blank" : paramCondition.getText();
+        text = " in a 'case' frame with value " + condition + ",";
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
+        return text;
+    }
+
     /**
      * Replace statement with a "for" loop, transferring over loop body and header.
      */
@@ -216,6 +248,11 @@ public class CaseFrame extends SingleCanvasFrame
     }
 
     @Override
+    public String getLocationDescription(FrameCanvas c) {
+        return null;
+    }
+
+    @Override
     @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animateProgress)
     {
@@ -238,4 +275,29 @@ public class CaseFrame extends SingleCanvasFrame
         return getEditableSlotsDirect().allMatch(EditableSlot::isAlmostBlank) &&
                 canvas.getBlockContents().stream().allMatch(f -> (f instanceof BlankFrame || f instanceof BreakFrame));
     }
+
+    //manvi
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            //cherry
+            paramCondition.setAccessibilityHelpSlots();
+        }
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in case statement " + parent ;
+    }
+
 }

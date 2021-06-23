@@ -18,3 +18,8 @@
 /greenfoot/common/*.html
 /greenfoot/images
 /greenfoot/package/*.jar
+
+*.iml
+*.class
+/classes
+/output

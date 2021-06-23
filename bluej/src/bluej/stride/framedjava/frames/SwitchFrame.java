@@ -107,6 +107,37 @@ public class SwitchFrame extends MultiCanvasFrame
         this(editor);
         this.expression.setText(expression);
         frameEnabledProperty.set(enabled);
+
+        //cherry
+        frameName = "switch block"  + this.expression.getScreenreaderText();
+        this.expression.setSlotName("switch statement expression");
+    }
+
+    @Override
+    public String getScreenReaderText() {
+        return frameName+" with condition "+ expression.getScreenreaderText();
+    }
+
+    //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
+    public String getScreenReaderHelp() {
+        return "you are " + getParentCanvas().getParentLocationDescription();
+    }
+
+    //cherry
+    public String getLocationDescription(FrameCanvas c) {
+        String expressionStr, text;
+        expressionStr = (expression.getText().equals(""))? "blank" : expression.getText();
+
+        text = " in a 'switch' frame for expression " + expressionStr + ",";
+        if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {
+            text += getParentCanvas().getParentLocationDescription();
+        }
+        return text;
     }
 
     public boolean addDefault()
@@ -465,5 +496,29 @@ public class SwitchFrame extends MultiCanvasFrame
         });
 
         defaultLabel.setText(newView == View.JAVA_PREVIEW ? "default :" : "default");
+    }
+
+
+    //manvi
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        super.updateAppearance(parentCanvas);
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            expression.setAccessibilityHelpSlots();
+        }
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in switch statement " + parent;
     }
 }

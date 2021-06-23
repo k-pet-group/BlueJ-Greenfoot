@@ -7,15 +7,15 @@
         <element name="options" optional="true" implicit="true"/>
         <sequential>
             <echo message="Compiling files in @{srcdir} ..."/>
-            <javac  executable="${build_java_home}/${java_command_dir_name}/javac"
-                    fork="yes"
-                    srcdir="@{srcdir}"
-                    destdir="@{destdir}"
-                    excludes="@{excludes}"
-                    deprecation="yes"
-                    includeantruntime="false"
-                    debug="true"
-                    encoding="utf-8">
+            <javac executable="${build_java_home}/${java_command_dir_name}/javac"
+                   fork="yes"
+                   srcdir="@{srcdir}"
+                   destdir="@{destdir}"
+                   excludes="@{excludes}"
+                   deprecation="yes"
+                   includeantruntime="false"
+                   debug="true"
+                   encoding="utf-8">
                 <options/>
             </javac>
         </sequential>
