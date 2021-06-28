@@ -588,7 +588,7 @@ terminal.recordCalls = Record method calls
 terminal.buffering = Unlimited buffering
 terminal.save.title = Save terminal text
 terminal.save.buttonText = Save
-terminal.notRunning=Can only enter input while your programming is running
+terminal.notRunning=Can only enter input while your program is running
 terminal.running=Type input and press Enter to send to program
 
 #TestDisplay Window
