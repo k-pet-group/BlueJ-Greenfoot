@@ -66,7 +66,6 @@ public class AnnotatableTextField
     private final ErrorUnderlineCanvas errorMarker;
     private final BooleanProperty fakeCaretShowing = new SimpleBooleanProperty(false);
     private String screenReaderHelp="";
-    private String screenReaderRoleDescriptor="";
 
     public AnnotatableTextField(String str, ErrorUnderlineCanvas overlay, boolean startHidden)
     {
@@ -78,8 +77,6 @@ public class AnnotatableTextField
                 switch (accessibleAttribute) {
                     case HELP:
                         return screenReaderHelp;
-                    case ROLE_DESCRIPTION:
-                        return screenReaderRoleDescriptor;
                     default:
                         return super.queryAccessibleAttribute(accessibleAttribute, objects);
                 }
@@ -428,9 +425,5 @@ public class AnnotatableTextField
 
     public void setscreenReaderHelp(String screenReaderHelp) {
         this.screenReaderHelp = screenReaderHelp;
-    }
-
-    public void setscreenReaderRoleDescriptor(String screenReaderRoleDescriptor) {
-        this.screenReaderRoleDescriptor = screenReaderRoleDescriptor;
     }
 }

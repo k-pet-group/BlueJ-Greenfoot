@@ -1099,10 +1099,6 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         return Math.min(4, getText().length());
     }
 
-    public void setScreenReaderRoleDescription(String text){
-        field.setscreenReaderRoleDescriptor(text);
-    }
-
     public void setScreenReaderHelpSlots()
     {
         //cherry

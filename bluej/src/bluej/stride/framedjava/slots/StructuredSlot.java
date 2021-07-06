@@ -1169,17 +1169,6 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     //cherry
-    /**
-     * Sets the immediate parent of the slot or description of slot
-     * @param text
-     */
-    public void setAccessibility(String text) {
-        this.getComponents().get(0).setAccessibleText(text);
-//        suggestionField.setscre
-//        topLevel.set
-    }
-
-    //cherry
     private String slotName;
 
     //cherry
