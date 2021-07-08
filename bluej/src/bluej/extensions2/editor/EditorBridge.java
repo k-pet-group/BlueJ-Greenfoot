@@ -42,7 +42,7 @@ public class EditorBridge
      * @param  aTarget  Bluej Class Target to retrieve the editor from
      * @return          Proxy editor object or null if it cannot be created
      */
-    public static JavaEditor newJavaEditor(ClassTarget aTarget)
+    public static JavaEditor newJavaEditor(BClass bClass, ClassTarget aTarget)
     {
         if (aTarget == null || aTarget.getSourceType() != SourceType.Java)
             return null;
@@ -50,7 +50,7 @@ public class EditorBridge
         bluej.editor.Editor bjEditor = aTarget.getEditor();
         if (bjEditor == null)
             return null;
-        return new JavaEditor(bjEditor.assumeText());
+        return new JavaEditor(bClass, bjEditor.assumeText());
     }
     
     public static bluej.editor.Editor getJavaEditor(JavaEditor editor)

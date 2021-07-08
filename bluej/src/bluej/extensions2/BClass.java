@@ -220,7 +220,7 @@ public class BClass
             return null;
         }
         
-        return EditorBridge.newJavaEditor(aTarget);
+        return EditorBridge.newJavaEditor(this, aTarget);
     }
     
     /**

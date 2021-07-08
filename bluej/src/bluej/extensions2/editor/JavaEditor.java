@@ -21,6 +21,7 @@
  */
 package bluej.extensions2.editor;
 
+import bluej.extensions2.BClass;
 import bluej.parser.SourceLocation;
 
 import java.io.IOException;
@@ -34,6 +35,7 @@ import java.io.IOException;
 
 public class JavaEditor
 {
+    private final BClass bClass;
     private bluej.editor.TextEditor bjEditor;
 
 
@@ -44,8 +46,9 @@ public class JavaEditor
      *
      * @param  bjEditor  a {@link bluej.editor.TextEditor} object referencing a BlueJ editor for this JavaEditor.
      */
-    JavaEditor(bluej.editor.TextEditor bjEditor)
+    JavaEditor(BClass bClass, bluej.editor.TextEditor bjEditor)
     {
+        this.bClass = bClass;
         this.bjEditor = bjEditor;
     }
 
@@ -57,6 +60,17 @@ public class JavaEditor
         return bjEditor;
     }
 
+    /**
+     * Gets the class that this editor is editing.  Does not change over the course
+     * of the object's lifetime, and will not be null.
+     * 
+     * @since Extension API 3.2 (BlueJ 5.0.2)
+     * @return The class that this Java editor is editing.
+     */
+    public BClass getBClass()
+    {
+        return bClass;
+    }
 
     /**
      * Requests the editor to save the file currently opened.
