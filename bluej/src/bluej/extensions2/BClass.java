@@ -222,6 +222,27 @@ public class BClass
         
         return EditorBridge.newJavaEditor(this, aTarget);
     }
+
+    /**
+     * Returns a proxy object that provide an interface to the <b>Java</b> editor for this BClass.
+     * If the editor is open, a proxy for it is returned. Otherwise, null is returned.
+     * If the class is not a Java class (Stride) the method returns <code>null</code>.
+     *
+     * @since Extension API 3.2 (BlueJ 5.0.2)
+     * @return                            A proxy {@link JavaEditor} object or null if it cannot be created or if the class is not of type Java or the editor is not opened.
+     * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
+     * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
+     */
+    public JavaEditor getJavaEditorIfOpen() throws PackageNotFoundException, ProjectNotOpenException
+    {
+        ClassTarget aTarget = classId.getClassTarget();
+        if (aTarget == null || aTarget.getSourceType() != SourceType.Java)
+        {
+            return null;
+        }
+
+        return EditorBridge.newJavaEditorIfOpen(this, aTarget);
+    }
     
     /**
      * Finds out whether this class has source code available, and whether it's Java or Stride

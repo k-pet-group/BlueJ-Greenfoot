@@ -21,6 +21,7 @@
  */
 package bluej.extensions2.editor;
 
+import bluej.extensions2.BClass;
 import bluej.extensions2.SourceType;
 import bluej.pkgmgr.target.ClassTarget;
 
@@ -48,6 +49,21 @@ public class EditorBridge
             return null;
 
         bluej.editor.Editor bjEditor = aTarget.getEditor();
+        if (bjEditor == null)
+            return null;
+        return new JavaEditor(bClass, bjEditor.assumeText());
+    }
+
+    /**
+     * Gets a new JavaEditor instance for the given class, but only if the editor is already open.
+     * @return Null if there is a problem or the editor is not open.
+     */
+    public static JavaEditor newJavaEditorIfOpen(BClass bClass, ClassTarget aTarget)
+    {
+        if (aTarget == null || aTarget.getSourceType() != SourceType.Java)
+            return null;
+
+        bluej.editor.Editor bjEditor = aTarget.getEditorIfOpen();
         if (bjEditor == null)
             return null;
         return new JavaEditor(bClass, bjEditor.assumeText());
