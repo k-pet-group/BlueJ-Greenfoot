@@ -782,6 +782,12 @@ public class FrameEditor implements Editor
             {
                 FrameEditor.this.removeErrorHighlights();
             }
+
+            @Override
+            public SourceLocation getPositionForScreenPos(int screenX, int screenY)
+            {
+                throw new UnsupportedOperationException();
+            }
         };
     }
 

@@ -111,6 +111,7 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.print.PrinterJob;
@@ -3073,6 +3074,16 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void setFindTextfield(String text)
     {
         finder.populateFindTextfield(text);
+    }
+
+    @Override
+    public SourceLocation getPositionForScreenPos(int screenX, int screenY)
+    {
+        OptionalInt caretPos = flowEditorPane.getCaretPositionForScreenPoint(new Point2D(screenX, screenY));
+        if (caretPos.isPresent())
+            return getLineColumnFromOffset(caretPos.getAsInt());
+        else
+            return null;
     }
 
     /**

@@ -370,4 +370,19 @@ public class JavaEditor
 
         return new TextLocation(location.getLine() - 1, location.getColumn() - 1);
     }
+
+    /**
+     * Gets the closest text location for the given position on the screen,
+     * or null if there is no code at that point on the screen.
+     * 
+     * @since Extension API 3.2 (BlueJ 5.0.2)
+     * @param screenX The X coordinate in pixels, relative to the screen
+     * @param screenY The Y coordinate in pixels, relative to the screen
+     * @return The closest text location, if appropriate, or null if there is
+     *         no code near this point.
+     */
+    public TextLocation getLocationFromScreenPos(int screenX, int screenY)
+    {
+        return convertLocation(bjEditor.getPositionForScreenPos(screenX, screenY));
+    }
 }

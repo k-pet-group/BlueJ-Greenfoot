@@ -180,4 +180,6 @@ public interface TextEditor extends Editor
      * @return A ParsedNode instance, or null if not supported.
      */
     public ParsedCUNode getParsedNode();
+    
+    public SourceLocation getPositionForScreenPos(int screenX, int screenY);
 }
