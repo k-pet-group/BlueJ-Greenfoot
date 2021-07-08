@@ -112,6 +112,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -3273,6 +3274,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void scrollEventOnTextLine(ScrollEvent e)
     {
         flowEditorPane.scrollEventOnTextLine(e);
+    }
+
+    @Override
+    public Rectangle2D getScreenBoundsIfSelectedTab()
+    {
+        return fxTab.getScreenBoundsIfSelectedTab();
     }
 
     /**

@@ -23,6 +23,7 @@ package bluej.extensions2.editor;
 
 import bluej.extensions2.BClass;
 import bluej.parser.SourceLocation;
+import javafx.geometry.Rectangle2D;
 
 import java.io.IOException;
 
@@ -324,6 +325,19 @@ public class JavaEditor
         return bjEditor.getTextLength();
     }
 
+
+    /**
+     * Gets the screen bounds of the window that this editor is contained in,
+     * if and only if this is the selected tab in its editor window and the window
+     * is showing and the window is not minimised.
+     * Returns null otherwise.
+     * @since Extension API 3.2 (BlueJ 5.0.2)
+    */
+    public Rectangle2D getScreenBounds()
+    {
+        return bjEditor.getScreenBoundsIfSelectedTab();
+    }
+    
     /**
      * Utility to convert a {@link TextLocation} into a {@link SourceLocation}.
      * If <code>null</code> is given as parameter then <code>null</code> is returned.

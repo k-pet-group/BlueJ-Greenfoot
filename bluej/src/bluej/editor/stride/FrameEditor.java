@@ -75,6 +75,7 @@ import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Rectangle2D;
 import javafx.print.PrinterJob;
 import javafx.scene.image.Image;
 import threadchecker.OnThread;
@@ -770,6 +771,12 @@ public class FrameEditor implements Editor
             }
 
             @Override
+            public Rectangle2D getScreenBoundsIfSelectedTab()
+            {
+                return FrameEditor.this.getScreenBoundsIfSelectedTab();
+            }
+            
+            @Override
             @OnThread(Tag.FXPlatform)
             public void removeErrorHighlights()
             {
@@ -1459,5 +1466,11 @@ public class FrameEditor implements Editor
             panel.flagErrorsAsOld();
             panel.removeOldErrors();
         }
+    }
+
+    @Override
+    public Rectangle2D getScreenBoundsIfSelectedTab()
+    {
+        return panel.getScreenBoundsIfSelectedTab();
     }
 }
