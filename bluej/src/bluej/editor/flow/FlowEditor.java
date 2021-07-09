@@ -1086,7 +1086,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                     File backupFile = new File(backupFilename);
                     backupFile.delete();
                     crashFile.renameTo(backupFile);
-                    DialogManager.showMessageFX(fxTabbedEditor.getWindow(), "editor-crashed");
+                    DialogManager.showMessageFX(fxTabbedEditor.getStage(), "editor-crashed");
                 }
 
                 ignoreChanges = true;
@@ -2869,7 +2869,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             return null;
         }
-        return fxTabbedEditor.getWindow();
+        return fxTabbedEditor.getStage();
     }
 
     /**
@@ -2888,7 +2888,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void goToLine()
     {
         final int numberOfLines = numberOfLines();
-        GoToLineDialog goToLineDialog = new GoToLineDialog(fxTabbedEditor.getWindow());
+        GoToLineDialog goToLineDialog = new GoToLineDialog(fxTabbedEditor.getStage());
         goToLineDialog.setRangeMax(numberOfLines);
         Optional<Integer> o = goToLineDialog.showAndWait();
         o.ifPresent(n -> {

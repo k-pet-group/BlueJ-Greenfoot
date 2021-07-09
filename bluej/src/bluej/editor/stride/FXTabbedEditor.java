@@ -920,7 +920,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         this.titleStatus.set(status);
     }
 
-    public Stage getWindow()
+    public Stage getStage()
     {
         return stage;
     }

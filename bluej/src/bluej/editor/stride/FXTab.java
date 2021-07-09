@@ -26,11 +26,8 @@ import java.util.List;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.ObjectExpression;
-import javafx.beans.binding.StringExpression;
-import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.Tab;
 
@@ -193,9 +190,9 @@ abstract class FXTab extends Tab
         if (getParent() != null && isSelected())
         {
             FXTabbedEditor parent = getParent();
-            if (parent.isWindowVisible() && !parent.getWindow().isIconified())
+            if (parent.isWindowVisible() && !parent.getStage().isIconified())
             {
-                Stage window = parent.getWindow();
+                Stage window = parent.getStage();
                 return new Rectangle2D(window.getX(), window.getY(), window.getWidth(), window.getHeight());
             }
         }
