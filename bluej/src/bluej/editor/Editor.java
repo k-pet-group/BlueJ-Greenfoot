@@ -35,6 +35,7 @@ import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXRunnable;
+import javafx.geometry.Rectangle2D;
 import javafx.print.PrinterJob;
 import javafx.scene.image.Image;
 import threadchecker.OnThread;
@@ -203,6 +204,14 @@ public interface Editor
     boolean isModified();
 
     void removeErrorHighlights();
+
+    /**
+     * If this editor is the selected tab in the editor window,
+     * get the screen bounds for the editor window (not just the tab content).
+     * If it is not the selected tab in its editor window, or it
+     * is not currently showing in any editor window, return null.
+     */
+    Rectangle2D getScreenBoundsIfSelectedTab();
 
     /**
      * A callback to update the latest progress when printing a file.  Also allows cancellation

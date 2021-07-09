@@ -75,6 +75,7 @@ import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Rectangle2D;
 import javafx.print.PrinterJob;
 import javafx.scene.image.Image;
 import threadchecker.OnThread;
@@ -771,9 +772,22 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
+            public Rectangle2D getScreenBoundsIfSelectedTab()
+            {
+                return FrameEditor.this.getScreenBoundsIfSelectedTab();
+            }
+            
+            @Override
+            @OnThread(Tag.FXPlatform)
             public void removeErrorHighlights()
             {
                 FrameEditor.this.removeErrorHighlights();
+            }
+
+            @Override
+            public SourceLocation getTextPositionForScreenPos(int screenX, int screenY)
+            {
+                throw new UnsupportedOperationException("Frame-based editors do not have a text location");
             }
         };
     }
@@ -1459,5 +1473,11 @@ public class FrameEditor implements Editor
             panel.flagErrorsAsOld();
             panel.removeOldErrors();
         }
+    }
+
+    @Override
+    public Rectangle2D getScreenBoundsIfSelectedTab()
+    {
+        return panel.getScreenBoundsIfSelectedTab();
     }
 }

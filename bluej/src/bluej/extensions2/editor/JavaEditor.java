@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2014,2015,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2013,2014,2015,2018,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,9 @@
  */
 package bluej.extensions2.editor;
 
+import bluej.extensions2.BClass;
 import bluej.parser.SourceLocation;
+import javafx.geometry.Rectangle2D;
 
 import java.io.IOException;
 
@@ -34,6 +36,7 @@ import java.io.IOException;
 
 public class JavaEditor
 {
+    private final BClass bClass;
     private bluej.editor.TextEditor bjEditor;
 
 
@@ -44,8 +47,9 @@ public class JavaEditor
      *
      * @param  bjEditor  a {@link bluej.editor.TextEditor} object referencing a BlueJ editor for this JavaEditor.
      */
-    JavaEditor(bluej.editor.TextEditor bjEditor)
+    JavaEditor(BClass bClass, bluej.editor.TextEditor bjEditor)
     {
+        this.bClass = bClass;
         this.bjEditor = bjEditor;
     }
 
@@ -57,6 +61,17 @@ public class JavaEditor
         return bjEditor;
     }
 
+    /**
+     * Gets the class that this editor is editing.  Does not change over the course
+     * of the object's lifetime, and will not be null.
+     * 
+     * @since Extension API 3.2 (BlueJ 5.0.2)
+     * @return The class that this Java editor is editing.
+     */
+    public BClass getBClass()
+    {
+        return bClass;
+    }
 
     /**
      * Requests the editor to save the file currently opened.
@@ -310,6 +325,19 @@ public class JavaEditor
         return bjEditor.getTextLength();
     }
 
+
+    /**
+     * Gets the screen bounds of the window that this editor is contained in,
+     * if and only if this is the selected tab in its editor window and the window
+     * is showing and the window is not minimised.
+     * Returns null otherwise.
+     * @since Extension API 3.2 (BlueJ 5.0.2)
+    */
+    public Rectangle2D getScreenBounds()
+    {
+        return bjEditor.getScreenBoundsIfSelectedTab();
+    }
+    
     /**
      * Utility to convert a {@link TextLocation} into a {@link SourceLocation}.
      * If <code>null</code> is given as parameter then <code>null</code> is returned.
@@ -341,5 +369,20 @@ public class JavaEditor
         }
 
         return new TextLocation(location.getLine() - 1, location.getColumn() - 1);
+    }
+
+    /**
+     * Gets the closest text location for the given position on the screen,
+     * or null if there is no code at that point on the screen.
+     * 
+     * @since Extension API 3.2 (BlueJ 5.0.2)
+     * @param screenX The X coordinate in pixels, relative to the screen
+     * @param screenY The Y coordinate in pixels, relative to the screen
+     * @return The closest text location, if appropriate, or null if there is
+     *         no code near this point.
+     */
+    public TextLocation getLocationFromScreenPos(int screenX, int screenY)
+    {
+        return convertLocation(bjEditor.getTextPositionForScreenPos(screenX, screenY));
     }
 }

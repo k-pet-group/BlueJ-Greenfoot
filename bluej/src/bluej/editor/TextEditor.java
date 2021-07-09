@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2019,2021  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -180,4 +180,10 @@ public interface TextEditor extends Editor
      * @return A ParsedNode instance, or null if not supported.
      */
     public ParsedCUNode getParsedNode();
+    
+    /**
+     * Get the source location for the given screen XY position.  Returns null if there is
+     * none at that position.
+     */
+    public SourceLocation getTextPositionForScreenPos(int screenX, int screenY);
 }

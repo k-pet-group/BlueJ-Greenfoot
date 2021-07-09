@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2014,2015,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2012,2013,2014,2015,2016,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -220,7 +220,28 @@ public class BClass
             return null;
         }
         
-        return EditorBridge.newJavaEditor(aTarget);
+        return EditorBridge.newJavaEditor(this, aTarget);
+    }
+
+    /**
+     * Returns a proxy object that provide an interface to the <b>Java</b> editor for this BClass.
+     * If the editor is open, a proxy for it is returned. Otherwise, null is returned.
+     * If the class is not a Java class (Stride) the method returns <code>null</code>.
+     *
+     * @since Extension API 3.2 (BlueJ 5.0.2)
+     * @return                            A proxy {@link JavaEditor} object or null if it cannot be created or if the class is not of type Java or the editor is not opened.
+     * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
+     * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
+     */
+    public JavaEditor getJavaEditorIfOpen() throws PackageNotFoundException, ProjectNotOpenException
+    {
+        ClassTarget aTarget = classId.getClassTarget();
+        if (aTarget == null || aTarget.getSourceType() != SourceType.Java)
+        {
+            return null;
+        }
+
+        return EditorBridge.newJavaEditorIfOpen(this, aTarget);
     }
     
     /**

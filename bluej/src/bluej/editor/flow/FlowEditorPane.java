@@ -311,6 +311,11 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         return getCaretPositionForLocalPoint(new Point2D(e.getX(), e.getY()));
     }
 
+    OptionalInt getCaretPositionForScreenPoint(Point2D screenPoint)
+    {
+        return getCaretPositionForLocalPoint(screenToLocal(screenPoint));
+    }
+
     OptionalInt getCaretPositionForLocalPoint(Point2D localPoint)
     {
         int[] position = lineDisplay.getCaretPositionForLocalPoint(localPoint);

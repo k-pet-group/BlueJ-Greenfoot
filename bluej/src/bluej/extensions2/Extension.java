@@ -61,7 +61,7 @@ public abstract class Extension
      */
     protected static final int getExtensionsAPIVersionMinor()
     {
-        return 1;
+        return 2;
     }
 
     /**
