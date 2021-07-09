@@ -785,9 +785,9 @@ public class FrameEditor implements Editor
             }
 
             @Override
-            public SourceLocation getPositionForScreenPos(int screenX, int screenY)
+            public SourceLocation getTextPositionForScreenPos(int screenX, int screenY)
             {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("Frame-based editors do not have a text location");
             }
         };
     }

@@ -181,5 +181,9 @@ public interface TextEditor extends Editor
      */
     public ParsedCUNode getParsedNode();
     
-    public SourceLocation getPositionForScreenPos(int screenX, int screenY);
+    /**
+     * Get the source location for the given screen XY position.  Returns null if there is
+     * none at that position.
+     */
+    public SourceLocation getTextPositionForScreenPos(int screenX, int screenY);
 }

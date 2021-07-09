@@ -383,6 +383,6 @@ public class JavaEditor
      */
     public TextLocation getLocationFromScreenPos(int screenX, int screenY)
     {
-        return convertLocation(bjEditor.getPositionForScreenPos(screenX, screenY));
+        return convertLocation(bjEditor.getTextPositionForScreenPos(screenX, screenY));
     }
 }

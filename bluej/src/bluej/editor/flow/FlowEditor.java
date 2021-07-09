@@ -3077,7 +3077,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @Override
-    public SourceLocation getPositionForScreenPos(int screenX, int screenY)
+    public SourceLocation getTextPositionForScreenPos(int screenX, int screenY)
     {
         OptionalInt caretPos = flowEditorPane.getCaretPositionForScreenPoint(new Point2D(screenX, screenY));
         if (caretPos.isPresent())
