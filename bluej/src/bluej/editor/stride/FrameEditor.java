@@ -1478,6 +1478,6 @@ public class FrameEditor implements Editor
     @Override
     public Rectangle2D getScreenBoundsIfSelectedTab()
     {
-        return panel.getScreenBoundsIfSelectedTab();
+        return panel == null ? null : panel.getScreenBoundsIfSelectedTab();
     }
 }
