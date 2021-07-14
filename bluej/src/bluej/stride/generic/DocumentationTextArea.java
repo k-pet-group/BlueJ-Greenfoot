@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -18,10 +18,6 @@
  
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
- */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
  */
 package bluej.stride.generic;
 
@@ -332,18 +328,6 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         }
         
         curView = newView;
-    }
-
-    public String getJavadocs(String prefix)
-    {
-        String out = "";
-        if (! getText().isEmpty()) {
-            String[] lines = getText().split("\n");
-            for (int i = 0; i < lines.length; i++) {
-                out += prefix + " * " + lines[i] + "\n";
-            }
-        }
-        return out;
     }
 
     @OnThread(Tag.FXPlatform)
