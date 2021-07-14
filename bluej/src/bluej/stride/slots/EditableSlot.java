@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,9 +26,11 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.JavaFragment;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.slots.UnderlineContainer;
 import bluej.utility.javafx.AbstractOperation;
 
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
 import bluej.stride.framedjava.errors.CodeError;
@@ -195,4 +197,13 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
      * @return True if this is editable
      */
     public boolean isEditable();
+
+    @Override
+    default public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+    {
+        if (getComponents().stream().anyMatch(n -> JavaFXUtil.containsScenePoint(n, sceneX, sceneY)))
+            return locationMap.locationFor(getSlotElement());
+        else
+            return null;
+    }
 }

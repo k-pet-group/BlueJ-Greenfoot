@@ -61,4 +61,19 @@ public class StrideEditor
         return frameEditor.getScreenBoundsIfSelectedTab();
     }
 
+    /**
+     * Gets the XPath for the element at the given position.
+     * 
+     * This may be the path to a pseudo-element that does not actually exist in the
+     * Stride XML but is still on screen (e.g. the "if" keyword).  In this case one of 
+     * the element names in the path will have an underscore at the beginning.
+     * 
+     * @param screenX The X position on screen
+     * @param screenY The Y position on screen
+     * @return The XPath, or null if no Stride element is at that position.
+     */
+    public String getXPathForItemAtPosition(int screenX, int screenY)
+    {
+        return frameEditor.getXPathForItemAtPosition(screenX, screenY);
+    }
 }

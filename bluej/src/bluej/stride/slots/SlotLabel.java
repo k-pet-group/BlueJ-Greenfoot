@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.stride.slots;
 import java.util.List;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.ScalableHeightLabel;
 import javafx.beans.property.BooleanProperty;
@@ -297,4 +298,12 @@ public class SlotLabel implements HeaderItem, Styleable, CopyableHeaderItem
         return Stream.of(copy);
     }
 
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+    {
+        if (JavaFXUtil.containsScenePoint(l, sceneX, sceneY))
+            return xpathParent + "/_" + l.getText().toLowerCase();
+        else
+            return null;
+    }
 }

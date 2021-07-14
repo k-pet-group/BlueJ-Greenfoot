@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.ast.links.PossibleKnownMethodLink;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.slots.UnderlineContainer;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.WrappableSlotLabel;
@@ -267,6 +268,12 @@ public class InheritedMethodFrame extends SingleLineFrame
         @Override
         public void setView(Frame.View oldView, Frame.View newView, SharedTransition animate)
         {
+        }
+
+        @Override
+        public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+        {
+            return null;
         }
     }
 

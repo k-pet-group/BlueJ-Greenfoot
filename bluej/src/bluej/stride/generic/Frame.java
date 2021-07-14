@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.Config;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.slots.StructuredSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.utility.javafx.*;
@@ -1455,6 +1456,27 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             }
             return lastCanvas.findClosestCursor(sceneX, sceneY, exclude, isDrag, canDescend);
         }
+    }
+
+    @Override
+    public final String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap)
+    {        
+        if (JavaFXUtil.containsScenePoint(frameContents, sceneX, sceneY))
+        {
+            String frameXPath = this instanceof CodeFrame ? locationMap.locationFor(((CodeFrame) this).getCode()) : "";
+            int canvasesBefore = 0;
+            for (FrameContentItem content : contents)
+            {
+                String childXPath = content.getXPathForElementAt(sceneX, sceneY, locationMap, frameXPath, canvasesBefore);
+                if (childXPath != null)
+                    return childXPath;
+                
+                if (content.getCanvas().isPresent())
+                    canvasesBefore += 1;
+            }
+            return frameXPath.isEmpty() ? null : frameXPath;
+        }
+        return null;
     }
 
     /**

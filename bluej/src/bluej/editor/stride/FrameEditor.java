@@ -181,6 +181,11 @@ public class FrameEditor implements Editor
         return new ArrayList<>(latestBreakpoints);
     }
 
+    public String getXPathForItemAtPosition(int screenX, int screenY)
+    {
+        return panel.getXPathForItemAtPosition(screenX, screenY);
+    }
+
     /**
      * A javac compile error.
      */

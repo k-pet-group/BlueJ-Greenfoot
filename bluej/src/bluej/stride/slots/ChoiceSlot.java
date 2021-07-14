@@ -90,7 +90,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
     private T previousSelection;
     private T selection;
     private final StackPane pane; // The GUI element that encompasses the whole slot
-    private final SlotLabel curDisplay; // The actual current value
+    protected final SlotLabel curDisplay; // The actual current value
     private final Label futureDisplay; // The grey version of what would be completed
     private final DummyTextField dummyField; // An empty text field, just used to show a cursor and handle input
     private final ErrorUnderlineCanvas errorMarker;

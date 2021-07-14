@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.utility.javafx.AbstractOperation;
 import javafx.beans.binding.DoubleExpression;
 import javafx.collections.FXCollections;
@@ -82,7 +83,16 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
     private ConstructorFrame(InteractionManager editor) {
         super(editor);
         setDocumentationPromptText(Config.getString("frame.class.constructor.doc.prompt"));
-        headerLabel = new SlotLabel("<constructor>");
+        headerLabel = new SlotLabel("<constructor>") {
+            @Override
+            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+            {
+                if (JavaFXUtil.containsScenePoint(getNode(), sceneX, sceneY))
+                    return xpathParent + "/_classname";
+                else
+                    return null;
+            }
+        };
         JavaFXUtil.addStyleClass(headerLabel, "constructor-name-caption");
 
         paramsPane = new FormalParameters(editor, this, this, getHeaderRow(), "constructor-param-");

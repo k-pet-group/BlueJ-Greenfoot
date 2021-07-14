@@ -854,6 +854,16 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         editor.getWatcher().scheduleCompilation(false, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE);
     }
 
+    public String getXPathForItemAtPosition(int screenX, int screenY)
+    {
+        TopLevelFrame<? extends TopLevelCodeElement> topLevelFrame = getTopLevelFrame();
+        if (topLevelFrame == null)
+            return null;
+        Node frameNode = topLevelFrame.getNode();
+        Point2D sceneLocation = frameNode.localToScene(frameNode.screenToLocal(screenX, screenY));
+        return topLevelFrame.getXPathForElementAt(sceneLocation.getX(), sceneLocation.getY(), getLocationMap());
+    }
+
     @OnThread(Tag.Any)
     private static enum ShowVars
     {

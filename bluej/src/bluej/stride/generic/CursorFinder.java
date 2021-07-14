@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,6 +20,8 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.stride.generic;
+
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 
 import java.util.List;
 
@@ -47,4 +49,5 @@ public interface CursorFinder
      */
     public FrameCursor findCursor(double sceneX, double sceneY, FrameCursor prevCursor, FrameCursor nextCursor, List<Frame> exclude, boolean isDrag, boolean canDescend);
 
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap);
 }

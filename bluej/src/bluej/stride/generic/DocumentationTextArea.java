@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.links.PossibleLink;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.frames.TopLevelFrame;
 import bluej.utility.javafx.ScalableHeightLabel;
 import javafx.beans.value.ObservableBooleanValue;
@@ -434,5 +435,20 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
     public int calculateEffort()
     {
         return getText().length();
+    }
+
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+    {
+        if (JavaFXUtil.containsScenePoint(wrapper, sceneX, sceneY))
+            return xpathParent + "/javadoc[1]";
+        else
+            return null;
+    }
+    
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore)
+    {
+        return getXPathForElementAt(sceneX, sceneY, locationMap, xpathParent);
     }
 }
