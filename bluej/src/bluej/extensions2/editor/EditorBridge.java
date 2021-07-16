@@ -71,7 +71,7 @@ public class EditorBridge
     }
 
     /**
-     * Returns a new JavaEditor for the given ClassTarget.
+     * Returns a new StrideEditor for the given ClassTarget.
      *
      * @param  aTarget  Bluej Class Target to retrieve the editor from
      * @return          Proxy editor object or null if it cannot be created

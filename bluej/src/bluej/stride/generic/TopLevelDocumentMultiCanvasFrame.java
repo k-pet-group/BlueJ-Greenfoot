@@ -307,7 +307,7 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
             @Override
             public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap)
             {
-                return "TODO";
+                return null;
             }
 
             @Override
