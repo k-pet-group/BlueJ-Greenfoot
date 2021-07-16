@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,8 @@ package bluej.stride.slots;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -190,5 +192,14 @@ public class WrappableSlotLabel implements HeaderItem, CopyableHeaderItem
         List<Node> copies = Utility.mapList(words, l -> JavaFXUtil.cloneLabel(l, editor.getFontCSS()));
         copies.forEach(n -> HangingFlowPane.setAlignment(n, alignment));
         return copies.stream();
+    }
+
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+    {
+        if (!words.isEmpty() && JavaFXUtil.containsScenePoint(words.get(0), sceneX, sceneY))
+            return xpathParent + "/_" + words.get(0).getText().toLowerCase();
+        else
+            return null;
     }
 }

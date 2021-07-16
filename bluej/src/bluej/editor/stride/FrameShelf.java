@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import bluej.pkgmgr.target.role.Kind;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.utility.BackgroundConsumer;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -146,6 +147,12 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     public FrameCursor getFocusedCursor()
     {
         return null; // TODO
+    }
+
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap)
+    {
+        return null;
     }
 
     @Override

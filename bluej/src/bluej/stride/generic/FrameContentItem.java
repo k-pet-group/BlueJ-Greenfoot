@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.stride.generic;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
@@ -63,4 +64,6 @@ public interface FrameContentItem
     public void setView(Frame.View oldView, Frame.View newView, SharedTransition animation);
 
     public Node getNode();
+
+    String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String parentFrameXPath, int canvasesBefore);
 }

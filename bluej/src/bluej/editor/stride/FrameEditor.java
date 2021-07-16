@@ -181,6 +181,11 @@ public class FrameEditor implements Editor
         return new ArrayList<>(latestBreakpoints);
     }
 
+    public String getXPathForItemAtPosition(int screenX, int screenY)
+    {
+        return panel.getXPathForItemAtPosition(screenX, screenY);
+    }
+
     /**
      * A javac compile error.
      */
@@ -1478,6 +1483,6 @@ public class FrameEditor implements Editor
     @Override
     public Rectangle2D getScreenBoundsIfSelectedTab()
     {
-        return panel.getScreenBoundsIfSelectedTab();
+        return panel == null ? null : panel.getScreenBoundsIfSelectedTab();
     }
 }

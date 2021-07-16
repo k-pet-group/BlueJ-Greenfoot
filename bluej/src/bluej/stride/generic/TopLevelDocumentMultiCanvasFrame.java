@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2016,2017,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.ImportElement;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.frames.CodeFrame;
@@ -174,6 +175,12 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
             {
                 return r;
             }
+
+            @Override
+            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore)
+            {
+                return null;
+            }
         };
 
 
@@ -295,6 +302,12 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
             public FrameCursor findCursor(double sceneX, double sceneY, FrameCursor prevCursor, FrameCursor nextCursor, List<Frame> exclude, boolean isDrag, boolean canDescend)
             {
                 return TopLevelDocumentMultiCanvasFrame.this.importCanvas.findClosestCursor(sceneX, sceneY, exclude, isDrag, canDescend);
+            }
+
+            @Override
+            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap)
+            {
+                return null;
             }
 
             @Override
