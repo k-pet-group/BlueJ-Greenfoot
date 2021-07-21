@@ -381,8 +381,57 @@ public class JavaEditor
      * @return The closest text location, if appropriate, or null if there is
      *         no code near this point.
      */
-    public TextLocation getLocationFromScreenPos(int screenX, int screenY)
+    public LocationDetails getLocationFromScreenPos(int screenX, int screenY)
     {
-        return convertLocation(bjEditor.getTextPositionForScreenPos(screenX, screenY));
+        SourceLocation sourceLocation = bjEditor.getTextPositionForScreenPos(screenX, screenY);
+        return sourceLocation == null ? null : new LocationDetails(convertLocation(sourceLocation), bjEditor.getScreenBoundsOfLine(sourceLocation.getLine()));
+    }
+
+    /**
+     * Gets the height of the editor font, in pixels.  This will currently be the same size
+     * across all Java editors because it is a shared preference.
+     * 
+     * The actual font size is specified in points, so the pixel height may be
+     * a fractional value.
+     * 
+     * @since Extension API 3.2 (BlueJ 5.0.2)
+     * @return The font size, in pixels.
+     */
+    public double getFontSizeInPixels()
+    {
+        return bjEditor.getFontSizeInPixels();
+    }
+
+    /**
+     * Details of a text location.
+     * 
+     * @since Extension API 3.2 (BlueJ 5.0.2)
+     */
+    public static class LocationDetails
+    {
+        private final TextLocation textLocation;
+        private final Rectangle2D lineBoundsOnScreen;
+
+        private LocationDetails(TextLocation textLocation, Rectangle2D lineBoundsOnScreen)
+        {
+            this.textLocation = textLocation;
+            this.lineBoundsOnScreen = lineBoundsOnScreen;
+        }
+
+        /**
+         * The text location (line/column).
+         */
+        public TextLocation getTextLocation()
+        {
+            return textLocation;
+        }
+
+        /**
+         * The bounds on screen of the line containing the text position.
+         */
+        public Rectangle2D getLineBoundsOnScreen()
+        {
+            return lineBoundsOnScreen;
+        }
     }
 }

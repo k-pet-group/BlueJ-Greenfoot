@@ -860,7 +860,21 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         if (topLevelFrame == null)
             return null;
         Node frameNode = topLevelFrame.getNode();
-        Point2D sceneLocation = frameNode.localToScene(frameNode.screenToLocal(screenX, screenY));
+        FXTabbedEditor fxTabbedEditor = parent.get();
+        int windowX = fxTabbedEditor.getX();
+        int windowY = fxTabbedEditor.getY();
+        double sceneX = frameNode.getScene().getX();
+        double sceneY = frameNode.getScene().getY();
+        double renderScaleX = fxTabbedEditor.getRenderScaleX();
+        double renderScaleY = fxTabbedEditor.getRenderScaleY();
+        Point2D sceneLocation = new Point2D(
+            (screenX / renderScaleX) - windowX,
+            (screenY / renderScaleY) - windowY
+        ).subtract(
+            sceneX,
+            sceneY
+        );
+
         return topLevelFrame.getXPathForElementAt(sceneLocation.getX(), sceneLocation.getY(), getLocationMap());
     }
 

@@ -36,6 +36,7 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import threadchecker.OnThread;
@@ -58,6 +59,11 @@ import java.util.stream.Collectors;
 @OnThread(Tag.FX)
 public class TextLine extends TextFlow
 {
+    public double getSingleTextHeight()
+    {
+        return getChildren().stream().filter(n -> n instanceof Text).map(n -> ((Text)n).getBoundsInLocal().getHeight()).findFirst().orElse(getHeight());
+    }
+
     static enum HighlightType
     {
         FIND_RESULT, BRACKET_MATCH;

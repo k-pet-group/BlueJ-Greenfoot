@@ -979,6 +979,16 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         return tabPane.getTabs().stream().anyMatch(t -> t instanceof FXTab && ((FXTab)t).isTutorial());
     }
 
+    public double getRenderScaleX()
+    {
+        return stage.getRenderScaleX();
+    }
+
+    public double getRenderScaleY()
+    {
+        return stage.getRenderScaleY();
+    }
+
     public static enum CodeCompletionState
     {
         NOT_POSSIBLE, SHOWING, POSSIBLE;

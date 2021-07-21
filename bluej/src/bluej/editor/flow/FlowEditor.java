@@ -3079,7 +3079,22 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public SourceLocation getTextPositionForScreenPos(int screenX, int screenY)
     {
-        OptionalInt caretPos = flowEditorPane.getCaretPositionForScreenPoint(new Point2D(screenX, screenY));
+        int windowX = fxTabbedEditor.getX();
+        int windowY = fxTabbedEditor.getY();
+        double sceneX = flowEditorPane.getScene().getX();
+        double sceneY = flowEditorPane.getScene().getY();
+        double renderScaleX = fxTabbedEditor.getRenderScaleX();
+        double renderScaleY = fxTabbedEditor.getRenderScaleY();
+        Point2D p = new Point2D(
+            (screenX / renderScaleX) - windowX,
+            (screenY / renderScaleY) - windowY
+        ).subtract(
+            sceneX,
+            sceneY
+        );
+
+        Point2D localPoint = flowEditorPane.sceneToLocal(p);
+        OptionalInt caretPos = flowEditorPane.getCaretPositionForLocalPoint(localPoint);
         if (caretPos.isPresent())
             return getLineColumnFromOffset(caretPos.getAsInt());
         else
@@ -3291,6 +3306,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public Rectangle2D getScreenBoundsIfSelectedTab()
     {
         return fxTab.getScreenBoundsIfSelectedTab();
+    }
+
+    @Override
+    public double getFontSizeInPixels()
+    {
+        return flowEditorPane.getFontSizeInPixels();
+    }
+
+    @Override
+    public Rectangle2D getScreenBoundsOfLine(int line)
+    {
+        return flowEditorPane.getLineBoundsOnScreen(line - 1, new Point2D(fxTabbedEditor.getX(), fxTabbedEditor.getY()), fxTabbedEditor.getRenderScaleX(), fxTabbedEditor.getRenderScaleY());
     }
 
     /**

@@ -193,7 +193,11 @@ abstract class FXTab extends Tab
             if (parent.isWindowVisible() && !parent.getStage().isIconified())
             {
                 Stage window = parent.getStage();
-                return new Rectangle2D(window.getX(), window.getY(), window.getWidth(), window.getHeight());
+                return new Rectangle2D(
+                    window.getX() * window.getRenderScaleX(),
+                    window.getY() * window.getRenderScaleY(),
+                    window.getWidth() * window.getRenderScaleX(),
+                    window.getHeight() * window.getRenderScaleY());
             }
         }
         return null;
