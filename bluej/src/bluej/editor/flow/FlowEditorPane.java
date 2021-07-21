@@ -1046,6 +1046,8 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     {
         if (lineDisplay.isLineVisible(line))
         {
+            // This is the reverse of the computation in FlowEditor.getTextPositionForScreenPos;
+            // see the comment there for more info.
             MarginAndTextLine marginAndTextLine = lineDisplay.getVisibleLine(line);
             Bounds bounds = marginAndTextLine.textLine.localToScene(marginAndTextLine.textLine.getBoundsInLocal());
             double sceneX = marginAndTextLine.getScene().getX();

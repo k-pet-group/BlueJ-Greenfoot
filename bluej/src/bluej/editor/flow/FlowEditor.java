@@ -3079,13 +3079,24 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public SourceLocation getTextPositionForScreenPos(int screenX, int screenY)
     {
+        // On Windows, JavaFX doesn't scale correctly for HiDPI monitors.  So the screen
+        // position reported by the OS (which is in the native resolution) doesn't map
+        // to JavaFX, which seems to be operating in the reduced pixel space.  E.g. if
+        // on a 1920x1080 monitor you apply Windows scaling of 2x then Windows will
+        // report the mouse at say 800,600 but JavaFX thinks of that point as being at
+        // 400,300.
+        // This is complicated further by the window position and location of the scene
+        // within the window.  The below calculation seems to work provided that the
+        // target monitor either has the same HiDPI scaling as all other monitors, or
+        // is the monitor where (0,0) is located, or there's only one monitor.        
         int windowX = fxTabbedEditor.getX();
         int windowY = fxTabbedEditor.getY();
         double sceneX = flowEditorPane.getScene().getX();
         double sceneY = flowEditorPane.getScene().getY();
         double renderScaleX = fxTabbedEditor.getRenderScaleX();
         double renderScaleY = fxTabbedEditor.getRenderScaleY();
-        Point2D p = new Point2D(
+        // Convert the point from Windows OS coordinates into JavaFX scene coordinates:
+        Point2D scenePoint = new Point2D(
             (screenX / renderScaleX) - windowX,
             (screenY / renderScaleY) - windowY
         ).subtract(
@@ -3093,7 +3104,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             sceneY
         );
 
-        Point2D localPoint = flowEditorPane.sceneToLocal(p);
+        Point2D localPoint = flowEditorPane.sceneToLocal(scenePoint);
         OptionalInt caretPos = flowEditorPane.getCaretPositionForLocalPoint(localPoint);
         if (caretPos.isPresent())
             return getLineColumnFromOffset(caretPos.getAsInt());

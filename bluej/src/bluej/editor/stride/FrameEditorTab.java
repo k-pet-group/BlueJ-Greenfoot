@@ -861,6 +861,9 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
             return null;
         Node frameNode = topLevelFrame.getNode();
         FXTabbedEditor fxTabbedEditor = parent.get();
+
+        // This is the same computation as in FlowEditor.getTextPositionForScreenPos;
+        // see the comment there for more info.
         int windowX = fxTabbedEditor.getX();
         int windowY = fxTabbedEditor.getY();
         double sceneX = frameNode.getScene().getX();
