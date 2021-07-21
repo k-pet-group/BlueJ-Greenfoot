@@ -192,8 +192,14 @@ abstract class FXTab extends Tab
             FXTabbedEditor parent = getParent();
             if (parent.isWindowVisible() && !parent.getStage().isIconified())
             {
+                // We need to adjust from JavaFX coordinates into Windows OS coordinates
+                // using the HiDPI scaling of the monitor that the window is on:
                 Stage window = parent.getStage();
-                return new Rectangle2D(window.getX(), window.getY(), window.getWidth(), window.getHeight());
+                return new Rectangle2D(
+                    window.getX() * window.getRenderScaleX(),
+                    window.getY() * window.getRenderScaleY(),
+                    window.getWidth() * window.getRenderScaleX(),
+                    window.getHeight() * window.getRenderScaleY());
             }
         }
         return null;

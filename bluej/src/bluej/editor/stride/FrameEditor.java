@@ -794,6 +794,18 @@ public class FrameEditor implements Editor
             {
                 throw new UnsupportedOperationException("Frame-based editors do not have a text location");
             }
+
+            @Override
+            public double getFontSizeInPixels()
+            {
+                throw new UnsupportedOperationException("Not applicable to frame-based editor.");
+            }
+
+            @Override
+            public Rectangle2D getScreenBoundsOfLine(int line)
+            {
+                throw new UnsupportedOperationException("Frame-based editors do not have lines");
+            }
         };
     }
 

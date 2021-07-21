@@ -24,6 +24,7 @@ package bluej.editor;
 import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ReparseableDocument;
+import javafx.geometry.Rectangle2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -186,4 +187,14 @@ public interface TextEditor extends Editor
      * none at that position.
      */
     public SourceLocation getTextPositionForScreenPos(int screenX, int screenY);
+    
+    public double getFontSizeInPixels();
+
+    /**
+     * Gets bounds in screen coordinates of the given line
+     * @param line The line index, where 1 is the first line.
+     * @return
+     */
+    Rectangle2D getScreenBoundsOfLine(int line);
 }
+
