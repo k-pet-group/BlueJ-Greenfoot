@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.editor.fixes.SuggestionList;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.ObjectProperty;
@@ -80,7 +81,7 @@ import threadchecker.Tag;
  * to leave the end of the line; editing the start of a choice slot makes very little sense, especially
  * since it effectively blanks when you enter it.
  */
-public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHeaderItem
+public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHeaderItem
 {
     private final InteractionManager editor;
     private final Frame parentFrame;
@@ -660,4 +661,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         // Not much effort to select choice, and often left as-is; approximate as one keypress:
         return 1;
     }
+
+    @Override
+    public abstract String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent);
 }

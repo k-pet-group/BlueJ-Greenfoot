@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016,2018,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2018,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,8 @@ import java.util.stream.Stream;
 
 import bluej.editor.stride.FrameEditor;
 import bluej.parser.AssistContent.Access;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.StringExpression;
 import javafx.scene.control.TextField;
@@ -158,6 +160,15 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
             {
                 // Start of word is always start of slot; don't let the dots in package/class names break the word:
                 return 0;
+            }
+
+            @Override
+            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+            {
+                if (getComponents().stream().anyMatch(n -> JavaFXUtil.containsScenePoint(n, sceneX, sceneY)))
+                    return locationMap.locationFor(ImportFrame.this.getCode()) + "/@target";
+                else
+                    return null;
             }
         };
         importField.setPromptText("package or class");

@@ -154,7 +154,16 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         } else {
             callRow = new FrameContentRow(this, "constructor-call-");
             callRow.setMargin(new Insets(0, 6, 0, 0));
-            superThis = new ChoiceSlot<>(getEditor(), this, callRow, SuperThis.all(), SuperThis::isValid, "constructor-", Collections.emptyMap());
+            superThis = new ChoiceSlot<>(getEditor(), this, callRow, SuperThis.all(), SuperThis::isValid, "constructor-", Collections.emptyMap()) {
+                @Override
+                public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+                {
+                    if (JavaFXUtil.containsScenePoint(curDisplay.getNode(), sceneX, sceneY))
+                        return locationMap.locationFor(ConstructorFrame.this.getCode()) + "/delegate[1]/@target";
+                    else
+                        return null;
+                }
+            };
             superThis.setValue(st.getValue());
 
             superThisParams = new SuperThisParamsExpressionSlot(getEditor(), this, this, callRow, superThis, "constructor-param-") {
