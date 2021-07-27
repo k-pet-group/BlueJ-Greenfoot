@@ -306,7 +306,13 @@ public class SlotLabel implements HeaderItem, Styleable, CopyableHeaderItem
         else
             return null;
     }
-    
+
+    /**
+     * Only certain identifiers are valid in XML: they can only start with letter, _ or :
+     * and can only be followed by those or digits or . or -
+     * 
+     * This method takes a trimmed piece of text and maps it into a valid XML identifier.
+     */
     private String toValidXMLid(String text)
     {
         StringBuilder b = new StringBuilder();
@@ -314,8 +320,7 @@ public class SlotLabel implements HeaderItem, Styleable, CopyableHeaderItem
         for (int i = 0; i < codepoints.length; i++)
         {
             int c = codepoints[i];
-            // XML identifiers can only start with letter, _ or :
-            // and can only be followed by those or digits or . or -
+            // XML identifiers 
             if (Character.isLetter(c) || c == '_' ||  c == ':' ||
                 (i > 0 && (Character.isDigit(c) || c == '.' || c == '-')))
             {
