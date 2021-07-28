@@ -854,7 +854,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         editor.getWatcher().scheduleCompilation(false, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE);
     }
 
-    public String getXPathForItemAtPosition(int screenX, int screenY)
+    public String getXPathForItemAtPosition(int screenX, int screenY, boolean includePseudoElements, boolean includeSubstringIndex)
     {
         TopLevelFrame<? extends TopLevelCodeElement> topLevelFrame = getTopLevelFrame();
         if (topLevelFrame == null)
@@ -878,7 +878,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
             sceneY
         );
 
-        return topLevelFrame.getXPathForElementAt(sceneLocation.getX(), sceneLocation.getY(), getLocationMap());
+        return topLevelFrame.getXPathForElementAt(sceneLocation.getX(), sceneLocation.getY(), getLocationMap(), includePseudoElements, includeSubstringIndex);
     }
 
     @OnThread(Tag.Any)

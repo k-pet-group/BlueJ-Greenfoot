@@ -199,7 +199,7 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
     public boolean isEditable();
 
     @Override
-    default public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+    default public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
     {
         if (getComponents().stream().anyMatch(n -> JavaFXUtil.containsScenePoint(n, sceneX, sceneY)))
             return locationMap.locationFor(getSlotElement());

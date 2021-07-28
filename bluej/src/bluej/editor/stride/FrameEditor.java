@@ -181,9 +181,9 @@ public class FrameEditor implements Editor
         return new ArrayList<>(latestBreakpoints);
     }
 
-    public String getXPathForItemAtPosition(int screenX, int screenY)
+    public String getXPathForItemAtPosition(int screenX, int screenY, boolean includePseudoElements, boolean includeSubstringIndex)
     {
-        return panel.getXPathForItemAtPosition(screenX, screenY);
+        return panel.getXPathForItemAtPosition(screenX, screenY, includePseudoElements, includeSubstringIndex);
     }
 
     /**

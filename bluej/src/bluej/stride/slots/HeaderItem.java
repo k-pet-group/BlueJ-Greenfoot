@@ -59,5 +59,5 @@ public interface HeaderItem
      */
     void setView(Frame.View oldView, Frame.View newView, SharedTransition animate);
 
-    String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent);
+    String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex);
 }

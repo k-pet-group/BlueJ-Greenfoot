@@ -438,7 +438,7 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
     }
 
     @Override
-    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
     {
         if (JavaFXUtil.containsScenePoint(wrapper, sceneX, sceneY))
             return xpathParent + "/javadoc[1]";
@@ -447,8 +447,8 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
     }
     
     @Override
-    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore)
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore, boolean includePseudoElements, boolean includeSubstringIndex)
     {
-        return getXPathForElementAt(sceneX, sceneY, locationMap, xpathParent);
+        return getXPathForElementAt(sceneX, sceneY, locationMap, xpathParent, includePseudoElements, includeSubstringIndex);
     }
 }

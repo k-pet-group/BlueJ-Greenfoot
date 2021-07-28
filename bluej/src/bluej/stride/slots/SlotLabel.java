@@ -299,10 +299,10 @@ public class SlotLabel implements HeaderItem, Styleable, CopyableHeaderItem
     }
 
     @Override
-    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
     {
         if (!l.getText().trim().isEmpty() && JavaFXUtil.containsScenePoint(l, sceneX, sceneY))
-            return xpathParent + "/_" + toValidXMLid(l.getText().trim());
+            return xpathParent + (includePseudoElements ? "/_" + toValidXMLid(l.getText().trim()) : "");
         else
             return null;
     }

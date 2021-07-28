@@ -195,10 +195,10 @@ public class WrappableSlotLabel implements HeaderItem, CopyableHeaderItem
     }
 
     @Override
-    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
     {
         if (!words.isEmpty() && JavaFXUtil.containsScenePoint(words.get(0), sceneX, sceneY))
-            return xpathParent + "/_" + words.get(0).getText().toLowerCase();
+            return xpathParent + (includePseudoElements ? "/_" + words.get(0).getText().toLowerCase() : "");
         else
             return null;
     }

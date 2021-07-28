@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,6 +36,7 @@ import bluej.editor.stride.FrameCatalogue;
 
 import bluej.stride.framedjava.ast.StructuredSlotFragment;
 import bluej.stride.framedjava.ast.links.PossibleLink;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.slots.InfixStructured.RangeType;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.utility.javafx.*;
@@ -1530,6 +1532,30 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     public int calculateEffort()
     {
         return topLevel.calculateEffort();
+    }
+
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
+    {
+        if (getComponents().stream().anyMatch(n -> JavaFXUtil.containsScenePoint(n, sceneX, sceneY)))
+        {
+            String xpath = locationMap.locationFor(getSlotElement());
+            if (includeSubstringIndex)
+            {
+                // Find position within the Java content of the slot:
+                PosAndDist posAndDist = topLevel.getNearest(sceneX, sceneY, true, OptionalInt.empty());
+                if (posAndDist.getPos() != null)
+                {
+                    // XPath substring is 1-based, so add 1 from our 0-based index:
+                    int pos = 1 + topLevel.caretPosToStringPos(posAndDist.getPos(), true);
+                    return "substring(" + xpath + ", " + pos + ", 1)";
+                }
+            }
+            
+            return xpath;
+        }
+        else
+            return null;
     }
 
     /**

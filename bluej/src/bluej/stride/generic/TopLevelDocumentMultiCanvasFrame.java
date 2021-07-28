@@ -177,7 +177,7 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
             }
 
             @Override
-            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore)
+            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore, boolean includePseudoElements, boolean includeSubstringIndex)
             {
                 return null;
             }
@@ -305,7 +305,7 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
             }
 
             @Override
-            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap)
+            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, boolean includePseudoElements, boolean includeSubstringIndex)
             {
                 return null;
             }

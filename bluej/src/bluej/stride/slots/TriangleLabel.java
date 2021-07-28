@@ -149,10 +149,10 @@ public class TriangleLabel extends HBox implements HeaderItem
     }
 
     @Override
-    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
     {
         if (JavaFXUtil.containsScenePoint(canvas, sceneX, sceneY))
-            return xpathParent + "/_foldout";
+            return xpathParent + (includePseudoElements ? "/_foldout" : "");
         else
             return null;
     }

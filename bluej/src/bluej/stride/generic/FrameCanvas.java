@@ -1196,14 +1196,14 @@ public class FrameCanvas implements FrameContentItem
     }
 
     @Override
-    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore)
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore, boolean includePseudoElements, boolean includeSubstringIndex)
     {
         if (JavaFXUtil.containsScenePoint(canvas, sceneX, sceneY))
         {
             return blockContents.stream()
-                .flatMap(f -> Stream.ofNullable(f.getXPathForElementAt(sceneX, sceneY, locationMap)))
+                .flatMap(f -> Stream.ofNullable(f.getXPathForElementAt(sceneX, sceneY, locationMap, includePseudoElements, includeSubstringIndex)))
                 .findFirst()
-                .orElse(xpathParent + "/_canvas[" + (1 + canvasesBefore) + "]");
+                .orElse(xpathParent + (includePseudoElements ? "/_canvas[" + (1 + canvasesBefore) + "]" : ""));
         }
         return null;
     }
