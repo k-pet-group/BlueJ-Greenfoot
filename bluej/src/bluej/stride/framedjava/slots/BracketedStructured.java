@@ -23,6 +23,7 @@ package bluej.stride.framedjava.slots;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Stream;
 
 import javafx.collections.FXCollections;
@@ -120,7 +121,7 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
     public PosAndDist getNearest(double sceneX, double sceneY, boolean allowDescend, boolean anchorInItem)
     {
         if (allowDescend)
-            return content.getNearest(sceneX, sceneY, true, Optional.empty());
+            return content.getNearest(sceneX, sceneY, true, OptionalInt.empty());
         else
             return new PosAndDist();
     }
