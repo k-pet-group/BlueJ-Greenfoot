@@ -85,10 +85,10 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         setDocumentationPromptText(Config.getString("frame.class.constructor.doc.prompt"));
         headerLabel = new SlotLabel("<constructor>") {
             @Override
-            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
             {
                 if (JavaFXUtil.containsScenePoint(getNode(), sceneX, sceneY))
-                    return xpathParent + "/_classname";
+                    return xpathParent + (includePseudoElements ? "/_classname" : "");
                 else
                     return null;
             }
@@ -156,7 +156,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
             callRow.setMargin(new Insets(0, 6, 0, 0));
             superThis = new ChoiceSlot<>(getEditor(), this, callRow, SuperThis.all(), SuperThis::isValid, "constructor-", Collections.emptyMap()) {
                 @Override
-                public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+                public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
                 {
                     if (JavaFXUtil.containsScenePoint(curDisplay.getNode(), sceneX, sceneY))
                         return locationMap.locationFor(ConstructorFrame.this.getCode()) + "/delegate[1]/@target";

@@ -663,5 +663,5 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
     }
 
     @Override
-    public abstract String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent);
+    public abstract String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex);
 }

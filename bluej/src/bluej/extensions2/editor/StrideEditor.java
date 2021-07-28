@@ -70,10 +70,15 @@ public class StrideEditor
      * 
      * @param screenX The X position on screen
      * @param screenY The Y position on screen
+     * @param includePseudoElements Whether to include paths to pseudo-elements that aren't present in Stride's
+     *                              XML representation, but have an on-screen representation, for example
+     *                              the keyword "while" in the while frame, or the "<=" operator in an assignment frame.
+     * @param includeSubstringIndex Whether to include a substring call that indicates which exact character
+     *                              the position corresponds to, within structured slots.
      * @return The XPath, or null if no Stride element is at that position.
      */
-    public String getXPathForItemAtPosition(int screenX, int screenY)
+    public String getXPathForItemAtPosition(int screenX, int screenY, boolean includePseudoElements, boolean includeSubstringIndex)
     {
-        return frameEditor.getXPathForItemAtPosition(screenX, screenY);
+        return frameEditor.getXPathForItemAtPosition(screenX, screenY, includePseudoElements, includeSubstringIndex);
     }
 }

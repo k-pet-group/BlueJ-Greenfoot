@@ -1459,7 +1459,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     }
 
     @Override
-    public final String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap)
+    public final String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, boolean includePseudoElements, boolean includeSubstringIndex)
     {        
         if (JavaFXUtil.containsScenePoint(frameContents, sceneX, sceneY))
         {
@@ -1467,7 +1467,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             int canvasesBefore = 0;
             for (FrameContentItem content : contents)
             {
-                String childXPath = content.getXPathForElementAt(sceneX, sceneY, locationMap, frameXPath, canvasesBefore);
+                String childXPath = content.getXPathForElementAt(sceneX, sceneY, locationMap, frameXPath, canvasesBefore, includePseudoElements, includeSubstringIndex);
                 if (childXPath != null)
                     return childXPath;
                 

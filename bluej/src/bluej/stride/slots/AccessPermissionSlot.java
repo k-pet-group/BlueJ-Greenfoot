@@ -56,7 +56,7 @@ public class AccessPermissionSlot extends ChoiceSlot<AccessPermission>
     }
 
     @Override
-    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
     {
         if (JavaFXUtil.containsScenePoint(curDisplay.getNode(), sceneX, sceneY))
             return xpathParent + "/@access";

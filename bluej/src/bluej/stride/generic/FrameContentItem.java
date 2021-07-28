@@ -65,5 +65,5 @@ public interface FrameContentItem
 
     public Node getNode();
 
-    String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String parentFrameXPath, int canvasesBefore);
+    String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String parentFrameXPath, int canvasesBefore, boolean includePseudoElements, boolean includeSubstringIndex);
 }

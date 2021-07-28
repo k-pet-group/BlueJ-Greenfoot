@@ -469,8 +469,8 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
     }
 
     @Override
-    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore)
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore, boolean includePseudoElements, boolean includeSubstringIndex)
     {
-        return getHeaderItemsDeep().flatMap(x -> Stream.ofNullable(x.getXPathForElementAt(sceneX, sceneY, locationMap, xpathParent))).findFirst().orElse(null);
+        return getHeaderItemsDeep().flatMap(x -> Stream.ofNullable(x.getXPathForElementAt(sceneX, sceneY, locationMap, xpathParent, includePseudoElements, includeSubstringIndex))).findFirst().orElse(null);
     }
 }

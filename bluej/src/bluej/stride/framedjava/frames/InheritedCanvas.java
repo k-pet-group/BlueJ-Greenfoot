@@ -73,7 +73,7 @@ class InheritedCanvas
             }
 
             @Override
-            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap)
+            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, boolean includePseudoElements, boolean includeSubstringIndex)
             {
                 return null;
             }

@@ -163,7 +163,7 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
             }
 
             @Override
-            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent)
+            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
             {
                 if (getComponents().stream().anyMatch(n -> JavaFXUtil.containsScenePoint(n, sceneX, sceneY)))
                     return locationMap.locationFor(ImportFrame.this.getCode()) + "/@target";
