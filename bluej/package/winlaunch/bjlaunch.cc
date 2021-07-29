@@ -81,7 +81,7 @@ std::list<LPCWSTR> bjargs;
 std::list<LPCWSTR> windowsvmargs;
 
 // Whether we should always launch java as an external process
-bool externalLaunch = false;
+bool externalLaunch = true;
 
 #ifdef GREENFOOT
 
@@ -569,7 +569,12 @@ int WINAPI WinMain
         }
         else if (lstrcmpi(TEXT("/externalvm"), args[i]) == 0) {
             // force external launch of VM (as a separate process)
+            // (This is now the default but we should still swallow the argument)
             externalLaunch = true;
+        }
+        else if (lstrcmpi(TEXT("/internalvm"), args[i]) == 0) {
+            // force internal launch of VM (in same process)
+            externalLaunch = false;
         }
         else {
             bjargs.push_back(args[i]);
