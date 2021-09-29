@@ -506,7 +506,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         
         // Put the handlers for links on the field:
         f.addEventHandler(MouseEvent.MOUSE_MOVED, e -> {
-            CaretPos relNearest = getNearest(e.getSceneX(), e.getSceneY(), false, Optional.empty()).getPos();
+            CaretPos relNearest = getNearest(e.getSceneX(), e.getSceneY(), false, OptionalInt.empty()).getPos();
             CaretPos absNearest = absolutePos(relNearest);
             f.setPseudoclass("bj-hyperlink", e.isShortcutDown() && slot.getOverlay().hoverAtPos(slot.getTopLevel().caretPosToStringPos(absNearest, false)) != null);
         });
@@ -517,7 +517,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
                 return; // Either they must be holding shortcut button, or middle clicking
             
             // check for click on underlined region
-            CaretPos relNearest = getNearest(e.getSceneX(), e.getSceneY(), false, Optional.empty()).getPos();
+            CaretPos relNearest = getNearest(e.getSceneX(), e.getSceneY(), false, OptionalInt.empty()).getPos();
             CaretPos absNearest = absolutePos(relNearest);
             // First we check existing underlines:
             FXPlatformRunnable linkRunnable = slot.getOverlay().hoverAtPos(slot.getTopLevel().caretPosToStringPos(absNearest, false));
@@ -889,7 +889,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     @Override
     public void moveTo(double sceneX, double sceneY, boolean setAnchor)
     {
-        CaretPos pos = getNearest(sceneX, sceneY, true, Optional.empty()).getPos();
+        CaretPos pos = getNearest(sceneX, sceneY, true, OptionalInt.empty()).getPos();
         positionCaret(pos);
         if (setAnchor) {
             anchorPos = pos;
@@ -897,12 +897,12 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     }
     
     // Package-visible
-    PosAndDist getNearest(double sceneX, double sceneY, boolean canDescend, Optional<Integer> restrictTo)
+    PosAndDist getNearest(double sceneX, double sceneY, boolean canDescend, OptionalInt restrictTo)
     {
         PosAndDist nearest = new PosAndDist();
         for (int i = 0; i < fields.size();i++) {
             final int index = i;
-            if (restrictTo.isPresent() && restrictTo.get() != i)
+            if (restrictTo.isPresent() && restrictTo.getAsInt() != i)
                 continue;
             nearest = PosAndDist.nearest(nearest, fields.get(i).getNearest(sceneX, sceneY, canDescend, anchorPos != null && anchorPos.index == i).copyAdjustPos(p -> new CaretPos(index, p)));
         }
@@ -917,7 +917,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         // Rules are:
         // you can't select into brackets or string literals
         // you can only select at same level.
-        CaretPos pos = getNearest(sceneX, sceneY, false, anchorPos != null && fields.get(anchorPos.index) instanceof StringLiteralExpression ? Optional.of(anchorPos.index) : Optional.empty()).getPos();
+        CaretPos pos = getNearest(sceneX, sceneY, false, anchorPos != null && fields.get(anchorPos.index) instanceof StringLiteralExpression ? OptionalInt.of(anchorPos.index) : OptionalInt.empty()).getPos();
         positionCaret(pos);
         drawSelection(pos);
     }

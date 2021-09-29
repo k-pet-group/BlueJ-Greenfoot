@@ -75,6 +75,7 @@ import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Rectangle2D;
 import javafx.print.PrinterJob;
 import javafx.scene.image.Image;
 import threadchecker.OnThread;
@@ -178,6 +179,11 @@ public class FrameEditor implements Editor
     public synchronized List<Integer> getBreakpoints()
     {
         return new ArrayList<>(latestBreakpoints);
+    }
+
+    public String getXPathForItemAtPosition(int screenX, int screenY, boolean includePseudoElements, boolean includeSubstringIndex)
+    {
+        return panel.getXPathForItemAtPosition(screenX, screenY, includePseudoElements, includeSubstringIndex);
     }
 
     /**
@@ -771,9 +777,34 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
+            public Rectangle2D getScreenBoundsIfSelectedTab()
+            {
+                return FrameEditor.this.getScreenBoundsIfSelectedTab();
+            }
+            
+            @Override
+            @OnThread(Tag.FXPlatform)
             public void removeErrorHighlights()
             {
                 FrameEditor.this.removeErrorHighlights();
+            }
+
+            @Override
+            public SourceLocation getTextPositionForScreenPos(int screenX, int screenY)
+            {
+                throw new UnsupportedOperationException("Frame-based editors do not have a text location");
+            }
+
+            @Override
+            public double getFontSizeInPixels()
+            {
+                throw new UnsupportedOperationException("Not applicable to frame-based editor.");
+            }
+
+            @Override
+            public Rectangle2D getScreenBoundsOfLine(int line)
+            {
+                throw new UnsupportedOperationException("Frame-based editors do not have lines");
             }
         };
     }
@@ -1459,5 +1490,11 @@ public class FrameEditor implements Editor
             panel.flagErrorsAsOld();
             panel.removeOldErrors();
         }
+    }
+
+    @Override
+    public Rectangle2D getScreenBoundsIfSelectedTab()
+    {
+        return panel == null ? null : panel.getScreenBoundsIfSelectedTab();
     }
 }

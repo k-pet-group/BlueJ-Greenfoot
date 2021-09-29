@@ -181,7 +181,7 @@ class FrameMenuManager extends TabMenuManager
     private void print()
     {
         PrinterJob job = JavaFXUtil.createPrinterJob();
-        Window parentWindow = editor.getParent().getWindow();
+        Window parentWindow = editor.getParent().getStage();
         if (job == null)
         {
             DialogManager.showErrorFX(parentWindow,"print-no-printers");

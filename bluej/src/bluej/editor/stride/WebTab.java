@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2015,2016,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 2015,2016,2018,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -238,7 +238,7 @@ public class WebTab extends FXTab
                             }
                             else if (nodeCSS.startsWith("Editor"))
                             {
-                                targetWindow = parent.getProject().getDefaultFXTabbedEditor().getWindow();
+                                targetWindow = parent.getProject().getDefaultFXTabbedEditor().getStage();
                                 nodeCSS = nodeCSS.substring("Editor".length());
                             }
                             else if (nodeCSS.startsWith("TestResults"))

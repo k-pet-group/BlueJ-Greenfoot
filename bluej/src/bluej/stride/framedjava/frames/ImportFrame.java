@@ -31,6 +31,8 @@ import java.util.stream.Stream;
 import bluej.editor.stride.FrameEditor;
 import bluej.parser.AssistContent.Access;
 import bluej.stride.generic.*;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.StringExpression;
 import javafx.scene.control.TextField;
@@ -155,6 +157,15 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
             {
                 // Start of word is always start of slot; don't let the dots in package/class names break the word:
                 return 0;
+            }
+
+            @Override
+            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
+            {
+                if (getComponents().stream().anyMatch(n -> JavaFXUtil.containsScenePoint(n, sceneX, sceneY)))
+                    return locationMap.locationFor(ImportFrame.this.getCode()) + "/@target";
+                else
+                    return null;
             }
         };
         importField.setPromptText("package or class");

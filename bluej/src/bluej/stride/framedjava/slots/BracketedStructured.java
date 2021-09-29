@@ -1,6 +1,5 @@
 /*
  This file is part of the BlueJ program. 
-
  Copyright (C) 2014,2015,2016,2018,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
@@ -24,6 +23,7 @@ package bluej.stride.framedjava.slots;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Stream;
 
 import bluej.stride.generic.ScreenreaderDictionary;
@@ -122,7 +122,7 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
     public PosAndDist getNearest(double sceneX, double sceneY, boolean allowDescend, boolean anchorInItem)
     {
         if (allowDescend)
-            return content.getNearest(sceneX, sceneY, true, Optional.empty());
+            return content.getNearest(sceneX, sceneY, true, OptionalInt.empty());
         else
             return new PosAndDist();
     }

@@ -920,7 +920,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         this.titleStatus.set(status);
     }
 
-    public Window getWindow()
+    public Stage getStage()
     {
         return stage;
     }
@@ -977,6 +977,16 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     public boolean hasTutorial()
     {
         return tabPane.getTabs().stream().anyMatch(t -> t instanceof FXTab && ((FXTab)t).isTutorial());
+    }
+
+    public double getRenderScaleX()
+    {
+        return stage.getRenderScaleX();
+    }
+
+    public double getRenderScaleY()
+    {
+        return stage.getRenderScaleY();
     }
 
     public static enum CodeCompletionState

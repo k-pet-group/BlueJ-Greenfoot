@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 import bluej.stride.generic.*;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.utility.javafx.AbstractOperation;
 import javafx.beans.binding.DoubleExpression;
 import javafx.collections.FXCollections;
@@ -76,7 +77,16 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
     private ConstructorFrame(InteractionManager editor) {
         super(editor);
         setDocumentationPromptText(Config.getString("frame.class.constructor.doc.prompt"));
-        headerLabel = new SlotLabel("<constructor>");
+        headerLabel = new SlotLabel("<constructor>") {
+            @Override
+            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
+            {
+                if (JavaFXUtil.containsScenePoint(getNode(), sceneX, sceneY))
+                    return xpathParent + (includePseudoElements ? "/_classname" : "");
+                else
+                    return null;
+            }
+        };
         JavaFXUtil.addStyleClass(headerLabel, "constructor-name-caption");
 
         paramsPane = new FormalParameters(editor, this, this, getHeaderRow(), "constructor-param-");
@@ -204,7 +214,16 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         } else {
             callRow = new FrameContentRow(this, "constructor-call-");
             callRow.setMargin(new Insets(0, 6, 0, 0));
-            superThis = new ChoiceSlot<>(getEditor(), this, callRow, SuperThis.all(), SuperThis::isValid, "constructor-", Collections.emptyMap());
+            superThis = new ChoiceSlot<>(getEditor(), this, callRow, SuperThis.all(), SuperThis::isValid, "constructor-", Collections.emptyMap()) {
+                @Override
+                public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
+                {
+                    if (JavaFXUtil.containsScenePoint(curDisplay.getNode(), sceneX, sceneY))
+                        return locationMap.locationFor(ConstructorFrame.this.getCode()) + "/delegate[1]/@target";
+                    else
+                        return null;
+                }
+            };
             superThis.setValue(st.getValue());
 
             superThisParams = new SuperThisParamsExpressionSlot(getEditor(), this, this, callRow, superThis, "constructor-param-") {

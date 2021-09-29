@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.stride.slots;
 
 import java.util.List;
 
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -145,5 +146,14 @@ public class TriangleLabel extends HBox implements HeaderItem
     @Override
     public void setView(Frame.View oldView, Frame.View newView, SharedTransition animate)
     {
+    }
+
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
+    {
+        if (JavaFXUtil.containsScenePoint(canvas, sceneX, sceneY))
+            return xpathParent + (includePseudoElements ? "/_foldout" : "");
+        else
+            return null;
     }
 }

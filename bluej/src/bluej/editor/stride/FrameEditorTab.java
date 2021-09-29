@@ -877,6 +877,33 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         editor.getWatcher().scheduleCompilation(false, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE);
     }
 
+    public String getXPathForItemAtPosition(int screenX, int screenY, boolean includePseudoElements, boolean includeSubstringIndex)
+    {
+        TopLevelFrame<? extends TopLevelCodeElement> topLevelFrame = getTopLevelFrame();
+        if (topLevelFrame == null)
+            return null;
+        Node frameNode = topLevelFrame.getNode();
+        FXTabbedEditor fxTabbedEditor = parent.get();
+
+        // This is the same computation as in FlowEditor.getTextPositionForScreenPos;
+        // see the comment there for more info.
+        int windowX = fxTabbedEditor.getX();
+        int windowY = fxTabbedEditor.getY();
+        double sceneX = frameNode.getScene().getX();
+        double sceneY = frameNode.getScene().getY();
+        double renderScaleX = fxTabbedEditor.getRenderScaleX();
+        double renderScaleY = fxTabbedEditor.getRenderScaleY();
+        Point2D sceneLocation = new Point2D(
+            (screenX / renderScaleX) - windowX,
+            (screenY / renderScaleY) - windowY
+        ).subtract(
+            sceneX,
+            sceneY
+        );
+
+        return topLevelFrame.getXPathForElementAt(sceneLocation.getX(), sceneLocation.getY(), getLocationMap(), includePseudoElements, includeSubstringIndex);
+    }
+
     @OnThread(Tag.Any)
     private static enum ShowVars
     {

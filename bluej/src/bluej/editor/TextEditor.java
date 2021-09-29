@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2019,2021  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.editor;
 import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ReparseableDocument;
+import javafx.geometry.Rectangle2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -180,4 +181,20 @@ public interface TextEditor extends Editor
      * @return A ParsedNode instance, or null if not supported.
      */
     public ParsedCUNode getParsedNode();
+    
+    /**
+     * Get the source location for the given screen XY position.  Returns null if there is
+     * none at that position.
+     */
+    public SourceLocation getTextPositionForScreenPos(int screenX, int screenY);
+    
+    public double getFontSizeInPixels();
+
+    /**
+     * Gets bounds in screen coordinates of the given line
+     * @param line The line index, where 1 is the first line.
+     * @return
+     */
+    Rectangle2D getScreenBoundsOfLine(int line);
 }
+

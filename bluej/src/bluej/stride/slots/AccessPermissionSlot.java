@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,9 +22,11 @@
 package bluej.stride.slots;
 
 import bluej.stride.framedjava.ast.AccessPermission;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
+import bluej.utility.javafx.JavaFXUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,4 +55,12 @@ public class AccessPermissionSlot extends ChoiceSlot<AccessPermission>
         return hints;
     }
 
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
+    {
+        if (JavaFXUtil.containsScenePoint(curDisplay.getNode(), sceneX, sceneY))
+            return xpathParent + "/@access";
+        else
+            return null;
+    }
 }

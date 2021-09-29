@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import bluej.pkgmgr.target.role.Kind;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.utility.BackgroundConsumer;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -151,6 +152,12 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     public FrameCursor getFocusedCursor()
     {
         return null; // TODO
+    }
+
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, boolean includePseudoElements, boolean includeSubstringIndex)
+    {
+        return null;
     }
 
     @Override

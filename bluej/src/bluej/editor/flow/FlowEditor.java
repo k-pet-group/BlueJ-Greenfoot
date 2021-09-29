@@ -111,7 +111,9 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.print.PrinterJob;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
@@ -1085,7 +1087,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                     File backupFile = new File(backupFilename);
                     backupFile.delete();
                     crashFile.renameTo(backupFile);
-                    DialogManager.showMessageFX(fxTabbedEditor.getWindow(), "editor-crashed");
+                    DialogManager.showMessageFX(fxTabbedEditor.getStage(), "editor-crashed");
                 }
 
                 ignoreChanges = true;
@@ -2868,7 +2870,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             return null;
         }
-        return fxTabbedEditor.getWindow();
+        return fxTabbedEditor.getStage();
     }
 
     /**
@@ -2887,7 +2889,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void goToLine()
     {
         final int numberOfLines = numberOfLines();
-        GoToLineDialog goToLineDialog = new GoToLineDialog(fxTabbedEditor.getWindow());
+        GoToLineDialog goToLineDialog = new GoToLineDialog(fxTabbedEditor.getStage());
         goToLineDialog.setRangeMax(numberOfLines);
         Optional<Integer> o = goToLineDialog.showAndWait();
         o.ifPresent(n -> {
@@ -3073,6 +3075,42 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void setFindTextfield(String text)
     {
         finder.populateFindTextfield(text);
+    }
+
+    @Override
+    public SourceLocation getTextPositionForScreenPos(int screenX, int screenY)
+    {
+        // On Windows, JavaFX doesn't scale correctly for HiDPI monitors.  So the screen
+        // position reported by the OS (which is in the native resolution) doesn't map
+        // to JavaFX, which seems to be operating in the reduced pixel space.  E.g. if
+        // on a 1920x1080 monitor you apply Windows scaling of 2x then Windows will
+        // report the mouse at say 800,600 but JavaFX thinks of that point as being at
+        // 400,300.
+        // This is complicated further by the window position and location of the scene
+        // within the window.  The below calculation seems to work provided that the
+        // target monitor either has the same HiDPI scaling as all other monitors, or
+        // is the monitor where (0,0) is located, or there's only one monitor.        
+        int windowX = fxTabbedEditor.getX();
+        int windowY = fxTabbedEditor.getY();
+        double sceneX = flowEditorPane.getScene().getX();
+        double sceneY = flowEditorPane.getScene().getY();
+        double renderScaleX = fxTabbedEditor.getRenderScaleX();
+        double renderScaleY = fxTabbedEditor.getRenderScaleY();
+        // Convert the point from Windows OS coordinates into JavaFX scene coordinates:
+        Point2D scenePoint = new Point2D(
+            (screenX / renderScaleX) - windowX,
+            (screenY / renderScaleY) - windowY
+        ).subtract(
+            sceneX,
+            sceneY
+        );
+
+        Point2D localPoint = flowEditorPane.sceneToLocal(scenePoint);
+        OptionalInt caretPos = flowEditorPane.getCaretPositionForLocalPoint(localPoint);
+        if (caretPos.isPresent())
+            return getLineColumnFromOffset(caretPos.getAsInt());
+        else
+            return null;
     }
 
     /**
@@ -3274,6 +3312,24 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void scrollEventOnTextLine(ScrollEvent e)
     {
         flowEditorPane.scrollEventOnTextLine(e);
+    }
+
+    @Override
+    public Rectangle2D getScreenBoundsIfSelectedTab()
+    {
+        return fxTab.getScreenBoundsIfSelectedTab();
+    }
+
+    @Override
+    public double getFontSizeInPixels()
+    {
+        return flowEditorPane.getFontSizeInPixels();
+    }
+
+    @Override
+    public Rectangle2D getScreenBoundsOfLine(int line)
+    {
+        return flowEditorPane.getLineBoundsOnScreen(line - 1, new Point2D(fxTabbedEditor.getX(), fxTabbedEditor.getY()), fxTabbedEditor.getRenderScaleX(), fxTabbedEditor.getRenderScaleY());
     }
 
     /**

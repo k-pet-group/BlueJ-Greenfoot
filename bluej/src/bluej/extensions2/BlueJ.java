@@ -23,6 +23,7 @@ package bluej.extensions2;
 
 import bluej.Config;
 import bluej.collect.DataCollector;
+import bluej.editor.flow.ScopeHighlightingPrefDisplay;
 import bluej.extensions2.event.*;
 import bluej.extensions2.event.CompileEvent.EventType;
 import bluej.extmgr.ExtensionMenu;
@@ -31,6 +32,7 @@ import bluej.extmgr.ExtensionWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.prefmgr.PrefMgr;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 
@@ -879,5 +881,19 @@ public final class BlueJ
         if ((currentMenuGen != null) && (attachedObject != null)) {
             attachedObject.postMenuItem(currentMenuGen, onThisItem);
         }
+    }
+
+    /**
+     * Sets the scope highlighting strength across all Java editors.  This is how opaque or
+     * transparent the coloured boxes are that appear for classes, methods, control flow constructs, etc.     * 
+     * 
+     * @since Extension API 3.2 (BlueJ 5.0.2)
+     * 
+     * @param strength The highlighting strength: 0 means off, 20 means full, and then
+     *                 it's a sliding scale inbetween.
+     */
+    public void setScopeHighlightStrength(int strength)
+    {
+        PrefMgr.setScopeHighlightStrength(Math.min(Math.max(ScopeHighlightingPrefDisplay.MIN, strength), ScopeHighlightingPrefDisplay.MAX));
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2014,2019,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -183,7 +183,7 @@ public class InvocationFinishedEvent implements ExtensionEvent
      * This is an array of Class objects representing the static types of 
      * the parameters to the method or constructor, in order. In the case of 
      * parameterised types, only the base type (e.g. List, not 
-     * List<String>) is returned.
+     * List&lt;String&gt;) is returned.
      *
      * @return  An array of {@link Class} objects corresponding to the static types of the method's parameters.
      */
