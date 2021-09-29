@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016,2018,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2018,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.utility.Debug;
 import javafx.beans.binding.DoubleExpression;
@@ -465,5 +466,11 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
     public void fontSizeChanged()
     {
         headerOverlay.redraw();
+    }
+
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore, boolean includePseudoElements, boolean includeSubstringIndex)
+    {
+        return getHeaderItemsDeep().flatMap(x -> Stream.ofNullable(x.getXPathForElementAt(sceneX, sceneY, locationMap, xpathParent, includePseudoElements, includeSubstringIndex))).findFirst().orElse(null);
     }
 }

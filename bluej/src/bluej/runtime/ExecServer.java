@@ -46,6 +46,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import bluej.Config;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.application.Preloader;
@@ -1105,7 +1106,9 @@ public class ExecServer
                 boolean anyAdded = false;
                 while (c.next())
                     anyAdded |= c.wasAdded();
-                if (anyAdded)
+                // On Windows bringing the app to front causes a problem with menubars
+                // not working in the JavaFX app, so we restrict this behaviour to Mac:
+                if (anyAdded && Config.isMacOS())
                 {
                     // We don't bring the window itself to the front as that may
                     // mess up user's program.  We just bring the app to the front:

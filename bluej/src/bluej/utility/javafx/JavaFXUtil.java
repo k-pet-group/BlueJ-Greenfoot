@@ -846,6 +846,11 @@ public class JavaFXUtil
         });
     }
 
+    public static boolean containsScenePoint(Node node, double sceneX, double sceneY)
+    {
+        return node.localToScene(node.getBoundsInLocal()).contains(sceneX, sceneY);
+    }
+
     /**
      * A builder pattern for lists.
      */

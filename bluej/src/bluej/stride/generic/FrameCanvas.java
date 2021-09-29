@@ -19,10 +19,6 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package bluej.stride.generic;
 
 
@@ -38,6 +34,7 @@ import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.frames.BlankFrame;
 
 import bluej.utility.javafx.ScalableHeightLabel;
@@ -1220,5 +1217,18 @@ public class FrameCanvas implements FrameContentItem
             default:
                 return Parser.JavaContext.CLASS_MEMBER;
         }
+    }
+
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore, boolean includePseudoElements, boolean includeSubstringIndex)
+    {
+        if (JavaFXUtil.containsScenePoint(canvas, sceneX, sceneY))
+        {
+            return blockContents.stream()
+                .flatMap(f -> Stream.ofNullable(f.getXPathForElementAt(sceneX, sceneY, locationMap, includePseudoElements, includeSubstringIndex)))
+                .findFirst()
+                .orElse(xpathParent + (includePseudoElements ? "/_canvas[" + (1 + canvasesBefore) + "]" : ""));
+        }
+        return null;
     }
 }

@@ -26,15 +26,14 @@ import java.util.List;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.ObjectExpression;
-import javafx.beans.binding.StringExpression;
-import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.value.ObservableStringValue;
-import javafx.scene.Scene;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Menu;
 import javafx.scene.control.Tab;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -178,5 +177,31 @@ abstract class FXTab extends Tab
     {
         // By default this is false; it's overridden by tabs which do show the tutorial:
         return false;
+    }
+
+    /**
+     * If this editor is the selected tab in the editor window,
+     * get the screen bounds for the editor window (not just the tab content).
+     * If it is not the selected tab in its editor window, or it
+     * is not currently showing in any editor window, return null.
+     */
+    public final Rectangle2D getScreenBoundsIfSelectedTab()
+    {
+        if (getParent() != null && isSelected())
+        {
+            FXTabbedEditor parent = getParent();
+            if (parent.isWindowVisible() && !parent.getStage().isIconified())
+            {
+                // We need to adjust from JavaFX coordinates into Windows OS coordinates
+                // using the HiDPI scaling of the monitor that the window is on:
+                Stage window = parent.getStage();
+                return new Rectangle2D(
+                    window.getX() * window.getRenderScaleX(),
+                    window.getY() * window.getRenderScaleY(),
+                    window.getWidth() * window.getRenderScaleX(),
+                    window.getHeight() * window.getRenderScaleY());
+            }
+        }
+        return null;
     }
 }

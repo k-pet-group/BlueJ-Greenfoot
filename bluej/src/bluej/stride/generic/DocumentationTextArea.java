@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,10 +19,6 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package bluej.stride.generic;
 
 import java.util.Collections;
@@ -32,6 +28,7 @@ import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.links.PossibleLink;
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.frames.TopLevelFrame;
 import bluej.utility.javafx.ScalableHeightLabel;
 import javafx.beans.value.ObservableBooleanValue;
@@ -334,18 +331,6 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         curView = newView;
     }
 
-    public String getJavadocs(String prefix)
-    {
-        String out = "";
-        if (! getText().isEmpty()) {
-            String[] lines = getText().split("\n");
-            for (int i = 0; i < lines.length; i++) {
-                out += prefix + " * " + lines[i] + "\n";
-            }
-        }
-        return out;
-    }
-
     @OnThread(Tag.FXPlatform)
     public void hackFixSizing()
     {
@@ -450,5 +435,20 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
     public int calculateEffort()
     {
         return getText().length();
+    }
+
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, boolean includePseudoElements, boolean includeSubstringIndex)
+    {
+        if (JavaFXUtil.containsScenePoint(wrapper, sceneX, sceneY))
+            return xpathParent + "/javadoc[1]";
+        else
+            return null;
+    }
+    
+    @Override
+    public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore, boolean includePseudoElements, boolean includeSubstringIndex)
+    {
+        return getXPathForElementAt(sceneX, sceneY, locationMap, xpathParent, includePseudoElements, includeSubstringIndex);
     }
 }

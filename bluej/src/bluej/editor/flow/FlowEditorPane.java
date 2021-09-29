@@ -33,6 +33,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
@@ -1040,6 +1041,33 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             return Optional.of(new double[] {line.getLayoutY() + bounds.getMinY(), line.getLayoutY() + bounds.getMaxY()});
         }
         return Optional.empty();
+    }
+    
+    public Rectangle2D getLineBoundsOnScreen(int line, Point2D windowPos, double renderScaleX, double renderScaleY)
+    {
+        if (lineDisplay.isLineVisible(line))
+        {
+            // This is the reverse of the computation in FlowEditor.getTextPositionForScreenPos;
+            // see the comment there for more info.
+            MarginAndTextLine marginAndTextLine = lineDisplay.getVisibleLine(line);
+            Bounds bounds = marginAndTextLine.textLine.localToScene(marginAndTextLine.textLine.getBoundsInLocal());
+            double sceneX = marginAndTextLine.getScene().getX();
+            double sceneY = marginAndTextLine.getScene().getY();
+            double windowX = windowPos.getX();
+            double windowY = windowPos.getY();
+            return new Rectangle2D(
+                (bounds.getMinX() + sceneX + windowX) * renderScaleX,
+                (bounds.getMinY() + sceneY + windowY) * renderScaleY,
+                bounds.getWidth() * renderScaleX,
+                bounds.getHeight() * renderScaleY);
+        }
+        return null;
+    }
+
+    
+    public double getFontSizeInPixels()
+    {
+        return lineDisplay.getFontSizeInPixels();
     }
 
     /**

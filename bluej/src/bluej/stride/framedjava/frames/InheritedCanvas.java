@@ -24,6 +24,8 @@ package bluej.stride.framedjava.frames;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import javafx.beans.property.SimpleBooleanProperty;
 
 import bluej.Config;
@@ -66,6 +68,12 @@ class InheritedCanvas
         {
             @Override
             public FrameCursor findCursor(double sceneX, double sceneY, FrameCursor prevCursor, FrameCursor nextCursor, List<Frame> exclude, boolean isDrag, boolean canDescend)
+            {
+                return null;
+            }
+
+            @Override
+            public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, boolean includePseudoElements, boolean includeSubstringIndex)
             {
                 return null;
             }

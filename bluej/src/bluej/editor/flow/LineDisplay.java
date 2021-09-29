@@ -380,6 +380,14 @@ public class LineDisplay
             }).filter(b -> b != null).toArray(Bounds[]::new);
     }
 
+    public double getFontSizeInPixels()
+    {
+        if (!visibleLines.isEmpty())
+            return visibleLines.values().iterator().next().textLine.getSingleTextHeight();
+        else
+            return lineHeightEstimate;
+    }
+
     static interface LineDisplayListener
     {
         @OnThread(Tag.FX)

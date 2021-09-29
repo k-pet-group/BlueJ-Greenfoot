@@ -118,7 +118,8 @@ public class ParseUtils
                     for(File innerClassFile : ct.getInnerClassFiles())
                     {
                         Class<?> c = pkg.getProject().loadClass(innerClassFile.getName().replaceFirst("\\.class$",""));
-                        if (c != null)
+                        // If simple name is empty, it's an anonymous class, so we don't want code completions for those:
+                        if (c != null && !c.getSimpleName().isEmpty())
                         {
                            nestedTypes.add(new AssistContentThreadSafe(new ImportedTypeCompletion(c, pkg.getProject().getJavadocResolver())));
                         }
