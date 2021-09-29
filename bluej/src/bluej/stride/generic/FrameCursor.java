@@ -111,7 +111,7 @@ public class FrameCursor implements RecallableFocus
                 case HELP:
                     return helpText;
                 case ROLE:
-                    return AccessibleRole.PAGE_ITEM; // This was the only AccessibleRole that Mac's VoiceOver was not saying something that does not make sense
+                    return AccessibleRole.BUTTON;
                 case ROLE_DESCRIPTION:
                     return ""; // If we leave the default it always says it is a "Button"
                 default:

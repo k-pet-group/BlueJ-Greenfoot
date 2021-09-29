@@ -75,7 +75,6 @@ public class ScrollFreeTextArea
     private double blankHeight;
     private double suggestedOneLineHeight;
 
-    private String screenReaderText="";
     private String screenReaderHelp="";
     private String screenReaderRoleDescriptor="";
 
@@ -86,8 +85,6 @@ public class ScrollFreeTextArea
             @OnThread(value = Tag.FXPlatform, ignoreParent = true)
             public Object queryAccessibleAttribute(AccessibleAttribute accessibleAttribute, Object... objects) {
                 switch (accessibleAttribute) {
-                    case TEXT:
-                        return screenReaderText;
                     case HELP:
                         return screenReaderHelp;
                     case ROLE_DESCRIPTION:
@@ -397,12 +394,6 @@ public class ScrollFreeTextArea
 
     static {
         Config.addEditorStylesheets(scene);
-    }
-
-    //Manvi Jain
-    public void setScreenReaderText(String text)
-    {
-        this.screenReaderText = text;
     }
 
     public void setScreenReaderRoleDescription(String text){

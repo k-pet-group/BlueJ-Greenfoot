@@ -65,9 +65,7 @@ public class AnnotatableTextField
     private final StackPane pane;
     private final ErrorUnderlineCanvas errorMarker;
     private final BooleanProperty fakeCaretShowing = new SimpleBooleanProperty(false);
-    private String screenReaderText="";
     private String screenReaderHelp="";
-    private String screenReaderRoleDescriptor="";
 
     public AnnotatableTextField(String str, ErrorUnderlineCanvas overlay, boolean startHidden)
     {
@@ -77,12 +75,8 @@ public class AnnotatableTextField
             @OnThread(value = Tag.FXPlatform, ignoreParent = true)
             public Object queryAccessibleAttribute(AccessibleAttribute accessibleAttribute, Object... objects) {
                 switch (accessibleAttribute) {
-                    case TEXT:
-                        return screenReaderText;
                     case HELP:
                         return screenReaderHelp;
-                    case ROLE_DESCRIPTION:
-                        return screenReaderRoleDescriptor;
                     default:
                         return super.queryAccessibleAttribute(accessibleAttribute, objects);
                 }
@@ -429,15 +423,7 @@ public class AnnotatableTextField
         return field.styleProperty();
     }
 
-    public void setscreenReaderText(String screenReaderText) {
-        this.screenReaderText = screenReaderText;
-    }
-
     public void setscreenReaderHelp(String screenReaderHelp) {
         this.screenReaderHelp = screenReaderHelp;
-    }
-
-    public void setscreenReaderRoleDescriptor(String screenReaderRoleDescriptor) {
-        this.screenReaderRoleDescriptor = screenReaderRoleDescriptor;
     }
 }
