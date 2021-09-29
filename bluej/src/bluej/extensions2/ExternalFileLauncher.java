@@ -32,8 +32,6 @@ public final class ExternalFileLauncher
      * This interface allows a mechanism for a BlueJ extension to write a launcher, and for BlueJ to call this launcher.
      * When implementing the interface, BlueJ extension writers must take a particular care that their action will not
      * block the BlueJ UI thread (JavaFX thread).
-     *
-     * @see OpenExternalFileHandler, the interface an extension must implement to provide a launcher.
      */
     public interface OpenExternalFileHandler
     {

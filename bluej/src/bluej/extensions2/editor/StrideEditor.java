@@ -72,7 +72,7 @@ public class StrideEditor
      * @param screenY The Y position on screen
      * @param includePseudoElements Whether to include paths to pseudo-elements that aren't present in Stride's
      *                              XML representation, but have an on-screen representation, for example
-     *                              the keyword "while" in the while frame, or the "<=" operator in an assignment frame.
+     *                              the keyword "while" in the while frame, or the "&lt;=" operator in an assignment frame.
      * @param includeSubstringIndex Whether to include a substring call that indicates which exact character
      *                              the position corresponds to, within structured slots.
      * @return The XPath, or null if no Stride element is at that position.

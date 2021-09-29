@@ -28,16 +28,16 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * This class encapsulates events which occur on BlueJ classes.<br/><br/>
+ * This class encapsulates events which occur on BlueJ classes.<br><br>
  * 
- * The following events can occur:<br/>
+ * The following events can occur:<br>
  * 
  * STATE_CHANGED    -   the compile state changed (either from uncompiled to compiled,
- *                or from compiled to uncompiled)<br/>
- * CHANGED_NAME -   the class has changed name.<br/>
- * REMOVED  -   the class has been removed.<br/><br/>
+ *                or from compiled to uncompiled)<br>
+ * CHANGED_NAME -   the class has changed name.<br>
+ * REMOVED  -   the class has been removed.<br><br>
  * 
- * In the case of STATE_CHANGED there are three possible sitations:<br/>
+ * In the case of STATE_CHANGED there are three possible sitations:<br>
  * <ul>
  * <li> isClassCompiled() returns true: the class has been compiled successfully.  Editing
  * the class will switch to one of the next two states.</li>
