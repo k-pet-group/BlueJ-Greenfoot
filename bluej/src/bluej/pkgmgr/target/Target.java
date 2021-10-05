@@ -306,6 +306,9 @@ public abstract class Target
             }
         });
         pane.setOnKeyPressed(e -> {
+            // Don't allow keyboard navigation around the class graph if the menu is showing:
+            if (showingContextMenu != null)
+                return;
             if (isArrowKey(e))
             {
                 // Ctrl and arrow keys does a resize:
