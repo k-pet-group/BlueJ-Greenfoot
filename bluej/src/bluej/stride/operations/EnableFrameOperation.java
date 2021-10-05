@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,16 +41,24 @@ public class EnableFrameOperation extends FrameOperation
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void enablePreview()
+    public Preview getPreview()
     {
-        editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Frame.FramePreviewEnabled.PREVIEW_ENABLED));
-    }
+        return new Preview()
+        {
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void enablePreview()
+            {
+                editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Frame.FramePreviewEnabled.PREVIEW_ENABLED));
+            }
 
-    @Override
-    @OnThread(Tag.FXPlatform)
-    public void disablePreview()
-    {
-        editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Frame.FramePreviewEnabled.PREVIEW_NONE));
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void disablePreview()
+            {
+                editor.getSelection().getSelected().forEach(frame -> frame.setFrameEnablePreview(Frame.FramePreviewEnabled.PREVIEW_NONE));
+            }
+        };
     }
 
     @Override
