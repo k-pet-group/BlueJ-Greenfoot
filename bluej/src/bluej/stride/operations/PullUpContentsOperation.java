@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -50,17 +50,24 @@ public class PullUpContentsOperation extends FrameOperation
     }
 
     @Override
-    @OnThread(Tag.FXPlatform)
-    public void enablePreview()
+    protected Preview getPreview()
     {
-        editor.getSelection().setPullUpPreview(true);
-    }
+        return new Preview()
+        {
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void enablePreview()
+            {
+                editor.getSelection().setPullUpPreview(true);
+            }
 
-    @Override
-    @OnThread(Tag.FXPlatform)
-    public void disablePreview()
-    {
-        editor.getSelection().setPullUpPreview(super.onlyOnContextMenu());
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void disablePreview()
+            {
+                editor.getSelection().setPullUpPreview(PullUpContentsOperation.super.onlyOnContextMenu());
+            }
+        };
     }
 
     @Override

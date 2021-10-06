@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -49,18 +49,25 @@ public class DeleteFrameOperation extends FrameOperation
         return Arrays.asList(l(Config.getString("frame.operation.delete"), MenuItemOrder.DELETE));
     }
 
-    @OnThread(Tag.FXPlatform)
     @Override
-    public void enablePreview()
+    protected Preview getPreview()
     {
-        editor.getSelection().setDeletePreview(true);
-    }
+        return new Preview()
+        {
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void enablePreview()
+            {
+                editor.getSelection().setDeletePreview(true);
+            }
 
-    @OnThread(Tag.FXPlatform)
-    @Override
-    public void disablePreview()
-    {
-        editor.getSelection().setDeletePreview(false);
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void disablePreview()
+            {
+                editor.getSelection().setDeletePreview(false);
+            }
+        };
     }
 
     @Override

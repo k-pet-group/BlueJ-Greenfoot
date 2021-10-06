@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2020 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2020,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -179,17 +179,25 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
 
     public SortedMenuItem getMenuItem(boolean contextMenu, Supplier<List<ITEM>> getSelection)
     {
-        MenuItem item;
+        MenuItem item = null;
         if (contextMenu)
         {
             CustomMenuItem customItem = initializeCustomItem();
-
-            customItem.getContent().setOnMouseEntered(e -> enablePreview());
-            customItem.getContent().setOnMouseExited(e -> disablePreview());
-
-            item = customItem;
+            // May be null if there's no need for a custom item:
+            if (customItem != null)
+            {
+                // We deliberately don't keep a copy of getPreview() as we want to get
+                // a fresh instance each time we use it:
+                if (getPreview() != null)
+                {
+                    customItem.getContent().setOnMouseEntered(e -> getPreview().enablePreview());
+                    customItem.getContent().setOnMouseExited(e -> getPreview().disablePreview());
+                }
+                item = customItem;
+            }
         }
-        else
+        
+        if (item == null)
         {
             item = initializeNormalItem();
         }
@@ -220,11 +228,24 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
      */
     public abstract void activate(List<ITEM> items);
 
+    /**
+     * A class with methods to enable/disable the preview of an operation.
+     */
+    public static interface Preview
+    {
+        @OnThread(Tag.FXPlatform)
+        public void enablePreview();
+        @OnThread(Tag.FXPlatform)
+        public void disablePreview();
+    }
+    
+    /**
+     * If a preview display is available, returns an instance of the Preview interface
+     * that can be used to enable/disable the preview.  If no preview is available,
+     * null will be returned.
+     */
     @OnThread(Tag.FXPlatform)
-    protected void enablePreview() { }
-
-    @OnThread(Tag.FXPlatform)
-    protected void disablePreview() { }
+    protected Preview getPreview() { return null; }
 
     /**
      * Should this item appear only on context menus?
@@ -393,8 +414,17 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         }, order);
     }
 
+    /**
+     * Creates a CustomMenuItem for this operation, if a custom item is necessary.
+     * If no custom item is needed (we're just a plain text item with no enable/disable
+     * preview), null is returned.
+     */
     protected CustomMenuItem initializeCustomItem()
     {
+        // If a preview is not available then we don't need a custom menu item:
+        if (getPreview() == null)
+            return null;
+        
         Label d = new Label();
         d.textProperty().bind(getLabels().get(getLabels().size() - 1).label);
         if (!wideCustomItem)
