@@ -70,14 +70,12 @@ public class LineDisplay
     private final ArrayList<LineDisplayListener> lineDisplayListeners = new ArrayList<>();
     
     private final StringExpression fontCSS;
-    private final FXSupplier<Double> getHeight;
     private final DoubleExpression horizScrollProperty;
     private double lineHeightEstimate = 1.0;    
 
-    public LineDisplay(FXSupplier<Double> getHeight, DoubleExpression horizScrollProperty, StringExpression fontCSS, FlowEditorPaneListener flowEditorPaneListener)
+    public LineDisplay(DoubleExpression horizScrollProperty, StringExpression fontCSS, FlowEditorPaneListener flowEditorPaneListener)
     {
         this.fontCSS = fontCSS;
-        this.getHeight = getHeight;
         this.horizScrollProperty = horizScrollProperty;
         this.flowEditorPaneListener = flowEditorPaneListener;
     }
@@ -191,7 +189,7 @@ public class LineDisplay
         firstVisibleLineOffset = lineOffset;
     }
     
-    void scrollBy(double deltaY, int documentLines)
+    void scrollBy(double deltaY, int documentLines, double containerHeight)
     {
         // Negative deltaY tries to move down the document, i.e.
         // tries to increase firstVisibleLineIndex
@@ -202,7 +200,7 @@ public class LineDisplay
         double newOverallPos = overallPos - deltaY;
         // Important to clamp in this order, as first clamp
         // may clamp too far, into negative:
-        newOverallPos = Math.min(newOverallPos, lineHeightEstimate * documentLines - getHeight.get());
+        newOverallPos = Math.min(newOverallPos, lineHeightEstimate * documentLines - containerHeight);
         newOverallPos = Math.max(0, newOverallPos);
         int newTopLine = (int)Math.floor(newOverallPos / lineHeightEstimate);
         double newOffset = (newTopLine * lineHeightEstimate) - newOverallPos;
@@ -281,7 +279,7 @@ public class LineDisplay
     /**
      * Scrolls the visible lines so that the given zero-based line index is in view.
      */
-    public void ensureLineVisible(int line)
+    public void ensureLineVisible(int line, double containerHeight)
     {
         // Note: if the line is the first/last visible, it may be only partially visible, so we still 
         // scroll because we may need to move slightly to bring the whole line into view.
@@ -297,13 +295,13 @@ public class LineDisplay
         // see the last two lines on the screen, meaning we should scroll up, which is actually best done
         // by the scroll down code)
         if (line >= firstVisibleLineIndex + visibleLines.size() - 1
-            || (visibleLines.size() * lineHeightEstimate < getHeight.get() && firstVisibleLineIndex > 0))
+            || (visibleLines.size() * lineHeightEstimate < containerHeight && firstVisibleLineIndex > 0))
         {            
             // Scroll down:
             double singleLineHeight = lineHeightEstimate;
             // As an example, imagine each line is 10 pixels high, and the whole pane is 84 pixels high.
             // You will need to draw nine lines (so ceil(84 / 10) ) because if you only drew 8, there would be 4 pixels undrawn: 
-            int numLinesCanDisplay = (int)Math.ceil(getHeight.get() / singleLineHeight);
+            int numLinesCanDisplay = (int)Math.ceil(containerHeight / singleLineHeight);
             // Imagine that you're drawing 9 lines, and you want to show line #14, which will be the last one.  You need to render lines 6,7,8,9,10,11,12,13,14
             // So the top line is 14 - 9 + 1 = 6
             firstVisibleLineIndex = line - numLinesCanDisplay + 1;
@@ -317,7 +315,7 @@ public class LineDisplay
             {
                 // If we are drawing 9 lines with #14 at the bottom, the top line (#6) will be only partially visible.  So
                 // if we have 84 pixels high, we want to slide the top line up 6 pixels, which is 84 - 9*10 = -6.
-                firstVisibleLineOffset = getHeight.get() - (numLinesCanDisplay * singleLineHeight);
+                firstVisibleLineOffset = containerHeight - (numLinesCanDisplay * singleLineHeight);
             }
         }
         // Otherwise, it is visible -- nothing to do.
