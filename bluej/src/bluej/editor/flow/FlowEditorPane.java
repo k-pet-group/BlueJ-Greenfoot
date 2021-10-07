@@ -906,7 +906,6 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
                 {
                     if (child instanceof MarginAndTextLine)
                     {
-                        MarginAndTextLine line = (MarginAndTextLine) child;
                         double height = snapSizeY(child.prefHeight(getWidth()));
                         double nextY = snapPositionY(y + height);
                         child.resizeRelocate(0, y, getWidth(), nextY - y);
