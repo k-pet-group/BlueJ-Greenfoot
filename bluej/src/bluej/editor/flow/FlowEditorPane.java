@@ -543,55 +543,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
                 addErrorUnderline(indexRange.getStart(), indexRange.getEnd());
             }
         }
-        
-        /* Code for showing error underlines
-        for (IndexRange errorUnderline : errorUnderlines)
-        {
-            Path err = new Path();
-            err.setFill(null);
-            err.setStroke(new ImagePattern(UNDERLINE_IMAGE, 0, 0, 2, 2, false));
-            err.setMouseTransparent(true);
-            TextLine errTextLine = lineDisplay.currentlyVisibleLines.get(document.getLineFromPosition(errorUnderline.getStart()));
-            err.getElements().setAll(keepBottom(errTextLine.rangeShape(document.getColumnFromPosition(errorUnderline.getStart()), document.getColumnFromPosition(errorUnderline.getEnd()))));
-            err.setLayoutX(errTextLine.getLayoutX());
-            err.setLayoutY(errTextLine.getLayoutY());
-            getChildren().add(err);
-        }
-        */
-        
-        // Temporary calculations for box location:
-        /*
-        String docContent = document.getFullContent();
-        int nextRect = 0;
-        for (int publicLoc = docContent.indexOf("public"); publicLoc != -1; publicLoc = docContent.indexOf("public", publicLoc + 1))
-        {
-            int open = 0;
-            int closingCurly = publicLoc;
-            while (closingCurly < docContent.length())
-            {
-                closingCurly += 1;
-                if (docContent.charAt(closingCurly) == '{')
-                    open++;
-                if (docContent.charAt(closingCurly) == '}')
-                {
-                    open--;
-                    if (open == 0)
-                        break;
-                }
-            }
-            // Now draw a background box the full width of the header line, down to beneath the curly
-            double x = getCaretLikeBounds(publicLoc).getMinX();
-            double y = getCaretLikeBounds(publicLoc).getMinY();
-            double width = lineDisplay.currentlyVisibleLines.get(document.getLineFromPosition(publicLoc)).getWidth() - x;
-            double height = getCaretLikeBounds(closingCurly).getMaxY() - y;
-            Rectangle r = new Rectangle(x, y, width, height);
-            r.setMouseTransparent(true);
-            r.setStroke(Color.GRAY);
-            r.setFill(docContent.startsWith("public class", publicLoc) ? Color.PALEGREEN : Color.LIGHTYELLOW);
-            getChildren().add(nextRect++, r);
-        }
-        */
-        
+                
         lineContainer.requestLayout();        
         requestLayout();
     }
