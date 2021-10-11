@@ -3341,7 +3341,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @OnThread(Tag.FXPlatform)
     public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printScopeBackgrounds, PrintProgressUpdate progressUpdate)
     {
-        SimpleDoubleProperty height = new SimpleDoubleProperty();
         Document doc = new HoleDocument();
         doc.replaceText(0, 0, document.getFullContent());
         OffScreenFlowEditorPaneListener flowEditorPaneListener = new OffScreenFlowEditorPaneListener();
@@ -3362,7 +3361,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 break;
         }
         fontCSS = "-fx-font-size: " + fontSize + ";" + PrefMgr.getEditorFontFamilyCSS();
-        LineDisplay lineDisplay = new LineDisplay(height::get, new ReadOnlyDoubleWrapper(0), new ReadOnlyStringWrapper(fontCSS), flowEditorPaneListener);
+        LineDisplay lineDisplay = new LineDisplay(new ReadOnlyDoubleWrapper(0), new ReadOnlyStringWrapper(fontCSS), flowEditorPaneListener);
         // TODO apply syntax highlighting
         LineContainer lineContainer = new LineContainer(lineDisplay, true);
         LineStyler[] lineStylerWrapper = new LineStyler[] {(i, s) -> Collections.singletonList(new StyledSegment(Collections.emptyList(), s.toString()))};
@@ -3452,7 +3451,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }, flowEditorPaneListener, this.javaSyntaxView.getEntityResolver(), PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING));
         javaSyntaxView.enableParser(true);
         StyledLines allLines = new StyledLines(doc, lineStylerWrapper[0]);
-        lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), height.get(), true));
+        lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true));
 
         // Note: very important we make this call before copyFrom, as copyFrom is what triggers
         // the run-later that marking as printing suppresses:

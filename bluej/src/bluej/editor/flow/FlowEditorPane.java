@@ -64,7 +64,17 @@ import threadchecker.Tag;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -153,8 +163,9 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         horizontalScroll = new ScrollBar();
         horizontalScroll.setOrientation(Orientation.HORIZONTAL);
         horizontalScroll.setVisible(false);
-        lineDisplay = new LineDisplay(this::getLineContainerHeight, horizontalScroll.valueProperty(), PrefMgr.getEditorFontCSS(true), listener);
-
+        lineDisplay = new LineDisplay(horizontalScroll.valueProperty(), PrefMgr.getEditorFontCSS(true), listener);
+        lineContainer = new LineContainer(lineDisplay, false);
+        
         JavaFXUtil.addChangeListenerPlatform(horizontalScroll.valueProperty(), v -> {
             // Prevent an infinite loop when we update scroll bar ourselves in render method:
             if (!updatingScrollBarDirectly)
@@ -170,7 +181,6 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
                 updateRender(false);
             }
         });
-        lineContainer = new LineContainer(lineDisplay, false);
         Rectangle clip = new Rectangle();
         clip.widthProperty().bind(lineContainer.widthProperty());
         clip.heightProperty().bind(lineContainer.heightProperty());
@@ -257,11 +267,6 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
                     break;
         }
         return super.queryAccessibleAttribute(accessibleAttribute, objects);
-    }
-
-    private double getLineContainerHeight()
-    {
-        return lineContainer.getHeight();
     }
 
     private void keyTyped(KeyEvent event)
@@ -414,7 +419,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     {
         if (ensureCaretVisible)
         {
-            lineDisplay.ensureLineVisible(caret.getLine());
+            lineDisplay.ensureLineVisible(caret.getLine(), lineContainer.getHeight());
         }
 
         // Must calculate horizontal scroll before rendering, in case it updates the horizontal scroll:
@@ -906,7 +911,6 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
                 {
                     if (child instanceof MarginAndTextLine)
                     {
-                        MarginAndTextLine line = (MarginAndTextLine) child;
                         double height = snapSizeY(child.prefHeight(getWidth()));
                         double nextY = snapPositionY(y + height);
                         child.resizeRelocate(0, y, getWidth(), nextY - y);
@@ -970,7 +974,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             postScrollRenderQueued = true;
             JavaFXUtil.runAfter(SCROLL_DELAY, () -> {
                 postScrollRenderQueued = false;
-                lineDisplay.scrollBy(pendingScrollY, document.getLineCount());
+                lineDisplay.scrollBy(pendingScrollY, document.getLineCount(), lineContainer.getHeight());
                 pendingScrollY = 0;
                 updateRender(false);
             });
