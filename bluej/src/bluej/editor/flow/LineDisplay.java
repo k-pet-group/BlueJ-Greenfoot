@@ -21,18 +21,16 @@
  */
 package bluej.editor.flow;
 
+import bluej.editor.flow.BaseEditorPane.BaseEditorPaneListener;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.utility.javafx.FXFunction;
-import bluej.utility.javafx.FXSupplier;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Path;
-import javafx.scene.shape.Shape;
 import javafx.scene.text.HitInfo;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -56,7 +54,7 @@ import java.util.stream.IntStream;
 public class LineDisplay
 {
     // Handler for clicking in a line margin
-    private final FlowEditorPaneListener flowEditorPaneListener;
+    private final BaseEditorPaneListener editorPaneListener;
     // Zero is the first line in document
     private int firstVisibleLineIndex = 0;
     // The display offset in pixels of the first visible line.
@@ -73,11 +71,11 @@ public class LineDisplay
     private final DoubleExpression horizScrollProperty;
     private double lineHeightEstimate = 1.0;    
 
-    public LineDisplay(DoubleExpression horizScrollProperty, StringExpression fontCSS, FlowEditorPaneListener flowEditorPaneListener)
+    public LineDisplay(DoubleExpression horizScrollProperty, StringExpression fontCSS, BaseEditorPaneListener editorPaneListener)
     {
         this.fontCSS = fontCSS;
         this.horizScrollProperty = horizScrollProperty;
-        this.flowEditorPaneListener = flowEditorPaneListener;
+        this.editorPaneListener = editorPaneListener;
     }
 
     /**
@@ -141,7 +139,7 @@ public class LineDisplay
             int lineIndex = firstVisibleLineIndex;
             while (lines.hasNext())
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k), () -> flowEditorPaneListener.getContextMenuToShow(), flowEditorPaneListener::scrollEventOnTextLine));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(), editorPaneListener::scrollEventOnTextLine));
                 line.textLine.setText(lines.next(), xTranslate, false, fontCSS);
                 lineIndex += 1;
             }
@@ -157,7 +155,7 @@ public class LineDisplay
             int lineIndex;
             for (lineIndex = firstVisibleLineIndex; lineIndex < allLines.size() && totalHeightSoFar < height; lineIndex += 1)
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k), () -> flowEditorPaneListener.getContextMenuToShow(), flowEditorPaneListener::scrollEventOnTextLine));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(), editorPaneListener::scrollEventOnTextLine));
                 line.textLine.setText(allLines.get(lineIndex), xTranslate, true, fontCSS);
                 double lineHeight = calculateLineHeight(allLines.get(lineIndex), width);
                 totalHeightSoFar += snapHeight.apply(lineHeight);
