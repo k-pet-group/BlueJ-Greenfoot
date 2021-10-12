@@ -107,10 +107,13 @@ public class LineDisplay
      * an editor pane.
      * @param allLines The ordered stream of all lines in the document.
      * @param height The height of the graphical pane to render into, in pixels
+     * @param <L> The inner list type.  Making this a type parameter allows us to pass List&lt;List&lt;StyledSegment&gt;&gt;
+     *           or List&lt;ArrayList&lt;StyledSegment&gt;&gt; -- the type List&lt;? extends List&lt;StyledSegment&gt;&gt;
+     *           would not work for either because of the way Java's generic rules work.
      * @return The ordered list of visible lines
      */
     @OnThread(Tag.FX)
-    List<MarginAndTextLine> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXFunction<Double, Double> snapHeight, double xTranslate, double width, double height, boolean lineWrapping)
+    public <L extends List<StyledSegment>> List<MarginAndTextLine> recalculateVisibleLines(List<L> allLines, FXFunction<Double, Double> snapHeight, double xTranslate, double width, double height, boolean lineWrapping)
     {
         if (firstVisibleLineIndex >= allLines.size())
         {
@@ -134,7 +137,7 @@ public class LineDisplay
             int linesToDraw = 1 + (int)Math.ceil((height - (lineHeight + firstVisibleLineOffset)) / lineHeight);
             
             // Start at the first visible line:
-            Iterator<List<StyledSegment>> lines = allLines.subList(firstVisibleLineIndex, Math.min(linesToDraw + firstVisibleLineIndex, allLines.size())).iterator();
+            Iterator<L> lines = allLines.subList(firstVisibleLineIndex, Math.min(linesToDraw + firstVisibleLineIndex, allLines.size())).iterator();
             int lineIndex = firstVisibleLineIndex;
             while (lines.hasNext())
             {

@@ -335,18 +335,30 @@ public class TextLine extends TextFlow
     }
 
     /**
-     * A piece of text content, plus a collection of CSS style classes to apply to the content.
+     * A piece of text content, plus a collection of CSS style classes to apply to the content,
+     * and an optional object, which is used to keep track of clickable stack traces in the terminal, for example.
      */
     @OnThread(Tag.FX)
     public static class StyledSegment
     {
+        // The CSS classes to apply to the segment
         private final List<String> cssClasses;
+        // The actual text content of the segment
         private final String text;
+        // A custom item of data to go with the style.  For example, this is the
+        // stack trace location when used in the terminal.  Can be null.
+        private final Object customData;
 
         public StyledSegment(List<String> cssClasses, String text)
         {
+            this(cssClasses, text, null);
+        }
+        
+        public StyledSegment(List<String> cssClasses, String text, Object customData)
+        {
             this.cssClasses = cssClasses;
             this.text = text;
+            this.customData = customData;
         }
 
         /**
@@ -371,10 +383,12 @@ public class TextLine extends TextFlow
                     StyledSegment next = segments.get(nextToExamine);
                     nextToExamine += 1;
                     // Merge in all following items that have exactly the same CSS classes:
-                    while (nextToExamine < segments.size() && segments.get(nextToExamine).cssClasses.equals(next.cssClasses))
+                    while (nextToExamine < segments.size() && 
+                        segments.get(nextToExamine).cssClasses.equals(next.cssClasses) &&
+                        Objects.equals(segments.get(nextToExamine).customData, next.customData))
                     {
                         // Combine:
-                        next = new StyledSegment(next.cssClasses, next.text + segments.get(nextToExamine).text);
+                        next = new StyledSegment(next.cssClasses, next.text + segments.get(nextToExamine).text, next.customData);
                         nextToExamine += 1;
                     }
                     
@@ -395,13 +409,24 @@ public class TextLine extends TextFlow
             if (o == null || getClass() != o.getClass()) return false;
             StyledSegment that = (StyledSegment) o;
             return cssClasses.equals(that.cssClasses) &&
+                Objects.equals(customData, that.customData) &&
                 text.equals(that.text);
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(cssClasses, text);
+            return Objects.hash(cssClasses, text, customData);
+        }
+
+        public List<String> getStyleClasses()
+        {
+            return cssClasses;
+        }
+
+        public Object getCustomData()
+        {
+            return customData;
         }
     }
 }
