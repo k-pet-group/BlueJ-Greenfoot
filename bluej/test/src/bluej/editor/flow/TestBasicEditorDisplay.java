@@ -28,6 +28,8 @@ import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
+import bluej.editor.base.MarginAndTextLine;
+import bluej.editor.base.TextLine;
 import bluej.editor.flow.gen.GenRandom;
 import bluej.editor.flow.gen.GenString;
 import bluej.editor.stride.FrameCatalogue.ShowReason;

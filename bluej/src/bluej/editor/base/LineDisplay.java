@@ -19,11 +19,11 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package bluej.editor.flow;
+package bluej.editor.base;
 
-import bluej.editor.flow.BaseEditorPane.BaseEditorPaneListener;
-import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
-import bluej.editor.flow.TextLine.StyledSegment;
+import bluej.editor.base.BaseEditorPane.BaseEditorPaneListener;
+import bluej.editor.base.TextLine.StyledSegment;
+import bluej.editor.flow.Document;
 import bluej.utility.javafx.FXFunction;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
@@ -82,7 +82,7 @@ public class LineDisplay
      * Gets the visible line object corresponding to the given document line.
      * Throws an exception if that line is not visible (you should check first via isLineVisible).
      */
-    MarginAndTextLine getVisibleLine(int line)
+    public MarginAndTextLine getVisibleLine(int line)
     {
         if (!isLineVisible(line))
         {
@@ -95,7 +95,7 @@ public class LineDisplay
     /**
      * Checks if the given document line is currently visible on screen.
      */
-    boolean isLineVisible(int line)
+    public boolean isLineVisible(int line)
     {
         return line >= firstVisibleLineIndex && line < firstVisibleLineIndex + visibleLines.size();
     }
@@ -184,7 +184,7 @@ public class LineDisplay
      * with the given pixel offset (zero or negative).
      */
     @OnThread(Tag.FX)
-    void scrollTo(int lineIndex, double lineOffset)
+    public void scrollTo(int lineIndex, double lineOffset)
     {
         firstVisibleLineIndex = lineIndex;
         firstVisibleLineOffset = lineOffset;
@@ -387,7 +387,7 @@ public class LineDisplay
             return lineHeightEstimate;
     }
 
-    static interface LineDisplayListener
+    public static interface LineDisplayListener
     {
         @OnThread(Tag.FX)
         public void renderedLines(int fromLineIndexIncl, int toLineIndexIncl);

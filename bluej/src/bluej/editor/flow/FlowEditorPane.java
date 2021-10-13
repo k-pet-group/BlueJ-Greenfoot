@@ -22,11 +22,17 @@
 package bluej.editor.flow;
 
 import bluej.Config;
+import bluej.editor.base.BackgroundItem;
+import bluej.editor.base.BaseEditorPane;
+import bluej.editor.base.EditorPosition;
+import bluej.editor.base.LineDisplay;
+import bluej.editor.base.MarginAndTextLine;
+import bluej.editor.base.TextLine;
 import bluej.editor.flow.Document.Bias;
-import bluej.editor.flow.LineDisplay.LineDisplayListener;
-import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
-import bluej.editor.flow.TextLine.HighlightType;
-import bluej.editor.flow.TextLine.StyledSegment;
+import bluej.editor.base.LineDisplay.LineDisplayListener;
+import bluej.editor.base.MarginAndTextLine.MarginDisplay;
+import bluej.editor.base.TextLine.HighlightType;
+import bluej.editor.base.TextLine.StyledSegment;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.collections.ObservableList;
@@ -34,7 +40,6 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.AccessibleAttribute;
-import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.KeyEvent;
@@ -635,7 +640,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
 
         @Override
         @OnThread(Tag.FX)
-        protected ObservableList<Node> getChildren()
+        public ObservableList<Node> getChildren()
         {
             return super.getChildren();
         }

@@ -19,10 +19,10 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package bluej.editor.flow;
+package bluej.editor.base;
 
 import bluej.editor.flow.FlowEditorPane.LineContainer;
-import bluej.editor.flow.TextLine.StyledSegment;
+import bluej.editor.base.TextLine.StyledSegment;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.geometry.Bounds;

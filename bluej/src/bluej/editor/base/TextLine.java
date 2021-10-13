@@ -19,10 +19,9 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package bluej.editor.flow;
+package bluej.editor.base;
 
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableRectangle;
@@ -36,7 +35,6 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import threadchecker.OnThread;
@@ -64,7 +62,7 @@ public class TextLine extends TextFlow
         return getChildren().stream().filter(n -> n instanceof Text).map(n -> ((Text)n).getBoundsInLocal().getHeight()).findFirst().orElse(getHeight());
     }
 
-    static enum HighlightType
+    public static enum HighlightType
     {
         FIND_RESULT, BRACKET_MATCH;
     }

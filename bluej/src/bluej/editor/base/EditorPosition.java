@@ -19,7 +19,10 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package bluej.editor.flow;
+package bluej.editor.base;
+
+import bluej.editor.base.BaseEditorPane;
+import bluej.editor.flow.FlowEditorPane;
 
 /**
  * An interface for positions within editor components.  Used by {@link BaseEditorPane} and implemented

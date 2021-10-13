@@ -21,6 +21,7 @@
  */
 package bluej.editor.flow;
 
+import bluej.editor.base.EditorPosition;
 import bluej.editor.flow.Document.Bias;
 
 /**
