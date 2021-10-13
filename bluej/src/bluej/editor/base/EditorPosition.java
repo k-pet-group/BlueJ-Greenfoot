@@ -23,12 +23,15 @@ package bluej.editor.base;
 
 import bluej.editor.base.BaseEditorPane;
 import bluej.editor.flow.FlowEditorPane;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An interface for positions within editor components.  Used by {@link BaseEditorPane} and implemented
  * differently by {@link FlowEditorPane} and the terminal.  A position is like a caret position; it is
  * between characters.
  */
+@OnThread(Tag.FXPlatform)
 public interface EditorPosition
 {
     /**

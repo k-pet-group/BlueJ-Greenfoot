@@ -419,6 +419,7 @@ public abstract class BaseEditorPane extends Region
     /**
      * A listener for some mouse events that can occur in the editor but need handling elsewhere. 
      */
+    @OnThread(Tag.FXPlatform)
     public static interface BaseEditorPaneListener
     {
         // The left-hand margin was clicked for (zero-based) lineIndex.

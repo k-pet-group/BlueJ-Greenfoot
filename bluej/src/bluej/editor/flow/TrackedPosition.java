@@ -23,6 +23,8 @@ package bluej.editor.flow;
 
 import bluej.editor.base.EditorPosition;
 import bluej.editor.flow.Document.Bias;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A position within a document, that stays persistent.  So if you insert text
@@ -30,6 +32,7 @@ import bluej.editor.flow.Document.Bias;
  * a portion that includes the position, the position moves to the start of the deleted
  * range.
  */
+@OnThread(Tag.FXPlatform)
 public class TrackedPosition implements EditorPosition
 {
     // package-visible for access by document classes:
