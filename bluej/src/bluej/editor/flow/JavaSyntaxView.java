@@ -21,9 +21,10 @@
  */
 package bluej.editor.flow;
 
+import bluej.editor.base.BackgroundItem;
 import bluej.editor.flow.FlowEditorPane.LineStyler;
-import bluej.editor.flow.LineDisplay.LineDisplayListener;
-import bluej.editor.flow.TextLine.StyledSegment;
+import bluej.editor.base.LineDisplay.LineDisplayListener;
+import bluej.editor.base.TextLine.StyledSegment;
 import bluej.editor.flow.JavaSyntaxView.SyntaxEvent.NodeChangeRecord;
 import bluej.parser.Token;
 import bluej.parser.Token.TokenType;

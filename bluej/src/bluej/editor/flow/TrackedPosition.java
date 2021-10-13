@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,10 @@
  */
 package bluej.editor.flow;
 
+import bluej.editor.base.EditorPosition;
 import bluej.editor.flow.Document.Bias;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A position within a document, that stays persistent.  So if you insert text
@@ -29,7 +32,8 @@ import bluej.editor.flow.Document.Bias;
  * a portion that includes the position, the position moves to the start of the deleted
  * range.
  */
-public class TrackedPosition
+@OnThread(Tag.FXPlatform)
+public class TrackedPosition implements EditorPosition
 {
     // package-visible for access by document classes:
     int position;
@@ -59,16 +63,19 @@ public class TrackedPosition
         }
     }
 
+    @Override
     public int getLine()
     {
         return document.getLineFromPosition(position);
     }
 
+    @Override
     public int getColumn()
     {
         return document.getColumnFromPosition(position);
     }
 
+    @Override
     public int getPosition()
     {
         return position;

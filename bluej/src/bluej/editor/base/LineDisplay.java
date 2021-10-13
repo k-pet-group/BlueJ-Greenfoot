@@ -19,20 +19,18 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package bluej.editor.flow;
+package bluej.editor.base;
 
-import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
-import bluej.editor.flow.TextLine.StyledSegment;
+import bluej.editor.base.BaseEditorPane.BaseEditorPaneListener;
+import bluej.editor.base.TextLine.StyledSegment;
+import bluej.editor.flow.Document;
 import bluej.utility.javafx.FXFunction;
-import bluej.utility.javafx.FXSupplier;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Path;
-import javafx.scene.shape.Shape;
 import javafx.scene.text.HitInfo;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -56,7 +54,7 @@ import java.util.stream.IntStream;
 public class LineDisplay
 {
     // Handler for clicking in a line margin
-    private final FlowEditorPaneListener flowEditorPaneListener;
+    private final BaseEditorPaneListener editorPaneListener;
     // Zero is the first line in document
     private int firstVisibleLineIndex = 0;
     // The display offset in pixels of the first visible line.
@@ -73,18 +71,18 @@ public class LineDisplay
     private final DoubleExpression horizScrollProperty;
     private double lineHeightEstimate = 1.0;    
 
-    public LineDisplay(DoubleExpression horizScrollProperty, StringExpression fontCSS, FlowEditorPaneListener flowEditorPaneListener)
+    public LineDisplay(DoubleExpression horizScrollProperty, StringExpression fontCSS, BaseEditorPaneListener editorPaneListener)
     {
         this.fontCSS = fontCSS;
         this.horizScrollProperty = horizScrollProperty;
-        this.flowEditorPaneListener = flowEditorPaneListener;
+        this.editorPaneListener = editorPaneListener;
     }
 
     /**
      * Gets the visible line object corresponding to the given document line.
      * Throws an exception if that line is not visible (you should check first via isLineVisible).
      */
-    MarginAndTextLine getVisibleLine(int line)
+    public MarginAndTextLine getVisibleLine(int line)
     {
         if (!isLineVisible(line))
         {
@@ -97,7 +95,7 @@ public class LineDisplay
     /**
      * Checks if the given document line is currently visible on screen.
      */
-    boolean isLineVisible(int line)
+    public boolean isLineVisible(int line)
     {
         return line >= firstVisibleLineIndex && line < firstVisibleLineIndex + visibleLines.size();
     }
@@ -141,7 +139,7 @@ public class LineDisplay
             int lineIndex = firstVisibleLineIndex;
             while (lines.hasNext())
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k), () -> flowEditorPaneListener.getContextMenuToShow(), flowEditorPaneListener::scrollEventOnTextLine));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(), editorPaneListener::scrollEventOnTextLine));
                 line.textLine.setText(lines.next(), xTranslate, false, fontCSS);
                 lineIndex += 1;
             }
@@ -157,7 +155,7 @@ public class LineDisplay
             int lineIndex;
             for (lineIndex = firstVisibleLineIndex; lineIndex < allLines.size() && totalHeightSoFar < height; lineIndex += 1)
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k), () -> flowEditorPaneListener.getContextMenuToShow(), flowEditorPaneListener::scrollEventOnTextLine));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(), editorPaneListener::scrollEventOnTextLine));
                 line.textLine.setText(allLines.get(lineIndex), xTranslate, true, fontCSS);
                 double lineHeight = calculateLineHeight(allLines.get(lineIndex), width);
                 totalHeightSoFar += snapHeight.apply(lineHeight);
@@ -186,7 +184,7 @@ public class LineDisplay
      * with the given pixel offset (zero or negative).
      */
     @OnThread(Tag.FX)
-    void scrollTo(int lineIndex, double lineOffset)
+    public void scrollTo(int lineIndex, double lineOffset)
     {
         firstVisibleLineIndex = lineIndex;
         firstVisibleLineOffset = lineOffset;
@@ -389,7 +387,7 @@ public class LineDisplay
             return lineHeightEstimate;
     }
 
-    static interface LineDisplayListener
+    public static interface LineDisplayListener
     {
         @OnThread(Tag.FX)
         public void renderedLines(int fromLineIndexIncl, int toLineIndexIncl);

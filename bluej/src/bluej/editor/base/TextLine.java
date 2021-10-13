@@ -19,10 +19,9 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package bluej.editor.flow;
+package bluej.editor.base;
 
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableRectangle;
@@ -36,7 +35,6 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import threadchecker.OnThread;
@@ -64,7 +62,7 @@ public class TextLine extends TextFlow
         return getChildren().stream().filter(n -> n instanceof Text).map(n -> ((Text)n).getBoundsInLocal().getHeight()).findFirst().orElse(getHeight());
     }
 
-    static enum HighlightType
+    public static enum HighlightType
     {
         FIND_RESULT, BRACKET_MATCH;
     }
@@ -349,11 +347,13 @@ public class TextLine extends TextFlow
         // stack trace location when used in the terminal.  Can be null.
         private final Object customData;
 
+        @OnThread(Tag.Any)
         public StyledSegment(List<String> cssClasses, String text)
         {
             this(cssClasses, text, null);
         }
         
+        @OnThread(Tag.Any)
         public StyledSegment(List<String> cssClasses, String text, Object customData)
         {
             this.cssClasses = cssClasses;
@@ -365,34 +365,43 @@ public class TextLine extends TextFlow
          * Gives back an iterator that returns the contents of the given list, but merging together any
          * adjacent run of segments that have identical styles.
          */
+        @OnThread(Tag.FX)
         private static Iterable<StyledSegment> mergeAdjacentIdentical(List<StyledSegment> segments)
         {
-            return () -> new Iterator<StyledSegment>()
+            return new Iterable<StyledSegment>()
             {
-                int nextToExamine = 0;
-                
+                @OnThread(value = Tag.FX, ignoreParent = true)
                 @Override
-                public boolean hasNext()
+                public Iterator<StyledSegment> iterator()
                 {
-                    return nextToExamine < segments.size();
-                }
-
-                @Override
-                public StyledSegment next()
-                {
-                    StyledSegment next = segments.get(nextToExamine);
-                    nextToExamine += 1;
-                    // Merge in all following items that have exactly the same CSS classes:
-                    while (nextToExamine < segments.size() && 
-                        segments.get(nextToExamine).cssClasses.equals(next.cssClasses) &&
-                        Objects.equals(segments.get(nextToExamine).customData, next.customData))
+                    return new Iterator<StyledSegment>()
                     {
-                        // Combine:
-                        next = new StyledSegment(next.cssClasses, next.text + segments.get(nextToExamine).text, next.customData);
-                        nextToExamine += 1;
-                    }
-                    
-                    return next;
+                        int nextToExamine = 0;
+
+                        @Override
+                        public boolean hasNext()
+                        {
+                            return nextToExamine < segments.size();
+                        }
+
+                        @Override
+                        public StyledSegment next()
+                        {
+                            StyledSegment next = segments.get(nextToExamine);
+                            nextToExamine += 1;
+                            // Merge in all following items that have exactly the same CSS classes:
+                            while (nextToExamine < segments.size() &&
+                                segments.get(nextToExamine).cssClasses.equals(next.cssClasses) &&
+                                Objects.equals(segments.get(nextToExamine).customData, next.customData))
+                            {
+                                // Combine:
+                                next = new StyledSegment(next.cssClasses, next.text + segments.get(nextToExamine).text, next.customData);
+                                nextToExamine += 1;
+                            }
+
+                            return next;
+                        }
+                    };
                 }
             };
         }

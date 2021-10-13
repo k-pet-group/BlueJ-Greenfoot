@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package bluej.editor.flow;
+package bluej.editor.base;
 
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -32,7 +32,7 @@ import threadchecker.Tag;
  * a marker for the current step line or a breakpoint line.
  */
 @OnThread(Tag.FX)
-class BackgroundItem extends Region
+public class BackgroundItem extends Region
 {
     final double x;
     final double width;
@@ -40,7 +40,7 @@ class BackgroundItem extends Region
     /**
      * Create a background item with the given X position and width, and the given background fills.  This constructor sets the item to be unmanaged.
      */
-    BackgroundItem(double x, double width, BackgroundFill... backgroundFills)
+    public BackgroundItem(double x, double width, BackgroundFill... backgroundFills)
     {
         this.x = x;
         this.width = width;
