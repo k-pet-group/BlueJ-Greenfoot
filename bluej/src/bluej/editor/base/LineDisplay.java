@@ -393,7 +393,7 @@ public class LineDisplay
         public void renderedLines(int fromLineIndexIncl, int toLineIndexIncl);
     }
     
-    // Pair of ints; line index and column index (both zero based)
+    // Pair of ints; line index and column index (both zero based).  Null if no relevant point
     public int[] getCaretPositionForLocalPoint(Point2D localPoint)
     {
         for (int i = 0; i < visibleLines.size(); i++)
