@@ -27,23 +27,31 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
+import javafx.geometry.Point2D;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import org.fxmisc.wellbehaved.event.InputMap;
+import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * A shared editor component to be used as the basis for rich text displays with carets and scrolling.
@@ -81,6 +89,14 @@ public abstract class BaseEditorPane extends Region
     // If we have currently scheduled an update of the caret graphics, will we ensure caret is visible?
     private boolean caretUpdateEnsureVisible;
 
+    // For when the user is dragging the mouse (or just holding the button down with it stationary)
+    // and the pointer is out of our bounds, requiring us to scroll:
+    private static enum DragScroll { UP_FAST, UP, DOWN, DOWN_FAST }
+    private boolean isDragScrollScheduled = false;
+    // Null when there's no current drag scroll:
+    private DragScroll offScreenDragScroll = null;
+    private double offScreenDragX = 0;
+    private double offScreenDragY = 0;
 
     protected BaseEditorPane(BaseEditorPaneListener listener)
     {
@@ -128,6 +144,124 @@ public abstract class BaseEditorPane extends Region
         JavaFXUtil.addChangeListenerPlatform(heightProperty(), h -> updateRender(false));
         JavaFXUtil.addChangeListenerPlatform(focusedProperty(), f -> updateCaretVisibility());
         setAccessibleRole(AccessibleRole.TEXT_AREA);
+
+
+        Nodes.addInputMap(this, InputMap.sequence(
+            InputMap.consume(KeyEvent.KEY_TYPED, this::keyTyped),
+            InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
+            InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged),
+            InputMap.consume(MouseEvent.MOUSE_RELEASED, this::mouseReleased),
+            InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved)
+            // Note: we deliberately do not handle scroll events here, and instead
+            // handle them in MarginAndTextLine.  See the comments there for more info.
+            // InputMap.consume(ScrollEvent.SCROLL, this::scroll)
+        ));
+    }
+
+    // The handler for the KeyEvent.KEY_TYPED event:
+    protected abstract void keyTyped(KeyEvent event);
+    // The handler for the MouseEvent.MOUSE_PRESSED event:
+    protected abstract void mousePressed(MouseEvent event);
+    // The handler for the MouseEvent.MOUSE_MOVED event:
+    protected abstract void mouseMoved(MouseEvent event);
+
+    // The handler for the MouseEvent.MOUSE_DRAGGED event:
+    protected void mouseDragged(MouseEvent e)
+    {
+        if (e.getButton() == MouseButton.PRIMARY)
+        {
+            double y = e.getY();
+            // If the user has the cursor more than this amount of pixels beyond the edge,
+            // we speed up the drag:
+            int fastDistance = 30;
+            if (y > getHeight())
+            {
+                offScreenDragScroll = y - getHeight() > fastDistance ? DragScroll.DOWN_FAST : DragScroll.DOWN;
+                y = getHeight() - 1;
+            }
+            else if (y < 0)
+            {
+                offScreenDragScroll = y < -fastDistance ? DragScroll.UP_FAST : DragScroll.UP;
+                y = 0;
+            }
+            else
+            {
+                // Drag is within pane bounds, no need to scroll:
+                offScreenDragScroll = null;
+            }
+            offScreenDragX = e.getX();
+            offScreenDragY = y;
+            // Don't update the anchor:
+            getCaretPositionForLocalPoint(new Point2D(e.getX(), y)).ifPresent(p -> moveCaret(p, false));
+
+            if (offScreenDragScroll != null && !isDragScrollScheduled)
+            {
+                JavaFXUtil.runAfter(Duration.millis(50), this::doDragScroll);
+                isDragScrollScheduled = true;
+            }
+        }
+    }
+
+    // The handler for the MouseEvent.MOUSE_RELEASED event:
+    protected void mouseReleased(MouseEvent e)
+    {
+        offScreenDragScroll = null;
+    }
+
+    /**
+     * Moves the caret to the given position without moving the anchor. 
+     * @param position The position to move to.  Must refer to this component.
+     * @param ensureCaretVisible Whether to scroll to ensure the new caret position is visible.
+     */
+    protected abstract void moveCaret(EditorPosition position, boolean ensureCaretVisible);
+    
+    /**
+     * Called regularly to continue to scroll up/down the file if the user is dragging and keeping
+     * the mouse cursor out of the window.  Will reschedule itself (this is stopped if the user
+     * releases the mouse button, in the mouseReleased button).
+     */
+    private void doDragScroll()
+    {
+        isDragScrollScheduled = false;
+        if (offScreenDragScroll != null)
+        {
+            int amount = 0;
+            switch (offScreenDragScroll)
+            {
+                case UP_FAST:
+                    amount = 50;
+                    break;
+                case UP:
+                    amount = 15;
+                    break;
+                case DOWN:
+                    amount = -15;
+                    break;
+                case DOWN_FAST:
+                    amount = -50;
+                    break;
+            }
+            scroll(0, amount);
+            getCaretPositionForLocalPoint(new Point2D(offScreenDragX, offScreenDragY)).ifPresent(p -> moveCaret(p, false));
+            JavaFXUtil.runAfter(SCROLL_DELAY, this::doDragScroll);
+            isDragScrollScheduled = true;
+        }
+    }
+
+    /**
+     * Get the caret position that corresponds to the XY point featured in the given mouse event.
+     */
+    public Optional<EditorPosition> getCaretPositionForMouseEvent(MouseEvent e)
+    {
+        return getCaretPositionForLocalPoint(new Point2D(e.getX(), e.getY()));
+    }
+
+    /**
+     * Get the caret position that corresponds to the given local XY point (within this component).
+     */
+    protected Optional<EditorPosition> getCaretPositionForLocalPoint(Point2D localPoint)
+    {
+        return Optional.ofNullable(lineDisplay.getCaretPositionForLocalPoint(localPoint)).map(p -> makePosition(p[0], p[1]));
     }
 
     @Override
@@ -400,6 +534,14 @@ public abstract class BaseEditorPane extends Region
      */
     protected abstract List<List<StyledSegment>> getStyledLines();
 
+    /**
+     * Make a position corresponding to the given zero-based line and column
+     * @param line The zero-based line index (0 = first line)
+     * @param column The zero-based column index (0 = before first column)
+     * @return An editor position corresponding to that location
+     */
+    protected abstract EditorPosition makePosition(int line, int column);
+    
     /**
      * Gets the current caret position.
      */

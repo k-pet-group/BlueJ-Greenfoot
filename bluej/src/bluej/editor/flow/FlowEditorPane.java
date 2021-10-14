@@ -113,15 +113,6 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     // situations (like: "typed '{', pasted some content" or "typed '{' then went up a line and pressed enter").
     private boolean justAddedOpeningCurlyBracket;
 
-    // For when the user is dragging the mouse (or just holding the button down with it stationary)
-    // and the pointer is out of our bounds, requiring us to scroll:
-    private static enum DragScroll { UP_FAST, UP, DOWN, DOWN_FAST }
-    private boolean isDragScrollScheduled = false;
-    // Null when there's no current drag scroll:
-    private DragScroll offScreenDragScroll = null;
-    private double offScreenDragX = 0;
-    private double offScreenDragY = 0;
-
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
         super(listener);
@@ -161,17 +152,6 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         document.addListener(false, (origStartIncl, replaced, replacement, linesRemoved, linesAdded) -> {
             notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
         });
-
-        Nodes.addInputMap(this, InputMap.sequence(
-            InputMap.consume(KeyEvent.KEY_TYPED, this::keyTyped),
-            InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
-            InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged),
-            InputMap.consume(MouseEvent.MOUSE_RELEASED, this::mouseReleased),
-            InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved)
-            // Note: we deliberately do not handle scroll events here, and instead
-            // handle them in MarginAndTextLine.  See the comments there for more info.
-            // InputMap.consume(ScrollEvent.SCROLL, this::scroll)
-        ));
     }
 
     @Override
@@ -211,7 +191,14 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         return super.queryAccessibleAttribute(accessibleAttribute, objects);
     }
 
-    private void keyTyped(KeyEvent event)
+    @Override
+    protected EditorPosition makePosition(int line, int column)
+    {
+        return new TrackedPosition(document, document.getLineStart(line) + column, Bias.NONE);
+    }
+
+    @Override
+    protected void keyTyped(KeyEvent event)
     {
         if (!editable)
             return;
@@ -243,110 +230,35 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         
     }
 
-    private void mousePressed(MouseEvent e)
+    @Override
+    protected void mousePressed(MouseEvent e)
     {
         requestFocus();
         if (e.getButton() == MouseButton.PRIMARY)
         {
             // If shift pressed, don't move anchor; form selection instead:
             boolean setAnchor = !e.isShiftDown();
-            getCaretPositionForMouseEvent(e).ifPresent(setAnchor ? this::positionCaret : p -> moveCaret(p, true));
+            getCaretPositionForMouseEvent(e).ifPresent(p -> {
+                if (setAnchor)
+                    positionCaret(p.getPosition());
+                else
+                    moveCaret(p, true);
+            });
             updateRender(true);
         }
     }
 
-    OptionalInt getCaretPositionForMouseEvent(MouseEvent e)
+    @Override
+    protected void mouseMoved(MouseEvent event)
     {
-        return getCaretPositionForLocalPoint(new Point2D(e.getX(), e.getY()));
+        getCaretPositionForMouseEvent(event).ifPresent(pos -> listener.showErrorPopupForCaretPos(pos.getPosition(), true));
     }
 
-    OptionalInt getCaretPositionForLocalPoint(Point2D localPoint)
+    // Make method public:
+    @Override
+    public Optional<EditorPosition> getCaretPositionForLocalPoint(Point2D localPoint)
     {
-        int[] position = lineDisplay.getCaretPositionForLocalPoint(localPoint);
-        if (position != null)
-        {
-            return OptionalInt.of(document.getLineStart(position[0]) + position[1]);
-        }
-        return OptionalInt.empty();
-    }
-
-    private void mouseMoved(MouseEvent event)
-    {
-        getCaretPositionForMouseEvent(event).ifPresent(pos -> listener.showErrorPopupForCaretPos(pos, true));
-    }
-
-    private void mouseDragged(MouseEvent e)
-    {
-        if (e.getButton() == MouseButton.PRIMARY)
-        {
-            double y = e.getY();
-            // If the user has the cursor more than this amount of pixels beyond the edge,
-            // we speed up the drag:
-            int fastDistance = 30;
-            if (y > getHeight())
-            {
-                offScreenDragScroll = y - getHeight() > fastDistance ? DragScroll.DOWN_FAST : DragScroll.DOWN;
-                y = getHeight() - 1;
-            }
-            else if (y < 0)
-            {
-                offScreenDragScroll = y < -fastDistance ? DragScroll.UP_FAST : DragScroll.UP;
-                y = 0;
-            }
-            else
-            {
-                // Drag is within pane bounds, no need to scroll:
-                offScreenDragScroll = null;
-            }
-            offScreenDragX = e.getX();
-            offScreenDragY = y;
-            // Don't update the anchor:
-            getCaretPositionForLocalPoint(new Point2D(e.getX(), y)).ifPresent(p -> moveCaret(p, false));
-
-            if (offScreenDragScroll != null && !isDragScrollScheduled)
-            {
-                JavaFXUtil.runAfter(Duration.millis(50), this::doDragScroll);
-                isDragScrollScheduled = true;
-            }
-        }
-    }
-
-    private void mouseReleased(MouseEvent e)
-    {
-        offScreenDragScroll = null;
-    }
-
-    /**
-     * Called regularly to continue to scroll up/down the file if the user is dragging and keeping
-     * the mouse cursor out of the window.  Will reschedule itself (this is stopped if the user
-     * releases the mouse button, in the mouseReleased button).
-     */
-    private void doDragScroll()
-    {
-        isDragScrollScheduled = false;
-        if (offScreenDragScroll != null)
-        {
-            int amount = 0;
-            switch (offScreenDragScroll)
-            {
-                case UP_FAST:
-                    amount = 50;
-                    break;
-                case UP:
-                    amount = 15;
-                    break;
-                case DOWN:
-                    amount = -15;
-                    break;
-                case DOWN_FAST:
-                    amount = -50;
-                    break;
-            }
-            scroll(0, amount);
-            getCaretPositionForLocalPoint(new Point2D(offScreenDragX, offScreenDragY)).ifPresent(p -> moveCaret(p, false));
-            JavaFXUtil.runAfter(SCROLL_DELAY, this::doDragScroll);
-            isDragScrollScheduled = true;
-        }
+        return super.getCaretPositionForLocalPoint(localPoint);
     }
 
     public void textChanged()
@@ -796,12 +708,13 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
      */
     public void moveCaret(int position)
     {
-        moveCaret(position, true);
+        moveCaret(new TrackedPosition(document, position, Bias.NONE), true);
     }
 
-    private void moveCaret(int position, boolean ensureCaretVisible)
+    @Override
+    protected void moveCaret(EditorPosition position, boolean ensureCaretVisible)
     {
-        caret.moveTo(position);
+        caret.moveTo(position.getPosition());
         targetColumnForVerticalMovement = -1;
         justAddedOpeningCurlyBracket = false;
         updateRender(ensureCaretVisible);
