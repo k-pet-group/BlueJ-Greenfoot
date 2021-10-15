@@ -40,7 +40,7 @@ import bluej.editor.flow.FlowActions.FlowAbstractAction;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.FlowEditorPane.LineContainer;
 import bluej.editor.flow.FlowEditorPane.LineStyler;
-import bluej.editor.flow.FlowEditorPane.SelectionListener;
+import bluej.editor.base.BaseEditorPane.SelectionListener;
 import bluej.editor.flow.FlowEditorPane.StyledLines;
 import bluej.editor.flow.FlowErrorManager.ErrorDetails;
 import bluej.editor.flow.JavaSyntaxView.Display;
