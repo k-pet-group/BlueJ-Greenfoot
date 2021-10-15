@@ -31,6 +31,7 @@ import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.base.BackgroundItem;
+import bluej.editor.base.EditorPosition;
 import bluej.editor.base.LineDisplay;
 import bluej.editor.base.MarginAndTextLine;
 import bluej.editor.fixes.EditorFixesManager;
@@ -3107,9 +3108,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         );
 
         Point2D localPoint = flowEditorPane.sceneToLocal(scenePoint);
-        OptionalInt caretPos = flowEditorPane.getCaretPositionForLocalPoint(localPoint);
+        Optional<EditorPosition> caretPos = flowEditorPane.getCaretPositionForLocalPoint(localPoint);
         if (caretPos.isPresent())
-            return getLineColumnFromOffset(caretPos.getAsInt());
+            return getLineColumnFromOffset(caretPos.get().getPosition());
         else
             return null;
     }
