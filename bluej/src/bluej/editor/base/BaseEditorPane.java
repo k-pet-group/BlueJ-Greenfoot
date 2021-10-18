@@ -28,6 +28,7 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
+import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -64,6 +65,8 @@ public abstract class BaseEditorPane extends Region
 
     // The manager of the lines of text currently shown on screen in the editor
     protected final LineDisplay lineDisplay;
+    // The listeners for the selection (anchor+caret) to be called when the anchor and/or caret change:
+    private final ArrayList<SelectionListener> selectionListeners = new ArrayList<>();
     // The caret (cursor) shape
     private final Path caretShape;
     // The graphical component that contains the lines of text on screen in the editor
@@ -147,6 +150,7 @@ public abstract class BaseEditorPane extends Region
 
 
         Nodes.addInputMap(this, InputMap.sequence(
+            InputMap.consume(KeyEvent.KEY_PRESSED, this::keyPressed),
             InputMap.consume(KeyEvent.KEY_TYPED, this::keyTyped),
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
             InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged),
@@ -156,8 +160,34 @@ public abstract class BaseEditorPane extends Region
             // handle them in MarginAndTextLine.  See the comments there for more info.
             // InputMap.consume(ScrollEvent.SCROLL, this::scroll)
         ));
+
+        selectionListeners.add(new SelectionListener() {
+            int oldCaretPos = 0;
+            int oldAnchorPos = 0;
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void selectionChanged(int caretPosition, int anchorPosition)
+            {
+                if (caretPosition != oldCaretPos)
+                {
+                    notifyAccessibleAttributeChanged(AccessibleAttribute.CARET_OFFSET);
+                }
+                if (Math.min(caretPosition, anchorPosition) != Math.min(oldCaretPos, oldAnchorPos))
+                {
+                    notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_START);
+                }
+                if (Math.max(caretPosition, anchorPosition) != Math.max(oldCaretPos, oldAnchorPos))
+                {
+                    notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_END);
+                }
+                oldAnchorPos = anchorPosition;
+                oldCaretPos = caretPosition;
+            }
+        });
     }
 
+    // The handler for the KeyEvent.KEY_PRESSED event:
+    protected abstract void keyPressed(KeyEvent event);
     // The handler for the KeyEvent.KEY_TYPED event:
     protected abstract void keyTyped(KeyEvent event);
     // The handler for the MouseEvent.MOUSE_PRESSED event:
@@ -401,7 +431,7 @@ public abstract class BaseEditorPane extends Region
         
         List<List<StyledSegment>> styledLines = getStyledLines();
 
-        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, - horizontalScroll.getValue(), lineContainer.getWidth(), lineContainer.getHeight(), false));
+        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, - horizontalScroll.getValue(), lineContainer.getWidth(), lineContainer.getHeight(), false, this));
         prospectiveChildren.add(caretShape);
         int lineCount = getLineCount();
         verticalScroll.setVisible(allowScrollBars && lineDisplay.getVisibleLineCount() < lineCount);
@@ -503,6 +533,15 @@ public abstract class BaseEditorPane extends Region
     }
 
     /**
+     * Called when a scroll event has occurred on one of the text lines in the editor
+     * @param scrollEvent The scroll event that occurred.
+     */
+    public void scrollEventOnTextLine(ScrollEvent scrollEvent)
+    {
+        scroll(scrollEvent.getDeltaX(), scrollEvent.getDeltaY());
+    }
+
+    /**
      * Gets the length of the given line, in characters
      * @param lineIndex The index of the line (0 = first line)
      */
@@ -512,6 +551,26 @@ public abstract class BaseEditorPane extends Region
      * Gets the content of the current line (minus newline character) where the caret is
      */
     protected abstract String getLineContentAtCaret();
+
+    /**
+     * Call all the selection listeners to let them know that the caret and/or anchor position may have changed.
+     */
+    protected void callSelectionListeners()
+    {
+        for (SelectionListener selectionListener : selectionListeners)
+        {
+            selectionListener.selectionChanged(getCaretEditorPosition().getPosition(), getAnchorEditorPosition().getPosition());
+        }
+    }
+
+    /**
+     * Adds a selection listener which will be called back when the selection (i.e. caret and/or anchor pos) might have changed.
+     * (That is, it will always be called when it changes, but it may also be called back sometimes when there hasn't been a change.)
+     */
+    public void addSelectionListener(SelectionListener selectionListener)
+    {
+        selectionListeners.add(selectionListener);
+    }
 
     /**
      * Gets the content (minus newline character) of the longest line in the document
@@ -578,6 +637,16 @@ public abstract class BaseEditorPane extends Region
          * Called when a scroll event has occurred on one of the text lines in the editor
          * @param scrollEvent The scroll event that occurred.
          */
-        public void scrollEventOnTextLine(ScrollEvent scrollEvent);
+        public void scrollEventOnTextLine(ScrollEvent scrollEvent, BaseEditorPane editorPane);
+    }
+
+    /**
+     * Allows tracking of the caret position and anchor position
+     * (which together delineate the selection).
+     */
+    public static interface SelectionListener
+    {
+        @OnThread(Tag.FXPlatform)
+        public void selectionChanged(int caretPosition, int anchorPosition);
     }
 }

@@ -54,9 +54,6 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
-import org.fxmisc.wellbehaved.event.InputMap;
-import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -71,7 +68,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -101,8 +97,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     private LineStyler lineStyler = (i, s) -> Collections.singletonList(new StyledSegment(Collections.emptyList(), s.toString()));
     
     private ErrorQuery errorQuery = () -> Collections.emptyList();
-    
-    private final ArrayList<SelectionListener> selectionListeners = new ArrayList<>();
+
     private boolean editable = true;
     
     // Tracked for the purposes of smart bracket adding.  We set this to true when
@@ -127,28 +122,6 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         
         updateRender(false);
         
-        selectionListeners.add(new SelectionListener() {
-            int oldCaretPos = 0;
-            int oldAnchorPos = 0;
-            @Override
-            public void selectionChanged(int caretPosition, int anchorPosition)
-            {
-                if (caretPosition != oldCaretPos)
-                {
-                    notifyAccessibleAttributeChanged(AccessibleAttribute.CARET_OFFSET);
-                }
-                if (Math.min(caretPosition, anchorPosition) != Math.min(oldCaretPos, oldAnchorPos))
-                {
-                    notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_START);
-                }
-                if (Math.max(caretPosition, anchorPosition) != Math.max(oldCaretPos, oldAnchorPos))
-                {
-                    notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_END);
-                }
-                oldAnchorPos = anchorPosition;
-                oldCaretPos = caretPosition;
-            }
-        });
         document.addListener(false, (origStartIncl, replaced, replacement, linesRemoved, linesAdded) -> {
             notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
         });
@@ -195,6 +168,12 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     protected EditorPosition makePosition(int line, int column)
     {
         return new TrackedPosition(document, document.getLineStart(line) + column, Bias.NONE);
+    }
+
+    @Override
+    protected void keyPressed(KeyEvent event)
+    {
+        // All the key press events are handled by the editor actions system
     }
 
     @Override
@@ -575,16 +554,6 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     }
 
     /**
-     * Called when a scroll event has occurred on one of the text lines in the editor
-     * @param scrollEvent The scroll event that occurred.
-     */
-    public void scrollEventOnTextLine(ScrollEvent scrollEvent)
-    {
-        scroll(scrollEvent.getDeltaX(), scrollEvent.getDeltaY());
-    }
-
-
-    /**
      * If given character index within the document is on screen, then returns its X position.
      * If it's not on screen, returns empty.
      * @param leftOfCharIndex
@@ -849,34 +818,12 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         return new StyledLines(document, lineStyler);
     }
 
-    private void callSelectionListeners()
-    {
-        for (SelectionListener selectionListener : selectionListeners)
-        {
-            selectionListener.selectionChanged(caret.position, anchor.position);
-        }
-    }
-    
-    public void addSelectionListener(SelectionListener selectionListener)
-    {
-        selectionListeners.add(selectionListener);
-    }
-
     @Override
     protected String getLongestLineInWholeDocument()
     {
         return document.getLongestLine();
     }
 
-    /**
-     * Allows tracking of the caret position and anchor position
-     * (which together delineate the selection).
-     */
-    public static interface SelectionListener
-    {
-        public void selectionChanged(int caretPosition, int anchorPosition);
-    }
-    
     public static interface FlowEditorPaneListener extends ScopeColors, BaseEditorPaneListener
     {
         public Set<Integer> getBreakpointLines();

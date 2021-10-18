@@ -24,6 +24,7 @@ package bluej.editor.base;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.StringExpression;
@@ -88,7 +89,7 @@ public class MarginAndTextLine extends Region
     private final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
     public final TextLine textLine;
 
-    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformSupplier<Boolean> onClick, FXPlatformSupplier<ContextMenu> getContextMenuToShow, FXConsumer<ScrollEvent> onScroll)
+    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformSupplier<Boolean> onClick, FXPlatformSupplier<ContextMenu> getContextMenuToShow, FXPlatformConsumer<ScrollEvent> onScroll)
     {
         this.dividerLine = new Line(LINE_X, 0.5, LINE_X, 1);
         dividerLine.getStyleClass().add("flow-margin-line");
