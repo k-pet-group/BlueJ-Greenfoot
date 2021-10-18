@@ -31,6 +31,7 @@ import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.base.BackgroundItem;
+import bluej.editor.base.BaseEditorPane;
 import bluej.editor.base.EditorPosition;
 import bluej.editor.base.LineDisplay;
 import bluej.editor.base.MarginAndTextLine;
@@ -352,7 +353,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
 
         @Override
-        public void scrollEventOnTextLine(ScrollEvent e)
+        public void scrollEventOnTextLine(ScrollEvent e, BaseEditorPane editorPane)
         {
         }
     }
@@ -3311,9 +3312,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @Override
-    public void scrollEventOnTextLine(ScrollEvent e)
+    public void scrollEventOnTextLine(ScrollEvent e, BaseEditorPane editorPane)
     {
-        flowEditorPane.scrollEventOnTextLine(e);
+        editorPane.scrollEventOnTextLine(e);
     }
 
     @Override
@@ -3453,7 +3454,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }, flowEditorPaneListener, this.javaSyntaxView.getEntityResolver(), PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING));
         javaSyntaxView.enableParser(true);
         StyledLines allLines = new StyledLines(doc, lineStylerWrapper[0]);
-        lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true));
+        lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true, null));
 
         // Note: very important we make this call before copyFrom, as copyFrom is what triggers
         // the run-later that marking as printing suppresses:
@@ -3556,7 +3557,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
             // Scroll to make topLine actually at the top:
             lineDisplay.scrollTo(topLine, 0);
-            List<MarginAndTextLine> lines = lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true);
+            List<MarginAndTextLine> lines = lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true, null);
             for (MarginAndTextLine line : lines)
             {
                 line.setMarginGraphics(printLineNumbers ? EnumSet.of(MarginDisplay.LINE_NUMBER) : EnumSet.noneOf(MarginDisplay.class));

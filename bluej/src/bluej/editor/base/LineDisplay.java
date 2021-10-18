@@ -111,7 +111,7 @@ public class LineDisplay
      * @return The ordered list of visible lines
      */
     @OnThread(Tag.FX)
-    public <L extends List<StyledSegment>> List<MarginAndTextLine> recalculateVisibleLines(List<L> allLines, FXFunction<Double, Double> snapHeight, double xTranslate, double width, double height, boolean lineWrapping)
+    public <L extends List<StyledSegment>> List<MarginAndTextLine> recalculateVisibleLines(List<L> allLines, FXFunction<Double, Double> snapHeight, double xTranslate, double width, double height, boolean lineWrapping, BaseEditorPane editorPane)
     {
         if (firstVisibleLineIndex >= allLines.size())
         {
@@ -139,7 +139,7 @@ public class LineDisplay
             int lineIndex = firstVisibleLineIndex;
             while (lines.hasNext())
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(), editorPaneListener::scrollEventOnTextLine));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
                 line.textLine.setText(lines.next(), xTranslate, false, fontCSS);
                 lineIndex += 1;
             }
@@ -155,7 +155,7 @@ public class LineDisplay
             int lineIndex;
             for (lineIndex = firstVisibleLineIndex; lineIndex < allLines.size() && totalHeightSoFar < height; lineIndex += 1)
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(), editorPaneListener::scrollEventOnTextLine));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
                 line.textLine.setText(allLines.get(lineIndex), xTranslate, true, fontCSS);
                 double lineHeight = calculateLineHeight(allLines.get(lineIndex), width);
                 totalHeightSoFar += snapHeight.apply(lineHeight);

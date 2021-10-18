@@ -548,16 +548,6 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     }
 
     /**
-     * Called when a scroll event has occurred on one of the text lines in the editor
-     * @param scrollEvent The scroll event that occurred.
-     */
-    public void scrollEventOnTextLine(ScrollEvent scrollEvent)
-    {
-        scroll(scrollEvent.getDeltaX(), scrollEvent.getDeltaY());
-    }
-
-
-    /**
      * If given character index within the document is on screen, then returns its X position.
      * If it's not on screen, returns empty.
      * @param leftOfCharIndex

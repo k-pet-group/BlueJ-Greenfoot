@@ -426,7 +426,7 @@ public abstract class BaseEditorPane extends Region
         
         List<List<StyledSegment>> styledLines = getStyledLines();
 
-        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, - horizontalScroll.getValue(), lineContainer.getWidth(), lineContainer.getHeight(), false));
+        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, - horizontalScroll.getValue(), lineContainer.getWidth(), lineContainer.getHeight(), false, this));
         prospectiveChildren.add(caretShape);
         int lineCount = getLineCount();
         verticalScroll.setVisible(allowScrollBars && lineDisplay.getVisibleLineCount() < lineCount);
@@ -528,6 +528,15 @@ public abstract class BaseEditorPane extends Region
     }
 
     /**
+     * Called when a scroll event has occurred on one of the text lines in the editor
+     * @param scrollEvent The scroll event that occurred.
+     */
+    public void scrollEventOnTextLine(ScrollEvent scrollEvent)
+    {
+        scroll(scrollEvent.getDeltaX(), scrollEvent.getDeltaY());
+    }
+
+    /**
      * Gets the length of the given line, in characters
      * @param lineIndex The index of the line (0 = first line)
      */
@@ -623,7 +632,7 @@ public abstract class BaseEditorPane extends Region
          * Called when a scroll event has occurred on one of the text lines in the editor
          * @param scrollEvent The scroll event that occurred.
          */
-        public void scrollEventOnTextLine(ScrollEvent scrollEvent);
+        public void scrollEventOnTextLine(ScrollEvent scrollEvent, BaseEditorPane editorPane);
     }
 
     /**
