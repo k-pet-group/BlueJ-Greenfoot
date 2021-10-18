@@ -164,6 +164,7 @@ public abstract class BaseEditorPane extends Region
             int oldCaretPos = 0;
             int oldAnchorPos = 0;
             @Override
+            @OnThread(Tag.FXPlatform)
             public void selectionChanged(int caretPosition, int anchorPosition)
             {
                 if (caretPosition != oldCaretPos)
@@ -644,6 +645,7 @@ public abstract class BaseEditorPane extends Region
      */
     public static interface SelectionListener
     {
+        @OnThread(Tag.FXPlatform)
         public void selectionChanged(int caretPosition, int anchorPosition);
     }
 }
