@@ -65,6 +65,7 @@ public abstract class BaseEditorPane extends Region
 
     // The manager of the lines of text currently shown on screen in the editor
     protected final LineDisplay lineDisplay;
+    // The listeners for the selection (anchor+caret) to be called when the anchor and/or caret change:
     private final ArrayList<SelectionListener> selectionListeners = new ArrayList<>();
     // The caret (cursor) shape
     private final Path caretShape;
