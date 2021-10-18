@@ -171,6 +171,12 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     }
 
     @Override
+    protected void keyPressed(KeyEvent event)
+    {
+        // All the key press events are handled by the editor actions system
+    }
+
+    @Override
     protected void keyTyped(KeyEvent event)
     {
         if (!editable)

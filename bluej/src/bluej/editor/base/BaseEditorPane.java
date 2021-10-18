@@ -149,6 +149,7 @@ public abstract class BaseEditorPane extends Region
 
 
         Nodes.addInputMap(this, InputMap.sequence(
+            InputMap.consume(KeyEvent.KEY_PRESSED, this::keyPressed),
             InputMap.consume(KeyEvent.KEY_TYPED, this::keyTyped),
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
             InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged),
@@ -183,6 +184,8 @@ public abstract class BaseEditorPane extends Region
         });
     }
 
+    // The handler for the KeyEvent.KEY_PRESSED event:
+    protected abstract void keyPressed(KeyEvent event);
     // The handler for the KeyEvent.KEY_TYPED event:
     protected abstract void keyTyped(KeyEvent event);
     // The handler for the MouseEvent.MOUSE_PRESSED event:
