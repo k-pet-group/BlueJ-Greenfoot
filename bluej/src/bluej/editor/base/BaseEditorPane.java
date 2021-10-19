@@ -631,7 +631,7 @@ public abstract class BaseEditorPane extends Region
          * Gets the context menu to show.  If necessary, should be hidden before being returned
          * by this method.
          */
-        ContextMenu getContextMenuToShow();
+        ContextMenu getContextMenuToShow(BaseEditorPane editorPane);
 
         /**
          * Called when a scroll event has occurred on one of the text lines in the editor
