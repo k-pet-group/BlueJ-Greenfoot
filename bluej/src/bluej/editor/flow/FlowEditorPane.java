@@ -42,6 +42,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -173,7 +174,12 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     @Override
     protected void keyPressed(KeyEvent event)
     {
-        // All the key press events are handled by the editor actions system
+        // All the key press events are handled by the editor actions system, except the context menu key:
+        if (event.getCode() == KeyCode.CONTEXT_MENU)
+        {
+            showContextMenuAtCaret();
+            event.consume();
+        }
     }
 
     @Override

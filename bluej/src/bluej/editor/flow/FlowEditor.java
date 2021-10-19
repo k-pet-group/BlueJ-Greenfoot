@@ -256,7 +256,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @Override
-    public ContextMenu getContextMenuToShow()
+    public ContextMenu getContextMenuToShow(BaseEditorPane editorPane)
     {
         // It may already be showing; if so, hide and re-show at new click position:
         editorContextMenu.hide();
@@ -347,7 +347,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
 
         @Override
-        public ContextMenu getContextMenuToShow()
+        public ContextMenu getContextMenuToShow(BaseEditorPane editorPane)
         {
             return null;
         }

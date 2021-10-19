@@ -52,7 +52,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 
 /**
  * A shared editor component to be used as the basis for rich text displays with carets and scrolling.
@@ -62,6 +61,9 @@ import java.util.OptionalInt;
 public abstract class BaseEditorPane extends Region
 {
     protected static final Duration SCROLL_DELAY = Duration.millis(50);
+    
+    // The editor pane listener
+    private final BaseEditorPaneListener editorPaneListener;
 
     // The manager of the lines of text currently shown on screen in the editor
     protected final LineDisplay lineDisplay;
@@ -103,6 +105,7 @@ public abstract class BaseEditorPane extends Region
 
     protected BaseEditorPane(BaseEditorPaneListener listener)
     {
+        this.editorPaneListener = listener;
         caretShape = new Path();
         caretShape.getStyleClass().add("flow-caret");
         caretShape.setStroke(Color.RED);
@@ -188,6 +191,19 @@ public abstract class BaseEditorPane extends Region
 
     // The handler for the KeyEvent.KEY_PRESSED event:
     protected abstract void keyPressed(KeyEvent event);
+
+    /**
+     * Shows the context menu at the current position of the caret.
+     */
+    protected final void showContextMenuAtCaret()
+    {
+        Bounds sceneBounds = caretShape.localToScene(caretShape.getBoundsInLocal());
+        Point2D scenePt = new Point2D(sceneBounds.getMaxX(), sceneBounds.getMaxY());
+        Scene scene = getScene();
+        Point2D screenPt = scenePt.add(scene.getWindow().getX() + scene.getX(), scene.getWindow().getY() + scene.getY());
+        editorPaneListener.getContextMenuToShow(this).show(this, screenPt.getX(), screenPt.getY());
+    }
+
     // The handler for the KeyEvent.KEY_TYPED event:
     protected abstract void keyTyped(KeyEvent event);
     // The handler for the MouseEvent.MOUSE_PRESSED event:
@@ -631,7 +647,7 @@ public abstract class BaseEditorPane extends Region
          * Gets the context menu to show.  If necessary, should be hidden before being returned
          * by this method.
          */
-        ContextMenu getContextMenuToShow();
+        ContextMenu getContextMenuToShow(BaseEditorPane editorPane);
 
         /**
          * Called when a scroll event has occurred on one of the text lines in the editor
