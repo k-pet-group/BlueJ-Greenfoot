@@ -33,9 +33,10 @@ import bluej.debugger.DebuggerTerminal;
 import bluej.debugmgr.ExecutionEvent;
 import bluej.editor.base.LineDisplay;
 import bluej.editor.base.TextLine;
+import bluej.editor.base.TextLine.StyledSegment;
 import bluej.editor.flow.FlowEditor;
 import bluej.editor.flow.FlowEditor.OffScreenFlowEditorPaneListener;
-import bluej.editor.flow.FlowEditorPane.LineContainer;
+import bluej.editor.base.LineContainer;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.print.PrintProgressDialog;
@@ -53,11 +54,9 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.EventHandler;
 import javafx.print.PrinterJob;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -67,20 +66,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.fxmisc.richtext.CharacterHit;
-import org.fxmisc.richtext.NavigationActions.SelectionPolicy;
-import org.fxmisc.richtext.StyledTextArea;
-import org.fxmisc.richtext.TextExt;
-import org.fxmisc.richtext.model.Paragraph;
-import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
-import org.fxmisc.richtext.model.SegmentOps;
-import org.fxmisc.richtext.model.StyleSpan;
-import org.fxmisc.richtext.model.StyledDocument;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -92,7 +79,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -113,75 +100,15 @@ public final class Terminal
     implements BlueJEventListener, DebuggerTerminal
 {
     private static final int MAX_BUFFER_LINES = 200;
-    private VirtualizedScrollPane<?> errorScrollPane;
-
-    private static interface TextAreaStyle
-    {
-        public String getCSSClass();
-    }
 
     // The style for text in the stdout pane: was it output by the program, or input by the user?
     // Or third option: details about method recording
-    private static enum StdoutStyle implements TextAreaStyle
-    {
-        OUTPUT("terminal-output"), INPUT("terminal-input"), METHOD_RECORDING("terminal-method-record");
-
-        private final String cssClass;
-
-        private StdoutStyle(String cssClass)
-        {
-            this.cssClass = cssClass;
-        }
-
-        public String getCSSClass()
-        {
-            return cssClass;
-        }
-    }
-
-    private static enum StderrStyleType
-    {
-        NORMAL("terminal-error"), LINKED_STACK_TRACE("terminal-stack-link"), FOREIGN_STACK_TRACE("terminal-stack-foreign");
-
-        private final String cssClass;
-
-        private StderrStyleType(String cssClass)
-        {
-            this.cssClass = cssClass;
-        }
-
-        public String getCSSClass()
-        {
-            return cssClass;
-        }
-    }
-
-    private static class StderrStyle implements TextAreaStyle
-    {
-        private final StderrStyleType type;
-        private final ExceptionSourceLocation exceptionSourceLocation;
-
-        private StderrStyle(StderrStyleType type)
-        {
-            this.type = type;
-            this.exceptionSourceLocation = null;
-        }
-
-        public StderrStyle(ExceptionSourceLocation exceptionSourceLocation)
-        {
-            this.type = StderrStyleType.LINKED_STACK_TRACE;
-            this.exceptionSourceLocation = exceptionSourceLocation;
-        }
-
-        public static final StderrStyle NORMAL = new StderrStyle(StderrStyleType.NORMAL);
-        public static final StderrStyle FOREIGN_STACK_TRACE = new StderrStyle(StderrStyleType.FOREIGN_STACK_TRACE);
-
-        @Override
-        public String getCSSClass()
-        {
-            return type.getCSSClass();
-        }
-    }
+    private static final List<String> STDOUT_OUTPUT = Collections.singletonList("terminal-output");
+    private static final List<String> STDOUT_INPUT = Collections.singletonList("terminal-input");
+    private static final List<String> STDOUT_METHOD_RECORDING = Collections.singletonList("terminal-method-record");
+    private static final List<String> STDERR_NORMAL = Collections.singletonList("terminal-error");
+    private static final List<String> STDERR_LINKED_STACK_TRACE = Collections.singletonList("terminal-stack-link");
+    private static final List<String> STDERR_FOREIGN_STACK_TRACE = Collections.singletonList("terminal-stack-foreign");
 
     private static final String WINDOWTITLE = Config.getApplicationName() + ": " + Config.getString("terminal.title");
 
@@ -195,8 +122,8 @@ public final class Terminal
 
     private final Project project;
     
-    private final StyledTextArea<Void, StdoutStyle> text;
-    private StyledTextArea<Void, StderrStyle> errorText = null;
+    private final TerminalTextPane text;
+    private TerminalTextPane errorText;
     private final TextField input;
     private final SplitPane splitPane;
     private boolean isActive = false;
@@ -226,21 +153,18 @@ public final class Terminal
         this.project = project;
 
         buffer = new InputBuffer(256);
-        text = new StyledTextArea<Void, StdoutStyle>(null, (t, v) -> {}, StdoutStyle.OUTPUT, this::applyStyle);
-        text.selectionProperty().addListener(s -> {
-            // Any selection in the output text pane should clear existing selection in the error pane
-            if (errorText != null && errorText.getSelection().getLength() != 0)
+        text = new TerminalTextPane();
+        text.getStyleClass().add("terminal-output");
+        text.addSelectionListener((caret, anchor) -> {
+            if (errorText != null && errorText.getCaretEditorPosition().getPosition() != errorText.getAnchorEditorPosition().getPosition())
             {
                 errorText.deselect();
             }
         });
-        VirtualizedScrollPane<?> scrollPane = new VirtualizedScrollPane<>(text);
-        text.setEditable(false);
-        text.getStyleClass().add("terminal");
-        text.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
-        unlimitedBufferingCall.addListener(c -> {
+        JavaFXUtil.addChangeListenerPlatform(unlimitedBufferingCall, unlimited -> {
             // Toggle unlimited buffering; need to chop if necessary
-            trimToMaxBufferLines(text);
+            if (!unlimited)
+                text.trimToMostRecentNLines(MAX_BUFFER_LINES);
         });
 
         input = new TextField();
@@ -265,17 +189,7 @@ public final class Terminal
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN)), e -> PrefMgr.getEditorFontSize().set(PrefMgr.DEFAULT_JAVA_FONT_SIZE))
         ));
 
-        // Make a single click on stdout area focus the input, to help users
-        // who are used to BlueJ 3 where you typed into the stdout area directly
-        text.setOnMouseClicked(e -> {
-            if (e.getButton() == MouseButton.PRIMARY)
-            {
-                input.requestFocus();
-                e.consume();
-            }
-        });
-
-        splitPane = new SplitPane(new BorderPane(scrollPane, null, null, input, null));
+        splitPane = new SplitPane(new BorderPane(text, null, null, input, null));
         JavaFXUtil.addStyleClass(splitPane, "terminal-split");
 
         BorderPane mainPanel = new BorderPane();
@@ -313,15 +227,7 @@ public final class Terminal
         window.setOnHidden(e -> showingProperty.set(false));
 
         JavaFXUtil.addChangeListenerPlatform(showingProperty, this::showHide);
-        
-        // Add context menu with copy
-        splitPane.setContextMenu(new ContextMenu(
-                JavaFXUtil.makeMenuItem(Config.getString("terminal.copy"), () -> 
-                {
-                    doCopy();
-                }, null)
-        ));
-        
+                
         Config.loadAndTrackPositionAndSize(window, "bluej.terminal");
         BlueJEvent.addListener(this);
     }
@@ -331,11 +237,11 @@ public final class Terminal
      */
     private void doCopy()
     {
-        if (errorText != null && errorText.selectionProperty().getValue().getLength() != 0) 
+        if (errorText != null && errorText.getCaretEditorPosition().getPosition() != errorText.getAnchorEditorPosition().getPosition()) 
         {
             errorText.copy();
         }
-        else if (text.selectionProperty().getValue().getLength() != 0) 
+        else if (text.getCaretEditorPosition().getPosition() != text.getAnchorEditorPosition().getPosition()) 
         {
             text.copy();
         }
@@ -354,12 +260,7 @@ public final class Terminal
             buffer.notifyReaders();
         }
         this.input.clear();
-        writeToPane(text, inputString, StdoutStyle.INPUT);
-    }
-
-    private void applyStyle(TextExt t, TextAreaStyle s)
-    {
-        JavaFXUtil.addStyleClass(t, s.getCSSClass());
+        writeToPane(text, inputString, STDOUT_INPUT);
     }
 
     /**
@@ -410,9 +311,9 @@ public final class Terminal
      */
     public void clear()
     {
-        text.replaceText("");
-        if(errorText!=null) {
-            errorText.replaceText("");
+        text.clear();
+        if (errorText!=null) {
+            errorText.clear();
         }
         hideErrorPane();
     }
@@ -434,7 +335,7 @@ public final class Terminal
             try
             {
                 FileWriter writer = new FileWriter(fileName);
-                String output = text.getText().replace("\n", System.lineSeparator())   ;
+                String output = String.join(System.lineSeparator(), text.getLines());
                 writer.write(output);
                 writer.close();
             }
@@ -455,20 +356,8 @@ public final class Terminal
         }
         else if (job.showPrintDialog(window))
         {
-            List<List<TextLine.StyledSegment>> lines = new ArrayList<>();
-            StyledDocument<Void, String, StdoutStyle> src = text.getDocument();
-            for (Paragraph<Void, String, StdoutStyle> paragraph : src.getParagraphs())
-            {
-                int curPos = 0;
-                ArrayList<TextLine.StyledSegment> segs = new ArrayList<>();
-                for (StyleSpan<StdoutStyle> styleSpan : paragraph.getStyleSpans())
-                {
-                    segs.add(new TextLine.StyledSegment(List.of(styleSpan.getStyle().getCSSClass()), paragraph.substring(curPos, curPos + styleSpan.getLength())));
-                    curPos += styleSpan.getLength();
-                }
-                lines.add(segs);
-            }
-            
+            List<List<TextLine.StyledSegment>> lines = text.getStyledLines();
+                        
             BorderPane root = new BorderPane();
             Scene scene = new Scene(root);
             Config.addTerminalStylesheets(scene);
@@ -506,10 +395,10 @@ public final class Terminal
     /**
      * Write some text to the terminal.
      */
-    private <S extends TextAreaStyle> void writeToPane(StyledTextArea<Void, S> pane, String s, S style)
+    private void writeToPane(TerminalTextPane pane, String s, List<String> cssClasses)
     {
         prepare();
-        if (pane == errorText)
+        if (errorText != null && pane == errorText)
             showErrorPane();
         
         // The form-feed character should clear the screen.
@@ -519,24 +408,15 @@ public final class Terminal
             s = s.substring(n + 1);
         }
 
-        pane.append(styled(s, style));
+        pane.append(new StyledSegment(cssClasses, s));
 
-        if (pane != errorText)
+        if (errorText != null && pane != errorText)
         {
-            trimToMaxBufferLines(pane);
+            if (!unlimitedBufferingCall.get())
+                pane.trimToMostRecentNLines(MAX_BUFFER_LINES);
         }
 
-        pane.end(SelectionPolicy.CLEAR);
-        pane.requestFollowCaret();
-    }
-
-    private <S extends TextAreaStyle> void trimToMaxBufferLines(StyledTextArea<Void, S> pane)
-    {
-        if (!unlimitedBufferingCall.get() && pane.getParagraphs().size() >= MAX_BUFFER_LINES)
-        {
-            int newStart = pane.position(pane.getParagraphs().size() - MAX_BUFFER_LINES, 0).toOffset();
-            pane.replaceText(0, newStart, "");
-        }
+        pane.scrollToEnd();
     }
 
     /**
@@ -566,7 +446,7 @@ public final class Terminal
             clear();
         }
         if(recordMethodCalls.get()) {
-            text.append(styled(callString + "\n", StdoutStyle.METHOD_RECORDING));
+            text.append(new StyledSegment(STDOUT_METHOD_RECORDING, callString + "\n"));
         }
         newMethodCall = true;
     }
@@ -579,11 +459,6 @@ public final class Terminal
         return clearOnMethodCall.getValue();
     }
 
-    private static <S> ReadOnlyStyledDocument<Void, String, S> styled(String text, S style)
-    {
-        return ReadOnlyStyledDocument.fromString(text, null, style, SegmentOps.styledTextOps());
-    }
-
     private void constructorCall(InvokerRecord ir)
     {
         newMethodCall = false;
@@ -592,7 +467,7 @@ public final class Terminal
         }
         if(recordMethodCalls.get()) {
             String callString = ir.getResultTypeString() + " " + ir.getResultName() + " = " + ir.toExpression() + ";";
-            text.append(styled(callString + "\n", StdoutStyle.METHOD_RECORDING));
+            text.append(new StyledSegment(STDOUT_METHOD_RECORDING, callString + "\n"));
         }
         newMethodCall = true;
     }
@@ -633,7 +508,7 @@ public final class Terminal
             }
             
             if (result != null) {
-                text.append(styled(result + "\n", StdoutStyle.METHOD_RECORDING));
+                text.append(new StyledSegment(STDOUT_METHOD_RECORDING, result + "\n"));
             }
         }
     }
@@ -645,54 +520,62 @@ public final class Terminal
     private void scanForStackTrace()
     {
         try {
-            String content = errorText.getText();
+            List<String> allLines = errorText.getLines();
 
-            Pattern p = java.util.regex.Pattern.compile("at (\\S+)\\((\\S+)\\.java:(\\d+)\\)");
+            Pattern fileAndLine = java.util.regex.Pattern.compile("at (\\S+)\\((\\S+)\\.java:(\\d+)\\)");
+            Pattern noSource = java.util.regex.Pattern.compile("at \\S+\\((Native Method|Unknown Source)\\)");
+            
             // Matches things like:
             // at greenfoot.localdebugger.LocalDebugger$QueuedExecution.run(LocalDebugger.java:267)
             //    ^--------------------group 1----------------------------^ ^--group 2--^      ^3^
-            Matcher m = p.matcher(content);
-            while (m.find())
+            for (int i = 0; i < allLines.size(); i++)
             {
-                String fullyQualifiedMethodName = m.group(1);
-                String javaFile = m.group(2);
-                int lineNumber = Integer.parseInt(m.group(3));
-
-                // The fully qualified method name will end in ".method", so we can
-                // definitely remove that:
-
-                String fullyQualifiedClassName = JavaNames.getPrefix(fullyQualifiedMethodName);
-                // The class name may be an inner class, so we want to take the package:
-                String packageName = JavaNames.getPrefix(fullyQualifiedClassName);
-
-                //Find out if that file is available, and only link if it is:
-                Package pkg = project.getPackage(packageName);
-
-                if (pkg != null && pkg.getAllClassnames().contains(javaFile))
+                String line = allLines.get(i);
+                Matcher m = fileAndLine.matcher(line);
+                
+                while (m.find())
                 {
-                    errorText.setStyle(m.start(1), m.end(), new StderrStyle(new ExceptionSourceLocation(m.start(1), m.end(), pkg, javaFile, lineNumber)));
+                    String fullyQualifiedMethodName = m.group(1);
+                    String javaFile = m.group(2);
+                    int lineNumber = Integer.parseInt(m.group(3));
+
+                    // The fully qualified method name will end in ".method", so we can
+                    // definitely remove that:
+
+                    String fullyQualifiedClassName = JavaNames.getPrefix(fullyQualifiedMethodName);
+                    // The class name may be an inner class, so we want to take the package:
+                    String packageName = JavaNames.getPrefix(fullyQualifiedClassName);
+
+                    //Find out if that file is available, and only link if it is:
+                    Package pkg = project.getPackage(packageName);
+
+                    if (pkg != null && pkg.getAllClassnames().contains(javaFile))
+                    {
+                        errorText.setStyleForLineSegment(i, m.start(1), m.end(), STDERR_LINKED_STACK_TRACE, new ExceptionSourceLocation(m.start(1), m.end(), pkg, javaFile, lineNumber));
+                    }
+                    else
+                    {
+                        errorText.setStyleForLineSegment(i, m.start(), m.end(), STDERR_FOREIGN_STACK_TRACE, null);
+                    }
                 }
-                else
+
+                //Also mark up native method lines in stack traces with a marker for font colour:
+
+                
+                // Matches things like:
+                //  at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+                m = noSource.matcher(line);
+                while (m.find())
                 {
-                    errorText.setStyle(m.start(), m.end(), StderrStyle.FOREIGN_STACK_TRACE);
+                    errorText.setStyleForLineSegment(i, m.start(), m.end(), STDERR_FOREIGN_STACK_TRACE, null);
                 }
-            }
-
-            //Also mark up native method lines in stack traces with a marker for font colour:
-
-            p = java.util.regex.Pattern.compile("at \\S+\\((Native Method|Unknown Source)\\)");
-            // Matches things like:
-            //  at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-            m = p.matcher(content);
-            while (m.find())
-            {
-                errorText.setStyle(m.start(), m.end(), StderrStyle.FOREIGN_STACK_TRACE);
             }
         }
         catch (NumberFormatException e ) {
             //In case it looks like an exception but has a large line number:
             e.printStackTrace();
         }
+        errorText.refreshDisplay();
     }
 
 
@@ -792,40 +675,20 @@ public final class Terminal
         }
 
         if(errorText == null) {
-            errorText = new StyledTextArea<Void, StderrStyle>(null, (t, v) -> {}, StderrStyle.NORMAL, this::applyStyle);
+            errorText = new TerminalTextPane();
             errorText.getStyleClass().add("terminal-error");
-            errorScrollPane = new VirtualizedScrollPane<>(errorText);
             errorText.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
-            errorText.setEditable(false);
             // Any selection in the error pane should clear existing selection in the output text pane
 
-            errorText.selectionProperty().addListener(s -> {
-                if (text != null && text.getSelection().getLength() != 0)
+            errorText.addSelectionListener((caret, anchor) -> {
+                if (text != null && text.getCaretEditorPosition().getPosition() != text.getAnchorEditorPosition().getPosition())
                 {
                     text.deselect();
                 }
             });
-            errorText.plainTextChanges().subscribe(c -> scanForStackTrace());
-            EventHandler<MouseEvent> onClick = e ->
-            {
-                CharacterHit hit = errorText.hit(e.getX(), e.getY());
-
-                StderrStyle style = errorText.getStyleAtPosition(hit.getInsertionIndex());
-
-                if (style.exceptionSourceLocation != null)
-                {
-                    style.exceptionSourceLocation.showInEditor();
-                }
-                else
-                {
-                    // Default behaviour:
-                    errorText.moveTo(hit.getInsertionIndex(), SelectionPolicy.CLEAR);
-                }
-            };
-            errorText.setOnOutsideSelectionMousePressed(onClick);
-            errorText.setOnInsideSelectionMousePressReleased(onClick);
+            errorText.addTextChangeListener(this::scanForStackTrace);
         }
-        splitPane.getItems().add(errorScrollPane);
+        splitPane.getItems().add(errorText);
         Config.rememberDividerPosition(window, splitPane, "bluej.terminal.dividerpos");
         errorShown = true;
     }
@@ -838,7 +701,7 @@ public final class Terminal
         if(!errorShown) {
             return;
         }
-        splitPane.getItems().remove(errorScrollPane);
+        splitPane.getItems().remove(errorText);
         errorShown = false;
     }
 
@@ -968,10 +831,14 @@ public final class Terminal
                         if (isErrorOut)
                         {
                             showErrorPane();
-                            writeToPane(errorText, s, StderrStyle.NORMAL);
+                            writeToPane(errorText, s, STDERR_NORMAL);
                         }
                         else
-                            writeToPane(text, s, StdoutStyle.OUTPUT);
+                            writeToPane(text, s, STDOUT_OUTPUT);
+                    }
+                    catch (Throwable t)
+                    {
+                        Debug.reportError(t);
                     }
                     finally
                     {
