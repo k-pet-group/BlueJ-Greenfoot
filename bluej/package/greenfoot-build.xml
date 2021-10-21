@@ -29,7 +29,7 @@
         <include name="lib/opencsv-2.3.jar" />
         <include name="lib/nsmenufx-2.1.8.jar"/>
         <include name="lib/guava-17.0.jar" />
-        <include name="lib/richtextfx-fat-0.9.0.jar"/>
+        <include name="lib/wellbehavedfx-0.3.3.jar"/>
         <include name="lib/javassist-3.18.0.jar" />
         <include name="lib/classgraph-4.8.90.jar"/>
         <include name="lib/xom-1.2.9.jar" />

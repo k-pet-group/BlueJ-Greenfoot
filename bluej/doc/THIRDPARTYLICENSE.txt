@@ -154,20 +154,10 @@ The library is distributed under the Apache License version 2.0. A copy of this
 license can be found in the "Apache-License-2.0.txt" file.
 
 
-RichTextFX (GPLv2 with classpath exception, and 2-clause BSD licenses)
+WellBehavedFX (2-clause BSD licenses)
 ----------------------------------------------------------------------
-"richtextfx-fat-0.9.0.jar" is the RichTextFX library (https://github.com/TomasMikula/RichTextFX)
-and its dependencies. RichTextFX itself is dual licensed and is used in BlueJ under the GPLv2
-with classpath exception (the license of BlueJ itself). The dependencies are under a BSD 2-clause
-license, and include:
-
-ReactFX: license found in the "ReactFX-BSD.txt" file;
-UndoFX, Flowless, and WellBehavedFX: license found in the "TomasMikula-BSD.txt" file.
-
-The RichTextFX source includes a small patch to 0.9.0 to fix a bug.  The
-patched source is available at:
-https://bluej.org/download/files/source/richtextfx-0.9.0-src-patched.zip
-The patch is available in doc/richtextfx-0.9.0-leak.patch
+"wellbehavedfx-0.3.3.jar" is the WellBehavedFX library (https://github.com/FXMisc/WellBehavedFX).
+The license is found in the "TomasMikula-BSD.txt" file.
 
 
 Roboto Mono fonts (Apache License version 2.0)
@@ -248,7 +238,7 @@ junit-quickcheck-core-0.8.2.jar          MIT License
 nsmenufx-2.1.8.jar                       BSD license
 ognl-3.1.12.jar                          Apache License v2.0
 org.eclipse.jgit-4.9.0.jar               Eclipse Distribution License (EDL) v1.0
-richtextfx-fat-0.9.0.jar                 BSD License
+wellbehavedfx-0.3.3.jar                 BSD License
 slf4j-api-1.7.2.jar                      MIT License
 slf4j-jdk14-1.7.2.jar                    MIT License
 sqljet-1.1.10.jar                        TMate Open Source License
