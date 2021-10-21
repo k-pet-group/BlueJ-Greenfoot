@@ -39,7 +39,7 @@ import bluej.editor.fixes.EditorFixesManager;
 import bluej.editor.fixes.FixDisplayManager;
 import bluej.editor.flow.FlowActions.FlowAbstractAction;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
-import bluej.editor.flow.FlowEditorPane.LineContainer;
+import bluej.editor.base.LineContainer;
 import bluej.editor.flow.FlowEditorPane.LineStyler;
 import bluej.editor.base.BaseEditorPane.SelectionListener;
 import bluej.editor.flow.FlowEditorPane.StyledLines;
