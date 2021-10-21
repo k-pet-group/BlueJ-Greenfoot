@@ -8,6 +8,8 @@
 }
 .terminal-output {
     -fx-fill: black;
+    -fx-background-color: white;
+    -fx-cursor: text;
 }
 .terminal-input {
     -fx-fill: blue;
@@ -17,11 +19,16 @@
 }
 .terminal-error {
     -fx-fill: red;
+    -fx-background-color: white;
+    -fx-cursor: text;
+}
+.terminal-output .flow-selection, .terminal-error .flow-selection {
+    -fx-fill: hsb(211, 50%, 90%);
+    -fx-stroke: null;
 }
 .terminal-stack-link {
     -fx-fill: rgb(255, 96, 96);
-    -rtfx-underline-color: red;
-    -rtfx-underline-width: 2;
+    -fx-underline: true;
     -fx-cursor: hand;
 }
 .terminal-stack-foreign {

@@ -366,7 +366,7 @@ public class TextLine extends TextFlow
          * adjacent run of segments that have identical styles.
          */
         @OnThread(Tag.FX)
-        private static Iterable<StyledSegment> mergeAdjacentIdentical(List<StyledSegment> segments)
+        public static Iterable<StyledSegment> mergeAdjacentIdentical(List<StyledSegment> segments)
         {
             return new Iterable<StyledSegment>()
             {
