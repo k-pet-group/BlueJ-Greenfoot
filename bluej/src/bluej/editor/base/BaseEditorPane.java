@@ -64,6 +64,7 @@ public abstract class BaseEditorPane extends Region
     
     // The editor pane listener
     private final BaseEditorPaneListener editorPaneListener;
+    private final boolean showLeftMargin;
 
     // The manager of the lines of text currently shown on screen in the editor
     protected final LineDisplay lineDisplay;
@@ -103,8 +104,9 @@ public abstract class BaseEditorPane extends Region
     private double offScreenDragX = 0;
     private double offScreenDragY = 0;
 
-    protected BaseEditorPane(BaseEditorPaneListener listener)
+    protected BaseEditorPane(boolean showLeftMargin, BaseEditorPaneListener listener)
     {
+        this.showLeftMargin = showLeftMargin;
         this.editorPaneListener = listener;
         caretShape = new Path();
         caretShape.getStyleClass().add("flow-caret");
@@ -119,7 +121,7 @@ public abstract class BaseEditorPane extends Region
         horizontalScroll = new ScrollBar();
         horizontalScroll.setOrientation(Orientation.HORIZONTAL);
         horizontalScroll.setVisible(false);
-        lineDisplay = new LineDisplay(horizontalScroll.valueProperty(), PrefMgr.getEditorFontCSS(true), listener);
+        lineDisplay = new LineDisplay(horizontalScroll.valueProperty(), PrefMgr.getEditorFontCSS(true), showLeftMargin, listener);
         lineContainer = new LineContainer(lineDisplay, false);
 
 
@@ -376,10 +378,10 @@ public abstract class BaseEditorPane extends Region
                 {
                     Bounds caretBounds = caretShape.getBoundsInLocal();
                     double maxScroll = Math.max(0, caretBounds.getCenterX() - 8);
-                    double minScroll = Math.max(0, caretBounds.getCenterX() - (getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE - verticalScroll.prefWidth(-1) - 6));
+                    double minScroll = Math.max(0, caretBounds.getCenterX() - (getWidth() - MarginAndTextLine.textLeftEdge(showLeftMargin) - verticalScroll.prefWidth(-1) - 6));
                     horizontalScroll.setValue(Math.min(maxScroll, Math.max(minScroll, horizontalScroll.getValue())));
                 }
-                caretShape.translateXProperty().set(MarginAndTextLine.TEXT_LEFT_EDGE - horizontalScroll.getValue());
+                caretShape.translateXProperty().set(MarginAndTextLine.textLeftEdge(showLeftMargin) - horizontalScroll.getValue());
                 caretShape.layoutYProperty().bind(line.layoutYProperty());
                 caretShape.setVisible(true);
             }
@@ -628,9 +630,9 @@ public abstract class BaseEditorPane extends Region
      */    
     protected abstract EditorPosition getAnchorEditorPosition();
 
-    protected final double getLineContainerWidth()
+    public final double getTextDisplayWidth()
     {
-        return lineContainer.getWidth();
+        return lineContainer.getTextDisplayWidth();
     }
 
     /**

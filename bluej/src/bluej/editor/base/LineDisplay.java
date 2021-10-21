@@ -69,13 +69,16 @@ public class LineDisplay
     
     private final StringExpression fontCSS;
     private final DoubleExpression horizScrollProperty;
-    private double lineHeightEstimate = 1.0;    
+    private double lineHeightEstimate = 1.0;   
+    
+    private final boolean showLeftMargin;
 
-    public LineDisplay(DoubleExpression horizScrollProperty, StringExpression fontCSS, BaseEditorPaneListener editorPaneListener)
+    public LineDisplay(DoubleExpression horizScrollProperty, StringExpression fontCSS, boolean showLeftMargin, BaseEditorPaneListener editorPaneListener)
     {
         this.fontCSS = fontCSS;
         this.horizScrollProperty = horizScrollProperty;
         this.editorPaneListener = editorPaneListener;
+        this.showLeftMargin = showLeftMargin;
     }
 
     /**
@@ -139,7 +142,7 @@ public class LineDisplay
             int lineIndex = firstVisibleLineIndex;
             while (lines.hasNext())
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(editorPane), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), showLeftMargin, () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(editorPane), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
                 line.textLine.setText(lines.next(), xTranslate, false, fontCSS);
                 lineIndex += 1;
             }
@@ -155,7 +158,7 @@ public class LineDisplay
             int lineIndex;
             for (lineIndex = firstVisibleLineIndex; lineIndex < allLines.size() && totalHeightSoFar < height; lineIndex += 1)
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(editorPane), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), showLeftMargin, () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(editorPane), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
                 line.textLine.setText(allLines.get(lineIndex), xTranslate, true, fontCSS);
                 double lineHeight = calculateLineHeight(allLines.get(lineIndex), width);
                 totalHeightSoFar += snapHeight.apply(lineHeight);
@@ -387,6 +390,11 @@ public class LineDisplay
             return lineHeightEstimate;
     }
 
+    public double textLeftEdge()
+    {
+        return MarginAndTextLine.textLeftEdge(showLeftMargin);
+    }
+
     public static interface LineDisplayListener
     {
         @OnThread(Tag.FX)
@@ -402,7 +410,7 @@ public class LineDisplay
             if (currentlyVisibleLine != null && currentlyVisibleLine.getLayoutY() <= localPoint.getY() && localPoint.getY() <= currentlyVisibleLine.getLayoutY() + currentlyVisibleLine.getHeight())
             {
                 // Can't use parentToLocal if layout bounds may be out of date:
-                Point2D pointInLocal = new Point2D(localPoint.getX() - currentlyVisibleLine.getLayoutX() - MarginAndTextLine.TEXT_LEFT_EDGE + horizScrollProperty.get(), localPoint.getY() - currentlyVisibleLine.getLayoutY());
+                Point2D pointInLocal = new Point2D(localPoint.getX() - currentlyVisibleLine.getLayoutX() - MarginAndTextLine.textLeftEdge(showLeftMargin) + horizScrollProperty.get(), localPoint.getY() - currentlyVisibleLine.getLayoutY());
                 if (pointInLocal.getX() >= 0)
                 {
                     HitInfo hitInfo = currentlyVisibleLine.textLine.hitTest(pointInLocal);

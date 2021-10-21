@@ -111,7 +111,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
 
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
-        super(listener);
+        super(true, listener);
         this.listener = listener;
         setSnapToPixel(true);
         document = new HoleDocument();
@@ -416,7 +416,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
             if (breakpointLines.contains(line) || line == stepLine)
             {
                 ArrayList<BackgroundItem> regions = new ArrayList<>(scopes);
-                BackgroundItem region = new BackgroundItem(0, getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE, 
+                BackgroundItem region = new BackgroundItem(0, getWidth() - MarginAndTextLine.textLeftEdge(true), 
                     new BackgroundFill((line == stepLine ? listener.stepMarkOverlayColorProperty() : listener.breakpointOverlayColorProperty()).get(), null, null));
                 regions.add(region);
                 withOverlays.put(line, regions);
@@ -485,11 +485,6 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         lineDisplay.hideAllErrorUnderlines();
     }
 
-    public double getTextDisplayWidth()
-    {
-        return getLineContainerWidth() - MarginAndTextLine.TEXT_LEFT_EDGE;
-    }
-
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public static class LineContainer extends Region
     {
@@ -540,6 +535,11 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         public ObservableList<Node> getChildren()
         {
             return super.getChildren();
+        }
+
+        public double getTextDisplayWidth()
+        {
+            return getWidth() - lineDisplay.textLeftEdge();
         }
     }
 
