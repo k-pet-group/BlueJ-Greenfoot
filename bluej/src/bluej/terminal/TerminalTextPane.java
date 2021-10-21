@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
  *  - They must be read-only, because only the program should be able to output to these panes, not the user editing them
  *  - They must be focusable and navigable and accessibility-supported, for partially-sighted users to be able to read the output via screenreader
  */
-public class TerminalTextPane extends BaseEditorPane
+public abstract class TerminalTextPane extends BaseEditorPane
 {
     // One list entry per line of content.  Will always be at least one entry:
     private final ArrayList<ContentLine> content = new ArrayList<>();
@@ -124,6 +124,16 @@ public class TerminalTextPane extends BaseEditorPane
                 }
                 return;
             }
+            case TAB:
+            {
+                if (event.isShiftDown())
+                    focusPrevious();
+                else
+                    focusNext();
+                event.consume();
+                return;
+            }
+            
             case UP:
             {
                 int destLine = Math.max(0, caretLine - 1);
@@ -196,6 +206,15 @@ public class TerminalTextPane extends BaseEditorPane
             anchorPos = new Pos(caretPos.getPosition(), caretPos.getLine(), caretPos.getColumn());
         updateRender(true);
         event.consume();
+    }
+    
+    public abstract void focusPrevious();
+    public abstract void focusNext();
+    
+    public final void requestFocusAndShowCaret()
+    {
+        requestFocus();
+        updateRender(true);
     }
 
     @Override

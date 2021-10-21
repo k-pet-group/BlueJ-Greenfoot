@@ -153,7 +153,22 @@ public final class Terminal
         this.project = project;
 
         buffer = new InputBuffer(256);
-        text = new TerminalTextPane();
+        text = new TerminalTextPane() {
+            @Override
+            public void focusPrevious()
+            {
+                if (errorText != null)
+                    errorText.requestFocusAndShowCaret();
+                else
+                    input.requestFocus();
+            }
+
+            @Override
+            public void focusNext()
+            {
+                input.requestFocus();
+            }
+        };
         text.getStyleClass().add("terminal-output");
         text.addSelectionListener((caret, anchor) -> {
             if (errorText != null && errorText.getCaretEditorPosition().getPosition() != errorText.getAnchorEditorPosition().getPosition())
@@ -186,7 +201,9 @@ public final class Terminal
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN)), e -> {sendInput(true); e.consume();}),
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.increaseFontSize(PrefMgr.getEditorFontSize())),
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.decreaseFontSize(PrefMgr.getEditorFontSize())),
-                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN)), e -> PrefMgr.getEditorFontSize().set(PrefMgr.DEFAULT_JAVA_FONT_SIZE))
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN)), e -> PrefMgr.getEditorFontSize().set(PrefMgr.DEFAULT_JAVA_FONT_SIZE)),
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.TAB, KeyCombination.SHIFT_DOWN)), e -> {text.requestFocusAndShowCaret();}),
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.TAB)), e -> {(errorText != null ? errorText : text).requestFocusAndShowCaret();})
         ));
 
         splitPane = new SplitPane(new BorderPane(text, null, null, input, null));
@@ -675,7 +692,19 @@ public final class Terminal
         }
 
         if(errorText == null) {
-            errorText = new TerminalTextPane();
+            errorText = new TerminalTextPane() {
+                @Override
+                public void focusPrevious()
+                {
+                    input.requestFocus();
+                }
+
+                @Override
+                public void focusNext()
+                {
+                    text.requestFocusAndShowCaret();
+                }
+            };
             errorText.getStyleClass().add("terminal-error");
             errorText.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
             // Any selection in the error pane should clear existing selection in the output text pane
