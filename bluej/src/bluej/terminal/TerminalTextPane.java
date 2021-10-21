@@ -67,7 +67,7 @@ public class TerminalTextPane extends BaseEditorPane
 
     public TerminalTextPane()
     {
-        super(new BaseEditorPaneListener()
+        super(false, new BaseEditorPaneListener()
         {
             // There is not a special margin in the terminal to click:
             @Override

@@ -478,7 +478,7 @@ public final class Terminal
             double pixelHeight = job.getJobSettings().getPageLayout().getPrintableHeight();
             root.resize(pixelWidth, pixelHeight);
             
-            LineDisplay lineDisplay = new LineDisplay(new ReadOnlyDoubleWrapper(0), new ReadOnlyStringWrapper(""), new OffScreenFlowEditorPaneListener());
+            LineDisplay lineDisplay = new LineDisplay(new ReadOnlyDoubleWrapper(0), new ReadOnlyStringWrapper(""), false, new OffScreenFlowEditorPaneListener());
             LineContainer lineContainer = new LineContainer(lineDisplay, true);
             root.setCenter(lineContainer);
 

@@ -54,10 +54,13 @@ import java.util.EnumSet;
 @OnThread(Tag.FX)
 public class MarginAndTextLine extends Region
 {
-    public static final int TEXT_LEFT_EDGE = 27;
-    public static final double LINE_X = 24.5;
-    public static final double MARGIN_BACKGROUND_WIDTH = 24;
-    public static final double MARGIN_RIGHT = 23;
+    private final int TEXT_LEFT_EDGE;
+    private final double LINE_X;
+    private final double MARGIN_BACKGROUND_WIDTH;
+    private final double MARGIN_RIGHT;
+
+    private final boolean showLeftMargin;
+    
     private final Line dividerLine;
     private final int lineNumberToDisplay;
     private boolean hoveringMargin = false;
@@ -89,15 +92,41 @@ public class MarginAndTextLine extends Region
     private final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
     public final TextLine textLine;
 
-    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformSupplier<Boolean> onClick, FXPlatformSupplier<ContextMenu> getContextMenuToShow, FXPlatformConsumer<ScrollEvent> onScroll)
+    /**
+     * Get the left edge of the text, in pixels, based on whether we are showing the left margin or not.
+     */
+    public static int textLeftEdge(boolean showLeftMargin)
     {
+        return showLeftMargin ? 27 : 2;
+    }
+    
+    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, boolean showLeftMargin, FXPlatformSupplier<Boolean> onClick, FXPlatformSupplier<ContextMenu> getContextMenuToShow, FXPlatformConsumer<ScrollEvent> onScroll)
+    {
+        this.showLeftMargin = showLeftMargin;
+        if (showLeftMargin)
+        {
+            MARGIN_BACKGROUND_WIDTH = 24;
+            LINE_X = 24.5;
+            TEXT_LEFT_EDGE = textLeftEdge(true);
+            MARGIN_RIGHT = 23;
+        }
+        else
+        {
+            MARGIN_BACKGROUND_WIDTH = 0;
+            LINE_X = 0;
+            TEXT_LEFT_EDGE = textLeftEdge(false);
+            MARGIN_RIGHT = 0;
+        }
         this.dividerLine = new Line(LINE_X, 0.5, LINE_X, 1);
         dividerLine.getStyleClass().add("flow-margin-line");
         this.lineNumberToDisplay = lineNumberToDisplay;
         this.backgroundNode = new Region();
         backgroundNode.getStyleClass().add("flow-margin-background");
         this.textLine = textLine;
-        getChildren().setAll(backgroundNode, textLine, dividerLine);
+        if (showLeftMargin)
+            getChildren().setAll(backgroundNode, textLine, dividerLine);
+        else
+            getChildren().setAll(backgroundNode, textLine);
         getStyleClass().add("margin-and-text-line");
         String breakpointHoverUsualText = Config.getString("editor.set.breakpoint.hint");
         String breakpointHoverFailText = Config.getString("editor.set.breakpoint.fail");
@@ -257,6 +286,9 @@ public class MarginAndTextLine extends Region
     @OnThread(Tag.FX)
     public void setMarginGraphics(EnumSet<MarginDisplay> displayItems)
     {
+        if (!showLeftMargin)
+            return;
+        
         this.displayItems.clear();
         this.displayItems.addAll(displayItems);
         EnumSet<MarginDisplay> toAdd = EnumSet.copyOf(displayItems);
