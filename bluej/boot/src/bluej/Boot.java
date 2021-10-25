@@ -98,7 +98,7 @@ public class Boot
         "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
         JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
         "lang-stride.jar",
-        "nsmenufx-2.1.8.jar", "richtextfx-fat-0.9.0.jar",
+        "nsmenufx-2.1.8.jar", "wellbehavedfx-0.3.3.jar",
         "guava-17.0.jar",
         "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar"};
     private static final int greenfootUserBuildJars = 4;
@@ -123,7 +123,7 @@ public class Boot
         "lang-stride.jar",
         "nsmenufx-2.1.8.jar",
         "org.eclipse.jgit-4.9.0.jar",
-        "richtextfx-fat-0.9.0.jar",
+        "wellbehavedfx-0.3.3.jar",
         "slf4j-api-1.7.2.jar",
         "slf4j-jdk14-1.7.2.jar",
         "xom-1.2.9.jar" };

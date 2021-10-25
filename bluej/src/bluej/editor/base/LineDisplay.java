@@ -209,60 +209,6 @@ public class LineDisplay
         int newTopLine = (int)Math.floor(newOverallPos / lineHeightEstimate);
         double newOffset = (newTopLine * lineHeightEstimate) - newOverallPos;
         scrollTo(newTopLine, newOffset);
-        /*
-        // How many lines have we moved the top visible line by?
-        // Sign is opposite to deltaY. 
-        int movedBy = 0;
-        
-        // We get offset to zero, then scroll whole lines, then
-        // finally adjust offset again:
-        if (firstVisibleLineOffset != 0.0)
-        {
-            if (deltaY < 0)
-            {
-                // Scrolling down document, so moving lines upwards,
-                double distToNextTop = averageLineHeight + firstVisibleLineOffset;
-                if (-deltaY < distToNextTop)
-                {
-                    // Can do it by offset alone
-                    firstVisibleLineOffset += deltaY;
-                    return;
-                }
-                else
-                {
-                    deltaY += distToNextTop;
-                    firstVisibleLineOffset = 0;
-                    movedBy += 1;
-                }
-            }
-            else
-            {
-                // Scrolling up document, so moving lines downwards
-                double distToNextTop = -firstVisibleLineOffset;
-                if (deltaY < distToNextTop)
-                {
-                    // Can do it by offset alone
-                    firstVisibleLineOffset += deltaY;
-                    return;
-                }
-                else
-                {
-                    deltaY -= distToNextTop;
-                    firstVisibleLineOffset = 0;
-                }
-            }
-        }
-        // Now scroll entire lines:
-        // TODO watch for hitting document end!
-        while (Math.abs(deltaY) > averageLineHeight)
-        {
-            deltaY -= Math.signum(deltaY) * averageLineHeight;
-            movedBy -= (int)Math.signum(deltaY);
-        }
-        // Now scroll last part by offset:
-        if (deltaY != )
-            */
-        
     }
 
     public double getFirstVisibleLineOffset()

@@ -21,7 +21,6 @@
  */
 package bluej.editor.base;
 
-import bluej.editor.flow.FlowEditorPane.LineContainer;
 import bluej.editor.base.TextLine.StyledSegment;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
