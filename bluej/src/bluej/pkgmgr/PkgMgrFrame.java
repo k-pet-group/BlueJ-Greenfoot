@@ -161,6 +161,7 @@ public class PkgMgrFrame
     private @OnThread(Tag.FX) ButtonBase teamStatusButton;
     private @OnThread(Tag.FX) ButtonBase teamShareButton;
     private TeamActionGroup teamActions;
+    private BooleanProperty projectOpenProperty = new SimpleBooleanProperty(false);
     @OnThread(Tag.FX)
     private final List<Node> itemsToDisable = new ArrayList<>();
     @OnThread(Tag.FX)
@@ -1054,6 +1055,9 @@ public class PkgMgrFrame
 
             teamActions = aPkg.getProject().getTeamActions();
             resetTeamActions();
+
+            //update the "open project" property
+            projectOpenProperty.set(true);
             
             //update TeamSettings menu items.
             commitMenuItem.textProperty().unbind();
@@ -1602,6 +1606,9 @@ public class PkgMgrFrame
                 {
                     pmf = createFrame(initialPkg, this);
                 }
+
+                //update the "open project" property
+                pmf.projectOpenProperty.set(true);
             }
 
             pmf.setVisible(true);
@@ -1732,6 +1739,14 @@ public class PkgMgrFrame
             doSave();
         }
 
+        // Update the "project open" property, and update actions
+        // *only if we are in the context of closing a project and keeping 1 BlueJ window alive*
+        if(keepLastFrame)
+        {
+            projectOpenProperty.set(false);
+            teamActions.setAllDisabled();
+        }
+        
         // If only one frame and this was from the menu
         // "close", close should close existing package rather
         // than remove frame
@@ -2920,7 +2935,10 @@ public class PkgMgrFrame
         teamShowSharedButtons = teamShareButton.disableProperty().and(teamStatusButton.disableProperty().not());
         teamPanelItemsOnceShared.managedProperty().bind(teamShowSharedButtons);
 
-
+        // If no project is loaded, none of the once shared / unshared buttons should be visible
+        teamPanelItemsOnceShared.visibleProperty().bind(projectOpenProperty);
+        teamPanelItemsUnshared.visibleProperty().bind(projectOpenProperty);
+        
         VBox foldout = new VBox(teamPanel, testPanel);
         teamPanel.setCollapsible(false);
         teamPanel.setExpanded(true);
