@@ -411,7 +411,6 @@ public class CodePad extends VBox
         inputField.setFocusTraversable(true);
         inputField.setEditable(true);
         historyView = new ListView<>();
-        historyView.setFocusTraversable(false);
         historyView.setEditable(false);
 
         inputField.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
