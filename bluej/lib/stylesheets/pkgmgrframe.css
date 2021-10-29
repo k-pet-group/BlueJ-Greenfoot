@@ -274,7 +274,14 @@
     -fx-min-height: 50;
     -fx-background-color: codepad;
     -fx-background-radius: 5px;
+    -fx-padding: 2;
 }
+.codepad-history:focused {
+    -fx-background-color: black, codepad;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 5px, 6px;
+}
+
 .codepad-row {
     -fx-text-fill: black;
     -fx-wrap-text: false;
@@ -282,7 +289,7 @@
     -fx-background-radius: 5px;
     -fx-padding: 4px 0px 0px 10px;
 }
-.codepad-row:selected {
+.codepad-history:focused .codepad-row:selected {
     -fx-background-color: lightblue;
 }
 .codepad-row:bj-codepad-error {
@@ -304,10 +311,12 @@
             linear-gradient(from 0px 0px to 0px 5px, derive(-fx-control-inner-background, -9%), -fx-control-inner-background);
        And here's our translation to use our background colour:*/
     -fx-background-color: lightgray, codepad-input;
-    -fx-background-radius: 5px;
+    -fx-background-radius: 5px, 6px;
 }
 .codepad .text-field:focused {
     -fx-background-color: black, codepad-input;
+    -fx-background-radius: 5px, 6px;
+    -fx-background-insets: 0, 2;
 }
 
 .codepad-add-object-arrow {
