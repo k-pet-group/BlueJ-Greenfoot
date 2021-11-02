@@ -526,7 +526,6 @@ team.settings.prefix=Repository Sti
 team.settings.ext=ext (bruger SSH)
 team.settings.pserver=pserver
 team.settings.protocol=Protocol
-team.settings.rememberSettings=Husk indstillinger til fremtidige projekter
 team.settings.checkConnection=Check forbindelse
 team.moduleselect.title=V\u00E6lg projekt der skal checkes ud
 team.moduleselect.label=V\u00E6lg eller indtast projekt navn\:

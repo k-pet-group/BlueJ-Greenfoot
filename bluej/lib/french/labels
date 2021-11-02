@@ -673,7 +673,6 @@ team.settings.prefix=Chemin du d\u00E9p\u00F4t
 team.settings.ext=ext (avec SSH)
 team.settings.pserver=pserver
 team.settings.protocol=Protocole
-team.settings.rememberSettings=M\u00E9moriser la configuration pour de futurs projets
 team.settings.checkConnection=Tester connexion
 
 team.moduleselect.title=Choisir projet pour extraction

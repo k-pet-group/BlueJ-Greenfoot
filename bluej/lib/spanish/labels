@@ -705,7 +705,6 @@ team.settings.prefix=Ruta del Repositorio
 team.settings.ext=ext (usando SSH)
 team.settings.pserver=pserver
 team.settings.protocol=Protocol
-team.settings.rememberSettings=Recuerde ajustes para futuros proyectos
 team.settings.checkConnection=Compruebe la conexi\u00f3n
 
 team.moduleselect.title=Seleccione el Proyecto a Revisar
