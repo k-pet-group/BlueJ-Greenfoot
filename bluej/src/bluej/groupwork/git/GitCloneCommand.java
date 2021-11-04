@@ -71,13 +71,15 @@ public class GitCloneCommand extends GitCommand
             repoConfig.save();
 
             //if a specific branch has been requested in the settings, we get and checkout this branch
+            //the remote default branch ref is brought by default in the local refs - so there is no need to 
+            //checkout the branch is the specified branch by the user was actually the default branch
             String specifiedBranch = getRepository().getBranch();
-            if(specifiedBranch != null && specifiedBranch.trim().length() > 0) {
+            if(specifiedBranch != null && specifiedBranch.trim().length() > 0 && !git.getRepository().getAllRefs().containsKey("refs/heads/"+specifiedBranch.trim())) {
                 git.checkout().
                     setCreateBranch(true).
-                    setName(specifiedBranch).
+                    setName(specifiedBranch.trim()).
                     setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK).
-                    setStartPoint("origin/" + specifiedBranch).
+                    setStartPoint("origin/" + specifiedBranch.trim()).
                     call();
             }
             

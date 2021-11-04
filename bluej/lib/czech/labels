@@ -746,7 +746,6 @@ team.settings.ext=ext (pou\u017e\u00edv\u00e1 SSH)
 team.settings.pserver=Autentiza\u010dn\u00ed protokol
 team.settings.protocol=Protokol
 team.settings.uri=URI \u013ao\u017ei\u0161t\u011b
-team.settings.rememberSettings=Zapamatovat si nastaven\u00ed pro dal\u0161\u00ed projekty
 team.settings.checkConnection=Prov\u011b\u0159 p\u0159ipojen\u00ed
 
 team.moduleselect.title=Vyber projekt, kter\u00fd chce\u0161 z\u00edskat (Checkout)

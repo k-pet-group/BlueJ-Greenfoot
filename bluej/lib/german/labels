@@ -717,7 +717,6 @@ team.settings.prefix=Verzeichnis
 team.settings.ext=ext (verwende SSH)
 team.settings.pserver=pserver
 team.settings.protocol=Protokoll
-team.settings.rememberSettings=Einstellungen f\u00fcr zuk\u00fcnftige Projekte speichern
 team.settings.checkConnection=Teste Verbindung
 
 team.moduleselect.title=Gemeinsames Projekt ausw\u00e4hlen

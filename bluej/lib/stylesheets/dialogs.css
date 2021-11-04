@@ -488,6 +488,17 @@
     -fx-padding: 1em 1em 1.5em 2em;
 }
 
+.team-settings .pwd-hbox{
+    -fx-spacing: 0.2em;
+}
+
+.team-settings-tooltip {
+   -fx-text-fill: white;
+   -fx-background-color: hsba(0, 0%, 50%, 0.9);
+   -fx-background-radius: 10;
+   -fx-padding: 10 10 10 10;
+}
+
 .team-test-connection {
     -fx-min-width:  50em;
     -fx-pref-width: 25em;

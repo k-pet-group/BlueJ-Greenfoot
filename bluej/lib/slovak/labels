@@ -739,7 +739,6 @@ team.settings.ext=ext (pou\u017e\u00edva SSH)
 team.settings.pserver=Autentiza\u010dn\u00fd protokol
 team.settings.protocol=Protokol
 team.settings.uri=URI (adresa) ukladacieho priestoru
-team.settings.rememberSettings=Zapam\u00e4ta\u0165 si nastavenie pre \u010fal\u0161ie projekty
 team.settings.checkConnection=Overi\u0165 pripojenie
 
 team.moduleselect.title=Vyber projekt na kontrolu

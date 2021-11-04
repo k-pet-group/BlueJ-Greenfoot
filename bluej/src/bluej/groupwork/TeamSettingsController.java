@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,11 +27,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.*;
 
 import bluej.Config;
 import bluej.groupwork.ui.TeamSettingsDialog;
@@ -42,6 +40,11 @@ import bluej.utility.DialogManager;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * This class is responsible for reading and writing the configuration files
@@ -84,6 +87,42 @@ public class TeamSettingsController
     
     //general
     private String password;
+    private final SecretKey pwdAESKey;
+    {
+        SecretKey tempKey = null;
+        try {
+            byte[] key = "5v8y/B?E(H+MbQeShVmYq3t6w9z$C&F)".getBytes(StandardCharsets.UTF_8);
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+            key = sha.digest(key);
+            tempKey = new SecretKeySpec(key, "AES");
+        }
+        catch (Exception e) {
+            Debug.log("Teamwork AES key creation error: " + e.getMessage());
+        }
+        finally
+        {
+            pwdAESKey = tempKey;
+        }
+    }
+    private final IvParameterSpec pwdAESIv;
+    {
+        IvParameterSpec tempIv = null;
+        try {
+            byte[] iv = "x/A?D(G+KbPeShVm".getBytes(StandardCharsets.UTF_8);
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+            iv = sha.digest(iv);
+            // The vector must be of 16 bytes for AES, we only keep the first 16 bytes of the hash which is always 256 bits.
+            iv = Arrays.copyOf(iv, 16);
+            tempIv = new IvParameterSpec(iv);
+        }
+        catch(Exception e){
+            Debug.log("Teamwork AES IV creation error: " + e.getMessage());
+        }
+        finally
+        {
+            pwdAESIv = tempIv;
+        }
+    }
 
     private File teamdefs;
     
@@ -322,12 +361,32 @@ public class TeamSettingsController
             if (teamProvider.getProviderName().equalsIgnoreCase(providerName)) {
                 provider = teamProvider;
             }
-        }
+        }        
         
+        // Passwords are handled in a specific way: if saving the password was enabled we get it here
+        // otherwise we do nothing: the password will be ask on demand when needed and only used for the session
+        String savedPassword = getPropString("bluej.teamsettings.savedpwd");
+        if (savedPassword != null)
+        {
+            try
+            {
+                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                cipher.init(Cipher.DECRYPT_MODE, pwdAESKey, pwdAESIv);
+                byte[] plainText = cipher.doFinal(Base64.getDecoder()
+                    .decode(savedPassword));
+                password = new String(plainText, StandardCharsets.UTF_8);
+            }
+            catch (Exception ex) 
+            {
+                Debug.log("Teamwork password decryption error: " + ex.getMessage());
+            }
+        }
+
         if (provider != null) {
             settings = initProviderSettings(user, password);
             settings.setYourName(yourName);
             settings.setYourEmail(yourEmail);
+            settings.setSavePassword(password != null && savedPassword!=null);
         }
     }
 
@@ -343,8 +402,11 @@ public class TeamSettingsController
         String protocol = getPropString(keyBase + "protocol");
 
         String branch = getPropString(keyBase + "branch");
+        
+        // We don't need an extra property for knowing if the password should be saved
+        boolean savepassword = getPropString(keyBase + "savedpwd") != null;
 
-        return new TeamSettings(protocol, server, port, prefix, branch, user, password);
+        return new TeamSettings(protocol, server, port, prefix, branch, user, password, savepassword);
     }
     
     /**
@@ -516,7 +578,7 @@ public class TeamSettingsController
             teamProperties.setProperty(key, ""+ value);
     }
     
-    public void updateSettings(TeamSettings newSettings, boolean useAsDefault)
+    public void updateSettings(TeamSettings newSettings)
     {
         settings = newSettings;
         
@@ -564,33 +626,30 @@ public class TeamSettingsController
         String protocolValue = settings.getProtocol();
         setPropString(protocolKey, protocolValue);
 
-        String useAsDefaultKey = "bluej.teamsettings.useAsDefault";
-        Config.putPropString(useAsDefaultKey,
-            Boolean.toString(useAsDefault));
-
         // passwords are handled differently for security reasons,
-        // we don't at present store them on disk
+        // by default, they are not stored on the disk, users need to check this option to allow that
         String passValue = settings.getPassword();
         setPasswordString(passValue);
+        // if the password is to be saved, we do so here. In case of failure, we cancel the save password option
+        if(!setSavedPassword(settings.getSavePassword(), passValue))
+            settings.setSavePassword(false);
         
         if (repository != null) {
             TeamSettings settings = getTeamSettingsDialog().getSettings();
             repository.setPassword(settings);
         }
-        
-        if (useAsDefault) {
-            Config.putPropString(providerKey, providerName);
-            Config.putPropString(userKey, userValue);
-                Config.putPropString(yourNameKey, yourNameValue);
-                Config.putPropString(yourEmailKey, yourEmailValue);
-        }
+
+        Config.putPropString(providerKey, providerName);
+        Config.putPropString(userKey, userValue);
+        Config.putPropString(yourNameKey, yourNameValue);
+        Config.putPropString(yourEmailKey, yourEmailValue);
     }
 
     /**
+     * If the option to save the password isn't checked:
      * In the first instance we don't want to store password.
      * We want to ask the first time they want to try and perform operation
-     * We then store for the rest of the session. Over time we may want to provide
-     * some way of storing with relative security.
+     * We then store for the rest of the session.
      */
     public String getPasswordString()
     {
@@ -605,6 +664,41 @@ public class TeamSettingsController
     public boolean hasPasswordString()
     {
         return password != null;
+    }
+
+    /**
+     * Save or remove the encrypted password
+     * @param save if true, save the encrypted password, if false, remove it
+     * @param passValue the password value
+     * @return true if the encryption succeeded, false otherwise
+     */
+    private boolean setSavedPassword(boolean save, String passValue)
+    {
+        if(save)
+        {
+            try
+            {
+                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                cipher.init(Cipher.ENCRYPT_MODE, pwdAESKey, pwdAESIv);
+                byte[] cipherText = cipher.doFinal(passValue.getBytes(StandardCharsets.UTF_8));
+                String encodedpwd = Base64.getEncoder()
+                    .encodeToString(cipherText);
+                setPropString("bluej.teamsettings.savedpwd", encodedpwd);
+                return true;
+            } 
+            catch (Exception e)
+            {
+                //log error 
+                Debug.log("Teamwork pasword encryption error: " + e.getMessage());
+                return false;                
+            }
+        }
+        else
+        {
+            //safe to do so even if the key doesn't exist
+            teamProperties.remove("bluej.teamsettings.savedpwd");
+            return true;
+        }
     }
 
     /**

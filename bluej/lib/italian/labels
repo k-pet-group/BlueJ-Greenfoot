@@ -713,7 +713,6 @@ team.settings.prefix=Percorso del registro
 team.settings.ext=ext (usando SSH)
 team.settings.pserver=pserver
 team.settings.protocol=Protocollo
-team.settings.rememberSettings=Ricorda le impostazioni per i futuri progetti
 team.settings.checkConnection=Verifica connessione
 
 team.moduleselect.title=Seleziona progetto da verificare

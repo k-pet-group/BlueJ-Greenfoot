@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,17 +28,10 @@ import java.net.URISyntaxException;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 
 import bluej.Config;
 import bluej.groupwork.TeamSettings;
@@ -88,14 +81,14 @@ public class TeamSettingsPanel extends VBox
     private final TextField yourEmailField = new TextField();
     private final TextField userField = new TextField();
     private final PasswordField passwordField = new PasswordField();
+    private final HBox savePasswordHBox = new HBox();
+    private final CheckBox savePasswordCheckBox = new CheckBox();
 
     /** identifies which field is the primary server information field */
     private TextField locationPrimaryField;
     /** identifiers which field is the primary personal information field */
     private TextField personalPrimaryField;
-
-    private CheckBox useAsDefault;
-
+    
     private boolean isShareAction = false;
 
     public TeamSettingsPanel(TeamSettingsController teamSettingsController, TeamSettingsDialog dialog, boolean isShareAction)
@@ -108,9 +101,34 @@ public class TeamSettingsPanel extends VBox
         this.isShareAction = isShareAction;
 
         JavaFXUtil.addStyleClass(this, "panel");
+        
+        // The part for "save password". Because of some weird behaviour of JavaFX rendering the checkbox's label,
+        // the checkbox has no label of its own, but a separate label component is used instead.
+        Label checkboxLabel = new Label(Config.getString("team.settings.savepwd"));
+        checkboxLabel.setLabelFor(savePasswordCheckBox);
+        
+        ImageView infoIcon = new ImageView(Config.getFixedImageAsFXImage("info.png"));
+        savePasswordHBox.getChildren().addAll(savePasswordCheckBox, checkboxLabel, infoIcon);
+        savePasswordHBox.setAlignment(Pos.CENTER_LEFT);
+        JavaFXUtil.addStyleClass(savePasswordHBox, "pwd-hbox");
+        Tooltip infoTooltip = new Tooltip(Config.getString("team.settings.savepwd.details"));
+        JavaFXUtil.addStyleClass(infoTooltip, "team-settings-tooltip");
+        Tooltip.install(savePasswordHBox, infoTooltip);
 
-        useAsDefault = new CheckBox(Config.getString("team.settings.rememberSettings"));
-
+        JavaFXUtil.addChangeListenerPlatform(passwordField.textProperty(), newValue ->
+            {
+                int newValueLength = newValue.length();
+                if (newValueLength == 0)
+                {
+                    savePasswordCheckBox.setSelected(false);
+                }
+                savePasswordCheckBox.setDisable(newValueLength == 0);
+                checkboxLabel.setDisable(newValueLength == 0);
+                infoIcon.setDisable(newValueLength == 0);
+            }
+        );
+        // end of the part for "save password"
+        
         locationPane = createGridPane();
         personalPane = createGridPane();
         preparePanes();
@@ -121,15 +139,11 @@ public class TeamSettingsPanel extends VBox
 
         getChildren().addAll(createPropertiesContainer(Config.getString("team.settings.location"), locationPane),
                              createPropertiesContainer(Config.getString("team.settings.personal"), personalPane),
-                             useAsDefault,
+                             savePasswordHBox,
                              validateButton);
 
         setupContent();
         updateOKButtonBinding();
-        if (!teamSettingsController.hasProject()){
-            useAsDefault.setSelected(true);
-            useAsDefault.setDisable(true);
-        }
     }
     
     /**
@@ -184,8 +198,6 @@ public class TeamSettingsPanel extends VBox
         preparePersonalPane();
 
         setProviderSettings();
-
-        useAsDefault.setDisable(false);
     }
 
     private void preparePersonalPane()
@@ -242,11 +254,10 @@ public class TeamSettingsPanel extends VBox
             setPassword(password);
         }
 
-        String useAsDefault = teamSettingsController.getPropString("bluej.teamsettings.useAsDefault");
-        if (useAsDefault != null) {
-            setUseAsDefault(Boolean.getBoolean(useAsDefault));
-        }
-        
+        // There is no need for an additional property: if the password was saved, then the checkbox was checked
+        String savePassword = teamSettingsController.getPropString("bluej.teamsettings.savedpwd");
+        setSavePassword(savePassword != null);
+                
         String providerName = teamSettingsController.getPropString("bluej.teamsettings.vcs");
         if ((teamworkProvider.getProviderName().equalsIgnoreCase(providerName)
             || (providerName == null)) && teamSettingsController.getProject() != null)
@@ -333,6 +344,11 @@ public class TeamSettingsPanel extends VBox
         passwordField.setText(password);
     }
     
+    private void setSavePassword(boolean savePassword)
+    {
+        savePasswordCheckBox.setSelected(savePassword);
+    }
+    
     private void setPrefix(String prefix)
     {
         prefixField.setText(prefix);
@@ -354,11 +370,6 @@ public class TeamSettingsPanel extends VBox
         protocolComboBox.getSelectionModel().select(protocolLabel);
     }
     
-    private void setUseAsDefault(boolean use)
-    {
-        useAsDefault.setSelected(use);
-    }
-    
     public TeamworkProvider getProvider()
     {
         return teamworkProvider;
@@ -372,6 +383,11 @@ public class TeamSettingsPanel extends VBox
     private String getPassword()
     {
         return passwordField.getText();
+    }
+    
+    private Boolean getSavePassword()
+    {
+        return savePasswordCheckBox.isSelected();
     }
     
     private String getPrefix()
@@ -420,11 +436,6 @@ public class TeamSettingsPanel extends VBox
         }
     }
     
-    public boolean getUseAsDefault()
-    {
-        return useAsDefault.isSelected();
-    }
-    
     private String getYourName()
     {
         return yourNameField.getText();
@@ -438,7 +449,7 @@ public class TeamSettingsPanel extends VBox
     public TeamSettings getSettings()
     {
         TeamSettings result = new TeamSettings(getProtocolKey(),
-                getServer(), getPort(), getPrefix(), getBranch(), getUser(), getPassword());
+                getServer(), getPort(), getPrefix(), getBranch(), getUser(), getPassword(), getSavePassword());
         result.setYourEmail(getYourEmail());
         result.setYourName(getYourName());
         return result;

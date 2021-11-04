@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2014,2015,2016,2021  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,6 +35,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
@@ -42,7 +43,6 @@ import javafx.stage.Window;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.classmgr.ClassMgrPrefPanel;
-import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
@@ -141,6 +141,8 @@ class ExportDialog extends Dialog<ExportDialog.ExportInfo>
             Label helpText = new Label(helpLine1 + " " + helpLine2);
             helpText.setWrapText(true);
             helpText.setMaxWidth(400.0);
+            // The following line is necessary for the label to actually wrap
+            helpText.setMinHeight(Region.USE_PREF_SIZE);
             mainPanel.getChildren().add(helpText);
 
             mainPanel.getChildren().add(new Separator());

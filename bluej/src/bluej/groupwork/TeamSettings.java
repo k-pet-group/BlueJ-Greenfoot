@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,11 +39,12 @@ public class TeamSettings
     private String branch;
     private String username;
     private String password;
+    private boolean savePassword;
     private String yourName;
     private String yourEmail;
     
     public TeamSettings(String protocol, String server, int port,
-            String prefix, String branch, String username, String password)
+            String prefix, String branch, String username, String password, boolean savePassword)
     {
         this.protocol = protocol;
         this.server = server;
@@ -52,6 +53,7 @@ public class TeamSettings
         this.branch = branch;
         this.username = username;
         this.password = password;
+        this.savePassword = savePassword;
     }
     
     public String getProtocol()
@@ -86,6 +88,16 @@ public class TeamSettings
     public String getPassword()
     {
         return password;
+    }
+    
+    public boolean getSavePassword()
+    {
+        return savePassword;
+    }
+    
+    public void setSavePassword(boolean savePassword)
+    {
+        this.savePassword = savePassword;
     }
 
     /**

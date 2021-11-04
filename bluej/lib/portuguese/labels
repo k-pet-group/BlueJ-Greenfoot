@@ -788,7 +788,6 @@ team.settings.protocol=Protocolo
 team.settings.uri=URI
 team.settings.branch=Ramo
 team.settings.defaultBranch=Ramo padr\u00E3o
-team.settings.rememberSettings=Lembrar desta configura\u00E7\u00E3o
 team.settings.checkConnection=Verificar conex\u00E3o
 
 team.moduleselect.title=Selecione o Projeto para Fazer 'checkout'
