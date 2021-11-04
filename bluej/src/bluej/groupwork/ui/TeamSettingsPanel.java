@@ -82,7 +82,7 @@ public class TeamSettingsPanel extends VBox
     private final TextField userField = new TextField();
     private final PasswordField passwordField = new PasswordField();
     private final HBox savePasswordHBox = new HBox();
-    private CheckBox savePasswordCheckBox = new CheckBox();
+    private final CheckBox savePasswordCheckBox = new CheckBox();
 
     /** identifies which field is the primary server information field */
     private TextField locationPrimaryField;
@@ -104,18 +104,7 @@ public class TeamSettingsPanel extends VBox
         
         // The part for "save password". Because of some weird behaviour of JavaFX rendering the checkbox's label,
         // the checkbox has no label of its own, but a separate label component is used instead.
-        savePasswordCheckBox.disableProperty().bind(passwordField.textProperty().isEmpty());
-        passwordField.textProperty().addListener(
-            (observable, oldValue, newValue) -> { 
-                if (newValue.length() == 0)
-                {
-                    savePasswordCheckBox.setSelected(false);
-                }
-            }
-        );
-        
         Label checkboxLabel = new Label(Config.getString("team.settings.savepwd"));
-        checkboxLabel.disableProperty().bind(passwordField.textProperty().isEmpty());
         checkboxLabel.setLabelFor(savePasswordCheckBox);
         
         ImageView infoIcon = new ImageView(Config.getFixedImageAsFXImage("info.png"));
@@ -125,6 +114,19 @@ public class TeamSettingsPanel extends VBox
         Tooltip infoTooltip = new Tooltip(Config.getString("team.settings.savepwd.details"));
         JavaFXUtil.addStyleClass(infoTooltip, "team-settings-tooltip");
         Tooltip.install(savePasswordHBox, infoTooltip);
+
+        JavaFXUtil.addChangeListenerPlatform(passwordField.textProperty(), newValue ->
+            {
+                int newValueLength = newValue.length();
+                if (newValueLength == 0)
+                {
+                    savePasswordCheckBox.setSelected(false);
+                }
+                savePasswordCheckBox.setDisable(newValueLength == 0);
+                checkboxLabel.setDisable(newValueLength == 0);
+                infoIcon.setDisable(newValueLength == 0);
+            }
+        );
         // end of the part for "save password"
         
         locationPane = createGridPane();

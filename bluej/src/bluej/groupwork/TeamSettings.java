@@ -39,7 +39,7 @@ public class TeamSettings
     private String branch;
     private String username;
     private String password;
-    private Boolean savePassword;
+    private boolean savePassword;
     private String yourName;
     private String yourEmail;
     
@@ -90,7 +90,7 @@ public class TeamSettings
         return password;
     }
     
-    public Boolean getSavePassword()
+    public boolean getSavePassword()
     {
         return savePassword;
     }

@@ -111,6 +111,7 @@ public class TeamSettingsController
             byte[] iv = "x/A?D(G+KbPeShVm".getBytes(StandardCharsets.UTF_8);
             MessageDigest sha = MessageDigest.getInstance("SHA-256");
             iv = sha.digest(iv);
+            // The vector must be of 16 bytes for AES, we only keep the first 16 bytes of the hash which is always 256 bits.
             iv = Arrays.copyOf(iv, 16);
             tempIv = new IvParameterSpec(iv);
         }
@@ -373,7 +374,7 @@ public class TeamSettingsController
                 cipher.init(Cipher.DECRYPT_MODE, pwdAESKey, pwdAESIv);
                 byte[] plainText = cipher.doFinal(Base64.getDecoder()
                     .decode(savedPassword));
-                password = new String(plainText);
+                password = new String(plainText, StandardCharsets.UTF_8);
             }
             catch (Exception ex) 
             {
@@ -679,7 +680,7 @@ public class TeamSettingsController
             {
                 Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
                 cipher.init(Cipher.ENCRYPT_MODE, pwdAESKey, pwdAESIv);
-                byte[] cipherText = cipher.doFinal(passValue.getBytes());
+                byte[] cipherText = cipher.doFinal(passValue.getBytes(StandardCharsets.UTF_8));
                 String encodedpwd = Base64.getEncoder()
                     .encodeToString(cipherText);
                 setPropString("bluej.teamsettings.savedpwd", encodedpwd);
