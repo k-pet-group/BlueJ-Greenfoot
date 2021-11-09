@@ -109,6 +109,10 @@ public class FrameCatalogue extends VBox
      */
     private final ObservableList<Node> hintItems = FXCollections.observableArrayList();
     /**
+     * A strong reference to the binding list, to avoid issues with weak references to be GCed
+     */
+    private ObservableList catalogBindingList;
+    /**
      * The current callback to cancel the next update of the frame catalogue.
      * See the scheduleUpdateCatalogue() method
      */
@@ -330,7 +334,8 @@ public class FrameCatalogue extends VBox
             });
         });
 
-        ConcatListBinding.bind(getChildren(), FXCollections.observableArrayList(standardItems, extensionItems, hintItems));
+        catalogBindingList = FXCollections.observableArrayList(standardItems, extensionItems, hintItems);
+        ConcatListBinding.bind(getChildren(), catalogBindingList);
     }
 
     private Pane getKeyAndName(List<String> shortcutKeys, String title, boolean showingPreview)

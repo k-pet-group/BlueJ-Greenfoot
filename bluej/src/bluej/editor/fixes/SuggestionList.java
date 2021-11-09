@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2019,2020,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -196,6 +196,9 @@ public class SuggestionList
      * Can be zero, when you don't want to show any types.
      */
     private final DoubleProperty typeWidth;
+    
+    /** Keep a strong reference for the type width binding to avoid being GCed **/
+    private final DoubleProperty typeWidthDerivedProperty;
 
     /** Used when "replaying" last calculateEligible call */
     private String lastPrefix;
@@ -459,8 +462,8 @@ public class SuggestionList
             }
         });
         JavaFXUtil.addStyleClass(listBox, "suggestion-list");
-        this.typeWidth.bind(choices.stream().allMatch(s -> s.type == null) ? new ReadOnlyDoubleWrapper(0.0) : listBox.cssTypeWidthProperty());
-
+        typeWidthDerivedProperty = choices.stream().allMatch(s -> s.type == null) ? new ReadOnlyDoubleWrapper(0.0) : listBox.cssTypeWidthProperty();
+        this.typeWidth.bind(typeWidthDerivedProperty);
 
         listBox.setBackground(null);
         listBox.setItems(this.showingItems);

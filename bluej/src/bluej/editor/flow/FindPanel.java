@@ -1,6 +1,6 @@
 /*
 This file is part of the BlueJ program. 
-Copyright (C) 1999-2010,2011,2014,2019  Michael Kolling and John Rosenberg 
+Copyright (C) 1999-2010,2011,2014,2019,2021  Michael Kolling and John Rosenberg 
 
 This program is free software; you can redistribute it and/or 
 modify it under the terms of the GNU General Public License 
@@ -162,7 +162,7 @@ public class FindPanel extends GridPane
 
         showingReplace = new SimpleBooleanProperty(false);
         Polygon triangle = new Polygon(0, 0, 8, 5, 0, 10);
-        triangle.rotateProperty().bind(Bindings.when(showingReplace).then(90).otherwise(0));
+        JavaFXUtil.addChangeListener(showingReplace, newVal -> triangle.setRotate((newVal) ? 90 : 0));
         replaceFoldOutLabel.setGraphic(triangle);
         // We must use an event filter on pressed, rather than a handler
         // on clicked, so that we intercept the click and stop it hitting the
@@ -213,7 +213,8 @@ public class FindPanel extends GridPane
 
         // The find field needs to be filled to do a replace,
         // but the replace field can be empty (to remove the find string)
-        replaceOne.disableProperty().bind(findField.textProperty().isEmpty().or(findResultsFound.not()));
+        JavaFXUtil.addChangeListener(findField.textProperty(), newVal -> replaceOne.setDisable((newVal.length()==0) || !findResultsFound.get()));
+        JavaFXUtil.addChangeListener(findResultsFound, newVal -> replaceOne.setDisable(!newVal || findField.getText().isEmpty()));
         replaceAll.disableProperty().bind(replaceOne.disableProperty());
 
         add(findLabelPane, 0, 0);
@@ -312,8 +313,11 @@ public class FindPanel extends GridPane
             JavaFXUtil.setPseudoclass("bj-no-find-result", false, findField);
             currentNavigator.highlightAll();
             currentNavigator.selectNext(true);
-            previousButton.disableProperty().bind(findResultsFound.not());
-            nextButton.disableProperty().bind(findResultsFound.not());
+            JavaFXUtil.addChangeListenerPlatform(findResultsFound, newVal -> 
+            {
+                previousButton.setDisable(!newVal);
+                nextButton.setDisable(!newVal);
+            });
             findResultsFound.set(true);
         }
     }
@@ -397,7 +401,7 @@ public class FindPanel extends GridPane
 
     /**
      * Allows the replace button to be en/disabled
-     * @param isEnable true for enable; false if not
+     * @param isEnabled true for enable; false if not
      */
     protected void setReplaceEnabled(boolean isEnabled)
     {

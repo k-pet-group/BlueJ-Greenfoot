@@ -121,7 +121,7 @@ class FrameMenuManager extends TabMenuManager
             editMenu.setOnHidden(e -> Utility.ifNotNull(editMenuListener, AbstractOperation.MenuItems::onHidden));
 
             MenuItem birdsEyeItem = JavaFXUtil.makeMenuItem("", editor::enableCycleBirdseyeView, new KeyCharacterCombination("d", KeyCombination.SHORTCUT_DOWN));
-            birdsEyeItem.textProperty().bind(new StringBinding()
+            StringBinding menuStringBinding = new StringBinding()
             {
                 {super.bind(editor.viewProperty());}
                 @Override
@@ -133,7 +133,8 @@ class FrameMenuManager extends TabMenuManager
                         default: return Config.getString("frame.viewmenu.birdseye");
                     }
                 }
-            });
+            };
+            birdsEyeItem.textProperty().bind(menuStringBinding);
 
             FXPlatformConsumer<? super Boolean> frameCatalogueShownListener = newValue ->
                     editor.recordShowHideFrameCatalogue(newValue, FrameCatalogue.ShowReason.MENU_OR_SHORTCUT);

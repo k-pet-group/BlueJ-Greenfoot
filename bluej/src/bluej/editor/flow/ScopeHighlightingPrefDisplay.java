@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2016,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2016,2019,2021  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -53,6 +53,8 @@ public class ScopeHighlightingPrefDisplay
     public static final int MAX=20;
     Slider slider;
     ScopeColorsBorderPane colorPanel;
+    //keep these strong reference to avoid binding of weak references being GCed (although unlikely in this instance)
+    private ObjectExpression<Color> fillColorExpression, strokeColorExpression;
 
     /**
      * Constructor that sets up the look and feel for the scope highlighting color slider
@@ -112,8 +114,10 @@ public class ScopeHighlightingPrefDisplay
     {
         Rectangle r = new Rectangle(100, 20);
         IntegerBinding sliderValue = Bindings.createIntegerBinding(this::getStrengthValue, slider.valueProperty());
-        r.fillProperty().bind(colorPanel.getReducedColor(body, sliderValue));
-        r.strokeProperty().bind(colorPanel.getReducedColor(border, sliderValue));
+        fillColorExpression = colorPanel.getReducedColor(body, sliderValue);
+        strokeColorExpression = colorPanel.getReducedColor(border, sliderValue);
+        r.fillProperty().bind(fillColorExpression);
+        r.strokeProperty().bind(strokeColorExpression);
         return r;
     }
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2013,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 2013,2014,2015,2021  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,8 +23,9 @@ package bluej.editor.stride;
 
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.NumberBinding;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.value.ObservableDoubleValue;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -41,6 +42,10 @@ import javafx.scene.layout.Region;
 public class WindowOverlayPane
 {
     private final Pane pane = new Pane();
+    // References saved for avoiding weak reference GCing in bindings
+    private ObservableDoubleValue x, y;
+    private NumberBinding xBinding, paneWidthBinding;
+    private ReadOnlyDoubleProperty nodeWidthBinding;
     
     public WindowOverlayPane()
     {
@@ -56,17 +61,21 @@ public class WindowOverlayPane
     public void addOverlay(Node node, ObservableDoubleValue x, ObservableDoubleValue y, boolean moveLeftIfNeeded)
     {
         pane.getChildren().add(node);
+        this.x = x;
+        this.y = y;
+        nodeWidthBinding = ((Region)node).widthProperty();
+        paneWidthBinding = pane.widthProperty().subtract(nodeWidthBinding);
+
         if (moveLeftIfNeeded)
         {
-             node.layoutXProperty().bind(Bindings.min(x, pane.widthProperty().subtract(((Region)node).widthProperty())));
+            xBinding = Bindings.min(x, paneWidthBinding);
+            node.layoutXProperty().bind(xBinding);
         }
         else
         {
-            node.layoutXProperty().bind(x);
+            node.layoutXProperty().bind(this.x);
         }
-        node.layoutYProperty().bind(y);
-
-
+        node.layoutYProperty().bind(this.y);
     }
 
     public void removeOverlay(Node node)

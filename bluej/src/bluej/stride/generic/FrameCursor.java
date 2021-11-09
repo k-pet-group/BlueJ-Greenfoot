@@ -24,13 +24,8 @@ package bluej.stride.generic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
+import java.util.Collections;;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import bluej.Config;
@@ -39,21 +34,9 @@ import bluej.editor.stride.FrameCatalogue;
 import bluej.stride.framedjava.frames.StrideCategory;
 import bluej.stride.framedjava.frames.StrideDictionary;
 import bluej.utility.javafx.AbstractOperation;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.IntegerBinding;
-import javafx.beans.binding.NumberExpressionBase;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ReadOnlyIntegerWrapper;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
@@ -72,7 +55,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import javafx.util.Duration;
 
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.elements.CodeElement;
@@ -754,7 +736,7 @@ public class FrameCursor implements RecallableFocus
     private MenuItem createMenuItem(Entry<StrideCategory> entry, FrameCursor cursor)
     {
         Label d = new Label();
-        d.textProperty().bind(new SimpleStringProperty(entry.getShortcuts() + "\t  " + entry.getName()));
+        d.setText(entry.getShortcuts() + "\t  " + entry.getName());
         d.setPrefWidth(250);
         MenuItem item = new MenuItem(entry.getName());
 

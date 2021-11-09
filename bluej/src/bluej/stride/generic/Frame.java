@@ -36,6 +36,7 @@ import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.slots.StructuredSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.utility.javafx.*;
+import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.When;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -138,6 +139,11 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      */
     private final BooleanProperty disabledRoot = new SimpleBooleanProperty(true);
     private final String stylePrefix;
+
+    /**
+     * Keep a strong reference for the effect binding to avoid GC problems
+     */
+    private final FXConsumer effectForUIListener;
 
     //cherry
     public String getFrameName()
@@ -318,16 +324,28 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         //  ---------------------------------------------------
         // Thus, our test for showing disabled effect is either PREVIEW_DISABLED, or
         // not enabled && FRAME_ENABLE_PREVIEW_NO_PREVIEW
-
-        // I suspect this could be done better:
-        frameContents.effectProperty().bind(
-            new When(disabledRoot.and(frameEnabledProperty.not().and(framePreviewEnableProperty.isEqualTo(FramePreviewEnabled.PREVIEW_NONE)).or(framePreviewEnableProperty.isEqualTo(FramePreviewEnabled.PREVIEW_DISABLED))))
-               .then(new When(frameDragSourceProperty )
-                         .then(FrameEffects.getDragSourceAndDisabledEffect())
-                         .otherwise(FrameEffects.getDisabledEffect()))
-               .otherwise(new When(frameDragSourceProperty)
-                             .then(FrameEffects.getDragSourceEffect())
-                             .otherwise((Effect)null)));
+        effectForUIListener = newVal -> 
+        {
+            boolean isDisabledRoot = disabledRoot.get();
+            boolean isFrameEnabled = frameEnabledProperty.get();
+            FramePreviewEnabled framePreview = framePreviewEnableProperty.get();
+            boolean isFrameDragged = frameDragSourceProperty.get();
+            Effect effect;
+            if(isDisabledRoot && 
+                (!isFrameEnabled && framePreview.equals(FramePreviewEnabled.PREVIEW_NONE) || framePreview.equals(FramePreviewEnabled.PREVIEW_DISABLED)))
+            {
+                effect = (isFrameDragged) ? FrameEffects.getDragSourceAndDisabledEffect() : FrameEffects.getDisabledEffect();
+            }
+            else
+            {
+                effect = (isFrameDragged) ? FrameEffects.getDragSourceEffect() : null;
+            }
+            frameContents.setEffect(effect);
+        };
+        JavaFXUtil.addChangeListener(disabledRoot, effectForUIListener);
+        JavaFXUtil.addChangeListener(frameEnabledProperty, effectForUIListener);
+        JavaFXUtil.addChangeListener(framePreviewEnableProperty, effectForUIListener);
+        JavaFXUtil.addChangeListener(frameDragSourceProperty, effectForUIListener);
         
         // We put some setup into the editor class because the setup requires a lot of access
         // to editor internals.  Easier to pass the editor the frame than it is to expose all

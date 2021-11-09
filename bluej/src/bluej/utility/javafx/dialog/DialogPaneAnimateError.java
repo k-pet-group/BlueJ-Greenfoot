@@ -1,7 +1,27 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2021  Michael Kolling and John Rosenberg
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.utility.javafx.dialog;
 
 import javafx.animation.RotateTransition;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
@@ -11,7 +31,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -51,7 +70,7 @@ public class DialogPaneAnimateError extends DialogPane
     public DialogPaneAnimateError(Label errorLabel, FXPlatformRunnable extraMouseEnter)
     {
         this.errorLabel = errorLabel;
-        this.errorLabelEmpty.bind(errorLabel.textProperty().isEmpty());
+        JavaFXUtil.addChangeListener(errorLabel.textProperty(), newVal -> this.errorLabelEmpty.set(newVal.length() == 0));
         this.extraMouseEnter = extraMouseEnter;
     }
 

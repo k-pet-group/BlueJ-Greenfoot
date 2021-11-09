@@ -190,7 +190,9 @@ public class VarFrame extends SingleLineFrame implements CodeFrame<VarElement>, 
         // We must make the showing immediate when you get keyboard focus, as otherwise there
         // are problems with focusing the slot and then it disappears:
         ReadOnlyBooleanProperty keyFocusDelayed = JavaFXUtil.delay(hasKeyboardFocus, Duration.ZERO, Duration.millis(100));
-        showingValue.bind(inInterfaceProperty.or(keyFocusDelayed).or(slotValueBlank.not()));
+        JavaFXUtil.addChangeListener(inInterfaceProperty, newVal -> showingValue.set(newVal || keyFocusDelayed.get() || !slotValueBlank.get()));
+        JavaFXUtil.addChangeListener(keyFocusDelayed, newVal -> showingValue.set(inInterfaceProperty.get() || newVal || !slotValueBlank.get()));
+        JavaFXUtil.addChangeListener(slotValueBlank, newVal -> showingValue.set(inInterfaceProperty.get() || keyFocusDelayed.get() || !newVal));
 
         //cherry
         frameName = "variable declaration for " + slotName.getText();

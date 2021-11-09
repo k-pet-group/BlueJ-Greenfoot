@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017,2021  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,24 +25,19 @@ import javax.swing.*;
 
 import bluej.Config;
 import bluej.pkgmgr.actions.RestartVMAction;
-import bluej.utility.Debug;
+import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.ResizableCanvas;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -50,9 +45,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcTo;
-import javafx.scene.shape.ArcType;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -88,10 +81,15 @@ public class MachineIcon extends HBox
         barContainer.getChildren().add(bar);
         bar.setManaged(false);
         double width = 0.3;
-        bar.layoutXProperty().bind(indicatorPosition.multiply(barContainer.widthProperty().multiply(1.0 - width)).add(2.0));
         bar.layoutYProperty().set(2.0);
-        bar.widthProperty().bind(barContainer.widthProperty().multiply(width).subtract(4.0));
-        bar.heightProperty().bind(barContainer.heightProperty().subtract(4.0));
+        FXConsumer<? super Number> onBarChangeConsumer = newVal -> 
+        {
+            bar.setLayoutX(indicatorPosition.get() * (barContainer.getWidth() * (1.0 - width)) + 2.0);
+            bar.setWidth(barContainer.getWidth() * width - 4.0);
+        };
+        JavaFXUtil.addChangeListener(indicatorPosition, onBarChangeConsumer);
+        JavaFXUtil.addChangeListener(barContainer.widthProperty(), onBarChangeConsumer);
+        JavaFXUtil.addChangeListener(barContainer.heightProperty(), newVal -> bar.setHeight(newVal.doubleValue() - 4.0));
         JavaFXUtil.bindPseudoclass(bar, "bj-active", running);
         this.resetAction = resetAction;
         resetButton = this.resetAction.makeButton();

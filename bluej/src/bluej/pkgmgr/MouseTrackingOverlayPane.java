@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 2016,2018,2021  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.pkgmgr;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -50,6 +51,8 @@ public class MouseTrackingOverlayPane extends Pane
     // Coordinates are local to the pane:
     private final DoubleProperty mouseX = new SimpleDoubleProperty(0.0);
     private final DoubleProperty mouseY = new SimpleDoubleProperty(0.0);
+    // Strong references to avoid bindings to be GCed
+    private DoubleBinding mouseXBinding, mouseYBinding;
     // Is the mouse currently inside the pane:
     private final BooleanProperty mouseInsideProperty = new SimpleBooleanProperty(false);
     private final List<MousePositionListener> listeners = new ArrayList<>();
@@ -87,8 +90,10 @@ public class MouseTrackingOverlayPane extends Pane
     public void addMouseTrackingOverlay(Node info, boolean showWhenMouseLeft, DoubleExpression xOffset, DoubleExpression yOffset)
     {
         getChildren().add(info);
-        info.layoutXProperty().bind(mouseX.add(xOffset));
-        info.layoutYProperty().bind(mouseY.add(yOffset));
+        mouseXBinding = mouseX.add(xOffset);
+        mouseYBinding = mouseY.add(yOffset);
+        info.layoutXProperty().bind(mouseXBinding);
+        info.layoutYProperty().bind(mouseYBinding);
         if (!showWhenMouseLeft)
             info.visibleProperty().bind(mouseInsideProperty);
     }

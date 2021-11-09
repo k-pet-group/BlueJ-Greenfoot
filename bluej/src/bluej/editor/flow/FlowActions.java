@@ -41,6 +41,7 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.scene.input.*;
@@ -1219,13 +1220,18 @@ public final class FlowActions
     public abstract class FlowAbstractAction extends FXAbstractAction
     {
         private final Category category;
+        private final ObjectBinding<KeyCombination> accelatorBinding;
+
 
         public FlowAbstractAction(String name, Category category)
         {
             super(name);
-            this.accelerator.bind(Bindings.createObjectBinding(() -> {
+            //save the binding object to avoid a weak reference that can be GCed
+            accelatorBinding = Bindings.createObjectBinding(() -> 
+            {
                 return keymap.entrySet().stream().filter(e -> e.getValue().equals(this)).map(e -> e.getKey()).findFirst().orElse(null);
-            }, keymap));
+            }, keymap);
+            this.accelerator.bind(accelatorBinding);
             this.category = category;
         }
 

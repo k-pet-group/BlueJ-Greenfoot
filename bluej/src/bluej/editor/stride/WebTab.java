@@ -94,7 +94,7 @@ public class WebTab extends FXTab
         });
         setGraphic(getWebIcon());
         setContent(browser);
-        textProperty().bind(browser.getEngine().titleProperty());
+        JavaFXUtil.addChangeListener(browser.getEngine().titleProperty(), newVal -> setText(newVal));
 
         menuManager = new TabMenuManager(this)
         {
