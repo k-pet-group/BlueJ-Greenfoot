@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,6 +45,7 @@ import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.ObjectBinding;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -127,6 +128,7 @@ public class CodePad extends VBox
      */
     private final Pane arrowOverlay;
     private BooleanBinding shadowShowing;
+    private ObjectBinding shadowShowBinding;
 
     /**
      * A data item which backs a single row in the code pad.
@@ -436,7 +438,8 @@ public class CodePad extends VBox
                 ScrollBar scrollBar = (ScrollBar)historyView.lookup(".scroll-bar");
                 // Need to keep a permanent reference to avoid GCing weak reference:
                 shadowShowing = scrollBar.visibleProperty().and(scrollBar.valueProperty().isNotEqualTo(1.0, 0.01));
-                inputField.effectProperty().bind(Bindings.when(shadowShowing).<Effect>then(new DropShadow(6.0, 0.0, -3.0, Color.GRAY)).otherwise((Effect)null));
+                shadowShowBinding = Bindings.when(shadowShowing).<Effect>then(new DropShadow(6.0, 0.0, -3.0, Color.GRAY)).otherwise((Effect)null);
+                inputField.effectProperty().bind(shadowShowBinding);
                 historyView.getItems().removeListener(this);
             }
         });

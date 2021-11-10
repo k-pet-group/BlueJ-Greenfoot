@@ -87,29 +87,17 @@ public class PackageTarget extends Target
             Pane r = new Pane();
             r.setMouseTransparent(true);
             // was: 15, 10
-            r.prefWidthProperty().bind(center.widthProperty().multiply(0.2));
-            r.prefHeightProperty().bind(center.heightProperty().multiply(0.2));
-            r.layoutXProperty().bind(center.widthProperty().multiply(pos[i*2+0]-0.1));
-            r.layoutYProperty().bind(center.heightProperty().multiply(pos[i*2+1]-0.1));
-            /*
-            //r.setMaxWidth(Region.USE_PREF_SIZE);
-            //r.setMaxHeight(Region.USE_PREF_SIZE);
-            r.setMinWidth(10);
-            r.setMinHeight(5);
-            AnchorPane.setLeftAnchor(r, pos[i * 2 + 0] * center.getWidth());
-            AnchorPane.setRightAnchor(r, (pos[i * 2 + 0]+0.2) * center.getWidth());
-            AnchorPane.setTopAnchor(r, pos[i * 2 + 1] * center.getHeight());
-            AnchorPane.setBottomAnchor(r, (pos[i * 2 + 1]+0.2) * center.getHeight());
-            int iFinal = i;
-            JavaFXUtil.addChangeListener(center.widthProperty(), w -> {
-                AnchorPane.setLeftAnchor(r, pos[iFinal * 2 + 0] * w.doubleValue());
-                AnchorPane.setRightAnchor(r, (pos[iFinal * 2 + 0]+0.2) * w.doubleValue());
+            final int tempIterator = i;
+            JavaFXUtil.addChangeListener(center.widthProperty(), newVal -> 
+            {
+                r.setPrefWidth(newVal.doubleValue() * 0.2);
+                r.setLayoutX(newVal.doubleValue() * (pos[tempIterator*2]-0.1));
             });
-            JavaFXUtil.addChangeListener(center.heightProperty(), h -> {
-                AnchorPane.setTopAnchor(r, pos[iFinal * 2 + 1] * h.doubleValue());
-                AnchorPane.setBottomAnchor(r, (pos[iFinal * 2 + 1]+0.2) * h.doubleValue());
-            });*/
-
+            JavaFXUtil.addChangeListener(center.heightProperty(), newVal ->
+            {
+                r.setPrefHeight(newVal.doubleValue() * 0.2);
+                r.setLayoutY(newVal.doubleValue() * (pos[tempIterator*2+1]-0.1));
+            });
             JavaFXUtil.addStyleClass(r, "package-target-preview-item");
 
             center.getChildren().add(r);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2016,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2016,2018,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -243,7 +243,7 @@ public class LibraryCallDialog extends Dialog<CallableView>
         methodList.setEditable(false);
         methodList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         methodList.setItems(currentViews);
-        getDialogPane().lookupButton(ButtonType.OK).disableProperty().bind(methodList.getSelectionModel().selectedItemProperty().isNull());
+        JavaFXUtil.addChangeListener(methodList.getSelectionModel().selectedItemProperty(), newVal -> getDialogPane().lookupButton(ButtonType.OK).setDisable(newVal==null));
         
         textOverlay = new Label();
         methodList.setCellFactory(v -> {

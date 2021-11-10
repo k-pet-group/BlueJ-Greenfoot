@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2014,2016,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2010,2014,2016,2019,2020,2021  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.editor.flow;
 import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgr.PrintSize;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
@@ -117,8 +118,11 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
         if (pkg != null)
         {
             checkSource = new CheckBox(Config.getString("pkgmgr.printDialog.printSource"));
-            checkLineNumbers.disableProperty().bind(checkSource.selectedProperty().not());
-            checkHighlighting.disableProperty().bind(checkSource.selectedProperty().not());
+            JavaFXUtil.addChangeListener(checkSource.selectedProperty(), newVal -> 
+            {
+               checkHighlighting.setDisable(!newVal);
+               checkLineNumbers.setDisable(!newVal);
+            });
             checkSource.setSelected(PrefMgr.getFlag(PrefMgr.PACKAGE_PRINT_SOURCE));
             vBox.getChildren().add(0, checkSource);
 

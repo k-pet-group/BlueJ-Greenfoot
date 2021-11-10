@@ -59,6 +59,8 @@ import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.*;
 import bluej.utility.FileUtility.WriteCapabilities;
+import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.View;
 import javafx.animation.Interpolator;
@@ -227,7 +229,33 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
     // For this project, the external file mapping (file extension-launcher) found from installed BlueJ extensions
     private final Map<String, ExternalFileLauncher.OpenExternalFileHandler> projectExternalFileOpenMap;
-
+    
+    // These fields are used for binding resizing (we do not want to use .bind() with weak references as they could be GCed)
+    // cf. animateInspector()
+    private Scene inspectorScene;
+    private Parent root;
+    private final List<FXRunnable> resizingRemoveListenersFXRunnableList = new ArrayList<>();
+    private final FXConsumer<? super Number> resizingWConsumer = (newVal -> 
+    {
+        // To animate from left, need to start at position -0.5 of width, then animate to 0.0
+        if(inspectorScene!=null && root !=null){ 
+            root.setTranslateX(inspectorScene.getWidth() * (root.getScaleX() * 0.5 - 0.5));
+        }
+    });
+    private final FXConsumer<? super Number> resizingHFromTopConsumer = (newVal ->
+    {
+        // To animate from top, need to start at position -0.5 of height, then animate to 0.0
+        if(inspectorScene!=null && root !=null){
+            root.setTranslateY(inspectorScene.getHeight() * (root.getScaleY() * 0.5 - 0.5));
+        }
+    });
+    private final FXConsumer<? super Number> resizingHFromBottomConsumer = (newVal ->
+    {
+        // To animate from bottom, need to start at position 0.5 of height, then animate to 0.0
+        if(inspectorScene!=null && root !=null){
+            root.setTranslateY(inspectorScene.getHeight() * (root.getScaleY() * -0.5 + 0.5));
+        }
+    });
     /* ------------------- end of field declarations ------------------- */
 
     /**
@@ -932,17 +960,22 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             t.setInterpolator(Interpolator.EASE_OUT);
             t.setToX(1.0);
             t.setToY(1.0);
-            // To animate from left, need to start at position -0.5 of width, then animate to 0.0
-            root.translateXProperty().bind(inspector.getScene().widthProperty().multiply(root.scaleXProperty().multiply(0.5).add(-0.5)));
-            if (fromBottom)
+            // Reassign the listeners, we avoid bindings to make sure we don't use weak references that would be GCed.
+            inspectorScene = inspector.getScene();
+            this.root = root;
+            // Clear listeners as we don't want to "stack" listeners at each calls
+            for(FXRunnable resizingRemoveListenersFXRunnable : resizingRemoveListenersFXRunnableList)
             {
-                // To animate from bottom, need to start at position 0.5 of height, then animate to 0.0
-                root.translateYProperty().bind(inspector.getScene().heightProperty().multiply(root.scaleYProperty().multiply(-0.5).add(0.5)));
-            } else
-            {
-                // To animate from top, need to start at position -0.5 of height, then animate to 0.0
-                root.translateYProperty().bind(inspector.getScene().heightProperty().multiply(root.scaleYProperty().multiply(0.5).add(-0.5)));
+                // (this runs the *removal* of the listen assigned to the object with JavaFXUtil.addChangeListener()
+                // that is why we kept a list of those FXRunnables to easily remove them later.
+                resizingRemoveListenersFXRunnable.run();
             }
+            resizingRemoveListenersFXRunnableList.clear();
+            //and reassign them (and save the FXRunnable that will be used for potential listener removal later
+            resizingRemoveListenersFXRunnableList.add(JavaFXUtil.addChangeListener(inspector.getScene().widthProperty(), resizingWConsumer));
+            resizingRemoveListenersFXRunnableList.add(JavaFXUtil.addChangeListener(inspector.getScene().heightProperty(), (fromBottom) ? resizingHFromBottomConsumer : resizingHFromTopConsumer));
+            resizingRemoveListenersFXRunnableList.add(JavaFXUtil.addChangeListener(root.scaleXProperty(), resizingWConsumer));
+            resizingRemoveListenersFXRunnableList.add(JavaFXUtil.addChangeListener(root.scaleYProperty(), (fromBottom) ? resizingHFromBottomConsumer : resizingHFromTopConsumer));
         }
         // Position its bottom left at centre of animateFromCentre:
         Scene afcScene = animateFromCentre.getScene();

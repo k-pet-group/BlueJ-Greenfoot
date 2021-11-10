@@ -191,8 +191,11 @@ public final class Terminal
         input.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
         input.setEditable(false);
         // Mainly for visuals, we disable when not in use:
-        input.disableProperty().bind(input.editableProperty().not());
-        input.promptTextProperty().bind(Bindings.when(input.editableProperty()).then(Config.getString("terminal.running")).otherwise(Config.getString("terminal.notRunning")));
+        JavaFXUtil.addChangeListener(input.editableProperty(), newVal ->
+        {
+            input.setDisable(!newVal);
+            input.setPromptText((newVal) ? Config.getString("terminal.running") : Config.getString("terminal.notRunning"));
+        });
 
         Nodes.addInputMap(input, InputMap.sequence(
                 // CTRL-D (unix/Mac EOF)

@@ -82,6 +82,8 @@ class FrameMenuManager extends TabMenuManager
     private List<Menu> menus = null;
     // Keeps track of whether Java preview mode is currently enabled:
     private final BooleanProperty javaPreviewShowing;
+    // Strong reference for binding the birdview menu and avoid that binding to be GCed
+    private StringBinding menuStringBinding;
 
     FrameMenuManager(FrameEditorTab editor)
     {
@@ -121,7 +123,7 @@ class FrameMenuManager extends TabMenuManager
             editMenu.setOnHidden(e -> Utility.ifNotNull(editMenuListener, AbstractOperation.MenuItems::onHidden));
 
             MenuItem birdsEyeItem = JavaFXUtil.makeMenuItem("", editor::enableCycleBirdseyeView, new KeyCharacterCombination("d", KeyCombination.SHORTCUT_DOWN));
-            birdsEyeItem.textProperty().bind(new StringBinding()
+            menuStringBinding = new StringBinding()
             {
                 {super.bind(editor.viewProperty());}
                 @Override
@@ -133,7 +135,8 @@ class FrameMenuManager extends TabMenuManager
                         default: return Config.getString("frame.viewmenu.birdseye");
                     }
                 }
-            });
+            };
+            birdsEyeItem.textProperty().bind(menuStringBinding);
 
             FXPlatformConsumer<? super Boolean> frameCatalogueShownListener = newValue ->
                     editor.recordShowHideFrameCatalogue(newValue, FrameCatalogue.ShowReason.MENU_OR_SHORTCUT);

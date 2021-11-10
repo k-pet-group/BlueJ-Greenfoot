@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2017,2021 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -108,6 +108,10 @@ public class FrameCatalogue extends VBox
      * A list of hints (not commands, but example code) to show.
      */
     private final ObservableList<Node> hintItems = FXCollections.observableArrayList();
+    /**
+     * A strong reference to the binding list, to avoid issues with weak references to be GCed
+     */
+    private ObservableList catalogBindingList;
     /**
      * The current callback to cancel the next update of the frame catalogue.
      * See the scheduleUpdateCatalogue() method
@@ -330,7 +334,8 @@ public class FrameCatalogue extends VBox
             });
         });
 
-        ConcatListBinding.bind(getChildren(), FXCollections.observableArrayList(standardItems, extensionItems, hintItems));
+        catalogBindingList = FXCollections.observableArrayList(standardItems, extensionItems, hintItems);
+        ConcatListBinding.bind(getChildren(), catalogBindingList);
     }
 
     private Pane getKeyAndName(List<String> shortcutKeys, String title, boolean showingPreview)

@@ -69,6 +69,7 @@ import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -302,7 +303,7 @@ public class PkgMgrFrame
             BorderPane topPane = new BorderPane();
             pkgEditorScrollPane = new UnfocusableScrollPane(null);
             pkgEditorScrollPane.setVisible(false);
-            pkgEditorScrollPane.visibleProperty().bind(pkgEditorScrollPane.contentProperty().isNotNull());
+            JavaFXUtil.addChangeListener(pkgEditorScrollPane.contentProperty(), newVal -> pkgEditorScrollPane.setVisible(newVal != null));
             pkgEditorScrollPane.setFitToWidth(true);
             pkgEditorScrollPane.setFitToHeight(true);
             Label emptyProjectMessage = new Label(Config.getString("pkgmgr.noProjectOpened.message"));
@@ -320,7 +321,7 @@ public class PkgMgrFrame
                 // Toggle it:
                 showingTextEval.set(!showingTextEval.get());
             });
-            triangleLabel.scaleProperty().bind(Bindings.when(showingTextEval).then(-1.0).otherwise(1.0));
+            JavaFXUtil.addChangeListener(showingTextEval, newVal -> triangleLabel.scaleProperty().set((newVal) ? -1.0 : 1.0));
             FXPlatformRunnable addScrollBarListener = new FXPlatformRunnable()
             {
                 @Override
@@ -470,9 +471,12 @@ public class PkgMgrFrame
 
             testStatusMessage = new Label();
             JavaFXUtil.addStyleClass(testStatusMessage, "test-status-message");
-            // Hide when empty so padding doesn't show:
-            testStatusMessage.managedProperty().bind(testStatusMessage.textProperty().isNotEmpty());
-            testStatusMessage.visibleProperty().bind(testStatusMessage.textProperty().isNotEmpty());
+            // Hide when empty so padding doesn't show:s
+            JavaFXUtil.addChangeListener(testStatusMessage.textProperty(), newVal -> 
+            {
+                testStatusMessage.setManaged(!newVal.isEmpty());
+                testStatusMessage.setVisible(!newVal.isEmpty());
+            });
             BorderPane.setAlignment(testStatusMessage, Pos.CENTER_LEFT);
             statusArea.setLeft(testStatusMessage);
 
@@ -2908,25 +2912,25 @@ public class PkgMgrFrame
         updateButton = new Button();
         updateButton.setFocusTraversable(false);
         updateAction.useButton(this, updateButton);
-        updateButton.visibleProperty().bind(updateButton.disableProperty().not());
+        JavaFXUtil.addChangeListener(updateButton.disableProperty(), newVal -> updateButton.setVisible(!newVal));
         teamPanelItemsOnceShared.getChildren().add(updateButton);
 
         commitButton = new Button();
         commitButton.setFocusTraversable(false);
         commitCommentAction.useButton(this, commitButton);
-        commitButton.visibleProperty().bind(commitButton.disableProperty().not());
+        JavaFXUtil.addChangeListener(commitButton.disableProperty(), newVal -> commitButton.setVisible(!newVal));
         teamPanelItemsOnceShared.getChildren().add(commitButton);
 
         teamStatusButton = new Button();
         teamStatusButton.setFocusTraversable(false);
         statusAction.useButton(this, teamStatusButton);
-        teamStatusButton.visibleProperty().bind(teamStatusButton.disableProperty().not());
+        JavaFXUtil.addChangeListener(teamStatusButton.disableProperty(), newVal -> teamStatusButton.setVisible(!newVal));
         teamPanelItemsOnceShared.getChildren().add(teamStatusButton);
 
         teamShareButton = new Button();
         teamShareButton.setFocusTraversable(false);
         shareAction.useButton(this, teamShareButton);
-        teamShareButton.visibleProperty().bind(teamShareButton.disableProperty().not());
+        JavaFXUtil.addChangeListener(teamShareButton.disableProperty(), newVal -> teamShareButton.setVisible(!newVal));
         teamPanelItemsUnshared.getChildren().add(teamShareButton);
         teamShareButton.textProperty().unbind();
         teamShareButton.setText(Config.getString("team.share.short"));
@@ -3111,7 +3115,7 @@ public class PkgMgrFrame
             extensionsMenu.getItems().add(JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showExecControls"), showingDebugger, Config.hasAcceleratorKey("menu.view.showExecControls") ? Config.getAcceleratorKeyFX("menu.view.showExecControls") : null));
 
             CheckMenuItem terminalItem = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTerminal"), showingTerminal, new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN));
-            terminalItem.disableProperty().bind(pkg.isNull());
+            JavaFXUtil.addChangeListener(pkg, newVal -> terminalItem.setDisable(newVal == null));
             extensionsMenu.getItems().add(terminalItem);
             extensionsMenu.getItems().add(JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTextEval"), showingTextEval, Config.hasAcceleratorKey("menu.view.showTextEval") ? Config.getAcceleratorKeyFX("menu.view.showTextEval") : null));
             if (teamAndTestFoldout != null)

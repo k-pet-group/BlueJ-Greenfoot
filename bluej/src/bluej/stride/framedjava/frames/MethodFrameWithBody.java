@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javafx.beans.binding.DoubleBinding;
+import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
@@ -86,10 +87,12 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     protected final ChoiceSlot<AccessPermission> access;
     protected final Throws throwsPane;
     private final Rectangle dropShadowDummy;
+    private DoubleExpression dropShadowDummyDerivedHeightProperty, canvasWidthProperty, canvasLeftMarginProperty, canvasRightMarginProperty,
+        canvasDerivedWidthProperty,canvasDerivedWidthSubProperty;
+    private ObjectBinding<Effect> dropShadowEffectBinding;
     protected FormalParameters paramsPane;
-    private boolean showingBirdseye;
     private FXRunnable headerCleanup;
-
+    
     /**
      * Default constructor.
      */
@@ -113,20 +116,22 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         
         final Region headerRow = getHeaderRow().getNode();
         headerRow.getStyleClass().add("method-header");
-        //dropShadowDummy.xProperty().bind(headerRow.layoutXProperty());
-        //dropShadowDummy.yProperty().bind(headerRow.layoutYProperty().add(getHeadVBox().translateYProperty()));
-        dropShadowDummy.widthProperty().bind(headerRow.widthProperty());
-        dropShadowDummy.heightProperty().bind(headerRow.heightProperty());
-       
+        JavaFXUtil.addChangeListener(headerRow.widthProperty(), newVal -> dropShadowDummy.setWidth(newVal.doubleValue()));
+        JavaFXUtil.addChangeListener(headerRow.heightProperty(), newVal -> dropShadowDummy.setHeight(newVal.doubleValue()));
+    
         Rectangle small = new Rectangle();
         // Old style; bind size of shadow rectangle to width of *method frame*:
         //small.xProperty().bind(dropShadowDummy.xProperty());
         //small.widthProperty().bind(dropShadowDummy.widthProperty().add(1.0) /* fudge factor */);
         // New style; bind size of shadow rectangle to width of body canvas:
-
-        small.widthProperty().bind(canvas.widthProperty().subtract(canvas.leftMargin()).subtract(canvas.rightMargin()));
-        
-        small.yProperty().bind(dropShadowDummy.heightProperty().add(dropShadowDummy.yProperty()));
+        canvasWidthProperty = canvas.widthProperty();
+        canvasLeftMarginProperty = canvas.leftMargin();
+        canvasRightMarginProperty = canvas.rightMargin();
+        canvasDerivedWidthProperty = canvasWidthProperty.subtract(canvasLeftMarginProperty);
+        canvasDerivedWidthSubProperty = canvasDerivedWidthProperty.subtract(canvasRightMarginProperty);
+        dropShadowDummyDerivedHeightProperty = dropShadowDummy.heightProperty().add(dropShadowDummy.yProperty());
+        small.widthProperty().bind(canvasDerivedWidthSubProperty);
+        small.yProperty().bind(dropShadowDummyDerivedHeightProperty);
         small.heightProperty().set(15.0);
         
         dropShadowDummy.clipProperty().set(small);
@@ -188,44 +193,42 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
                             return 0;
                         }
                     }
-                    
-                    
                 }
 
-                                {
+                {
                     super.bind(editor.getObservableScroll());
                     super.bind(getRegion().layoutBoundsProperty());
                     super.bind(getRegion().heightProperty());
                     super.bind(getHeaderRow().getNode().heightProperty());
                     super.bind(getRegion().localToSceneTransformProperty());
                     super.bind(editor.getObservableViewportHeight());
-                    //super.bind(getHeaderRow().getNode().localToSceneTransformProperty());
-                                    super.bind(getHeaderRow().getNode().layoutBoundsProperty());
-                }};
-                
-                dropShadowDummy.effectProperty().bind(new ObjectBinding<Effect>()
+                    super.bind(getHeaderRow().getNode().layoutBoundsProperty());
+                }
+            };
+
+            dropShadowEffectBinding = new ObjectBinding<>()
+            {
+
+                DropShadow dropShadow = new DropShadow();
+
+                @Override
+                protected Effect computeValue()
                 {
+                    return offset.get() <= 0 ? dropShadow : null;
+                }
 
-                    DropShadow dropShadow = new DropShadow();
+                {
+                    super.bind(offset);
+                }
 
-                    @Override
-                    protected Effect computeValue()
-                    {
-                        return offset.get() <= 0 ? dropShadow : null;
-                    }
-
-                    {
-                        super.bind(offset);
-                    }
-
-                    {
-                        dropShadow.setRadius(8.0);
-                        dropShadow.setOffsetX(4.0);
-                        dropShadow.setOffsetY(4.0);
-                        dropShadow.setColor(Color.color(0.6, 0.6, 0.6));
-                    }
-                });
-            
+                {
+                    dropShadow.setRadius(8.0);
+                    dropShadow.setOffsetX(4.0);
+                    dropShadow.setOffsetY(4.0);
+                    dropShadow.setColor(Color.color(0.6, 0.6, 0.6));
+                }
+            };
+            dropShadowDummy.effectProperty().bind(dropShadowEffectBinding);
             
             offset.addListener(new ChangeListener<Number>()
             {
@@ -452,8 +455,6 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
             else {
                 canvas.growUsing(animate.getProgress());
             }
-            
-            showingBirdseye = newView.isBirdseye();
         }
 
         // We change the CSS styles halfway through animation so that the step-change in height is less noticeable:
