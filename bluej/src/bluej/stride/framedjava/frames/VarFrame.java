@@ -32,6 +32,7 @@ import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameCursor;
+import bluej.utility.javafx.FXConsumer;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -190,9 +191,10 @@ public class VarFrame extends SingleLineFrame implements CodeFrame<VarElement>, 
         // We must make the showing immediate when you get keyboard focus, as otherwise there
         // are problems with focusing the slot and then it disappears:
         ReadOnlyBooleanProperty keyFocusDelayed = JavaFXUtil.delay(hasKeyboardFocus, Duration.ZERO, Duration.millis(100));
-        JavaFXUtil.addChangeListener(inInterfaceProperty, newVal -> showingValue.set(newVal || keyFocusDelayed.get() || !slotValueBlank.get()));
-        JavaFXUtil.addChangeListener(keyFocusDelayed, newVal -> showingValue.set(inInterfaceProperty.get() || newVal || !slotValueBlank.get()));
-        JavaFXUtil.addChangeListener(slotValueBlank, newVal -> showingValue.set(inInterfaceProperty.get() || keyFocusDelayed.get() || !newVal));
+        FXConsumer<? super Boolean> listener = (x -> showingValue.set(inInterfaceProperty.get() || keyFocusDelayed.get() || !slotValueBlank.get()));
+        JavaFXUtil.addChangeListener(inInterfaceProperty, listener);
+        JavaFXUtil.addChangeListener(keyFocusDelayed, listener);
+        JavaFXUtil.addChangeListener(slotValueBlank, listener);
 
         //cherry
         frameName = "variable declaration for " + slotName.getText();

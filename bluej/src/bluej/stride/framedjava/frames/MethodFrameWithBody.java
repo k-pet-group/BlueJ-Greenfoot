@@ -87,7 +87,8 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     protected final ChoiceSlot<AccessPermission> access;
     protected final Throws throwsPane;
     private final Rectangle dropShadowDummy;
-    private DoubleExpression dropShadowDummyDerivedHeightProperty, canvasWidthProperty, canvasLeftMarginProperty, canvasRightMarginProperty, canvasDerivedWidthProperty;
+    private DoubleExpression dropShadowDummyDerivedHeightProperty, canvasWidthProperty, canvasLeftMarginProperty, canvasRightMarginProperty,
+        canvasDerivedWidthProperty,canvasDerivedWidthSubProperty;
     private ObjectBinding<Effect> dropShadowEffectBinding;
     protected FormalParameters paramsPane;
     private FXRunnable headerCleanup;
@@ -126,9 +127,10 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         canvasWidthProperty = canvas.widthProperty();
         canvasLeftMarginProperty = canvas.leftMargin();
         canvasRightMarginProperty = canvas.rightMargin();
-        canvasDerivedWidthProperty = canvasWidthProperty.subtract(canvasLeftMarginProperty).subtract(canvasRightMarginProperty);
+        canvasDerivedWidthProperty = canvasWidthProperty.subtract(canvasLeftMarginProperty);
+        canvasDerivedWidthSubProperty = canvasDerivedWidthProperty.subtract(canvasRightMarginProperty);
         dropShadowDummyDerivedHeightProperty = dropShadowDummy.heightProperty().add(dropShadowDummy.yProperty());
-        small.widthProperty().bind(canvasDerivedWidthProperty);
+        small.widthProperty().bind(canvasDerivedWidthSubProperty);
         small.yProperty().bind(dropShadowDummyDerivedHeightProperty);
         small.heightProperty().set(15.0);
         

@@ -22,8 +22,8 @@ LICENSE.txt file that accompanied this code.
 package bluej.editor.flow;
 
 import bluej.Config;
+import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.HPos;
@@ -213,8 +213,9 @@ public class FindPanel extends GridPane
 
         // The find field needs to be filled to do a replace,
         // but the replace field can be empty (to remove the find string)
-        JavaFXUtil.addChangeListener(findField.textProperty(), newVal -> replaceOne.setDisable((newVal.length()==0) || !findResultsFound.get()));
-        JavaFXUtil.addChangeListener(findResultsFound, newVal -> replaceOne.setDisable(!newVal || findField.getText().isEmpty()));
+        FXConsumer findChangesListener = (x -> replaceOne.setDisable(findField.getText().isEmpty() || !findResultsFound.get()));
+        JavaFXUtil.addChangeListener(findField.textProperty(), findChangesListener);
+        JavaFXUtil.addChangeListener(findResultsFound, findChangesListener);
         replaceAll.disableProperty().bind(replaceOne.disableProperty());
 
         add(findLabelPane, 0, 0);
