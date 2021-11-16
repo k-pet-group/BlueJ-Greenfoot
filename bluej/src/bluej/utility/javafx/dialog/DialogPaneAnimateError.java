@@ -70,7 +70,7 @@ public class DialogPaneAnimateError extends DialogPane
     public DialogPaneAnimateError(Label errorLabel, FXPlatformRunnable extraMouseEnter)
     {
         this.errorLabel = errorLabel;
-        JavaFXUtil.addChangeListener(errorLabel.textProperty(), newVal -> this.errorLabelEmpty.set(newVal.length() == 0));
+        JavaFXUtil.addChangeListenerAndCallNow(errorLabel.textProperty(), newVal -> this.errorLabelEmpty.set(newVal.length() == 0));
         this.extraMouseEnter = extraMouseEnter;
     }
 

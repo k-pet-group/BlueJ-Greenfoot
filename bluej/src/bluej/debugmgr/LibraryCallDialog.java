@@ -243,7 +243,7 @@ public class LibraryCallDialog extends Dialog<CallableView>
         methodList.setEditable(false);
         methodList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         methodList.setItems(currentViews);
-        JavaFXUtil.addChangeListener(methodList.getSelectionModel().selectedItemProperty(), newVal -> getDialogPane().lookupButton(ButtonType.OK).setDisable(newVal==null));
+        JavaFXUtil.addChangeListenerAndCallNow(methodList.getSelectionModel().selectedItemProperty(), newVal -> getDialogPane().lookupButton(ButtonType.OK).setDisable(newVal==null));
         
         textOverlay = new Label();
         methodList.setCellFactory(v -> {

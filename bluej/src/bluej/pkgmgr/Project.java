@@ -972,10 +972,10 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             }
             resizingRemoveListenersFXRunnableList.clear();
             //and reassign them (and save the FXRunnable that will be used for potential listener removal later
-            resizingRemoveListenersFXRunnableList.add(JavaFXUtil.addChangeListener(inspector.getScene().widthProperty(), resizingWConsumer));
-            resizingRemoveListenersFXRunnableList.add(JavaFXUtil.addChangeListener(inspector.getScene().heightProperty(), (fromBottom) ? resizingHFromBottomConsumer : resizingHFromTopConsumer));
-            resizingRemoveListenersFXRunnableList.add(JavaFXUtil.addChangeListener(root.scaleXProperty(), resizingWConsumer));
-            resizingRemoveListenersFXRunnableList.add(JavaFXUtil.addChangeListener(root.scaleYProperty(), (fromBottom) ? resizingHFromBottomConsumer : resizingHFromTopConsumer));
+            resizingRemoveListenersFXRunnableList.add(JavaFXUtil.addChangeListenerAndCallNow(inspector.getScene().widthProperty(), resizingWConsumer));
+            resizingRemoveListenersFXRunnableList.add(JavaFXUtil.addChangeListenerAndCallNow(inspector.getScene().heightProperty(), (fromBottom) ? resizingHFromBottomConsumer : resizingHFromTopConsumer));
+            resizingRemoveListenersFXRunnableList.add(JavaFXUtil.addChangeListenerAndCallNow(root.scaleXProperty(), resizingWConsumer));
+            resizingRemoveListenersFXRunnableList.add(JavaFXUtil.addChangeListenerAndCallNow(root.scaleYProperty(), (fromBottom) ? resizingHFromBottomConsumer : resizingHFromTopConsumer));
         }
         // Position its bottom left at centre of animateFromCentre:
         Scene afcScene = animateFromCentre.getScene();

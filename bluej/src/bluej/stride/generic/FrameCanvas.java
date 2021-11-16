@@ -726,7 +726,7 @@ public class FrameCanvas implements FrameContentItem
             clipRect.heightProperty().bind(canvas.maxHeightProperty());
             canvas.setClip(clipRect);
 
-            JavaFXUtil.addChangeListener(animate, newVal -> canvas.setMaxHeight(newVal.doubleValue() * getHeight()));
+            JavaFXUtil.addChangeListenerAndCallNow(animate, newVal -> canvas.setMaxHeight(newVal.doubleValue() * getHeight()));
             canvas.prefHeightProperty().bind(canvas.maxHeightProperty());
 
             // Make the contents look like it is shrinking:
@@ -757,7 +757,7 @@ public class FrameCanvas implements FrameContentItem
             calcHeight += Math.max(0, blockContents.size() - 1) * canvas.spacingProperty().get();
 
             final double finalCalcHeight = calcHeight;
-            JavaFXUtil.addChangeListener(animate, newVal -> canvas.setMaxHeight(newVal.doubleValue() * finalCalcHeight));
+            JavaFXUtil.addChangeListenerAndCallNow(animate, newVal -> canvas.setMaxHeight(newVal.doubleValue() * finalCalcHeight));
         }
         // We keep on the previous effect and clip until we have reached full height
         

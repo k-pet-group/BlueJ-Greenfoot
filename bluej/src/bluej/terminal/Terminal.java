@@ -191,7 +191,7 @@ public final class Terminal
         input.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
         input.setEditable(false);
         // Mainly for visuals, we disable when not in use:
-        JavaFXUtil.addChangeListener(input.editableProperty(), newVal ->
+        JavaFXUtil.addChangeListenerAndCallNow(input.editableProperty(), newVal ->
         {
             input.setDisable(!newVal);
             input.setPromptText((newVal) ? Config.getString("terminal.running") : Config.getString("terminal.notRunning"));

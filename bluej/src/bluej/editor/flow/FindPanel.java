@@ -162,7 +162,7 @@ public class FindPanel extends GridPane
 
         showingReplace = new SimpleBooleanProperty(false);
         Polygon triangle = new Polygon(0, 0, 8, 5, 0, 10);
-        JavaFXUtil.addChangeListener(showingReplace, newVal -> triangle.setRotate((newVal) ? 90 : 0));
+        JavaFXUtil.addChangeListenerAndCallNow(showingReplace, newVal -> triangle.setRotate((newVal) ? 90 : 0));
         replaceFoldOutLabel.setGraphic(triangle);
         // We must use an event filter on pressed, rather than a handler
         // on clicked, so that we intercept the click and stop it hitting the
@@ -214,8 +214,8 @@ public class FindPanel extends GridPane
         // The find field needs to be filled to do a replace,
         // but the replace field can be empty (to remove the find string)
         FXConsumer findChangesListener = (x -> replaceOne.setDisable(findField.getText().isEmpty() || !findResultsFound.get()));
-        JavaFXUtil.addChangeListener(findField.textProperty(), findChangesListener);
-        JavaFXUtil.addChangeListener(findResultsFound, findChangesListener);
+        JavaFXUtil.addChangeListenerAndCallNow(findField.textProperty(), findChangesListener);
+        JavaFXUtil.addChangeListenerAndCallNow(findResultsFound, findChangesListener);
         replaceAll.disableProperty().bind(replaceOne.disableProperty());
 
         add(findLabelPane, 0, 0);
@@ -314,7 +314,7 @@ public class FindPanel extends GridPane
             JavaFXUtil.setPseudoclass("bj-no-find-result", false, findField);
             currentNavigator.highlightAll();
             currentNavigator.selectNext(true);
-            JavaFXUtil.addChangeListenerPlatform(findResultsFound, newVal -> 
+            JavaFXUtil.addChangeListenerPlatformAndCallNow(findResultsFound, newVal -> 
             {
                 previousButton.setDisable(!newVal);
                 nextButton.setDisable(!newVal);

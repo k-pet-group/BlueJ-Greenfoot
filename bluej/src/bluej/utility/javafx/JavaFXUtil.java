@@ -1543,6 +1543,31 @@ public class JavaFXUtil
     }
 
     /**
+     * Helper method for ObservableValue.addChangeListener.  It's very rare
+     * that you care about all three parameters to addChangeListener (the change,
+     * the old value and the new value).  Usually, you just want the new value.
+     * This method lets you specify a lambda which only takes the new value,
+     * and thus saves you having two unused parameters every time.
+     * 
+     * This variant also calls the listener immediately with the current value.  This
+     * is useful if you want to use this method to implement binding-like logic.
+     *
+     * @param property The observable item to add the change listener to.
+     *                 Must only ever be altered on the FX thread.
+     * @param listener The listener to add; whenever there is a change in the property,
+     *                 the listener will be called back with the new value.
+     * @param <T>      The type in the observable.
+     * @return An action which, if run, removes the change listener from the property.
+     */
+    public static <T> FXRunnable addChangeListenerAndCallNow(ObservableValue<T> property, FXConsumer<? super T> listener)
+    {
+        ChangeListener<T> wrapped = (a, b, newVal) -> listener.accept(newVal);
+        property.addListener(wrapped);
+        listener.accept(property.getValue());
+        return () -> property.removeListener(wrapped);
+    }
+
+    /**
      * Like addChangeListener, but for when the item will definitely only be changed on the platform thread
      */
     @OnThread(Tag.FX)
@@ -1552,6 +1577,20 @@ public class JavaFXUtil
     {
         ChangeListener<T> wrapped = (a, b, newVal) -> listener.accept(newVal);
         property.addListener(wrapped);
+        return () -> property.removeListener(wrapped);
+    }
+
+    /**
+     * Like addChangeListenerAndCallNow, but for when the item will definitely only be changed on the platform thread
+     */
+    @OnThread(Tag.FXPlatform)
+    @SuppressWarnings("threadchecker")
+    public static <T> FXPlatformRunnable addChangeListenerPlatformAndCallNow(ObservableValue<T> property,
+                                                                   FXPlatformConsumer<T> listener)
+    {
+        ChangeListener<T> wrapped = (a, b, newVal) -> listener.accept(newVal);
+        property.addListener(wrapped);
+        listener.accept(property.getValue());
         return () -> property.removeListener(wrapped);
     }
 
