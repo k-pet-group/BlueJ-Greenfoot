@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016,2021 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.stride.generic;
 import java.util.List;
 import javafx.animation.FadeTransition;
 import javafx.beans.Observable;
+import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.StringProperty;
@@ -47,11 +48,14 @@ public class Sidebar
 {
     private final Node node;
     private final Label label;
+    // This is an unused field but it stops the bindings being garbage collected:
+    private final Binding[] bindingsToKeepHoldOf;
 
-    public Sidebar(Label label, Node node)
+    public Sidebar(Label label, Node node, Binding... bindingsToKeepHoldOf)
     {
         this.label = label;
         this.node = node;
+        this.bindingsToKeepHoldOf = bindingsToKeepHoldOf;
     }
 
     public Node getNode()
@@ -114,6 +118,7 @@ public class Sidebar
         if (editor == null || editor.getWindowOverlayPane() == null)
         {
             sidebar.setVisible(false);
+            return new Sidebar(sidebar, g);
         }
         else
         {
@@ -156,15 +161,28 @@ public class Sidebar
             // We have a minimum offset of zero, so that when you scroll up quickly, it doesn't
             // sink into the header bar.  It will be turning invisible at that point
             // anyway            
-            DoubleBinding sidebarOffset = Bindings.max(0.0, containedPaneOffset).add(sidebar.topMarginProperty());
-            
+            DoubleBinding containedPaneOffsetMax = Bindings.max(0.0, containedPaneOffset);
+            DoubleBinding sidebarOffset = containedPaneOffsetMax.add(sidebar.topMarginProperty());
+
             // Make the width of the text (which after rotate, will be height of sideways text)
             // be linked to the height of the whole children-block area:
-            sidebar.maxWidthProperty().bind(
-                    Bindings.min(
-                      containedPane.heightProperty().subtract(sidebarOffset)
-                      , editor.getObservableViewportHeight().subtract(sidebar.topMarginProperty())
-                      ).subtract(25.0) /* bottom margin */);
+            DoubleBinding sidebarMaxWidth = new DoubleBinding()
+            {
+                {
+                    super.bind(containedPane.heightProperty());
+                    super.bind(sidebarOffset);
+                    super.bind(editor.getObservableViewportHeight());
+                    super.bind(sidebar.topMarginProperty());
+                }
+                @Override
+                protected double computeValue()
+                {
+                    return Math.min(containedPane.getHeight() - sidebarOffset.get(),
+                        editor.getObservableViewportHeight().get() - sidebar.topMarginProperty().get()
+                        ) - 25 /* bottom margin */;
+                }
+            };
+            sidebar.maxWidthProperty().bind(sidebarMaxWidth);
             // Rotate the text:
             {            
                 Rotate r = new Rotate(-90.0, 0.0, 0.0);
@@ -178,7 +196,8 @@ public class Sidebar
             // Even when the max width of the sidebar is zero, JavaFX still displays
             // the ellipsis (on Mac OS X, at least), so make it invisible when it's too small:
             sidebar.visibleProperty().bind(sidebar.maxWidthProperty().greaterThanOrEqualTo(10.0));
+
+            return new Sidebar(sidebar, g, containedPaneOffset, containedPaneOffsetMax, sidebarOffset, sidebarMaxWidth);
         }
-        return new Sidebar(sidebar, g);
     }
 }
