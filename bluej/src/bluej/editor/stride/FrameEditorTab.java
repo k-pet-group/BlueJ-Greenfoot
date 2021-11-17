@@ -548,8 +548,12 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                 {
                     el.updateSourcePositions();
                     FrameEditorTab.this.topLevelFrameProperty.setValue(frame);
+                    // This should not be combined with the below code, as this needs to be called
+                    // immediately and the one below should not be (see note).
                     JavaFXUtil.addChangeListenerAndCallNow(getTopLevelFrame().nameProperty(), newVal -> nameProperty.set(newVal));
                     // Whenever name changes, trigger recompile even without leaving slot:
+                    // Note: this one should not use ..AndCallNow, because we don't want to treat the code as modified
+                    // just because we loaded it.  We only want an actual later change to trigger it:
                     JavaFXUtil.addChangeListener(getTopLevelFrame().nameProperty(), newVal ->
                     {
                         JavaFXUtil.runNowOrLater(() -> {
