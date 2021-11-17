@@ -53,7 +53,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
     {
         this.special = new Label();
         this.type = new Label();
-        JavaFXUtil.addChangeListener(typeWidth, newVal -> 
+        JavaFXUtil.addChangeListenerAndCallNow(typeWidth, newVal -> 
         {
            this.type.setMinWidth(newVal.doubleValue());
            this.type.setMaxWidth(newVal.doubleValue());

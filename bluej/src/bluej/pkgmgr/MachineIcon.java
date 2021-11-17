@@ -87,9 +87,9 @@ public class MachineIcon extends HBox
             bar.setLayoutX(indicatorPosition.get() * (barContainer.getWidth() * (1.0 - width)) + 2.0);
             bar.setWidth(barContainer.getWidth() * width - 4.0);
         };
-        JavaFXUtil.addChangeListener(indicatorPosition, onBarChangeConsumer);
-        JavaFXUtil.addChangeListener(barContainer.widthProperty(), onBarChangeConsumer);
-        JavaFXUtil.addChangeListener(barContainer.heightProperty(), newVal -> bar.setHeight(newVal.doubleValue() - 4.0));
+        JavaFXUtil.addChangeListenerAndCallNow(indicatorPosition, onBarChangeConsumer);
+        JavaFXUtil.addChangeListenerAndCallNow(barContainer.widthProperty(), onBarChangeConsumer);
+        JavaFXUtil.addChangeListenerAndCallNow(barContainer.heightProperty(), newVal -> bar.setHeight(newVal.doubleValue() - 4.0));
         JavaFXUtil.bindPseudoclass(bar, "bj-active", running);
         this.resetAction = resetAction;
         resetButton = this.resetAction.makeButton();

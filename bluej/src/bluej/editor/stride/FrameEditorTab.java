@@ -548,8 +548,12 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                 {
                     el.updateSourcePositions();
                     FrameEditorTab.this.topLevelFrameProperty.setValue(frame);
-                    JavaFXUtil.addChangeListener(getTopLevelFrame().nameProperty(), newVal -> nameProperty.set(newVal));
+                    // This should not be combined with the below code, as this needs to be called
+                    // immediately and the one below should not be (see note).
+                    JavaFXUtil.addChangeListenerAndCallNow(getTopLevelFrame().nameProperty(), newVal -> nameProperty.set(newVal));
                     // Whenever name changes, trigger recompile even without leaving slot:
+                    // Note: this one should not use ..AndCallNow, because we don't want to treat the code as modified
+                    // just because we loaded it.  We only want an actual later change to trigger it:
                     JavaFXUtil.addChangeListener(getTopLevelFrame().nameProperty(), newVal ->
                     {
                         JavaFXUtil.runNowOrLater(() -> {
@@ -940,7 +944,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         Label showVarLabel = new Label("Show variables: ");
         ComboBox<ShowVars> showVars = new ComboBox<>(FXCollections.observableArrayList(ShowVars.values()));
         showVars.getSelectionModel().select(0);
-        JavaFXUtil.addChangeListener(showVars.getSelectionModel().selectedItemProperty(), newVal -> debugVarVisibleProperty.set(newVal == ShowVars.FIELDS));
+        JavaFXUtil.addChangeListenerAndCallNow(showVars.getSelectionModel().selectedItemProperty(), newVal -> debugVarVisibleProperty.set(newVal == ShowVars.FIELDS));
         
         buttons.getChildren().addAll(stepButton, continueButton, haltButton, showVarLabel, showVars);
         contentRoot.setBottom(buttons);
@@ -2886,7 +2890,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
             banner.setRight(new VBox(close, countdown));
             JavaFXUtil.addStyleClass(banner, "banner-undo-delete");
             //bannerText.styleProperty().bind(new ReadOnlyStringWrapper("-fx-font-size:").concat(PrefMgr.strideFontSizeProperty().multiply(4).divide(3).asString()).concat("pt;"));
-            JavaFXUtil.addChangeListener(PrefMgr.strideFontSizeProperty(), newVal -> banner.setStyle("-fx-font-size:" + newVal + "pt;"));
+            JavaFXUtil.addChangeListenerAndCallNow(PrefMgr.strideFontSizeProperty(), newVal -> banner.setStyle("-fx-font-size:" + newVal + "pt;"));
             bannerPane.getChildren().add(0, banner);
             close.setOnAction(e -> {
                 countdown.stop();

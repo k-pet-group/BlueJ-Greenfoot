@@ -116,8 +116,8 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         
         final Region headerRow = getHeaderRow().getNode();
         headerRow.getStyleClass().add("method-header");
-        JavaFXUtil.addChangeListener(headerRow.widthProperty(), newVal -> dropShadowDummy.setWidth(newVal.doubleValue()));
-        JavaFXUtil.addChangeListener(headerRow.heightProperty(), newVal -> dropShadowDummy.setHeight(newVal.doubleValue()));
+        JavaFXUtil.addChangeListenerAndCallNow(headerRow.widthProperty(), newVal -> dropShadowDummy.setWidth(newVal.doubleValue()));
+        JavaFXUtil.addChangeListenerAndCallNow(headerRow.heightProperty(), newVal -> dropShadowDummy.setHeight(newVal.doubleValue()));
     
         Rectangle small = new Rectangle();
         // Old style; bind size of shadow rectangle to width of *method frame*:

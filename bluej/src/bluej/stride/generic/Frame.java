@@ -342,10 +342,10 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             }
             frameContents.setEffect(effect);
         };
-        JavaFXUtil.addChangeListener(disabledRoot, effectForUIListener);
-        JavaFXUtil.addChangeListener(frameEnabledProperty, effectForUIListener);
-        JavaFXUtil.addChangeListener(framePreviewEnableProperty, effectForUIListener);
-        JavaFXUtil.addChangeListener(frameDragSourceProperty, effectForUIListener);
+        JavaFXUtil.addChangeListenerAndCallNow(disabledRoot, effectForUIListener);
+        JavaFXUtil.addChangeListenerAndCallNow(frameEnabledProperty, effectForUIListener);
+        JavaFXUtil.addChangeListenerAndCallNow(framePreviewEnableProperty, effectForUIListener);
+        JavaFXUtil.addChangeListenerAndCallNow(frameDragSourceProperty, effectForUIListener);
         
         // We put some setup into the editor class because the setup requires a lot of access
         // to editor internals.  Easier to pass the editor the frame than it is to expose all

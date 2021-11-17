@@ -118,7 +118,7 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
         if (pkg != null)
         {
             checkSource = new CheckBox(Config.getString("pkgmgr.printDialog.printSource"));
-            JavaFXUtil.addChangeListener(checkSource.selectedProperty(), newVal -> 
+            JavaFXUtil.addChangeListenerAndCallNow(checkSource.selectedProperty(), newVal -> 
             {
                checkHighlighting.setDisable(!newVal);
                checkLineNumbers.setDisable(!newVal);

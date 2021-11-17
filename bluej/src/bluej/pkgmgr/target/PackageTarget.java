@@ -88,12 +88,12 @@ public class PackageTarget extends Target
             r.setMouseTransparent(true);
             // was: 15, 10
             final int tempIterator = i;
-            JavaFXUtil.addChangeListener(center.widthProperty(), newVal -> 
+            JavaFXUtil.addChangeListenerAndCallNow(center.widthProperty(), newVal -> 
             {
                 r.setPrefWidth(newVal.doubleValue() * 0.2);
                 r.setLayoutX(newVal.doubleValue() * (pos[tempIterator*2]-0.1));
             });
-            JavaFXUtil.addChangeListener(center.heightProperty(), newVal ->
+            JavaFXUtil.addChangeListenerAndCallNow(center.heightProperty(), newVal ->
             {
                 r.setPrefHeight(newVal.doubleValue() * 0.2);
                 r.setLayoutY(newVal.doubleValue() * (pos[tempIterator*2+1]-0.1));

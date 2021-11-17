@@ -232,7 +232,7 @@ public class AboutDialogTemplate extends Dialog<Void>
             TableColumn<Pair<String, String>, String> nameColumn = new TableColumn<>();
             nameColumn.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getValue()));
             
-            JavaFXUtil.addChangeListener(tableView.widthProperty(), newVal -> 
+            JavaFXUtil.addChangeListenerAndCallNow(tableView.widthProperty(), newVal -> 
             {
                 languageColumn.setPrefWidth(newVal.doubleValue() * 0.17);
                 nameColumn. setPrefWidth(newVal.doubleValue() * 0.80);
