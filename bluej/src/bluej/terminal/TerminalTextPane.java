@@ -440,7 +440,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
      */
     public void scrollToEnd()
     {
-        lineDisplay.ensureLineVisible(content.size() - 1, getHeight());
+        lineDisplay.ensureLineVisible(content.size() - 1, getHeight(), getLineCount());
     }
 
     /**
