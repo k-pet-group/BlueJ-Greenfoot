@@ -426,7 +426,7 @@ public abstract class BaseEditorPane extends Region
     {
         if (ensureCaretVisible)
         {
-            lineDisplay.ensureLineVisible(getCaretEditorPosition().getLine(), lineContainer.getHeight());
+            lineDisplay.ensureLineVisible(getCaretEditorPosition().getLine(), lineContainer.getHeight(), getLineCount());
         }
 
         // Must calculate horizontal scroll before rendering, in case it updates the horizontal scroll:

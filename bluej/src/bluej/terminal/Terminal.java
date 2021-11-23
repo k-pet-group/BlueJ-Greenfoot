@@ -152,7 +152,7 @@ public final class Terminal
         this.title = WINDOWTITLE + " - " + project.getProjectName();
         this.project = project;
 
-        buffer = new InputBuffer(256);
+        buffer = new InputBuffer(65536);
         text = new TerminalTextPane() {
             @Override
             public void focusPrevious()

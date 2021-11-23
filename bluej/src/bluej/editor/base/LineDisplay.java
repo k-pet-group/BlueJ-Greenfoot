@@ -229,7 +229,7 @@ public class LineDisplay
     /**
      * Scrolls the visible lines so that the given zero-based line index is in view.
      */
-    public void ensureLineVisible(int line, double containerHeight)
+    public void ensureLineVisible(int line, double containerHeight, int linesInDocument)
     {
         // Note: if the line is the first/last visible, it may be only partially visible, so we still 
         // scroll because we may need to move slightly to bring the whole line into view.
@@ -252,9 +252,19 @@ public class LineDisplay
             // As an example, imagine each line is 10 pixels high, and the whole pane is 84 pixels high.
             // You will need to draw nine lines (so ceil(84 / 10) ) because if you only drew 8, there would be 4 pixels undrawn: 
             int numLinesCanDisplay = (int)Math.ceil(containerHeight / singleLineHeight);
-            // Imagine that you're drawing 9 lines, and you want to show line #14, which will be the last one.  You need to render lines 6,7,8,9,10,11,12,13,14
-            // So the top line is 14 - 9 + 1 = 6
-            firstVisibleLineIndex = line - numLinesCanDisplay + 1;
+            
+            // If the line is visible when the end of the document is showing, just
+            // nudge so that we view the end of the document.
+            if (line >= linesInDocument - numLinesCanDisplay + 1 && firstVisibleLineIndex >= linesInDocument - numLinesCanDisplay + 1)
+            {
+                firstVisibleLineIndex = linesInDocument - numLinesCanDisplay + 1;
+            }
+            else
+            {
+                // Imagine that you're drawing 9 lines, and you want to show line #14, which will be the last one.  You need to render lines 6,7,8,9,10,11,12,13,14
+                // So the top line is 14 - 9 + 1 = 6
+                firstVisibleLineIndex = line - numLinesCanDisplay + 1;
+            }
             if (firstVisibleLineIndex < 0)
             {
                 // Just scroll to top:
