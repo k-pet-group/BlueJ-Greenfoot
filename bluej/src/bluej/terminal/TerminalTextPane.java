@@ -348,10 +348,12 @@ public abstract class TerminalTextPane extends BaseEditorPane
      */
     public void clear()
     {
-        setContent(Collections.singletonList(new ContentLine(new ArrayList<>())));
         // Reset cursor and anchor to only remaining valid position:
+        // Important to do this before setContent because that may use the caret position
+        // while updating the display:
         caretPos = new Pos(0, 0, 0);
         anchorPos = new Pos(0, 0, 0);
+        setContent(Collections.singletonList(new ContentLine(new ArrayList<>())));
     }
 
     /**
