@@ -1261,7 +1261,7 @@ public class FrameEditor implements Editor
         if (suggests != null && suggests.isPlain())
         {    
             // Special case to support completing static methods from Greenfoot class (if imported)
-            if (!Config.isGreenfoot() && (containsImport("greenfoot.*") || containsImport("greenfoot.Greenfoot"))) 
+            if (Config.isGreenfoot() && (containsImport("greenfoot.*") || containsImport("greenfoot.Greenfoot"))) 
             {
                 JavaReflective greenfootClassRef = new JavaReflective(pkg.loadClass("greenfoot.Greenfoot"));
                 ExpressionTypeInfo greenfootClass = new ExpressionTypeInfo(new GenTypeClass(greenfootClassRef), null, null, true, false);
