@@ -28,6 +28,7 @@ import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.base.BackgroundItem;
@@ -54,12 +55,9 @@ import bluej.editor.flow.PrintDialog.PrintChoices;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FlowFXTab;
 import bluej.editor.stride.FrameEditor;
-import bluej.parser.AssistContent;
+import bluej.parser.*;
 import bluej.parser.AssistContent.ParamInfo;
-import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.ImportsCollection.LocatableImport;
-import bluej.parser.ParseUtils;
-import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.lexer.JavaLexer;
@@ -81,17 +79,13 @@ import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
-import bluej.parser.AssistContentThreadSafe;
 import bluej.editor.fixes.SuggestionList;
 import bluej.editor.fixes.SuggestionList.SuggestionDetails;
 import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 import bluej.editor.fixes.SuggestionList.SuggestionListParent;
 import bluej.editor.fixes.SuggestionList.SuggestionShown;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.FileUtility;
-import bluej.utility.Utility;
+import bluej.utility.*;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -154,9 +148,13 @@ import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener, SelectionListener, BlueJEventListener, DocumentListener
@@ -3128,14 +3126,41 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 javaSyntaxView);
         if (suggests != null)
         {
+            List<AssistContent> completionCandidates = new ArrayList<>();
+            
+            // Special case to support completing static methods from Greenfoot class (if imported)
+            // To speed up the import retrieval, we look up for import with regex
+            if (Config.isGreenfoot() && Pattern.compile("(;|^)\\s*import greenfoot\\.(\\*;|Greenfoot;)").matcher(getText(new SourceLocation(1,1), getCaretLocation())).find())
+            {
+                JavaReflective greenfootClassRef = new JavaReflective(getProject().getPackage("").loadClass("greenfoot.Greenfoot"));
+                ExpressionTypeInfo greenfootClass = new ExpressionTypeInfo(new GenTypeClass(greenfootClassRef), null, null, true, false);
+                AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null, null);
+                Arrays.stream(greenfootStatic)
+                    .filter(ac -> ac.getKind() == AssistContent.CompletionKind.METHOD)
+                    .forEach(ac -> completionCandidates.add(new PrefixCompletionWrapper(ac, "Greenfoot.")));
+            }
+
+            // We also provide completion for the System class - "System.out", "System.err" and "System.in" in order
+            // to facilitate the very common "System.out.println()" for example.
+            JavaReflective systemClassRef = new JavaReflective(getProject().getPackage("").loadClass("java.lang.System"));
+            ExpressionTypeInfo systemClass = new ExpressionTypeInfo(new GenTypeClass(systemClassRef), null, null, true, false);
+            AssistContent[] systemStatic = ParseUtils.getPossibleCompletions(systemClass, javadocResolver, null, null);
+            Arrays.stream(systemStatic)
+                .filter(ac -> (ac.getName().equals("out") || ac.getName().equals("err") || ac.getName().equals("in")))
+                .forEach(ac -> completionCandidates.add(new PrefixCompletionWrapper(ac, "System.")));
+            
             LocatableToken suggestToken = suggests.getSuggestionToken();
             AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getContainingMethodOrClassNode(flowEditorPane.getCaretPosition()));
             Arrays.sort(possibleCompletions, AssistContent.getComparator());
-            List<SuggestionDetails> suggestionDetails = Arrays.stream(possibleCompletions)
+            completionCandidates.addAll(Arrays.asList(possibleCompletions));
+            
+            // Create suggestions from all the candidates
+            List<SuggestionDetails> suggestionDetails = completionCandidates.stream()
                     .map(AssistContentThreadSafe::new)
                     .map(ac -> new SuggestionDetailsWithHTMLDoc(ac.getName(), ExpressionCompletionCalculator.getParamsCompletionDisplay(ac), ac.getType(), SuggestionShown.COMMON, ac.getDocHTML()))
                     .collect(Collectors.toList());
 
+            // Prepare the suggestions popup
             int originalPosition = suggestToken == null ? flowEditorPane.getCaretPosition() : suggestToken.getPosition();
             Bounds screenPos;
             // First, try to get the character after the caret:
@@ -3182,7 +3207,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 {
                     if (highlighted != -1)
                     {
-                        codeComplete(possibleCompletions[highlighted], originalPosition, flowEditorPane.getCaretPosition(), suggestionList);
+                        codeComplete(completionCandidates.get(highlighted), originalPosition, flowEditorPane.getCaretPosition(), suggestionList);
                     }
                 }
 

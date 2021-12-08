@@ -86,11 +86,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -1264,16 +1260,23 @@ public class FrameEditor implements Editor
         // not a compound type (like "this.pre" or "Greenfoot.pre" or "getWorld().pre").
         if (suggests != null && suggests.isPlain())
         {    
-            // Special case to support completing static methods from Greenfoot class
-
-            if (Config.isGreenfoot())
+            // Special case to support completing static methods from Greenfoot class (if imported)
+            if (!Config.isGreenfoot() && (containsImport("greenfoot.*") || containsImport("greenfoot.Greenfoot"))) 
             {
-                // TODO in future, only do this if we are importing Greenfoot classes.
                 JavaReflective greenfootClassRef = new JavaReflective(pkg.loadClass("greenfoot.Greenfoot"));
                 ExpressionTypeInfo greenfootClass = new ExpressionTypeInfo(new GenTypeClass(greenfootClassRef), null, null, true, false);
                 AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null, null);
                 Arrays.stream(greenfootStatic).filter(ac -> ac.getKind() == CompletionKind.METHOD).forEach(ac -> joined.add(new PrefixCompletionWrapper(ac, "Greenfoot.")));
             }
+            
+            // We also provide completion for the System class - "System.out", "System.err" and "System.in" in order
+            // to facilitate the very common "System.out.println()" for example.
+            JavaReflective systemClassRef = new JavaReflective(pkg.loadClass("java.lang.System"));
+            ExpressionTypeInfo systemClass = new ExpressionTypeInfo(new GenTypeClass(systemClassRef), null, null, true, false);
+            AssistContent[] systemStatic = ParseUtils.getPossibleCompletions(systemClass, javadocResolver, null, null);
+            Arrays.stream(systemStatic)
+                .filter(ac -> (ac.getName().equals("out") || ac.getName().equals("err") || ac.getName().equals("in")))
+                .forEach(ac -> joined.add(new PrefixCompletionWrapper(ac, "System.")));
 
             for (LocalParamInfo v : ASTUtility.findLocalsAndParamsInScopeAt(codeEl, false, false))
             {
