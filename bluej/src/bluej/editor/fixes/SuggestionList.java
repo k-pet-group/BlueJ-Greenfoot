@@ -22,6 +22,7 @@
 package bluej.editor.fixes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -30,6 +31,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.parser.*;
+import bluej.pkgmgr.JavadocResolver;
+import bluej.pkgmgr.Package;
+import bluej.utility.JavaReflective;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
@@ -1161,5 +1167,32 @@ public class SuggestionList
          * Add any necessary listeners to a code completion window
          */
         public void setupSuggestionWindow(Stage window);
+    }
+
+    /**
+     * Add some static classes for code completion suggestions:
+     * System (for using e.g. System.out.println() and Greenfood (if we are in Greenfoot, and that Greenfoot is imported in
+     * the user code)
+     */
+    public static void getStaticClassesCompletion(List<AssistContent> completionCandidates, boolean isGreenfootImported, Package pkg, JavadocResolver javadocResolver)
+    {
+        if (Config.isGreenfoot() && isGreenfootImported)
+        {
+            JavaReflective greenfootClassRef = new JavaReflective(pkg.loadClass("greenfoot.Greenfoot"));
+            ExpressionTypeInfo greenfootClass = new ExpressionTypeInfo(new GenTypeClass(greenfootClassRef), null, null, true, false);
+            AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null, null);
+            Arrays.stream(greenfootStatic)
+                .filter(ac -> ac.getKind() == AssistContent.CompletionKind.METHOD)
+                .forEach(ac -> completionCandidates.add(new PrefixCompletionWrapper(ac, "Greenfoot.")));
+        }
+
+        // We also provide completion for the System class - "System.out", "System.err" and "System.in" in order
+        // to facilitate the very common "System.out.println()" for example.
+        JavaReflective systemClassRef = new JavaReflective(pkg.loadClass("java.lang.System"));
+        ExpressionTypeInfo systemClass = new ExpressionTypeInfo(new GenTypeClass(systemClassRef), null, null, true, false);
+        AssistContent[] systemStatic = ParseUtils.getPossibleCompletions(systemClass, javadocResolver, null, null);
+        Arrays.stream(systemStatic)
+            .filter(ac -> (ac.getName().equals("out") || ac.getName().equals("err") || ac.getName().equals("in")))
+            .forEach(ac -> completionCandidates.add(new PrefixCompletionWrapper(ac, "System.")));
     }
 }

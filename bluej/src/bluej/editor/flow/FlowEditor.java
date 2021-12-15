@@ -3125,27 +3125,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             List<AssistContent> completionCandidates = new ArrayList<>();
             
-            // Special case to support completing static methods from Greenfoot class (if imported)
-            // To speed up the import retrieval, we look up for import with regex
-            if (Config.isGreenfoot() && Pattern.compile("(;|^)\\s*import greenfoot\\.(\\*;|Greenfoot;)").matcher(getText(new SourceLocation(1,1), getCaretLocation())).find())
-            {
-                JavaReflective greenfootClassRef = new JavaReflective(getProject().getPackage("").loadClass("greenfoot.Greenfoot"));
-                ExpressionTypeInfo greenfootClass = new ExpressionTypeInfo(new GenTypeClass(greenfootClassRef), null, null, true, false);
-                AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null, null);
-                Arrays.stream(greenfootStatic)
-                    .filter(ac -> ac.getKind() == AssistContent.CompletionKind.METHOD)
-                    .forEach(ac -> completionCandidates.add(new PrefixCompletionWrapper(ac, "Greenfoot.")));
-            }
-
-            // We also provide completion for the System class - "System.out", "System.err" and "System.in" in order
-            // to facilitate the very common "System.out.println()" for example.
-            JavaReflective systemClassRef = new JavaReflective(getProject().getPackage("").loadClass("java.lang.System"));
-            ExpressionTypeInfo systemClass = new ExpressionTypeInfo(new GenTypeClass(systemClassRef), null, null, true, false);
-            AssistContent[] systemStatic = ParseUtils.getPossibleCompletions(systemClass, javadocResolver, null, null);
-            Arrays.stream(systemStatic)
-                .filter(ac -> (ac.getName().equals("out") || ac.getName().equals("err") || ac.getName().equals("in")))
-                .forEach(ac -> completionCandidates.add(new PrefixCompletionWrapper(ac, "System.")));
-            
+            // Get the static classes for completion suggestions (to speed up loading Greenfoot.*, we check if Greenfoot is imported with a regex)
+            SuggestionList.getStaticClassesCompletion(completionCandidates,
+                Pattern.compile("(;|^)\\s*import\\s+greenfoot\\s*\\.\\s*(\\*\\s*;|Greenfoot\\s*;)").matcher(getText(new SourceLocation(1,1), getCaretLocation())).find(),
+                getProject().getPackage(""),
+                javadocResolver);            
+         
             LocatableToken suggestToken = suggests.getSuggestionToken();
             AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getContainingMethodOrClassNode(flowEditorPane.getCaretPosition()));
             Arrays.sort(possibleCompletions, AssistContent.getComparator());
