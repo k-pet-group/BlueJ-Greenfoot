@@ -22,19 +22,17 @@
 
 package bluej.editor.stride;
 
-
-import bluej.Config;
 import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
-import bluej.debugger.gentype.GenTypeClass;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.fixes.EditorFixesManager;
+import bluej.editor.fixes.SuggestionList;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.pkgmgr.target.role.Kind;
 import bluej.prefmgr.PrefMgr.PrintSize;
@@ -42,7 +40,6 @@ import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.ParseUtils;
-import bluej.parser.PrefixCompletionWrapper;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.ParsedCUNode;
@@ -67,7 +64,6 @@ import bluej.stride.framedjava.frames.LocalCompletion;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.parser.AssistContentThreadSafe;
 import bluej.utility.Debug;
-import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -86,11 +82,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -1264,17 +1256,12 @@ public class FrameEditor implements Editor
         // not a compound type (like "this.pre" or "Greenfoot.pre" or "getWorld().pre").
         if (suggests != null && suggests.isPlain())
         {    
-            // Special case to support completing static methods from Greenfoot class
-
-            if (Config.isGreenfoot())
-            {
-                // TODO in future, only do this if we are importing Greenfoot classes.
-                JavaReflective greenfootClassRef = new JavaReflective(pkg.loadClass("greenfoot.Greenfoot"));
-                ExpressionTypeInfo greenfootClass = new ExpressionTypeInfo(new GenTypeClass(greenfootClassRef), null, null, true, false);
-                AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null, null);
-                Arrays.stream(greenfootStatic).filter(ac -> ac.getKind() == CompletionKind.METHOD).forEach(ac -> joined.add(new PrefixCompletionWrapper(ac, "Greenfoot.")));
-            }
-
+            // Get static classes code completion suggestions
+            SuggestionList.getStaticClassesCompletion(joined,
+                (containsImport("greenfoot.*") || containsImport("greenfoot.Greenfoot")),
+                pkg,
+                javadocResolver);
+           
             for (LocalParamInfo v : ASTUtility.findLocalsAndParamsInScopeAt(codeEl, false, false))
             {
                 AssistContent c = LocalCompletion.getCompletion(v.getType(), v.getName(), v.isParam());
