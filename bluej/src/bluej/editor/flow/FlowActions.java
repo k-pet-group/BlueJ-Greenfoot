@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1800,10 +1800,14 @@ public final class FlowActions
                 int lineStart = document.getLineStart(curLine);
                 int contentStart = lineStart;
                 int lineEnd = document.getLineEnd(curLine);
-                // Move it to the first non-whitespace character:
-                while (Character.isWhitespace(getTextComponent().getDocument().getContent(contentStart, contentStart + 1).charAt(0)) && contentStart < lineEnd)
-                    contentStart += 1;
-
+                // If the line is non-empty:
+                if (lineEnd > lineStart)
+                {
+                    // Move it to the first non-whitespace character:
+                    while (Character.isWhitespace(getTextComponent().getDocument().getContent(contentStart, contentStart + 1).charAt(0)) && contentStart < lineEnd)
+                        contentStart += 1;
+                }
+                
                 if (getTextComponent().getCaretPosition() == contentStart)
                 {
                     moveCaret(lineStart);
