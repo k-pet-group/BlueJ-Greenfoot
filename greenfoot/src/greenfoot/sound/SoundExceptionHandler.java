@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2014,2018  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2014,2018,2022  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -109,7 +109,7 @@ public class SoundExceptionHandler
             mp3LibHandled = true;
             System.err.println("MP3 library not available." + " You will not be able to play any mp3 audio files."
                     + " This is most likely happening because you are using a non-standard Greenfoot installation."
-                    + " To get the standard version, go to http://www.greenfoot.org");
+                    + " To get the standard version, go to https://www.greenfoot.org");
         }
     }
 

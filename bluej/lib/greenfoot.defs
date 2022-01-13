@@ -75,10 +75,10 @@ bluej.language=english
 ## edit these URLs.
 #####################################################################
 
-greenfoot.url.greenfoot=http://www.greenfoot.org/
-greenfoot.url.scenarios=http://www.greenfoot.org/scenarios/index.html
-greenfoot.url.tutorial=http://www.greenfoot.org/doc/tutorial.html
-greenfoot.url.discuss=http://www.greenfootgallery.org/topics/
+greenfoot.url.greenfoot=https://www.greenfoot.org/
+greenfoot.url.scenarios=https://www.greenfoot.org/scenarios/index.html
+greenfoot.url.tutorial=https://www.greenfoot.org/doc/tutorial.html
+greenfoot.url.discuss=https://www.greenfoot.org/topics/
 
 
 # The URL for the Java API documentation can be specified here, however
@@ -98,8 +98,8 @@ doctool.options=-author -version -nodeprecated -protected  -Xdoclint:none
 #####################################################################
 
 greenfoot.gameserver.name=Greenfoot Gallery
-greenfoot.gameserver.address=http://www.greenfoot.org/
-greenfoot.gameserver.createAccount.address=http://www.greenfoot.org/users/new
+greenfoot.gameserver.address=https://www.greenfoot.org/
+greenfoot.gameserver.createAccount.address=https://www.greenfoot.org/users/new
 
 # If you need to use a HTTP proxy, set and uncomment the following items
 #proxy.host=

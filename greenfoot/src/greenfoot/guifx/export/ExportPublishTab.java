@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2017,2018  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2017,2018,2022  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -81,10 +81,10 @@ public class ExportPublishTab extends ExportTab
     private static final int IMAGE_HEIGHT = 70;
 
     private static final String serverURL = ensureTrailingSlash(
-            Config.getPropString("greenfoot.gameserver.address", "http://www.greenfoot.org/"));
+            Config.getPropString("greenfoot.gameserver.address", "https://www.greenfoot.org/"));
     private static final String createAccountUrl =
             Config.getPropString("greenfoot.gameserver.createAccount.address",
-                    "http://www.greenfoot.org/users/new");
+                    "https://www.greenfoot.org/users/new");
     private static final String serverName =
             Config.getPropString("greenfoot.gameserver.name", "Greenfoot Gallery");
 

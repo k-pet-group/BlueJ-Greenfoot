@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -423,11 +423,11 @@ public class Main
         String appVersion;
         if (Config.isGreenfoot()) {
             uidPropName = "greenfoot.uid";
-            baseURL = "http://stats.greenfoot.org/updateGreenfoot.php";
+            baseURL = "https://stats.greenfoot.org/updateGreenfoot.php";
             appVersion = Boot.GREENFOOT_VERSION;
         } else {
             uidPropName = "bluej.uid";
-            baseURL = "http://stats.bluej.org/updateBlueJ.php";
+            baseURL = "https://stats.bluej.org/updateBlueJ.php";
             // baseURL = "http://localhost:8080/BlueJStats/index.php";
             appVersion = getBlueJVersion();
         }
