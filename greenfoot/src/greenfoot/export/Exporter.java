@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2015,2018  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2015,2018,2022  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -190,7 +190,7 @@ public class Exporter implements PublishListener
         File exportDir = tmpJarFile.getParentFile();
         String jarName = tmpJarFile.getName();
         
-        String hostAddress = Config.getPropString("greenfoot.gameserver.address", "http://www.greenfoot.org/");
+        String hostAddress = Config.getPropString("greenfoot.gameserver.address", "https://www.greenfoot.org/");
         if (! hostAddress.endsWith("/")) {
             hostAddress += "/";
         }
