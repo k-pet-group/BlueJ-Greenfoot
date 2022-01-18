@@ -66,6 +66,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.fxmisc.wellbehaved.event.EventPattern;
@@ -160,13 +161,16 @@ public final class Terminal
                 if (errorText != null)
                     errorText.requestFocusAndShowCaret();
                 else
-                    input.requestFocus();
+                    input.requestFocus(); // If it's disabled and errorText == null, nothing more we can do anyway.
             }
 
             @Override
             public void focusNext()
             {
-                input.requestFocus();
+                if (!input.isDisable())
+                    input.requestFocus();
+                else if (errorText != null)
+                    errorText.requestFocusAndShowCaret();
             }
         };
         text.getStyleClass().add("terminal-output");
@@ -699,7 +703,10 @@ public final class Terminal
                 @Override
                 public void focusPrevious()
                 {
-                    input.requestFocus();
+                    if (!input.isDisable())
+                        input.requestFocus();
+                    else
+                        text.requestFocusAndShowCaret();
                 }
 
                 @Override
