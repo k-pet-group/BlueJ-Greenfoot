@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -66,6 +66,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.fxmisc.wellbehaved.event.EventPattern;
@@ -160,13 +161,16 @@ public final class Terminal
                 if (errorText != null)
                     errorText.requestFocusAndShowCaret();
                 else
-                    input.requestFocus();
+                    input.requestFocus(); // If it's disabled and errorText == null, nothing more we can do anyway.
             }
 
             @Override
             public void focusNext()
             {
-                input.requestFocus();
+                if (!input.isDisable())
+                    input.requestFocus();
+                else if (errorText != null)
+                    errorText.requestFocusAndShowCaret();
             }
         };
         text.getStyleClass().add("terminal-output");
@@ -225,6 +229,22 @@ public final class Terminal
         Config.addTerminalStylesheets(scene);
         window.setScene(scene);
         JavaFXUtil.addMacMinimiseShortcutHandler(window);
+        // There is a slight awkward state where if the input field becomes disabled,
+        // it is no longer the focus owner (which becomes null), so tab no longer works
+        // (because the standard JavaFX tabbing mechanism doesn't work in this window).
+        // We don't want to move focus away to the output pane immediately because the input
+        // may become re-enabled.
+        // But we need a special case where if they do press tab/shift-tab, we focus the next field: 
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (scene.getFocusOwner() == null && e.getCode() == KeyCode.TAB)
+            {
+                e.consume();
+                if (e.isShiftDown() && errorText != null)
+                    errorText.requestFocusAndShowCaret();
+                else
+                    text.requestFocusAndShowCaret();
+            }
+        });
 
         // Close Action when close button is pressed
         window.setOnCloseRequest(e -> {
@@ -699,7 +719,10 @@ public final class Terminal
                 @Override
                 public void focusPrevious()
                 {
-                    input.requestFocus();
+                    if (!input.isDisable())
+                        input.requestFocus();
+                    else
+                        text.requestFocusAndShowCaret();
                 }
 
                 @Override
