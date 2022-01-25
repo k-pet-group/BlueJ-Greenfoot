@@ -909,6 +909,7 @@ collect.status.optedout=You are currently not participating in the anonymous res
 about.version=$APPNAME version
 about.java.version=Java version
 about.vm=Virtual machine:
+about.javafx=JavaFX version:
 about.runningOn=Running on:
 about.logfile=Debug log file:
 about.moreInformation=For more information, see

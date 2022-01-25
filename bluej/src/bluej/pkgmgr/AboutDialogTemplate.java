@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -135,6 +135,8 @@ public class AboutDialogTemplate extends Dialog<Void>
                 System.getProperty("java.vm.name") + " " +
                 System.getProperty("java.vm.version") +
                 " (" + System.getProperty("java.vm.vendor") + ")"));
+        bottom.getChildren().add(new Label(Config.getString("about.javafx") + " " +
+            System.getProperty("javafx.runtime.version")));
         bottom.getChildren().add(new Label(Config.getString("about.runningOn") + " " +
                 System.getProperty("os.name") + " " + System.getProperty("os.version") +
                 " (" + System.getProperty("os.arch") + ")"));

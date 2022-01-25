@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,6 +37,7 @@ import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.ValueCollection;
 import bluej.parser.TextAnalyzer;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.PkgMgrFrame.PkgMgrPane;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
@@ -111,7 +112,7 @@ import java.util.stream.Collectors;
  */
 @OnThread(Tag.FXPlatform)
 public class CodePad extends VBox
-    implements ValueCollection, PkgMgrFrame.PkgMgrPane
+    implements ValueCollection
 {
     /**
      * The list view containing all the history items:
@@ -1040,9 +1041,14 @@ public class CodePad extends VBox
         }
     }
 
-    public void focusInputField()
+    public PkgMgrPane getHistoryPane()
     {
-        inputField.requestFocus();
+        return () -> historyView;
+    }
+
+    public PkgMgrPane getInputFieldPane()
+    {
+        return () -> inputField;
     }
 
     @OnThread(Tag.Any)
