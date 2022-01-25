@@ -107,6 +107,7 @@ import threadchecker.Tag;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -1991,7 +1992,9 @@ public class PkgMgrFrame
                 "Marion Zalk",
         };
 
-        Image image = new Image(Boot.class.getResource("gen-bluej-splash.png").toString());
+        // This can URL be null in development:
+        URL splashImageURL = Boot.class.getResource("gen-bluej-splash.png");
+        Image image = splashImageURL == null ? null : new Image(splashImageURL.toString());
         if (aboutDialog == null)
         {
             aboutDialog = new AboutDialogTemplate(getWindow().getOwner(), Boot.BLUEJ_VERSION,
