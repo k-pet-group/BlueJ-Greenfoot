@@ -3278,7 +3278,8 @@ public class PkgMgrFrame
             if ((e.getCode() == KeyCode.TAB && e.isControlDown()) || e.getCode() == KeyCode.F6)
             {
                 // Maps each pane to an action that tries to focus it, and returns true if
-                // the focus was possible, false if it was not:
+                // the focus was possible, false if it was not.  We generate it dynamically
+                // because the codePad field is only non-null while the codePad is visible:
                 LinkedHashMap<PkgMgrPane, Supplier<Boolean>> panes = new LinkedHashMap<>();
                 panes.put(editor, this::tryFocusClassDiagram);
                 panes.put(objbench, this::tryFocusObjBench);
