@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2016,2017,2019,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -308,11 +308,11 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         if (info == null)
             showError(Config.getString("pkgmgr.newClass.error.noType"), false);
         else if (((RadioButton)selectedToggle).isDisabled() || !info.sourceTypes.contains(sourceType))
-            showError(Config.getString("pkgmgr.newClass.error.typeNotAvailable", null,  localProperties), false);
+            showError(Config.getString("pkgmgr.newClass.error.typeNotAvailable", null,  localProperties, false), false);
         else if (!JavaNames.isIdentifier(newClassName))
         {
             if (fieldHasHadContent || force)
-                showError(Config.getString("pkgmgr.newClass.error.notValidClassName", null,  localProperties), true);
+                showError(Config.getString("pkgmgr.newClass.error.notValidClassName", null,  localProperties, false), true);
         }
         else if (isWindowsRestrictedWord(newClassName))
         {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -946,13 +946,18 @@ public final class Config
         return getString(strname, strname);
     }
     
+    public static String getMenuString(String strname)
+    {
+        return getString(strname, strname, null, true);
+    }
+    
     /**
      * Get a string from the language dependent definitions file
      * (eg. "english/labels"). If not found, return default.
      */
     public static String getString(String strname, String def)
     {
-        return getString(strname, def, null);
+        return getString(strname, def, null, false);
     }
 
     /**
@@ -960,7 +965,7 @@ public final class Config
      * (eg. "english/labels"), replacing local variables.
      * If not found, return default.
      */
-    public static String getString(String strname, String def, Properties variables)
+    public static String getString(String strname, String def, Properties variables, boolean retainUnderscores)
     {
         if (langVarProps == null) {
             langVarProps = new Properties();
@@ -972,11 +977,15 @@ public final class Config
         String str = langProps == null ? def : langProps.getProperty(strname, def);
         if (str != null)
         {
-            // remove all underscores
-            while ((index = str.indexOf('_')) != -1)
+            if (!retainUnderscores)
             {
-                str = str.substring(0, index) + str.substring(index + 1);
+                // remove all underscores
+                while ((index = str.indexOf('_')) != -1)
+                {
+                    str = str.substring(0, index) + str.substring(index + 1);
+                }
             }
+            
             if ((index = str.indexOf('@')) != -1)
             {
                 //remove everything from @
@@ -994,27 +1003,6 @@ public final class Config
         }
 
         return str;
-    }
-    
-    /**
-     * Get the mnemonic key for a particular label by looking for an underscore
-     * and using the character right after the underscore as the mnemonic key.
-     * 
-     * @param strname The label name
-     * @return Mnemonic or KeyEvent.VK_UNDEFINED if none found.
-     */
-    public static int getMnemonicKey(String strname)
-    {
-        int mnemonic;
-        String str = langProps.getProperty(strname, strname);
-        int index = str.indexOf('_');
-        if (index == -1 || (index + 1) >= str.length()) {
-            mnemonic = KeyEvent.VK_UNDEFINED;
-        }
-        else {
-            mnemonic = str.codePointAt(index + 1);
-        }
-        return mnemonic;
     }
     
     /**
