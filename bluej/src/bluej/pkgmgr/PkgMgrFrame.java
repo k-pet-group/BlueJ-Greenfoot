@@ -67,9 +67,7 @@ import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.animation.*;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
-import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -107,11 +105,14 @@ import threadchecker.Tag;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 /**
  * The main user interface frame which allows editing of packages
@@ -1991,7 +1992,9 @@ public class PkgMgrFrame
                 "Marion Zalk",
         };
 
-        Image image = new Image(Boot.class.getResource("gen-bluej-splash.png").toString());
+        // This can URL be null in development:
+        URL splashImageURL = Boot.class.getResource("gen-bluej-splash.png");
+        Image image = splashImageURL == null ? null : new Image(splashImageURL.toString());
         if (aboutDialog == null)
         {
             aboutDialog = new AboutDialogTemplate(getWindow().getOwner(), Boot.BLUEJ_VERSION,
@@ -2650,11 +2653,12 @@ public class PkgMgrFrame
             if (codePad == null)
             {
                 codePad = new CodePad(this, bottomOverlay);
-                addCtrlTabShortcut(codePad);
+                addCtrlTabShortcut(codePad.getInputFieldPane());
+                addCtrlTabShortcut(codePad.getHistoryPane());
                 CodePad cpFinal = codePad;
                 itemsToDisable.add(cpFinal);
                 bottomPane.getItems().add(codePad);
-                codePad.focusInputField();
+                codePad.getInputFieldPane().getPkgMgrPaneNode().requestFocus();
             }
             codePad.setDisable(isEmptyFrame());
         }
@@ -3267,50 +3271,60 @@ public class PkgMgrFrame
      * Adds shortcuts for Ctrl-TAB and Ctrl-Shift-TAB to the given pane, which move to the
      * next/previous pane of the main three (package editor, object bench, code pad) that are visible
      */
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     private void addCtrlTabShortcut(final PkgMgrPane srcPane)
     {
-        srcPane.asNode().addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+        srcPane.getPkgMgrPaneNode().addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if ((e.getCode() == KeyCode.TAB && e.isControlDown()) || e.getCode() == KeyCode.F6)
             {
-                if (!e.isShiftDown())
+                // Maps each pane to an action that tries to focus it, and returns true if
+                // the focus was possible, false if it was not.  We generate it dynamically
+                // because the codePad field is only non-null while the codePad is visible:
+                LinkedHashMap<PkgMgrPane, Supplier<Boolean>> panes = new LinkedHashMap<>();
+                panes.put(editor, this::tryFocusClassDiagram);
+                panes.put(objbench, this::tryFocusObjBench);
+                if (codePad != null)
                 {
-                    // Try to focus next pane.
-                    if (srcPane == editor)
+                    panes.put(codePad.getHistoryPane(), () -> tryFocusCodePad(false));
+                    panes.put(codePad.getInputFieldPane(), () -> tryFocusCodePad(true));
+                }
+                
+                ArrayList<Entry<PkgMgrPane, Supplier<Boolean>>> indexed = new ArrayList<>(panes.entrySet());
+                
+                int currentFocused = Utility.findIndex(indexed, en -> en.getKey().getPkgMgrPaneNode() == srcPane.getPkgMgrPaneNode());
+                
+                if (currentFocused == -1)
+                {
+                    // Just try and focus the first thing we can:
+                    for (Entry<PkgMgrPane, Supplier<Boolean>> en : indexed)
                     {
-                        if (!tryFocusObjBench())
-                            tryFocusCodePad();
-                        // If codepad can't be focused, do nothing
-
-                    }
-                    else if (srcPane == objbench)
-                    {
-                        if (!tryFocusCodePad())
-                            tryFocusClassDiagram();
-                    }
-                    else
-                    {
-                        if (!tryFocusClassDiagram())
-                            tryFocusObjBench();
+                        if (en.getValue().get())
+                            break;
                     }
                 }
                 else
                 {
-                    // Try to focus prev pane
-                    if (srcPane == editor)
+                    if (!e.isShiftDown())
                     {
-                        if (!tryFocusCodePad())
-                            tryFocusObjBench();
-                    }
-                    else if (srcPane == objbench)
-                    {
-                        if (!tryFocusClassDiagram())
-                            tryFocusCodePad();
+                        // Try to focus next pane.
+                        // Important to use != here, not <=, as we'll cycle round: 
+                        for (int i = (currentFocused + 1) % indexed.size(); i != currentFocused; i = (i + 1) % indexed.size())
+                        {
+                            if (indexed.get(i).getValue().get())
+                                break;
+                        }
                     }
                     else
                     {
-                        if (!tryFocusObjBench())
-                            tryFocusClassDiagram();
+                        // Try to focus prev pane
+                        // Important to use != here, not <=, as we'll cycle round:
+                        // We have to + indexed.size() when doing modulo with negative numbers as e.g. with 5 items, -1 % 5 is -1,
+                        // but if we add 5 then (-1 + 5) % 5 = 4 which is what we want.
+                        for (int i = (currentFocused - 1 + indexed.size()) % indexed.size(); i != currentFocused; i = (i - 1 + indexed.size()) % indexed.size())
+                        {
+                            if (indexed.get(i).getValue().get())
+                                break;
+                        }
                     }
                 }
                 e.consume();
@@ -3329,13 +3343,21 @@ public class PkgMgrFrame
     }
 
     @OnThread(Tag.FXPlatform)
-    private boolean tryFocusCodePad()
+    private boolean tryFocusCodePad(boolean inputField)
     {
         if (codePad != null)
         {
-            if (!codePad.isDisabled())
+            if (inputField)
             {
-                codePad.focusInputField();
+                if (!codePad.isDisabled())
+                {
+                    codePad.getInputFieldPane().getPkgMgrPaneNode().requestFocus();
+                    return true;
+                }
+            }
+            else
+            {
+                codePad.getHistoryPane().getPkgMgrPaneNode().requestFocus();
                 return true;
             }
         }
@@ -3459,10 +3481,10 @@ public class PkgMgrFrame
         return pkg;
     }
 
-    // Used as a way to tag the three main panes in the PkgMgrFrame window
+    // Used as a way to tag the main panes in the PkgMgrFrame window
     public static interface PkgMgrPane
     {
-        @OnThread(Tag.FX)
-        public default Node asNode() { return (Node)this;}
+        @OnThread(Tag.FXPlatform)
+        public Node getPkgMgrPaneNode();
     }
 }

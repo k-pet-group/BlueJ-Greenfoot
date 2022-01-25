@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2018,2021  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2018,2021,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.TilePane;
 
@@ -625,5 +626,11 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         {
             wrapper.setHighlight(currentObject != null && Objects.equals(wrapper.obj, currentObject));
         }
+    }
+
+    @Override
+    public Node getPkgMgrPaneNode()
+    {
+        return this;
     }
 }
