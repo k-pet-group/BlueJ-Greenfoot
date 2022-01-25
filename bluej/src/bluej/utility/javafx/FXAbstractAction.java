@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 1999-2009,2015,2016,2017,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2019,2020,2022  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -51,7 +51,7 @@ import java.util.Objects;
 @OnThread(Tag.FXPlatform)
 public abstract class FXAbstractAction
 {
-    private String name;
+    private final String name;
 
     private boolean hasMenuItem = false;
     private final BooleanProperty unavailable = new SimpleBooleanProperty(false);
@@ -229,14 +229,5 @@ public abstract class FXAbstractAction
     public boolean hasMenuItemWithAccelerator(KeyCombination shortcut)
     {
         return hasMenuItem && Objects.equals(accelerator.get(), shortcut);
-    }
-
-    /**
-     * changes the name of the action.
-     * @param name the new name to be assigned
-     */
-    public void setName(String name)
-    {
-        this.name = name;
     }
 }
