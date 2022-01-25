@@ -42,6 +42,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import org.fxmisc.wellbehaved.event.InputHandler.Result;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
@@ -154,7 +155,7 @@ public abstract class BaseEditorPane extends Region
 
 
         Nodes.addInputMap(this, InputMap.sequence(
-            InputMap.consume(KeyEvent.KEY_PRESSED, this::keyPressed),
+            InputMap.process(KeyEvent.KEY_PRESSED, e -> {keyPressed(e); return Result.PROCEED;}),
             InputMap.consume(KeyEvent.KEY_TYPED, this::keyTyped),
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
             InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged),
