@@ -43,6 +43,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Utility;
 import bluej.utility.javafx.AbstractOperation;
+import bluej.utility.javafx.AbstractOperation.Combine;
 import bluej.utility.javafx.AbstractOperation.ContextualItem;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -260,10 +261,12 @@ public class CodePad extends VBox
         private final ImageView graphic;
         private Path arrow;
         private FXPlatformRunnable cancelAddToBench;
+        private final ObjectInfo objInfo;
 
         public OutputSuccessRow(String text, ObjectInfo objInfo)
         {
             super(text);
+            this.objInfo = objInfo;
             if (objInfo != null)
             {
                 graphic = new ImageView(objectImage);
@@ -293,9 +296,7 @@ public class CodePad extends VBox
                         // single-click transfer will be cancelled in favour of the double-click
                         // inspect.
                         cancelAddToBench = JavaFXUtil.runAfter(Duration.millis(500), () -> JavaFXUtil.runAfterCurrent(() -> {
-                            Stage fxWindow = frame.getWindow();
-                            Point2D from = graphic.localToScene(new Point2D(0.0, 0.0));
-                            frame.getPackage().getEditor().raisePutOnBenchEvent(fxWindow, objInfo.obj, objInfo.obj.getGenType(), objInfo.ir, true, Optional.of(from));
+                            addResultToBench();
                             cancelAddToBench = null;
                         }));
                         e.consume();
@@ -308,11 +309,7 @@ public class CodePad extends VBox
                             cancelAddToBench.run();
                             cancelAddToBench = null;
                         }
-                        Project project = frame.getProject();
-                        if (project != null)
-                        {
-                            project.getInspectorInstance(objInfo.obj, "", frame.getPackage(), objInfo.ir, frame.getWindow(), graphic).bringToFront();
-                        }
+                        inspectResult();
                         e.consume();
                     }
                 });
@@ -348,6 +345,22 @@ public class CodePad extends VBox
                 graphic = null;
         }
 
+        private void inspectResult()
+        {
+            Project project = frame.getProject();
+            if (project != null)
+            {
+                project.getInspectorInstance(objInfo.obj, "", frame.getPackage(), objInfo.ir, frame.getWindow(), graphic).bringToFront();
+            }
+        }
+
+        private void addResultToBench()
+        {
+            Stage fxWindow = frame.getWindow();
+            Point2D from = graphic.localToScene(new Point2D(0.0, 0.0));
+            frame.getPackage().getEditor().raisePutOnBenchEvent(fxWindow, objInfo.obj, objInfo.obj.getGenType(), objInfo.ir, true, Optional.of(from));
+        }
+
         // Graphic is an object icon if applicable, otherwise
         // we use the invisible spacer from the parent:
         @Override
@@ -360,6 +373,60 @@ public class CodePad extends VBox
         public RowStyle getStyle()
         {
             return RowStyle.OUTPUT;
+        }
+
+        @Override
+        public List<? extends AbstractOperation<HistoryRow>> getContextOperations()
+        {
+            ArrayList<AbstractOperation<HistoryRow>> ops = new ArrayList<>(super.getContextOperations());
+            if (objInfo != null)
+            {
+                ops.add(new AbstractOperation<HistoryRow>("addtobench", Combine.ONE, null)
+                {
+                    @Override
+                    public void activate(List<HistoryRow> historyRows)
+                    {
+                        for (HistoryRow historyRow : historyRows)
+                        {
+                            if (historyRow instanceof OutputSuccessRow)
+                            {
+                                OutputSuccessRow o = (OutputSuccessRow) historyRow;
+                                if (o.objInfo != null)
+                                    o.addResultToBench();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public List<ItemLabel> getLabels()
+                    {
+                        return List.of(new ItemLabel(new ReadOnlyStringWrapper(Config.getString("codepad.addToBench")), MenuItemOrder.CODEPAD_ADD_TO_BENCH));
+                    }
+                });
+                ops.add(new AbstractOperation<HistoryRow>("inspect", Combine.ONE, null)
+                {
+                    @Override
+                    public void activate(List<HistoryRow> historyRows)
+                    {
+                        for (HistoryRow historyRow : historyRows)
+                        {
+                            if (historyRow instanceof OutputSuccessRow)
+                            {
+                                OutputSuccessRow o = (OutputSuccessRow) historyRow;
+                                if (o.objInfo != null)
+                                    o.inspectResult();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public List<ItemLabel> getLabels()
+                    {
+                        return List.of(new ItemLabel(new ReadOnlyStringWrapper(Config.getString("codepad.inspect")), MenuItemOrder.CODEPAD_INSPECT));
+                    }
+                });
+            }
+            return ops;
         }
     }
 
@@ -1146,7 +1213,7 @@ public class CodePad extends VBox
         @Override
         public List<ItemLabel> getLabels()
         {
-            return List.of(new ItemLabel(new ReadOnlyStringWrapper(Config.getString("editor.copyLabel")), MenuItemOrder.COPY));
+            return List.of(new ItemLabel(new ReadOnlyStringWrapper(Config.getString("editor.copyLabel")), MenuItemOrder.CODEPAD_COPY));
         }
     }
 
@@ -1167,7 +1234,7 @@ public class CodePad extends VBox
         @Override
         public List<ItemLabel> getLabels()
         {
-            return List.of(new ItemLabel(new ReadOnlyStringWrapper(Config.getString("codepad.clear")), MenuItemOrder.DELETE));
+            return List.of(new ItemLabel(new ReadOnlyStringWrapper(Config.getString("codepad.clear")), MenuItemOrder.CODEPAD_CLEAR));
         }
     }
 
@@ -1187,7 +1254,7 @@ public class CodePad extends VBox
         @Override
         public List<ItemLabel> getLabels()
         {
-            return List.of(new ItemLabel(new ReadOnlyStringWrapper(Config.getString("codepad.selectAll")), MenuItemOrder.SELECT_ALL));
+            return List.of(new ItemLabel(new ReadOnlyStringWrapper(Config.getString("codepad.selectAll")), MenuItemOrder.CODEPAD_SELECT_ALL));
         }
     }
 }

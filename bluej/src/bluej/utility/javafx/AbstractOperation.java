@@ -307,7 +307,15 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         BENCH_TO_FIXTURE(130),
         FIXTURE_TO_BENCH(130),
         NEW_SUBCLASS(140),
-        CREATE_TEST(140),;
+        CREATE_TEST(140),
+        
+        
+        CODEPAD_COPY (200),
+        CODEPAD_INSPECT(210),
+        CODEPAD_ADD_TO_BENCH(210),
+        CODEPAD_CLEAR(220),
+        CODEPAD_SELECT_ALL(220)
+        ;
 
         private final int block;
 
