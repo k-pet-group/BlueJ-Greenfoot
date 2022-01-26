@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2020,2021 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2020,2021,2022 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -286,6 +286,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         RECENT_VALUES(20),
         CUT(30), COPY(30), PASTE(30),
         DELETE(40), ENABLE_FRAME(40), DISABLE_FRAME(40),
+        SELECT_ALL(50),
         INSERT_FRAME(60),
         TRANSFORM(70), TOGGLE_BOOLEAN(70), TOGGLE_ABSTRACT(70), TOGGLE_EXTENDS(70), TOGGLE_IMPLEMENTS(70), OVERRIDE(70),
         GOTO_DEFINITION(80), GOTO_OVERRIDE(80), SHOW_HIDE_USES(80),
@@ -577,6 +578,11 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
             menu.onShowingProperty().set(e -> onShowing());
             menu.onHiddenProperty().set(e -> onHidden());
             return menu;
+        }
+
+        public ContextMenu makeContextMenu()
+        {
+            return makeContextMenu(List.of(this));
         }
         
         public static <T extends Comparable<T>> ContextMenu makeContextMenu(Map<T, MenuItems> allItems)
