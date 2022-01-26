@@ -186,6 +186,7 @@ public class CodePad extends VBox
         public abstract RowStyle getStyle();
 
         @Override
+        @OnThread(Tag.FXPlatform)
         public List<? extends AbstractOperation<HistoryRow>> getContextOperations()
         {
             return List.of(new CopyOperation(), new ClearOperation(), new SelectAllOperation());
@@ -345,6 +346,7 @@ public class CodePad extends VBox
                 graphic = null;
         }
 
+        @OnThread(Tag.FXPlatform)
         private void inspectResult()
         {
             Project project = frame.getProject();
@@ -354,6 +356,7 @@ public class CodePad extends VBox
             }
         }
 
+        @OnThread(Tag.FXPlatform)
         private void addResultToBench()
         {
             Stage fxWindow = frame.getWindow();
@@ -376,6 +379,7 @@ public class CodePad extends VBox
         }
 
         @Override
+        @OnThread(Tag.FXPlatform)
         public List<? extends AbstractOperation<HistoryRow>> getContextOperations()
         {
             ArrayList<AbstractOperation<HistoryRow>> ops = new ArrayList<>(super.getContextOperations());
