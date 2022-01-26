@@ -540,6 +540,16 @@ public class CodePad extends VBox
             showContextMenu(e.getScreenX(), e.getScreenY());
         });
         
+        // Allow "clicking off" the context menu (clicking back on the codepad history) to dismiss it.
+        historyView.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+            if (e.getButton() == MouseButton.PRIMARY && contextMenu != null)
+            {
+                contextMenu.hide();
+                contextMenu = null;
+                // Do not consume the event, still let it select.
+            }
+        });
+        
         // Add keyboard shortcut ourselves:
         historyView.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.C && e.isShortcutDown())
