@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2017,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2016,2017,2021,2022 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -227,14 +227,14 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         localProperties.put("CAPTION", caption);
         paramName = new ClassNameDefTextSlot(editor, this, getHeaderRow(), stylePrefix + "name-");
         paramName.addValueListener(SlotTraversalChars.IDENTIFIER);
-        paramName.setPromptText(Config.getString("frame.editor.param.prompt", null, localProperties));
+        paramName.setPromptText(Config.getString("frame.editor.param.prompt", null, localProperties, false));
         paramName.setText(topLevelFrameName);
 
         //Documentation
         localProperties.put("CLASSNAME", paramName.textProperty().get());
         setDocumentation(documentation.toString());
         documentationPromptTextProperty().bind(new SimpleStringProperty(
-                Config.getString("frame.editor.toplevel.doc.prompt", null, localProperties)));
+                Config.getString("frame.editor.toplevel.doc.prompt", null, localProperties, false)));
 
         this.fieldsCanvas = new FrameCanvas(editor, this, stylePrefix + "fields-");
         fieldsLabelRow = new FrameContentRow(this, fieldsLabel);

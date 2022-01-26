@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017,2019,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -59,7 +59,7 @@ public abstract class PkgMgrAction extends FXAbstractAction
 
     public PkgMgrAction(PkgMgrFrame pmf, String s, boolean showsDialog)
     {
-        super(Config.getString(s) + (showsDialog ? "..." : ""), Config.getAcceleratorKeyFX(s));
+        super(Config.getString(s) + (showsDialog ? "..." : ""), Config.getMenuString(s) + (showsDialog ? "..." : ""), Config.getAcceleratorKeyFX(s));
         this.pmf = pmf;
     }
 
@@ -72,7 +72,7 @@ public abstract class PkgMgrAction extends FXAbstractAction
      */
     public PkgMgrAction(PkgMgrFrame pmf, String s, KeyCode keycode)
     {
-        super(Config.getString(s), new KeyCodeCombination(keycode, KeyCombination.SHORTCUT_DOWN));
+        super(Config.getString(s), Config.getMenuString(s), new KeyCodeCombination(keycode, KeyCombination.SHORTCUT_DOWN));
         this.pmf = pmf;
     }
 
@@ -84,7 +84,7 @@ public abstract class PkgMgrAction extends FXAbstractAction
      */
     public PkgMgrAction(PkgMgrFrame pmf, String s, KeyCode keycode, Modifier modifiers)
     {
-        super(Config.getString(s), new KeyCodeCombination(keycode, modifiers));
+        super(Config.getString(s), Config.getMenuString(s), new KeyCodeCombination(keycode, modifiers));
         this.pmf = pmf;
     }
     

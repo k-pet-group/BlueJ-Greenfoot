@@ -2990,11 +2990,11 @@ public class PkgMgrFrame
     private void setupMenus() {
         MenuBar menubar = new MenuBar();
         {
-            Menu menu = new Menu(Config.getString("menu.package"));
+            Menu menu = new Menu(Config.getMenuString("menu.package"));
             menubar.getMenus().add(menu);
             menu.getItems().add(new NewProjectAction(this).makeMenuItem());
             menu.getItems().add(new OpenProjectAction(this).makeMenuItem());
-            recentProjectsMenu = new Menu(Config.getString("menu.package.openRecent"));
+            recentProjectsMenu = new Menu(Config.getMenuString("menu.package.openRecent"));
             recentProjectsMenu.setOnShowing(e -> updateRecentProjects());
             // Must update once now or else menu is empty, in which case the on-showing
             // action never gets triggered:
@@ -3021,7 +3021,7 @@ public class PkgMgrFrame
         }
 
         {
-            Menu menu = new Menu(Config.getString("menu.edit"));
+            Menu menu = new Menu(Config.getMenuString("menu.edit"));
             menubar.getMenus().add(menu);
             menu.getItems().add(newClassAction.makeMenuItem());
             menu.getItems().add(newPackageAction.makeMenuItem());
@@ -3035,7 +3035,7 @@ public class PkgMgrFrame
 
         ExtensionsManager extMgr = ExtensionsManager.getInstance();
         {
-            Menu toolsMenu = new Menu(Config.getString("menu.tools"));
+            Menu toolsMenu = new Menu(Config.getMenuString("menu.tools"));
             toolsMenuManager.set(new ExtensionsMenuManager(toolsMenu, extMgr, null));
 
             toolsMenu.getItems().add(compileAction.makeMenuItem());
@@ -3108,7 +3108,7 @@ public class PkgMgrFrame
             menubar.getMenus().add(toolsMenu);
         }
         {
-            Menu extensionsMenu = new Menu(Config.getString("menu.view"));
+            Menu extensionsMenu = new Menu(Config.getMenuString("menu.view"));
             CheckMenuItem item = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showUses"), showUsesProperty, null);
             extensionsMenu.getItems().add(item);
             menuItemsToDisable.add(item);
@@ -3130,7 +3130,7 @@ public class PkgMgrFrame
         }
 
         {
-            Menu menu = new Menu(Config.getString("menu.help"));
+            Menu menu = new Menu(Config.getMenuString("menu.help"));
             if (!Config.isMacOS()) // no "About" here for Mac
             {
                 menu.getItems().add(new HelpAboutAction(this).makeMenuItem());

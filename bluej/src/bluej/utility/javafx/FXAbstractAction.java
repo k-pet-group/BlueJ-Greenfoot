@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 1999-2009,2015,2016,2017,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2019,2020,2022  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -51,7 +51,8 @@ import java.util.Objects;
 @OnThread(Tag.FXPlatform)
 public abstract class FXAbstractAction
 {
-    private String name;
+    private final String name;
+    private final String menuText;
 
     private boolean hasMenuItem = false;
     private final BooleanProperty unavailable = new SimpleBooleanProperty(false);
@@ -63,12 +64,13 @@ public abstract class FXAbstractAction
 
     protected FXAbstractAction(String name)
     {
-        this(name, (KeyCombination)null);
+        this(name, name, (KeyCombination)null);
     }
 
-    protected FXAbstractAction(String name, KeyCombination accelerator)
+    protected FXAbstractAction(String name, String menuText, KeyCombination accelerator)
     {
         this.name = name;
+        this.menuText = menuText;
         this.accelerator = new SimpleObjectProperty<>(accelerator);
         this.buttonGraphic = null;
     }
@@ -76,6 +78,7 @@ public abstract class FXAbstractAction
     protected FXAbstractAction(String name, Node buttonGraphic)
     {
         this.name = name;
+        this.menuText = name;
         this.accelerator = new SimpleObjectProperty<>(null);
         this.buttonGraphic = buttonGraphic;
     }
@@ -151,7 +154,7 @@ public abstract class FXAbstractAction
      */
     public MenuItem makeMenuItem()
     {
-        MenuItem menuItem = new MenuItem(name);
+        MenuItem menuItem = new MenuItem(menuText);
         prepareMenuItem(menuItem);
         return menuItem;
     }
@@ -181,7 +184,7 @@ public abstract class FXAbstractAction
      */
     public MenuItem makeContextMenuItem(String nameOverride)
     {
-        MenuItem menuItem = new MenuItem(nameOverride != null ? nameOverride : name);
+        MenuItem menuItem = new MenuItem(nameOverride != null ? nameOverride : menuText);
         setMenuActionAndDisable(menuItem, true);
         return menuItem;
     }
@@ -229,14 +232,5 @@ public abstract class FXAbstractAction
     public boolean hasMenuItemWithAccelerator(KeyCombination shortcut)
     {
         return hasMenuItem && Objects.equals(accelerator.get(), shortcut);
-    }
-
-    /**
-     * changes the name of the action.
-     * @param name the new name to be assigned
-     */
-    public void setName(String name)
-    {
-        this.name = name;
     }
 }
