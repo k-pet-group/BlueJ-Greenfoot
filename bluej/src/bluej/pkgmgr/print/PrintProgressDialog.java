@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -163,7 +163,7 @@ public class PrintProgressDialog extends Dialog<Boolean>
         Properties p = new Properties();
         p.put("cur", "" + cur);
         p.put("total", "" + total);
-        return Config.getString(labelKey, null, p);
+        return Config.getString(labelKey, null, p, false);
     }
 
     /**

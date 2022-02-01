@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2013,2014,2015,2016,2018,2019  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2013,2014,2015,2016,2018,2019,2022  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -169,7 +169,7 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         if (!JavaNames.isIdentifier(newClassName))
         {
             if (fieldHasHadContent || force)
-                showError(Config.getString("pkgmgr.newClass.error.notValidClassName", null,  localProperties), true);
+                showError(Config.getString("pkgmgr.newClass.error.notValidClassName", null,  localProperties, false), true);
         }
         else if (isWindowsRestrictedWord(newClassName))
         {
