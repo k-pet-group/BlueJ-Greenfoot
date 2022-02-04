@@ -154,7 +154,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
                 return lineDisplay.getBoundsForRange(document, (Integer)objects[0], (Integer)objects[1]);
             case OFFSET_AT_POINT:
                 Point2D screenPoint = (Point2D)objects[0];
-                return getCaretPositionForLocalPoint(screenToLocal(screenPoint));
+                return getCaretPositionForLocalPoint(screenToLocal(screenPoint)).map(p -> p.getPosition()).orElse(0);
             case HELP:
                 String err = listener.getErrorAtPosition(caret.position);
                 if (err != null)
