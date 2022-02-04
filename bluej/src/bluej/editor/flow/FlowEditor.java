@@ -185,7 +185,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private CompileType requeueType;
     private final Info info;
     private final StatusLabel saveState;          // the status label
-    private FlowErrorManager errorManager = new FlowErrorManager(this, enable -> {});
+    private FlowErrorManager errorManager = new FlowErrorManager(this);
     private FXTabbedEditor fxTabbedEditor;
     private boolean mayHaveBreakpoints;
     private final BooleanProperty compiledProperty = new SimpleBooleanProperty(true);
@@ -2113,7 +2113,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             removeSearchHighlights();
             currentSearchResult.setValue(null);
             removeErrorHighlights();
-            errorManager.documentContentChanged();
             showErrorOverlay(null, 0);
         });
         actions.userAction();
