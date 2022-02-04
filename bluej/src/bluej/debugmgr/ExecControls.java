@@ -929,6 +929,7 @@ public class ExecControls
                 name.setText("");
                 value.setText("");
                 fetchObject.set(null);
+                setAccessibleText("");
             }
             else
             {
@@ -937,6 +938,7 @@ public class ExecControls
                 name.setText(item.getName());
                 value.setText(item.getValue());
                 fetchObject.set(item.getFetchObject());
+                setAccessibleText(item.getAccess() + " " + item.getType() + " " + item.getName() + " = " + item.getValue());
             }
         }
     }
