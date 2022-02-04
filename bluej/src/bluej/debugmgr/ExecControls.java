@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -233,12 +233,13 @@ public class ExecControls
 
     }
 
-    private static Node labelled(Node content, String title)
+    private static Node labelled(Control content, String title)
     {
         Label titleLabel = new Label(title);
         JavaFXUtil.addStyleClass(titleLabel, "debugger-section-title");
         BorderPane borderPane = new BorderPane(content, titleLabel, null, null, null);
         JavaFXUtil.addStyleClass(borderPane, "debugger-section");
+        content.setAccessibleText(title);
         return borderPane;
     }
 
