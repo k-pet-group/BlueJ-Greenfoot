@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,6 @@ import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
-import bluej.debugger.gentype.GenTypeClass;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.base.BackgroundItem;
@@ -105,6 +104,7 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
@@ -117,8 +117,10 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -177,6 +179,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     
     private final boolean sourceIsCode;           // true if current buffer is code
     private final List<Menu> fxMenus;
+    private final ListView<ErrorDetails> errorList;
+    private final BorderPane errorListPane;
     private boolean compilationStarted;
     private boolean requeueForCompilation;
     private boolean compilationQueued;
@@ -439,6 +443,64 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         interfaceToggle.setDisable(!sourceIsCode);
         Region toolbar = createToolbar(interfaceToggle.heightProperty());
         setTop(JavaFXUtil.withStyleClass(new BorderPane(toolbar, null, interfaceToggle, null, null), "flow-top-bar"));
+        errorList = new ListView<>(errorManager.getObservableErrorList());
+        errorListPane = new BorderPane(errorList);
+        errorList.setCellFactory(lv -> new ListCell<>() {
+            {
+                setOnMouseClicked(e -> {
+                    if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY)
+                    {
+                        ErrorDetails err = getItem();
+                        errorList.getSelectionModel().select(err);
+                        flowEditorPane.positionCaret(err.startPos);
+                        flowEditorPane.requestFocus();
+                        e.consume();
+                    }
+                });
+            }
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            protected void updateItem(ErrorDetails item, boolean empty)
+            {
+                super.updateItem(item, empty);
+                if (empty || item == null)
+                    setText(null);
+                else
+                    setText(document.getLineFromPosition(item.startPos) + ": " + item.message);
+            }
+        });
+        errorList.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ENTER)
+            {
+                ErrorDetails err = errorList.getSelectionModel().getSelectedItem();
+                if (err != null)
+                {
+                    flowEditorPane.positionCaret(err.startPos);
+                    flowEditorPane.requestFocus();
+                }
+                e.consume();
+            }
+            else if (e.getCode() == KeyCode.ESCAPE)
+            {
+                errorListPane.setVisible(false);
+                errorListPane.setManaged(false);
+                flowEditorPane.requestFocus();
+                e.consume();
+            }
+        });
+        errorListPane.setTop(new Label("Errors"));
+        errorListPane.setPadding(new Insets(3));
+        setRight(errorListPane);
+        errorList.getItems().addListener((ListChangeListener<? super ErrorDetails>) c -> {
+            // Automatically hide list when no errors:
+            if (c.getList().isEmpty())
+            {
+                errorListPane.setVisible(false);
+                errorListPane.setManaged(false);
+            }
+        });
+        errorListPane.setVisible(false);
+        errorListPane.setManaged(false);
         flowEditorPane.addSelectionListener(this);
         flowEditorPane.addLineDisplayListener(new LineDisplayListener()
         {
@@ -2833,14 +2895,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         if (watcher != null) {
             if (saveState.isChanged() || !errorManager.hasErrorHighlights())
             {
-                if (! saveState.isChanged())
-                {
-                    if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
-                    {
-                        // Pop up in a dialog:
-                        DialogManager.showTextWithCopyButtonFX(getWindow(), Config.getString("pkgmgr.accessibility.compileDone"), "BlueJ");
-                    }
-                }
                 scheduleCompilation(CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
             }
             else
@@ -2852,8 +2906,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
                     if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
                     {
-                        // Pop up in a dialog:
-                        DialogManager.showTextWithCopyButtonFX(getWindow(), err.message, "BlueJ");
+                        errorListPane.setManaged(true);
+                        errorListPane.setVisible(true);
+                        errorList.getSelectionModel().select(err);
+                        errorList.requestFocus();
                     }
                 }
             }
