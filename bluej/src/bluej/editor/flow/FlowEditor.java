@@ -466,7 +466,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 if (empty || item == null)
                     setText(null);
                 else
-                    setText(document.getLineFromPosition(item.startPos) + ": " + item.message);
+                    setText("Line " + document.getLineFromPosition(item.startPos) + ": " + item.message);
             }
         });
         errorList.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
