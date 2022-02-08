@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -70,18 +70,16 @@ import static bluej.utility.JavaUtils.blankCodeCommentsAndStringLiterals;
 public class FlowErrorManager implements ErrorQuery
 {
     private final ObservableList<ErrorDetails> errorInfos = FXCollections.observableArrayList();
-    private FlowEditor editor;
-    private Consumer<Boolean> setNextErrorEnabled;
+    private final FlowEditor editor;
 
     /**
      * Construct a new FlowErrorManager to manage error display for the specified editor instance.
      * The new manager should be set as the document listener so that it receives notification
      * of parser errors as they occur.
      */
-    public FlowErrorManager(FlowEditor editor, Consumer<Boolean> setNextErrorEnabled)
+    public FlowErrorManager(FlowEditor editor)
     {
         this.editor = editor;
-        this.setNextErrorEnabled = setNextErrorEnabled;
     }
 
     /**
@@ -111,7 +109,6 @@ public class FlowErrorManager implements ErrorQuery
     private void showErrors(FlowEditor editor, FlowEditorPane sourcePane, int startPos, int endPos, String message, int identifier, Stream<AssistContentThreadSafe> imports)
     {
         errorInfos.add(new FlowErrorManager.ErrorDetails(editor, startPos, endPos, message, identifier, imports));
-        setNextErrorEnabled.accept(true);
         editor.updateHeaderHasErrors(true);
         sourcePane.repaint();
     }
@@ -126,7 +123,6 @@ public class FlowErrorManager implements ErrorQuery
         sourcePane.getDocument().removeLineAttributeThroughout(ParagraphAttribute.ERROR);
         sourcePane.hideAllErrorUnderlines();
         errorInfos.clear();
-        setNextErrorEnabled.accept(false);
         editor.updateHeaderHasErrors(false);
         sourcePane.repaint();
     }
@@ -163,14 +159,6 @@ public class FlowErrorManager implements ErrorQuery
             }
         }
         return next;
-    }
-
-    /**
-     * Notify the error manager of a change to the document.
-     */
-    public void documentContentChanged()
-    {
-        setNextErrorEnabled.accept(false);
     }
 
     /**
@@ -211,6 +199,11 @@ public class FlowErrorManager implements ErrorQuery
     public boolean hasErrorHighlights()
     {
         return !errorInfos.isEmpty();
+    }
+
+    public ObservableList<ErrorDetails> getObservableErrorList()
+    {
+        return errorInfos;
     }
 
     public static class ErrorDetails

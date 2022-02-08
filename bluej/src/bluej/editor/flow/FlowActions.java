@@ -526,11 +526,15 @@ public final class FlowActions
      */
     public static void addKeyCombinationForActionToAllEditors(KeyCodeCombination key, String actionName)
     {
-        allActions.values().forEach(flowAction -> flowAction.addKeyCombinationForAction(key, actionName));
+        allActions.values().forEach(flowAction -> {
+            flowAction.addKeyCombinationForAction(key, actionName);
+            flowAction.updateKeymap();
+        });
     }
 
     /**
      * Add a new key binding into the action table.
+     * Will not take effect until you call updateKeymap() afterwards.
      */
     private void addKeyCombinationForAction(KeyCodeCombination key, String actionName)
     {
@@ -538,7 +542,6 @@ public final class FlowActions
         if (action != null)
         {
             keymap.put(key, action);
-            updateKeymap();
         }
     }
 
@@ -638,6 +641,7 @@ public final class FlowActions
                                 ModifierValue.valueOf(split[4])
                             ), split[6]);
                     }
+                    updateKeymap();
                     return true;
                 }
                 catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e)
@@ -707,6 +711,7 @@ public final class FlowActions
                 {
                     addKeyCombinationForAction(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN), "reset-font");
                 }
+                updateKeymap();
                 return true;
             }
         }
@@ -1164,6 +1169,8 @@ public final class FlowActions
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.NUMPAD0, SHORTCUT_MASK), "reset-font"); //support of the numpad 0
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, SHIFT_SHORTCUT_MASK), "autoindent");
+        
+        updateKeymap();
     }
 
     private FlowAbstractAction action(String name, Category category, FXPlatformRunnable action)

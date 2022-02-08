@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -154,7 +154,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
                 return lineDisplay.getBoundsForRange(document, (Integer)objects[0], (Integer)objects[1]);
             case OFFSET_AT_POINT:
                 Point2D screenPoint = (Point2D)objects[0];
-                return getCaretPositionForLocalPoint(screenToLocal(screenPoint));
+                return getCaretPositionForLocalPoint(screenToLocal(screenPoint)).map(p -> p.getPosition()).orElse(0);
             case HELP:
                 String err = listener.getErrorAtPosition(caret.position);
                 if (err != null)
