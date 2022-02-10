@@ -112,6 +112,7 @@ public class GitCommitAllCommand extends GitCommand
             commit.setMessage(commitComment);
             //set name and email of the author of the commit.
             commit.setAuthor(getRepository().getYourName(), getRepository().getYourEmail());
+            commit.setCommitter(getRepository().getYourName(), getRepository().getYourEmail());
             commit.call();
         } catch (UnmergedPathException | GitAPIException ex) {
             Debug.reportError(ex.getMessage());
