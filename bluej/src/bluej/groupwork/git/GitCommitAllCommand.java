@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2018,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -112,6 +112,7 @@ public class GitCommitAllCommand extends GitCommand
             commit.setMessage(commitComment);
             //set name and email of the author of the commit.
             commit.setAuthor(getRepository().getYourName(), getRepository().getYourEmail());
+            commit.setCommitter(getRepository().getYourName(), getRepository().getYourEmail());
             commit.call();
         } catch (UnmergedPathException | GitAPIException ex) {
             Debug.reportError(ex.getMessage());
