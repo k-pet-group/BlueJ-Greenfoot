@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2020,2021,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -138,9 +138,10 @@ public interface EditorWatcher
     /**
      * Record that the given error message was shown to the user.
      * @param identifier Integer id of the error
+     * @param message The text that was shown as the error message
      * @param quickFixes The quick fixes shown with the error, if any (empty list if none)
      */
-    void recordShowErrorMessage(int identifier, List<String> quickFixes);
+    void recordShowErrorMessage(int identifier, String message, List<String> quickFixes);
 
     /**
      * Record a list of early errors that were found.

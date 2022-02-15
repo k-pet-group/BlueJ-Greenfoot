@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2014,2015,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2014,2015,2016,2017,2019,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1192,11 +1192,12 @@ public class DataCollectorImpl
         submitEvent(pkg.getProject(), pkg, EventName.SHOWN_ERROR_INDICATOR, new PlainEvent(mpe));
     }
 
-    public static void showErrorMessage(Package pkg, int errorIdentifier, List<String> quickFixes)
+    public static void showErrorMessage(Package pkg, int errorIdentifier, String message, List<String> quickFixes)
     {
         MultipartEntity mpe = new MultipartEntity();
 
         mpe.addPart("event[error_sequence]", CollectUtility.toBody(errorIdentifier));
+        mpe.addPart("event[message]", CollectUtility.toBody(message));
 
         if (quickFixes != null && !quickFixes.isEmpty())
         {

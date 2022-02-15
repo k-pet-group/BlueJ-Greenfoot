@@ -982,7 +982,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
                 if (watcher != null)
                 {
-                    watcher.recordShowErrorMessage(details.identifier, Collections.emptyList());
+                    watcher.recordShowErrorMessage(details.identifier, details.message, Collections.emptyList());
                 }
             }
         }
@@ -3743,6 +3743,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
         public ErrorDisplay(FlowEditor flowEditor, Supplier<EditorWatcher> editorWatcherSupplier, ErrorDetails details)
         {
+            super(details.identifier, details.message);
             this.details = details;
             this.editorWatcherSupplier = editorWatcherSupplier;
             this.flowEditor = flowEditor;
@@ -3796,7 +3797,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             }
 
             errorVBox.getChildren().add(tf);
-            prepareFixDisplay(errorVBox, details.corrections, editorWatcherSupplier, details.identifier);
+            prepareFixDisplay(errorVBox, details.corrections, editorWatcherSupplier);
 
             JavaFXUtil.addStyleClass(tf, "error-label");
             this.popup.setSkin(new Skin<Skinnable>()

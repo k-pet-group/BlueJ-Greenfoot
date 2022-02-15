@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,8 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.stride.generic.Frame;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -93,8 +95,13 @@ public class DataCollector
     /**
      * Keep track of which error (per-session compile error sequence ids) *messages* we have shown,
      * and thus already sent an event about.
+     * 
+     * Ideally this would be a HashMap to remember indefinitely, but it would grow indefinitely while
+     * BlueJ was open, which is not a good idea.  As a pragmatic measure, we restrict it to the most
+     * recent 1000 errors, which should be enough that we keep errors in recent editors but let old
+     * ones get GCed.
      */
-    private static final BitSet shownErrorMessages = new BitSet();
+    private static final Cache<Integer, String> shownErrorMessages = CacheBuilder.newBuilder().maximumSize(1_000).build();
 
     /**
      * Keep track of which error (per-session compile error sequence ids) *indicators* we have shown,
@@ -743,14 +750,14 @@ public class DataCollector
         };
     }
 
-    public static void showErrorMessage(Package pkg, int errorIdentifier, List<String> quickFixes)
+    public static void showErrorMessage(Package pkg, int errorIdentifier, String message, List<String> quickFixes)
     {
         if (dontSend()) return;
         // Only send an event for each error the first time it is shown:
-        if (shownErrorMessages.get(errorIdentifier))
+        if (Objects.equals(shownErrorMessages.getIfPresent(errorIdentifier), message))
             return;
-        shownErrorMessages.set(errorIdentifier);
-        DataCollectorImpl.showErrorMessage(pkg, errorIdentifier, quickFixes);
+        shownErrorMessages.put(errorIdentifier, message);
+        DataCollectorImpl.showErrorMessage(pkg, errorIdentifier, message, quickFixes);
     }
 
     public static void fixExecuted(Package aPackage, int errorIdentifier, int fixIndex)
