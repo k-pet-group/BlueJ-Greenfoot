@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2020,2022 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -48,7 +48,18 @@ public abstract class FixDisplayManager
 {
     protected int highlighted = -1; // Offset into the list of FixSuggestions of an error
     protected final List<FixDisplay> fixes = new ArrayList<>();
-    private int errorIdentifier;
+    private final int errorIdentifier;
+    private final String message;
+
+    /**
+     * @param errorIdentifier the identifier of the error that will be shown
+     * @param message the message of the error that will be shown
+     */
+    public FixDisplayManager(int errorIdentifier, String message)
+    {
+        this.errorIdentifier = errorIdentifier;
+        this.message = message;
+    }
 
     @OnThread(value = Tag.FX, ignoreParent = true)
     private static class FixDisplay extends HBox
@@ -90,8 +101,8 @@ public abstract class FixDisplayManager
         }
     }
 
-    protected void prepareFixDisplay(VBox vboxContainer, List<FixSuggestion> fixSuggestions, Supplier<EditorWatcher> editorWatcherSupplier, int errorIdentifier){
-        this.errorIdentifier = errorIdentifier;
+    protected void prepareFixDisplay(VBox vboxContainer, List<FixSuggestion> fixSuggestions, Supplier<EditorWatcher> editorWatcherSupplier)
+    {
         if (fixSuggestions != null)
         {
             for (FixSuggestion fix : fixSuggestions)
@@ -125,7 +136,7 @@ public abstract class FixDisplayManager
     {
         final EditorWatcher watcher = editorWatcherProvider.get();
         List<String> fixDisplayText = Utility.mapList(fixes, FixDisplay::getDisplayText);
-        watcher.recordShowErrorMessage(errorIdentifier, fixDisplayText);
+        watcher.recordShowErrorMessage(errorIdentifier, message, fixDisplayText);
     }
 
     @OnThread(Tag.FXPlatform)
