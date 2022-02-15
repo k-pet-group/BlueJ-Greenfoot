@@ -136,7 +136,7 @@ public abstract class FixDisplayManager
     {
         final EditorWatcher watcher = editorWatcherProvider.get();
         List<String> fixDisplayText = Utility.mapList(fixes, FixDisplay::getDisplayText);
-        watcher.recordShowErrorMessage(errorIdentifier, fixDisplayText);
+        watcher.recordShowErrorMessage(errorIdentifier, message, fixDisplayText);
     }
 
     @OnThread(Tag.FXPlatform)

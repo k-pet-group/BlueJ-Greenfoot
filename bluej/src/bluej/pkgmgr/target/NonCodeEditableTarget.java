@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2017,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2017,2020,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -75,7 +75,7 @@ public abstract class NonCodeEditableTarget extends EditableTarget
     public void recordSelected() { }
 
     @Override
-    public void recordShowErrorMessage(int identifier, List<String> quickFixes) { }
+    public void recordShowErrorMessage(int identifier, String message, List<String> quickFixes) { }
 
     @Override
     public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier) { }
