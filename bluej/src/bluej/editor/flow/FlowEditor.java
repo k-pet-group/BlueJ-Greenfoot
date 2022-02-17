@@ -982,7 +982,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
                 if (watcher != null)
                 {
-                    watcher.recordShowErrorMessage(details.identifier, details.message, Collections.emptyList());
+                    newDisplay.recordShow(() -> watcher);
                 }
             }
         }
@@ -3755,8 +3755,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
 
         @OnThread(Tag.FXPlatform)
-        void executeQuickFix(){
-            super.executeSelectedFix();
+        void executeQuickFix()
+        {
+            super.executeAndRecordSelectedFix(editorWatcherSupplier);
         }
 
         @Override

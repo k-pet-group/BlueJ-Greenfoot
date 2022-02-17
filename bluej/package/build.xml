@@ -333,6 +333,9 @@
         <chmod perm="+x">
             <fileset dir="${zip_dir}/BlueJ.app/Contents" includes="${executable_files2}" />
         </chmod>
+        <chmod perm="a+r">
+            <fileset dir="${zip_dir}/BlueJ.app/Contents" includes="Info.plist" />
+        </chmod>
 
         <!-- codesign needs Internet connection to verify current time -->
         <echo message="Signing and verifying bundle (NOTE: Internet connection is required to sign)"/>
