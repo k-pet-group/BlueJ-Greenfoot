@@ -407,6 +407,7 @@ public class JavaEditor
      * is a modification to the Java source code.  See further comments in the {@link DocumentListener} class.
      * 
      * @param listener The listener to add.
+     * @since Extension API 3.3 (BlueJ 5.0.3)
      */
     public void addDocumentListener(DocumentListener listener)
     {
@@ -419,6 +420,7 @@ public class JavaEditor
      * and all instances of this document listener will be removed if it was added
      * multiple times by addDocumentListener.
      * @param listener The listener to remove
+     * @since Extension API 3.3 (BlueJ 5.0.3)
      */
     public void removeDocumentListener(DocumentListener listener)
     {

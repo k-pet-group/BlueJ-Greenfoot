@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2014,2019,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2012,2014,2019,2021,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -57,11 +57,11 @@ public abstract class Extension
     /**
      * Obtains the minor version of the Extensions API.
      *
-     * @return An integer indicating the minor version of the Extensions API. Currently 1.
+     * @return An integer indicating the minor version of the Extensions API. Currently 3.
      */
     protected static final int getExtensionsAPIVersionMinor()
     {
-        return 2;
+        return 3;
     }
 
     /**
