@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2016,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2016,2020,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -97,9 +97,6 @@ class Job
             compiler.setClasspath(bpClassLoader.getClassPathAsFiles());
 
             compiler.setBootClassPath(null);
-            String majorVersion = System.getProperty("java.specification.version");
-            userCompileOptions.add(0, "-source");
-            userCompileOptions.add(1, majorVersion);
 
             File[] actualSourceFiles = new File[sources.length];
             for (int i = 0; i < sources.length; i++)

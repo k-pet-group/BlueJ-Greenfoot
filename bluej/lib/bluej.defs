@@ -418,20 +418,14 @@ bluej.teamwork.showtools=false
 ## If this attribute is not specified, the compiler is run with
 ## default options.
 ## 
-## The following options will ALWAYS be added internally in BlueJ. If
-## you change these, funny things might happen (such as BlueJ not 
-## working at all!):
+## The following options will ALWAYS be added internally in BlueJ:
 ##
 ## -deprecation (Show description of each use of a deprecated method)
 ## -g           (Generate all debugging information)
-## -d           (set the output directory)
-##
-## The following is also added internally, but is safe to change:
-## -source      (set by BlueJ to the version of the JDK)
 ##
 #####################################################################
 
-#bluej.compiler.options=-source 1.4 -target 1.4
+#bluej.compiler.options=--release 11
 
 # Whether to show the "unchecked" warnings generated when using generic
 # classes in a non-typesafe manner (java 1.5+ only)
