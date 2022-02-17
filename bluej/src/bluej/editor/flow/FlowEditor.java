@@ -982,7 +982,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
                 if (watcher != null)
                 {
-                    watcher.recordShowErrorMessage(details.identifier, details.message, Collections.emptyList());
+                    newDisplay.recordShow(() -> watcher);
                 }
             }
         }
