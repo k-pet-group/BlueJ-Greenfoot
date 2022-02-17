@@ -179,8 +179,7 @@ public class ErrorAndFixDisplay extends FixDisplayManager
     {
         if (highlighted != -1)
         {
-            recordExecute(() -> editor.getFrameEditor().getWatcher(), highlighted);
-            error.getFixSuggestions().get(highlighted).execute();
+            executeAndRecordSelectedFix(() -> editor.getFrameEditor().getWatcher());
             ErrorAndFixDisplay.this.hide();
             slot.fixedError(error);
         }

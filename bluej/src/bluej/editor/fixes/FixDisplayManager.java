@@ -126,13 +126,17 @@ public abstract class FixDisplayManager
     }
 
     @OnThread(Tag.FXPlatform)
-    protected void executeSelectedFix()
+    protected void executeAndRecordSelectedFix(Supplier<EditorWatcher> editorWatcherProvider)
     {
-        fixes.get(highlighted).executeSuggestion();
+        if (highlighted != -1)
+        {
+            recordExecute(editorWatcherProvider, highlighted);
+            fixes.get(highlighted).executeSuggestion();
+        }
     }
 
     @OnThread(Tag.FXPlatform)
-    protected void recordShow(Supplier<EditorWatcher> editorWatcherProvider)
+    public void recordShow(Supplier<EditorWatcher> editorWatcherProvider)
     {
         final EditorWatcher watcher = editorWatcherProvider.get();
         List<String> fixDisplayText = Utility.mapList(fixes, FixDisplay::getDisplayText);
