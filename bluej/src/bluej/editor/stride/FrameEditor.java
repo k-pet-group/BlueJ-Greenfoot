@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,7 @@ import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.fixes.EditorFixesManager;
 import bluej.editor.fixes.SuggestionList;
+import bluej.extensions2.editor.DocumentListener;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.pkgmgr.target.role.Kind;
 import bluej.prefmgr.PrefMgr.PrintSize;
@@ -612,6 +613,18 @@ public class FrameEditor implements Editor
             @Override
             @OnThread(Tag.FXPlatform)
             public ReparseableDocument getSourceDocument() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void addDocumentListener(DocumentListener documentListener)
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void removeDocumentListener(DocumentListener documentListener)
+            {
                 throw new UnsupportedOperationException();
             }
 
