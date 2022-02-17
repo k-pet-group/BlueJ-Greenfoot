@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2014,2015,2018,2019,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2013,2014,2015,2018,2019,2021,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -400,6 +400,31 @@ public class JavaEditor
     public double getFontSizeInPixels()
     {
         return bjEditor.getFontSizeInPixels();
+    }
+
+    /**
+     * Adds a document listener to the underlying Java source code.  It will be called back whenever there
+     * is a modification to the Java source code.  See further comments in the {@link DocumentListener} class.
+     * 
+     * @param listener The listener to add.
+     * @since Extension API 3.3 (BlueJ 5.0.3)
+     */
+    public void addDocumentListener(DocumentListener listener)
+    {
+        bjEditor.addDocumentListener(listener);
+    }
+
+    /**
+     * Removes a document listener that was previously added by addDocumentListener.
+     * The listeners are compared using reference equality (not the .equals() method),
+     * and all instances of this document listener will be removed if it was added
+     * multiple times by addDocumentListener.
+     * @param listener The listener to remove
+     * @since Extension API 3.3 (BlueJ 5.0.3)
+     */
+    public void removeDocumentListener(DocumentListener listener)
+    {
+        bjEditor.removeDocumentListener(listener);
     }
 
     /**

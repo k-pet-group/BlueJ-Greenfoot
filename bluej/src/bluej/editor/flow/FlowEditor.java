@@ -54,6 +54,7 @@ import bluej.editor.flow.PrintDialog.PrintChoices;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FlowFXTab;
 import bluej.editor.stride.FrameEditor;
+import bluej.extensions2.editor.DocumentListener;
 import bluej.parser.*;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ImportsCollection.LocatableImport;
@@ -3395,6 +3396,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public Rectangle2D getScreenBoundsOfLine(int line)
     {
         return flowEditorPane.getLineBoundsOnScreen(line - 1, new Point2D(fxTabbedEditor.getX(), fxTabbedEditor.getY()), fxTabbedEditor.getRenderScaleX(), fxTabbedEditor.getRenderScaleY());
+    }
+
+    @Override
+    public void addDocumentListener(DocumentListener documentListener)
+    {
+        document.addListener(false, documentListener);
+    }
+
+    @Override
+    public void removeDocumentListener(DocumentListener documentListener)
+    {
+        document.removeListener(documentListener);
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2022  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,13 +21,13 @@
  */
 package bluej.editor.flow;
 
+import bluej.extensions2.editor.DocumentListener;
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 /**
  * A simplistic implementation of the Document interface.  Useful for sanity checking

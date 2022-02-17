@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014,2019,2021  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2019,2021,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.editor;
 
+import bluej.extensions2.editor.DocumentListener;
 import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ReparseableDocument;
@@ -196,5 +197,8 @@ public interface TextEditor extends Editor
      * @return
      */
     Rectangle2D getScreenBoundsOfLine(int line);
+    
+    public void addDocumentListener(DocumentListener documentListener);
+    public void removeDocumentListener(DocumentListener documentListener);
 }
 

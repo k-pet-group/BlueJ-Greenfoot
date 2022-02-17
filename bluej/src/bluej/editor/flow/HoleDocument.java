@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2022  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.editor.flow;
 
+import bluej.extensions2.editor.DocumentListener;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -160,7 +161,10 @@ public class HoleDocument implements Document
             }
         }
 
-        for (DocumentListener listener : listeners)
+        // Take a copy in case one of the listeners removes themselves
+        // (would lead to a concurrent modification exception if we iterated over the original list):
+        List<DocumentListener> listenersCopy = new ArrayList<>(this.listeners);
+        for (bluej.extensions2.editor.DocumentListener listener : listenersCopy)
         {
             listener.textReplaced(startCharIncl, replaced, text, linesRemoved, linesAdded);
         }
@@ -365,6 +369,14 @@ public class HoleDocument implements Document
             listeners.add(0, listener);
         else
             listeners.add(listener);
+    }
+    
+    public void removeListener(DocumentListener listener)
+    {
+        // Remove all by reference equality:
+        // (Since this is exposed to extensions, it's possible they might implement
+        // .equals() themselves but we want to ignore that).
+        listeners.removeIf(l -> l == listener);
     }
 
     public boolean hasLineAttribute(int lineIndex, Object attributeKey)
