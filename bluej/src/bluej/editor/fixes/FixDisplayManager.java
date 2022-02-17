@@ -126,9 +126,13 @@ public abstract class FixDisplayManager
     }
 
     @OnThread(Tag.FXPlatform)
-    protected void executeSelectedFix()
+    protected void executeAndRecordSelectedFix(Supplier<EditorWatcher> editorWatcherProvider)
     {
-        fixes.get(highlighted).executeSuggestion();
+        if (highlighted != -1)
+        {
+            recordExecute(editorWatcherProvider, highlighted);
+            fixes.get(highlighted).executeSuggestion();
+        }
     }
 
     @OnThread(Tag.FXPlatform)

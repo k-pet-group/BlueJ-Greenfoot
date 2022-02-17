@@ -3755,8 +3755,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
 
         @OnThread(Tag.FXPlatform)
-        void executeQuickFix(){
-            super.executeSelectedFix();
+        void executeQuickFix()
+        {
+            super.executeAndRecordSelectedFix(editorWatcherSupplier);
         }
 
         @Override
