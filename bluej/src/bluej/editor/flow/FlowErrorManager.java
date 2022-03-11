@@ -351,7 +351,7 @@ public class FlowErrorManager implements ErrorQuery
                 {
                     // Change the error message to a more meaningful message
                     String methodName = message.substring("cannot find symbol -   method ".length(), message.lastIndexOf('('));
-                    message = Config.getString("editor.quickfix.undeclaredMethod.errorMsg") + methodName + "(...)";
+                    message = Config.getString("editor.quickfix.undeclaredMethod.errorMsg") + methodName + message.substring(message.lastIndexOf('('));
     
                     // Add a quick fix for correcting to an existing closely spelt method
                     Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.METHOD);
