@@ -223,389 +223,393 @@ public class FlowErrorManager implements ErrorQuery
             this.identifier = identifier;
             int italicMessageStartIndex = -1, italicMessageEndIndex = -1;
 
-            int errorLine = editor.getLineColumnFromOffset(startPos).getLine();
-            int errorLineLength = editor.getLineLength(errorLine - 1);
-            SourceLocation startErrorLineSourceLocation = new SourceLocation(errorLine, 1);
-            SourceLocation startErrorPosSourceLocation = editor.getLineColumnFromOffset(startPos);
-            SourceLocation endErrorLineSourceLocation = new SourceLocation(errorLine, errorLineLength);
-            String errorLineText = editor.getText(startErrorLineSourceLocation, endErrorLineSourceLocation);
-
-            // set the quick fix imports if detected an unknown type error...
-            if (message.contains("cannot find symbol") && message.contains("class"))
+            try
             {
-                String typeName = message.substring(message.lastIndexOf(' ') + 1);
-                this.message = Config.getString("editor.quickfix.unknownType.errorMsg") + typeName;
-                if (possibleImports != null)
+                int errorLine = editor.getLineColumnFromOffset(startPos).getLine();
+                int errorLineLength = editor.getLineLength(errorLine - 1);
+                SourceLocation startErrorLineSourceLocation = new SourceLocation(errorLine, 1);
+                SourceLocation startErrorPosSourceLocation = editor.getLineColumnFromOffset(startPos);
+                SourceLocation endErrorLineSourceLocation = new SourceLocation(errorLine, errorLineLength);
+                String errorLineText = editor.getText(startErrorLineSourceLocation, endErrorLineSourceLocation);
+    
+                // set the quick fix imports if detected an unknown type error...
+                if (message.contains("cannot find symbol") && message.contains("class"))
                 {
-                    List<AssistContentThreadSafe> possibleCorrectionsList = possibleImports
+                    String typeName = message.substring(message.lastIndexOf(' ') + 1);
+                    message = Config.getString("editor.quickfix.unknownType.errorMsg") + typeName;
+                    if (possibleImports != null)
+                    {
+                        List<AssistContentThreadSafe> possibleCorrectionsList = possibleImports
                             .filter(ac -> ac.getPackage() != null).collect(Collectors.toList());
-
-                    // Add the fixes: import single class then import package
-                    // We don't show package import when the typeName suggest an inner class
-                    corrections.addAll(possibleCorrectionsList.stream()
-                            .filter(ac -> ac.getName().equals(typeName) && ac.getDeclaringClass()==null)
+    
+                        // Add the fixes: import single class then import package
+                        // We don't show package import when the typeName suggest an inner class
+                        corrections.addAll(possibleCorrectionsList.stream()
+                            .filter(ac -> ac.getName().equals(typeName) && ac.getDeclaringClass() == null)
                             .flatMap(ac -> Stream.of(new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.class")
                                     + ac.getPackage() + "." + ac.getName()),
-                                            () -> {
-                                                editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
-                                                editor.addImportFromQuickFix(ac.getPackage() + "." + ac.getName());
-                                            }),
-                                    new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.package") + ac.getPackage() + " (for " + ac.getName() + " class)"),
-                                            () -> {
-                                                editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
-                                                editor.addImportFromQuickFix(ac.getPackage() + ".*");
-                                            })))
+                                    () -> {
+                                        editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
+                                        editor.addImportFromQuickFix(ac.getPackage() + "." + ac.getName());
+                                    }),
+                                new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.package") + ac.getPackage() + " (for " + ac.getName() + " class)"),
+                                    () -> {
+                                        editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
+                                        editor.addImportFromQuickFix(ac.getPackage() + ".*");
+                                    })))
                             .collect(Collectors.toList()));
-
-                    // Add a quick fix for correcting to an existing closely spelt type
-                    Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.TYPE, possibleCorrectionsList, typeName, startPos);
-                    if (possibleCorrectionsStream != null)
-                    {
-                        corrections.addAll(Correction.winnowAndCreateCorrections(typeName,
+    
+                        // Add a quick fix for correcting to an existing closely spelt type
+                        Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.TYPE, possibleCorrectionsList, typeName, startPos);
+                        if (possibleCorrectionsStream != null)
+                        {
+                            corrections.addAll(Correction.winnowAndCreateCorrections(typeName,
                                 possibleCorrectionsStream,
                                 correctionElements -> doTypeQuickFix(editor, startErrorPosSourceLocation, correctionElements, typeName),
                                 true));
+                        }
                     }
                 }
-            }
-            // set the quick fix "== instead of =" if :
-            // detected the error is "Incompatible types: xx cannot be converted to boolean"
-            else if (message.startsWith("incompatible types:") && message.endsWith("cannot be converted to boolean")
+                // set the quick fix "== instead of =" if :
+                // detected the error is "Incompatible types: xx cannot be converted to boolean"
+                else if (message.startsWith("incompatible types:") && message.endsWith("cannot be converted to boolean")
                     && editor.getText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(startPos + 1)).equals("="))
-            {
-                // Change the error message to a more meaningful message
-                this.message = Config.getString("editor.quickfix.wrongComparisonOperator.errorMsg");
-                // Ge the length of this line, but because here the method expects a 0-based value we need to offset.
-                String leftCompPart = errorLineText.substring(0, startPos - editor.getOffsetFromLineColumn(startErrorLineSourceLocation));
-                String rightCompPart = errorLineText.substring(startPos - editor.getOffsetFromLineColumn(startErrorLineSourceLocation) + 1);
-                corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.wrongComparisonOperator.fixMsg"), () -> {
-                    editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
-                    editor.setText(startErrorLineSourceLocation, endErrorLineSourceLocation, (leftCompPart + "==" + rightCompPart));
-                    editor.refresh();
-                }));
-            }
-            // set the quick fix to correct a wrong variable or declare it:
-            // detected the error is "cannot find symbol - variable"
-            else if (message.startsWith("cannot find symbol -   variable "))
-            {
-                // Change the error message to a more meaningful message
-                String varName = message.substring(message.lastIndexOf(' ') + 1);
-                this.message = Config.getString("editor.quickfix.undeclaredVar.errorMsg") + varName;
-
-                // Add a quick fix for correcting to an existing closely spelt variable
-                Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.FIELD);
-                if (possibleCorrectionsStream != null)
                 {
-                    corrections.addAll(bluej.editor.fixes.Correction.winnowAndCreateCorrections(varName,
-                            possibleCorrectionsStream,
-                            correctionElements ->
-                            {
-                                editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
-                                editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), correctionElements.getPrimaryElement());
-                            }));
-                }
-                // If the variable is in a single line assignment (i.e. a line starting with "<var> = " then we propose declaration
-                // locally and at the class level; the type cannot be inferred so we used a placeholder: "_type_".
-                if (editor.getText(startErrorLineSourceLocation, endErrorLineSourceLocation).trim().matches("^(" + varName + ")\\s*=[^=]*$"))
-                {
-                    int indexOfEqualOp = editor.getText(startErrorLineSourceLocation, endErrorLineSourceLocation).indexOf('=');
-                    String declarationRightPart = editor.getText(startErrorLineSourceLocation, endErrorLineSourceLocation).substring(indexOfEqualOp + 1).trim();
-                    String typePlaceholder = "_type_";
-
-                    // Add suggestion for declaring local variable (not: the error won't be on a assignement made in a class, so we don't need to check where we are)
-                    corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.undeclaredVar.fixMsg.local"), () -> {
-                        editor.setText(startErrorPosSourceLocation, endErrorLineSourceLocation, (typePlaceholder + " " + varName + "= " + declarationRightPart));
-                        // Select the type placeholder for suggesting the user to fill it...
-                        editor.setSelection(startErrorPosSourceLocation, new SourceLocation(errorLine, startErrorPosSourceLocation.getColumn() + typePlaceholder.length()));
+                    // Change the error message to a more meaningful message
+                    message = Config.getString("editor.quickfix.wrongComparisonOperator.errorMsg");
+                    // Ge the length of this line, but because here the method expects a 0-based value we need to offset.
+                    String leftCompPart = errorLineText.substring(0, startPos - editor.getOffsetFromLineColumn(startErrorLineSourceLocation));
+                    String rightCompPart = errorLineText.substring(startPos - editor.getOffsetFromLineColumn(startErrorLineSourceLocation) + 1);
+                    corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.wrongComparisonOperator.fixMsg"), () -> {
+                        editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
+                        editor.setText(startErrorLineSourceLocation, endErrorLineSourceLocation, (leftCompPart + "==" + rightCompPart));
                         editor.refresh();
                     }));
-                    // Add suggestion for declaring global field
-                    corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.undeclaredVar.fixMsg.class"), () -> {
-                        // We try to find the right location to declare the field in the class (last of the fields or just after class declaration if no fields)
-                        NewFieldInfos newFieldInfos = getNewClassFieldPos(editor);
-                        int newClassFieldPos = newFieldInfos.getPos();
-                        String indentationForNewField = newFieldInfos.getIndentation();
-                        if (newClassFieldPos > -1)
-                        {
-                            // We need to find the correction indentation based on the current last field
-                            int prevLine = editor.getLineColumnFromOffset(newClassFieldPos - 1).getLine();
-                            editor.setText(editor.getLineColumnFromOffset(newClassFieldPos), editor.getLineColumnFromOffset(newClassFieldPos),
-                                    (indentationForNewField + "private " + typePlaceholder + " " + varName + ";\n"));
-
-                            // Select the type placeholder for suggesting the user to fill it...
-                            editor.setSelection(new SourceLocation(prevLine + 1, indentationForNewField.length() + "private ".length() + 1),
-                                    new SourceLocation(prevLine + 1, indentationForNewField.length() + "private ".length() + 1 + typePlaceholder.length()));
-                            editor.refresh();
-                        } else
-                        {
-                            throw new RuntimeException("Cannot find the position for declaring a new class field.");
-                        }
-                    }));
                 }
-            }
-            // set the quick fix to correct a misspelled method:
-            // detected the error is "cannot find symbol - method"
-            else if (message.startsWith("cannot find symbol -   method "))
-            {
-                // Change the error message to a more meaningful message
-                String methodName = message.substring(message.lastIndexOf(' ') + 1, message.lastIndexOf('('));
-                this.message = Config.getString("editor.quickfix.undeclaredMethod.errorMsg") + methodName + "(...)";
-
-                // Add a quick fix for correcting to an existing closely spelt method
-                Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.METHOD);
-                if (possibleCorrectionsStream != null)
+                // set the quick fix to correct a wrong variable or declare it:
+                // detected the error is "cannot find symbol - variable"
+                else if (message.startsWith("cannot find symbol -   variable "))
                 {
-                    corrections.addAll(bluej.editor.fixes.Correction.winnowAndCreateCorrections(methodName,
+                    // Change the error message to a more meaningful message
+                    String varName = message.substring(message.lastIndexOf(' ') + 1);
+                    message = Config.getString("editor.quickfix.undeclaredVar.errorMsg") + varName;
+    
+                    // Add a quick fix for correcting to an existing closely spelt variable
+                    Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.FIELD);
+                    if (possibleCorrectionsStream != null)
+                    {
+                        corrections.addAll(bluej.editor.fixes.Correction.winnowAndCreateCorrections(varName,
                             possibleCorrectionsStream,
                             correctionElements ->
                             {
                                 editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
                                 editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), correctionElements.getPrimaryElement());
                             }));
-                    editor.refresh();
+                    }
+                    // If the variable is in a single line assignment (i.e. a line starting with "<var> = " then we propose declaration
+                    // locally and at the class level; the type cannot be inferred so we used a placeholder: "_type_".
+                    if (editor.getText(startErrorLineSourceLocation, endErrorLineSourceLocation).trim().matches("^(" + varName + ")\\s*=[^=]*$"))
+                    {
+                        int indexOfEqualOp = editor.getText(startErrorLineSourceLocation, endErrorLineSourceLocation).indexOf('=');
+                        String declarationRightPart = editor.getText(startErrorLineSourceLocation, endErrorLineSourceLocation).substring(indexOfEqualOp + 1).trim();
+                        String typePlaceholder = "_type_";
+    
+                        // Add suggestion for declaring local variable (not: the error won't be on a assignement made in a class, so we don't need to check where we are)
+                        corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.undeclaredVar.fixMsg.local"), () -> {
+                            editor.setText(startErrorPosSourceLocation, endErrorLineSourceLocation, (typePlaceholder + " " + varName + "= " + declarationRightPart));
+                            // Select the type placeholder for suggesting the user to fill it...
+                            editor.setSelection(startErrorPosSourceLocation, new SourceLocation(errorLine, startErrorPosSourceLocation.getColumn() + typePlaceholder.length()));
+                            editor.refresh();
+                        }));
+                        // Add suggestion for declaring global field
+                        corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.undeclaredVar.fixMsg.class"), () -> {
+                            // We try to find the right location to declare the field in the class (last of the fields or just after class declaration if no fields)
+                            NewFieldInfos newFieldInfos = getNewClassFieldPos(editor);
+                            int newClassFieldPos = newFieldInfos.getPos();
+                            String indentationForNewField = newFieldInfos.getIndentation();
+                            if (newClassFieldPos > -1)
+                            {
+                                // We need to find the correction indentation based on the current last field
+                                int prevLine = editor.getLineColumnFromOffset(newClassFieldPos - 1).getLine();
+                                editor.setText(editor.getLineColumnFromOffset(newClassFieldPos), editor.getLineColumnFromOffset(newClassFieldPos),
+                                    (indentationForNewField + "private " + typePlaceholder + " " + varName + ";\n"));
+    
+                                // Select the type placeholder for suggesting the user to fill it...
+                                editor.setSelection(new SourceLocation(prevLine + 1, indentationForNewField.length() + "private ".length() + 1),
+                                    new SourceLocation(prevLine + 1, indentationForNewField.length() + "private ".length() + 1 + typePlaceholder.length()));
+                                editor.refresh();
+                            } else
+                            {
+                                throw new RuntimeException("Cannot find the position for declaring a new class field.");
+                            }
+                        }));
+                    }
                 }
-            }
-            // set the quick fix to add a try/catch statement or throw the exception:
-            // detected the error is "unreported exception [...]"
-            else if (message.startsWith("unreported exception "))
-            {
-                // Change the error message to a more meaningful message
-                String exceptionQualifiedNameType = message.substring("unreported exception ".length(), message.indexOf(';'));
-                this.message = Config.getString("editor.quickfix.unreportedException.errorMsg.part1") + exceptionQualifiedNameType + Config.getString("editor.quickfix.unreportedException.errorMsg.part2");
-
-                // If the exception type is already imported, we don't need to use the qualified name in the corrections:
-                // so we check if imports contains that type, and if so, use a simple type name.
-                // We try to retrieve the AssistContent object for the suggested type in order to make the right checkup 
-                // against imports of the current class.
-                Future<List<AssistContentThreadSafe>> futureImports = editor.getEditorFixesManager().scanImports(exceptionQualifiedNameType);
-                Utility.runBackground(() -> {
-                        try
-                        {
-                            List<AssistContentThreadSafe>  matchTypeACList = futureImports.get();
-                            Platform.runLater(() -> {
-                                // The actual correction type String we will use might not be the qualified name if the import is already there for that type (or type in java.lang)
-                                // initial value is set to qualified name
-                                String exceptionTypeForCorrection = exceptionQualifiedNameType;
-
-                                // There shouldn't be more than one type returned here using the fully qualified name.. 
-                                // so we use the first one if at least one is returned.
-                                if(matchTypeACList.size() > 0)
-                                {
-                                    AssistContentThreadSafe matchTypeAC = matchTypeACList.get(0);
-                                    //Now we have a way to check if the type is already imported (or part of java.lang)
-                                    if(editor.checkTypeIsImported(matchTypeAC, false))
-                                        exceptionTypeForCorrection = matchTypeAC.getName();
-                                }
-                                // Corrections need be done once the editor is opened --> if not yet we don't do anything at this stage
-                                if (editor.getProject() != null)
-                                {
-                                    // Add a quick fix for surrounding the current line with try/catch
-                                    // first we search for a non existing variable name for the exception var in the catch statement
-                                    // the initial variable name we choose is a gathering of the caps letters of the type, i.e. FileNotFoundException --> fnfe
-                                    // if the variable name is not available, we append a numerical suffix, starting from 1, until we find a name that hasn't been used.
-                                    // The search is case insensitive to "force" different variable names and avoid confusion from the user.
-                                    // (in case we cannot extract any upper case letter from the type (which could happen with wrongly named user defined types) we 
-                                    // return a generic variable name "e"...)
-                                    String exceptionVarNameRoot =  
-                                        exceptionQualifiedNameType.substring(((exceptionQualifiedNameType.contains(".")) ? (exceptionQualifiedNameType.lastIndexOf(".") + 1) : 0)).replaceAll("[^A-Z]", "").toLowerCase();
-                                    if(exceptionVarNameRoot.length()==0) 
-                                        exceptionVarNameRoot = "e";
-
-                                    boolean foundVarName = false;
-                                    String fileContent = editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(editor.getTextLength()));
-                                    int posOfClass = getNewClassFieldPos(editor).pos;
-                                    int posOfContainingMethod = editor.getParsedNode().getContainingMethodOrClassNode(startPos).getAbsoluteEditorPosition();
-
-                                    int varSuffix = 0;
-                                    String exceptionVarName = exceptionVarNameRoot;
-                                    do
+                // set the quick fix to correct a misspelled method:
+                // detected the error is "cannot find symbol - method"
+                else if (message.startsWith("cannot find symbol -   method "))
+                {
+                    // Change the error message to a more meaningful message
+                    String methodName = message.substring(message.lastIndexOf(' ') + 1, message.lastIndexOf('('));
+                    message = Config.getString("editor.quickfix.undeclaredMethod.errorMsg") + methodName + "(...)";
+    
+                    // Add a quick fix for correcting to an existing closely spelt method
+                    Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.METHOD);
+                    if (possibleCorrectionsStream != null)
+                    {
+                        corrections.addAll(bluej.editor.fixes.Correction.winnowAndCreateCorrections(methodName,
+                            possibleCorrectionsStream,
+                            correctionElements ->
+                            {
+                                editor.setSelection(startErrorPosSourceLocation, startErrorPosSourceLocation);
+                                editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), correctionElements.getPrimaryElement());
+                            }));
+                        editor.refresh();
+                    }
+                }
+                // set the quick fix to add a try/catch statement or throw the exception:
+                // detected the error is "unreported exception [...]"
+                else if (message.startsWith("unreported exception "))
+                {
+                    // Change the error message to a more meaningful message
+                    String exceptionQualifiedNameType = message.substring("unreported exception ".length(), message.indexOf(';'));
+                    message = Config.getString("editor.quickfix.unreportedException.errorMsg.part1") + exceptionQualifiedNameType + Config.getString("editor.quickfix.unreportedException.errorMsg.part2");
+                    String messageFinal = message;
+    
+                    // If the exception type is already imported, we don't need to use the qualified name in the corrections:
+                    // so we check if imports contains that type, and if so, use a simple type name.
+                    // We try to retrieve the AssistContent object for the suggested type in order to make the right checkup 
+                    // against imports of the current class.
+                    Future<List<AssistContentThreadSafe>> futureImports = editor.getEditorFixesManager().scanImports(exceptionQualifiedNameType);
+                    Utility.runBackground(() -> {
+                            try
+                            {
+                                List<AssistContentThreadSafe> matchTypeACList = futureImports.get();
+                                Platform.runLater(() -> {
+                                    // The actual correction type String we will use might not be the qualified name if the import is already there for that type (or type in java.lang)
+                                    // initial value is set to qualified name
+                                    String exceptionTypeForCorrection = exceptionQualifiedNameType;
+    
+                                    // There shouldn't be more than one type returned here using the fully qualified name.. 
+                                    // so we use the first one if at least one is returned.
+                                    if (matchTypeACList.size() > 0)
                                     {
-                                        final String exceptionVarNameFinal = exceptionVarName;
-                                        // look within local variables (need to indicate the search of corrections for the current method position)
-                                        // and within fields (need to indicate the search of corrections for the class itself)
-                                        Stream<CorrectionInfo> localVarsCorrInStream = getPossibleCorrectionsStream(editor, CompletionKind.LOCAL_VAR, null, null, posOfContainingMethod);
-                                        Stream<CorrectionInfo> fieldsCorrInStream = getPossibleCorrectionsStream(editor, CompletionKind.FIELD, null, null, posOfClass);
-                                        foundVarName = (localVarsCorrInStream.filter(ci -> ci.getCorrectionToCompareWith().equalsIgnoreCase(exceptionVarNameFinal))
-                                            .findFirst().isPresent())
-                                            || (fieldsCorrInStream.filter(ci -> ci.getCorrectionToCompareWith().equalsIgnoreCase(exceptionVarNameFinal))
-                                            .findFirst().isPresent());
-                                        if (foundVarName)
-                                        {
-                                            varSuffix++;
-                                            exceptionVarName = exceptionVarNameRoot + varSuffix;
-                                        }
-                                    } while (foundVarName);
-
-                                    // then we can build up the surrounding try/catch string
-                                    // We find where is the beginning of the statement
-                                    // IMPORTANT NOTE: the string parts fileContentxxx is a modified version of the source code:
-                                    //    comments and string literals are obfuscated so be careful when using it.
-                                    // The reason to do so is to avoid special Java characters (such as ';') contained in a comment or a string literal
-                                    // to be matched when searching those characters in a code portion.
-                                    String fileContentBeforeErrorPart = blankCodeCommentsAndStringLiterals(fileContent.substring(0, startPos),'0');
-                                    int prevStatementPos = Math.max(Math.max(fileContentBeforeErrorPart.lastIndexOf('{'), fileContentBeforeErrorPart.lastIndexOf('}')), fileContentBeforeErrorPart.lastIndexOf(';'));
-                                    if (prevStatementPos == -1)
-                                    {
-                                        this.italicMessageStartIndex = this.message.indexOf(exceptionQualifiedNameType);
-                                        this.italicMessageEndIndex = this.message.indexOf(exceptionQualifiedNameType) + exceptionQualifiedNameType.length();;
-                                        return;
+                                        AssistContentThreadSafe matchTypeAC = matchTypeACList.get(0);
+                                        //Now we have a way to check if the type is already imported (or part of java.lang)
+                                        if (editor.checkTypeIsImported(matchTypeAC, false))
+                                            exceptionTypeForCorrection = matchTypeAC.getName();
                                     }
-                                    int statementStartPos = prevStatementPos +1;
-                                    while(statementStartPos < fileContentBeforeErrorPart.length() && Character.isWhitespace(fileContentBeforeErrorPart.charAt(statementStartPos)))
-                                        statementStartPos++;
-                                    String fileContentAfterErrorPart = blankCodeCommentsAndStringLiterals(fileContent.substring(startPos), '0');
-                                    int statementEndPos = 0;
-
-                                    boolean needSurroundingBrackets = false;
-                                    // First, we check if the error is inside a control statement, for example "if(...)", "for(...)"
-                                    // because if that is the case, we do not show the try/catch fix at all
-                                    if(!editor.getParsedNode().isCurrentlyInControlStatement(startPos))
+                                    // Corrections need be done once the editor is opened --> if not yet we don't do anything at this stage
+                                    if (editor.getProject() != null)
                                     {
-
-                                        boolean needNewLine = (editor.getLineColumnFromOffset(prevStatementPos).getLine() == errorLine);
-                                        boolean foundEnd = false;
-                                        int searchIndex = 0;
-                                        int openedBracket = 0;
-                                        if (fileContentBeforeErrorPart.substring(prevStatementPos, startPos).contains("->"))
+                                        // Add a quick fix for surrounding the current line with try/catch
+                                        // first we search for a non existing variable name for the exception var in the catch statement
+                                        // the initial variable name we choose is a gathering of the caps letters of the type, i.e. FileNotFoundException --> fnfe
+                                        // if the variable name is not available, we append a numerical suffix, starting from 1, until we find a name that hasn't been used.
+                                        // The search is case insensitive to "force" different variable names and avoid confusion from the user.
+                                        // (in case we cannot extract any upper case letter from the type (which could happen with wrongly named user defined types) we 
+                                        // return a generic variable name "e"...)
+                                        String exceptionVarNameRoot =
+                                            exceptionQualifiedNameType.substring(((exceptionQualifiedNameType.contains(".")) ? (exceptionQualifiedNameType.lastIndexOf(".") + 1) : 0)).replaceAll("[^A-Z]", "").toLowerCase();
+                                        if (exceptionVarNameRoot.length() == 0)
+                                            exceptionVarNameRoot = "e";
+    
+                                        boolean foundVarName = false;
+                                        String fileContent = editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(editor.getTextLength()));
+                                        int posOfClass = getNewClassFieldPos(editor).pos;
+                                        int posOfContainingMethod = editor.getParsedNode().getContainingMethodOrClassNode(startPos).getAbsoluteEditorPosition();
+    
+                                        int varSuffix = 0;
+                                        String exceptionVarName = exceptionVarNameRoot;
+                                        do
                                         {
-                                            //if we have a lambda expression without curly brackets, we add them and force a line return
-                                            //and surround with try catch the all right hand part of the lambda
-                                            needNewLine = true;
-                                            needSurroundingBrackets = true;
-                                            statementStartPos = fileContentBeforeErrorPart.lastIndexOf("->") + "->".length();
-                                            // the error position is just before the '(' of the method throwing an exception
-                                            // so we look up for either an ending ')' without opening match or a comma or a semicolon or a colon
-                                            while (!foundEnd && searchIndex < fileContentAfterErrorPart.length())
+                                            final String exceptionVarNameFinal = exceptionVarName;
+                                            // look within local variables (need to indicate the search of corrections for the current method position)
+                                            // and within fields (need to indicate the search of corrections for the class itself)
+                                            Stream<CorrectionInfo> localVarsCorrInStream = getPossibleCorrectionsStream(editor, CompletionKind.LOCAL_VAR, null, null, posOfContainingMethod);
+                                            Stream<CorrectionInfo> fieldsCorrInStream = getPossibleCorrectionsStream(editor, CompletionKind.FIELD, null, null, posOfClass);
+                                            foundVarName = (localVarsCorrInStream.filter(ci -> ci.getCorrectionToCompareWith().equalsIgnoreCase(exceptionVarNameFinal))
+                                                .findFirst().isPresent())
+                                                || (fieldsCorrInStream.filter(ci -> ci.getCorrectionToCompareWith().equalsIgnoreCase(exceptionVarNameFinal))
+                                                .findFirst().isPresent());
+                                            if (foundVarName)
                                             {
-                                                char c = fileContentAfterErrorPart.charAt(searchIndex);
-                                                if (c == '(')
-                                                    openedBracket++;
-                                                else if (c == ',' || c == ';' || c == ':')
-                                                {
-                                                    //we only consider these characters ends the lambda if they're not
-                                                    //inside the method that returns an expection (i.e. within its arguments)
-                                                    foundEnd = (openedBracket == 0);
-                                                } else if (c == ')')
-                                                {
-                                                    openedBracket--;
-                                                    foundEnd = (openedBracket < 0);
-                                                }
-                                                if (foundEnd)
-                                                    statementEndPos = startPos + searchIndex;
-                                                searchIndex++;
+                                                varSuffix++;
+                                                exceptionVarName = exceptionVarNameRoot + varSuffix;
                                             }
-                                        } else
+                                        } while (foundVarName);
+    
+                                        // then we can build up the surrounding try/catch string
+                                        // We find where is the beginning of the statement
+                                        // IMPORTANT NOTE: the string parts fileContentxxx is a modified version of the source code:
+                                        //    comments and string literals are obfuscated so be careful when using it.
+                                        // The reason to do so is to avoid special Java characters (such as ';') contained in a comment or a string literal
+                                        // to be matched when searching those characters in a code portion.
+                                        String fileContentBeforeErrorPart = blankCodeCommentsAndStringLiterals(fileContent.substring(0, startPos), '0');
+                                        int prevStatementPos = Math.max(Math.max(fileContentBeforeErrorPart.lastIndexOf('{'), fileContentBeforeErrorPart.lastIndexOf('}')), fileContentBeforeErrorPart.lastIndexOf(';'));
+                                        if (prevStatementPos == -1)
                                         {
-                                            // the error position is just before the '(' of the method throwing an exception
-                                            // so we look up for a semi colon that is not somewhere inside the method (if lambdas in)
-                                            while (!foundEnd && searchIndex < fileContentAfterErrorPart.length())
+                                            this.italicMessageStartIndex = messageFinal.indexOf(exceptionQualifiedNameType);
+                                            this.italicMessageEndIndex = messageFinal.indexOf(exceptionQualifiedNameType) + exceptionQualifiedNameType.length();
+                                            return;
+                                        }
+                                        int statementStartPos = prevStatementPos + 1;
+                                        while (statementStartPos < fileContentBeforeErrorPart.length() && Character.isWhitespace(fileContentBeforeErrorPart.charAt(statementStartPos)))
+                                            statementStartPos++;
+                                        String fileContentAfterErrorPart = blankCodeCommentsAndStringLiterals(fileContent.substring(startPos), '0');
+                                        int statementEndPos = 0;
+    
+                                        boolean needSurroundingBrackets = false;
+                                        // First, we check if the error is inside a control statement, for example "if(...)", "for(...)"
+                                        // because if that is the case, we do not show the try/catch fix at all
+                                        if (!editor.getParsedNode().isCurrentlyInControlStatement(startPos))
+                                        {
+    
+                                            boolean needNewLine = (editor.getLineColumnFromOffset(prevStatementPos).getLine() == errorLine);
+                                            boolean foundEnd = false;
+                                            int searchIndex = 0;
+                                            int openedBracket = 0;
+                                            if (fileContentBeforeErrorPart.substring(prevStatementPos, startPos).contains("->"))
                                             {
-                                                char c = fileContentAfterErrorPart.charAt(searchIndex);
-                                                if (c == '(')
-                                                    openedBracket++;
-                                                else if (c == ')')
+                                                //if we have a lambda expression without curly brackets, we add them and force a line return
+                                                //and surround with try catch the all right hand part of the lambda
+                                                needNewLine = true;
+                                                needSurroundingBrackets = true;
+                                                statementStartPos = fileContentBeforeErrorPart.lastIndexOf("->") + "->".length();
+                                                // the error position is just before the '(' of the method throwing an exception
+                                                // so we look up for either an ending ')' without opening match or a comma or a semicolon or a colon
+                                                while (!foundEnd && searchIndex < fileContentAfterErrorPart.length())
                                                 {
-                                                    openedBracket--;
-                                                } else if (c == ';')
-                                                {
-                                                    foundEnd = (openedBracket == 0);
+                                                    char c = fileContentAfterErrorPart.charAt(searchIndex);
+                                                    if (c == '(')
+                                                        openedBracket++;
+                                                    else if (c == ',' || c == ';' || c == ':')
+                                                    {
+                                                        //we only consider these characters ends the lambda if they're not
+                                                        //inside the method that returns an expection (i.e. within its arguments)
+                                                        foundEnd = (openedBracket == 0);
+                                                    } else if (c == ')')
+                                                    {
+                                                        openedBracket--;
+                                                        foundEnd = (openedBracket < 0);
+                                                    }
+                                                    if (foundEnd)
+                                                        statementEndPos = startPos + searchIndex;
+                                                    searchIndex++;
                                                 }
-                                                if (foundEnd)
-                                                    statementEndPos = startPos + searchIndex + 1;
-                                                searchIndex++;
+                                            } else
+                                            {
+                                                // the error position is just before the '(' of the method throwing an exception
+                                                // so we look up for a semi colon that is not somewhere inside the method (if lambdas in)
+                                                while (!foundEnd && searchIndex < fileContentAfterErrorPart.length())
+                                                {
+                                                    char c = fileContentAfterErrorPart.charAt(searchIndex);
+                                                    if (c == '(')
+                                                        openedBracket++;
+                                                    else if (c == ')')
+                                                    {
+                                                        openedBracket--;
+                                                    } else if (c == ';')
+                                                    {
+                                                        foundEnd = (openedBracket == 0);
+                                                    }
+                                                    if (foundEnd)
+                                                        statementEndPos = startPos + searchIndex + 1;
+                                                    searchIndex++;
+                                                }
+                                            }
+    
+                                            // If we couldn't find the end of the erroneous statement, 
+                                            // or we are inside a control statement (e.g. if, for ...),
+                                            // then we don't propose to add a try/catch statement
+                                            if (foundEnd)
+                                            {
+                                                String initIdent = errorLineText.substring(0, errorLineLength - 1 - (errorLineText.replaceAll("^\\s*", "").length()));
+                                                String unchangedInitIdent = initIdent;
+                                                String newIndentSpacing = "    ";
+                                                if (needSurroundingBrackets)
+                                                    initIdent += newIndentSpacing;
+                                                StringBuffer tryCatchString = new StringBuffer(
+                                                    ((needNewLine) ? "\n" : "")
+                                                        + ((needSurroundingBrackets) ? unchangedInitIdent + "{\n" : "")
+                                                        + ((needSurroundingBrackets) ? initIdent : "") + "try\n"
+                                                        + initIdent + "{\n"
+                                                        + initIdent + newIndentSpacing + fileContent.substring(statementStartPos, statementEndPos) + ((needSurroundingBrackets) ? ";" : "") + "\n"
+                                                        + initIdent + "}\n"
+                                                        + initIdent + "catch (" + exceptionTypeForCorrection + " " + exceptionVarName + ")\n"
+                                                        + initIdent + "{\n"
+                                                        + initIdent + newIndentSpacing);
+                                                int posOfCatchStatement = tryCatchString.length();
+                                                String catchStatement = exceptionVarName + ".printStackTrace();";
+                                                tryCatchString.append(catchStatement + "\n"
+                                                    + initIdent + "}" + ((needSurroundingBrackets) ? "\n" : "")
+                                                    + ((needSurroundingBrackets) ? unchangedInitIdent + "}" : ""));
+    
+                                                // and prepare the quick fix
+                                                int finalStatementEndPos = statementEndPos;
+                                                int finalStatementStartPos = statementStartPos;
+                                                corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.unreportedException.fixMsg.trycatch"), () -> {
+                                                    editor.setSelection(editor.getLineColumnFromOffset(finalStatementStartPos), editor.getLineColumnFromOffset(finalStatementEndPos));
+                                                    editor.setText(editor.getLineColumnFromOffset(finalStatementStartPos), editor.getLineColumnFromOffset(finalStatementEndPos),
+                                                        tryCatchString.toString());
+                                                    editor.refresh();
+                                                    //select the catch statement
+                                                    editor.setSelection(editor.getLineColumnFromOffset(finalStatementStartPos + posOfCatchStatement), editor.getLineColumnFromOffset(finalStatementStartPos + posOfCatchStatement + catchStatement.length()));
+                                                }));
                                             }
                                         }
-
-                                        // If we couldn't find the end of the erroneous statement, 
-                                        // or we are inside a control statement (e.g. if, for ...),
-                                        // then we don't propose to add a try/catch statement
-                                        if (foundEnd)
+    
+                                        // Add a second quick fix for adding a throws statement, if not in a lambda
+                                        if (!needSurroundingBrackets)
                                         {
-                                            String initIdent = errorLineText.substring(0, errorLineLength - 1 - (errorLineText.replaceAll("^\\s*", "").length()));
-                                            String unchangedInitIdent = initIdent;
-                                            String newIndentSpacing = "    ";
-                                            if (needSurroundingBrackets)
-                                                initIdent += newIndentSpacing;
-                                            StringBuffer tryCatchString = new StringBuffer(
-                                                ((needNewLine) ? "\n" : "")
-                                                    + ((needSurroundingBrackets) ? unchangedInitIdent + "{\n" : "")
-                                                    + ((needSurroundingBrackets) ? initIdent : "") + "try\n"
-                                                    + initIdent + "{\n"
-                                                    + initIdent + newIndentSpacing + fileContent.substring(statementStartPos, statementEndPos) + ((needSurroundingBrackets) ? ";" : "") + "\n"
-                                                    + initIdent + "}\n"
-                                                    + initIdent + "catch (" + exceptionTypeForCorrection + " " + exceptionVarName + ")\n"
-                                                    + initIdent + "{\n"
-                                                    + initIdent + newIndentSpacing);
-                                            int posOfCatchStatement = tryCatchString.length();
-                                            String catchStatement = exceptionVarName + ".printStackTrace();";
-                                            tryCatchString.append(catchStatement + "\n"
-                                                + initIdent + "}" + ((needSurroundingBrackets) ? "\n" : "")
-                                                + ((needSurroundingBrackets) ? unchangedInitIdent + "}" : ""));
-
+                                            // first the throws statement is created all if none exist, otherwise we just append the exception
+                                            int posOfClosingMethodParamsBracket = fileContentBeforeErrorPart.indexOf(")", posOfContainingMethod);
+                                            int posOfOpeningMethodBodyBracket = fileContentBeforeErrorPart.indexOf('{', posOfClosingMethodParamsBracket);
+                                            if (posOfClosingMethodParamsBracket == -1 || posOfOpeningMethodBodyBracket == -1)
+                                            {
+                                                this.italicMessageStartIndex = messageFinal.indexOf(exceptionQualifiedNameType);
+                                                this.italicMessageEndIndex = messageFinal.indexOf(exceptionQualifiedNameType) + exceptionQualifiedNameType.length();
+                                                return;
+                                            }
+                                            boolean methodHasThrows = fileContentBeforeErrorPart.substring(posOfClosingMethodParamsBracket, posOfOpeningMethodBodyBracket).contains(" throws ");
+                                            SourceLocation methodSourceLocation = editor.getLineColumnFromOffset(posOfContainingMethod);
+                                            boolean openingMethodBodyBracketOnSameLine = (editor.getLineColumnFromOffset(posOfOpeningMethodBodyBracket).getLine() == methodSourceLocation.getLine());
+                                            String methodSignNoIdent = fileContent.substring(posOfContainingMethod, posOfOpeningMethodBodyBracket);
+                                            final int posOfNewThrowsAddition = (methodHasThrows)
+                                                ? posOfContainingMethod + methodSignNoIdent.indexOf(" throws ") + " throws ".length()
+                                                : (openingMethodBodyBracketOnSameLine) ? posOfOpeningMethodBodyBracket : posOfContainingMethod + methodSignNoIdent.replaceAll("\\s*$", "").length();
+                                            String throwsStatement =
+                                                ((Character.isWhitespace(fileContentBeforeErrorPart.charAt(posOfNewThrowsAddition - 1))) ? "" : " ")
+                                                    + ((methodHasThrows) ? (exceptionTypeForCorrection + ",") : ("throws " + exceptionTypeForCorrection))
+                                                    + ((openingMethodBodyBracketOnSameLine) ? " " : "");
+    
                                             // and prepare the quick fix
-                                            int finalStatementEndPos = statementEndPos;
-                                            int finalStatementStartPos = statementStartPos;
-                                            corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.unreportedException.fixMsg.trycatch"), () -> {
-                                                editor.setSelection(editor.getLineColumnFromOffset(finalStatementStartPos), editor.getLineColumnFromOffset(finalStatementEndPos));
-                                                editor.setText(editor.getLineColumnFromOffset(finalStatementStartPos), editor.getLineColumnFromOffset(finalStatementEndPos),
-                                                    tryCatchString.toString());
+                                            corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.unreportedException.fixMsg.throws"), () -> {
+                                                int currentLocation = editor.getOffsetFromLineColumn(editor.getCaretLocation());
+                                                editor.setSelection(editor.getLineColumnFromOffset(posOfNewThrowsAddition), editor.getLineColumnFromOffset(posOfNewThrowsAddition));
+                                                editor.setText(editor.getLineColumnFromOffset(posOfNewThrowsAddition), editor.getLineColumnFromOffset(posOfNewThrowsAddition), throwsStatement);
                                                 editor.refresh();
-                                                //select the catch statement
-                                                editor.setSelection(editor.getLineColumnFromOffset(finalStatementStartPos + posOfCatchStatement), editor.getLineColumnFromOffset(finalStatementStartPos + posOfCatchStatement + catchStatement.length()));
+                                                //reset the cursor at where the user was at
+                                                editor.setSelection(editor.getLineColumnFromOffset(currentLocation + throwsStatement.length()), editor.getLineColumnFromOffset(currentLocation + throwsStatement.length()));
                                             }));
                                         }
                                     }
-                                    
-                                    // Add a second quick fix for adding a throws statement, if not in a lambda
-                                    if (!needSurroundingBrackets)
-                                    {
-                                        // first the throws statement is created all if none exist, otherwise we just append the exception
-                                        int posOfClosingMethodParamsBracket = fileContentBeforeErrorPart.indexOf(")", posOfContainingMethod);
-                                        int posOfOpeningMethodBodyBracket = fileContentBeforeErrorPart.indexOf('{', posOfClosingMethodParamsBracket);
-                                        if (posOfClosingMethodParamsBracket == -1 || posOfOpeningMethodBodyBracket == -1)
-                                        {
-                                            this.italicMessageStartIndex = this.message.indexOf(exceptionQualifiedNameType);
-                                            this.italicMessageEndIndex = this.message.indexOf(exceptionQualifiedNameType) + exceptionQualifiedNameType.length();;
-                                            return;
-                                        }
-                                        boolean methodHasThrows = fileContentBeforeErrorPart.substring(posOfClosingMethodParamsBracket, posOfOpeningMethodBodyBracket).contains(" throws ");
-                                        SourceLocation methodSourceLocation = editor.getLineColumnFromOffset(posOfContainingMethod);
-                                        boolean openingMethodBodyBracketOnSameLine = (editor.getLineColumnFromOffset(posOfOpeningMethodBodyBracket).getLine() == methodSourceLocation.getLine());
-                                        String methodSignNoIdent = fileContent.substring(posOfContainingMethod, posOfOpeningMethodBodyBracket);
-                                        final int posOfNewThrowsAddition = (methodHasThrows)
-                                            ? posOfContainingMethod + methodSignNoIdent.indexOf(" throws ") + " throws ".length()
-                                            : (openingMethodBodyBracketOnSameLine) ? posOfOpeningMethodBodyBracket : posOfContainingMethod + methodSignNoIdent.replaceAll("\\s*$", "").length();
-                                        String throwsStatement =
-                                            ((Character.isWhitespace(fileContentBeforeErrorPart.charAt(posOfNewThrowsAddition - 1))) ? "" : " ")
-                                                + ((methodHasThrows) ? (exceptionTypeForCorrection + ",") : ("throws " + exceptionTypeForCorrection))
-                                                + ((openingMethodBodyBracketOnSameLine) ? " " : "");
-
-                                        // and prepare the quick fix
-                                        corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.unreportedException.fixMsg.throws"), () -> {
-                                            int currentLocation = editor.getOffsetFromLineColumn(editor.getCaretLocation());
-                                            editor.setSelection(editor.getLineColumnFromOffset(posOfNewThrowsAddition), editor.getLineColumnFromOffset(posOfNewThrowsAddition));
-                                            editor.setText(editor.getLineColumnFromOffset(posOfNewThrowsAddition), editor.getLineColumnFromOffset(posOfNewThrowsAddition), throwsStatement);
-                                            editor.refresh();
-                                            //reset the cursor at where the user was at
-                                            editor.setSelection(editor.getLineColumnFromOffset(currentLocation+throwsStatement.length()),editor.getLineColumnFromOffset(currentLocation+throwsStatement.length()));
-                                        }));
-                                    }
-                                }
-                            });
-                        } 
-                        catch (InterruptedException | ExecutionException e)
-                        {
-                            Debug.reportError(e);
+                                });
+                            } catch (InterruptedException | ExecutionException e)
+                            {
+                                Debug.reportError(e);
+                            }
                         }
-                    }
-                );
-            }
-            else
-            {
+                    );
+                }
                 // In the default case, we keep the original error message.
-                this.message = message;
+            }
+            catch (Exception ex)
+            {
+                Debug.reportError(ex);
             }
 
+            this.message = message;
             this.italicMessageStartIndex = italicMessageStartIndex;
             this.italicMessageEndIndex = italicMessageEndIndex;
         }
