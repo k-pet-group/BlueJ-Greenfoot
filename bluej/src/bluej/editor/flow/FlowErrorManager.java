@@ -350,7 +350,7 @@ public class FlowErrorManager implements ErrorQuery
                 else if (message.startsWith("cannot find symbol -   method "))
                 {
                     // Change the error message to a more meaningful message
-                    String methodName = message.substring(message.lastIndexOf(' ') + 1, message.lastIndexOf('('));
+                    String methodName = message.substring("cannot find symbol -   method ".length(), message.lastIndexOf('('));
                     message = Config.getString("editor.quickfix.undeclaredMethod.errorMsg") + methodName + "(...)";
     
                     // Add a quick fix for correcting to an existing closely spelt method
