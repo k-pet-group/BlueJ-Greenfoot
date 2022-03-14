@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2022  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -221,7 +221,17 @@ public class TestBasicEditorInteraction extends FXTest
             else
                 curLineEnd += 1; // Go past the newline
             
-            String selected = content.substring(Math.min(curPos, curAnchor), Math.max(curPos, curAnchor));
+            final String prevClip = "X" + r.nextInt();
+            final String expected;
+            if (curPos == curAnchor)
+            {
+                // Cut/copy shouldn't change the clipboard, so put a dummy value in there and expect that:
+                expected = prevClip;
+            }
+            else
+            {
+                expected = content.substring(Math.min(curPos, curAnchor), Math.max(curPos, curAnchor));
+            }
             String beforeSelected = content.substring(0, Math.min(curPos, curAnchor));
             String afterSelected = content.substring(Math.max(curPos, curAnchor));
             String withoutSelected = beforeSelected + afterSelected;
@@ -237,19 +247,19 @@ public class TestBasicEditorInteraction extends FXTest
             {
                 case 0:
                     // Cut:
-                    clearClipboard();
+                    setClipboard(prevClip);
                     push(KeyCode.SHORTCUT, KeyCode.X);
                     String cut = fx(() -> Clipboard.getSystemClipboard().getString());
-                    assertEquals(selected, cut);
+                    assertEquals(expected, cut);
                     assertEquals(withoutSelected, fx(() -> flowEditorPane.getDocument().getFullContent()));
                     content = withoutSelected;
                     break;
                 case 1:
                     // Copy:
-                    clearClipboard();
+                    setClipboard(prevClip);
                     push(KeyCode.SHORTCUT, KeyCode.C);
                     String copied = fx(() -> Clipboard.getSystemClipboard().getString());
-                    assertEquals(selected, copied);
+                    assertEquals(expected, copied);
                     assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
                     break;
                 case 2:
