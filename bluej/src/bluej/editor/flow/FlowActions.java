@@ -1555,9 +1555,16 @@ public final class FlowActions
         });
     }
 
+    /**
+     * Copies the selection to the clipboard.  Does nothing if the selection is empty.
+     */
     private void copySelectionToClipboard()
     {
-        Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.PLAIN_TEXT, editor.getSourcePane().getSelectedText()));
+        String selectedText = editor.getSourcePane().getSelectedText();
+        if (!selectedText.isEmpty())
+        {
+            Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.PLAIN_TEXT, selectedText));
+        }
     }
 
     private FlowAbstractAction pasteAction()
