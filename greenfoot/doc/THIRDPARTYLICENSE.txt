@@ -166,7 +166,7 @@ as found in the "SIL-OFL-1.1.txt" file.
 
 XOM XML Object Modeller library (Lesser GNU Public License v2.1)
 ----------------------------------------------------------------
-"xom-1.2.9.jar" comprises the XOM library (http://www.cafeconleche.org/XOM/), used
+"xom-1.3.7.jar" comprises the XOM library (http://www.cafeconleche.org/XOM/), used
 by BlueJ. It is distributed under the terms of the LGPL v2.1, as found in the
 "GNU-LGPL-v2.1.txt" file.
 
@@ -255,6 +255,6 @@ opencsv-2.3.jar                          Apache License v2.0
 nsmenufx-2.1.8.jar                       BSD license
 wellbehavedfx-0.3.3.jar                 BSD License
 sequence-library-1.0.3.jar               BSD License
-xom-1.2.9.jar                            Lesser GPL v2.1
+xom-1.3.7.jar                            Lesser GPL v2.1
 
 
