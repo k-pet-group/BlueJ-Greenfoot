@@ -3,7 +3,7 @@
 unset JAVAPATH
 
 FOUND="false"
-for VMNAME in java-11-openjdk java-11-openjdk-armhf ; do
+for VMNAME in java-11-openjdk java-11-openjdk-armhf  java-17-openjdk java-17-openjdk-armhf ; do
     for JDKCANDIDATE in /usr/lib/jvm/"$VMNAME"* ; do
         if [ -e "$JDKCANDIDATE"/bin/javac ]; then
             JAVAPATH="$JDKCANDIDATE"

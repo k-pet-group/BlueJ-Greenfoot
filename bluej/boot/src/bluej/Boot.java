@@ -96,7 +96,7 @@ public class Boot
         "junit-*.jar", "hamcrest-core-1.3.jar", "hamcrest-library-1.3.jar", "bluej.jar",
         "classgraph-4.8.90.jar",
         "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
-        JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
+        JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.3.7.jar",
         "lang-stride.jar",
         "nsmenufx-2.1.8.jar", "wellbehavedfx-0.3.3.jar",
         "guava-17.0.jar",
@@ -126,7 +126,7 @@ public class Boot
         "wellbehavedfx-0.3.3.jar",
         "slf4j-api-1.7.2.jar",
         "slf4j-jdk14-1.7.2.jar",
-        "xom-1.2.9.jar" };
+        "xom-1.3.7.jar" };
     // The variable form of the above
     private static String [] runtimeJars = bluejJars;
     private static String [] userJars = bluejUserJars;
