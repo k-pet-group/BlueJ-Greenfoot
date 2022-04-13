@@ -7,6 +7,6 @@ Architecture: all
 Replaces: bluej (<< 5.0.0)
 Breaks: bluej (<< 5.0.0)
 Version: VERSION
-Depends: openjdk-11-jdk (>= 11), openjfx (>= 11)
+Depends: openjdk-11-jdk (>= 11) | openjdk-17-jdk (>= 17), openjfx (>= 11)
 Description: A simple but powerful Java IDE.
   Go to <bluej.org> for more details.
