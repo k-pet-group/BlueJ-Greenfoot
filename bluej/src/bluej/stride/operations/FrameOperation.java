@@ -74,7 +74,8 @@ public abstract class FrameOperation extends AbstractOperation<Frame>
     {
         editor.beginRecordingState(focus);
         // Delete (with hover preview)
-        getPreview().disablePreview();
+        if (getPreview() != null)
+            getPreview().disablePreview();
         execute(frames);
         editor.endRecordingState(focus);
     }
