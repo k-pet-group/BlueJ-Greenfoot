@@ -2478,11 +2478,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     }
 
     /**
-     * Opens a browser tab in the editor showing the given URL
+     * Opens a browser tab (in an editor window) for the given fully qualified class name
+     * of a built-in Greenfoot class (e.g. greenfoot.Actor)
      */
-    public void openBrowser(String url)
+    public void openGreenfootDocTab(String qualifiedClassName)
     {
-        project.getDefaultFXTabbedEditor().openWebViewTab(url);
+        project.getDefaultFXTabbedEditor().openGreenfootDocTab(qualifiedClassName);
     }
 
     /**
