@@ -482,7 +482,7 @@ generated.  Note that each window in BlueJ actually belongs to a package.
 This event will have a |package_id|.
 
 The event will have zero or more entries in the \tabref{source_histories} that
-link back to this event.  These represent the state of the files as the project is
+link back to this event.  These represent the state of the files as the package is
 opened (as a |complete| snapshot, not a diff).
 
 The event will link to an entry in the |source_hashes| table
@@ -500,8 +500,8 @@ This event will have a |package_id|.  For BlueJ 3.x, there is no associated
 event or associated source histories.
 
 For BlueJ 4.x, the event will have zero or more entries in the \tabref{source_histories} that
-link back to this event.  These represent the state of the files as the project is
-opened (as a |complete| snapshot, not a diff).
+link back to this event.  These represent the state of the files as the package is
+closed (as a |complete| snapshot, not a diff).
 
 For BlueJ 4.x, the event will link to an entry in the |source_hashes| table
 (|event_type| will be |"SourceHash"|), which will contain a hash of

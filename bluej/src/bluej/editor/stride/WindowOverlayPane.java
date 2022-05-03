@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2013,2014,2015,2021  Michael Kolling and John Rosenberg 
+ Copyright (C) 2013,2014,2015,2021,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,7 @@ import javafx.beans.value.ObservableDoubleValue;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
+import javafx.scene.shape.Rectangle;
 
 /**
  * A WindowOverlayPane is as big as the editor window (well, the scrollpane part),
@@ -63,7 +64,7 @@ public class WindowOverlayPane
         pane.getChildren().add(node);
         this.x = x;
         this.y = y;
-        nodeWidthBinding = ((Region)node).widthProperty();
+        nodeWidthBinding = node instanceof Rectangle ? ((Rectangle)node).widthProperty() : ((Region)node).widthProperty();
         paneWidthBinding = pane.widthProperty().subtract(nodeWidthBinding);
 
         if (moveLeftIfNeeded)
