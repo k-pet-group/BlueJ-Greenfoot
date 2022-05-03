@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2013,2014,2015,2021  Michael Kolling and John Rosenberg 
+ Copyright (C) 2013,2014,2015,2021,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
