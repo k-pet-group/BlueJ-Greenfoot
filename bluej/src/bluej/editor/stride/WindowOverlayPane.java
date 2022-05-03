@@ -29,6 +29,7 @@ import javafx.beans.value.ObservableDoubleValue;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
+import javafx.scene.shape.Rectangle;
 
 /**
  * A WindowOverlayPane is as big as the editor window (well, the scrollpane part),
@@ -63,7 +64,7 @@ public class WindowOverlayPane
         pane.getChildren().add(node);
         this.x = x;
         this.y = y;
-        nodeWidthBinding = ((Region)node).widthProperty();
+        nodeWidthBinding = node instanceof Rectangle ? ((Rectangle)node).widthProperty() : ((Region)node).widthProperty();
         paneWidthBinding = pane.widthProperty().subtract(nodeWidthBinding);
 
         if (moveLeftIfNeeded)
