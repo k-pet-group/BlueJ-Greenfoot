@@ -1206,19 +1206,16 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 new SeparatorMenuItem(),
                 JavaFXUtil.makeMenuItem("menu.help.classDoc", null, () -> showApiDoc("index.html"), null),
                 JavaFXUtil.makeMenuItem("menu.help.javadoc", null,
-                        () -> openWebBrowser(Config.getPropString("greenfoot.url.javaStdLib")), null),
+                        () -> openWebBrowser(Config.getPropString("url.javaStdLib")), null),
                 new SeparatorMenuItem(),
                 JavaFXUtil.makeMenuItem("menu.help.tutorial", null,
                         () -> openWebBrowser(Config.getPropString("greenfoot.url.tutorial")), null),
                 JavaFXUtil.makeMenuItem("menu.help.website", null,
                         () -> openWebBrowser(Config.getPropString("greenfoot.url.greenfoot")), null),
-                JavaFXUtil.makeMenuItem("menu.help.moreScenarios", null,
-                        () -> openWebBrowser(Config.getPropString("greenfoot.url.scenarios")), null),
-                new SeparatorMenuItem(),
-                JavaFXUtil.makeMenuItem(Config.getPropString("greenfoot.gameserver.name"),
-                        () -> openWebBrowser(Config.getPropString("greenfoot.gameserver.address")), null),
                 JavaFXUtil.makeMenuItem("menu.help.discuss", null,
-                        () -> openWebBrowser(Config.getPropString("greenfoot.url.discuss")), null)
+                        () -> openWebBrowser(Config.getPropString("greenfoot.url.discuss")), null),
+                JavaFXUtil.makeMenuItem("menu.help.moreScenarios", null,
+                        () -> openWebBrowser(Config.getPropString("greenfoot.url.scenarios")), null)
         );
 
         MenuBar menuBar = new MenuBar(

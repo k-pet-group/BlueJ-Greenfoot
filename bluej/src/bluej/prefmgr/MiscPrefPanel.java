@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2016,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2016,2018,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -61,13 +61,8 @@ import threadchecker.Tag;
 public class MiscPrefPanel extends VBox 
                            implements PrefPanelListener
 {
-    private static final String bluejJdkURL = "bluej.url.javaStdLib";
-    private static final String greenfootJdkURL = "greenfoot.url.javaStdLib";
-
-    private TextField jdkURLField;
     private CheckBox linkToLibBox;
     private CheckBox showUncheckedBox; // show "unchecked" compiler warning
-    private String jdkURLPropertyName;
     private TextField playerNameField;
     private TextField participantIdentifierField;
     private TextField experimentIdentifierField;
@@ -81,13 +76,6 @@ public class MiscPrefPanel extends VBox
     public MiscPrefPanel()
     {
         JavaFXUtil.addStyleClass(this, "prefmgr-pref-panel");
-        
-        if(Config.isGreenfoot()) {
-            jdkURLPropertyName = greenfootJdkURL;
-        }
-        else {
-            jdkURLPropertyName = bluejJdkURL;
-        }
         
         getChildren().add(makeDocumentationPanel());
         
@@ -172,9 +160,6 @@ public class MiscPrefPanel extends VBox
     private Node makeDocumentationPanel()
     {
         List<Node> contents = new ArrayList<>();
-        this.jdkURLField = new TextField();
-        JavaFXUtil.addStyleClass(jdkURLField, "prefmgr-jdk-url");
-        contents.add(PrefMgrDialog.labelledItem("prefmgr.misc.jdkurlpath", jdkURLField));
 
         linkToLibBox = new CheckBox(Config.getString("prefmgr.misc.linkToLib"));
         contents.add(linkToLibBox);
@@ -186,7 +171,6 @@ public class MiscPrefPanel extends VBox
     public void beginEditing(Project project)
     {
         linkToLibBox.setSelected(PrefMgr.getFlag(PrefMgr.LINK_LIB));
-        jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
         if(!Config.isGreenfoot()) {
             showUncheckedBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED));
             if (project == null)
@@ -229,9 +213,6 @@ public class MiscPrefPanel extends VBox
             DataCollector.setParticipantIdentifier(partId);
         }
         
-        String jdkURL = jdkURLField.getText();
-        Config.putPropString(jdkURLPropertyName, jdkURL);
-
         if (Config.isGreenfoot())
         {
             PrefMgr.getPlayerName().set(playerNameField.getText());

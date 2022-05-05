@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016,2019,2021  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016,2019,2021,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -530,7 +530,7 @@ public class DocuGenerator
     {
         String linkToLib = Config.getPropString("doctool.linkToStandardLib");
         if(linkToLib.equals("true")) {
-            String docURL = Config.getPropString("bluej.url.javaStdLib");
+            String docURL = Config.getPropString("url.javaStdLib");
 
             if (docURL.endsWith("index.html")) {
                 docURL = docURL.substring(0, docURL.length() - "index.html".length());
