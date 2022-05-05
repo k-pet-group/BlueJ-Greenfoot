@@ -86,7 +86,7 @@ public class ExportPublishTab extends ExportTab
             Config.getPropString("greenfoot.gameserver.createAccount.address",
                     "https://www.greenfoot.org/users/new");
     private static final String serverName =
-            Config.getPropString("greenfoot.gameserver.name", "Greenfoot Gallery");
+            Config.getPropString("greenfoot.gameserver.name", "Greenfoot Website");
 
     private static final String helpLine = Config.getString("export.publish.help") + " " + serverName;
     private static final String WITH_SOURCE_TAG = "with-source";
