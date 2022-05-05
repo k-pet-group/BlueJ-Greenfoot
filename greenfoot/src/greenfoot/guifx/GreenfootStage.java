@@ -1212,13 +1212,10 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                         () -> openWebBrowser(Config.getPropString("greenfoot.url.tutorial")), null),
                 JavaFXUtil.makeMenuItem("menu.help.website", null,
                         () -> openWebBrowser(Config.getPropString("greenfoot.url.greenfoot")), null),
-                JavaFXUtil.makeMenuItem("menu.help.moreScenarios", null,
-                        () -> openWebBrowser(Config.getPropString("greenfoot.url.scenarios")), null),
-                new SeparatorMenuItem(),
-                JavaFXUtil.makeMenuItem(Config.getPropString("greenfoot.gameserver.name"),
-                        () -> openWebBrowser(Config.getPropString("greenfoot.gameserver.address")), null),
                 JavaFXUtil.makeMenuItem("menu.help.discuss", null,
-                        () -> openWebBrowser(Config.getPropString("greenfoot.url.discuss")), null)
+                        () -> openWebBrowser(Config.getPropString("greenfoot.url.discuss")), null),
+                JavaFXUtil.makeMenuItem("menu.help.moreScenarios", null,
+                        () -> openWebBrowser(Config.getPropString("greenfoot.url.scenarios")), null)
         );
 
         MenuBar menuBar = new MenuBar(

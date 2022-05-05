@@ -97,7 +97,7 @@ doctool.options=-author -version -nodeprecated -protected  -Xdoclint:none
 ## function
 #####################################################################
 
-greenfoot.gameserver.name=Greenfoot Gallery
+greenfoot.gameserver.name=Greenfoot Website
 greenfoot.gameserver.address=https://www.greenfoot.org/
 greenfoot.gameserver.createAccount.address=https://www.greenfoot.org/users/new
 
