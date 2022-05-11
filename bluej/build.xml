@@ -354,7 +354,12 @@
     </target>
 
     <target name="test" depends="compile-boot, compile-core, compile-test">
-        <junit printsummary="yes" haltonfailure="yes">
+        <junit
+                printsummary="yes"
+                haltonfailure="yes"
+                jvm="${build_java_home}/${java_command_dir_name}/java"
+                fork="yes"
+        >
             <classpath>
                 <path refid="javafx.class.path"/>
                 <path refid="bluej.class.path"/>
