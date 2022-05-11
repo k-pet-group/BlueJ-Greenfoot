@@ -197,6 +197,7 @@
                 <path refid="bluej.class.path"/>
                 <path refid="test.class.path"/>
                 <pathelement location="${threadchecker.build}"/>
+                <pathelement location="${threadchecker.pluginbuild}"/>
                 <pathelement location="${boot.build}"/>
                 <pathelement location="${core.build}"/>
             </classpath>
