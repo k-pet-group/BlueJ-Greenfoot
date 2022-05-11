@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2021,2022 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1131,7 +1131,7 @@ class TCScanner extends TreePathScanner<Void, Void>
         {
             for (Tag t : Arrays.asList(Tag.values()))
             {
-                if (s.equals("value() = " + Tag.class.getCanonicalName() + "." + t.toString()))
+                if (s.equals("value() = " + Tag.class.getCanonicalName() + "." + t.toString()) || s.equals("value() = " + t.toString()))
                 {
                     tag = t;
                 }

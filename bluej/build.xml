@@ -105,7 +105,6 @@
         <pathelement location="${bluej_home}/lib/testlib/javaruntype-1.3.jar"/>
         <pathelement location="${bluej_home}/lib/testlib/junit-quickcheck-core-0.8.2.jar"/>
         <pathelement location="${bluej_home}/lib/testlib/ognl-3.1.12.jar"/>
-        <pathelement location="${bluej_home}/lib/testlib/openjfx-monocle-jdk-11+26.jar"/>
         <pathelement location="${bluej_home}/lib/testlib/testfx-core-4.0.15-alpha.jar"/>
         <pathelement location="${bluej_home}/lib/testlib/testfx-junit-4.0.15-alpha.jar"/>
     </path>
@@ -197,6 +196,7 @@
                 <path refid="bluej.class.path"/>
                 <path refid="test.class.path"/>
                 <pathelement location="${threadchecker.build}"/>
+                <pathelement location="${threadchecker.pluginbuild}"/>
                 <pathelement location="${boot.build}"/>
                 <pathelement location="${core.build}"/>
             </classpath>
@@ -353,7 +353,12 @@
     </target>
 
     <target name="test" depends="compile-boot, compile-core, compile-test">
-        <junit printsummary="yes" haltonfailure="yes">
+        <junit
+                printsummary="yes"
+                haltonfailure="yes"
+                jvm="${build_java_home}/${java_command_dir_name}/java"
+                fork="yes"
+        >
             <classpath>
                 <path refid="javafx.class.path"/>
                 <path refid="bluej.class.path"/>

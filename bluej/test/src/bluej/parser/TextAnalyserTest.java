@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 2014,2019,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,9 +22,11 @@
 package bluej.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import bluej.JavaFXThreadingRule;
 import bluej.debugger.gentype.GenTypeClass;
@@ -231,7 +233,8 @@ public class TextAnalyserTest
         
         // The result is a capture, check the supertypes are correct:
         GenTypeClass[] superTypes = tparams.get(0).asSolid().getReferenceSupertypes();
-        assertEquals(2, superTypes.length);
+        // In JDK 11 and earlier the answer was 2, but in JDK 12 onwards it's 4:
+        assertEquals(Arrays.stream(superTypes).map(Object::toString).collect(Collectors.joining()), 4, superTypes.length);
         List<GenTypeClass> superTypesList = new ArrayList<GenTypeClass>(superTypes.length);
         Collections.addAll(superTypesList, superTypes);
         GenTypeClass numberClass = new GenTypeClass(new JavaReflective(Number.class));
