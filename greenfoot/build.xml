@@ -245,6 +245,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <path refid="javafx.class.path"/>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${threadchecker.build}"/>
+                <pathelement location="${threadchecker.pluginbuild}"/>
             </classpath>
         </compile>
     </target>
@@ -635,7 +636,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <classpath>
                 <path refid="javafx.class.path"/>
                 <path refid="bluej.class.path"/>
-                <pathelement location="${bluej_home}/threadchecker/classes"/>
+                <pathelement location="${threadchecker.build}"/>
+                <pathelement location="${threadchecker.pluginbuild}"/>
             </classpath>
 
             <include name="greenfoot/core/WorldHandler.java"/>

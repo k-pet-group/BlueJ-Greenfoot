@@ -1,13 +1,13 @@
 before_script:
   - cp bluej/build.properties.template bluej/build.properties
-  - sed -i 's/build_java_home=.*/build_java_home=\/usr\/lib\/jvm\/java-11-openjdk-amd64\//' bluej/build.properties
-  - sed -i 's/openjfx_path.*/openjfx_path=\/usr\/share\/openjfx\//' bluej/build.properties
+  - sed -i 's/build_java_home=.*/build_java_home=\/usr\/lib\/jvm\/temurin-17-jdk-amd64\//' bluej/build.properties
+  - sed -i 's/openjfx_path.*/openjfx_path=\/usr\/share\/openjfx_monocle-sdk-gluon-17.0.3\//' bluej/build.properties
 
 stages:
  - build
 
 variables:
-  JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+  JAVA_HOME: /usr/lib/jvm/temurin-17-jdk-amd64
 
 antbuild:
   stage: build
