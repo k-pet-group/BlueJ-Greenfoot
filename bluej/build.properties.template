@@ -30,6 +30,13 @@ java_command_dir_name=bin
 openjfx_path=/Users/me/opt/javafx11.0
 
 #####################################################################
+# Directory containing legal/lib subdirectories with the JARs
+# for JavaFX Moncole. This is used for running headless tests via
+# the ant test task.  Not needed to build for release.
+#####################################################################
+openjfx_monocle_path=/usr/share/openjfx_monocle-sdk-gluon-17.0.3/
+
+#####################################################################
 # the run_java_home is used to find the jvm to run and the 
 # corresponding tools.jar file. Usually the same as build_java_home.
 #####################################################################

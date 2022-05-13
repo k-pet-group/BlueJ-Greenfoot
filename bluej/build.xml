@@ -77,6 +77,19 @@
         <pathelement location="${openjfx_path}/javafx-swing.jar"/>
         <pathelement location="${openjfx_path}/javafx-web.jar"/>
     </path>
+
+    <path id="javafx.monocle.class.path">
+        <pathelement location="${openjfx_monocle_path}/lib/javafx.base.jar"/>
+        <pathelement location="${openjfx_monocle_path}/lib/javafx.controls.jar"/>
+        <!-- Needed because of NSMenuFX -->
+        <pathelement location="${openjfx_monocle_path}/lib/javafx.fxml.jar"/>
+        <pathelement location="${openjfx_monocle_path}/lib/javafx.graphics.jar"/>
+        <!-- Needed for sound support, which is BlueJ because of Stride support for sound preview -->
+        <pathelement location="${openjfx_monocle_path}/lib/javafx.media.jar"/>
+        <pathelement location="${openjfx_monocle_path}/lib/javafx.properties.jar"/>
+        <pathelement location="${openjfx_monocle_path}/lib/javafx.swing.jar"/>
+        <pathelement location="${openjfx_monocle_path}/lib/javafx.web.jar"/>
+    </path>
     
     <!-- Set up classpath (does not include jar files built by us) -->
     <path id="bluej.class.path">
@@ -353,14 +366,13 @@
     </target>
 
     <target name="test" depends="compile-boot, compile-core, compile-test">
-        <junit
-                printsummary="yes"
-                haltonfailure="yes"
-                jvm="${build_java_home}/${java_command_dir_name}/java"
-                fork="yes"
+        <junit printsummary="yes"
+               haltonfailure="yes"
+               jvm="${build_java_home}/${java_command_dir_name}/java"
+               fork="yes"
         >
             <classpath>
-                <path refid="javafx.class.path"/>
+                <path refid="javafx.monocle.class.path"/>
                 <path refid="bluej.class.path"/>
                 <path refid="test.class.path"/>
                 
