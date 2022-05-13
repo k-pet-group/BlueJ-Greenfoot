@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2017,2021 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2017,2021,2022 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -68,8 +68,6 @@ import bluej.stride.framedjava.elements.VarElement;
 import bluej.stride.framedjava.elements.WhileElement;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 import static bluej.parser.lexer.JavaTokenTypes.SL_COMMENT;
 
@@ -1540,9 +1538,9 @@ public class JavaStrideParser extends JavaParser
     }
 
     @Override
-    protected void beginLambda(boolean lambdaIsBlock, LocatableToken openCurly)
+    protected void beginLambdaBody(boolean lambdaIsBlock, LocatableToken openCurly)
     {
-        super.beginLambda(lambdaIsBlock, openCurly);
+        super.beginLambdaBody(lambdaIsBlock, openCurly);
         if (lambdaIsBlock)
         {
             warnings.add(new UnsupportedFeature("lambda block"));
@@ -1558,9 +1556,9 @@ public class JavaStrideParser extends JavaParser
     }
 
     @Override
-    protected void endLambda(LocatableToken closeCurly)
+    protected void endLambdaBody(LocatableToken closeCurly)
     {
-        super.endLambda(closeCurly);
+        super.endLambdaBody(closeCurly);
         if (closeCurly != null)
             endExpressionMask(closeCurly);
     }
