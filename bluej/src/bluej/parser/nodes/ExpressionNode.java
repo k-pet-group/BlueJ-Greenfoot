@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012,2014,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012,2014,2019,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -65,7 +65,11 @@ public class ExpressionNode extends JavaParentNode
         pocEntityCache.clear();
         
         NodeAndPosition<ParsedNode> nap = findNodeAt(pos, nodePos);
-        if (nap != null && nap.getNode().getNodeType() == ParsedNode.NODETYPE_TYPEDEF) {
+        // The second part is needed for lambdas, which declare variables so we want to
+        // check for the subexpression where the lambda parameters are in scope:
+        if (nap != null &&
+                (nap.getNode().getNodeType() == ParsedNode.NODETYPE_TYPEDEF
+                || nap.getNode() instanceof JavaParentNode && !((JavaParentNode)nap.getNode()).variables.isEmpty())) {
             return nap.getNode().getExpressionType(pos, nap.getPosition(), defaultType, document);
         }
         return suggestAsExpression(pos, nodePos, this, defaultType, document);

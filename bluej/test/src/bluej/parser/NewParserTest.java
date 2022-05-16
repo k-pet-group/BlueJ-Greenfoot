@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2016,2017,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -479,6 +479,31 @@ public class NewParserTest extends TestCase
     public void testLambdaSingleParameter7()
     {
         checkLambdaExpression("(int... x) -> x+1"); // Modified declared-type parameter
+    }
+
+    public void testLambdaVarParameter1()
+    {
+        checkLambdaExpression("(var x) -> x+1");
+    }
+
+    public void testLambdaVarParameter2()
+    {
+        checkLambdaExpression("(var x, y) -> x+1"); // Modified declared-type parameter
+    }
+
+    public void testLambdaVarParameter3()
+    {
+        checkLambdaExpression("(var x, var y) -> x+1"); // Modified declared-type parameter
+    }
+    
+    public void testLambdaVarParameter4()
+    {
+        checkLambdaExpression("(x, var y) -> x+1"); // Modified declared-type parameter
+    }
+
+    public void testLambdaVarParameter5()
+    {
+        checkLambdaExpression("(x, var y, int... z) -> x+1"); // Modified declared-type parameter
     }
     
     public void testLambdaMultipleParameters1()
