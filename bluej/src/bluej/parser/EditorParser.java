@@ -66,7 +66,11 @@ public class EditorParser extends JavaParser
     private FieldNode lastField;
     private int arrayDecls;
     private String declaredPkg = "";
-    
+    // The location of the start of the type of the most recent lambda parameter type,
+    // or null if the most recent lambda parameter type did not have a specified type.
+    // So for (List<String> x) -> it's the List token, for (y) -> it's null.
+    private LocatableToken lastLambdaParamType = null;
+
     class TypeParam
     {
         String name;
@@ -1296,6 +1300,37 @@ public class EditorParser extends JavaParser
     {
         gotImplements = true;
         gotExtends = false;
+    }
+
+    @Override
+    protected void gotLambdaFormalName(LocatableToken name)
+    {
+        if (lastLambdaParamType != null)
+        {
+            // If it's a concrete type, record it:
+            int curOffset = getTopNodeOffset();
+            int insPos = lineColToPosition(lastLambdaParamType.getLine(), lastLambdaParamType.getColumn());
+            EntityResolver resolver = new PositionedResolver(scopeStack.peek(), insPos - curOffset);
+
+            JavaEntity paramType = ParseUtils.getTypeEntity(resolver, currentQuerySource(), lastTypeSpec);
+            FieldNode paramNode = new FieldNode(scopeStack.peek(), name.getText(), paramType,
+                    arrayDecls, currentModifiers);
+
+            arrayDecls = 0;
+            
+            JavaParentNode top = scopeStack.peek();
+            top.insertField(paramNode, insPos - curOffset, 0, nodeStructureListener);
+        }
+        super.gotLambdaFormalName(name);
+        lastLambdaParamType = null;
+    }
+
+    @Override
+    protected void gotLambdaFormalType(List<LocatableToken> type)
+    {
+        super.gotLambdaFormalType(type);
+        gotTypeSpec(type);
+        lastLambdaParamType = type.get(0);
     }
     
 }
