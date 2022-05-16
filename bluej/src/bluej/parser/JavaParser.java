@@ -3552,8 +3552,20 @@ public class JavaParser
         tokenStream.pushBack(token);
     }
 
+    /**
+     * Called when we find a lambda formal parameter, i.e. declaration of a parameter
+     * like (int x) ->
+     */
     protected void gotLambdaFormalParam() { }
+    /**
+     * Called when we find a lambda formal parameter name, i.e. the "x" in the 
+     * declaration of a parameter like (int x)
+     */
     protected void gotLambdaFormalName(LocatableToken name) { }
+    /**
+     * Called when we find a lambda formal parameter name, i.e. the "List&lt;Integer&gt;" in the 
+     * declaration of a parameter like (List&lt;Integer&gt; x)
+     */
     protected void gotLambdaFormalType(List<LocatableToken> type) { }
 
     /**
