@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017,2021,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -2891,7 +2891,7 @@ public class JavaParser
     private void parseLambdaBody()
     {
         boolean blockFollows = tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY;
-        beginLambda(blockFollows, blockFollows ? tokenStream.LA(1) : null);
+        beginLambdaBody(blockFollows, blockFollows ? tokenStream.LA(1) : null);
         if (blockFollows) {
             beginStmtblockBody(nextToken()); // consume the curly
             parseStmtBlock();
@@ -2903,22 +2903,25 @@ public class JavaParser
             }
             else {
                 endStmtblockBody(token, true);
-                endLambda(token);
+                endLambdaBody(token);
             }
         }
         else {
             parseExpression();
-            endLambda(null);
+            endLambdaBody(null);
         }
     }
 
     /**
-     * A lambda expression has been found.  If lambdaIsBlock, a statement block body
-     * follows, otherwise an expression follows.
+     * A lambda expression has been found and we are about to parse its body (the part after ->).
+     * If lambdaIsBlock, a statement block body follows, otherwise an expression follows.
      */
-    protected void beginLambda(boolean lambdaIsBlock, LocatableToken openCurly) { }
+    protected void beginLambdaBody(boolean lambdaIsBlock, LocatableToken openCurly) { }
 
-    protected void endLambda(LocatableToken closeCurly) { }
+    /**
+     * The end of the lambda body has been reached (either block or expression)
+     */
+    protected void endLambdaBody(LocatableToken closeCurly) { }
 
     /**
      * Parse an expression
@@ -3549,8 +3552,20 @@ public class JavaParser
         tokenStream.pushBack(token);
     }
 
+    /**
+     * Called when we find a lambda formal parameter, i.e. declaration of a parameter
+     * like (int x) ->
+     */
     protected void gotLambdaFormalParam() { }
+    /**
+     * Called when we find a lambda formal parameter name, i.e. the "x" in the 
+     * declaration of a parameter like (int x)
+     */
     protected void gotLambdaFormalName(LocatableToken name) { }
+    /**
+     * Called when we find a lambda formal parameter name, i.e. the "List&lt;Integer&gt;" in the 
+     * declaration of a parameter like (List&lt;Integer&gt; x)
+     */
     protected void gotLambdaFormalType(List<LocatableToken> type) { }
 
     /**
