@@ -59,20 +59,24 @@ public class ExpressionNode extends JavaParentNode
     }
     
     @Override
-    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document)
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document, ExpressionNode largestPlainExpressionNode)
     {
         valueEntityCache.clear();
         pocEntityCache.clear();
         
+        // If there's no outer expression node, we must be the outer expression node:
+        if (largestPlainExpressionNode == null)
+            largestPlainExpressionNode = this;
+        
         NodeAndPosition<ParsedNode> nap = findNodeAt(pos, nodePos);
-        // The second part is needed for lambdas, which declare variables so we want to
-        // check for the subexpression where the lambda parameters are in scope:
-        if (nap != null &&
-                (nap.getNode().getNodeType() == ParsedNode.NODETYPE_TYPEDEF
-                || nap.getNode() instanceof JavaParentNode && !((JavaParentNode)nap.getNode()).variables.isEmpty())) {
-            return nap.getNode().getExpressionType(pos, nap.getPosition(), defaultType, document);
+        if (nap != null && nap.getNode().getNodeType() != ParsedNode.NODETYPE_COMMENT)
+        {
+            return nap.getNode().getExpressionType(pos, nap.getPosition(), defaultType, document, largestPlainExpressionNode);
         }
-        return suggestAsExpression(pos, nodePos, this, defaultType, document);
+        else
+        {
+            return suggestAsExpression(pos, nodePos, largestPlainExpressionNode, defaultType, document);
+        }
     }
 
     @OnThread(Tag.FXPlatform)
