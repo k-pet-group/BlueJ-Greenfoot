@@ -678,9 +678,9 @@ public class JavaStrideParser extends JavaParser
     }
 
     @Override
-    protected void beginExpression(LocatableToken token)
+    protected void beginExpression(LocatableToken token, boolean isLambdaBody)
     {
-        super.beginExpression(token);
+        super.beginExpression(token, isLambdaBody);
         if (!expressionHandlers.isEmpty())
             expressionHandlers.peek().expressionBegun(token);
     }
