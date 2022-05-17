@@ -449,7 +449,7 @@ public class JavaParser
     }
     
     /** Saw the beginning of an expression */
-    protected void beginExpression(LocatableToken token) { }
+    protected void beginExpression(LocatableToken token, boolean isLambdaBody) { }
     
     /** Reached the end of an expression. The given token is the first one past the end. */
     protected void endExpression(LocatableToken token, boolean emptyExpression) { }
@@ -2907,7 +2907,7 @@ public class JavaParser
             }
         }
         else {
-            parseExpression();
+            parseExpression(true);
             endLambdaBody(null);
         }
     }
@@ -2923,13 +2923,18 @@ public class JavaParser
      */
     protected void endLambdaBody(LocatableToken closeCurly) { }
 
+    public final void parseExpression()
+    {
+        parseExpression(false);
+    }
+    
     /**
      * Parse an expression
      */
-    public void parseExpression()
+    private final void parseExpression(boolean isLambdaBody)
     {
         LocatableToken token = nextToken();
-        beginExpression(token);
+        beginExpression(token, isLambdaBody);
 
         exprLoop:
         while (true) {
