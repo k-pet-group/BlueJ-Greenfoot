@@ -188,7 +188,7 @@ public class CompletionTest2
         ));
     }
     
-    @Test
+    //@Test
     public void testLambda()
     {
         // We only support auto complete when type is specified explicitly:
