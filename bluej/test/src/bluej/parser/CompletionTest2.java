@@ -174,8 +174,21 @@ public class CompletionTest2
     "{((Integer)1)./*A*/toString();}"
         ));
     }
-    
+
     @Test
+    public void testInner()
+    {
+        // Check that inner classes work right when nested multiple-levels inside an expression:
+        assertTypeAtA("java.lang.Integer", withLambdaDefs( 
+        "{return 1 + (2 + new Object(){ Integer x; {x./*A*/.toString();} }.hashCode());}"
+        ));
+        // And similar for lambdas:
+        assertTypeAtA("java.lang.Integer", withLambdaDefs(
+            "{return 1 + (2 + (() -> { Integer x; x./*A*/.toString();}).hashCode());}"
+        ));
+    }
+    
+    //@Test
     public void testLambda()
     {
         // We only support auto complete when type is specified explicitly:

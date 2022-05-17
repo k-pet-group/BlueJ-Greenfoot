@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2019,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -368,7 +368,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     }
     
     @Override
-    public ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document)
+    public ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document, ExpressionNode largestPlainExpressionNode)
     {
         valueEntityCache.clear();
         pocEntityCache.clear();
@@ -377,7 +377,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
         ValueEntity myType = new ValueEntity(new GenTypeClass(new ParsedReflective(this)));
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {
-            return child.getNode().getExpressionType(pos, child.getPosition(), myType, document);
+            return child.getNode().getExpressionType(pos, child.getPosition(), myType, document, null);
         }
         
         // We don't return the specified default type (which must be an outer type). There

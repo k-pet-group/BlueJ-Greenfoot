@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2019,2020,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -223,11 +223,11 @@ public class FieldNode extends JavaParentNode
     }
     
     @Override
-    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document)
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document, ExpressionNode largestPlainExpressionNode)
     {
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(Math.max(pos - 1, 0), nodePos);
         if (child != null) {
-            return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
+            return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document, null);
         }
         
         // A field node can actually be an expression with a missing semicolon, followed

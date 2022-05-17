@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2014,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 2010,2011,2014,2019,2020,2021,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -432,7 +432,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     @OnThread(Tag.FXPlatform)
     public ExpressionTypeInfo getExpressionType(int pos, ReparseableDocument document)
     {
-        return getExpressionType(pos, 0, null, document);
+        return getExpressionType(pos, 0, null, document, null);
     }
 
     /**
@@ -442,14 +442,24 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param nodePos     The position of this node
      * @param defaultType The type to return if there is no explicit type at the given location
      * @param document    The source document
+     * @param largestPlainExpressionNode The top parent expression node of this node, which we will use to
+     *                                   calculate the expression type if we don't encounter an anonymous inner class
+     *                                   or lambda somewhere along the way.  Essentially, if you have an expression like
+     *                                   (1 + (2 + new Integer(3) {String s; {s.length();}}))
+     *                                   then if the completion is outside the "new Integer (..){...}" part then you want to
+     *                                   complete using the whole expression.  But if it is inside the inner class we want
+     *                                   to complete just inside that class, not the outer expression, because now "s" is available.
+     *                                   So we pass the top-most expression as largestPlainExpressionNode down the tree, until
+     *                                   we get to the inner class, where we pass null until we get to the relevant inner expression
+     *                                   (when we'll pass "s.length()" as the outer expression).
      */
     @OnThread(Tag.FXPlatform)
-    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document)
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document, ExpressionNode largestPlainExpressionNode)
     {
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null)
         {
-            return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
+            return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document, null);
         }
 
         GenTypeClass atype = (defaultType != null) ? defaultType.getType().asClass() : null;
