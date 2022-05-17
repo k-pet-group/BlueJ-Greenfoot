@@ -188,7 +188,7 @@ public class CompletionTest2
         ));
     }
     
-    //@Test
+    @Test
     public void testLambda()
     {
         // We only support auto complete when type is specified explicitly:
@@ -201,10 +201,76 @@ public class CompletionTest2
         assertTypeAtA(null, withLambdaDefs(
                 "{withInteger((var x) -> x./*A*/toString());}"
         ));
+
         // Explicit type:
         assertTypeAtA("java.lang.Integer", withLambdaDefs(
                 "{withInteger((Integer x) -> x./*A*/toString());}"
         ));
         
+        
+        // Check scope works inside lambda with a block:
+        assertTypeAtA("java.lang.Integer", withLambdaDefs("""
+                {
+                    withInteger((Integer x) -> {
+                        if (true)
+                        {
+                            x./*A*/toString();
+                        }
+                    });
+                }
+                """
+        ));
+        assertTypeAtA("java.lang.Double", withLambdaDefs("""
+                {
+                    withInteger((Integer x) -> {
+                        if (true)
+                        {
+                            Double y = 0.0;
+                            y./*A*/toString();
+                        }
+                    });
+                }
+                """
+        ));
+        // Check scope works inside nested lambda:
+        assertTypeAtA("java.lang.Integer", withLambdaDefs("""
+                {
+                    withInteger((Integer x) -> {
+                        withInteger((Integer y) -> {
+                            x./*A*/toString();
+                            y.toString();
+                        });
+                    });
+                }
+                """
+        ));
+        assertTypeAtA("java.lang.Integer", withLambdaDefs("""
+                {
+                    withInteger((Integer x) -> {
+                        withInteger((Integer y) -> {
+                            x.toString();
+                            y./*A*/toString();
+                        });
+                    });
+                }
+                """
+        ));
+        
+        // Check scope doesn't extend outside lambda:
+        assertTypeAtA(null, withLambdaDefs(
+            """
+            {
+                withInteger((Integer x) -> {});
+                x./*A*/toString();
+            }
+            """
+        ));
+        assertTypeAtA(null, withLambdaDefs(
+            """
+            {
+                int r = withInteger((Integer x) -> {}) + x./*A*/toString();
+            }
+            """
+        ));
     }
 }
