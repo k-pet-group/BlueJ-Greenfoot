@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2019,2020,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -257,7 +257,7 @@ public class MethodNode extends JavaParentNode
     
     @Override
     protected ExpressionTypeInfo getExpressionType(int pos, int nodePos,
-            JavaEntity defaultType, ReparseableDocument document)
+            JavaEntity defaultType, ReparseableDocument document, ExpressionNode largestPlainExpressionNode)
     {
         if (Modifier.isStatic(modifiers)) {
             JavaType dtype = defaultType.getType();
@@ -265,7 +265,7 @@ public class MethodNode extends JavaParentNode
                 defaultType = new TypeEntity(dtype);
             }
         }
-        return super.getExpressionType(pos, nodePos, defaultType, document);
+        return super.getExpressionType(pos, nodePos, defaultType, document, null);
     }
 
     /**

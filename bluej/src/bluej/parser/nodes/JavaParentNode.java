@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2014,2016,2017,2019, 2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2014,2016,2017,2019,2021,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -323,7 +323,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     
     @Override
     @OnThread(Tag.FXPlatform)
-    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document)
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document, ExpressionNode largestPlainExpressionNode)
     {
         // Clear the caches now to remove any entries which have become invalid due
         // to editing.
@@ -332,7 +332,7 @@ public abstract class JavaParentNode extends ParentParsedNode
         
         NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrBefore(pos, nodePos);
         if (child != null && child.getEnd() >= pos) {
-            return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
+            return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document, null);
         }
         
         int startpos = nodePos;
