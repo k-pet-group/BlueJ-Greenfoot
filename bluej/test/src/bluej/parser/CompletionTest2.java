@@ -162,6 +162,7 @@ public class CompletionTest2
                public class Foo
                {
                    private static void withInteger(Consumer<Integer> c) {}
+                   private static void withStringAndInteger(BiConsumer<String, Integer> c) {}
                """ + middle + """
                }
                """;
@@ -271,6 +272,14 @@ public class CompletionTest2
                 int r = withInteger((Integer x) -> {}) + x./*A*/toString();
             }
             """
+        ));
+        
+        // Check multiple parameters:
+        assertTypeAtA("java.lang.Integer", withLambdaDefs(
+            "{withStringAndInteger((String s, Integer x) -> x./*A*/toString());}"
+        ));
+        assertTypeAtA("java.lang.String", withLambdaDefs(
+            "{withStringAndInteger((String s, Integer x) -> s./*A*/length());}"
         ));
     }
 }
