@@ -1270,9 +1270,9 @@ public class EditorParser extends JavaParser
     }
     
     @Override
-    protected void beginExpression(LocatableToken token)
+    protected void beginExpression(LocatableToken token, boolean isLambdaBody)
     {
-        ExpressionNode nnode = new ExpressionNode(scopeStack.peek());
+        ExpressionNode nnode = isLambdaBody ? new LambdaBodyNode(scopeStack.peek()) : new ExpressionNode(scopeStack.peek());
         int curOffset = getTopNodeOffset();
         LocatableToken begin = token;
         int insPos = lineColToPosition(begin.getLine(), begin.getColumn());
