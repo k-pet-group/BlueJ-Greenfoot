@@ -116,4 +116,52 @@ public class ParseUtility
         TestableDocument doc = document;
         return new Parsed(doc, doc.getParser(), locations);
     }
+
+    /**
+     * Finds the direct child of "parent" within the parse tree of "p"
+     * that matches the String comment key "key".
+     * @param p The parsed document, from the parse method
+     * @param parent The node to search for a direct child within
+     * @param key The String comment key to look for (see parse method)
+     * @param nodeStartsWithComment Whether the node starts at the start of the comment
+     *                              (true for classes and methods, which treat the comment
+     *                              as Javadoc even if not using double-star)
+     *                              or after the comment (true for everything else)
+     * @param expectedNodeType Assert that the node type of the found node is equal to this value
+     * @return The found node
+     */
+    public static NodeTree.NodeAndPosition<ParsedNode> findInnerNode(Parsed p, NodeTree.NodeAndPosition<ParsedNode> parent, String key, boolean nodeStartsWithComment, int expectedNodeType)
+    {
+        int pos = nodeStartsWithComment ? p.positionStart(key) : p.positionEnd(key);
+        // The reason for the +1 is as follows.  Sometimes we have a comment just before
+        // a node, for example /*method*/void foo() {}
+        // If we find the node at the end position of the "method" comment, we will find
+        // the comment itself, which is almost never what we want.  The comments are there
+        // as placeholders, not as something we're interested in.  And if our findNodeAt
+        // request falls on the border between two elements it chooses the leftmost (earliest)
+        // one, hence the comment.  As a slight hack to avoid this, we add one so that we
+        // search after the position of interest:
+        NodeTree.NodeAndPosition<ParsedNode> nap = parent.getNode().findNodeAt(pos + 1, parent.getPosition());
+        assertEquals(pos, nap.getPosition());
+        assertEquals(expectedNodeType, nap.getNode().getNodeType());
+        return nap;
+    }
+
+    /**
+     * Finds the body of a method tagged "method-inner" in a method tagged
+     * "method" in a class body tagged "class-inner" in a class named "class"
+     * See SwitchExpressionTest or other callers for an example of usage.
+     */
+    public static NodeTree.NodeAndPosition<ParsedNode> findMethodBody(Parsed p)
+    {
+        return findInnerNode(p,
+            findInnerNode(p,
+                findInnerNode(p,
+                    findInnerNode(p, new NodeTree.NodeAndPosition<>(p.node(), 0, p.node().getSize()),    
+                    "class", true, ParsedNode.NODETYPE_TYPEDEF
+                ), "class-inner", true, ParsedNode.NODETYPE_NONE
+                ), "method", true, ParsedNode.NODETYPE_METHODDEF     
+            ), "method-inner", true, ParsedNode.NODETYPE_NONE        
+        );
+    }
 }
