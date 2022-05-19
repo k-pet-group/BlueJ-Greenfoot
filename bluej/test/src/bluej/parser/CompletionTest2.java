@@ -38,6 +38,8 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import static bluej.parser.ParseUtility.Parsed;
+import static bluej.parser.ParseUtility.parse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -64,53 +66,6 @@ public class CompletionTest2
     {
         resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
     }
-
-    /**
-     * A record with the output of the parse method, below.
-     * Gives the document, the parser node, and a map from identifier to integer positions within the string.
-     */
-    private record Parsed(TestableDocument doc, ParsedCUNode node, Map<String, Integer> positions)
-    {
-        public int position(String key)
-        {
-            Integer n = positions.get(key);
-            if (n == null)
-                throw new IllegalStateException("No such key: \"" + key + "\"");
-            else
-                return n;
-        }
-    }
-    
-    /**
-     * Parses the given Java source code.  Gives back the document, the parser node
-     * and a map from identifier to position.  For the map, all / *... * / (I can't put the
-     * actual slash-star here as it will end this comment!) comments in the source code
-     * have their position stored.  So if you write / * A * / (without any spaces) you
-     * get a map from "A" to the integer position of the leading slash in the source
-     * (not A itself; you get the start of the comment).  This is useful for calculating
-     * the completions at a particular point in the source.
-     */
-    private Parsed parse(String src)
-    {
-        JavaLexer tokens = new JavaLexer(new StringReader(src));
-        HashMap<String, Integer> locations = new HashMap<>();
-        LocatableToken token;
-        do
-        {
-            token = tokens.nextToken();
-            if (token.getType() == JavaTokenTypes.ML_COMMENT)
-            {
-                locations.put(token.getText().substring(2, token.getLength() - 2).trim(), token.getPosition());
-            }
-        }
-        while(token.getType() != JavaTokenTypes.EOF);
-        EntityResolver presolver = new PackageResolver(resolver, "");
-        TestableDocument document = new TestableDocument(presolver);
-        document.enableParser(true);
-        document.insertString(0, src);
-        TestableDocument doc = document;
-        return new Parsed(doc, doc.getParser(), locations);
-    }
     
     @Test
     public void testLocations()
@@ -119,7 +74,7 @@ public class CompletionTest2
         Parsed p = parse("""
                 /*A*/int /**B*/x
                 /* C */ = 99;/*D*/
-                """);
+                """, resolver);
         // Hand-calculated positions:
         assertEquals(Map.of(
             "A",0,
@@ -137,7 +92,7 @@ public class CompletionTest2
      */
     private void assertTypeAtA(String expectedTypeName, String javaSrc)
     {
-        Parsed p = parse(javaSrc);
+        Parsed p = parse(javaSrc, resolver);
         resolver.addCompilationUnit("", p.node());
 
         ExpressionTypeInfo suggests = p.node().getExpressionType(p.position("A"), p.doc());
