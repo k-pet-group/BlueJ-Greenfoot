@@ -23,19 +23,11 @@ package bluej.parser;
 
 import bluej.JavaFXThreadingRule;
 import bluej.parser.entity.ClassLoaderResolver;
-import bluej.parser.entity.EntityResolver;
-import bluej.parser.entity.PackageResolver;
-import bluej.parser.lexer.JavaLexer;
-import bluej.parser.lexer.JavaTokenTypes;
-import bluej.parser.lexer.LocatableToken;
-import bluej.parser.nodes.ParsedCUNode;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.StringReader;
-import java.util.HashMap;
 import java.util.Map;
 
 import static bluej.parser.ParseUtility.Parsed;
@@ -95,7 +87,7 @@ public class CompletionTest2
         Parsed p = parse(javaSrc, resolver);
         resolver.addCompilationUnit("", p.node());
 
-        ExpressionTypeInfo suggests = p.node().getExpressionType(p.position("A"), p.doc());
+        ExpressionTypeInfo suggests = p.node().getExpressionType(p.positionStart("A"), p.doc());
         if (expectedTypeName == null)
         {
             assertNull(suggests);

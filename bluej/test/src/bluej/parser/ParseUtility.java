@@ -26,35 +26,63 @@ import bluej.parser.entity.PackageResolver;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.nodes.ParsedNode;
 
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * A class with useful methods for testing the parser.
  */
 public class ParseUtility
 {
+    /** The start and end positions (within a document) of an element */
+    public record StartEnd(int start, int end) {}
 
     /**
      * A record with the output of the parse method, below.
      * Gives the document, the parser node, and a map from identifier to integer positions within the string.
      */
-    public record Parsed(TestableDocument doc, ParsedCUNode node, Map<String, Integer> positions)
+    public record Parsed(TestableDocument doc, ParsedCUNode node, Map<String, StartEnd> positions)
     {
         /**
-         * Gets the position within the source of the given String key
+         * Gets the start position within the source of the given String key
          * (see parse method below for more details)
          */
-        public int position(String key)
+        public int positionStart(String key)
         {
-            Integer n = positions.get(key);
+            StartEnd n = positions.get(key);
             if (n == null)
                 throw new IllegalStateException("No such key: \"" + key + "\"");
             else
-                return n;
+                return n.start();
+        }
+
+        /**
+         * Gets the end position within the source of the given String key
+         * (see parse method below for more details)
+         */
+        public int positionEnd(String key)
+        {
+            StartEnd n = positions.get(key);
+            if (n == null)
+                throw new IllegalStateException("No such key: \"" + key + "\"");
+            else
+                return n.end();
+        }
+
+        /**
+         * Gets the content of a given node by referencing its position
+         * against the source document that we hold.
+         */
+        public String nodeContent(NodeTree.NodeAndPosition<?> nap)
+        {
+            return doc.getFullText().substring(nap.getPosition(), nap.getEnd());
         }
     }
 
@@ -70,14 +98,14 @@ public class ParseUtility
     public static Parsed parse(String src, TestEntityResolver resolver)
     {
         JavaLexer tokens = new JavaLexer(new StringReader(src));
-        HashMap<String, Integer> locations = new HashMap<>();
+        HashMap<String, StartEnd> locations = new HashMap<>();
         LocatableToken token;
         do
         {
             token = tokens.nextToken();
             if (token.getType() == JavaTokenTypes.ML_COMMENT)
             {
-                locations.put(token.getText().substring(2, token.getLength() - 2).trim(), token.getPosition());
+                locations.put(token.getText().substring(2, token.getLength() - 2).trim(), new StartEnd(token.getPosition(), token.getPosition() + token.getLength()));
             }
         }
         while(token.getType() != JavaTokenTypes.EOF);
