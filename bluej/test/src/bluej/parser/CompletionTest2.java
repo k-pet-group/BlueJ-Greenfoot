@@ -22,6 +22,7 @@
 package bluej.parser;
 
 import bluej.JavaFXThreadingRule;
+import bluej.parser.ParseUtility.StartEnd;
 import bluej.parser.entity.ClassLoaderResolver;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -69,10 +70,10 @@ public class CompletionTest2
                 """, resolver);
         // Hand-calculated positions:
         assertEquals(Map.of(
-            "A",0,
-                "*B", 9,
-                "C", 17,
-                "D", 30
+            "A",new StartEnd(0, 5),
+                "*B", new StartEnd(9, 15),
+                "C", new StartEnd(17, 24),
+                "D", new StartEnd(30, 35)
         ), p.positions());
     }
     
