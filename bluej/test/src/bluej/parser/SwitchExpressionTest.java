@@ -141,4 +141,53 @@ public class SwitchExpressionTest
                 "/*switch-inner*/", "MONDAY", "FRIDAY", "SUNDAY", "numLetters = 6", "TUESDAY", "numLetters = 7", "THURSDAY", "SATURDAY", "numLetters = 8", "WEDNESDAY", "numLetters = 9", "new IllegalStateException(\"Invalid day: \" + day)"
         ), switchBodyContent.stream().map(nap -> p.nodeContent(nap)).collect(Collectors.toList()));
     }
+
+    @Test
+    public void testNewSimpleSwitch1()
+    {
+        Parsed p = parse(boilerplated(
+            """
+            /*switch*/switch (/*expression*/day/*end-expression*/)
+            {/*switch-inner*/
+                case MONDAY, FRIDAY, SUNDAY -> System.out.println(6);
+                case TUESDAY                -> System.out.println(7);
+                case THURSDAY, SATURDAY     -> System.out.println(8);
+                case WEDNESDAY              -> System.out.println(9);
+            }/*end-switch*/
+            """), resolver);
+
+        NodeAndPosition<ParsedNode> switchBody = getSwitchBody(p);
+
+        // Each case is a direct child: 
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
+
+        assertEquals(Arrays.asList(
+            "/*switch-inner*/", "MONDAY", "FRIDAY", "SUNDAY", "System.out.println(6)", "TUESDAY", "System.out.println(7)", "THURSDAY", "SATURDAY", "System.out.println(8)", "WEDNESDAY", "System.out.println(9)"
+        ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
+
+    }
+
+    @Test
+    public void testNewSimpleSwitch2()
+    {
+        Parsed p = parse(boilerplated(
+            """
+            /*switch*/switch (/*expression*/day/*end-expression*/)
+            {/*switch-inner*/
+                case a -> {System.out.println(1);}
+                case e -> throw new Exception();
+                case f -> {return 2;}
+                default -> {if (true) return 7;}
+            }/*end-switch*/
+            """), resolver);
+
+        NodeAndPosition<ParsedNode> switchBody = getSwitchBody(p);
+
+        // Each case is a direct child: 
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
+
+        assertEquals(Arrays.asList(
+            "/*switch-inner*/", "a", "{System.out.println(1);}", "e", "new Exception()", "f", "{return 2;}", "{if (true) return 7;}"
+        ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
+    }
 }
