@@ -24,6 +24,7 @@ package bluej.parser;
 import bluej.JavaFXThreadingRule;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.nodes.NodeTree;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
@@ -63,18 +64,52 @@ public class SwitchExpressionTest
         resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
     }
     
+    /**
+     * Wraps the content of a method into a class with a Day enum declaration.
+     */
+    public String boilerplated(String methodContent)
+    {
+        return
+            """
+            /*class*/class Foo {/*class-inner*/
+                public enum Day { SUNDAY, MONDAY, TUESDAY,
+                                WEDNESDAY, THURSDAY, FRIDAY, SATURDAY; }
+                             
+                /*method*/void method(Day day) {/*method-inner*/
+            """ + methodContent +
+            """
+                }
+            }
+            """;
+    }
+
+    /**
+     * Given a suitably annotated switch statement (see testStandardSwitch() for an example),
+     * picks out the node corresponding to the body of the switch.
+     */
+    private NodeAndPosition<ParsedNode> getSwitchBody(Parsed p)
+    {
+        NodeAndPosition<ParsedNode> methodBody = findMethodBody(p);
+        NodeAndPosition<ParsedNode> switchNode = findInnerNode(p, methodBody, "switch", false, ParsedNode.NODETYPE_SELECTION);
+        assertEquals(p.positionStart("end-switch"), switchNode.getEnd());
+
+        NodeAndPosition<ParsedNode> switchExpressionNode = findInnerNode(p, switchNode, "expression", false, ParsedNode.NODETYPE_EXPRESSION);
+        assertEquals(p.positionEnd("end-expression"), switchExpressionNode.getEnd());
+
+        ImmutableList<NodeAndPosition<ParsedNode>> switchContent = ImmutableList.copyOf(switchNode.getNode().getChildren(switchNode.getPosition()));
+        // The comment, the expression and the body
+        assertEquals(3, switchContent.size());
+        NodeAndPosition<ParsedNode> switchBody = switchContent.get(2);
+        assertEquals(p.positionStart("switch-inner"), switchBody.getPosition());
+        return switchBody;
+    }
+    
     @Test
     public void testStandardSwitch()
     {
-        Parsed p = parse(
+        Parsed p = parse(boilerplated(
         """
-                /*class*/class Foo {/*class-inner*/
-                    public enum Day { SUNDAY, MONDAY, TUESDAY,
-                                    WEDNESDAY, THURSDAY, FRIDAY, SATURDAY; }
-                                 
-                    /*method*/void method(Day day) {/*method-inner*/
                         int numLetters = 0;
-                        Day day = Day.WEDNESDAY;
                         /*switch*/switch (/*expression*/day/*end-expression*/) {/*switch-inner*/
                             case MONDAY:
                             case FRIDAY:
@@ -95,29 +130,64 @@ public class SwitchExpressionTest
                                 throw new IllegalStateException("Invalid day: " + day);
                         }/*end-switch*/
                         System.out.println(numLetters);
-                    }
-                }
-                """, resolver);
+                """), resolver);
 
-        NodeTree.NodeAndPosition<ParsedNode> methodBody = findMethodBody(p);
-        NodeTree.NodeAndPosition<ParsedNode> switchNode = findInnerNode(p, methodBody, "switch", false, ParsedNode.NODETYPE_SELECTION);
-        assertEquals(p.positionStart("end-switch"), switchNode.getEnd());
+        NodeAndPosition<ParsedNode> switchBody = getSwitchBody(p);
 
-        NodeTree.NodeAndPosition<ParsedNode> switchExpressionNode = findInnerNode(p, switchNode, "expression", false, ParsedNode.NODETYPE_EXPRESSION);
-        assertEquals(p.positionEnd("end-expression"), switchExpressionNode.getEnd());
-
-        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchContent = ImmutableList.copyOf(switchNode.getNode().getChildren(switchNode.getPosition()));
-        // The comment, the expression and the body
-        assertEquals(3, switchContent.size());
-        NodeTree.NodeAndPosition<ParsedNode> switchBody = switchContent.get(2);
-        assertEquals(p.positionStart("switch-inner"), switchBody.getPosition());
-        
         // All the lines in the switch -- case, statements, break -- are all direct children: 
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
         // Break and throw are ignored, only the expressions get put in the tree:
         assertEquals(Arrays.asList(
                 "/*switch-inner*/", "MONDAY", "FRIDAY", "SUNDAY", "numLetters = 6", "TUESDAY", "numLetters = 7", "THURSDAY", "SATURDAY", "numLetters = 8", "WEDNESDAY", "numLetters = 9", "new IllegalStateException(\"Invalid day: \" + day)"
         ), switchBodyContent.stream().map(nap -> p.nodeContent(nap)).collect(Collectors.toList()));
-        
+    }
+
+    @Test
+    public void testNewSimpleSwitch1()
+    {
+        Parsed p = parse(boilerplated(
+            """
+            /*switch*/switch (/*expression*/day/*end-expression*/)
+            {/*switch-inner*/
+                case MONDAY, FRIDAY, SUNDAY -> System.out.println(6);
+                case TUESDAY                -> System.out.println(7);
+                case THURSDAY, SATURDAY     -> System.out.println(8);
+                case WEDNESDAY              -> System.out.println(9);
+            }/*end-switch*/
+            """), resolver);
+
+        NodeAndPosition<ParsedNode> switchBody = getSwitchBody(p);
+
+        // Each case is a direct child: 
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
+
+        assertEquals(Arrays.asList(
+            "/*switch-inner*/", "MONDAY", "FRIDAY", "SUNDAY", "System.out.println(6)", "TUESDAY", "System.out.println(7)", "THURSDAY", "SATURDAY", "System.out.println(8)", "WEDNESDAY", "System.out.println(9)"
+        ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
+
+    }
+
+    @Test
+    public void testNewSimpleSwitch2()
+    {
+        Parsed p = parse(boilerplated(
+            """
+            /*switch*/switch (/*expression*/day/*end-expression*/)
+            {/*switch-inner*/
+                case a -> {System.out.println(1);}
+                case e -> throw new Exception();
+                case f -> {return 2;}
+                default -> {if (true) return 7;}
+            }/*end-switch*/
+            """), resolver);
+
+        NodeAndPosition<ParsedNode> switchBody = getSwitchBody(p);
+
+        // Each case is a direct child: 
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
+
+        assertEquals(Arrays.asList(
+            "/*switch-inner*/", "a", "{System.out.println(1);}", "e", "new Exception()", "f", "{return 2;}", "{if (true) return 7;}"
+        ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
     }
 }

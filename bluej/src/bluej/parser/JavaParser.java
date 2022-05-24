@@ -1462,10 +1462,49 @@ public class JavaParser
                 return parseSwitchStatement(token);
             case 9: // LITERAL_case
                 gotSwitchCase();
-                parseExpression();
+                // No (unbracketed) lambdas allowed in a case expression:
+                parseExpression(false, false);
                 token = nextToken();
-                if (token.getType() != JavaTokenTypes.COLON) {
+                boolean hadCommas = false;
+                while (token.getType() == JavaTokenTypes.COMMA)
+                {
+                    parseExpression(false, false);
+                    token = nextToken();
+                    hadCommas = true;
+                }
+                if (token.getType() == JavaTokenTypes.LAMBDA)
+                {
+                    // Right-hand side can be a single expression, a block or a throw
+                    // If we look at the first token we can spot the last two:
+                    token = tokenStream.LA(1);
+                    if (token.getType() == JavaTokenTypes.LCURLY || token.getType() == JavaTokenTypes.LITERAL_throw)
+                    {
+                        // Block or throw; both are statements:
+                        parseStatement();
+                    }
+                    else
+                    {
+                        parseExpression();
+                        // Expression should be followed by a semi-colon:
+                        token = tokenStream.nextToken();
+                        if (token.getType() != JavaTokenTypes.SEMI)
+                        {
+                            error("Expecting ';' after case body");
+                            tokenStream.pushBack(token);
+                            return null;
+                        }
+                    }
+                }
+                else if (token.getType() != JavaTokenTypes.COLON)
+                {
                     error("Expecting ':' at end of case expression");
+                    tokenStream.pushBack(token);
+                    return null;
+                }
+                else if (hadCommas)
+                {
+                    // COLON and hadCommas; incorrect:
+                    error("Comma-separated expressions not valid before ':' in case expression");
                     tokenStream.pushBack(token);
                     return null;
                 }
@@ -2907,7 +2946,7 @@ public class JavaParser
             }
         }
         else {
-            parseExpression(true);
+            parseExpression(true, true);
             endLambdaBody(null);
         }
     }
@@ -2925,13 +2964,13 @@ public class JavaParser
 
     public final void parseExpression()
     {
-        parseExpression(false);
+        parseExpression(false, true);
     }
     
     /**
      * Parse an expression
      */
-    private final void parseExpression(boolean isLambdaBody)
+    private final void parseExpression(boolean isLambdaBody, boolean lambdaAllowed)
     {
         LocatableToken token = nextToken();
         beginExpression(token, isLambdaBody);
@@ -2970,7 +3009,7 @@ public class JavaParser
                     gotMethodCall(token);
                     parseArgumentList(nextToken());
                 }
-                else if (tokenStream.LA(1).getType() == JavaTokenTypes.LAMBDA) {
+                else if (tokenStream.LA(1).getType() == JavaTokenTypes.LAMBDA && lambdaAllowed) {
                     nextToken(); // consume LAMBDA symbol
                     parseLambdaBody();
                 }
@@ -3159,7 +3198,7 @@ public class JavaParser
                         }
                     }
                     
-                    if (isLambda) {
+                    if (isLambda && lambdaAllowed) {
                         // now we need to consume the tokens.
                         parseLambdaParameterList();
                         token = nextToken();
