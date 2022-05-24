@@ -1385,6 +1385,7 @@ public class JavaParser
         statementTokenIndexes[JavaTokenTypes.LITERAL_try] = 14;
         statementTokenIndexes[JavaTokenTypes.IDENT] = 15;
         statementTokenIndexes[JavaTokenTypes.LITERAL_synchronized] = 16;
+        statementTokenIndexes[JavaTokenTypes.LITERAL_yield] = 116;
         
         // Modifiers
         statementTokenIndexes[JavaTokenTypes.LITERAL_public] = 17;
@@ -1619,6 +1620,16 @@ public class JavaParser
                     endSynchronizedBlock(token, false);
                     return null;
                 }
+            case 116: // LITERAL_yield
+                gotYieldStatement();
+                parseExpression();
+                token = nextToken();
+                if (token.getType() != JavaTokenTypes.SEMI) {
+                    tokenStream.pushBack(token);
+                    error(BJ003);
+                    return null;
+                }
+                return token;
             case 17: // LITERAL_public
             case 18: // LITERAL_private
             case 19: // LITERAL_protected
@@ -1722,6 +1733,8 @@ public class JavaParser
     protected void gotBreakContinue(LocatableToken keywordToken, LocatableToken labelToken) { }
 
     protected void gotReturnStatement(boolean hasValue) { }
+
+    protected void gotYieldStatement() { }
 
     protected void gotEmptyStatement() { }
 

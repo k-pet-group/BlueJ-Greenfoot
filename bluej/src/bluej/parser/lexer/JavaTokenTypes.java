@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009, 2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009, 2012,2014,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -139,7 +139,9 @@ public interface JavaTokenTypes
     int GOTO = 171;
     int LAMBDA = 172;
     int METHOD_REFERENCE = 173; // Java 8's '::' operator
+
+    int LITERAL_yield = 174;
     
-    int INVALID = 174;
+    int INVALID = 175;
     
 }
