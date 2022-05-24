@@ -230,4 +230,38 @@ public class CompletionTest2
             "{withStringAndInteger((String s, Integer x) -> s./*A*/length());}"
         ));
     }
+
+    @Test
+    public void testSwitch()
+    {
+        // The scope of a variable in a classic switch is all the way to the end, oddly:
+        assertTypeAtA("java.lang.String", withLambdaDefs(
+            """
+            switch (3)
+            {
+                case 1:
+                    String s = null;
+                    break;
+                case 2:
+                    s./*A*/length();
+                    break;
+            }    
+            """
+        ));
+
+        // But in a new simple switch, it's only the block it's in:
+        assertTypeAtA(null, withLambdaDefs(
+            """
+            switch (3)
+            {
+                case 1 -> {
+                    String s = null;
+                }
+                case 2 -> {
+                    s./*A*/length();
+                }
+            }    
+            """
+        ));
+    }
 }
