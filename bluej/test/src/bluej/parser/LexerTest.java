@@ -54,7 +54,7 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
-        ts = getLexerFor("return import package final");
+        ts = getLexerFor("return import package final yield");
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_return);
         token = (LocatableToken) ts.nextToken();
@@ -63,6 +63,8 @@ public class LexerTest extends junit.framework.TestCase
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_package);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.FINAL);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_yield);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
