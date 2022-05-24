@@ -249,7 +249,7 @@ public class JavaParser
     
     protected void endIfStmt(LocatableToken token, boolean included) { }
     
-    protected void beginSwitchStmt(LocatableToken token) { }
+    protected void beginSwitchStmt(LocatableToken token, boolean isSwitchExpression) { }
     
     protected void beginSwitchBlock(LocatableToken token) { }
     
@@ -1905,10 +1905,50 @@ public class JavaParser
 
     protected void gotAssert() { }
 
+    public LocatableToken parseSwitchExpression(LocatableToken token)
+    {        
+        beginSwitchStmt(token, true);
+        token = nextToken();
+        if (token.getType() != JavaTokenTypes.LPAREN) {
+            error("Expected '(' after 'switch'");
+            tokenStream.pushBack(token);
+            endSwitchStmt(token, false);
+            return null;
+        }
+        parseExpression();
+        token = nextToken();
+        if (token.getType() != JavaTokenTypes.RPAREN) {
+            error("Expected ')' at end of expression (in 'switch(...)')");
+            tokenStream.pushBack(token);
+            endSwitchStmt(token, false);
+            return null;
+        }
+        token = tokenStream.nextToken();
+        if (token.getType() != JavaTokenTypes.LCURLY) {
+            error("Expected '{' after 'switch(...)'");
+            tokenStream.pushBack(token);
+            endSwitchStmt(token, false);
+            return null;
+        }
+        beginSwitchBlock(token);
+        parseStmtBlock();
+        token = nextToken();
+        if (token.getType() != JavaTokenTypes.RCURLY) {
+            error("Missing '}' at end of 'switch' statement block");
+            tokenStream.pushBack(token);
+            endSwitchBlock(token);
+            endSwitchStmt(token, false);
+            return null;
+        }
+        endSwitchBlock(token);
+        endSwitchStmt(token, true);
+        return token;
+    }
+    
     /** Parse a "switch(...) {  }" statement. */
     public LocatableToken parseSwitchStatement(LocatableToken token)
     {
-        beginSwitchStmt(token);
+        beginSwitchStmt(token, false);
         token = nextToken();
         if (token.getType() != JavaTokenTypes.LPAREN) {
             error("Expected '(' after 'switch'");
@@ -2879,6 +2919,8 @@ public class JavaParser
         expressionTokenIndexes[JavaTokenTypes.BNOT] = 28;
         expressionTokenIndexes[JavaTokenTypes.INC] = 29;
         expressionTokenIndexes[JavaTokenTypes.DEC] = 30;
+        
+        expressionTokenIndexes[JavaTokenTypes.LITERAL_switch] = 31;
     }
     
     private static int [] expressionOpIndexes = new int[JavaTokenTypes.INVALID+1];
@@ -3270,6 +3312,11 @@ public class JavaParser
                 gotUnaryOperator(token);
                 token = nextToken();
                 continue exprLoop;
+            case 31: // LITERAL_switch
+                // Switch expression
+                parseSwitchExpression(token);
+                token = nextToken();
+                continue exprLoop;                
             default:
                 tokenStream.pushBack(token);
                 error("Invalid expression token: " + token.getText());
