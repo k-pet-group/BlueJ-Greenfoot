@@ -139,7 +139,6 @@ public interface JavaTokenTypes
     int GOTO = 171;
     int LAMBDA = 172;
     int METHOD_REFERENCE = 173; // Java 8's '::' operator
-
     int LITERAL_yield = 174;
     
     int INVALID = 175;
