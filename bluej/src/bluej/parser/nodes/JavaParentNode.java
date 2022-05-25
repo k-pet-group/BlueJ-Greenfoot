@@ -502,6 +502,7 @@ public abstract class JavaParentNode extends ParentParsedNode
                 case JavaTokenTypes.LITERAL_if:
                 case JavaTokenTypes.LITERAL_else:
                 case JavaTokenTypes.LITERAL_new:
+                case JavaTokenTypes.LITERAL_yield:
                     tokType = TokenType.KEYWORD1;
                     break;
 
