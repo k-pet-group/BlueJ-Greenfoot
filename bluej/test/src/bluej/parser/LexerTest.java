@@ -53,6 +53,7 @@ public class LexerTest extends junit.framework.TestCase
     
     public void testKeywordParse()
     {
+        // Modifiers
         TokenStream ts = getLexerFor("public private protected volatile transient abstract synchronized strictfp static");
         LocatableToken token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_public);
@@ -75,6 +76,7 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
+        // Additional keywords
         ts = getLexerFor("return import package final yield");
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_return);
@@ -89,7 +91,7 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
-        
+        // Type declaration words
         ts = getLexerFor("class interface enum extends implements");
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_class);
