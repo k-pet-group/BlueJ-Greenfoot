@@ -730,7 +730,7 @@ public class EditorParser extends JavaParser
     }
 
     @Override
-    protected void beginSwitchStmt(LocatableToken token)
+    protected void beginSwitchStmt(LocatableToken token, boolean isSwitchExpression)
     {
         beginIfStmt(token);
     }

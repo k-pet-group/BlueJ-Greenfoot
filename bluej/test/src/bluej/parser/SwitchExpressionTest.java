@@ -190,4 +190,207 @@ public class SwitchExpressionTest
             "/*switch-inner*/", "a", "{System.out.println(1);}", "e", "new Exception()", "f", "{return 2;}", "{if (true) return 7;}"
         ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
     }
+
+    @Test
+    public void testSwitchExpression1()
+    {
+        Parsed p = parse(boilerplated(
+            """
+            Day day = Day.WEDNESDAY;
+            /*print*/System.out.println(
+                /*switch*/switch (/*expression*/day/*end-expression*/) {/*switch-inner*/
+                    case MONDAY, FRIDAY, SUNDAY -> 6;
+                    case TUESDAY                -> 7;
+                    case THURSDAY, SATURDAY     -> 8;
+                    case WEDNESDAY              -> 9;
+                    default -> throw new IllegalStateException("Invalid day: " + day);
+                }/*end-switch*/
+            );
+            """), resolver);
+
+        NodeTree.NodeAndPosition<ParsedNode> methodBody = findMethodBody(p);
+        NodeTree.NodeAndPosition<ParsedNode> methodCallNode = findInnerNode(p, methodBody, "print", false, ParsedNode.NODETYPE_EXPRESSION);
+        NodeTree.NodeAndPosition<ParsedNode> switchNode = findInnerNode(p, methodCallNode, "switch", false, ParsedNode.NODETYPE_EXPRESSION);
+        switchNode = switchNode.getNode().getChildren(switchNode.getPosition()).next();
+        assertEquals(p.positionStart("end-switch"), switchNode.getEnd());
+
+        NodeTree.NodeAndPosition<ParsedNode> switchExpressionNode = findInnerNode(p, switchNode, "expression", false, ParsedNode.NODETYPE_EXPRESSION);
+        assertEquals(p.positionEnd("end-expression"), switchExpressionNode.getEnd());
+
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchContent = ImmutableList.copyOf(switchNode.getNode().getChildren(switchNode.getPosition()));
+        // The comment, the expression and the body
+        assertEquals(3, switchContent.size());
+        NodeTree.NodeAndPosition<ParsedNode> switchBody = switchContent.get(2);
+        assertEquals(p.positionStart("switch-inner"), switchBody.getPosition());
+
+        // All the lines in the switch -- case, statements, break -- are all direct children: 
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
+        // Break and throw are ignored, only the expressions get put in the tree:
+        assertEquals(Arrays.asList(
+            "/*switch-inner*/", "MONDAY", "FRIDAY", "SUNDAY", "6", "TUESDAY", "7", "THURSDAY", "SATURDAY", "8", "WEDNESDAY", "9", "new IllegalStateException(\"Invalid day: \" + day)"
+        ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
+
+    }
+
+    @Test
+    public void testSwitchExpression2()
+    {
+        Parsed p = parse(boilerplated(
+            """
+                int k = 7;
+                /*assign*/String value = /*plus*/"k is " + /*switch*/switch (/*expression*/k/*end-expression*/) {/*switch-inner*/
+                   case  1 -> "one";
+                   case  2 -> "two";
+                   default -> "many";
+                }/*end-switch*/;
+                """), resolver);
+
+        NodeTree.NodeAndPosition<ParsedNode> methodBody = findMethodBody(p);
+        NodeTree.NodeAndPosition<ParsedNode> varNode = findInnerNode(p, methodBody, "assign", false, ParsedNode.NODETYPE_FIELD);
+        NodeTree.NodeAndPosition<ParsedNode> plusNode = findInnerNode(p, varNode, "plus", false, ParsedNode.NODETYPE_EXPRESSION);
+        NodeTree.NodeAndPosition<ParsedNode> switchNode = findInnerNode(p, plusNode, "switch", false, ParsedNode.NODETYPE_SELECTION);
+        assertEquals(p.positionStart("end-switch"), switchNode.getEnd());
+
+        NodeTree.NodeAndPosition<ParsedNode> switchExpressionNode = findInnerNode(p, switchNode, "expression", false, ParsedNode.NODETYPE_EXPRESSION);
+        assertEquals(p.positionEnd("end-expression"), switchExpressionNode.getEnd());
+
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchContent = ImmutableList.copyOf(switchNode.getNode().getChildren(switchNode.getPosition()));
+        // The comment, the expression and the body
+        assertEquals(3, switchContent.size());
+        NodeTree.NodeAndPosition<ParsedNode> switchBody = switchContent.get(2);
+        assertEquals(p.positionStart("switch-inner"), switchBody.getPosition());
+
+        // All the lines in the switch -- case, statements, break -- are all direct children: 
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
+        // Break and throw are ignored, only the expressions get put in the tree:
+        assertEquals(Arrays.asList(
+            "/*switch-inner*/", "1", "\"one\"", "2", "\"two\"", "\"many\""
+        ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
+
+    }
+
+    @Test
+    public void testSwitchExpression3()
+    {
+        Parsed p = parse(boilerplated(
+            """
+            /*assign*/int j = /*switch*/switch (/*expression*/day/*end-expression*/) {/*switch-inner*/
+                case MONDAY  -> 0;
+                case TUESDAY -> 1;
+                default      -> {
+                    int k = day.toString().length();
+                    int result = f(k);
+                    yield result;
+                }
+            }/*end-switch*/;
+            """), resolver);
+
+        NodeTree.NodeAndPosition<ParsedNode> methodBody = findMethodBody(p);
+        NodeTree.NodeAndPosition<ParsedNode> varNode = findInnerNode(p, methodBody, "assign", false, ParsedNode.NODETYPE_FIELD);
+        NodeTree.NodeAndPosition<ParsedNode> switchNode = findInnerNode(p, varNode, "switch", false, ParsedNode.NODETYPE_EXPRESSION);
+        switchNode = switchNode.getNode().getChildren(switchNode.getPosition()).next();
+        assertEquals(p.positionStart("end-switch"), switchNode.getEnd());
+
+        NodeTree.NodeAndPosition<ParsedNode> switchExpressionNode = findInnerNode(p, switchNode, "expression", false, ParsedNode.NODETYPE_EXPRESSION);
+        assertEquals(p.positionEnd("end-expression"), switchExpressionNode.getEnd());
+
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchContent = ImmutableList.copyOf(switchNode.getNode().getChildren(switchNode.getPosition()));
+        // The comment, the expression and the body
+        assertEquals(3, switchContent.size());
+        NodeTree.NodeAndPosition<ParsedNode> switchBody = switchContent.get(2);
+        assertEquals(p.positionStart("switch-inner"), switchBody.getPosition());
+
+        // All the lines in the switch -- case, statements, break -- are all direct children: 
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
+        // Break and throw are ignored, only the expressions get put in the tree:
+        assertEquals(Arrays.asList(
+            "/*switch-inner*/", "MONDAY", "0", "TUESDAY", "1",
+"""
+{
+        int k = day.toString().length();
+        int result = f(k);
+        yield result;
+    }"""
+        ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
+
+    }
+
+    @Test
+    public void testSwitchExpression4()
+    {
+        Parsed p = parse(boilerplated(
+            """
+            /*assign*/int result = /*switch*/switch (/*expression*/s/*end-expression*/) {/*switch-inner*/
+                case "Foo":
+                    yield 1;
+                case "Bar":
+                    yield 2;
+                default:
+                    System.out.println("Neither Foo nor Bar, hmmm...");
+                    yield 0;
+            }/*end-switch*/;
+            """), resolver);
+
+        NodeTree.NodeAndPosition<ParsedNode> methodBody = findMethodBody(p);
+        NodeTree.NodeAndPosition<ParsedNode> varNode = findInnerNode(p, methodBody, "assign", false, ParsedNode.NODETYPE_FIELD);
+        NodeTree.NodeAndPosition<ParsedNode> switchNode = findInnerNode(p, varNode, "switch", false, ParsedNode.NODETYPE_EXPRESSION);
+        switchNode = switchNode.getNode().getChildren(switchNode.getPosition()).next();
+        assertEquals(p.positionStart("end-switch"), switchNode.getEnd());
+
+        NodeTree.NodeAndPosition<ParsedNode> switchExpressionNode = findInnerNode(p, switchNode, "expression", false, ParsedNode.NODETYPE_EXPRESSION);
+        assertEquals(p.positionEnd("end-expression"), switchExpressionNode.getEnd());
+
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchContent = ImmutableList.copyOf(switchNode.getNode().getChildren(switchNode.getPosition()));
+        // The comment, the expression and the body
+        assertEquals(3, switchContent.size());
+        NodeTree.NodeAndPosition<ParsedNode> switchBody = switchContent.get(2);
+        assertEquals(p.positionStart("switch-inner"), switchBody.getPosition());
+
+        // All the lines in the switch -- case, statements, break -- are all direct children: 
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
+        // Break and throw are ignored, only the expressions get put in the tree:
+        assertEquals(Arrays.asList(
+            "/*switch-inner*/", "\"Foo\"", "1", "\"Bar\"", "2", "System.out.println(\"Neither Foo nor Bar, hmmm...\")", "0"
+        ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
+
+    }
+
+    @Test
+    public void testSwitchExpression5()
+    {
+        // Check lambda in a new switch is associated correctly:
+        // case a -> b -> c;
+        // should parse as case a -> (b -> c), NOT as case (a -> b) -> c
+        Parsed p = parse(boilerplated(
+            """
+            /*print*/System.out.println(/*switch*/switch (/*expression*/day/*end-expression*/)
+            {/*switch-inner*/
+                case a -> b -> c;
+                case e -> f -> g -> h;
+                default -> i -> j;
+            }/*end-switch*/);
+            """), resolver);
+
+        NodeTree.NodeAndPosition<ParsedNode> methodBody = findMethodBody(p);
+        NodeTree.NodeAndPosition<ParsedNode> methodCallNode = findInnerNode(p, methodBody, "print", false, ParsedNode.NODETYPE_EXPRESSION);
+        NodeTree.NodeAndPosition<ParsedNode> switchNode = findInnerNode(p, methodCallNode, "switch", false, ParsedNode.NODETYPE_EXPRESSION);
+        switchNode = switchNode.getNode().getChildren(switchNode.getPosition()).next();
+        assertEquals(p.positionStart("end-switch"), switchNode.getEnd());
+
+        NodeTree.NodeAndPosition<ParsedNode> switchExpressionNode = findInnerNode(p, switchNode, "expression", false, ParsedNode.NODETYPE_EXPRESSION);
+        assertEquals(p.positionEnd("end-expression"), switchExpressionNode.getEnd());
+
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchContent = ImmutableList.copyOf(switchNode.getNode().getChildren(switchNode.getPosition()));
+        // The comment, the expression and the body
+        assertEquals(3, switchContent.size());
+        NodeTree.NodeAndPosition<ParsedNode> switchBody = switchContent.get(2);
+        assertEquals(p.positionStart("switch-inner"), switchBody.getPosition());
+        
+        // Each case is a direct child: 
+        ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
+
+        assertEquals(Arrays.asList(
+            "/*switch-inner*/", "a", "b -> c", "e", "f -> g -> h", "i -> j"
+        ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
+    }
 }

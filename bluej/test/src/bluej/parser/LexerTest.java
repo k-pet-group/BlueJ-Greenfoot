@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2009,2010,2011,2012,2014,2016,2022  Michael Kolling and John Rosenberg
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.parser;
 
 import java.io.StringReader;
@@ -32,6 +53,7 @@ public class LexerTest extends junit.framework.TestCase
     
     public void testKeywordParse()
     {
+        // Modifiers
         TokenStream ts = getLexerFor("public private protected volatile transient abstract synchronized strictfp static");
         LocatableToken token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_public);
@@ -54,7 +76,8 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
-        ts = getLexerFor("return import package final");
+        // Additional keywords
+        ts = getLexerFor("return import package final yield");
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_return);
         token = (LocatableToken) ts.nextToken();
@@ -64,9 +87,11 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.FINAL);
         token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_yield);
+        token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
-        
+        // Type declaration words
         ts = getLexerFor("class interface enum extends implements");
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_class);
