@@ -237,6 +237,7 @@ public class SwitchExpressionTest
     {
         Parsed p = parse(boilerplated(
             """
+                int k = 7;
                 /*assign*/String value = /*plus*/"k is " + /*switch*/switch (/*expression*/k/*end-expression*/) {/*switch-inner*/
                    case  1 -> "one";
                    case  2 -> "two";
