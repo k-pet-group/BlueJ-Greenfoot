@@ -218,39 +218,72 @@ public final class JavaLexer implements TokenStream
         } while (Character.isJavaIdentifierPart(thisChar));
     }
 
-    private boolean getTokenText(char endChar)
+    /**
+     * Reads in a character or string literal as a single token.
+     * @param newlineAllowed Whether a newline is allowed inside the literal (it is allowed in Java's new text blocks feature)
+     * @param terminator The terminator of the literal, can be ', ", or """
+     * @param initialContent Any initial content that was consumed in the process of detecting this token.
+     *                       For example, in the course of working out whether "a" is a simple string
+     *                       literal or a multiline block, we will have consumed the 'a' character,
+     *                       so we pass it in here as initialContent in order to lex it and not omit it.
+     *                       It is an int list because it matches the type of readNextChar()
+     * @return True if the lexing was successful, false if it was not (due to unexpected newline or EOF)
+     */
+    private boolean getTokenText(boolean newlineAllowed, String terminator, int... initialContent)
     {
-        char thisChar=endChar;
-        int rval=0;     
-        boolean complete = false;
+        int initialContentIndex = 0;
+        int terminatorIndex = 0;
         boolean escape = false;
-        while (!complete){  
-            rval=readNextChar();
+        while (true)
+        {  
+            final int rval;
+            if (initialContentIndex < initialContent.length)
+            {
+                rval = initialContent[initialContentIndex];
+                initialContentIndex += 1;
+            }
+            else
+            {
+                rval = readNextChar();
+            }
             //eof
-            if (rval==-1){
+            if (rval==-1)
+            {
                 return false;
             }
-            thisChar = (char)rval; 
-            if (thisChar=='\n'){
+            char thisChar = (char)rval; 
+            if (thisChar == '\n' && !newlineAllowed)
+            {
                 return false;
             }
 
             textBuffer.append(thisChar);
-            if (! escape) {
-                if (thisChar == '\\') {
+            if (! escape)
+            {
+                if (thisChar == '\\')
+                {
                     escape = true;
                 }
                 //endChar is the flag for the end of reading
-                if (thisChar == endChar)  {
-                    readNextChar();
-                    return true;
+                if (thisChar == terminator.charAt(terminatorIndex))
+                {
+                    terminatorIndex += 1;
+                    if (terminatorIndex >= terminator.length())
+                    {
+                        readNextChar();
+                        return true;
+                    }
+                }
+                else
+                {
+                    terminatorIndex = 0;
                 }
             }
-            else {
+            else
+            {
                 escape = false;
             }
         }
-        return complete;
     }
 
     private boolean isHexDigit(char ch)
@@ -485,7 +518,33 @@ public final class JavaLexer implements TokenStream
         int type= JavaTokenTypes.INVALID;
         textBuffer.append(ch); 
         if ('"' == ch)
-            return getStringLiteral();
+        {
+            readNextChar();
+            if (rChar == '"')
+            {
+                // Either empty String literal ("" followed by non-")
+                // or beginning of a text block (triple """)
+                readNextChar();
+                if (rChar == '"')
+                {
+                    // Text block:
+                    textBuffer.append('"');
+                    textBuffer.append('"');
+                    return getStringLiteral(true);
+                }
+                else
+                {
+                    // Empty string literal:
+                    textBuffer.append('"');
+                    return JavaTokenTypes.STRING_LITERAL;
+                }
+            }
+            else
+            {
+                // Not a ", so first character of a String literal:
+                return getStringLiteral(false, rChar);
+            }
+        }
         if ('\'' == ch)
             return getCharLiteral();
         if ('?' == ch) {
@@ -606,18 +665,18 @@ public final class JavaLexer implements TokenStream
         return JavaTokenTypes.BAND;
     }
 
-    private int getStringLiteral()
+    private int getStringLiteral(boolean multilineBlock, int... initialContent)
     {
-        boolean success=getTokenText('"');
+        boolean success=getTokenText(multilineBlock, multilineBlock ? "\"\"\"" : "\"", initialContent);
         if (success) {
-            return JavaTokenTypes.STRING_LITERAL;
+            return multilineBlock ? JavaTokenTypes.STRING_LITERAL_MULTILINE : JavaTokenTypes.STRING_LITERAL;
         }
         return JavaTokenTypes.INVALID;     
     }
 
     private int getCharLiteral()
     {
-        boolean success=getTokenText('\'');
+        boolean success=getTokenText(false, "\'");
         if (success) {
             return JavaTokenTypes.CHAR_LITERAL;
         }

@@ -543,6 +543,49 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(11, token.getColumn());
         assertEquals(JavaTokenTypes.IDENT, token.getType());
     }
+
+    public void testTextBlock()
+    {
+        TokenStream ts = getLexerFor("\"\"\"\none line text block\"\"\"identifier");
+        LocatableToken token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.STRING_LITERAL_MULTILINE, token.getType());
+        assertEquals("\"\"\"\none line text block\"\"\"", token.getText());
+        assertEquals(1, token.getLine());
+        assertEquals(1, token.getColumn());
+        assertEquals(2, token.getEndLine());
+        assertEquals(23, token.getEndColumn());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        assertEquals(23, token.getColumn());
+        assertEquals("identifier", token.getText());
+
+
+        ts = getLexerFor("\"\"\"\nfirst line\nsecond line\"\\\"\n  \"\"\"identifier");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.STRING_LITERAL_MULTILINE, token.getType());
+        assertEquals("\"\"\"\nfirst line\nsecond line\"\\\"\n  \"\"\"", token.getText());
+        assertEquals(1, token.getLine());
+        assertEquals(1, token.getColumn());
+        assertEquals(4, token.getEndLine());
+        assertEquals(6, token.getEndColumn());
+
+        ts = getLexerFor("\"\"\"\nbefore\"text in quotes\"\n\"\"\"identifier");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.STRING_LITERAL_MULTILINE, token.getType());
+        assertEquals("\"\"\"\nbefore\"text in quotes\"\n\"\"\"", token.getText());
+        assertEquals(1, token.getLine());
+        assertEquals(1, token.getColumn());
+        assertEquals(3, token.getEndLine());
+        assertEquals(4, token.getEndColumn());
+        ts = getLexerFor("\"\"\"\nbefore\"text in quotes\\\"\"\"\"identifier");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.STRING_LITERAL_MULTILINE, token.getType());
+        assertEquals("\"\"\"\nbefore\"text in quotes\\\"\"\"\"", token.getText());
+        assertEquals(1, token.getLine());
+        assertEquals(1, token.getColumn());
+        assertEquals(2, token.getEndLine());
+        assertEquals(27, token.getEndColumn());
+    }
     
     public void testJava7NumLiterals() throws Exception
     {
