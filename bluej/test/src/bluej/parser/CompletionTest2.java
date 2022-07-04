@@ -264,4 +264,67 @@ public class CompletionTest2
             """
         ));
     }
+
+    @Test
+    public void testStaticInner()
+    {
+        // Check that static items of non-static inner classes work:
+        assertTypeAtA("java.lang.String", 
+            """
+            class Outer
+            {
+                class Inner
+                {
+                    static String s;
+                }
+                
+                public void foo()
+                {
+                    Outer.Inner.s./*A*/length();
+                }
+            }    
+            """
+        );
+
+        assertTypeAtA("java.lang.String",
+            """
+            class Grandparent
+            {
+                class Parent
+                {
+                    class Child
+                    {
+                        static String s;
+                    }
+                }
+                
+                public void foo()
+                {
+                    Grandparent.Parent.Child.s./*A*/length();
+                }
+            }    
+            """
+        );
+
+        assertTypeAtA("java.lang.String",
+            """
+            class Grandparent
+            {
+                class Parent
+                {
+                    class Child
+                    {
+                        static String getString() {return ""};
+                    }
+                }
+                
+                public void foo()
+                {
+                    Grandparent.Parent.Child.getString()./*A*/length();
+                }
+            }    
+            """
+        );
+
+    }
 }
