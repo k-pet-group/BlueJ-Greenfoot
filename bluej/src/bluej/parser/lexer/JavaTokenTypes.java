@@ -140,7 +140,8 @@ public interface JavaTokenTypes
     int LAMBDA = 172;
     int METHOD_REFERENCE = 173; // Java 8's '::' operator
     int LITERAL_yield = 174;
+    int STRING_LITERAL_MULTILINE = 175; // The """ text blocks
     
-    int INVALID = 175;
+    int INVALID = 176;
     
 }
