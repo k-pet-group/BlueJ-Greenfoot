@@ -568,6 +568,23 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(1, token.getColumn());
         assertEquals(4, token.getEndLine());
         assertEquals(6, token.getEndColumn());
+
+        ts = getLexerFor("\"\"\"\nbefore\"text in quotes\"\n\"\"\"identifier");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.STRING_LITERAL_MULTILINE, token.getType());
+        assertEquals("\"\"\"\nbefore\"text in quotes\"\n\"\"\"", token.getText());
+        assertEquals(1, token.getLine());
+        assertEquals(1, token.getColumn());
+        assertEquals(3, token.getEndLine());
+        assertEquals(4, token.getEndColumn());
+        ts = getLexerFor("\"\"\"\nbefore\"text in quotes\\\"\"\"\"identifier");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.STRING_LITERAL_MULTILINE, token.getType());
+        assertEquals("\"\"\"\nbefore\"text in quotes\\\"\"\"\"", token.getText());
+        assertEquals(1, token.getLine());
+        assertEquals(1, token.getColumn());
+        assertEquals(2, token.getEndLine());
+        assertEquals(27, token.getEndColumn());
     }
     
     public void testJava7NumLiterals() throws Exception

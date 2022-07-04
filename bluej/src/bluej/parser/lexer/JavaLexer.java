@@ -226,6 +226,7 @@ public final class JavaLexer implements TokenStream
      *                       For example, in the course of working out whether "a" is a simple string
      *                       literal or a multiline block, we will have consumed the 'a' character,
      *                       so we pass it in here as initialContent in order to lex it and not omit it.
+     *                       It is an int list because it matches the type of readNextChar()
      * @return True if the lexing was successful, false if it was not (due to unexpected newline or EOF)
      */
     private boolean getTokenText(boolean newlineAllowed, String terminator, int... initialContent)
