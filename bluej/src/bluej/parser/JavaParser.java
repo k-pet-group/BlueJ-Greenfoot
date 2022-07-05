@@ -40,13 +40,18 @@ import bluej.parser.lexer.LocatableToken;
  * Base class for Java parsers.
  * 
  * <p>We parse the source, and when we see certain constructs we call a corresponding method
- * which subclasses can override (for instance, beginForLoop, beginForLoopBody, endForLoop).
+ * from our JavaParserCallbacks parent class, which subclasses can override (for instance,
+ * beginForLoop, beginForLoopBody, endForLoop).
+ * 
+ * Almost all of the methods defined by this class are final, to avoid accidentally overriding them
+ * in subclasses and accidentally changing the parser behaviour.
+ * 
  * In general it is arranged so that a call to beginXYZ() is always followed by a call to
  * endXYZ(). 
  * 
  * @author Davin McCall
  */
-public class JavaParser
+public class JavaParser extends JavaParserCallbacks
 {
     protected JavaTokenFilter tokenStream;
     protected LocatableToken lastToken;
@@ -84,7 +89,7 @@ public class JavaParser
         tokenStream = new JavaTokenFilter(lexer, this);
     }
     
-    public JavaTokenFilter getTokenStream()
+    public final JavaTokenFilter getTokenStream()
     {
         return tokenStream;
     }
@@ -94,7 +99,7 @@ public class JavaParser
      * Many parser methods return after having read a complete structure (such as a class definition). This
      * method allows the retrieval of the last token which was actually part of the structure.
      */
-    public LocatableToken getLastToken()
+    public final LocatableToken getLastToken()
     {
         return lastToken;
     }
@@ -162,428 +167,12 @@ public class JavaParser
         finishedCU(state);
     }
     
-    protected void beginPackageStatement(LocatableToken token) {  }
-
-    /** We have the package name for this source */
-    protected void gotPackage(List<LocatableToken> pkgTokens) { }
-
-    /** We've seen the semicolon at the end of a "package" statement. */
-    protected void gotPackageSemi(LocatableToken token) { }
-
-    /** Saw a modifier (public,private etc) */
-    protected void gotModifier(LocatableToken token) { }
-    
-    /** 
-     * Modifiers were consumed. This is called after the entity to which the modifiers apply
-     * has been identified (eg gotTypeDef() called)
-     */
-    protected void modifiersConsumed() { }
-    
-    /** Beginning of some arbitrary grammatical element */
-    protected void beginElement(LocatableToken token) { }
-
-    /** End of some arbitrary grammatical element.
-     * 
-     * @param token  The end token 
-     * @param included  True if the end token is part of the element; false if it is part of the next element.
-     */
-    protected void endElement(LocatableToken token, boolean included) { }
-
-    /**
-     * Got the beginning (opening brace) of a method or constructor body.
-     */
-    protected void beginMethodBody(LocatableToken token) { }
-    
-    /**
-     * End of a method or constructor body reached.
-     */
-    protected void endMethodBody(LocatableToken token, boolean included) { }
-    
-    protected void endMethodDecl(LocatableToken token, boolean included)
-    {
-        endElement(token, included);
-    }
-        
-    /**
-     * Reached a compilation unit state.
-     * State 1 = package statement parsed. State 2 = one or more type definitions parsed
-     */
-    protected void reachedCUstate(int i) { }
-
-    /**
-     * Finished parsing a compilation unit.
-     * @param state Our last state: see reachedCUState for details
-     */
-    protected void finishedCU(int state) { }
-
-    /** We've seen the semicolon at the end of an "import" statement */
-    protected void gotImportStmtSemi(LocatableToken token)
-    {
-        endElement(token, true);
-    }
-
-    protected void beginForLoop(LocatableToken token) { beginElement(token); }
-    
-    protected void beginForLoopBody(LocatableToken token) { }
-    
-    protected void endForLoopBody(LocatableToken token, boolean included) { }
-
-    protected void endForLoop(LocatableToken token, boolean included) { }
-    
-    protected void beginWhileLoop(LocatableToken token) { }
-
-    protected void beginWhileLoopBody(LocatableToken token) { }
-
-    protected void endWhileLoopBody(LocatableToken token, boolean included) { }
-    
-    protected void endWhileLoop(LocatableToken token, boolean included) { }
-    
-    protected void beginIfStmt(LocatableToken token) { }
-    
-    /** Begin an "if" conditional block (the part that is executed conditionally) */
-    protected void beginIfCondBlock(LocatableToken token) { }
-    
-    protected void endIfCondBlock(LocatableToken token, boolean included) { }
-
-    protected void gotElseIf(LocatableToken token) {}
-    
-    protected void endIfStmt(LocatableToken token, boolean included) { }
-    
-    protected void beginSwitchStmt(LocatableToken token, boolean isSwitchExpression) { }
-    
-    protected void beginSwitchBlock(LocatableToken token) { }
-    
-    protected void endSwitchBlock(LocatableToken token) { }
-    
-    protected void endSwitchStmt(LocatableToken token, boolean included) { }
-    
-    protected void beginDoWhile(LocatableToken token) { beginElement(token); }
-    
-    protected void beginDoWhileBody(LocatableToken token) { }
-    
-    protected void endDoWhileBody(LocatableToken token, boolean included) { }
-    
-    protected void endDoWhile(LocatableToken token, boolean included) { }
-    
-    protected void beginTryCatchSmt(LocatableToken token, boolean hasResource) { }
-    
-    protected void beginTryBlock(LocatableToken token) { }
-    
-    protected void endTryBlock(LocatableToken token, boolean included) { }
-    
-    protected void endTryCatchStmt(LocatableToken token, boolean included) { }
-    
-    protected void beginSynchronizedBlock(LocatableToken token) { }
-    
-    protected void endSynchronizedBlock(LocatableToken token, boolean included) { }
-    
-    /** A list of a parameters to a method or constructor */
-    protected void beginArgumentList(LocatableToken token) { }
-    
-    /** An individual argument has ended */
-    protected void endArgument() { }
-    
-    /** The end of the argument list has been reached. */
-    protected void endArgumentList(LocatableToken token) { }
-    
-    /**
-     * got a "new ..." expression. Will be followed by a type spec (gotTypeSpec())
-     * and possibly by array size declarations, then endExprNew()
-     */
-    protected void gotExprNew(LocatableToken token) { }
-    
-    protected void endExprNew(LocatableToken token, boolean included) { }
-    
-    protected void beginArrayInitList(LocatableToken token) { }
-    
-    protected void endArrayInitList(LocatableToken token) { }
-    
-    /** An anonymous class body. Preceded by a type spec (see gotTypeSpec()) except in the case of an enum member body. */
-    protected void beginAnonClassBody(LocatableToken token, boolean isEnumMember) { }
-    
-    protected void endAnonClassBody(LocatableToken token, boolean included) { }
-    
-    /**
-     * Beginning of a statement block. This includes anonymous statement blocks, and static
-     * initializer blocks
-     */
-    protected void beginStmtblockBody(LocatableToken token)
-    {
-        beginElement(token);
-    }
-    
-    protected void endStmtblockBody(LocatableToken token, boolean included)
-    {
-        endElement(token, included);
-    }
-    
-    /**
-     * Begin a (possibly static) initialisation block.
-     * @param first   The first token (should be either "static" or the "{")
-     * @param lcurly  The "{" token which opens the block body
-     */
-    protected void beginInitBlock(LocatableToken first, LocatableToken lcurly) { }
-    
-    /**
-     * End of a (possibly static) initialisation block
-     * @param rcurly    The last token (should be "}")
-     * @param included  True if the last token is actually a "}"
-     */
-    protected void endInitBlock(LocatableToken rcurly, boolean included) { }
-
-    /** Begin the type definition body. */
-    protected void beginTypeBody(LocatableToken leftCurlyToken) { }
-    
-    /** End of type definition body. This should be a '}' unless an error occurred */
-    protected void endTypeBody(LocatableToken endCurlyToken, boolean included) { }
-    
-    /** 
-     * Got the beginning of a declaration - either a type, a field/variable, or a
-     * method constructor, or an initialisation block. This will be followed by one of:
-     * 
-     * <ul>
-     * <li>gotTypeDef(...) - if a type definition
-     * <li>gotMethodDeclaration(...) - if a method declaration
-     * <li>gotConstructorDecl(...) - if a constructor declaration
-     * <li>beginInitBlock(...) - if an initialiser block
-     * <li>beginFieldDeclarations(...) - if a field declaration
-     * <li>beginVariableDecl(...) - if a variable declaration
-     * <li>endDecl(...) - if not a valid declaration
-     * </ul>
-     */
-    protected void gotDeclBegin(LocatableToken token) { beginElement(token); }
-    
-    /**
-     * End a declaration (unsuccessfully).
-     */
-    protected void endDecl(LocatableToken token) { endElement(token, false); }
-    
-    /**
-     * Called when the current element is recognised as a type definition.
-     * @param tdType  one of TYPEDEF_CLASS, _INTERFACE, _ANNOTATION or _ENUM
-     */
-    protected void gotTypeDef(LocatableToken firstToken, int tdType) { }
-
-    /** Called when we have the identifier token for a class/interface/enum definition */
-    protected void gotTypeDefName(LocatableToken nameToken) { }
-
-    /** Called when we have seen the "extends" literal token */
-    protected void beginTypeDefExtends(LocatableToken extendsToken) { }
-    
-    /** Called after we have seen the last type in an "extends" type list */
-    protected void endTypeDefExtends() { }
-
-    /** Called when we have seen the "implements" literal token */
-    protected void beginTypeDefImplements(LocatableToken implementsToken) { }
-
-    /** Called after we have seen the last type in an "implements" type list */
-    protected void endTypeDefImplements() { }
-
-    protected void gotTypeDefEnd(LocatableToken token, boolean included)
-    {
-        endElement(token, included);
-    }
-    
-    /** 
-     * Got a variable declaration, which might declare multiple variables. Each
-     * variable will generate gotVariable() or gotSubsequentVar().
-     * @param first  The first token in the declaration
-     */
-    protected void beginVariableDecl(LocatableToken first) { }
-    
-    /**
-     * Got the (first) variable in a variable declaration.
-     * @param first    The first token in the declaration
-     * @param idToken  The token with the variable identifier
-     * @param inited   Whether the variable is initialized as part of the declaration
-     */
-    protected void gotVariableDecl(LocatableToken first, LocatableToken idToken, boolean inited) { }
-
-    protected void gotSubsequentVar(LocatableToken first, LocatableToken idToken, boolean inited) { }
-
-    protected void endVariable(LocatableToken token, boolean included) { }
-
-    protected void endVariableDecls(LocatableToken token, boolean included) { }
-    
-    protected void beginForInitDecl(LocatableToken first) { }
-    
-    protected void gotForInit(LocatableToken first, LocatableToken idToken) { }
-    
-    protected void gotSubsequentForInit(LocatableToken first, LocatableToken idToken, boolean initFollows) { }
-    
-    protected void endForInit(LocatableToken token, boolean included) { }
-    
-    protected void endForInitDecls(LocatableToken token, boolean included) { }
-    
-    /** 
-     * Got a field declaration, which might declare multiple fields. Each field will generate
-     * gotField() or gotSubsequentField().
-     * @param first  The first token in the declaration
-     *
-     */
-    protected void beginFieldDeclarations(LocatableToken first) { }
-    
-    /**
-     * Got a field (inside a type definition).
-     * @param first     The first token that forms part of the field declaration
-     * @param idToken   The token with the name of the field.
-     * @param initExpressionFollows
-     */
-    protected void gotField(LocatableToken first, LocatableToken idToken, boolean initExpressionFollows) { }
-
-    protected void gotSubsequentField(LocatableToken first, LocatableToken idToken, boolean initFollows) { }
-    
-    /** End a single field declaration (but not necessarily the field declaration statement) */
-    protected void endField(LocatableToken token, boolean included) { }
-    
-    /** End a field declaration statement */
-    protected void endFieldDeclarations(LocatableToken token, boolean included) { }
-
-    /** We've seen a type specification or something that looks a lot like one. */
-    protected void gotTypeSpec(List<LocatableToken> tokens) { }
-
-    /** Seen a type cast operator. The tokens list contains the type to which is cast. */
-    protected void gotTypeCast(List<LocatableToken> tokens)
-    {
-        gotTypeSpec(tokens);
-    }
-    
-    /** Saw the beginning of an expression */
-    protected void beginExpression(LocatableToken token, boolean isLambdaBody) { }
-    
-    /** Reached the end of an expression. The given token is the first one past the end. */
-    protected void endExpression(LocatableToken token, boolean emptyExpression) { }
-    
-    /** Saw a literal as part of an expression */
-    protected void gotLiteral(LocatableToken token) { }
-    
-    /**
-     * Saw a primitive type literal in an expression; usually occurs as "int.class"
-     * or "int[].class" for example.
-     * @param token  The primitive token
-     */
-    protected void gotPrimitiveTypeLiteral(LocatableToken token) { }
-    
-    /** Saw an identifier as (part of) an expression */
-    protected void gotIdentifier(LocatableToken token) { }
-    /**
-     * Got an identifier (possibly part of a compound identifier) immediately followed by
-     * end of input stream.
-     */
-    protected void gotIdentifierEOF(LocatableToken token) { gotIdentifier(token); }
-    
-    protected void gotMemberAccessEOF(LocatableToken token) { gotMemberAccess(token); }
-    
-    protected void gotCompoundIdent(LocatableToken token) { gotIdentifier(token); }
-    protected void gotCompoundComponent(LocatableToken token) { gotMemberAccess(token); }
-    protected void completeCompoundValue(LocatableToken token) { gotMemberAccess(token); }
-    protected void completeCompoundValueEOF(LocatableToken token) { completeCompoundValue(token); }
-    protected void completeCompoundClass(LocatableToken token) { gotMemberAccess(token); }
-    
-    protected void gotMemberAccess(LocatableToken token) { }
-    
-    /** Saw a member method call (expr.methodName()), token is the method name; arguments to follow */
-    protected void gotMemberCall(LocatableToken token, List<LocatableToken> typeArgs) { }
-    
-    /** Saw a "naked" method call - "methodName(...)" */
-    protected void gotMethodCall(LocatableToken token) { }
-    
-    /** Saw a call to the constructor as this(...) or super(...) */
-    protected void gotConstructorCall(LocatableToken token) { }
-    
-    /** Saw a dot operator followed by end-of-file */
-    protected void gotDotEOF(LocatableToken token)
-    {
-        gotBinaryOperator(token);
-    }
-    
-    protected void gotStatementExpression() { }
-    
-    protected void gotClassLiteral(LocatableToken token) { }
-    
-    /** Saw a binary operator as part of an expression */
-    protected void gotBinaryOperator(LocatableToken token) { }
-    
-    protected void gotUnaryOperator(LocatableToken token) { }
-    
-    /** Saw a "?" operator. This will be followed by the left-hand-side expression
-     * (demarked by beginExpression() and endExpression(), then gotQuestionColon) followed by a continuation
-     * of the current expression (for the right-hand-side).
-     */
-    protected void gotQuestionOperator(LocatableToken token) { }
-
-    protected void gotQuestionColon(LocatableToken token) { }
-    
-    /**
-     * Saw the "instanceof" operator. The type spec will follow.
-     */
-    protected void gotInstanceOfOperator(LocatableToken token) { }
-    
-    protected void gotArrayElementAccess() { }
-    
-    protected void gotImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken) { }
-    
-    protected void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken) { }
-    
-    /**
-     * We've seen a constructor declaration. The token supplied is the constructor name.
-     * The hiddenToken is the comment before the constructor.
-     */
-    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken) {}
-
-    /**
-     * We've seen a method declaration; the token parameter is the method name;
-     * the hiddenToken parameter is the comment before the method
-     */
-    protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken) {}
-
-    /** 
-     * We saw a method (or constructor) parameter. The given token specifies the parameter name. 
-     * The last type parsed by parseTypeSpec(boolean) is the parameter type, after any additonal
-     * array declarators (see gotArrayDeclarator()) are applied.
-     * 
-     * @param token   The token giving the parameter name
-     * @param ellipsisToken  The token, if any, with the ellipsis indicating a varargs parameter. May be null.
-     */
-    protected void gotMethodParameter(LocatableToken token, LocatableToken ellipsisToken) { }
-    
-    /**
-     * Called when, after a parameter/field/variable name, array declarators "[]" are seen.
-     * Will be called once for each set of "[]", immediately before gotField() or equivalent
-     * is called.
-     */
-    protected void gotArrayDeclarator() { }
-
-    /**
-     * Called for the array components when we get "new xyz[]".
-     */
-    protected void gotNewArrayDeclarator(boolean withDimension) { }
-    
-    protected void gotAllMethodParameters() { }
-    
-    /**
-     * Saw a type parameter for a class or method. If for a method, will be bracketed by
-     * calls to {@code gotMethodTypeParamsBegin} and {@code endMethodTypeParams}
-     * @param idToken  The token with the type parameter identifier
-     */
-    protected void gotTypeParam(LocatableToken idToken) { }
-    
-    protected void gotTypeParamBound(List<LocatableToken> tokens) { }
-
-    protected void gotMethodTypeParamsBegin() { }
-    
-    protected void endMethodTypeParams() { }
-
-    /**
-     * Called by the lexer when it sees a comment.
-     */
-    public void gotComment(LocatableToken token) { }
     
     /**
      * Check whether a particular token is a type declaration initiator, i.e "class", "interface"
      * or "enum"
      */
-    public boolean isTypeDeclarator(LocatableToken token)
+    public final boolean isTypeDeclarator(LocatableToken token)
     {
         return token.getType() == JavaTokenTypes.LITERAL_class
         || token.getType() == JavaTokenTypes.LITERAL_enum
@@ -657,10 +246,6 @@ public class JavaParser
         return state;
     }
 
-    protected void gotTopLevelDecl(LocatableToken token)
-    {
-    }
-
     /**
      * Parse a "package xyz;"-type statement. The "package"-literal token must have already
      * been read from the token stream.
@@ -692,7 +277,7 @@ public class JavaParser
     /**
      * Parse an import statement.
      */
-    public void parseImportStatement()
+    public final void parseImportStatement()
     {
         LocatableToken token = nextToken();
         if (token.getType() == JavaTokenTypes.LITERAL_import) {
@@ -703,7 +288,7 @@ public class JavaParser
         }
     }
     
-    public void parseImportStatement(final LocatableToken importToken)
+    public final void parseImportStatement(final LocatableToken importToken)
     {
         LocatableToken token = importToken;
         beginElement(token);
@@ -891,7 +476,7 @@ public class JavaParser
      * extended classes/interfaces and implemented interfaces. Returns the '{' token
      * (which begins the type definition body) on success or null on failure.
      */
-    public LocatableToken parseTypeDefPart2()
+    public final LocatableToken parseTypeDefPart2()
     {
         // template arguments
         LocatableToken token = nextToken();
@@ -946,7 +531,7 @@ public class JavaParser
         }
     }
         
-    public void parseEnumConstants()
+    public final void parseEnumConstants()
     {
         LocatableToken token = nextToken();
         while (token.getType() == JavaTokenTypes.IDENT) {
@@ -994,7 +579,7 @@ public class JavaParser
     /**
      * Parse formal type parameters. The opening '<' should have been read already.
      */
-    public void parseTypeParams()
+    public final void parseTypeParams()
     {
         DepthRef dr = new DepthRef();
         dr.depth = 1;
@@ -1057,7 +642,7 @@ public class JavaParser
     /**
      * Parse a modifier list (and return all modifier tokens in a list)
      */
-    public List<LocatableToken> parseModifiers()
+    public final List<LocatableToken> parseModifiers()
     {
         List<LocatableToken> rval = new LinkedList<LocatableToken>();
         
@@ -1088,7 +673,7 @@ public class JavaParser
     /**
      * Having seen '{', parse the rest of a class body.
      */
-    public void parseClassBody()
+    public final void parseClassBody()
     {
         LocatableToken token = tokenStream.nextToken();
         while (token.getType() != JavaTokenTypes.RCURLY) {
@@ -1239,11 +824,7 @@ public class JavaParser
         
     }
 
-    protected void gotInnerType(LocatableToken start)
-    {
-    }
-
-    protected void parseArrayDeclarators()
+    protected final void parseArrayDeclarators()
     {
         if (tokenStream.LA(1).getType() != JavaTokenTypes.LBRACK) {
             return;
@@ -1273,7 +854,7 @@ public class JavaParser
      * We've got the return type, name, and opening parenthesis of a method/constructor
      * declaration. Parse the rest.
      */
-    public void parseMethodParamsBody()
+    public final void parseMethodParamsBody()
     {
         parseParameterList();
         gotAllMethodParameters();
@@ -1325,14 +906,11 @@ public class JavaParser
         }
     }
 
-    protected void beginThrows(LocatableToken token) { }
-    protected void endThrows() { }
-
     /**
      * Parse a statement block - such as a method body. The opening curly brace should already be consumed.
      * On return the closing curly (if present) remains in the token stream.
      */
-    public void parseStmtBlock()
+    public final void parseStmtBlock()
     {
         while(true) {
             LocatableToken token = nextToken();
@@ -1361,7 +939,7 @@ public class JavaParser
         }
     }
 
-    public void parseStatement()
+    public final void parseStatement()
     {
         parseStatement(nextToken(), false);
     }
@@ -1428,7 +1006,7 @@ public class JavaParser
      * @param allowComma  if true, allows multiple statements separated by commas. Each
      *                    statement will be parsed.
      */
-    public LocatableToken parseStatement(LocatableToken token, boolean allowComma)
+    public final LocatableToken parseStatement(LocatableToken token, boolean allowComma)
     {
         while (true) {
             switch (statementTokenIndexes[token.getType()]) {
@@ -1724,26 +1302,12 @@ public class JavaParser
         }
     }
 
-    protected void gotSwitchCase() { }
-
-    protected void gotSwitchDefault() { }
-
-    protected void gotThrow(LocatableToken token) { }
-
-    protected void gotBreakContinue(LocatableToken keywordToken, LocatableToken labelToken) { }
-
-    protected void gotReturnStatement(boolean hasValue) { }
-
-    protected void gotYieldStatement() { }
-
-    protected void gotEmptyStatement() { }
-
     /**
      * Parse a try/catch/finally. The first token is 'try'.
      * @param token  The first token (must be 'try').
      * @return  the last token that is part of the try/catch/finally, or null
      */
-    public LocatableToken parseTryCatchStmt(LocatableToken token)
+    public final LocatableToken parseTryCatchStmt(LocatableToken token)
     {
         beginTryCatchSmt(token, tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN);
         token = nextToken();
@@ -1871,19 +1435,13 @@ public class JavaParser
         return token;
     }
 
-    protected void gotCatchFinally(LocatableToken token) { }
-
-    protected void gotMultiCatch(LocatableToken token) { }
-
-    protected void gotCatchVarName(LocatableToken token) { }
-
     /**
      * Parse an "assert" statement. Returns the concluding semi-colon token, or null on error.
      * {@code lastToken} will be set to the last token which is part of the statement.
      * 
      * @param token   The token corresponding to the "assert" keyword.
      */
-    public LocatableToken parseAssertStatement(LocatableToken token)
+    public final LocatableToken parseAssertStatement(LocatableToken token)
     {
         gotAssert();
         parseExpression();
@@ -1903,9 +1461,7 @@ public class JavaParser
         return token;
     }
 
-    protected void gotAssert() { }
-
-    public LocatableToken parseSwitchExpression(LocatableToken token)
+    public final LocatableToken parseSwitchExpression(LocatableToken token)
     {        
         beginSwitchStmt(token, true);
         token = nextToken();
@@ -1946,7 +1502,7 @@ public class JavaParser
     }
     
     /** Parse a "switch(...) {  }" statement. */
-    public LocatableToken parseSwitchStatement(LocatableToken token)
+    public final LocatableToken parseSwitchStatement(LocatableToken token)
     {
         beginSwitchStmt(token, false);
         token = nextToken();
@@ -1986,7 +1542,7 @@ public class JavaParser
         return token;
     }
     
-    public LocatableToken parseDoWhileStatement(LocatableToken token)
+    public final LocatableToken parseDoWhileStatement(LocatableToken token)
     {
         beginDoWhile(token);
         token = nextToken(); // '{' or a statement
@@ -2028,7 +1584,7 @@ public class JavaParser
         return token;
     }
         
-    public LocatableToken parseWhileStatement(LocatableToken token)
+    public final LocatableToken parseWhileStatement(LocatableToken token)
     {
         beginWhileLoop(token);
         token = nextToken();
@@ -2067,7 +1623,7 @@ public class JavaParser
      * @param forToken  The "for" token, which has already been extracted from the token stream.
      * @return The last token that is part of the loop (or null).
      */
-    public LocatableToken parseForStatement(LocatableToken forToken)
+    public final LocatableToken parseForStatement(LocatableToken forToken)
     {
         // TODO: if we get an unexpected token in the part between '(' and ')' check
         // if it is ')'. If so we might still expect a loop body to follow.
@@ -2204,11 +1760,6 @@ public class JavaParser
         return token;
     }
 
-    protected void gotForTest(boolean isPresent) { }
-    protected void gotForIncrement(boolean isPresent) { }
-
-    protected void determinedForLoop(boolean forEachLoop, boolean initExpressionFollows) { }
-
     private void endForLoop(LocatableToken token)
     {
         if (token == null) {
@@ -2233,7 +1784,7 @@ public class JavaParser
      * Parse an "if" statement.
      * @param token  The token corresponding to the "if" literal.
      */
-    public LocatableToken parseIfStatement(LocatableToken token)
+    public final LocatableToken parseIfStatement(LocatableToken token)
     {
         beginIfStmt(token);
         
@@ -2302,7 +1853,7 @@ public class JavaParser
         }
     }
        
-    public LocatableToken parseVariableDeclarations()
+    public final LocatableToken parseVariableDeclarations()
     {
         LocatableToken first = tokenStream.LA(1);
         gotDeclBegin(first);
@@ -2318,7 +1869,7 @@ public class JavaParser
      *                and that furthermore, the character terminating the declaration should be left in the token
      *                stream.
      */
-    public LocatableToken parseVariableDeclarations(LocatableToken first, boolean mustEndWithSemi)
+    public final LocatableToken parseVariableDeclarations(LocatableToken first, boolean mustEndWithSemi)
     {
         beginVariableDecl(first);
         parseModifiers();
@@ -2351,7 +1902,7 @@ public class JavaParser
      * 
      * @return  the last token that is part of the declarations, or null on error (or mustEndWithSemi == false).
      */
-    protected LocatableToken parseSubsequentDeclarations(int type, boolean mustEndWithSemi)
+    protected final LocatableToken parseSubsequentDeclarations(int type, boolean mustEndWithSemi)
     {
         LocatableToken prevToken = lastToken;
         LocatableToken token = nextToken();
@@ -2483,7 +2034,7 @@ public class JavaParser
      *  @param processArray   if false, no '[]' sequences will be parsed, only the element type.
      *  @return  true iff a type specification was successfully parsed
      */
-    public boolean parseTypeSpec(boolean processArray)
+    public final boolean parseTypeSpec(boolean processArray)
     {
         List<LocatableToken> tokens = new LinkedList<LocatableToken>();
         boolean rval = parseTypeSpec(false, processArray, tokens);
@@ -2512,7 +2063,7 @@ public class JavaParser
      *                         contains errors), or false if it does not appear to be
      *                     a type specification.
      */
-    public boolean parseTypeSpec(boolean speculative, boolean processArray, List<LocatableToken> ttokens)
+    public final boolean parseTypeSpec(boolean speculative, boolean processArray, List<LocatableToken> ttokens)
     {
         int ttype = parseBaseType(speculative, ttokens);
         if (ttype == TYPE_ERROR) {
@@ -2738,7 +2289,7 @@ public class JavaParser
      * @param first The first token in the dotted identifier (should be an IDENT)
      * @return A list of tokens making up the dotted identifier
      */
-    public List<LocatableToken> parseDottedIdent(LocatableToken first)
+    public final List<LocatableToken> parseDottedIdent(LocatableToken first)
     {
         List<LocatableToken> rval = new LinkedList<LocatableToken>();
         rval.add(first);
@@ -2813,7 +2364,7 @@ public class JavaParser
      * 
      * "instanceof" is not considered to be a binary operator (operates on only one value).
      */
-    public boolean isBinaryOperator(LocatableToken token)
+    public final boolean isBinaryOperator(LocatableToken token)
     {
         int ttype = token.getType();
         return ttype == JavaTokenTypes.PLUS
@@ -2850,7 +2401,7 @@ public class JavaParser
         || ttype == JavaTokenTypes.LOR;
     }
         
-    public boolean isUnaryOperator(LocatableToken token)
+    public final boolean isUnaryOperator(LocatableToken token)
     {
         int ttype = token.getType();
         return ttype == JavaTokenTypes.PLUS
@@ -2864,7 +2415,7 @@ public class JavaParser
     /**
      * Parse an annotation (having already seen '@', and having an identifier next in the token stream)
      */
-    public void parseAnnotation()
+    public final void parseAnnotation()
     {
         LocatableToken token = nextToken(); // IDENT
         List<LocatableToken> annName = parseDottedIdent(token);
@@ -2875,11 +2426,6 @@ public class JavaParser
             token = tokenStream.nextToken(); // LPAREN
             parseArgumentList(token);
         }
-    }
-
-    protected void gotAnnotation(List<LocatableToken> annName, boolean paramsFollow)
-    {
-
     }
 
     private static int [] expressionTokenIndexes = new int[JavaTokenTypes.INVALID+1];
@@ -3005,17 +2551,6 @@ public class JavaParser
             endLambdaBody(null);
         }
     }
-
-    /**
-     * A lambda expression has been found and we are about to parse its body (the part after ->).
-     * If lambdaIsBlock, a statement block body follows, otherwise an expression follows.
-     */
-    protected void beginLambdaBody(boolean lambdaIsBlock, LocatableToken openCurly) { }
-
-    /**
-     * The end of the lambda body has been reached (either block or expression)
-     */
-    protected void endLambdaBody(LocatableToken closeCurly) { }
 
     public final void parseExpression()
     {
@@ -3469,19 +3004,8 @@ public class JavaParser
         }
     }
 
-    protected void gotPostOperator(LocatableToken token) { }
 
-    protected void gotArrayTypeIdentifier(LocatableToken token)
-    {
-        gotIdentifier(token);        
-    }
-
-    protected void gotParentIdentifier(LocatableToken token)
-    {
-        gotIdentifier(token);        
-    }
-
-    public LocatableToken parseArrayInitializerList(LocatableToken token)
+    public final LocatableToken parseArrayInitializerList(LocatableToken token)
     {
         // an initialiser list for an array
         do {
@@ -3499,7 +3023,7 @@ public class JavaParser
         return token;
     }
     
-    public void parseNewExpression(LocatableToken token)
+    public final void parseNewExpression(LocatableToken token)
     {
         // new XYZ(...)
         gotExprNew(token);
@@ -3584,7 +3108,7 @@ public class JavaParser
      * The closing ')' will be consumed by this method. 
      * @param token   the '(' token
      */
-    public void parseArgumentList(LocatableToken token)
+    public final void parseArgumentList(LocatableToken token)
     {
         beginArgumentList(token);
         token = nextToken();
@@ -3607,7 +3131,7 @@ public class JavaParser
     /**
      * Parse a list of formal parameters in Lambda (possibly empty)
      */
-    public void parseLambdaParameterList()
+    public final void parseLambdaParameterList()
     {
         LocatableToken token = nextToken();
         
@@ -3657,25 +3181,9 @@ public class JavaParser
     }
 
     /**
-     * Called when we find a lambda formal parameter, i.e. declaration of a parameter
-     * like (int x) ->
-     */
-    protected void gotLambdaFormalParam() { }
-    /**
-     * Called when we find a lambda formal parameter name, i.e. the "x" in the 
-     * declaration of a parameter like (int x)
-     */
-    protected void gotLambdaFormalName(LocatableToken name) { }
-    /**
-     * Called when we find a lambda formal parameter name, i.e. the "List&lt;Integer&gt;" in the 
-     * declaration of a parameter like (List&lt;Integer&gt; x)
-     */
-    protected void gotLambdaFormalType(List<LocatableToken> type) { }
-
-    /**
      * Parse a list of formal parameters (possibly empty)
      */
-    public void parseParameterList()
+    public final void parseParameterList()
     {
         LocatableToken token = nextToken();
         while (token.getType() != JavaTokenTypes.RPAREN
@@ -3709,8 +3217,6 @@ public class JavaParser
         }
         tokenStream.pushBack(token);
     }
-
-    protected void beginFormalParameter(LocatableToken token) { }
 
     private void pushBackAll(List<LocatableToken> tokens)
     {

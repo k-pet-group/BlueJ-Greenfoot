@@ -92,7 +92,7 @@ public class LexerTest extends junit.framework.TestCase
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
         // Type declaration words
-        ts = getLexerFor("class interface enum extends implements");
+        ts = getLexerFor("class interface enum extends implements record");
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_class);
         token = (LocatableToken) ts.nextToken();
@@ -103,6 +103,8 @@ public class LexerTest extends junit.framework.TestCase
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_extends);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_implements);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_record);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         

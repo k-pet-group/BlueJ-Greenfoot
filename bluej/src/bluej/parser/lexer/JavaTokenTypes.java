@@ -142,6 +142,8 @@ public interface JavaTokenTypes
     int LITERAL_yield = 174;
     int STRING_LITERAL_MULTILINE = 175; // The """ text blocks
     
-    int INVALID = 176;
+    int LITERAL_record = 176;
+    
+    int INVALID = 177;
     
 }
