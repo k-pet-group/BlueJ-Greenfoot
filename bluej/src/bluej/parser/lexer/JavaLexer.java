@@ -85,6 +85,7 @@ public final class JavaLexer implements TokenStream
         keywords.put("private", JavaTokenTypes.LITERAL_private);
         keywords.put("protected", JavaTokenTypes.LITERAL_protected);
         keywords.put("public", JavaTokenTypes.LITERAL_public);
+        keywords.put("record", JavaTokenTypes.LITERAL_record);
         keywords.put("return", JavaTokenTypes.LITERAL_return);
         keywords.put("short", JavaTokenTypes.LITERAL_short);
         keywords.put("static", JavaTokenTypes.LITERAL_static);
