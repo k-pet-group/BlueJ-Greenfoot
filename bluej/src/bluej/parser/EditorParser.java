@@ -1332,5 +1332,13 @@ public class EditorParser extends JavaParser
         gotTypeSpec(type);
         lastLambdaParamType = type.get(0);
     }
-    
+
+    @Override
+    protected void gotRecordParameter(LocatableToken firstToken, LocatableToken idToken, LocatableToken varargsToken)
+    {
+        if (varargsToken != null)
+            arrayDecls += 1;
+        gotFieldOrVar(firstToken, idToken, false, false);
+        endTopNode(idToken, true);
+    }
 }

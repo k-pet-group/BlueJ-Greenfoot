@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2014,2015,2016,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2014,2015,2016,2018,2019,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -242,6 +242,10 @@ public class ParsedReflective extends Reflective
     {
         Map<String,Set<FieldNode>> allfields = pnode.getInner().getFields();
         
+        // Record parameters are recorded on the type declaration, rather than the body,
+        // so they must be fetched separately:
+        allfields.putAll(pnode.getRecordParameters());
+        
         // Filter out duplicates:
         Map<String, FieldNode> fields = new HashMap<>();
         for (String name : allfields.keySet()) {
@@ -265,13 +269,31 @@ public class ParsedReflective extends Reflective
     @Override
     public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
+        // All record parameters automatically create a method of the same name,
+        // with no arguments and a return type that matches the fields type:
+        Map<String,Set<MethodReflective>> rmap = new HashMap<String,Set<MethodReflective>>();
+        pnode.getRecordParameters().forEach((name, fields) -> {
+            for (FieldNode field : fields)
+            {
+                JavaEntity fieldType = field.getFieldType();
+                if (fieldType == null) continue;
+                fieldType = fieldType.resolveAsType();
+                if (fieldType == null) continue;
+                rmap.computeIfAbsent(name, n -> new HashSet<>()).add(new MethodReflective(
+                    name, fieldType.getType(),
+                    Collections.emptyList(),
+                    Collections.emptyList(),
+                    this, false, 0)
+                );
+            }
+        });
+        
         TypeInnerNode pnodeInner = pnode.getInner();
         if (pnodeInner == null) {
-            return Collections.emptyMap();
+            return rmap;
         }
         
         Map<String,Set<MethodNode>> methods = pnodeInner.getMethods();
-        Map<String,Set<MethodReflective>> rmap = new HashMap<String,Set<MethodReflective>>();
         
         for (Iterator<String> i = methods.keySet().iterator(); i.hasNext(); ) {
             String name = i.next();
