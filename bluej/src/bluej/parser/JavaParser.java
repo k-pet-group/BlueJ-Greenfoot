@@ -176,7 +176,8 @@ public class JavaParser extends JavaParserCallbacks
     {
         return token.getType() == JavaTokenTypes.LITERAL_class
         || token.getType() == JavaTokenTypes.LITERAL_enum
-        || token.getType() == JavaTokenTypes.LITERAL_interface;
+        || token.getType() == JavaTokenTypes.LITERAL_interface
+        || token.getType() == JavaTokenTypes.LITERAL_record;
     }
 
     /**
@@ -198,6 +199,7 @@ public class JavaParser extends JavaParserCallbacks
     public static final int TYPEDEF_CLASS = 0;
     public static final int TYPEDEF_INTERFACE = 1;
     public static final int TYPEDEF_ENUM = 2;
+    public static final int TYPEDEF_RECORD = 6;
     public static final int TYPEDEF_ANNOTATION = 3;
     /** looks like a type definition, but has an error */
     public static final int TYPEDEF_ERROR = 4;
@@ -387,7 +389,7 @@ public class JavaParser extends JavaParserCallbacks
         }
         gotTypeDefName(token);
 
-        token = parseTypeDefPart2();
+        token = parseTypeDefPart2(tdType == TYPEDEF_RECORD);
 
         // Body!
         if (token == null) {
@@ -459,6 +461,9 @@ public class JavaParser extends JavaParserCallbacks
                     tdType = TYPEDEF_ANNOTATION;                                                 
                 }
             }
+            else if (token.getType() == JavaTokenTypes.LITERAL_record) {
+                tdType = TYPEDEF_RECORD;
+            }
             else {
                 tdType = TYPEDEF_ENUM;
             }
@@ -476,13 +481,34 @@ public class JavaParser extends JavaParserCallbacks
      * extended classes/interfaces and implemented interfaces. Returns the '{' token
      * (which begins the type definition body) on success or null on failure.
      */
-    public final LocatableToken parseTypeDefPart2()
+    public final LocatableToken parseTypeDefPart2(boolean isRecord)
     {
         // template arguments
         LocatableToken token = nextToken();
         if (token.getType() == JavaTokenTypes.LT) {
             parseTypeParams();
             token = tokenStream.nextToken();
+        }
+        
+        if (isRecord)
+        {
+            if (token.getType() == JavaTokenTypes.LPAREN)
+            {
+                beginRecordParameters(token);
+                parseParameterList(true);
+                token = nextToken();
+                endRecordParameters(token);
+                if (token.getType() != JavaTokenTypes.RPAREN) {
+                    error("Expected ')' at end of parameter list (in record declaration)");
+                    tokenStream.pushBack(token);
+                }
+                token = nextToken();
+            }
+            else
+            {
+                tokenStream.pushBack(token);
+                error("Expected '{' (in type definition)");
+            }
         }
 
         // extends...
@@ -709,6 +735,7 @@ public class JavaParser extends JavaParserCallbacks
         if (token.getType() == JavaTokenTypes.LITERAL_class
                 || token.getType() == JavaTokenTypes.LITERAL_interface
                 || token.getType() == JavaTokenTypes.LITERAL_enum
+                || token.getType() == JavaTokenTypes.LITERAL_record
                 || token.getType() == JavaTokenTypes.AT) {
             gotInnerType(token);
             tokenStream.pushBack(token);
@@ -856,7 +883,7 @@ public class JavaParser extends JavaParserCallbacks
      */
     public final void parseMethodParamsBody()
     {
-        parseParameterList();
+        parseParameterList(false);
         gotAllMethodParameters();
         LocatableToken token = nextToken();
         if (token.getType() != JavaTokenTypes.RPAREN) {
@@ -3183,12 +3210,13 @@ public class JavaParser extends JavaParserCallbacks
     /**
      * Parse a list of formal parameters (possibly empty)
      */
-    public final void parseParameterList()
+    public final void parseParameterList(boolean areRecordParameters)
     {
         LocatableToken token = nextToken();
         while (token.getType() != JavaTokenTypes.RPAREN
                 && token.getType() != JavaTokenTypes.RCURLY) {
             tokenStream.pushBack(token);
+            LocatableToken first = token;
 
             beginFormalParameter(token);
             parseModifiers();
@@ -3201,13 +3229,17 @@ public class JavaParser extends JavaParserCallbacks
                 idToken = nextToken();
             }
             if (idToken.getType() != JavaTokenTypes.IDENT) {
-                error("Expected parameter identifier (in method parameter)");
+                error("Expected parameter identifier (in method/record parameter)");
                 // TODO skip to next ',', ')' or '}' if there is one soon (LA(3)?)
                 tokenStream.pushBack(idToken);
                 return;
             }
             parseArrayDeclarators();
-            gotMethodParameter(idToken, varargsToken);
+            if (areRecordParameters)
+                gotRecordParameter(first, idToken);
+            else
+                gotMethodParameter(idToken, varargsToken);
+                
             modifiersConsumed();
             token = nextToken();
             if (token.getType() != JavaTokenTypes.COMMA) {
