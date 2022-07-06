@@ -545,4 +545,25 @@ public class JavaParserCallbacks
 
     protected void beginFormalParameter(LocatableToken token) { }
 
+    /**
+     * Called at the beginning of the record parameters in a header, i.e. the opening parenthesis
+     * in record Point(int x, int y)
+     * @param parenToken The opening-parenthesis token
+     */
+    protected void beginRecordParameters(LocatableToken parenToken) {}
+
+    /**
+     * Called when a record parameter has been encountered in a record header.
+     * @param first The first token of that record parameter, either a modifier or the type.
+     * @param idToken The token for the identifier (name) of the parameter.
+     * @param varargsToken The token for the varargs on the parameter, or null if this is not a varargs parameter.
+     */
+    protected void gotRecordParameter(LocatableToken first, LocatableToken idToken, LocatableToken varargsToken) {}
+
+    /**
+     * Called at the end of the record parameters in a header, i.e. the closing parenthesis
+     * in record Point(int x, int y)
+     * @param closeParen The close-parenthesis token
+     */
+    protected void endRecordParameters(LocatableToken closeParen) {}
 }

@@ -38,8 +38,10 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -252,7 +254,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
             }
             setName(token.getText());
             
-            token = params.parser.parseTypeDefPart2();
+            token = params.parser.parseTypeDefPart2(type == JavaParser.TYPEDEF_RECORD);
             if (token == null) {
                 last = params.tokenStream.LA(1);
                 return PP_INCOMPLETE;
@@ -405,5 +407,10 @@ public class ParsedTypeNode extends IncrementalParsingNode
             }
         }
         return super.resolvePackageOrClass(name, querySource);
+    }
+
+    public Map<String, Set<FieldNode>> getRecordParameters()
+    {
+        return new HashMap<>(variables);
     }
 }
