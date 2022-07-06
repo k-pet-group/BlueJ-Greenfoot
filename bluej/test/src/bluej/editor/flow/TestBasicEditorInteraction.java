@@ -327,7 +327,13 @@ public class TestBasicEditorInteraction extends FXTest
                     for (int c = 0; c < copyCount; c++)
                     {
                         push(KeyCode.F2);
-                        assertEquals(prevClipboard + line, fx(() -> Clipboard.getSystemClipboard().getString()));
+                        // Line can be empty if it is the last line in the document.  If that is the case
+                        // and we haven't copied anything else then we won't see anything being changed on the clipboard
+                        // because we don't copy blank items to the clipboard:
+                        if (!(prevClipboard + line).isEmpty())
+                        {
+                            assertEquals(prevClipboard + line, fx(() -> Clipboard.getSystemClipboard().getString()));
+                        }
                         prevClipboard += line;
                         assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
 
