@@ -116,6 +116,25 @@ public class CompletionTest2
                """;
     }
 
+    private String withRecordDef(String middle)
+    {
+        return """
+               public class Outer
+               {
+                   public record Coordinates(Integer x, Double y) {
+                       public Float magnitude() { return Math.sqrt(x*x + y*y);}
+                   }
+                   public record PrefixedString(String prefix, String content) {}
+                   public record PrefixedT<T>(String prefix, T content) {}
+                   public record Arrays(int[] singleIntArray, Double[][] doubleDoubleArray) {}
+                   public record VarargsPrim(int single, int... multiple) {}
+                   public record VarargsObj(Integer single, Integer... multiple) {}
+                   public record VarargsT<T>(int single, T... multiple) {}
+               """ + middle + """
+               }
+               """;
+    }
+
     @Test
     public void testCastLiteral()
     {
@@ -326,5 +345,114 @@ public class CompletionTest2
             """
         );
 
+    }
+    
+    @Test
+    public void testRecord()
+    {
+        // public record Coordinates(Integer x, Double y) {
+        //     public Float magnitude() { return Math.sqrt(x*x + y*y);}
+        // }
+        assertTypeAtA("Outer.Coordinates", withRecordDef("""
+            public void foo(Coordinates c) {
+                c./*A*/toString();
+            }
+            """));
+        assertTypeAtA("java.lang.Float", withRecordDef("""
+            public void foo(Coordinates c) {
+                c.magnitude()./*A*/toString();
+            }
+            """));
+        assertTypeAtA("java.lang.Integer", withRecordDef("""
+            public void foo(Coordinates c) {
+                c.x./*A*/toString();
+            }
+            """));
+        assertTypeAtA("java.lang.Integer", withRecordDef("""
+            public void foo(Coordinates c) {
+                c.x()./*A*/toString();
+            }
+            """));
+        
+        // public record PrefixedString(String prefix, String content) {}
+        assertTypeAtA("java.lang.String", withRecordDef("""
+            public void foo(PrefixedString p) {
+                p.prefix./*A*/toString();
+            }
+            """));
+        assertTypeAtA("java.lang.String", withRecordDef("""
+            public void foo(PrefixedString p) {
+                p.prefix()./*A*/toString();
+            }
+            """));
+        
+        // public record PrefixedT<T>(String prefix, T content) {}
+        assertTypeAtA("java.lang.String", withRecordDef("""
+            public void foo(PrefixedT<Integer> p) {
+                p.prefix./*A*/toString();
+            }
+            """));
+        assertTypeAtA("java.lang.String", withRecordDef("""
+            public void foo(PrefixedT<Integer> p) {
+                p.prefix()./*A*/toString();
+            }
+            """));
+        assertTypeAtA("java.lang.Integer", withRecordDef("""
+            public void foo(PrefixedT<Integer> p) {
+                p.content./*A*/toString();
+            }
+            """));
+        assertTypeAtA("java.lang.Integer", withRecordDef("""
+            public void foo(PrefixedT<Integer> p) {
+                p.content()./*A*/toString();
+            }
+            """));
+        assertTypeAtA("java.lang.Integer", withRecordDef("""
+            public void foo(PrefixedT<Integer> p) {
+                p.content()./*A*/toString();
+            }
+            """));
+        // public record Arrays(int[] singleIntArray, Double[][] doubleDoubleArray) {}
+        assertTypeAtA("int[]", withRecordDef("""
+            public void foo(Arrays x) {
+                x.singleIntArray()./*A*/toString();
+            }
+            """));
+        assertTypeAtA("java.lang.Double[][]", withRecordDef("""
+            public void foo(Arrays x) {
+                x.doubleDoubleArray()./*A*/toString();
+            }
+            """));
+        assertTypeAtA("java.lang.Double[]", withRecordDef("""
+            public void foo(Arrays x) {
+                x.doubleDoubleArray()[0]./*A*/toString();
+            }
+            """));
+
+        // public record VarargsObj(Integer single, Integer... multiple) {}
+        assertTypeAtA("java.lang.Integer[]", withRecordDef("""
+            public void foo(VarargsObj x) {
+                x.multiple()./*A*/toString();
+            }
+            """));
+        
+        // public record VarargsPrim(int single, int... multiple) {}
+        assertTypeAtA("int[]", withRecordDef("""
+            public void foo(VarargsPrim x) {
+                x.multiple()./*A*/toString();
+            }
+            """));
+
+        // public record VarargsT<T>(int single, T... multiple) {}
+        assertTypeAtA("java.lang.Double[]", withRecordDef("""
+            public void foo(VarargsT<Double> x) {
+                x.multiple()./*A*/toString();
+            }
+            """));
+        assertTypeAtA("java.lang.Double[][][]", withRecordDef("""
+            public void foo(VarargsT<Double[][]> x) {
+                x.multiple()./*A*/toString();
+            }
+            """));
     }
 }
