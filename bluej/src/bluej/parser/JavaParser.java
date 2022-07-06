@@ -3236,7 +3236,7 @@ public class JavaParser extends JavaParserCallbacks
             }
             parseArrayDeclarators();
             if (areRecordParameters)
-                gotRecordParameter(first, idToken);
+                gotRecordParameter(first, idToken, varargsToken);
             else
                 gotMethodParameter(idToken, varargsToken);
                 

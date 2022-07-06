@@ -556,8 +556,9 @@ public class JavaParserCallbacks
      * Called when a record parameter has been encountered in a record header.
      * @param first The first token of that record parameter, either a modifier or the type.
      * @param idToken The token for the identifier (name) of the parameter.
+     * @param varargsToken The token for the varargs on the parameter, or null if this is not a varargs parameter.
      */
-    protected void gotRecordParameter(LocatableToken first, LocatableToken idToken) {}
+    protected void gotRecordParameter(LocatableToken first, LocatableToken idToken, LocatableToken varargsToken) {}
 
     /**
      * Called at the end of the record parameters in a header, i.e. the closing parenthesis
