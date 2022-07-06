@@ -1338,6 +1338,8 @@ public class EditorParser extends JavaParser
     {
         if (varargsToken != null)
             arrayDecls += 1;
+        // All record fields are private-final:
+        currentModifiers |= Modifier.PRIVATE | Modifier.FINAL;
         gotFieldOrVar(firstToken, idToken, false, false);
         endTopNode(idToken, true);
     }

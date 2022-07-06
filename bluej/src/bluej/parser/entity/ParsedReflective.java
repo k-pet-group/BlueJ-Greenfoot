@@ -283,7 +283,7 @@ public class ParsedReflective extends Reflective
                     name, fieldType.getType(),
                     Collections.emptyList(),
                     Collections.emptyList(),
-                    this, false, 0)
+                    this, false, Modifier.PUBLIC)
                 );
             }
         });
