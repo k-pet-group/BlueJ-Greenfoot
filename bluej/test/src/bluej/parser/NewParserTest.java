@@ -762,4 +762,86 @@ public class NewParserTest extends TestCase
         new JavaParser(new StringReader("int foo = 0; }")).parseClassBody();
     }
 
+    public void testTopLevelRecord1()
+    {
+        new JavaParser(new StringReader("""
+            record Foo(int x) {}
+            """
+        )).parseCU();
+    }
+    public void testTopLevelRecord2()
+    {
+        new JavaParser(new StringReader("""
+            public record R(int x, String s, double t)
+            {
+                public void foo() {return 6;}
+            }
+            """
+        )).parseCU();
+    }
+
+    public void testTopLevelRecord3()
+    {
+        new JavaParser(new StringReader("""
+            public record GenericR<T>(T a, T b)
+            {
+                public GenericR(T both)
+                {
+                    this(both, both);
+                }
+                public T foo() {return a;}
+            }
+            """
+        )).parseCU();
+    }
+
+    public void testTopLevelRecord4()
+    {
+        new JavaParser(new StringReader("""
+            public record GenericR<T, U>(T a, U b)
+            {
+                public T foo() {return a;}
+            }
+            """
+        )).parseCU();
+    }
+
+    public void testTopLevelRecord5()
+    {
+        new JavaParser(new StringReader("""
+            public record GenericR<T, U>(T a, U b) implements Cloneable
+            {
+                public T foo() {return a;}
+            }
+            """
+        )).parseCU();
+    }
+
+    public void testTopLevelRecord6()
+    {
+        new JavaParser(new StringReader("""
+            public record GenericR<T, U>(T a, U... b) implements Cloneable
+            {
+                public T foo() {return a;}
+                private record Point(int x, Double y) {}
+            }
+            """
+        )).parseCU();
+    }
+
+    public void testTopLevelRecord7()
+    {
+        new JavaParser(new StringReader("""
+            record Foo() {}
+            """
+        )).parseCU();
+    }
+    public void testTopLevelRecord8()
+    {
+        new JavaParser(new StringReader("""
+            record Foo(int... is) {}
+            """
+        )).parseCU();
+    }
+    
 }
