@@ -365,21 +365,11 @@ public class CompletionTest2
             """));
         assertTypeAtA("java.lang.Integer", withRecordDef("""
             public void foo(Coordinates c) {
-                c.x./*A*/toString();
-            }
-            """));
-        assertTypeAtA("java.lang.Integer", withRecordDef("""
-            public void foo(Coordinates c) {
                 c.x()./*A*/toString();
             }
             """));
         
         // public record PrefixedString(String prefix, String content) {}
-        assertTypeAtA("java.lang.String", withRecordDef("""
-            public void foo(PrefixedString p) {
-                p.prefix./*A*/toString();
-            }
-            """));
         assertTypeAtA("java.lang.String", withRecordDef("""
             public void foo(PrefixedString p) {
                 p.prefix()./*A*/toString();
@@ -389,17 +379,7 @@ public class CompletionTest2
         // public record PrefixedT<T>(String prefix, T content) {}
         assertTypeAtA("java.lang.String", withRecordDef("""
             public void foo(PrefixedT<Integer> p) {
-                p.prefix./*A*/toString();
-            }
-            """));
-        assertTypeAtA("java.lang.String", withRecordDef("""
-            public void foo(PrefixedT<Integer> p) {
                 p.prefix()./*A*/toString();
-            }
-            """));
-        assertTypeAtA("java.lang.Integer", withRecordDef("""
-            public void foo(PrefixedT<Integer> p) {
-                p.content./*A*/toString();
             }
             """));
         assertTypeAtA("java.lang.Integer", withRecordDef("""
