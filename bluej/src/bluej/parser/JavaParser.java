@@ -432,6 +432,7 @@ public class JavaParser extends JavaParserCallbacks
     //       - class/interface TYPEDEF_CLAS / TYPEDEF_INTERFACE
     //       - enum            TYPEDEF_ENUM
     //       - annotation      TYPEDEF_ANNOTATION
+    //       - record          TYPEDEF_RECORD
     // 2 - doesn't even look like a type definition (TYPEDEF_EPIC_FAIL)
     public final int parseTypeDefBegin()
     {
