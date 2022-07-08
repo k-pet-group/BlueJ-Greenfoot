@@ -1002,4 +1002,55 @@ public class BasicParseTest
         assertNotNull(info);
         assertTrue(info.hadParseError());
     }
+
+    @Test
+    public void testPatternInstanceof1()
+    {
+        String aSrc =
+        """
+        class A {
+            {
+                if (x instanceof String s) {}
+            }
+        }
+        """;
+        
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testPatternInstanceof2()
+    {
+        String aSrc =
+                """
+                class A {
+                    {
+                        if (x instanceof List<String> s) {}
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testPatternInstanceof3()
+    {
+        String aSrc =
+                """
+                class A {
+                    {
+                        if (x instanceof List<String> s t) {}
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertTrue(info.hadParseError());
+    }
 }
