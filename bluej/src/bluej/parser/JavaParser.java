@@ -2942,6 +2942,12 @@ public class JavaParser extends JavaParserCallbacks
                 case 9: // LITERAL_instanceof
                     gotInstanceOfOperator(token);
                     parseTypeSpec(true);
+                    if (tokenStream.LA(1).getType() == JavaTokenTypes.IDENT)
+                    {
+                        // A pattern-matching instance of
+                        token = nextToken();
+                        // TODO record this
+                    }
                     break;
                 case 10: // DOT
                     // Handle dot operator specially, as there are some special cases
