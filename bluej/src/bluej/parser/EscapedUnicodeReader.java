@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2015,2022  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.parser;
 
+import bluej.parser.lexer.LineColPos;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -56,11 +57,11 @@ public final class EscapedUnicodeReader extends Reader
         sourceReader = source;
     }
     
-    public void setLineColPos(int line, int column, int position)
+    public void setLineColPos(LineColPos lineColPos)
     {
-        this.line = line;
-        this.column = column;
-        this.position = position;
+        this.line = lineColPos.line();
+        this.column = lineColPos.column();
+        this.position = lineColPos.position();
     }
 
     @Override
@@ -191,23 +192,10 @@ public final class EscapedUnicodeReader extends Reader
             column++;
         }
     }
-    
-    /**
-     * Get the position within the source stream (i.e. number of characters read).
-     */
-    public int getPosition()
+        
+    public LineColPos getLineColPos()
     {
-        return position;
-    }
-
-    public int getLine()
-    {
-        return line;
-    }
-
-    public int getColumn()
-    {
-        return column;
+        return new LineColPos(line, column, position);
     }
 
     @Override

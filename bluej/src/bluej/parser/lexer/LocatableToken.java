@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2014,2015,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2014,2015,2017,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,61 +27,44 @@ import threadchecker.Tag;
 @OnThread(Tag.Any)
 public class LocatableToken
 {
-    private int beginLine, beginColumn;
-    private int endLine, endColumn;
+    private final LineColPos begin;
+    private final LineColPos end;
     private LocatableToken hiddenBefore;
-    private int type;
-    private int position, length; // position and length in original source
-    private String text;
+    private final int type;
+    private final String text;
     
-    public LocatableToken(int t, String txt)
+    public LocatableToken(int t, String txt, LineColPos begin, LineColPos end)
     {
         type = t;
         text = txt;
-    }
-
-    public void setEndLineAndCol(int l, int c)
-    {
-        endLine = l;
-        endColumn = c;
+        this.begin = begin;
+        this.end = end;
     }
     
     public int getEndColumn()
     {
-        return endColumn;
+        return end.column();
     }
     
     public int getEndLine()
     {
-        return endLine;
+        return end.line();
     }
     
     public int getLine()
     {
-        return beginLine;
+        return begin.line();
     }
 
-    public void setPosition(int beginLine, int beginColumn, int endLine, int endColumn, int position, int length)
-    {
-        this.beginLine = beginLine;
-        this.beginColumn = beginColumn;
-        this.endLine = endLine;
-        this.endColumn = endColumn;
-        this.position = position;
-        this.length = length;
-    }
-
-    public void adjustStart(int offset)
+    public LocatableToken adjustStart(int offset)
     {
         // Assume same line:
-        beginColumn += offset;
-        endColumn += offset;
-        position += offset;
+        return new LocatableToken(type, text, begin.offsetSameLineBy(offset), end.offsetSameLineBy(offset));
     }
     
     public int getColumn()
     {
-        return beginColumn;
+        return begin.column();
     }
     
     public int getType()
@@ -111,17 +94,17 @@ public class LocatableToken
      */
     public int getLength()
     {
-        return length;
+        return end.position() - begin.position();
     }
     
     public int getPosition()
     {
-        return position;
+        return begin.position();
     }
     
     public int getEndPosition()
     {
-        return position + length;
+        return end.position();
     }
     
     public void setHiddenBefore(LocatableToken t)
@@ -137,12 +120,12 @@ public class LocatableToken
     @Override
     public String toString()
     {
-        return "LocatableToken [beginLine=" + beginLine + ", beginColumn="
-                + beginColumn + ", endLine=" + endLine + ", endColumn="
-                + endColumn + ", hiddenBefore=" + hiddenBefore + ", type="
-                + type + ", position=" + position + ", length=" + length
-                + ", text=" + text + "]";
+        return "LocatableToken{" +
+            "begin=" + begin +
+            ", end=" + end +
+            ", hiddenBefore=" + hiddenBefore +
+            ", type=" + type +
+            ", text='" + text + '\'' +
+            '}';
     }
-    
-    
 }
