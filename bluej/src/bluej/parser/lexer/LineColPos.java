@@ -21,12 +21,16 @@
  */
 package bluej.parser.lexer;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * A line, column and position with a String
  * @param line The line, 1 is the top line
  * @param column The column, 1 is the leftmost column
  * @param position The position in the overall String as a character index
  */
+@OnThread(Tag.Any)
 public record LineColPos(int line, int column, int position)
 {
     public LineColPos offsetSameLineBy(int offset)
