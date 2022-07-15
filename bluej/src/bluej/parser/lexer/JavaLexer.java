@@ -41,8 +41,8 @@ public final class JavaLexer implements TokenStream
     private StringBuffer textBuffer = new StringBuffer(); // text of current token
     private EscapedUnicodeReader reader;
     private int rChar; 
-    private int beginColumn, beginLine, beginPosition;
-    private int endColumn, endLine, endPosition;
+    private LineColPos begin;
+    private LineColPos end;
     private boolean generateWhitespaceTokens = false;
     private boolean handleComments = true; // When false, doesn't recognise /*..*/ or //..\n as comments (for frames)
     
@@ -130,10 +130,9 @@ public final class JavaLexer implements TokenStream
     public JavaLexer(Reader in, int line, int col, int position)
     {
         reader = new EscapedUnicodeReader(in);
-        reader.setLineColPos(line, col, position);
-        endColumn = beginColumn = col;
-        endLine = beginLine = line;
-        endPosition = beginPosition = position;
+        LineColPos lineColPos = new LineColPos(line, col, position);
+        reader.setLineColPos(lineColPos);
+        end = begin = lineColPos;
         try {
             rChar = reader.read();
         }
@@ -162,9 +161,7 @@ public final class JavaLexer implements TokenStream
         else
         {        
             while (Character.isWhitespace((char)rChar)) {
-                beginLine = reader.getLine();
-                beginColumn = reader.getColumn();
-                beginPosition = reader.getPosition();
+                begin = reader.getLineColPos();
                 readNextChar();
             }
         }
@@ -191,11 +188,8 @@ public final class JavaLexer implements TokenStream
      */
     private LocatableToken makeToken(int type, String txt)
     {           
-        LocatableToken tok = new LocatableToken(type, txt);
-        tok.setPosition(beginLine, beginColumn, endLine, endColumn, beginPosition, endPosition - beginPosition);
-        beginColumn = endColumn;
-        beginLine = endLine;
-        beginPosition = endPosition;
+        LocatableToken tok = new LocatableToken(type, txt, begin, end);
+        begin = end;
         return tok;
     }
 
@@ -913,9 +907,7 @@ public final class JavaLexer implements TokenStream
 
     private int readNextChar()
     {
-        endColumn = reader.getColumn();
-        endLine = reader.getLine();
-        endPosition = reader.getPosition();
+        end = reader.getLineColPos();
         try{
             rChar = reader.read();
         } catch(IOException e) {
