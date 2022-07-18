@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2017,2021,2022,2024 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2017,2021,2022 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import bluej.parser.JavaParser;
 import bluej.parser.ParseFailure;
 import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LineColPos;
 import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
@@ -196,8 +197,9 @@ public class JavaStrideParser extends JavaParser
         public void add(ConversionWarning warning, Consumer<LocatableToken> commentAdd)
         {
             warnings.add(warning);
-            LocatableToken dummyToken = new LocatableToken(SL_COMMENT, "// " + (testing ? ("WARNING:" + warning.getClass().getName()) : warning.getMessage()));
-            dummyToken.setPosition(-1, -1, -1, -1, -1, dummyToken.getText().length());
+            String content = "// " + (testing ? ("WARNING:" + warning.getClass().getName()) : warning.getMessage());
+            LocatableToken dummyToken = new LocatableToken(SL_COMMENT, content,
+                new LineColPos(-1, -1, -1), new LineColPos(-1, -1, -1 + content.length()));
             commentAdd.accept(dummyToken);
         }
     }

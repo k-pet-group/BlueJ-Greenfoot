@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2022 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -49,8 +49,7 @@ public class SuperThisParamsExpressionFragment extends
     @Override
     protected LocatableToken unwrapForParse(LocatableToken token)
     {
-        token.adjustStart(0 - "super(".length());
-        return token;
+        return token.adjustStart(0 - "super(".length());
     }
 
     @Override
