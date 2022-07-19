@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.OptionalInt;
+import java.util.TreeMap;
+import java.util.stream.IntStream;
 
 import bluej.parser.EscapedUnicodeReader;
 import bluej.parser.TokenStream;
@@ -41,6 +44,8 @@ public final class JavaLexer implements TokenStream
     private StringBuffer textBuffer = new StringBuffer(); // text of current token
     private EscapedUnicodeReader reader;
     private int rChar; 
+    // Only used in one frequently-called method, but stored as field to avoid recreating object each call:
+    private final TreeMap<Integer, LineColPos> minusPositions = new TreeMap<>();
     private LineColPos begin;
     private LineColPos end;
     private boolean generateWhitespaceTokens = false;
@@ -80,13 +85,16 @@ public final class JavaLexer implements TokenStream
         keywords.put("long", JavaTokenTypes.LITERAL_long);
         keywords.put("native", JavaTokenTypes.LITERAL_native);
         keywords.put("new", JavaTokenTypes.LITERAL_new);
+        keywords.put("non-sealed", JavaTokenTypes.LITERAL_non_sealed);
         keywords.put("null", JavaTokenTypes.LITERAL_null);
         keywords.put("package", JavaTokenTypes.LITERAL_package);
+        keywords.put("permits", JavaTokenTypes.LITERAL_permits);
         keywords.put("private", JavaTokenTypes.LITERAL_private);
         keywords.put("protected", JavaTokenTypes.LITERAL_protected);
         keywords.put("public", JavaTokenTypes.LITERAL_public);
         keywords.put("record", JavaTokenTypes.LITERAL_record);
         keywords.put("return", JavaTokenTypes.LITERAL_return);
+        keywords.put("sealed", JavaTokenTypes.LITERAL_sealed);
         keywords.put("short", JavaTokenTypes.LITERAL_short);
         keywords.put("static", JavaTokenTypes.LITERAL_static);
         keywords.put("strictfp", JavaTokenTypes.STRICTFP);
@@ -199,18 +207,69 @@ public final class JavaLexer implements TokenStream
         return makeToken(getWordType(), textBuffer.toString());
     }
 
+    /**
+     * Populates the textBuffer field with the next complete ident or keyword.
+     */
     private void populateTextBuffer(char ch)
     {
+        // Now that we have hyphenated keywords, we need to keep going when we see minus signs
+        // in case they are part of a keyword.  If we get to the end of a sequence of identifier
+        // parts and minus signs and it doesn't match a known hyphenated keyword, or it
+        // begins with a known hyphenated keyword but has more minus signs and identifier bits after, 
+        // we have to put everything from the last spare minus onwards back onto the reader.
+        
         char thisChar=ch;
+        boolean eof = false;
+        minusPositions.clear();
         do {  
             textBuffer.append(thisChar);
             int rval = readNextChar();
             if (rval==-1){
                 //eof
-                return;
+                eof = true;
+                break;
+            }
+            if (rval == '-')
+            {
+                // Record when we see a minus for faster processing below:
+                minusPositions.put(textBuffer.length(), end);
             }
             thisChar=(char)rval;
-        } while (Character.isJavaIdentifierPart(thisChar));
+        } while (Character.isJavaIdentifierPart(thisChar) || thisChar == '-');
+
+        // We look for the first minus where the text before that minus matches a known keyword.
+        // So e.g. if we consumed "non-sealed-pipe" we'd pick out the second minus as the first
+        // one that is after a known keyword ("non-sealed").
+        // For "non-closed-file" it would be the first minus because there is no known keyword.
+        OptionalInt keywordEnd = 
+            // We look at all positions where there is a minus, but we also look at the end of 
+            // the String (in case it's exactly a hyphenated keyword like "non-sealed" with no further minuses)
+            IntStream.concat(minusPositions.keySet().stream().mapToInt(Integer::intValue).sorted(), IntStream.of(textBuffer.length()))
+                .filter(index -> keywords.containsKey(textBuffer.substring(0, index))).findFirst();
+        
+        if (!minusPositions.isEmpty() && keywordEnd.orElse(-1) < textBuffer.length())
+        {
+            // We have found a minus but there either is not a keyword (keywordEnd will be empty)
+            // or there are further minuses after the content (keywordEnd will be present,
+            // but less than the full length of the string).
+            int minusToPushBackFrom = keywordEnd.orElse(minusPositions.firstKey().intValue());
+            end = minusPositions.get(minusToPushBackFrom);
+            try
+            {
+                // If we found EOF then thisChar is already handled and we shouldn't push it back
+                // on to the buffer:
+                if (!eof)
+                    textBuffer.append(thisChar);
+                reader.pushBack(textBuffer.substring(minusToPushBackFrom), end);
+                // Prime the rChar variable which always holds the next pending character:
+                readNextChar();
+            }
+            catch (IOException e)
+            {
+                // If this happens, we have a hyphenated identifier longer than 65536 characters (the EscapedUnicodeReader buffer size).  Ignore?
+            }
+            textBuffer.delete(minusToPushBackFrom, textBuffer.length());
+        }
     }
 
     /**
@@ -718,7 +777,7 @@ public final class JavaLexer implements TokenStream
 
     private int getMinusType()
     {
-        //-, -=, --
+        //-, -=, --, ->
         int rval=readNextChar();
         char thisChar=(char)rval; 
 

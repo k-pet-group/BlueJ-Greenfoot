@@ -21,16 +21,19 @@
  */
 package bluej.parser;
 
+import bluej.parser.lexer.JavaTokenFilter;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LineColPos;
+import bluej.parser.lexer.LocatableToken;
+import com.google.common.collect.LinkedListMultimap;
+
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-
-import bluej.parser.lexer.JavaTokenFilter;
-import bluej.parser.lexer.JavaTokenTypes;
-import bluej.parser.lexer.LocatableToken;
 
 
 /**
@@ -92,7 +95,7 @@ public class LexerTest extends junit.framework.TestCase
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
         // Type declaration words
-        ts = getLexerFor("class interface enum extends implements record");
+        ts = getLexerFor("class interface enum extends implements record sealed permits non-sealed");
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_class);
         token = (LocatableToken) ts.nextToken();
@@ -105,6 +108,12 @@ public class LexerTest extends junit.framework.TestCase
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_implements);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_record);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_sealed);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_permits);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_non_sealed);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
@@ -772,6 +781,57 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(3, token.getColumn());
         assertEquals(2, token.getLine());
     }
+
+    // Helper record for the expected start and end of a token
+    private record StartEnd(LineColPos start, LineColPos end){}
+    // Given start and end position in String (starting at zero), create a corresponding StartEnd item
+    private StartEnd p(int startIndex, int endIndex)
+    {
+        return new StartEnd(new LineColPos(1, startIndex + 1, startIndex), new LineColPos(1, endIndex + 1, endIndex));
+    }
+    
+    // Test dealing with hyphenated keywords using a tricky example
+    public void testPositionTracking6() throws Exception
+    {
+        // This should be parsed as (adding spaces to break tokens):
+        // non-sealed - non-sealed - non - sealed2 - not - sealed - non-sealed - non -- sealed +
+        TokenStream ts = getLexerFor("non-sealed-non-sealed-non-sealed2-not-sealed-non-sealed-non--sealed+");
+        
+        // The linked list multimap means the following entries will be iterated through
+        // in the order we insert them (i.e. the order they are written here):
+        LinkedListMultimap<Integer, StartEnd> expected = LinkedListMultimap.create();
+        expected.put(JavaTokenTypes.LITERAL_non_sealed, p(0, 10));
+        expected.put(JavaTokenTypes.MINUS, p(10, 11));
+        expected.put(JavaTokenTypes.LITERAL_non_sealed, p(11, 21));
+        expected.put(JavaTokenTypes.MINUS, p(21, 22));
+        expected.put(JavaTokenTypes.IDENT, p(22, 25));
+        expected.put(JavaTokenTypes.MINUS, p(25, 26));
+        expected.put(JavaTokenTypes.IDENT, p(26, 33));
+        expected.put(JavaTokenTypes.MINUS, p(33, 34));
+        expected.put(JavaTokenTypes.IDENT, p(34, 37));
+        expected.put(JavaTokenTypes.MINUS, p(37, 38));
+        expected.put(JavaTokenTypes.LITERAL_sealed, p(38, 44));
+        expected.put(JavaTokenTypes.MINUS, p(44, 45));
+        expected.put(JavaTokenTypes.LITERAL_non_sealed, p(45, 55));
+        expected.put(JavaTokenTypes.MINUS, p(55, 56));
+        expected.put(JavaTokenTypes.IDENT, p(56, 59));
+        expected.put(JavaTokenTypes.DEC, p(59, 61));
+        expected.put(JavaTokenTypes.LITERAL_sealed, p(61, 67));
+        expected.put(JavaTokenTypes.PLUS, p(67, 68));
+
+        for (Entry<Integer, StartEnd> entry : expected.entries())
+        {
+            StartEnd pos = entry.getValue();
+            LocatableToken token = (LocatableToken) ts.nextToken();
+            assertEquals(pos.toString(), entry.getKey().intValue(), token.getType());
+            assertEquals(token.getPosition(), pos.start().position());
+            assertEquals(token.getLine(), pos.start().line());
+            assertEquals(token.getColumn(), pos.start().column());
+            assertEquals(token.getEndPosition(), pos.end().position());
+            assertEquals(token.getEndLine(), pos.end().line());
+            assertEquals(token.getEndColumn(), pos.end().column());
+        }
+    }
     
     public void testBroken() throws Exception
     {
@@ -887,6 +947,8 @@ public class LexerTest extends junit.framework.TestCase
         tokenMap.put(JavaTokenTypes.STRING_LITERAL, "\"A string literal\"");
         tokenMap.put(JavaTokenTypes.CHAR_LITERAL, "'n'");
         tokenMap.put(JavaTokenTypes.LAMBDA, "->");
+        tokenMap.put(JavaTokenTypes.LITERAL_sealed, "sealed");
+        tokenMap.put(JavaTokenTypes.LITERAL_non_sealed, "non-sealed");
 
         Map<Integer,Set<Integer>> cantFollow = new HashMap<Integer,Set<Integer>>();
         // "+" can't precede: +, +=, ++, =, ==
@@ -948,13 +1010,12 @@ public class LexerTest extends junit.framework.TestCase
         // ">>>" can't precede "=", "=="
         cantFollow.put(JavaTokenTypes.BSR, nonSet);
         // "." can't follow itself (part of ellipsis)
-        nonSet = new HashSet<Integer>();
-        nonSet.add(JavaTokenTypes.DOT);
-        cantFollow.put(JavaTokenTypes.DOT, nonSet);
-        // identifier can't follow identifier
-        nonSet = new HashSet<Integer>();
-        nonSet.add(JavaTokenTypes.IDENT);
+        cantFollow.put(JavaTokenTypes.DOT, Set.of(JavaTokenTypes.DOT));
+        // identifier can't follow identifier or the two keywords
+        nonSet = Set.of(JavaTokenTypes.IDENT, JavaTokenTypes.LITERAL_sealed, JavaTokenTypes.LITERAL_non_sealed);
         cantFollow.put(JavaTokenTypes.IDENT, nonSet);
+        cantFollow.put(JavaTokenTypes.LITERAL_sealed, nonSet);
+        cantFollow.put(JavaTokenTypes.LITERAL_non_sealed, nonSet);
         
         Set<Integer> tokens = tokenMap.keySet();
         for (Iterator<Integer> i = tokens.iterator(); i.hasNext(); ) {
@@ -969,9 +1030,9 @@ public class LexerTest extends junit.framework.TestCase
                 //System.out.println("String = " + testMe);
                 TokenStream ts = getLexerFor(testMe);
                 LocatableToken token = (LocatableToken) ts.nextToken();
-                assertEquals(ival, token.getType());
+                assertEquals(testMe, ival, token.getType());
                 token = (LocatableToken) ts.nextToken();
-                assertEquals(jval, token.getType());
+                assertEquals(testMe, jval, token.getType());
                 
                 // Check EOF and its position
                 token = (LocatableToken) ts.nextToken();

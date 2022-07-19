@@ -141,9 +141,11 @@ public interface JavaTokenTypes
     int METHOD_REFERENCE = 173; // Java 8's '::' operator
     int LITERAL_yield = 174;
     int STRING_LITERAL_MULTILINE = 175; // The """ text blocks
-    
     int LITERAL_record = 176;
+    int LITERAL_sealed = 177;
+    int LITERAL_non_sealed = 178;
+    int LITERAL_permits = 179;
     
-    int INVALID = 177;
+    int INVALID = 180;
     
 }
