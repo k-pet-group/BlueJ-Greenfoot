@@ -47,11 +47,8 @@ public final class EscapedUnicodeReader extends Reader
     private boolean charIsBuffered;
     private int bufferedChar;
     
-    private int position; // position within source stream
-    private int line = 1;
-    private int column = 1;
-
-
+    private LineColPos lineColPos; // position within source stream
+    
     public EscapedUnicodeReader(Reader source)
     {
         sourceReader = source;
@@ -59,9 +56,7 @@ public final class EscapedUnicodeReader extends Reader
     
     public void setLineColPos(LineColPos lineColPos)
     {
-        this.line = lineColPos.line();
-        this.column = lineColPos.column();
-        this.position = lineColPos.position();
+        this.lineColPos = lineColPos;
     }
 
     @Override
@@ -122,7 +117,7 @@ public final class EscapedUnicodeReader extends Reader
             int nchar = sourceReader.read();
 
             if (nchar == 'u') {
-                column++; position++;
+                lineColPos = lineColPos.offsetSameLineBy(1);
                 return readEscapedUnicodeSequence();
             }
             putBuffer(nchar);             
@@ -183,19 +178,17 @@ public final class EscapedUnicodeReader extends Reader
     
     private void processChar(char ch)
     {
-        position++;
         if (ch == '\n') {
-            line++;
-            column = 1;
+            lineColPos = new LineColPos(lineColPos.line() + 1, 1, lineColPos.position() + 1);
         }
         else {
-            column++;
+            lineColPos = lineColPos.offsetSameLineBy(1);
         }
     }
         
     public LineColPos getLineColPos()
     {
-        return new LineColPos(line, column, position);
+        return lineColPos;
     }
 
     @Override
