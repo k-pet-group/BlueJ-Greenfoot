@@ -48,7 +48,7 @@ public final class EscapedUnicodeReader extends Reader
     private boolean charIsBuffered;
     private int bufferedChar;
     
-    private LineColPos lineColPos; // position within source stream
+    private LineColPos lineColPos = new LineColPos(1, 1, 0); // position within source stream
     
     public EscapedUnicodeReader(Reader source)
     {
