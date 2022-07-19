@@ -106,25 +106,17 @@ public abstract class JavaParentNode extends ParentParsedNode
     /**
      * Insert a FieldNode representing a variable/field declaration into this node.
      */
-    public void insertVariable(FieldNode varNode, int pos, int size, NodeStructureListener nodeStructureListener)
-    {
-        super.insertNode(varNode, pos, size, nodeStructureListener);
-        
-        Set<FieldNode> varList = variables.get(varNode.getName());
-        if (varList == null) {
-            varList = new HashSet<FieldNode>(1);
-            variables.put(varNode.getName(), varList);
-        }
-        
-        varList.add(varNode);
-    }
-    
-    /**
-     * Insert a field child (alias for insertVariable).
-     */
     public void insertField(FieldNode child, int position, int size, NodeStructureListener nodeStructureListener)
     {
-        insertVariable(child, position, size, nodeStructureListener);
+        super.insertNode(child, position, size, nodeStructureListener);
+
+        Set<FieldNode> varList = variables.get(child.getName());
+        if (varList == null) {
+            varList = new HashSet<FieldNode>(1);
+            variables.put(child.getName(), varList);
+        }
+
+        varList.add(child);
     }
     
     @Override
