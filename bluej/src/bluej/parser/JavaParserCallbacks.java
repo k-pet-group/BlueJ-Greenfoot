@@ -256,6 +256,12 @@ public class JavaParserCallbacks
     /** Called after we have seen the last type in an "implements" type list */
     protected void endTypeDefImplements() { }
 
+    /** Called when we have seen the "permits" literal token */
+    protected void beginTypeDefPermits(LocatableToken permitsToken) { }
+
+    /** Called after we have seen the last type in a "permits" type list */
+    protected void endTypeDefPermits() { }
+
     protected void gotTypeDefEnd(LocatableToken token, boolean included)
     {
         endElement(token, included);

@@ -26,6 +26,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.IOException;
+import java.io.PushbackReader;
 import java.io.Reader;
 
 /**
@@ -42,26 +43,21 @@ import java.io.Reader;
 @OnThread(Tag.Any)
 public final class EscapedUnicodeReader extends Reader
 {
-    Reader sourceReader;
+    private final PushbackReader sourceReader;
 
     private boolean charIsBuffered;
     private int bufferedChar;
     
-    private int position; // position within source stream
-    private int line = 1;
-    private int column = 1;
-
-
+    private LineColPos lineColPos = new LineColPos(1, 1, 0); // position within source stream
+    
     public EscapedUnicodeReader(Reader source)
     {
-        sourceReader = source;
+        sourceReader = new PushbackReader(source, 65536);
     }
     
     public void setLineColPos(LineColPos lineColPos)
     {
-        this.line = lineColPos.line();
-        this.column = lineColPos.column();
-        this.position = lineColPos.position();
+        this.lineColPos = lineColPos;
     }
 
     @Override
@@ -122,7 +118,7 @@ public final class EscapedUnicodeReader extends Reader
             int nchar = sourceReader.read();
 
             if (nchar == 'u') {
-                column++; position++;
+                lineColPos = lineColPos.offsetSameLineBy(1);
                 return readEscapedUnicodeSequence();
             }
             putBuffer(nchar);             
@@ -183,24 +179,32 @@ public final class EscapedUnicodeReader extends Reader
     
     private void processChar(char ch)
     {
-        position++;
         if (ch == '\n') {
-            line++;
-            column = 1;
+            lineColPos = new LineColPos(lineColPos.line() + 1, 1, lineColPos.position() + 1);
         }
         else {
-            column++;
+            lineColPos = lineColPos.offsetSameLineBy(1);
         }
     }
         
     public LineColPos getLineColPos()
     {
-        return new LineColPos(line, column, position);
+        return lineColPos;
     }
 
     @Override
     public int read() throws IOException
     {
         return getChar();
+    }
+
+    /**
+     * Push the given content back on to the front of the reader, and set the current position
+     * to the given position.
+     */
+    public void pushBack(String content, LineColPos lineColPos) throws IOException
+    {
+        sourceReader.unread(content.toCharArray());
+        this.lineColPos = lineColPos;
     }
 }
