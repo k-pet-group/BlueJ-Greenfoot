@@ -523,7 +523,7 @@ public class JavaParser extends JavaParserCallbacks
             
             if (token.getType() == JavaTokenTypes.DOT) {
                 // Incomplete type spec
-                error("Incomplete type specificiation", token);
+                error("Incomplete type specification", token);
                 // Don't push the token back on the token stream - it really is part of the type
                 return null;
             }
@@ -541,11 +541,29 @@ public class JavaParser extends JavaParserCallbacks
 
             if (token.getType() == JavaTokenTypes.DOT) {
                 // Incomplete type spec
-                error("Incomplete type specificiation", token);
+                error("Incomplete type specification", token);
                 // Don't push the token back on the token stream - it really is part of the type
                 return null;
             }
             endTypeDefImplements();
+        }
+
+        // permits...
+        if (token.getType() == JavaTokenTypes.LITERAL_permits) {
+            beginTypeDefPermits(token);
+            do {
+                parseTypeSpec(true);
+                token = nextToken();
+            }
+            while (token.getType() == JavaTokenTypes.COMMA);
+
+            if (token.getType() == JavaTokenTypes.DOT) {
+                // Incomplete type spec
+                error("Incomplete type specification", token);
+                // Don't push the token back on the token stream - it really is part of the type
+                return null;
+            }
+            endTypeDefPermits();
         }
         
         if (token.getType() == JavaTokenTypes.LCURLY) {
@@ -663,7 +681,9 @@ public class JavaParser extends JavaParserCallbacks
                 || tokType == JavaTokenTypes.LITERAL_transient
                 || tokType == JavaTokenTypes.LITERAL_synchronized
                 || tokType == JavaTokenTypes.AT
-                || tokType == JavaTokenTypes.LITERAL_default);
+                || tokType == JavaTokenTypes.LITERAL_default
+                || tokType == JavaTokenTypes.LITERAL_sealed
+                || tokType == JavaTokenTypes.LITERAL_non_sealed);
     }
 
     /**
