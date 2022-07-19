@@ -26,6 +26,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.IOException;
+import java.io.PushbackReader;
 import java.io.Reader;
 
 /**
@@ -42,7 +43,7 @@ import java.io.Reader;
 @OnThread(Tag.Any)
 public final class EscapedUnicodeReader extends Reader
 {
-    Reader sourceReader;
+    private final PushbackReader sourceReader;
 
     private boolean charIsBuffered;
     private int bufferedChar;
@@ -51,7 +52,7 @@ public final class EscapedUnicodeReader extends Reader
     
     public EscapedUnicodeReader(Reader source)
     {
-        sourceReader = source;
+        sourceReader = new PushbackReader(source, 65536);
     }
     
     public void setLineColPos(LineColPos lineColPos)
@@ -195,5 +196,15 @@ public final class EscapedUnicodeReader extends Reader
     public int read() throws IOException
     {
         return getChar();
+    }
+
+    /**
+     * Push the given content back on to the front of the reader, and set the current position
+     * to the given position.
+     */
+    public void pushBack(String content, LineColPos lineColPos) throws IOException
+    {
+        sourceReader.unread(content.toCharArray());
+        this.lineColPos = lineColPos;
     }
 }
