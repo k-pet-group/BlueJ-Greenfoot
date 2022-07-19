@@ -782,16 +782,21 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(2, token.getLine());
     }
 
+    // Helper record for the expected start and end of a token
     private record StartEnd(LineColPos start, LineColPos end){}
+    // Given start and end position in String (starting at zero), create a corresponding StartEnd item
     private StartEnd p(int startIndex, int endIndex)
     {
         return new StartEnd(new LineColPos(1, startIndex + 1, startIndex), new LineColPos(1, endIndex + 1, endIndex));
     }
     
+    // Test dealing with hyphenated keywords using a tricky example
     public void testPositionTracking6() throws Exception
     {
-        
+        // This should be parsed as (adding spaces to break tokens):
+        // non-sealed - non-sealed - non - sealed2 - not - sealed - non-sealed - non -- sealed +
         TokenStream ts = getLexerFor("non-sealed-non-sealed-non-sealed2-not-sealed-non-sealed-non--sealed+");
+        
         // The linked list multimap means the following entries will be iterated through
         // in the order we insert them (i.e. the order they are written here):
         LinkedListMultimap<Integer, StartEnd> expected = LinkedListMultimap.create();
@@ -826,7 +831,6 @@ public class LexerTest extends junit.framework.TestCase
             assertEquals(token.getEndLine(), pos.end().line());
             assertEquals(token.getEndColumn(), pos.end().column());
         }
-        
     }
     
     public void testBroken() throws Exception
