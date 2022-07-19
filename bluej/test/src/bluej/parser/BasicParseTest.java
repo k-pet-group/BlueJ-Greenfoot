@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2014,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2013,2014,2016,2019,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -831,6 +831,145 @@ public class BasicParseTest
         assertFalse(info.isInterface());
         assertFalse(info.isEnum());
     }
+
+
+    // Examples mostly from https://openjdk.org/jeps/409
+    @Test
+    public void testSealedClasses1()
+    {
+        String aSrc =
+            """
+            package com.example.geometry;
+            public abstract sealed class Shape permits Circle, Rectangle, Square { }
+            """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testSealedClasses2()
+    {
+        String aSrc =
+            """
+            package com.example.geometry;
+                        
+            public abstract sealed class Shape
+                permits com.example.polar.Circle,
+                        com.example.quad.Rectangle,
+                        com.example.quad.simple.Square { }
+            """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testSealedClasses3()
+    {
+        String aSrc =
+            """
+            abstract sealed class Root {
+                final class A extends Root { }
+                final class B extends Root { }
+                final class C extends Root { }
+            }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testSealedClasses4()
+    {
+        String aSrc =
+            """
+            package com.example.geometry;
+                        
+            public abstract sealed class Shape
+                permits Circle, Rectangle, Square, WeirdShape { }
+                        
+            public final class Circle extends Shape { }
+                        
+            public sealed class Rectangle extends Shape
+                permits TransparentRectangle, FilledRectangle { }
+            public final class TransparentRectangle extends Rectangle { }
+            public final class FilledRectangle extends Rectangle { }
+                        
+            public final class Square extends Shape { }
+                        
+            public non-sealed class WeirdShape extends Shape { }
+            """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testSealedClasses5()
+    {
+        String aSrc =
+            """
+            sealed interface Celestial
+                permits Planet, Star, Comet { }
+                        
+            final class Planet implements Celestial { }
+            final class Star   implements Celestial { }
+            final class Comet  implements Celestial { }
+            """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testSealedClasses6()
+    {
+        String aSrc =
+            """
+            package com.example.expression;
+                        
+            public sealed interface Expr
+                permits ConstantExpr, PlusExpr, TimesExpr, NegExpr { }
+                        
+            public final class ConstantExpr implements Expr { }
+            public final class PlusExpr     implements Expr { }
+            public final class TimesExpr    implements Expr { }
+            public final class NegExpr      implements Expr { }
+            """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testSealedClasses7()
+    {
+        String aSrc =
+            """
+            package com.example.expression;
+                        
+            public sealed interface Expr
+                permits ConstantExpr, PlusExpr, TimesExpr, NegExpr { }
+                        
+            public record ConstantExpr(int i)       implements Expr { }
+            public record PlusExpr(Expr a, Expr b)  implements Expr { }
+            public record TimesExpr(Expr a, Expr b) implements Expr { }
+            public record NegExpr(Expr e)           implements Expr { }
+            """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+   
 
     @Test
     public void testAnnotation1()

@@ -435,4 +435,35 @@ public class CompletionTest2
             }
             """));
     }
+
+    @Test
+    public void testKeywords()
+    {
+        // This is to check that the parsing of the non-sealed keyword hasn't
+        // interfered:
+        assertTypeAtA("java.lang.String", withRecordDef("""
+            public void foo() {
+                String seald;
+                Integer.toString(non-seald./*A*/length());
+                // Note above is an expression, because the keyword is non-sealed, and above is missing an e
+            }
+            """));
+
+        assertTypeAtA("java.lang.String", withRecordDef("""
+            public void foo() {
+                String sealed2;
+                Integer.toString(non-sealed2./*A*/length());
+                // Note above is an expression, because the keyword is non-sealed, and above has an extra 2
+            }
+            """));
+
+        assertTypeAtA("Outer.Local", withRecordDef("""
+            public void foo() {
+                class Local { Integer non; }
+                Local foo;
+                Integer.toString(foo./*A*/non-sealed2);
+                // This should also be an expression because the 2 should prevent the keyword being parsed
+            }
+            """));
+    }
 }
