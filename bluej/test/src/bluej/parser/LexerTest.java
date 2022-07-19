@@ -92,7 +92,7 @@ public class LexerTest extends junit.framework.TestCase
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
         // Type declaration words
-        ts = getLexerFor("class interface enum extends implements record");
+        ts = getLexerFor("class interface enum extends implements record sealed permits non-sealed");
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_class);
         token = (LocatableToken) ts.nextToken();
@@ -105,6 +105,12 @@ public class LexerTest extends junit.framework.TestCase
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_implements);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_record);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_sealed);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_permits);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_non_sealed);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
@@ -969,9 +975,9 @@ public class LexerTest extends junit.framework.TestCase
                 //System.out.println("String = " + testMe);
                 TokenStream ts = getLexerFor(testMe);
                 LocatableToken token = (LocatableToken) ts.nextToken();
-                assertEquals(ival, token.getType());
+                assertEquals(testMe, ival, token.getType());
                 token = (LocatableToken) ts.nextToken();
-                assertEquals(jval, token.getType());
+                assertEquals(testMe, jval, token.getType());
                 
                 // Check EOF and its position
                 token = (LocatableToken) ts.nextToken();
