@@ -24,11 +24,13 @@ package bluej.parser;
 import bluej.JavaFXThreadingRule;
 import bluej.parser.ParseUtility.StartEnd;
 import bluej.parser.entity.ClassLoaderResolver;
+import bluej.utility.Debug;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.io.OutputStreamWriter;
 import java.util.Map;
 
 import static bluej.parser.ParseUtility.Parsed;
@@ -57,6 +59,7 @@ public class CompletionTest2
     @Before
     public void setUp() throws Exception
     {
+        Debug.setDebugStream(new OutputStreamWriter(System.out));
         resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
     }
     
@@ -98,6 +101,26 @@ public class CompletionTest2
             assertNotNull(suggests);
             assertEquals(expectedTypeName, suggests.getSuggestionType().toString());
         }
+    }
+
+    private void assertTypeAtAandB(String expectedTypeNameA, String expectedTypeNameB, String javaSrc)
+    {
+        Parsed p = parse(javaSrc, resolver);
+        resolver.addCompilationUnit("", p.node());
+
+        Map.of("A", expectedTypeNameA, "B", expectedTypeNameB).forEach(( key, exp) -> {
+            ExpressionTypeInfo suggests = p.node().getExpressionType(p.positionStart(key), p.doc());
+
+            if (exp == null)
+            {
+                assertNull(key, suggests);
+            }
+            else
+            {
+                assertNotNull(key, suggests);
+                assertEquals(key, exp, suggests.getSuggestionType().toString());
+            }
+        });
     }
     
     /**
@@ -465,5 +488,184 @@ public class CompletionTest2
                 // This should also be an expression because the 2 should prevent the keyword being parsed
             }
             """));
+    }
+    
+    /**
+     * We have decided not to support the exact scoping of instanceof pattern matching,
+     * as it's quite complex to get right.  Instead we will support a generous interpretation,
+     * and offer completion on the variable anywhere where the analysis *might* have
+     * shown it is in scope.  This method contains all the tests for where the exact
+     * analysis would also offer completion.  The testIfInstanceofApproximate method
+     * has all the tests which are technically incorrect; if we ever decide to redo it
+     * properly those are the tests we would want to remove.
+     */
+    @Test
+    public void testIfInstanceofExact()
+    {
+        // Should be in scope inside the if:
+        assertTypeAtA("java.lang.Integer", withLambdaDefs("""
+            public void ifInt(Object orig)
+            {
+                if (orig instanceof Integer x)
+                    x./*A*/toString();
+                }
+            }
+        """));
+        
+        // Should be in scope if then using an &&:
+        assertTypeAtA( "java.lang.Integer", withLambdaDefs("""
+            public void ifInt(Object orig)
+            {
+                if (orig instanceof Integer x && x./*A*/intValue() > 5) {
+                    x.toString();
+                }
+            }
+        """));
+        
+        // More complex example:
+        assertTypeAtA( "java.lang.Integer", withLambdaDefs("""
+            public void ifInt(Object orig)
+            {
+                if ((orig instanceof Integer x && x.intValue() > 5) && x./*A*/toString()) {
+                    x.toString();
+                }
+            }
+        """));
+
+        // Should work outside if, within an expression:
+        assertTypeAtA("java.lang.String", withLambdaDefs("""
+            public final boolean equals(Object o) {
+                return (o instanceof String s) &&
+                    s./*A*/equalsIgnoreCase(this);
+            }
+        """));
+        
+        // Negated patterns can then be in scope!
+        assertTypeAtA("java.lang.String", withLambdaDefs("""
+            public void onlyForStrings(Object o) throws MyException {
+                if (!(o instanceof String s))
+                    throw new Exception();
+                // s is in scope
+                System.out.println(s./*A*/length());
+            }
+        """));
+
+        // De Morgan!
+        assertTypeAtA("java.lang.String", withLambdaDefs("""
+            public void onlyForStrings(Object o) throws MyException {
+                if (!(o instanceof String s) || o.hashCode() == 0)
+                    throw new Exception();
+                // s is in scope
+                System.out.println(s./*A*/length());
+            }
+        """));
+        
+    }
+    
+    @Test
+    public void testIfInstanceofApproximate()
+    {
+        // It could be in scope outside the if, should it have been negated: 
+        assertTypeAtA( "java.lang.Integer", withLambdaDefs("""
+            public void ifInt(Object orig)
+            {
+                if (orig instanceof Integer x) {
+                    x.toString();
+                }
+                x./*A*/toString();
+            }
+        """));
+
+        // Ditto for an else:
+        assertTypeAtA( "java.lang.Integer", withLambdaDefs("""
+            public void ifInt(Object orig)
+            {
+                if (orig instanceof Integer x) {
+                    x.toString();
+                } else {
+                    x./*A*/toString();
+                }
+            }
+        """));
+
+        // Ideally we'd notice this is || but actually we support anywhere later in the expression:
+        assertTypeAtA( "java.lang.Integer", withLambdaDefs("""
+            public void ifInt(Object orig)
+            {
+                if (orig instanceof Integer x || x./*A*/intValue() > 5) {
+                    x.toString();
+                }
+            }
+        """));
+
+        // Ditto:
+        assertTypeAtA( "java.lang.Integer", withLambdaDefs("""
+            public void ifInt(Object orig)
+            {
+                if ((orig instanceof Integer x || x.intValue() > 5) && x./*A*/toString()) {
+                    x.toString();
+                }
+            }
+        """));
+
+
+        // Name shadowing:
+        assertTypeAtAandB("java.lang.String", "java.lang.String", withLambdaDefs("""
+            Double s;
+    
+            void test1(Object o) {
+                if (o instanceof String s) {
+                    System.out.println(s./*A*/length());      // Field s is shadowed
+                    s = s + "\n";               // Assignment to pattern variable
+                }
+                System.out.println(s./*B*/toString());          // Refers to pattern s
+            }
+        """));
+
+        // Name shadowing part 2:
+        assertTypeAtAandB("java.lang.String", "java.lang.Integer", withLambdaDefs("""
+            Double s;
+    
+            void test1(Object o) {
+                if (o instanceof String s) {
+                    System.out.println(s./*A*/length());      // Field s is shadowed
+                    s = s + "\n";               // Assignment to pattern variable
+                }
+                if (o instanceof Integer s) {
+                    System.out.println(s./*B*/toString());          // Refers to integer s
+                }
+            }
+        """));
+
+        // Name shadowing part 3:
+        assertTypeAtAandB("java.lang.String", "java.lang.Integer", withLambdaDefs("""
+            Double s;
+    
+            void test1(Object o) {
+                if (o instanceof String s) {
+                    System.out.println(s./*A*/length());      // Field s is shadowed
+                    s = s + "\n";               // Assignment to pattern variable                
+                }
+                s./*A*/toString();
+                if (o instanceof Integer s) {
+                    System.out.println(s./*B*/toString());          // Refers to integer s
+                }
+                s./*B*/toString();
+            }
+        """));
+
+        // Name shadowing part 4:
+        assertTypeAtAandB("java.lang.Double", "java.lang.String", withLambdaDefs("""
+            Double s;
+    
+            void test1(Object o) {
+                s./*A*/toString();
+                if (o instanceof String s) {
+                    System.out.println(s./*A*/length());      // Field s is shadowed
+                    s = s + "\n";               // Assignment to pattern variable                
+                }
+                s./*B*/toString();
+            }
+        """));
     }
 }
