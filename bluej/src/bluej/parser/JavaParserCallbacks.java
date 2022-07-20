@@ -402,6 +402,11 @@ public class JavaParserCallbacks
      */
     protected void gotInstanceOfOperator(LocatableToken token) { }
 
+    /**
+     * Saw a var name following an "instanceof". Called after gotInstanceOfOperator and gotTypeSpec.
+     */
+    protected void gotInstanceOfVar(LocatableToken token) { }
+
     protected void gotArrayElementAccess() { }
 
     protected void gotImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken) { }

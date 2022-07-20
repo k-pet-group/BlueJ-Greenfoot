@@ -2946,7 +2946,7 @@ public class JavaParser extends JavaParserCallbacks
                     {
                         // A pattern-matching instance of
                         token = nextToken();
-                        // TODO record this
+                        gotInstanceOfVar(token);
                     }
                     break;
                 case 10: // DOT
