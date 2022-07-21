@@ -643,12 +643,12 @@ public class CompletionTest2
     
             void test1(Object o) {
                 if (o instanceof String s) {
-                    System.out.println(s./*A*/length());      // Field s is shadowed
+                    System.out.println(s.length());      // Field s is shadowed
                     s = s + "\n";               // Assignment to pattern variable                
                 }
                 s./*A*/toString();
                 if (o instanceof Integer s) {
-                    System.out.println(s./*B*/toString());          // Refers to integer s
+                    System.out.println(s.toString());          // Refers to integer s
                 }
                 s./*B*/toString();
             }
@@ -661,7 +661,7 @@ public class CompletionTest2
             void test1(Object o) {
                 s./*A*/toString();
                 if (o instanceof String s) {
-                    System.out.println(s./*A*/length());      // Field s is shadowed
+                    System.out.println(s.length());      // Field s is shadowed
                     s = s + "\n";               // Assignment to pattern variable                
                 }
                 s./*B*/toString();
