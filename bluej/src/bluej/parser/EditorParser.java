@@ -1289,6 +1289,28 @@ public class EditorParser extends JavaParser
     }
 
     @Override
+    protected void beginLambdaBody(boolean lambdaIsBlock, LocatableToken openCurly)
+    {
+        if (lambdaIsBlock && openCurly != null)
+        {
+            ExpressionNode nnode = new LambdaBodyNode(scopeStack.peek());
+            int curOffset = getTopNodeOffset();
+            LocatableToken begin = openCurly;
+            int insPos = lineColToPosition(begin.getLine(), begin.getColumn());
+            beginNode(insPos);
+            scopeStack.peek().insertNode(nnode, insPos - curOffset, 0, nodeStructureListener);
+            scopeStack.push(nnode);
+        }
+    }
+
+    @Override
+    protected void endLambdaBody(LocatableToken closeCurly)
+    {
+        if (closeCurly != null)
+            endTopNode(closeCurly, false);
+    }
+
+    @Override
     protected void beginTypeDefExtends(LocatableToken extendsToken)
     {
         gotExtends = true;

@@ -2588,6 +2588,7 @@ public class JavaParser extends JavaParserCallbacks
                 error("Expecting '}' at end of lambda block");
                 tokenStream.pushBack(token);
                 endStmtblockBody(token, false);
+                endLambdaBody(token);
             }
             else {
                 endStmtblockBody(token, true);
