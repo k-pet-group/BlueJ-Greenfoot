@@ -69,7 +69,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     protected JavaParentNode parentNode;
     
     protected Map<String,ParsedNode> classNodes = new HashMap<>();
-    protected Map<String,Set<FieldNode>> variables = new HashMap<>();
+    protected Map<String,Set<VariableDeclaration>> variables = new HashMap<>();
     
     // This flag is specifically used for handling the indentation of switches statements:
     // the scope in switch statements are for the whole switch, so we cannot
@@ -110,9 +110,9 @@ public abstract class JavaParentNode extends ParentParsedNode
     {
         super.insertNode(child, position, size, nodeStructureListener);
 
-        Set<FieldNode> varList = variables.get(child.getName());
+        Set<VariableDeclaration> varList = variables.get(child.getName());
         if (varList == null) {
-            varList = new HashSet<FieldNode>(1);
+            varList = new HashSet<VariableDeclaration>(1);
             variables.put(child.getName(), varList);
         }
 
@@ -130,7 +130,7 @@ public abstract class JavaParentNode extends ParentParsedNode
             classNodes.put(child.getName(), child);
         }
         if (child.getNodeType() == NODETYPE_FIELD) {
-            Set<FieldNode> varset = variables.get(oldName);
+            Set<VariableDeclaration> varset = variables.get(oldName);
             if (varset != null) {
                 varset.remove(child);
                 if (varset.isEmpty()) {
@@ -156,7 +156,7 @@ public abstract class JavaParentNode extends ParentParsedNode
             if (classNodes.get(childName) == child.getNode()) {
                 classNodes.remove(childName);
             }
-            Set<FieldNode> varset = variables.get(childName);
+            Set<VariableDeclaration> varset = variables.get(childName);
             if (varset != null) {
                 varset.remove(child.getNode());
                 if (varset.isEmpty())
@@ -238,9 +238,9 @@ public abstract class JavaParentNode extends ParentParsedNode
      */
     public JavaEntity getValueEntity(String name, Reflective querySource)
     {
-        Set<FieldNode> varset = variables.get(name);
+        Set<VariableDeclaration> varset = variables.get(name);
         if (varset != null && ! varset.isEmpty()) {
-            FieldNode var = varset.iterator().next();
+            VariableDeclaration var = varset.iterator().next();
             JavaEntity fieldType = var.getFieldType().resolveAsType();
             if (fieldType != null) {
                 return new ValueEntity(fieldType.getType());
@@ -287,11 +287,11 @@ public abstract class JavaParentNode extends ParentParsedNode
     @OnThread(Tag.FXPlatform)
     protected JavaEntity getPositionedValueEntity(String name, Reflective querySource, int fromPosition)
     {
-        Set<FieldNode> varset = variables.get(name);
+        Set<VariableDeclaration> varset = variables.get(name);
         if (varset != null) {
-            Iterator<FieldNode> i = varset.iterator();
+            Iterator<VariableDeclaration> i = varset.iterator();
             while (i.hasNext()) {
-                FieldNode var = i.next();
+                VariableDeclaration var = i.next();
                 if (var.getOffsetFromParent() <= fromPosition) {
                     JavaEntity fieldType = var.getFieldType().resolveAsType();
                     if (fieldType != null) {

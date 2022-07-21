@@ -45,6 +45,7 @@ import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.nodes.TypeInnerNode;
+import bluej.parser.nodes.VariableDeclaration;
 import bluej.utility.JavaUtils;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -240,14 +241,14 @@ public class ParsedReflective extends Reflective
     @Override
     public Map<String,FieldReflective> getDeclaredFields()
     {
-        Map<String,Set<FieldNode>> allfields = pnode.getInner().getFields();
+        Map<String,Set<VariableDeclaration>> allfields = pnode.getInner().getFields();
         
         // Record parameters are recorded on the type declaration, rather than the body,
         // so they must be fetched separately:
         allfields.putAll(pnode.getRecordParameters());
         
         // Filter out duplicates:
-        Map<String, FieldNode> fields = new HashMap<>();
+        Map<String, VariableDeclaration> fields = new HashMap<>();
         for (String name : allfields.keySet()) {
             fields.put(name, allfields.get(name).iterator().next());
         }
@@ -255,7 +256,7 @@ public class ParsedReflective extends Reflective
         Map<String,FieldReflective> rmap = new HashMap<String,FieldReflective>();
         for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
             String fieldName = i.next();
-            FieldNode fieldNode = fields.get(fieldName);
+            VariableDeclaration fieldNode = fields.get(fieldName);
             JavaEntity ftypeEnt = fieldNode.getFieldType().resolveAsType();
             if (ftypeEnt != null) {
                 FieldReflective fref = new FieldReflective(fieldName, ftypeEnt.getType(),
@@ -273,7 +274,7 @@ public class ParsedReflective extends Reflective
         // with no arguments and a return type that matches the fields type:
         Map<String,Set<MethodReflective>> rmap = new HashMap<String,Set<MethodReflective>>();
         pnode.getRecordParameters().forEach((name, fields) -> {
-            for (FieldNode field : fields)
+            for (VariableDeclaration field : fields)
             {
                 JavaEntity fieldType = field.getFieldType();
                 if (fieldType == null) continue;

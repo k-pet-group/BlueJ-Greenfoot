@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014,2015,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2013,2014,2015,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@ import bluej.parser.entity.*;
 import bluej.parser.nodes.FieldNode;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParsedNode;
+import bluej.parser.nodes.VariableDeclaration;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.role.Kind;
@@ -247,10 +248,10 @@ public class ParseUtils
                         {
                             // The signature are the same, we can save the local variable in the corrections list
                             // The variables are not at the MethodNode level, we need to dig into the MethodBodyLevel
-                            Map<String, Set<FieldNode>> locVars = currentPosMethodNode.getLocVarNodes();
+                            Map<String, Set<VariableDeclaration>> locVars = currentPosMethodNode.getLocVarNodes();
                             locVars.forEach((varName, fieldNodeSet) -> {
                                 // Depth of set values should be 1...
-                                FieldNode locVarFieldNode = fieldNodeSet.iterator().next();
+                                VariableDeclaration locVarFieldNode = fieldNodeSet.iterator().next();
                                 JavaType type = locVarFieldNode.getFieldType().getType();
                                 if (type != null)
                                 {

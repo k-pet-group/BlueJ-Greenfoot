@@ -37,7 +37,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * 
  * @author Davin McCall
  */
-public class FieldNode extends JavaParentNode
+public class FieldNode extends JavaParentNode implements VariableDeclaration
 {
     private String name;
     private JavaEntity fieldType;

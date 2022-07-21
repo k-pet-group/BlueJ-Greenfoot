@@ -273,7 +273,7 @@ public class MethodNode extends JavaParentNode
      *
      * @return a Map object containing the local variables nodes of that method.
      */
-    public Map<String, Set<FieldNode>> getLocVarNodes()
+    public Map<String, Set<VariableDeclaration>> getLocVarNodes()
     {
         Iterator<NodeAndPosition<ParsedNode>> children = getChildren(0);
         while (children.hasNext())

@@ -409,7 +409,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
         return super.resolvePackageOrClass(name, querySource);
     }
 
-    public Map<String, Set<FieldNode>> getRecordParameters()
+    public Map<String, Set<VariableDeclaration>> getRecordParameters()
     {
         return new HashMap<>(variables);
     }
