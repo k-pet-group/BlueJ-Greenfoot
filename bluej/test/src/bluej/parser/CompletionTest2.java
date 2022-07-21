@@ -668,4 +668,104 @@ public class CompletionTest2
             }
         """));
     }
+
+    @Test
+    public void testIfInstanceofArrays()
+    {
+        // Test arrays:
+        assertTypeAtA("java.lang.Integer[][]", withLambdaDefs("""
+                    public void ifInt(Object orig)
+                    {
+                        if (orig instanceof Integer[][] x)
+                            x./*A*/toString();
+                        }
+                    }
+                """));
+        // Primitive arrays
+        assertTypeAtA("int[][][]", withLambdaDefs("""
+                    public void ifInt(Object orig)
+                    {
+                        if (orig instanceof int[][][] x)
+                            x./*A*/toString();
+                        }
+                    }
+                """));
+    }
+    
+    @Test
+    public void testIfInstanceofNestedScopes()
+    {
+        // Nested scopes #1:
+        assertTypeAtA("java.lang.Integer[][]", withLambdaDefs("""
+                    public void ifInt(Object orig)
+                    {
+                        {
+                            if (orig instanceof Integer[][] x)
+                                x./*A*/toString();
+                            }
+                        }
+                    }
+                """));
+        // Nested scopes #2  (our incorrect approximation):
+        assertTypeAtA("java.lang.Integer", withLambdaDefs("""
+                    public void ifInt(Object orig)
+                    {
+                        {
+                            if (orig instanceof Integer x)
+                                
+                            }
+                        }
+                        x./*A*/toString();
+                    }
+                """));
+        // Nested scopes #3 (our incorrect approximation):
+        assertTypeAtA("java.lang.Integer", withLambdaDefs("""
+                    public void ifInt(Object orig)
+                    {
+                        while (true) {
+                            if (orig instanceof Integer x)
+                                
+                            }
+                        }
+                        x./*A*/toString();
+                    }
+                """));
+        // Nested scopes #4 (our incorrect approximation):
+        assertTypeAtA("java.lang.Integer", withLambdaDefs("""
+                    public void ifInt(Object orig)
+                    {
+                        try {
+                            if (orig instanceof Integer x)
+                                
+                            }
+                        } finally {}
+                        x./*A*/toString();
+                    }
+                """));
+    }
+    
+    @Test
+    public void testIfInstanceofLambdas()
+    {
+        // instanceof variables should not escape block lambdas:
+        assertTypeAtA(null, withLambdaDefs("""
+                    public void ifInt(Object orig)
+                    {
+                        withInteger(s -> {
+                            if (s instanceof Integer x)
+                                
+                            }
+                        });
+                        x./*A*/toString();
+                    }
+                """));
+        // instanceof variables should not escape expression lambdas:
+        assertTypeAtA(null, withLambdaDefs("""
+                    public void ifInt(Object orig)
+                    {
+                        withInteger(s -> (s instanceof Integer x));
+                        x./*A*/toString();
+                    }
+                """));
+    }
 }
