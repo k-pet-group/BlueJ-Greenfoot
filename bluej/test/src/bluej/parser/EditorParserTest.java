@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2014,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2013,2014,2019,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -457,7 +457,7 @@ public class EditorParserTest
                 + "class A\n" // 0 - 8 
                 + "{\n" //   8 - 10
                 + "  void method() {\n" // 10 - 28
-                + "    Arrays.asList(\"A\", \"B\", \"C\").stream().map(s ->{/n" // 28 - 80
+                + "    Arrays.asList(\"A\", \"B\", \"C\").stream().map(s ->{\n" // 28 - 80
                 + "      return s.toLowerCase();\n" // 80 - 110
                 + "      }).collect(Collectors.joining(\",\"));\n" // 110 - 153
                 + "  }\n" // 153 - 157 
@@ -474,7 +474,7 @@ public class EditorParserTest
         nap = nap.getNode().findNodeAt(74, nap.getPosition());       // map(
         nap = nap.getNode().findNodeAt(78, nap.getPosition());       // Lambda
         nap = nap.getNode().findNodeAt(79, nap.getPosition());       // outer Lambda
-        assertEquals(79, nap.getPosition());                         //Lambda open bracket
+        assertEquals(78, nap.getPosition());                         //Lambda open bracket
         assertEquals(117, nap.getEnd());                             //Lambda close bracket
 
     }
