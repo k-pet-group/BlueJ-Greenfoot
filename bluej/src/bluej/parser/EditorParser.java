@@ -1359,7 +1359,7 @@ public class EditorParser extends JavaParser
         for (int i = scopeStack.size() - 1; i >= 0; i--)
         {
             JavaParentNode n = scopeStack.get(i);
-            if (!(n instanceof ExpressionNode) && !(n instanceof ContainerNode))
+            if (n instanceof MethodBodyNode || n instanceof LambdaBodyNode)
             {
                 targetIndex = i;
                 break;
