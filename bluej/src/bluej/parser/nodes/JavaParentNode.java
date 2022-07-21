@@ -22,11 +22,14 @@
 package bluej.parser.nodes;
 
 import java.io.Reader;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
@@ -117,6 +120,15 @@ public abstract class JavaParentNode extends ParentParsedNode
         }
 
         varList.add(child);
+    }
+
+    /**
+     * Adds a VariableDeclaration that represents an instanceof variable to
+     * this node's set of variables
+     */
+    public void insertInstanceofVar(VariableDeclaration variableDeclaration)
+    {
+        variables.computeIfAbsent(variableDeclaration.getName(), s -> new HashSet<>(1)).add(variableDeclaration);
     }
     
     @Override
@@ -289,9 +301,13 @@ public abstract class JavaParentNode extends ParentParsedNode
     {
         Set<VariableDeclaration> varset = variables.get(name);
         if (varset != null) {
-            Iterator<VariableDeclaration> i = varset.iterator();
-            while (i.hasNext()) {
-                VariableDeclaration var = i.next();
+            // We need to go through them in order from last position
+            // to first position, as the later variables (especially from
+            // things like instanceof variables) override the earlier ones
+            // Negate the position to sort descending:
+            List<VariableDeclaration> sortedVars = varset.stream().sorted(Comparator.comparingInt(v -> -v.getOffsetFromParent())).collect(Collectors.toList());
+            for (VariableDeclaration var : sortedVars)
+            {
                 if (var.getOffsetFromParent() <= fromPosition) {
                     JavaEntity fieldType = var.getFieldType().resolveAsType();
                     if (fieldType != null) {

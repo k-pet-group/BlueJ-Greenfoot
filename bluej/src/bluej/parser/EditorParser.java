@@ -1343,4 +1343,70 @@ public class EditorParser extends JavaParser
         gotFieldOrVar(firstToken, idToken, false, false);
         endTopNode(idToken, true);
     }
+
+    @Override
+    protected void gotInstanceOfVar(LocatableToken token)
+    {
+        // Process the stack backwards to find the first node that is not
+        // an expression or a container; that is where the scope will be
+        // for our variable.  So if you have for example:
+        // if (x instanceof String s)
+        // then it will go outside the expression, and outside the container
+        // node for the if, and then treat the variable declaration as if
+        // it occurs just before the if.
+        
+        int targetIndex = -1;
+        for (int i = scopeStack.size() - 1; i >= 0; i--)
+        {
+            JavaParentNode n = scopeStack.get(i);
+            if (!(n instanceof ExpressionNode) && !(n instanceof ContainerNode))
+            {
+                targetIndex = i;
+                break;
+            }
+        }
+        // This should never happen, but just in case, it's better to ignore
+        // the variable than cause an exception:
+        if (targetIndex == -1 || targetIndex >= scopeStack.size() - 1)
+            return;
+        
+        LocatableToken first = lastTypeSpec.get(0);
+        int curOffset = scopeStack.get(targetIndex).getAbsoluteEditorPosition();
+
+        int insPos = lineColToPosition(first.getLine(), first.getColumn());
+        EntityResolver resolver = new PositionedResolver(scopeStack.get(targetIndex), insPos - curOffset);
+
+        JavaEntity fieldType = ParseUtils.getTypeEntity(resolver, currentQuerySource(), lastTypeSpec);
+        arrayDecls = 0;
+        
+        int finalPos = scopeStack.get(targetIndex + 1).getOffsetFromParent();//insPos - curOffset;
+        int modifiers = currentModifiers;
+        scopeStack.get(targetIndex).insertInstanceofVar(
+                new VariableDeclaration()
+                {
+                    @Override
+                    public String getName()
+                    {
+                        return token.getText();
+                    }
+
+                    @Override
+                    public JavaEntity getFieldType()
+                    {
+                        return fieldType;
+                    }
+
+                    @Override
+                    public int getOffsetFromParent()
+                    {
+                        return finalPos;
+                    }
+
+                    @Override
+                    public int getModifiers()
+                    {
+                        return modifiers;
+                    }
+                });
+    }
 }

@@ -31,6 +31,10 @@ import bluej.parser.entity.JavaEntity;
 public interface VariableDeclaration
 {
     /**
+     * The name of the variable
+     */
+    String getName();
+    /**
      * The type of the variable, as a JavaEntity
      */
     JavaEntity getFieldType();
