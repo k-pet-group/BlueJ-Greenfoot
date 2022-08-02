@@ -522,7 +522,7 @@ public class CompletionTest2
             }
         """));
         
-        // More complex example:
+        // More complex example where the declaration is inside a sub-expression, but the scope should extend onwards:
         assertTypeAtA( "java.lang.Integer", withLambdaDefs("""
             public void ifInt(Object orig)
             {
