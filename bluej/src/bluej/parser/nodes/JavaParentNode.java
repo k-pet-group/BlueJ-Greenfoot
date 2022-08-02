@@ -22,11 +22,14 @@
 package bluej.parser.nodes;
 
 import java.io.Reader;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
@@ -69,7 +72,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     protected JavaParentNode parentNode;
     
     protected Map<String,ParsedNode> classNodes = new HashMap<>();
-    protected Map<String,Set<FieldNode>> variables = new HashMap<>();
+    protected Map<String,Set<VariableDeclaration>> variables = new HashMap<>();
     
     // This flag is specifically used for handling the indentation of switches statements:
     // the scope in switch statements are for the whole switch, so we cannot
@@ -106,25 +109,26 @@ public abstract class JavaParentNode extends ParentParsedNode
     /**
      * Insert a FieldNode representing a variable/field declaration into this node.
      */
-    public void insertVariable(FieldNode varNode, int pos, int size, NodeStructureListener nodeStructureListener)
-    {
-        super.insertNode(varNode, pos, size, nodeStructureListener);
-        
-        Set<FieldNode> varList = variables.get(varNode.getName());
-        if (varList == null) {
-            varList = new HashSet<FieldNode>(1);
-            variables.put(varNode.getName(), varList);
-        }
-        
-        varList.add(varNode);
-    }
-    
-    /**
-     * Insert a field child (alias for insertVariable).
-     */
     public void insertField(FieldNode child, int position, int size, NodeStructureListener nodeStructureListener)
     {
-        insertVariable(child, position, size, nodeStructureListener);
+        super.insertNode(child, position, size, nodeStructureListener);
+
+        Set<VariableDeclaration> varList = variables.get(child.getName());
+        if (varList == null) {
+            varList = new HashSet<VariableDeclaration>(1);
+            variables.put(child.getName(), varList);
+        }
+
+        varList.add(child);
+    }
+
+    /**
+     * Adds a VariableDeclaration that represents an instanceof variable to
+     * this node's set of variables
+     */
+    public void insertInstanceofVar(VariableDeclaration variableDeclaration)
+    {
+        variables.computeIfAbsent(variableDeclaration.getName(), s -> new HashSet<>(1)).add(variableDeclaration);
     }
     
     @Override
@@ -138,7 +142,7 @@ public abstract class JavaParentNode extends ParentParsedNode
             classNodes.put(child.getName(), child);
         }
         if (child.getNodeType() == NODETYPE_FIELD) {
-            Set<FieldNode> varset = variables.get(oldName);
+            Set<VariableDeclaration> varset = variables.get(oldName);
             if (varset != null) {
                 varset.remove(child);
                 if (varset.isEmpty()) {
@@ -164,7 +168,7 @@ public abstract class JavaParentNode extends ParentParsedNode
             if (classNodes.get(childName) == child.getNode()) {
                 classNodes.remove(childName);
             }
-            Set<FieldNode> varset = variables.get(childName);
+            Set<VariableDeclaration> varset = variables.get(childName);
             if (varset != null) {
                 varset.remove(child.getNode());
                 if (varset.isEmpty())
@@ -246,9 +250,9 @@ public abstract class JavaParentNode extends ParentParsedNode
      */
     public JavaEntity getValueEntity(String name, Reflective querySource)
     {
-        Set<FieldNode> varset = variables.get(name);
+        Set<VariableDeclaration> varset = variables.get(name);
         if (varset != null && ! varset.isEmpty()) {
-            FieldNode var = varset.iterator().next();
+            VariableDeclaration var = varset.iterator().next();
             JavaEntity fieldType = var.getFieldType().resolveAsType();
             if (fieldType != null) {
                 return new ValueEntity(fieldType.getType());
@@ -295,11 +299,15 @@ public abstract class JavaParentNode extends ParentParsedNode
     @OnThread(Tag.FXPlatform)
     protected JavaEntity getPositionedValueEntity(String name, Reflective querySource, int fromPosition)
     {
-        Set<FieldNode> varset = variables.get(name);
+        Set<VariableDeclaration> varset = variables.get(name);
         if (varset != null) {
-            Iterator<FieldNode> i = varset.iterator();
-            while (i.hasNext()) {
-                FieldNode var = i.next();
+            // We need to go through them in order from last position
+            // to first position, as the later variables (especially from
+            // things like instanceof variables) override the earlier ones
+            // Negate the position to sort descending:
+            List<VariableDeclaration> sortedVars = varset.stream().sorted(Comparator.comparingInt(v -> -v.getOffsetFromParent())).collect(Collectors.toList());
+            for (VariableDeclaration var : sortedVars)
+            {
                 if (var.getOffsetFromParent() <= fromPosition) {
                     JavaEntity fieldType = var.getFieldType().resolveAsType();
                     if (fieldType != null) {
