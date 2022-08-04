@@ -405,20 +405,24 @@ public abstract class JavaParentNode extends ParentParsedNode
     }
 
     @Override
-    public Token getMarkTokensFor(int pos, int length, int nodePos,
-            ReparseableDocument document)
+    public TokenAndScope getMarkTokensFor(final int pos, final int length, final int nodePos,
+            final ReparseableDocument document)
     {
         Token tok = new Token(0, TokenType.END); // dummy
         if (length == 0) {
-            return tok;
+            return new TokenAndScope(tok, pos);
         }
         Token dummyTok = tok;
         
         NodeAndPosition<ParsedNode> np = getNodeTree().findNodeAtOrAfter(pos, nodePos);
         while (np != null && np.getEnd() == pos) np = np.nextSibling(); 
         
+        int startLatestNode = 0;
         int cp = pos;
         while (np != null && np.getPosition() < (pos + length)) {
+            if (np.getPosition() <= pos)
+                startLatestNode = Math.max(startLatestNode, np.getPosition());
+            
             if (cp < np.getPosition()) {
                 int nextTokLen = np.getPosition() - cp;
                 tok.next = tokenizeText(document, cp, nextTokLen);
@@ -430,7 +434,10 @@ public abstract class JavaParentNode extends ParentParsedNode
             remaining = Math.min(remaining, np.getEnd() - cp);
             
             if (remaining != 0) {
-                tok.next = np.getNode().getMarkTokensFor(cp, remaining, np.getPosition(), document);
+                TokenAndScope tas = np.getNode().getMarkTokensFor(cp, remaining, np.getPosition(), document);
+                if (tas.startLatestScope() <= pos)
+                    startLatestNode = Math.max(startLatestNode, tas.startLatestScope());
+                tok.next = tas.tokenLinkedList();
                 cp += remaining;
                 while (tok.next.id != TokenType.END) {
                     tok = tok.next;
@@ -447,7 +454,7 @@ public abstract class JavaParentNode extends ParentParsedNode
         }
 
         tok.next = new Token(0, TokenType.END);
-        return dummyTok.next;
+        return new TokenAndScope(dummyTok.next, startLatestNode);
     }
     
     protected static Token tokenizeText(ReparseableDocument document, int pos, int length)

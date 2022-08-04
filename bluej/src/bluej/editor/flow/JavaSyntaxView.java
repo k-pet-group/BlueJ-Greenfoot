@@ -100,6 +100,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             {1, 2, 2, 2}
     };
     protected final Document document;
+    private final MultilineStringTracker multilineStringTracker;
     private final EntityResolver parentResolver;
     private ParsedCUNode rootNode;
     private NodeTree<ReparseRecord> reparseRecordTree;
@@ -334,6 +335,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         this.scopeBackgrounds = new LiveScopeBackgrounds();
         this.nodeIndents.addListener(scopeBackgrounds);
         this.document = document;
+        // We must clear styledLines if any triple quotes change:
+        this.multilineStringTracker = new MultilineStringTracker(this.document, () -> styledLines.clear());
         this.display = display;
         this.syntaxHighlighting = syntaxHighlighting;
         this.scopeColors = scopeColors;
@@ -440,20 +443,62 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
         ArrayList<StyledSegment> lineStyle = new ArrayList<>();
         int curPosInLine = 0;
-        Token nextToken = rootNode.getMarkTokensFor(document.getLineStart(lineIndex), lineContent.length(), 0, this);
-        while (nextToken.id != TokenType.END)
+        int lineStart = document.getLineStart(lineIndex);
+        int lineEnd = document.getLineEnd(lineIndex);
+        ParsedNode.TokenAndScope tas = rootNode.getMarkTokensFor(lineStart, lineContent.length(), 0, this);
+
+        // We first need to check if we're in a multiline string
+        // literal, as that will determine the highlighting:
+        SortedSet<MultilineStringTracker.Position> relevantTripleQuotes = multilineStringTracker.getTripleQuotesBetween(tas.startLatestScope(), lineEnd);
+        // True if the whole line is in a string
+        // If we are on an opening and/or closing line it will be false
+        boolean entirelyInsideString = false;
+        // We need to go from the first and work out which are valid multiline literals
+        // and if we are in one:
+        for (MultilineStringTracker.Position relevantTripleQuote : relevantTripleQuotes)
         {
-            String tokenContent = lineContent.subSequence(curPosInLine, curPosInLine + nextToken.length).toString();
-            List<String> tokenStyle = Collections.singletonList(nextToken.id.getCSSClass());
-            lineStyle.add(new StyledSegment(tokenStyle, tokenContent));
-            curPosInLine += nextToken.length;
-            nextToken = nextToken.next;
+            if (!entirelyInsideString && multilineStringTracker.validOpeningMultiline(relevantTripleQuote))
+            {
+                // If the opening quote is on our line, do not count it:
+                if (relevantTripleQuote.getValue() >= lineStart && relevantTripleQuote.getValue() < lineEnd)
+                    break;
+                entirelyInsideString = true;
+            }
+            else if (entirelyInsideString && multilineStringTracker.validClosingMultiline(relevantTripleQuote))
+            {
+                entirelyInsideString = false;
+                // If the closing quote is on our line, stop after because we definitely won't be
+                // entirely enclosed in a string:
+                if (relevantTripleQuote.getValue() >= lineStart && relevantTripleQuote.getValue() < lineEnd)
+                    break;
+            }
         }
-        // Very important to add a blank item if the line is blank, otherwise the line will get collapsed
-        // in the display:
-        if (lineStyle.isEmpty())
+        
+        if (entirelyInsideString)
         {
-            lineStyle.add(new StyledSegment(Collections.emptyList(), ""));
+            lineStyle.add(new StyledSegment(List.of("token-string-literal"), lineContent.toString()));
+        }
+        else
+        {
+            // If we're not entirely inside a string, then even if we're on an open and/or close line
+            // of a multiline string literal, we use the normal tokenisation.  This will
+            // treat """ as a single token, which will work fine as it will either be first or last on the line
+            // and thus there's no non-whitespace string content to highlight as a string.
+            Token nextToken = tas.tokenLinkedList();
+            while (nextToken.id != TokenType.END)
+            {
+                String tokenContent = lineContent.subSequence(curPosInLine, curPosInLine + nextToken.length).toString();
+                List<String> tokenStyle = Collections.singletonList(nextToken.id.getCSSClass());
+                lineStyle.add(new StyledSegment(tokenStyle, tokenContent));
+                curPosInLine += nextToken.length;
+                nextToken = nextToken.next;
+            }
+            // Very important to add a blank item if the line is blank, otherwise the line will get collapsed
+            // in the display:
+            if (lineStyle.isEmpty())
+            {
+                lineStyle.add(new StyledSegment(Collections.emptyList(), ""));
+            }
         }
         styledLines.put(lineIndex, lineStyle);
         return lineStyle;
