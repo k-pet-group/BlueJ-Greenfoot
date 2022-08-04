@@ -443,7 +443,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
 
                     // From Cherry
                     case E:
-                        if (blockCursorFocused) {
+                        if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT) && blockCursorFocused) {
 
                             VBox vbox = new VBox();
                             for (Pair<CodeError, Frame> pair : getErrorLocationList()) {
