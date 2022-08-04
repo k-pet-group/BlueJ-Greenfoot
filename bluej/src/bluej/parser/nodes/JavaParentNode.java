@@ -453,7 +453,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     protected static Token tokenizeText(ReparseableDocument document, int pos, int length)
     {
         Reader dr = document.makeReader(pos, pos+length);
-        TokenStream lexer = JavaParser.getLexer(dr);
+        TokenStream lexer = JavaParser.getLexer(dr, true, false);
         TokenStream tokenStream = new JavaTokenFilter(lexer, null);
 
         Token dummyTok = new Token(0, TokenType.END);
@@ -484,7 +484,7 @@ public abstract class JavaParentNode extends ParentParsedNode
             else if (JavaParser.isModifier(lt)) {
                 tokType = TokenType.KEYWORD1;
             }
-            else if (lt.getType() == JavaTokenTypes.STRING_LITERAL) {
+            else if (lt.getType() == JavaTokenTypes.STRING_LITERAL || lt.getType() == JavaTokenTypes.STRING_LITERAL_MULTILINE) {
                 tokType = TokenType.STRING_LITERAL;
             }
             else if (lt.getType() == JavaTokenTypes.CHAR_LITERAL) {

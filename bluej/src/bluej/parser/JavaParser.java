@@ -61,9 +61,9 @@ public class JavaParser extends JavaParserCallbacks
         return new JavaLexer(r);
     }
     
-    private static TokenStream getLexer(Reader r, boolean handleComments)
+    public static TokenStream getLexer(Reader r, boolean handleComments, boolean handleMultilineStrings)
     {
-        return new JavaLexer(r, handleComments);
+        return new JavaLexer(r, handleComments, handleMultilineStrings);
     }
     
     private static TokenStream getLexer(Reader r, int line, int col, int pos)
@@ -79,7 +79,7 @@ public class JavaParser extends JavaParserCallbacks
     
     public JavaParser(Reader r, boolean handleComments)
     {
-        TokenStream lexer = getLexer(r, handleComments);
+        TokenStream lexer = getLexer(r, handleComments, true);
         tokenStream = new JavaTokenFilter(lexer, this);
     }
     

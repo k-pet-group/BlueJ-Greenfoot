@@ -50,6 +50,7 @@ public final class JavaLexer implements TokenStream
     private LineColPos end;
     private boolean generateWhitespaceTokens = false;
     private boolean handleComments = true; // When false, doesn't recognise /*..*/ or //..\n as comments (for frames)
+    private boolean handleMultilineStrings = true; // When false, treats """ as a single token rather than trying to match start/end
     
     private static Map<String,Integer> keywords = new HashMap<String,Integer>();
     
@@ -124,10 +125,11 @@ public final class JavaLexer implements TokenStream
     /**
      * Construct a lexer which readers from the given Reader.
      */
-    public JavaLexer(Reader in, boolean handleComments)
+    public JavaLexer(Reader in, boolean handleComments, boolean handleMultilineStrings)
     {
         this(in, 1, 1, 0);
         this.handleComments = handleComments;
+        this.handleMultilineStrings = handleMultilineStrings;
     }
 
     /**
@@ -584,7 +586,13 @@ public final class JavaLexer implements TokenStream
                     // Text block:
                     textBuffer.append('"');
                     textBuffer.append('"');
-                    return getStringLiteral(true);
+                    if (handleMultilineStrings)
+                        return getStringLiteral(true);
+                    else
+                    {
+                        readNextChar();
+                        return JavaTokenTypes.STRING_LITERAL_MULTILINE;
+                    }
                 }
                 else
                 {
