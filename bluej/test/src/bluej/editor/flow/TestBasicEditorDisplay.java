@@ -1052,6 +1052,48 @@ public class TestBasicEditorDisplay extends FXTest
         );    
     }
 
+    @Test
+    public void testSyntaxStrings()
+    {
+        setText("""
+                class MyClass
+                {
+                    String class = \"\"\"
+                        public class sealed
+                        \"\"\" class;
+                }""");
+        checkTokens("""
+                $keyword2#class$ MyClass
+                {
+                    String $keyword2#class$ = $string-literal#\"\"\"
+                $string-literal#        public class sealed$
+                        $string-literal#\"\"\"$ $keyword2#class$;
+                }""");
+
+        setText("""
+                class MyClass
+                {
+                    String class = \"\"\"    
+                        public class sealed
+                        \"\"\" class + \"\"\"
+                        foo
+                        non-sealed
+                        "" a "b"
+                        \"\"\";
+                }""");
+        checkTokens("""
+                $keyword2#class$ MyClass
+                {
+                    String $keyword2#class$ = $string-literal#\"\"\"    
+                $string-literal#        public class sealed$
+                        $string-literal#\"\"\"$ $keyword2#class$ + $string-literal#\"\"\"$
+                $string-literal#        foo$
+                $string-literal#        non-sealed$
+                $string-literal#        "" a "b"$
+                        $string-literal#\"\"\"$;
+                }""");
+    }
+
 
     private void checkTokensLines(String... expectedLines)
     {
