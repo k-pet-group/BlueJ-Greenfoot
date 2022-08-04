@@ -377,7 +377,7 @@ public class TestDocument
 
             // Calculate desired content and check the document matches:
             curContent = curContent.substring(0, start) + newContent + curContent.substring(end);
-            Debug.message("Inserted " + newContent.length() + " at " + start + "-" + end);
+            //Debug.message("Inserted " + newContent.length() + " at " + start + "-" + end);
             for (Document document : documents)
             {
                 document.replaceText(start, end, newContent);
@@ -392,7 +392,7 @@ public class TestDocument
             {
                 actualTripleQuotes.add(new MultilineStringTracker.Position(pos));
             }
-            Debug.message("Expecting: " + actualTripleQuotes);
+            //Debug.message("Expecting: " + actualTripleQuotes);
             for (MultilineStringTracker tracker : trackers)
             {
                 assertEquals(actualTripleQuotes, tracker.getTripleQuotesBetween(0, curContent.length()));
