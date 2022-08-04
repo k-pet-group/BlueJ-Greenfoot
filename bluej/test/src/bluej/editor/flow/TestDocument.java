@@ -24,6 +24,7 @@ package bluej.editor.flow;
 import bluej.editor.flow.Document.Bias;
 import bluej.editor.flow.gen.GenRandom;
 import bluej.editor.flow.gen.GenString;
+import bluej.utility.Debug;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.When;
@@ -31,9 +32,11 @@ import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +44,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -63,6 +67,12 @@ public class TestDocument
         }
     }
     
+    @BeforeClass
+    public static void setup()
+    {
+        Debug.setDebugStream(new OutputStreamWriter(System.out));
+    }
+
     @Property(trials = 20, shrink = false)
     public void propDocumentStringReplace(@From(GenRandom.class) Random r)
     {
@@ -307,5 +317,95 @@ public class TestDocument
         }
         
         return positions;
+    }
+
+    @Property(trials = 20, shrink = false)
+    public void propDocumentTripleQuotes(@From(GenRandom.class) Random r)
+    {
+        // Documents with identical content to test alongside each other:
+        Document[] documents = new Document[]{new SlowDocument(), new HoleDocument()};
+        MultilineStringTracker[] trackers = new MultilineStringTracker[]{
+                new MultilineStringTracker(documents[0], () -> {}), new MultilineStringTracker(documents[1], () -> {})
+        };
+
+        GenString stringMaker = new GenString();
+        String curContent = "";
+
+        // Perform 100 replacements:
+        int lastInsert = 0;
+        for (int i = 0; i < 100; i++)
+        {
+            int length = documents[0].getLength();
+
+
+            int start, end;
+            // 20% chance of inserting at same position:
+            if (r.nextInt(5) == 1)
+            {
+                start = lastInsert;
+            }
+            else
+            {
+                // Insert at very end of document is possible:
+                start = r.nextInt(length + 1);
+            }
+            // 50% chance of making an insert (replacing no content):
+            if (r.nextInt(2) == 1 || start == length)
+            {
+                end = start;
+            }
+            else
+            {
+                end = start + r.nextInt(length - start);
+            }
+            String newContent = stringMaker.generate(new SourceOfRandomness(r), null);
+
+            if (r.nextInt(3) == 1)
+            {
+                // Add 1-4 quotes at the beginning, end or middle:
+                int pick = r.nextInt(3);
+                if (pick == 0)
+                    newContent = makeQuotes(r.nextInt(4) + 1) + newContent;
+                else if (pick == 1)
+                    newContent = newContent + makeQuotes(r.nextInt(4) + 1);
+                else if (newContent.length() > 0)
+                {
+                    int place = r.nextInt(newContent.length());
+                    newContent = newContent.substring(0, place) + makeQuotes(r.nextInt(4) + 1) + newContent.substring(place);
+                }
+            }
+
+            // Calculate desired content and check the document matches:
+            curContent = curContent.substring(0, start) + newContent + curContent.substring(end);
+            Debug.message("Inserted " + newContent.length() + " at " + start + "-" + end);
+            for (Document document : documents)
+            {
+                document.replaceText(start, end, newContent);
+                assertEquals(curContent, document.getFullContent());
+            }
+            // What is the position if we kept on typing?
+            lastInsert = start + newContent.length();
+
+            // Check quote positions:
+            TreeSet<MultilineStringTracker.Position> actualTripleQuotes = new TreeSet<>();
+            for (int pos = curContent.indexOf("\"\"\""); pos != -1; pos = curContent.indexOf("\"\"\"", pos + 3))
+            {
+                actualTripleQuotes.add(new MultilineStringTracker.Position(pos));
+            }
+            Debug.message("Expecting: " + actualTripleQuotes);
+            for (MultilineStringTracker tracker : trackers)
+            {
+                assertEquals(actualTripleQuotes, tracker.getTripleQuotesBetween(0, curContent.length()));
+                // TODO also check subset locations including awkward ones
+            }
+
+        }
+    }
+
+    private String makeQuotes(int num)
+    {
+        char[] cs = new char[num];
+        Arrays.fill(cs, '"');
+        return new String(cs);
     }
 }
