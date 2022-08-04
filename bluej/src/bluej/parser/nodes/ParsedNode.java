@@ -359,6 +359,9 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
         }
     }
 
+    // A record for getting a token linked list but also the start of the latest scope around the line:
+    public record TokenAndScope(Token tokenLinkedList, int startLatestScope){}
+    
     /**
      * Get a sequence of "tokens" which indicate the colour and position/size of various tokens
      * in a line of source code text.
@@ -368,9 +371,9 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param length   The length of the text to tokenize. Must be on a line or token boundary.
      * @param nodePos  The position of the node
      * @param document The source document
-     * @return A linked list of Token objects
+     * @return A linked list of Token objects and the start position of the scope encompassing the line
      */
-    public abstract Token getMarkTokensFor(int pos, int length, int nodePos, ReparseableDocument document);
+    public abstract TokenAndScope getMarkTokensFor(int pos, int length, int nodePos, ReparseableDocument document);
 
     public ParsedNode getParentNode()
     {

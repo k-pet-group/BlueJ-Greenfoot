@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2019,2022  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -106,12 +106,12 @@ public class CommentNode extends ParsedNode
     /* (non-Javadoc)
      * @see bluej.parser.nodes.ParsedNode#getMarkTokensFor(int, int, int, javax.swing.text.Document)
      */
-    public Token getMarkTokensFor(int pos, int length, int nodePos,
+    public TokenAndScope getMarkTokensFor(int pos, int length, int nodePos,
             ReparseableDocument document)
     {
         Token tok = new Token(length, type.tokenType);
         tok.next = new Token(0, TokenType.END);
-        return tok;
+        return new TokenAndScope(tok, pos);
     }
 
     @Override
