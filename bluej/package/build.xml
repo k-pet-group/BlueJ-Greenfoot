@@ -224,8 +224,8 @@
                includes="Installer.java"
                debug="true"
         >
-            <compilerarg line="-source 6"/>
-            <compilerarg line="-target 6"/>
+            <compilerarg line="-source 7"/>
+            <compilerarg line="-target 7"/>
         </javac>
 
         <!-- bundle the resulting class into the final distribution jar file -->
