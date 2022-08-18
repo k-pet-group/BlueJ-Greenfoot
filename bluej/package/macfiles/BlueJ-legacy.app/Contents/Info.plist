@@ -66,7 +66,7 @@
 		<string>bluej.Boot</string>
 		<key>Properties</key>
 		<dict>
-			<key>com.apple.macos.useScreenMenuBar</key>
+			<key>apple.laf.useScreenMenuBar</key>
 			<string>true</string>
 		</dict>
 	</dict>

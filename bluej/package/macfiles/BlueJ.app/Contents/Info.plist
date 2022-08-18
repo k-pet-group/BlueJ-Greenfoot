@@ -73,7 +73,7 @@
 		<string>jdk</string>
 		<key>Properties</key>
 		<dict>
-			<key>com.apple.macos.useScreenMenuBar</key>
+			<key>apple.laf.useScreenMenuBar</key>
 			<string>true</string>
 			<key>https.protocols</key>
 			<string>TLSv1,TLSv1.1,TLSv1.2</string> 
