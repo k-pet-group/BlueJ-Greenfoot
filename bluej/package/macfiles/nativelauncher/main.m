@@ -98,7 +98,7 @@ int launch(char *commandName) {
     NSString *runtimePath = nil;
         
     runtimePath = [[mainBundle bundlePath] stringByAppendingPathComponent:@"Contents/JDK"];
-    libjliPath = [[runtimePath stringByAppendingPathComponent:@"Home/lib/jli/libjli.dylib"] fileSystemRepresentation];
+    libjliPath = [[runtimePath stringByAppendingPathComponent:@"Home/lib/libjli.dylib"] fileSystemRepresentation];
 
     void *libJLI = dlopen(libjliPath, RTLD_LAZY);
 
