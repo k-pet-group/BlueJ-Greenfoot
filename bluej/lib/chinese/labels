@@ -331,7 +331,6 @@ pkgmgr.newClass.title=BlueJ:  \u5efa\u65b0\u7c7b
 pkgmgr.newClass.label=\u7c7b\u540d:
 pkgmgr.newClass.classType=\u7c7b\u7684\u7c7b\u578b
 pkgmgr.newClass.stdclass=\u7c7b
-pkgmgr.newClass.abstract=\u62bd\u8c61\u7c7b
 pkgmgr.newClass.interface=\u63a5\u53e3
 pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet

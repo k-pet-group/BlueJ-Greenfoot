@@ -419,7 +419,6 @@ pkgmgr.newClass.title=BlueJ:  Neue Klasse erzeugen
 pkgmgr.newClass.label=Klassenname:
 pkgmgr.newClass.classType=Art der Klasse
 pkgmgr.newClass.stdclass=Klasse
-pkgmgr.newClass.abstract=Abstrakte Klasse
 pkgmgr.newClass.interface=Interface
 pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet

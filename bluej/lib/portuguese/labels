@@ -449,7 +449,6 @@ pkgmgr.newClass.prompt=Informe um nome para a nova classe
 pkgmgr.newClass.lang=Linguagem da Classe:
 pkgmgr.newClass.classType=Tipo da Classe:
 pkgmgr.newClass.stdclass=Classe
-pkgmgr.newClass.abstract=Classe Abstrata
 pkgmgr.newClass.interface=Interface
 pkgmgr.newClass.unittest=Teste de Unidade
 pkgmgr.newClass.enum=Enumera\u00E7\u00E3o

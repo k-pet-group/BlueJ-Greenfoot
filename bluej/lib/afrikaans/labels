@@ -257,7 +257,6 @@ pkgmgr.newClass.title=BlueJ\: Maak nuwe klas
 pkgmgr.newClass.label=Klasnaam\:
 pkgmgr.newClass.classType=Klastipe
 pkgmgr.newClass.stdclass=Klas
-pkgmgr.newClass.abstract=Abstrakte Klas
 pkgmgr.newClass.interface=Koppelvlak (Interface)
 pkgmgr.newClass.applet=Miniprogram (Applet)
 pkgmgr.newClass.appletj=Miniprogram

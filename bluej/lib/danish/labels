@@ -293,7 +293,6 @@ pkgmgr.newClass.title=BlueJ\:  Opret ny klasse
 pkgmgr.newClass.label=Klassenavn\:
 pkgmgr.newClass.classType=Klassetype
 pkgmgr.newClass.stdclass=Klasse
-pkgmgr.newClass.abstract=Abstrakt klasse
 pkgmgr.newClass.interface=Interface
 pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet
