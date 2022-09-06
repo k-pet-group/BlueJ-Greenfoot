@@ -84,7 +84,7 @@ class DataCollectionDialog extends Dialog<Boolean>
 
         Hyperlink link = new Hyperlink(Config.getString("collect.dialog.ethics.seemore") + ".");
         link.setOnAction(e -> {
-            SwingUtilities.invokeLater(() -> Utility.openWebBrowser("https://www.bluej.org/blackbox.html"));
+            SwingUtilities.invokeLater(() -> Utility.openWebBrowser("https://www.bluej.org/blackbox/"));
         });
 
         text.getChildren().addAll(

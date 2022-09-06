@@ -378,7 +378,6 @@ pkgmgr.newClass.title=BlueJ \: Cr\u00E9er une nouvelle classe
 pkgmgr.newClass.label=Nom \:
 pkgmgr.newClass.classType=Type de classe \:
 pkgmgr.newClass.stdclass=Standard
-pkgmgr.newClass.abstract=Abstraite
 pkgmgr.newClass.interface=Interface
 pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=JApplet

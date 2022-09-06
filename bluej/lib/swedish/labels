@@ -261,7 +261,6 @@ pkgmgr.newClass.title=Skapa Ny Klass
 pkgmgr.newClass.label=Klassens namn\:
 pkgmgr.newClass.classType=Klasstyp
 pkgmgr.newClass.stdclass=Klass
-pkgmgr.newClass.abstract=Abstrakt klass
 pkgmgr.newClass.interface=Interface
 pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet

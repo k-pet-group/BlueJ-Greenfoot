@@ -424,7 +424,6 @@ pkgmgr.newClass.prompt=Jm\u00e9no t\u0159\u00eddy
 pkgmgr.newClass.lang=Jazyk t\u0159\u00eddy:
 pkgmgr.newClass.classType=Typ t\u0159\u00eddy
 pkgmgr.newClass.stdclass=Standardn\u00ed t\u0159\u00edda
-pkgmgr.newClass.abstract=Abstraktn\u00ed t\u0159\u00edda
 pkgmgr.newClass.interface=Interfejs
 pkgmgr.newClass.unittest=Test jednotky
 pkgmgr.newClass.enum=V\u00fd\u010dtov\u00fd typ
