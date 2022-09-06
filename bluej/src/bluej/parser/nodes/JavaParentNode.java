@@ -527,6 +527,7 @@ public abstract class JavaParentNode extends ParentParsedNode
                 case JavaTokenTypes.LITERAL_extends:
                 case JavaTokenTypes.LITERAL_interface:
                 case JavaTokenTypes.LITERAL_enum:
+                case JavaTokenTypes.LITERAL_record:
                 case JavaTokenTypes.LITERAL_implements:
                     tokType = TokenType.KEYWORD2;
                     break;
