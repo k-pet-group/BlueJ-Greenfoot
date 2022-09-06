@@ -421,7 +421,6 @@ pkgmgr.newClass.lang=Jazyk triedy:
 pkgmgr.newClass.classType=Typ triedy
 pkgmgr.newClass.mainclass=Hlavn\u00e1 trieda aplik\u00e1cie
 pkgmgr.newClass.stdclass=\u0160tandardn\u00e1 trieda
-pkgmgr.newClass.abstract=Abstraktn\u00e1 trieda
 pkgmgr.newClass.interface=Rozhranie
 pkgmgr.newClass.unittest=Test jednotky
 pkgmgr.newClass.enum=Vymenovac\u00ed typ

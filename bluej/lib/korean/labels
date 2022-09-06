@@ -301,7 +301,6 @@ pkgmgr.newClass.title=BlueJ:  \uc0c8 \ud074\ub798\uc2a4 \uc0dd\uc131
 pkgmgr.newClass.label=\ud074\ub798\uc2a4\uba85:
 pkgmgr.newClass.classType=\ud074\ub798\uc2a4\ud615 
 pkgmgr.newClass.stdclass=\ud074\ub798\uc2a4 
-pkgmgr.newClass.abstract=\ucd94\uc0c1\ud074\ub798\uc2a4 
 pkgmgr.newClass.interface=\uc778\ud130\ud398\uc774\uc2a4 
 pkgmgr.newClass.applet=\uc560\ud50c\ub9bf 
 pkgmgr.newClass.appletj=\uc560\ud50c\ub9bf 
