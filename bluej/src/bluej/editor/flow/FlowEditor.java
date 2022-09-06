@@ -3181,11 +3181,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             List<AssistContent> completionCandidates = new ArrayList<>();
             
-            // Get the static classes for completion suggestions (to speed up loading Greenfoot.*, we check if Greenfoot is imported with a regex)
-            SuggestionList.getStaticClassesCompletion(completionCandidates,
-                Pattern.compile("(;|^)\\s*import\\s+greenfoot\\s*\\.\\s*(\\*\\s*;|Greenfoot\\s*;)").matcher(getText(new SourceLocation(1,1), getCaretLocation())).find(),
-                getProject().getPackage(""),
-                javadocResolver);            
+            // Get the static classes for completion suggestions, like System.out.
+            // They are only available if nothing (like "x." or "this.") precedes the caret),
+            // which is captured in the isPlan variable:
+            if (suggests.isPlain())
+            {
+                // To check if Greenfoot.* is available, we check if Greenfoot is imported with a regex before the caret in the file:
+                SuggestionList.getStaticClassesCompletion(completionCandidates,
+                    Pattern.compile("(;|^)\\s*import\\s+greenfoot\\s*\\.\\s*(\\*\\s*;|Greenfoot\\s*;)").matcher(getText(new SourceLocation(1, 1), getCaretLocation())).find(),
+                    getProject().getPackage(""),
+                    javadocResolver);
+            }
+        
          
             LocatableToken suggestToken = suggests.getSuggestionToken();
             AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getContainingMethodOrClassNode(flowEditorPane.getCaretPosition()));
