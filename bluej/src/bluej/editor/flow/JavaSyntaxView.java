@@ -453,6 +453,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         int lineEnd = document.getLineEnd(lineIndex);
         ParsedNode.TokenAndScope tas = rootNode.getMarkTokensFor(lineStart, lineContent.length(), 0, this);
 
+        // We first need to check if we're in a multiline string
+        // literal, as that will determine the highlighting:
         boolean entirelyInsideString = multilineStringTracker.checkStringRelation(lineStart, lineEnd, tas.startLatestScope(), StringRelation.ENTIRELY_INSIDE);
 
         if (entirelyInsideString)
