@@ -25,10 +25,11 @@ public class TestAutoIndent
     private void runTest(String expected, String src)
     {
         TestableDocument parser = new TestableDocument();
+        MultilineStringTracker multilineStringTracker = new MultilineStringTracker(parser.document, () -> {});
         parser.enableParser(true);
         parser.insertString(0, src);
         parser.flushReparseQueue();
-        boolean perfect = FlowIndent.calculateIndentsAndApply(parser, parser.document, 0).isPerfect();
+        boolean perfect = FlowIndent.calculateIndentsAndApply(parser, parser.document, multilineStringTracker, 0).isPerfect();
         assertEquals(expected, parser.document.getContent(0, parser.document.getLength()).toString());
         assertEquals(expected.equals(src), perfect);
     }

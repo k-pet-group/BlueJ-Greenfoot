@@ -26,6 +26,7 @@ import bluej.editor.flow.FlowEditorPane.LineStyler;
 import bluej.editor.base.LineDisplay.LineDisplayListener;
 import bluej.editor.base.TextLine.StyledSegment;
 import bluej.editor.flow.JavaSyntaxView.SyntaxEvent.NodeChangeRecord;
+import bluej.editor.flow.MultilineStringTracker.StringRelation;
 import bluej.parser.Token;
 import bluej.parser.Token.TokenType;
 import bluej.parser.entity.EntityResolver;
@@ -413,6 +414,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
     }
 
+    public MultilineStringTracker getMultilineStringTracker()
+    {
+        return multilineStringTracker;
+    }
+
     private void recalculateAllScopes()
     {
         scopeBackgrounds.clear();
@@ -447,7 +453,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         int lineEnd = document.getLineEnd(lineIndex);
         ParsedNode.TokenAndScope tas = rootNode.getMarkTokensFor(lineStart, lineContent.length(), 0, this);
 
-        boolean entirelyInsideString = multilineStringTracker.isEntirelyInsideString(lineStart, lineEnd, tas.startLatestScope());
+        boolean entirelyInsideString = multilineStringTracker.checkStringRelation(lineStart, lineEnd, tas.startLatestScope(), StringRelation.ENTIRELY_INSIDE);
 
         if (entirelyInsideString)
         {

@@ -23,6 +23,7 @@ package bluej.editor.flow;
 
 import bluej.Config;
 import bluej.editor.flow.Document.Bias;
+import bluej.editor.flow.MultilineStringTracker.StringRelation;
 import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -73,16 +74,16 @@ public class FlowIndent
      * Perform an auto-layout - calculate the correct indent for each source line, and apply it. Return
      * information about the applied indentation.
      */
-    public static AutoIndentInformation calculateIndentsAndApply(ReparseableDocument parser, Document doc, int caretPos)
+    public static AutoIndentInformation calculateIndentsAndApply(ReparseableDocument parser, Document doc, MultilineStringTracker multilineStringTracker, int caretPos)
     {
-        return calculateIndentsAndApply(parser, doc, 0, doc.getLength(), caretPos);
+        return calculateIndentsAndApply(parser, doc, multilineStringTracker, 0, doc.getLength(), caretPos);
     }
     
     /**
      * Perform an auto-layout - calculate the correct indent for each source line between the given
      * start and end positions, and apply it. Return information about the applied indentation.
      */
-    public static AutoIndentInformation calculateIndentsAndApply(ReparseableDocument parser, Document doc, int startPos, int endPos, int prevCaretPos)
+    public static AutoIndentInformation calculateIndentsAndApply(ReparseableDocument parser, Document doc, MultilineStringTracker multilineStringTracker, int startPos, int endPos, int prevCaretPos)
     {
         int caretPos = prevCaretPos;
         Element rootElement = parser.getDefaultRootElement();
@@ -113,6 +114,10 @@ public class FlowIndent
             Element el = rootElement.getElement(i);
             // If the element overlaps at all with our area of interest:
             if (el.getEndOffset() > startp.getPosition() && el.getStartOffset() < endp.getPosition()) {
+                // Don't remove blank lines inside multiline string literals:
+                if (multilineStringTracker.checkStringRelation(el.getStartOffset(), el.getEndOffset(), root.getPosition(), StringRelation.ENTIRELY_INSIDE))
+                    continue;
+                
                 boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(doc, el));
                 if (thisLineBlank) {
                     if (caretPos >= el.getStartOffset() && caretPos < el.getEndOffset()) {
@@ -143,6 +148,11 @@ public class FlowIndent
         // Check indentation of each line, build a list of updates required:
         for (int i = 0; i < rootElement.getElementCount(); i++) {
             Element el = rootElement.getElement(i);
+            // Don't adjust indent of lines in the middle of a multiline string literal, or its final line,
+            // as it changes the content of the string literal.  Best to leave them alone even if they end up
+            // with an odd indent relative to the surrounding:
+            if (multilineStringTracker.checkStringRelation(el.getStartOffset(), el.getEndOffset(), root.getPosition(), StringRelation.INSIDE_OR_CLOSING_LINE))
+                continue;
             
             // If the element overlaps at all with our area of interest:
             if (el.getEndOffset() > startp.getPosition() && el.getStartOffset() < endp.getPosition()) {
