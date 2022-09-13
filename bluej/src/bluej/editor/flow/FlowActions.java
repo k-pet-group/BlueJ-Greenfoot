@@ -476,7 +476,7 @@ public final class FlowActions
             // template, but that resulted in errors when selecting the entire
             // contents of the class before inserting the template.
             int caretPos = editor.getSourcePane().getCaretPosition();
-            AutoIndentInformation info = FlowIndent.calculateIndentsAndApply(editor.getSourceDocument(),editor.getSourcePane().getDocument(),caretPos);
+            AutoIndentInformation info = FlowIndent.calculateIndentsAndApply(editor.getSourceDocument(), editor.getSourcePane().getDocument(), editor.getMultilineStringTracker(), caretPos);
             editor.getSourcePane().positionCaret(info.getNewCaretPosition());
 
             in.close();
@@ -1330,7 +1330,7 @@ public final class FlowActions
 
             int prevCaretPos = editor.getSourcePane().getCaretPosition();
             editor.undoManager.compoundEdit(() -> {
-                AutoIndentInformation info = FlowIndent.calculateIndentsAndApply(doc, editor.getSourcePane().getDocument(), prevCaretPos);
+                AutoIndentInformation info = FlowIndent.calculateIndentsAndApply(doc, editor.getSourcePane().getDocument(), editor.getMultilineStringTracker(), prevCaretPos);
                 editor.getSourcePane().positionCaret(info.getNewCaretPosition());
                 if (info.isPerfect()) {
                     editor.writeMessage(Config.getString("editor.info.perfectIndent"));

@@ -26,6 +26,7 @@ import bluej.editor.flow.FlowEditorPane.LineStyler;
 import bluej.editor.base.LineDisplay.LineDisplayListener;
 import bluej.editor.base.TextLine.StyledSegment;
 import bluej.editor.flow.JavaSyntaxView.SyntaxEvent.NodeChangeRecord;
+import bluej.editor.flow.MultilineStringTracker.StringRelation;
 import bluej.parser.Token;
 import bluej.parser.Token.TokenType;
 import bluej.parser.entity.EntityResolver;
@@ -413,6 +414,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
     }
 
+    public MultilineStringTracker getMultilineStringTracker()
+    {
+        return multilineStringTracker;
+    }
+
     private void recalculateAllScopes()
     {
         scopeBackgrounds.clear();
@@ -449,31 +455,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
         // We first need to check if we're in a multiline string
         // literal, as that will determine the highlighting:
-        SortedSet<MultilineStringTracker.Position> relevantTripleQuotes = multilineStringTracker.getTripleQuotesBetween(tas.startLatestScope(), lineEnd);
-        // True if the whole line is in a string
-        // If we are on an opening and/or closing line it will be false
-        boolean entirelyInsideString = false;
-        // We need to go from the first and work out which are valid multiline literals
-        // and if we are in one:
-        for (MultilineStringTracker.Position relevantTripleQuote : relevantTripleQuotes)
-        {
-            if (!entirelyInsideString && multilineStringTracker.validOpeningMultiline(relevantTripleQuote))
-            {
-                // If the opening quote is on our line, do not count it:
-                if (relevantTripleQuote.getValue() >= lineStart && relevantTripleQuote.getValue() < lineEnd)
-                    break;
-                entirelyInsideString = true;
-            }
-            else if (entirelyInsideString && multilineStringTracker.validClosingMultiline(relevantTripleQuote))
-            {
-                entirelyInsideString = false;
-                // If the closing quote is on our line, stop after because we definitely won't be
-                // entirely enclosed in a string:
-                if (relevantTripleQuote.getValue() >= lineStart && relevantTripleQuote.getValue() < lineEnd)
-                    break;
-            }
-        }
-        
+        boolean entirelyInsideString = multilineStringTracker.checkStringRelation(lineStart, lineEnd, tas.startLatestScope(), StringRelation.ENTIRELY_INSIDE);
+
         if (entirelyInsideString)
         {
             lineStyle.add(new StyledSegment(List.of("token-string-literal"), lineContent.toString()));
