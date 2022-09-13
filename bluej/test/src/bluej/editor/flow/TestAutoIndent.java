@@ -52,6 +52,7 @@ public class TestAutoIndent
                 class Foo   {
                 public void foo();
                 
+                
                           public Foo()
                         {
                     int x = 6;
@@ -70,7 +71,7 @@ public class TestAutoIndent
     {
         // This file should be perfectly indented, so let's try that
         // (This also makes a good test for not processing multiline Strings) 
-        String us = Files.readString(new File("test/src/bluej/editor/flow/TestAutoIndent.java").toPath());
+        String us = Files.readString(new File("test/src/bluej/editor/flow/TestAutoIndent.java").toPath()).replaceAll("\\r\\n?", "\n");
         runTest(us, us);
     }
 }
