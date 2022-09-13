@@ -162,6 +162,10 @@ public class MultilineStringTracker implements DocumentListener
      */
     private boolean validOpeningMultiline(Position tripleQuote)
     {
+        int lineStart = document.getLineStart(document.getLineFromPosition(tripleQuote.value));
+        // Check it's not in a single-line comment:
+        if (document.getContent(lineStart, tripleQuote.value).toString().contains("//"))
+            return false;
         int lineEnd = document.getLineEnd(document.getLineFromPosition(tripleQuote.value));
         return document.getContent(tripleQuote.value + 3, lineEnd).chars().allMatch(Character::isWhitespace);
     }

@@ -115,7 +115,8 @@ public class FlowIndent
             // If the element overlaps at all with our area of interest:
             if (el.getEndOffset() > startp.getPosition() && el.getStartOffset() < endp.getPosition()) {
                 // Don't remove blank lines inside multiline string literals:
-                if (multilineStringTracker.checkStringRelation(el.getStartOffset(), el.getEndOffset(), root.getPosition(), StringRelation.ENTIRELY_INSIDE))
+                NodeAndPosition<ParsedNode> nodeAt = root.getNode().findNodeAt(el.getStartOffset(), root.getPosition());
+                if (multilineStringTracker.checkStringRelation(el.getStartOffset(), el.getEndOffset(), nodeAt == null ? root.getPosition() : nodeAt.getPosition(), StringRelation.ENTIRELY_INSIDE))
                     continue;
                 
                 boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(doc, el));
@@ -151,7 +152,8 @@ public class FlowIndent
             // Don't adjust indent of lines in the middle of a multiline string literal, or its final line,
             // as it changes the content of the string literal.  Best to leave them alone even if they end up
             // with an odd indent relative to the surrounding:
-            if (multilineStringTracker.checkStringRelation(el.getStartOffset(), el.getEndOffset(), root.getPosition(), StringRelation.INSIDE_OR_CLOSING_LINE))
+            NodeAndPosition<ParsedNode> nodeAt = root.getNode().findNodeAt(el.getStartOffset(), root.getPosition());
+            if (multilineStringTracker.checkStringRelation(el.getStartOffset(), el.getEndOffset(), nodeAt == null ? root.getPosition() : nodeAt.getPosition(), StringRelation.INSIDE_OR_CLOSING_LINE))
                 continue;
             
             // If the element overlaps at all with our area of interest:
