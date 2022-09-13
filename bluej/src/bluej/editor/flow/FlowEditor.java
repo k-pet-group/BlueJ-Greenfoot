@@ -2364,7 +2364,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                     setText(getLineColumnFromOffset(posFinal), getLineColumnFromOffset(posFinal), text);
                     // Then auto-indent the method to make sure our indents were correct:
                     int oldPos = getSourcePane().getCaretPosition();
-                    FlowIndent.calculateIndentsAndApply(getSourceDocument(), document, node.getPosition(),
+                    FlowIndent.calculateIndentsAndApply(getSourceDocument(), document, getMultilineStringTracker(), node.getPosition(),
                         node.getPosition() + originalLength + text.length(), oldPos);
                 });
                 setCaretLocation(getLineColumnFromOffset(pos));
@@ -2422,6 +2422,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private Iterable<NodeAndPosition<ParsedNode>> iterable(final NodeAndPosition<ParsedNode> parent)
     {
         return () -> parent.getNode().getChildren(parent.getPosition());
+    }
+    
+    public MultilineStringTracker getMultilineStringTracker()
+    {
+        return javaSyntaxView.getMultilineStringTracker();
     }
 
     @Override
