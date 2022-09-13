@@ -160,7 +160,7 @@ public class MultilineStringTracker implements DocumentListener
      * Is the given position a valid opening of a multiline String?
      * That is, is it followed only by whitespace on its line?
      */
-    public boolean validOpeningMultiline(Position tripleQuote)
+    private boolean validOpeningMultiline(Position tripleQuote)
     {
         int lineEnd = document.getLineEnd(document.getLineFromPosition(tripleQuote.value));
         return document.getContent(tripleQuote.value + 3, lineEnd).chars().allMatch(Character::isWhitespace);
@@ -170,9 +170,51 @@ public class MultilineStringTracker implements DocumentListener
      * Is the given position a valid closing of a multiline String?
      * That is, is it preceded only by whitespace on its line?
      */
-    public boolean validClosingMultiline(Position tripleQuote)
+    private boolean validClosingMultiline(Position tripleQuote)
     {
         int lineStart = document.getLineStart(document.getLineFromPosition(tripleQuote.value));
         return document.getContent(lineStart, tripleQuote.value).chars().allMatch(Character::isWhitespace);
+    }
+
+    /**
+     * Checks if a given line is entirely contained within a multiline string literal
+     * (that is: it's inside the string literal and is NOT the opening or closing line of the literal) 
+     * 
+     * @param lineStart The zero-based position of the line start within the whole document
+     * @param lineEnd The zero-based position of the line end within the whole document
+     * @param startLatestScope The position of the surrounding scope.  Essentially this is a position
+     *                         that is assumed to NOT be inside a multiline string literal, such that
+     *                         we don't have to check for triple quotes any further back than that.
+     * @return Whether the line is entirely within a multiline string literal.
+     */
+    public boolean isEntirelyInsideString(int lineStart, int lineEnd, int startLatestScope)
+    {
+        // We first need to check if we're in a multiline string
+        // literal, as that will determine the highlighting:
+        SortedSet<Position> relevantTripleQuotes = getTripleQuotesBetween(startLatestScope, lineEnd);
+        // True if the whole line is in a string
+        // If we are on an opening and/or closing line it will be false
+        boolean entirelyInsideString = false;
+        // We need to go from the first and work out which are valid multiline literals
+        // and if we are in one:
+        for (Position relevantTripleQuote : relevantTripleQuotes)
+        {
+            if (!entirelyInsideString && validOpeningMultiline(relevantTripleQuote))
+            {
+                // If the opening quote is on our line, do not count it:
+                if (relevantTripleQuote.getValue() >= lineStart && relevantTripleQuote.getValue() < lineEnd)
+                    break;
+                entirelyInsideString = true;
+            }
+            else if (entirelyInsideString && validClosingMultiline(relevantTripleQuote))
+            {
+                entirelyInsideString = false;
+                // If the closing quote is on our line, stop after because we definitely won't be
+                // entirely enclosed in a string:
+                if (relevantTripleQuote.getValue() >= lineStart && relevantTripleQuote.getValue() < lineEnd)
+                    break;
+            }
+        }
+        return entirelyInsideString;
     }
 }

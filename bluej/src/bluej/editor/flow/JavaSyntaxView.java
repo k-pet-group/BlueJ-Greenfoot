@@ -447,33 +447,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         int lineEnd = document.getLineEnd(lineIndex);
         ParsedNode.TokenAndScope tas = rootNode.getMarkTokensFor(lineStart, lineContent.length(), 0, this);
 
-        // We first need to check if we're in a multiline string
-        // literal, as that will determine the highlighting:
-        SortedSet<MultilineStringTracker.Position> relevantTripleQuotes = multilineStringTracker.getTripleQuotesBetween(tas.startLatestScope(), lineEnd);
-        // True if the whole line is in a string
-        // If we are on an opening and/or closing line it will be false
-        boolean entirelyInsideString = false;
-        // We need to go from the first and work out which are valid multiline literals
-        // and if we are in one:
-        for (MultilineStringTracker.Position relevantTripleQuote : relevantTripleQuotes)
-        {
-            if (!entirelyInsideString && multilineStringTracker.validOpeningMultiline(relevantTripleQuote))
-            {
-                // If the opening quote is on our line, do not count it:
-                if (relevantTripleQuote.getValue() >= lineStart && relevantTripleQuote.getValue() < lineEnd)
-                    break;
-                entirelyInsideString = true;
-            }
-            else if (entirelyInsideString && multilineStringTracker.validClosingMultiline(relevantTripleQuote))
-            {
-                entirelyInsideString = false;
-                // If the closing quote is on our line, stop after because we definitely won't be
-                // entirely enclosed in a string:
-                if (relevantTripleQuote.getValue() >= lineStart && relevantTripleQuote.getValue() < lineEnd)
-                    break;
-            }
-        }
-        
+        boolean entirelyInsideString = multilineStringTracker.isEntirelyInsideString(lineStart, lineEnd, tas.startLatestScope());
+
         if (entirelyInsideString)
         {
             lineStyle.add(new StyledSegment(List.of("token-string-literal"), lineContent.toString()));
