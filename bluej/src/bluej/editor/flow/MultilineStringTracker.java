@@ -175,19 +175,26 @@ public class MultilineStringTracker implements DocumentListener
         int lineStart = document.getLineStart(document.getLineFromPosition(tripleQuote.value));
         return document.getContent(lineStart, tripleQuote.value).chars().allMatch(Character::isWhitespace);
     }
+    
+    public static enum StringRelation {
+        ENTIRELY_INSIDE, INSIDE_OR_CLOSING_LINE
+    }
 
     /**
-     * Checks if a given line is entirely contained within a multiline string literal
-     * (that is: it's inside the string literal and is NOT the opening or closing line of the literal) 
+     * Based on the last parameter, either:
+     * ENTIRELY_INSIDE: Checks if a given line is entirely contained within a multiline string literal
+     * (that is: it's inside the string literal and is NOT the opening or closing line of the literal).
+     * INSIDE_OR_CLOSING_LINE: As above, or it is the closing line of the literal. 
      * 
      * @param lineStart The zero-based position of the line start within the whole document
      * @param lineEnd The zero-based position of the line end within the whole document
      * @param startLatestScope The position of the surrounding scope.  Essentially this is a position
      *                         that is assumed to NOT be inside a multiline string literal, such that
      *                         we don't have to check for triple quotes any further back than that.
-     * @return Whether the line is entirely within a multiline string literal.
+     * @param stringRelation The relationship to check (see above)
+     * @return Whether the line satisfies the specified relation.
      */
-    public boolean isEntirelyInsideString(int lineStart, int lineEnd, int startLatestScope)
+    public boolean checkStringRelation(int lineStart, int lineEnd, int startLatestScope, StringRelation stringRelation)
     {
         // We first need to check if we're in a multiline string
         // literal, as that will determine the highlighting:
@@ -212,7 +219,11 @@ public class MultilineStringTracker implements DocumentListener
                 // If the closing quote is on our line, stop after because we definitely won't be
                 // entirely enclosed in a string:
                 if (relevantTripleQuote.getValue() >= lineStart && relevantTripleQuote.getValue() < lineEnd)
+                {
+                    if (stringRelation == StringRelation.INSIDE_OR_CLOSING_LINE)
+                        return true;
                     break;
+                }
             }
         }
         return entirelyInsideString;
