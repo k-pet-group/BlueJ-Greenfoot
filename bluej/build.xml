@@ -365,7 +365,7 @@
         <ant dir="package" target="debian-bundled-dist"/>
     </target>
 
-    <target name="test" depends="compile-boot, compile-core, compile-test">
+    <target name="test-headless" depends="compile-boot, compile-core, compile-test">
         <junit printsummary="yes"
                haltonfailure="yes"
                jvm="${build_java_home}/${java_command_dir_name}/java"
@@ -397,6 +397,42 @@
             <jvmarg value="-Dglass.platform=Monocle"/>
             <jvmarg value="-Dmonocle.platform=Headless"/>
             <jvmarg value="-Dheadless.geometry=1280x1024-32"/>
+
+            <batchtest fork="yes" skipnontests="true">
+                <fileset dir="${test.src}">
+                    <include name="**/*.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="test-headed" depends="compile-boot, compile-core, compile-test">
+        <junit printsummary="yes"
+               haltonfailure="yes"
+               jvm="${build_java_home}/${java_command_dir_name}/java"
+               fork="yes"
+        >
+            <classpath>
+                <path refid="javafx.class.path"/>
+                <path refid="bluej.class.path"/>
+                <path refid="test.class.path"/>
+
+                <pathelement location="${boot.build}"/>
+                <pathelement location="${core.build}"/>
+                <pathelement location="${extension2.jar}"/>
+                <pathelement location="${editor.jar}"/>
+                <pathelement location="${lang-stride.jar}"/>
+                <pathelement location="${test.build}"/>
+                <!-- Needed to access the test data files: -->
+                <pathelement location="${test.src}"/>
+            </classpath>
+
+            <formatter type="brief" usefile="false"/>
+
+            <jvmarg value="-Dprism.verbose=true"/>
+            <jvmarg value="-Dtestfx.robot=glass"/>
+            <jvmarg value="-Dprism.text=t2k"/>
+            <jvmarg value="-Dtestfx.setup.timeout=5000"/>
 
             <batchtest fork="yes" skipnontests="true">
                 <fileset dir="${test.src}">

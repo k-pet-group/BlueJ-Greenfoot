@@ -283,6 +283,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
                         <path refid="greenfoot.class.path"/>
                         <path refid="javafx.class.path"/>
                         <path refid="bluej.class.path"/>
+                        <pathelement location="${threadchecker.build}"/>
+                        <pathelement location="${threadchecker.pluginbuild}"/>
                     </classpath>
                 </compile>
                 <replaceregexp byline="true">

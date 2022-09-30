@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2018,2022  Michael Kolling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej;
 
 import javafx.application.Platform;
@@ -10,6 +31,8 @@ import org.junit.runners.model.Statement;
 import javax.swing.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.fail;
 
 /**
  * A JUnit {@link Rule} for running tests on the JavaFX thread and performing
@@ -74,7 +97,10 @@ public class JavaFXThreadingRule implements TestRule
                     countDownLatch.countDown();
                 }});
 
-            countDownLatch.await(60, TimeUnit.SECONDS);
+            if (!countDownLatch.await(60, TimeUnit.SECONDS))
+            {
+                fail("Timed out waiting for test completion during " + statement.toString());
+            }
 
             // if an exception was thrown by the statement during evaluation,
             // then re-throw it to fail the test
