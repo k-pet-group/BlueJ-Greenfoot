@@ -11,6 +11,8 @@ import javax.swing.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.fail;
+
 /**
  * A JUnit {@link Rule} for running tests on the JavaFX thread and performing
  * JavaFX initialisation.  To include in your test case, add the following code:
@@ -74,7 +76,10 @@ public class JavaFXThreadingRule implements TestRule
                     countDownLatch.countDown();
                 }});
 
-            countDownLatch.await(60, TimeUnit.SECONDS);
+            if (!countDownLatch.await(60, TimeUnit.SECONDS))
+            {
+                fail("Timed out waiting for test completion during " + statement.toString());
+            }
 
             // if an exception was thrown by the statement during evaluation,
             // then re-throw it to fail the test
