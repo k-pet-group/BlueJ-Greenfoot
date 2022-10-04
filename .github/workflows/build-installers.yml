@@ -1,0 +1,164 @@
+name: Build Installers
+on:
+  push:
+    paths:
+      - '.github/workflows/build-installers.yml'
+      - 'bluej/build.xml'
+      - 'greenfoot/build.xml'
+jobs:
+  Build-Windows-Installers:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Load .env file
+        uses: xom9ikk/dotenv@v1.0.2
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.java_version }}
+          java-package: jdk
+          architecture: x64
+      - name: Install choco packages
+        run: |
+          choco install wixtoolset -r --no-progress
+          choco install msys2 -r --no-progress
+          choco install mingw -r --no-progress
+          choco install sed -r --no-progress
+          choco install wget -r --no-progress
+      - name: Check install locations
+        run: |
+          dir C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin
+          dir 'C:/Program Files/'
+          dir 'C:/Program Files (x86)/'
+          dir 'C:/Program Files (x86)/WiX Toolset v3.11/bin'
+      - name: Install JavaFX and build
+        run: |
+          cd ${{ github.workspace }}
+          mkdir javafx && cd javafx && bash ../download-javafx.sh ${{ env.javafx_version }} win && cd ..
+          copy bluej/build.properties.template bluej/build.properties
+          $propfile = 'bluej/build.properties'
+          $java_home_forward = $env:JAVA_HOME -replace '\\', '/'
+          $workspace_forward = $PWD -replace '\\', '/'
+          (Get-Content $propfile) -replace 'build_java_home=.*', "build_java_home=$java_home_forward" | Set-Content $propfile
+          (Get-Content $propfile) -replace 'openjfx_path=.*', "openjfx_path=$workspace_forward/javafx" | Set-Content $propfile
+          (Get-Content $propfile) -replace 'openjfx_monocle_path=.*', "openjfx_monocle_path=$workspace_forward/javafx" | Set-Content $propfile
+          (Get-Content $propfile) -replace 'mingw_root=.*', "mingw_root=C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64" | Set-Content $propfile
+          (Get-Content $propfile) -replace 'wix_bin=.*', "wix_bin=C:/Program Files (x86)/WiX Toolset v3.11/bin" | Set-Content $propfile
+          cd bluej && ant clean && ant update-version-number && ant windows && cd ..
+          cd greenfoot && ant clean && ant update-version-number && ant windows && cd ..
+      - name: Archive BlueJ Windows installers
+        uses: actions/upload-artifact@v3
+        with:
+          name: bluej-installers
+          path: |
+            bluej/package/BlueJ-windows*.msi
+            bluej/package/BlueJ-windows*.zip
+      - name: Archive Greenfoot Windows installers
+        uses: actions/upload-artifact@v3
+        with:
+          name: greenfoot-installers
+          path: |
+              greenfoot/package/Greenfoot-windows*.msi
+              greenfoot/package/Greenfoot-windows*.zip
+  Build-Ubuntu-Installers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Load .env file
+        uses: xom9ikk/dotenv@v1.0.2
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.java_version }}
+          java-package: jdk
+          architecture: x64
+      - name: Install packages
+        run: |
+          sudo apt install fakeroot
+      - name: Check install locations
+        run: |
+          ls $JAVA_HOME
+      - name: Install JavaFX and build
+        run: |
+          cd ${{ github.workspace }}
+          mkdir javafx && cd javafx && bash ../download-javafx.sh ${{ env.javafx_version }} linux && cd ..
+          cp bluej/build.properties.template bluej/build.properties
+          sed -i "s:build_java_home=.*:build_java_home=$JAVA_HOME:" bluej/build.properties
+          sed -i 's:openjfx_path=.*:openjfx_path=${{ github.workspace }}/javafx:' bluej/build.properties
+          sed -i 's:openjfx_monocle_path=.*:openjfx_monocle_path=${{ github.workspace }}/javafx:' bluej/build.properties
+          cd bluej && ant clean && ant update-version-number && fakeroot ant debian && cd ..
+          cd greenfoot && ant clean && ant update-version-number && fakeroot ant debian && cd ..
+      - name: Archive BlueJ Ubuntu installers
+        uses: actions/upload-artifact@v3
+        with:
+          name: bluej-installers
+          path: |
+            bluej/package/BlueJ-linux*.deb
+            bluej/package/BlueJ-generic*.jar
+            bluej/package/BlueJ-source*.zip
+      - name: Archive Greenfoot Ubuntu installers
+        uses: actions/upload-artifact@v3
+        with:
+          name: greenfoot-installers
+          path: |
+            greenfoot/package/Greenfoot-linux*.deb
+            greenfoot/package/Greenfoot-generic*.jar
+            greenfoot/package/Greenfoot-source*.zip
+
+  Build-Mac-Installers:
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Load .env file
+        uses: xom9ikk/dotenv@v1.0.2
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.java_version }}
+          java-package: jdk
+          architecture: x64
+      - name: Install packages
+        run: |
+          cd ${{ github.workspace }}
+          brew install xz
+          wget --no-verbose https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX10.12.sdk.tar.xz
+          xz -d MacOSX*.tar.xz
+          tar -xf MacOSX*.tar
+      - name: Check install locations
+        run: |
+          ls $JAVA_HOME
+      - name: Install JavaFX and build
+        run: |
+          cd ${{ github.workspace }}
+          mkdir javafx && cd javafx && bash ../download-javafx.sh ${{ env.javafx_version }} mac && cd ..
+          cp bluej/build.properties.template bluej/build.properties
+          sed -i '.bak' "s:build_java_home=.*:build_java_home=$JAVA_HOME:" bluej/build.properties
+          sed -i '.bak' "s:mac_bundled_jdk_path=.*:mac_bundled_jdk_path=$JAVA_HOME/../..:" bluej/build.properties
+          sed -i '.bak' 's:openjfx_path=.*:openjfx_path=${{ github.workspace }}/javafx:' bluej/build.properties
+          sed -i '.bak' 's:openjfx_monocle_path=.*:openjfx_monocle_path=${{ github.workspace }}/javafx:' bluej/build.properties
+          # TODO make this a property:
+          sed -i '.bak' 's:/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk:${{ github.workspace}}/MacOSX10.12.sdk:' bluej/package/macfiles/nativelauncher/compile.sh
+          cd bluej && ant clean && ant update-version-number && ant mac && cd ..
+          cd greenfoot && ant clean && ant update-version-number && ant mac && cd ..
+          # We don't need these installers:
+          rm bluej/package/BlueJ-mac-legacy*zip
+      - name: Archive BlueJ Mac installers
+        uses: actions/upload-artifact@v3
+        with:
+          name: bluej-installers
+          path: |
+            bluej/package/BlueJ-mac*.zip
+      - name: Archive Greenfoot Mac installers
+        uses: actions/upload-artifact@v3
+        with:
+          name: greenfoot-installers
+          path: |
+            greeenfoot/package/Greenfoot-mac*.zip
+  
+       

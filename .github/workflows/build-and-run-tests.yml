@@ -1,0 +1,31 @@
+name: Build and run tests
+on: [push]
+jobs:
+  Build-And-Run-Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Load .env file
+        uses: xom9ikk/dotenv@v1.0.2
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.java_version }}
+          java-package: jdk
+          architecture: x64
+      - name: Run tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install xvfb
+          ls ${{ github.workspace }}
+          cd ${{ github.workspace }}
+          mkdir javafx && cd javafx && bash ../download-javafx.sh ${{ env.javafx_version }} linux && cd ..
+          cp bluej/build.properties.template bluej/build.properties
+          sed -i "s:build_java_home=.*:build_java_home=$JAVA_HOME:" bluej/build.properties
+          sed -i 's:openjfx_path=.*:openjfx_path=${{ github.workspace }}/javafx:' bluej/build.properties
+          sed -i 's:openjfx_monocle_path=.*:openjfx_monocle_path=${{ github.workspace }}/javafx:' bluej/build.properties
+          cd bluej && ant clean && ant update-version-number && ant ready-to-run && xvfb-run --auto-servernum ant test-headed && cd ../greenfoot && ant clean && ant update-version-number && ant ready-to-run && xvfb-run ant test && cd .. && bash check-copyright.sh
+      - run: echo "This job's status is ${{ job.status }}."
+
