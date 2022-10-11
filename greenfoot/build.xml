@@ -569,21 +569,18 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <classpath>
                 <pathelement location="${bluej_home}/boot/classes" />
                 <!-- <path refid="bluej.class.path"/> -->
-                <path refid="bluej.src.path"/>
                 <pathelement location="${bluej_home}/lib" />
-                <pathelement location="/System/Library/Java"/>
+                <path refid="javafx.class.path"/>
                 <!-- <pathelement location="${build}"/> -->
             </classpath>
 
-            <arg value="-bluej.debug=true">
-            </arg>
-            <arg value="-greenfoot=true">
-            </arg>
-            <arg value="-useclassesdir=true">
-            </arg>
+            <arg value="-bluej.debug=true"/>
+            <arg value="-greenfoot=true"/>
+            <arg value="-useclassesdir=true"/>
             <arg value="-greenfootclassesdir=${build}"/>
             <arg value="-greenfoot.scenarios=${greenfoot.scenarios}"/>
             <arg value="-bluej.compiler.showunchecked=false"/>
+            <arg value="-javafxpath=${openjfx_path}"/>
         </java>
     </target>
     

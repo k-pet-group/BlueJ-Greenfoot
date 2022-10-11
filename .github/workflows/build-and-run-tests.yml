@@ -1,5 +1,5 @@
 name: Build and run tests
-on: [push]
+on: [push,pull_request]
 jobs:
   Build-And-Run-Tests:
     runs-on: ubuntu-latest

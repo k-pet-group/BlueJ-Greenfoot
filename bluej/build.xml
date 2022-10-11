@@ -311,7 +311,7 @@
         <!-- Useful for running threadchecker -->
     </target>
 
-    <target name="run">
+    <target name="run" depends="ready-to-run">
         <!-- run the java code built into the jar files -->
         <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/${java_command_dir_name}/java">
             <!-- Include the following line to enable attachment of the Netbeans debugger
@@ -319,7 +319,7 @@
             -->
             <classpath>
                 <pathelement location="${boot.jar}"/>
-                <pathelement location="/System/Library/Java"/>
+                <path refid="javafx.class.path"/>
             </classpath>
         </java>
     </target>
