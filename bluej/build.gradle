@@ -1,5 +1,6 @@
 apply plugin: 'java-library'
 apply plugin: 'org.openjfx.javafxplugin'
+apply plugin: 'application'
 
 dependencies {
     compileOnly project(':anns-threadchecker')
@@ -29,6 +30,13 @@ javafx {
     version = "17.0.2"
     modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.swing', 'javafx.web']
 }
+
+task runBlueJ(type: JavaExec) {
+    group = 'application'
+    classpath sourceSets.main.runtimeClasspath
+    main = "bluej.Boot"
+}
+
 
 group = 'org.bluej'
 description = 'bluej'
