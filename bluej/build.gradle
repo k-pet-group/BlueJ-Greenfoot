@@ -31,12 +31,28 @@ javafx {
     modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.swing', 'javafx.web']
 }
 
+task copyLibToBuild(type: Copy) {
+    from 'lib'
+    into new File(sourceSets.main.output.resourcesDir, 'lib')
+}
+
+task blueJCoreJar(type: Jar) {
+    archiveFileName = "bluejcore.jar"
+    from sourceSets.main.output.classesDirs
+    exclude "bluej/extensions2/**", "bluej/editor/**", "lang/**"
+    destinationDirectory = new File(sourceSets.main.output.resourcesDir, 'lib')
+}
+
+blueJCoreJar.dependsOn compileJava
+
 task runBlueJ(type: JavaExec) {
     group = 'application'
     classpath sourceSets.main.runtimeClasspath
     main = "bluej.Boot"
 }
 
+runBlueJ.dependsOn copyLibToBuild
+runBlueJ.dependsOn blueJCoreJar
 
 group = 'org.bluej'
 description = 'bluej'
