@@ -1,0 +1,25 @@
+apply plugin: 'java-library'
+apply plugin: 'org.openjfx.javafxplugin'
+
+dependencies {
+    compileOnly project(':anns-threadchecker')
+    implementation project(':bluej')
+    implementation project(':boot')
+
+    implementation 'au.com.bytecode:opencsv:2.4'
+    implementation 'org.apache.httpcomponents:httpclient:4.1.1'
+    implementation 'org.apache.httpcomponents:httpmime:4.1.1'
+    implementation 'javazoom:jlayer:1.0.1'
+}
+
+repositories {
+    mavenCentral()
+}
+
+javafx {
+    version = "17.0.2"
+    modules = ['javafx.base', 'javafx.controls', 'javafx.swing', 'javafx.web']
+}
+
+group = 'org.bluej'
+description = 'greenfoot'

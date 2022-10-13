@@ -1,0 +1,3 @@
+plugins {
+    id 'org.openjfx.javafxplugin' version '0.0.13' apply false
+}
