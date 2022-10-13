@@ -368,6 +368,20 @@ public class Boot
     private static File calculateBluejLibDir()
     {
         File bluejDir = null;
+        URL defsLocation = Boot.class.getResource("/lib/bluej.defs");
+        if (defsLocation != null)
+        {
+            try
+            {
+                return new File(defsLocation.toURI()).getParentFile();
+            }
+            catch (URISyntaxException e)
+            {
+                e.printStackTrace();
+                // Try the other methods, I guess...
+            }
+        }
+        
         String bootFullName = Boot.class.getResource("Boot.class").toString();
 
         try {
