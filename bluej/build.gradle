@@ -38,7 +38,7 @@ task copyLibToBuild(type: Copy) {
 
 task blueJCoreJar(type: Jar) {
     archiveFileName = "bluejcore.jar"
-    from sourceSets.main.output.classesDirs
+    from "build/classes/java/main"
     exclude "bluej/extensions2/**", "bluej/editor/**", "lang/**"
     destinationDirectory = new File(sourceSets.main.output.resourcesDir, 'lib')
 }
@@ -49,6 +49,7 @@ task runBlueJ(type: JavaExec) {
     group = 'application'
     classpath sourceSets.main.runtimeClasspath
     main = "bluej.Boot"
+    args "-bluej.debug=true"
 }
 
 runBlueJ.dependsOn copyLibToBuild
