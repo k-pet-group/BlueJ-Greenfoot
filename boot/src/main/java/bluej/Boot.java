@@ -210,7 +210,7 @@ public class Boot
         String javafxJarsProp = commandLineProps.getProperty("javafxjars", null);
         if (javafxJarsProp != null)
         {
-            return Arrays.stream(javafxJarsProp.split(":")).map(s -> {
+            return Arrays.stream(javafxJarsProp.split(File.pathSeparator)).map(s -> {
                 try
                 {
                     return new File(s).toURI().toURL();
