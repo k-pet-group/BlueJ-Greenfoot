@@ -22,15 +22,86 @@ javafx {
     modules = ['javafx.base', 'javafx.controls', 'javafx.swing', 'javafx.web']
 }
 
+task copyLibToBuild(type: Copy) {
+    from '../bluej/lib'
+    from 'lib'
+    from 'labels'
+    into new File(sourceSets.main.output.resourcesDir, 'lib')
+}
+
+task copyImagelibToBuild(type: Copy) {
+    from 'imagelib'
+    into new File(sourceSets.main.output.resourcesDir, 'lib/greenfoot/imagelib')
+}
+task copyGreenfootIcon1(type: Copy) {
+    from file('resources/images/greenfoot-icon-16.png')
+    into new File(sourceSets.main.output.resourcesDir, 'lib/greenfoot/imagelib/other')
+    rename { 'greenfoot.png' }
+}
+task copyGreenfootIcon2(type: Copy) {
+    from file('resources/images/greenfoot-icon-16.png')
+    into new File(sourceSets.main.output.resourcesDir, 'images')
+    rename { 'greenfoot.png' }
+}
+
+build.dependsOn copyLibToBuild
+build.dependsOn copyImagelibToBuild
+build.dependsOn copyGreenfootIcon1
+build.dependsOn copyGreenfootIcon2
+
+task copyImagesToBuild(type: Copy) {
+    from 'resources/images'
+    into sourceSets.main.output.resourcesDir
+            // README icon in browserL
+    include "readme.png",
+            // Empty image - just to force same layout of compile and readme button
+            "compile.png",
+            // Image used when dragging object over an area where it can not be dropped
+            "noParking.png",
+            // Image selection dialog icon
+            "openRight.png",
+            // Control panel icons
+            "run.png", "step.png", "pause.png", "reset.png",
+            // Export icons
+            "export-app.png", "export-project.png", "export-publish.png", "export-publish-small.png", "export-webpage.png",
+            // Menu button used in image library dialog (gear with drop-arrow)
+            "menu-button.png",
+            // Execution/activity twirler
+            "swirl.png",
+            "dropdown.png"
+}
+
+build.dependsOn copyImagesToBuild
+
+task copyJars(type: Copy) {
+    from '../bluej/build/resources/main/lib'
+    into new File(sourceSets.main.output.resourcesDir, 'lib')
+    include "bluejcore.jar"
+}
+copyJars.dependsOn ':bluej:blueJCoreJar'
+build.dependsOn copyJars
+
+task greenfootJar(type: Jar) {
+    archiveFileName = "greenfoot.jar"
+    from "build/classes/java/main"
+    destinationDirectory = new File(sourceSets.main.output.resourcesDir, 'lib')
+}
+
+build.dependsOn greenfootJar
+
 task runGreenfoot(type: JavaExec) {
     group = 'application'
     classpath sourceSets.main.runtimeClasspath
     main = "bluej.Boot"
-    args "-bluej.debug=true", "-greenfoot=true"
+    args "-bluej.debug=true", "-greenfoot=true",
+        "-javafxjars=" + configurations.compileClasspath.findAll { it.name.startsWith("javafx") }.join(File.pathSeparator)
     //"-useclassesdir=true", "-greenfootclassesdir=${build}", "-bluej.compiler.showunchecked=false" 
     //"-greenfoot.scenarios=${greenfoot.scenarios}", 
     //  "-javafxpath=${openjfx_path}"
+    
 }
+runGreenfoot.dependsOn build
+
 
 group = 'org.bluej'
 description = 'greenfoot'
