@@ -50,7 +50,7 @@ public class Parse15Test extends junit.framework.TestCase
      */
     private File getFile(String name)
     {
-        URL url = getClass().getResource("/bluej/parser/ast/data/" + name);
+        URL url = getClass().getResource("/bluej/parser/" + name);
         
         if (url == null || url.getFile().equals(""))
             return null;

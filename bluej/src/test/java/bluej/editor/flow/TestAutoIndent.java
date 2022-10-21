@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the behaviour of the auto-indent feature in the Java editor.
@@ -126,7 +127,9 @@ public class TestAutoIndent
     {
         // This file should be perfectly indented, so let's try that
         // (This also makes a good test for not processing multiline Strings) 
-        String us = Files.readString(new File("test/src/bluej/editor/flow/TestAutoIndent.java").toPath()).replaceAll("\\r\\n?", "\n");
+        File file = new File("src/test/java/bluej/editor/flow/TestAutoIndent.java");
+        assertTrue("File " + file.getAbsolutePath(), file.exists());
+        String us = Files.readString(file.toPath()).replaceAll("\\r\\n?", "\n");
         runTest(us, us);
     }
 }
