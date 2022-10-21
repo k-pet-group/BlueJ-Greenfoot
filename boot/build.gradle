@@ -2,7 +2,10 @@ apply plugin: 'java'
 apply plugin: 'org.openjfx.javafxplugin'
 
 dependencies {
+    annotationProcessor project(':anns-threadchecker')
     compileOnly project(':anns-threadchecker')
+    annotationProcessor project(':threadchecker')
+    compileOnly project(':threadchecker')
 }
 
 repositories {
@@ -11,7 +14,11 @@ repositories {
 
 javafx {
     version = "17.0.2"
-    modules = ['javafx.base', 'javafx.controls']
+    modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.swing']
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ["-Xplugin:threadchecker.TCPlugin"]
 }
 
 group = 'org.bluej'
