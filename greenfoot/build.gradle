@@ -14,6 +14,13 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient:4.1.1'
     implementation 'org.apache.httpcomponents:httpmime:4.1.1'
     implementation 'javazoom:jlayer:1.0.1'
+
+    testCompileOnly project(':anns-threadchecker')
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+    testImplementation 'org.junit.platform:junit-platform-launcher:1.5.2'
+    testImplementation 'org.junit.vintage:junit-vintage-engine:5.5.2'
 }
 
 repositories {
@@ -25,7 +32,11 @@ javafx {
     modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.swing', 'javafx.web']
 }
 
-tasks.withType(JavaCompile) {
+test {
+    useJUnit()
+}
+
+compileJava {
     options.compilerArgs += ["-Xplugin:threadchecker.TCPlugin"]
 }
 
