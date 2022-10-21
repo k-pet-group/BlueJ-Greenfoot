@@ -7,7 +7,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Load .env file
-        uses: xom9ikk/dotenv@v1.0.2
+        uses: xom9ikk/dotenv@eff1dce037c4c0143cc4180a810511024c2560c0
       - name: Install Java
         uses: actions/setup-java@v3
         with:
@@ -15,17 +15,22 @@ jobs:
           java-version: ${{ env.java_version }}
           java-package: jdk
           architecture: x64
-      - name: Run tests
+      - name: Run Xvfb
         run: |
           sudo apt-get update
-          sudo apt-get install xvfb
+          sudo apt-get install xvfb icewm
           ls ${{ github.workspace }}
           cd ${{ github.workspace }}
-          mkdir javafx && cd javafx && bash ../download-javafx.sh ${{ env.javafx_version }} linux && cd ..
-          cp bluej/build.properties.template bluej/build.properties
-          sed -i "s:build_java_home=.*:build_java_home=$JAVA_HOME:" bluej/build.properties
-          sed -i 's:openjfx_path=.*:openjfx_path=${{ github.workspace }}/javafx:' bluej/build.properties
-          sed -i 's:openjfx_monocle_path=.*:openjfx_monocle_path=${{ github.workspace }}/javafx:' bluej/build.properties
-          cd bluej && ant clean && ant update-version-number && ant ready-to-run && xvfb-run --auto-servernum ant test-headed && cd ../greenfoot && ant clean && ant update-version-number && ant ready-to-run && xvfb-run ant test && cd .. && bash check-copyright.sh
-      - run: echo "This job's status is ${{ job.status }}."
-
+          Xvfb :42 &
+          sleep 5
+          DISPLAY=:42.0 icewm &
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+      - name: Gradle Build and Test
+        uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
+        env:
+          DISPLAY: ":42.0"
+        with:
+          arguments: build test -Pheadless=false --info --stacktrace --no-daemon
+      - name: Check copyright
+        run: bash check-copyright.sh
