@@ -21,7 +21,7 @@
     <property name="greenfoot.version.major" value="3"/>
     <property name="greenfoot.version.minor" value="7"/>
     <property name="greenfoot.version.micro" value="1"/>
-    <property name="greenfoot.version.suffix" value="" />
+    <property name="greenfoot.version.suffix" value="a" />
     
     <!-- Greenfoot version to API mapping:        -->
     <!--    Greenfoot 2.3.0 = API version 2.5.0   -->
@@ -56,7 +56,7 @@
     <property name="greenfoot.version.nosuffix" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}"/>
 
     <!-- Suffix added after version number in output files -->
-    <property name="greenfoot.rcsuffix" value="-rc2"/>
+    <property name="greenfoot.rcsuffix" value="-rc1"/>
 
     <!-- Location of the bluej lib dir -->
     <property name="bluej.lib.greenfoot"  location="${bluej_home}/lib/greenfoot"/>

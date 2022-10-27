@@ -248,7 +248,7 @@ public class Main
         // through the java.awt.Desktop handling, once it is loaded
         // So we must do the handler set up for AWT/Swing even though we're running
         // in JavaFX.
-        prepareMacOSMenuSwing();
+        //prepareMacOSMenuSwing();
 
         // We are using the NSMenuFX library to fix Mac Application menu only when it is a FX
         // menu. When the JDK APIs (i.e. handleAbout() etc) are fixed, both should go back to
