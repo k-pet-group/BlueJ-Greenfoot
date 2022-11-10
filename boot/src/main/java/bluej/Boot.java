@@ -55,21 +55,12 @@ import java.util.concurrent.ExecutionException;
 public class Boot
 {
 
-    // The version numbers for BlueJ are changed in the BlueJ build.xml
-    // and then the update-version target should be executed.
-    public static final int BLUEJ_VERSION_MAJOR = 5;
-    public static final int BLUEJ_VERSION_MINOR = 1;
-    public static final int BLUEJ_VERSION_RELEASE = 0;
-    public static final String BLUEJ_VERSION_SUFFIX = "";
-
-    // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
-    //                                                BLUEJ_VERSION_MINOR * 100 +
-    //                                                BLUEJ_VERSION_RELEASE;
-
-    public static final String BLUEJ_VERSION = BLUEJ_VERSION_MAJOR
-                                         + "." + BLUEJ_VERSION_MINOR
-                                         + "." + BLUEJ_VERSION_RELEASE
-                                         + BLUEJ_VERSION_SUFFIX;
+    // The version numbers for BlueJ and Greenfoot are changed in the top-level
+    // version.properties file and then the :boot:updateVersionNumber task should be
+    // executed to change them here and elsewhere where needed.
+    public static final String BLUEJ_VERSION = "5.1.0a";
+    public static String GREENFOOT_VERSION = "3.7.1";
+    public static String GREENFOOT_API_VERSION = "3.0.0";
 
     public static final String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
     
@@ -102,8 +93,7 @@ public class Boot
         "guava-17.0.jar",
         "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar"};
     private static final int greenfootUserBuildJars = 4;
-    public static String GREENFOOT_VERSION = "3.7.1";
-    public static String GREENFOOT_API_VERSION = "3.0.0";
+    
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
     // The jar files we expect in the BlueJ lib directory
