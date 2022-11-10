@@ -17,9 +17,101 @@ javafx {
     modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.swing']
 }
 
-tasks.withType(JavaCompile) {
+compileJava {
     options.compilerArgs += ["-Xplugin:threadchecker.TCPlugin"]
 }
 
 group = 'org.bluej'
 description = 'boot'
+
+def versionProps = new Properties()
+file("../version.properties").withInputStream { versionProps.load(it) }
+def bluejVersionNoSuffix = versionProps.bluej_major + "." + versionProps.bluej_minor + "." + versionProps.bluej_release;
+def bluejVersion = bluejVersionNoSuffix + versionProps.bluej_suffix;
+def bluejVersionCommas = versionProps.bluej_major + "," + versionProps.bluej_minor + "," + versionProps.bluej_release;
+
+sourceSets {
+    splash
+}
+
+task drawBlueJSplashVersion(type: JavaExec) {
+    inputs.file("../version.properties")
+    classpath = sourceSets.splash.runtimeClasspath
+    main = 'DrawVersionOnSplash'
+    // arguments to pass to the application
+    args "../bluej/resources/unversioned-bluej-splash.png", // original
+         bluejVersion, // text to draw
+         "../bluej/lib/fonts/SourceSansPro-Bold.ttf", // font
+         "16", // font size
+         "215", // X position
+         "114", // Y position
+         "build/resources/main/bluej/gen-bluej-splash.png" // destination
+    doFirst {
+        mkdir "build/resources/main/bluej"
+    }
+}
+
+task drawBlueJSplashVersion2x(type: JavaExec) {
+    inputs.file("../version.properties")
+    classpath = sourceSets.splash.runtimeClasspath
+    main = 'DrawVersionOnSplash'
+    // arguments to pass to the application
+    args "../bluej/resources/unversioned-bluej-splash@2x.png", // original
+            bluejVersion, // text to draw
+            "../bluej/lib/fonts/SourceSansPro-Bold.ttf", // font
+            "32", // font size
+            "430", // X position
+            "228", // Y position
+            "build/resources/main/bluej/gen-bluej-splash@2x.png" // destination
+    doFirst {
+        mkdir "build/resources/main/bluej"
+    }
+}
+
+
+task updateVersionNumber {
+    inputs.file("../version.properties")
+    // This https://stackoverflow.com/a/33464612 suggests ant's task
+    // is the best replacement, and it means it will definitely work as before:
+    ant.replaceregexp(match:'BLUEJ_VERSION_MAJOR = .*', replace:"BLUEJ_VERSION_MAJOR = ${versionProps.bluej_major};", byline:true) {
+        fileset(dir: '../boot/src/main/java/bluej/', includes: 'Boot.java')
+    }
+    ant.replaceregexp(match:'BLUEJ_VERSION_MINOR = .*', replace:"BLUEJ_VERSION_MINOR = ${versionProps.bluej_minor};", byline:true) {
+        fileset(dir: '../boot/src/main/java/bluej/', includes: 'Boot.java')
+    }
+    ant.replaceregexp(match:'BLUEJ_VERSION_RELEASE = .*', replace:"BLUEJ_VERSION_RELEASE = ${versionProps.bluej_release};", byline:true) {
+        fileset(dir: '../boot/src/main/java/bluej/', includes: 'Boot.java')
+    }
+    ant.replaceregexp(match:'BLUEJ_VERSION_SUFFIX = .*', replace:"BLUEJ_VERSION_SUFFIX = \"${versionProps.bluej_suffix}\";", byline:true) {
+        fileset(dir: '../boot/src/main/java/bluej/', includes: 'Boot.java')
+    }
+
+    // Update the shipped README:
+    ant.replaceregexp(match:'BlueJ version .*\\b (\\s+--.*)', replace:"BlueJ version ${bluejVersion} \\1", byline:true) {
+        fileset(dir: '../bluej/doc', includes: 'README.txt')
+    }
+    // Update BlueJ version number in launcher EXE info:
+    ant.replaceregexp(match:'(FILE|PRODUCT)VERSION .*', replace:"\\1VERSION ${bluejVersionCommas},0", byline:true) {
+        fileset(dir: '../bluej/package/winlaunch', includes: 'bluej-version.rc')
+    }
+    ant.replaceregexp(match:'(\\s*VALUE \"\\w+Version\",).*', replace:"\\1 \"${bluejVersionNoSuffix}\"", byline:true) {
+        fileset(dir: '../bluej/package/winlaunch', includes: 'bluej-version.rc')
+    }
+    // And in the launcher manifest:
+    ant.replaceregexp(match:'(\\s*<assemblyIdentity\\s+version=)\".*\"', replace:"\\1\"${bluejVersionNoSuffix}.0\"", byline:true) {
+        fileset(dir: '../bluej/package/winlaunch', includes: 'bjmanifest.xml')
+    }
+    def msiProductId = versionProps["bluej-" + bluejVersion];
+    // Update the WiX build files with the GUID:
+    ant.replaceregexp(match:'<Product Version=\'.*\' Id=\'.*\'', replace:"<Product Version='${bluejVersionNoSuffix}' Id='${msiProductId}'", byline:true) {
+        fileset(dir: '../bluej/package/winlaunch', includes: 'bluej.wxs')
+    }
+    ant.replaceregexp(match:'(\\s*<Property\\s+Id=\"SOFTWAREVERSION\"\\s+Value=).*', replace:"\\1\"${bluejVersionNoSuffix}\"/>", byline:true) {
+        fileset(dir: '../bluej/package/winlaunch', includes: 'bluej.wxs')
+    }
+}
+
+updateVersionNumber.dependsOn drawBlueJSplashVersion
+updateVersionNumber.dependsOn drawBlueJSplashVersion2x
+build.dependsOn updateVersionNumber
+
