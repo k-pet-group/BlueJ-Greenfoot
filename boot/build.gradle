@@ -29,6 +29,10 @@ file("../version.properties").withInputStream { versionProps.load(it) }
 def bluejVersionNoSuffix = versionProps.bluej_major + "." + versionProps.bluej_minor + "." + versionProps.bluej_release;
 def bluejVersion = bluejVersionNoSuffix + versionProps.bluej_suffix;
 def bluejVersionCommas = versionProps.bluej_major + "," + versionProps.bluej_minor + "," + versionProps.bluej_release;
+def greenfootVersionNoSuffix = versionProps.greenfoot_major + "." + versionProps.greenfoot_minor + "." + versionProps.greenfoot_release;
+def greenfootVersion = greenfootVersionNoSuffix + versionProps.greenfoot_suffix;
+def greenfootVersionCommas = versionProps.greenfoot_major + "," + versionProps.greenfoot_minor + "," + versionProps.greenfoot_release;
+def greenfootAPIVersion = versionProps.greenfoot_api_breaking + "." + versionProps.greenfoot_api_nonbreaking + "." + versionProps.greenfoot_api_internal;
 
 sourceSets {
     splash
@@ -38,6 +42,7 @@ task drawBlueJSplashVersion(type: JavaExec) {
     inputs.file("../version.properties")
     classpath = sourceSets.splash.runtimeClasspath
     main = 'DrawVersionOnSplash'
+    systemProperty "java.awt.headless", "true"
     // arguments to pass to the application
     args "../bluej/resources/unversioned-bluej-splash.png", // original
          bluejVersion, // text to draw
@@ -55,6 +60,7 @@ task drawBlueJSplashVersion2x(type: JavaExec) {
     inputs.file("../version.properties")
     classpath = sourceSets.splash.runtimeClasspath
     main = 'DrawVersionOnSplash'
+    systemProperty "java.awt.headless", "true"
     // arguments to pass to the application
     args "../bluej/resources/unversioned-bluej-splash@2x.png", // original
             bluejVersion, // text to draw
@@ -68,9 +74,49 @@ task drawBlueJSplashVersion2x(type: JavaExec) {
     }
 }
 
+task drawGreenfootSplashVersion(type: JavaExec) {
+    inputs.file("../version.properties")
+    classpath = sourceSets.splash.runtimeClasspath
+    main = 'DrawVersionOnSplash'
+    systemProperty "java.awt.headless", "true"
+    // arguments to pass to the application
+    args "../greenfoot/resources/images/greenfoot-splash.png", // original
+            greenfootVersion, // text to draw
+            "../bluej/lib/fonts/SourceSansPro-Bold.ttf", // font
+            "16", // font size
+            "165", // X position
+            "145", // Y position
+            "build/resources/main/bluej/gen-greenfoot-splash.png" // destination
+    doFirst {
+        mkdir "build/resources/main/bluej"
+    }
+}
+
+task drawGreenfootSplashVersion2x(type: JavaExec) {
+    inputs.file("../version.properties")
+    classpath = sourceSets.splash.runtimeClasspath
+    main = 'DrawVersionOnSplash'
+    systemProperty "java.awt.headless", "true"
+    // arguments to pass to the application
+    args "../greenfoot/resources/images/greenfoot-splash@2x.png", // original
+            greenfootVersion, // text to draw
+            "../bluej/lib/fonts/SourceSansPro-Bold.ttf", // font
+            "32", // font size
+            "330", // X position
+            "290", // Y position
+            "build/resources/main/bluej/gen-greenfoot-splash@2x.png" // destination
+    doFirst {
+        mkdir "build/resources/main/bluej"
+    }
+}
+
 
 task updateVersionNumber {
     inputs.file("../version.properties")
+    //////////////////////////////////////
+    // BlueJ:
+    //////////////////////////////////////
+    
     // This https://stackoverflow.com/a/33464612 suggests ant's task
     // is the best replacement, and it means it will definitely work as before:
     ant.replaceregexp(match:'BLUEJ_VERSION = .*', replace:"BLUEJ_VERSION = \"${bluejVersion}\";", byline:true) {
@@ -91,17 +137,53 @@ task updateVersionNumber {
     ant.replaceregexp(match:'(\\s*<assemblyIdentity\\s+version=)\".*\"', replace:"\\1\"${bluejVersionNoSuffix}.0\"", byline:true) {
         fileset(dir: '../bluej/package/winlaunch', includes: 'bjmanifest.xml')
     }
-    def msiProductId = versionProps["bluej-" + bluejVersion];
+    def bjMSIProductId = versionProps["bluej-" + bluejVersion];
     // Update the WiX build files with the GUID:
-    ant.replaceregexp(match:'<Product Version=\'.*\' Id=\'.*\'', replace:"<Product Version='${bluejVersionNoSuffix}' Id='${msiProductId}'", byline:true) {
+    ant.replaceregexp(match:'<Product Version=\'.*\' Id=\'.*\'', replace:"<Product Version='${bluejVersionNoSuffix}' Id='${bjMSIProductId}'", byline:true) {
         fileset(dir: '../bluej/package/winlaunch', includes: 'bluej.wxs')
     }
     ant.replaceregexp(match:'(\\s*<Property\\s+Id=\"SOFTWAREVERSION\"\\s+Value=).*', replace:"\\1\"${bluejVersionNoSuffix}\"/>", byline:true) {
         fileset(dir: '../bluej/package/winlaunch', includes: 'bluej.wxs')
     }
+
+    //////////////////////////////////////
+    // Greenfoot:
+    //////////////////////////////////////
+
+    ant.replaceregexp(match:'GREENFOOT_VERSION = .*', replace:"GREENFOOT_VERSION = \"${greenfootVersion}\";", byline:true) {
+        fileset(dir: '../boot/src/main/java/bluej/', includes: 'Boot.java')
+    }
+    ant.replaceregexp(match:'GREENFOOT_API_VERSION = .*', replace:"GREENFOOT_API_VERSION = \"${greenfootAPIVersion}\";", byline:true) {
+        fileset(dir: '../boot/src/main/java/bluej/', includes: 'Boot.java')
+    }
+    // Update the shipped README:
+    ant.replaceregexp(match:'version: .*', replace:"version: ${greenfootVersion}", byline:true) {
+        fileset(dir: '../greenfoot/doc', includes: 'Greenfoot-README.txt')
+    }
+    // Update Greenfoot version number in launcher EXE info:
+    ant.replaceregexp(match:'(FILE|PRODUCT)VERSION .*', replace:"\\1VERSION ${greenfootVersionCommas},0", byline:true) {
+        fileset(dir: '../bluej/package/winlaunch', includes: 'greenfoot-version.rc')
+    }
+    ant.replaceregexp(match:'(\\s*VALUE \"\\w+Version\",).*', replace:"\\1 \"${greenfootVersionNoSuffix}\"", byline:true) {
+        fileset(dir: '../bluej/package/winlaunch', includes: 'greenfoot-version.rc')
+    }
+    // And in the launcher manifest:
+    ant.replaceregexp(match:'(\\s*<assemblyIdentity\\s+version=)\".*\"', replace:"\\1\"${greenfootVersionNoSuffix}.0\"", byline:true) {
+        fileset(dir: '../bluej/package/winlaunch', includes: 'gfmanifest.xml')
+    }
+    def gfMSIProductId = versionProps["greenfoot-" + greenfootVersion];
+    // Update the WiX build files with the GUID:
+    ant.replaceregexp(match:'<Product Version=\'.*\' Id=\'.*\'', replace:"<Product Version='${greenfootVersionNoSuffix}' Id='${gfMSIProductId}'", byline:true) {
+        fileset(dir: '../bluej/package/winlaunch', includes: 'greenfoot.wxs')
+    }
+    ant.replaceregexp(match:'(\\s*<Property\\s+Id=\"SOFTWAREVERSION\"\\s+Value=).*', replace:"\\1\"${greenfootVersionNoSuffix}\"/>", byline:true) {
+        fileset(dir: '../bluej/package/winlaunch', includes: 'greenfoot.wxs')
+    }
 }
 
 updateVersionNumber.dependsOn drawBlueJSplashVersion
 updateVersionNumber.dependsOn drawBlueJSplashVersion2x
+updateVersionNumber.dependsOn drawGreenfootSplashVersion
+updateVersionNumber.dependsOn drawGreenfootSplashVersion2x
 build.dependsOn updateVersionNumber
 
