@@ -3,8 +3,11 @@ on:
   push:
     paths:
       - '.github/workflows/build-installers.yml'
-      - 'bluej/build.xml'
-      - 'greenfoot/build.xml'
+      - 'version.properties'
+      - 'bluej/build.gradle'
+      - 'greenfoot/build.gradle'
+      - 'bluej/package/build.xml'
+      - 'bluej/package/greenfoot-build.xml'
   workflow_dispatch:
 jobs:
   Build-Windows-Installers:
