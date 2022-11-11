@@ -123,6 +123,8 @@ task packageBlueJWindows(type: Exec) {
             "-Dmac_bundled_jdk_path=" + System.getProperty('java.home') + "/../..",
             "-Dbluej.version=" + bluejVersion,
             "-Dbluej_home=" + projectDir.getAbsoluteFile(),
+            "-Dmingw_root=" + toolProps["mingw_root"],
+            "-Dwix_bin=" + toolProps["wix_bin"],
             "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
 }
 packageBlueJWindows.dependsOn assemble

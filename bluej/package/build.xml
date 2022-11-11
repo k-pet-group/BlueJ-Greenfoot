@@ -699,9 +699,18 @@
             </fileset>
         </copy>
         <mkdir dir="bluejdeb-lib-tmp/lib/javafx"/>
-        <copy todir="bluejdeb-lib-tmp/lib/javafx">
-            <fileset dir="${openjfx_path}"/>
+        <copy todir="bluejdeb-lib-tmp/lib/javafx" flatten="true">
+            <path>
+                <pathelement path="${openjfx_files}"/>
+            </path>
         </copy>
+        <move todir="bluejdeb-lib-tmp/lib/javafx">
+            <fileset dir="bluejdeb-lib-tmp/lib/javafx"/>
+            <mapper>
+                <mapper type="regexp" from="javafx.([^-]*)-.*jar" to="javafx.\1.jar" />
+            </mapper>
+        </move>
+        
         <move todir="bluejdeb/usr/share/bluej">
             <fileset dir="bluejdeb-lib-tmp/lib">
                 <patternset includes="**" />
