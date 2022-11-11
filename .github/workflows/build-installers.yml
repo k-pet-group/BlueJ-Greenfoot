@@ -137,16 +137,16 @@ jobs:
       - name: Install JavaFX and build
         run: |
           cd ${{ github.workspace }}
-          mkdir javafx && cd javafx && bash ../download-javafx.sh ${{ env.javafx_version }} mac && cd ..
-          cp bluej/build.properties.template bluej/build.properties
-          sed -i '.bak' "s:build_java_home=.*:build_java_home=$JAVA_HOME:" bluej/build.properties
-          sed -i '.bak' "s:mac_bundled_jdk_path=.*:mac_bundled_jdk_path=$JAVA_HOME/../..:" bluej/build.properties
-          sed -i '.bak' 's:openjfx_path=.*:openjfx_path=${{ github.workspace }}/javafx:' bluej/build.properties
-          sed -i '.bak' 's:openjfx_monocle_path=.*:openjfx_monocle_path=${{ github.workspace }}/javafx:' bluej/build.properties
-          # TODO make this a property:
-          sed -i '.bak' 's:/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk:${{ github.workspace}}/MacOSX10.12.sdk:' bluej/package/macfiles/nativelauncher/compile.sh
-          cd bluej && ant clean && ant update-version-number && ant mac && cd ..
-          cd greenfoot && ant clean && ant update-version-number && ant mac && cd ..
+          echo 'macosx_sdk=${{ github.workspace}}/MacOSX10.12.sdk' > tools.properties
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+      - name: Gradle Build and Test
+        uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
+        with:
+          arguments: :bluej:packageBlueJMac --info --stacktrace --no-daemon
+          # TODO build Greenfoot too
+      - name: Remove unneeded files
+        run: |
           # We don't need these installers:
           rm bluej/package/BlueJ-mac-legacy*zip
       - name: Archive BlueJ Mac installers

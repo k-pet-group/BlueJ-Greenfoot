@@ -15,4 +15,8 @@ subprojects {
     ext.greenfootVersion = greenfootVersionNoSuffix + versionProps.greenfoot_suffix;
     ext.greenfootVersionCommas = versionProps.greenfoot_major + "," + versionProps.greenfoot_minor + "," + versionProps.greenfoot_release;
     ext.greenfootAPIVersion = versionProps.greenfoot_api_breaking + "." + versionProps.greenfoot_api_nonbreaking + "." + versionProps.greenfoot_api_internal;
+
+    ext.toolProps = new Properties()
+    file("../tools.properties").withInputStream { toolProps.load(it) }
+
 }
