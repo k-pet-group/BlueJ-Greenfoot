@@ -5,3 +5,14 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
     options.release = 17
 }
+subprojects {
+    ext.versionProps = new Properties()
+    file("$rootDir/version.properties").withInputStream { versionProps.load(it) }
+    ext.bluejVersionNoSuffix = versionProps.bluej_major + "." + versionProps.bluej_minor + "." + versionProps.bluej_release;
+    ext.bluejVersion = bluejVersionNoSuffix + versionProps.bluej_suffix;
+    ext.bluejVersionCommas = versionProps.bluej_major + "," + versionProps.bluej_minor + "," + versionProps.bluej_release;
+    ext.greenfootVersionNoSuffix = versionProps.greenfoot_major + "." + versionProps.greenfoot_minor + "." + versionProps.greenfoot_release;
+    ext.greenfootVersion = greenfootVersionNoSuffix + versionProps.greenfoot_suffix;
+    ext.greenfootVersionCommas = versionProps.greenfoot_major + "," + versionProps.greenfoot_minor + "," + versionProps.greenfoot_release;
+    ext.greenfootAPIVersion = versionProps.greenfoot_api_breaking + "." + versionProps.greenfoot_api_nonbreaking + "." + versionProps.greenfoot_api_internal;
+}

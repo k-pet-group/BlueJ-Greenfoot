@@ -24,16 +24,6 @@ compileJava {
 group = 'org.bluej'
 description = 'boot'
 
-def versionProps = new Properties()
-file("../version.properties").withInputStream { versionProps.load(it) }
-def bluejVersionNoSuffix = versionProps.bluej_major + "." + versionProps.bluej_minor + "." + versionProps.bluej_release;
-def bluejVersion = bluejVersionNoSuffix + versionProps.bluej_suffix;
-def bluejVersionCommas = versionProps.bluej_major + "," + versionProps.bluej_minor + "," + versionProps.bluej_release;
-def greenfootVersionNoSuffix = versionProps.greenfoot_major + "." + versionProps.greenfoot_minor + "." + versionProps.greenfoot_release;
-def greenfootVersion = greenfootVersionNoSuffix + versionProps.greenfoot_suffix;
-def greenfootVersionCommas = versionProps.greenfoot_major + "," + versionProps.greenfoot_minor + "," + versionProps.greenfoot_release;
-def greenfootAPIVersion = versionProps.greenfoot_api_breaking + "." + versionProps.greenfoot_api_nonbreaking + "." + versionProps.greenfoot_api_internal;
-
 sourceSets {
     splash
 }
