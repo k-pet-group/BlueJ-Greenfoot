@@ -639,7 +639,7 @@
         
         <!-- you must do this as root, sigh -->
                 <!-- (but we can also do it using fakeroot -->
-        <chown owner="root">
+        <chown owner="root" parallel="false">
             <fileset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
@@ -647,7 +647,7 @@
                 <patternset includes="**" />
             </dirset>            
         </chown>
-        <chgrp group="root">
+        <chgrp group="root" parallel="false">
             <fileset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
@@ -655,7 +655,7 @@
                 <patternset includes="**" />
             </dirset>            
         </chgrp>
-                <chmod perm="g-w">
+        <chmod perm="g-w" parallel="false">
             <fileset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
@@ -761,7 +761,7 @@
         
         <!-- you must do this as root, sigh -->
                 <!-- (but we can also do it using fakeroot -->
-        <chown owner="root">
+        <chown owner="root" parallel="false">
             <fileset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
@@ -769,7 +769,7 @@
                 <patternset includes="**" />
             </dirset>            
         </chown>
-        <chgrp group="root">
+        <chgrp group="root" parallel="false">
             <fileset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
@@ -777,7 +777,7 @@
                 <patternset includes="**" />
             </dirset>            
         </chgrp>
-                <chmod perm="g-w">
+        <chmod perm="g-w" parallel="false">
             <fileset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
