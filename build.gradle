@@ -11,10 +11,12 @@ subprojects {
     ext.bluejVersionNoSuffix = versionProps.bluej_major + "." + versionProps.bluej_minor + "." + versionProps.bluej_release;
     ext.bluejVersion = bluejVersionNoSuffix + versionProps.bluej_suffix;
     ext.bluejVersionCommas = versionProps.bluej_major + "," + versionProps.bluej_minor + "," + versionProps.bluej_release;
+    ext.bluejRCSuffix = "-rc" + versionProps.bluej_rcnumber
     ext.greenfootVersionNoSuffix = versionProps.greenfoot_major + "." + versionProps.greenfoot_minor + "." + versionProps.greenfoot_release;
     ext.greenfootVersion = greenfootVersionNoSuffix + versionProps.greenfoot_suffix;
     ext.greenfootVersionCommas = versionProps.greenfoot_major + "," + versionProps.greenfoot_minor + "," + versionProps.greenfoot_release;
     ext.greenfootAPIVersion = versionProps.greenfoot_api_breaking + "." + versionProps.greenfoot_api_nonbreaking + "." + versionProps.greenfoot_api_internal;
+    ext.greenfootRCSuffix = "-rc" + versionProps.greenfoot_rcnumber
 
     ext.toolProps = new Properties()
     file("../tools.properties").withInputStream { toolProps.load(it) }

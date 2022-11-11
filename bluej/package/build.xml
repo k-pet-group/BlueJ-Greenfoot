@@ -2,19 +2,19 @@
 <project name="bluej-package" default="dist">
     
     <!-- Names of the the distributables created by the dist-target -->
-    <property name="dist.jarinstaller" value="BlueJ-generic-${bluej.version.nodots}${bluej.rcsuffix}.jar"/>
-    <property name="dist.jarinstaller.final" value="BlueJ-generic-${bluej.version.nodots}.jar"/>
-    <property name="dist.mac.legacy" value="BlueJ-mac-legacy-${bluej.version.nodots}${bluej.rcsuffix}.zip"/>
-    <property name="dist.mac" value="BlueJ-mac-${bluej.version.nodots}${bluej.rcsuffix}.zip"/>
-    <property name="dist.mac.final" value="BlueJ-mac-${bluej.version.nodots}.zip"/>
+    <property name="dist.jarinstaller" value="BlueJ-generic-${bluej.version}${bluej.rcsuffix}.jar"/>
+    <property name="dist.jarinstaller.final" value="BlueJ-generic-${bluej.version}.jar"/>
+    <property name="dist.mac.legacy" value="BlueJ-mac-legacy-${bluej.version}${bluej.rcsuffix}.zip"/>
+    <property name="dist.mac" value="BlueJ-mac-${bluej.version}${bluej.rcsuffix}.zip"/>
+    <property name="dist.mac.final" value="BlueJ-mac-${bluej.version}.zip"/>
 
-    <property name="dist.linux" value="BlueJ-linux-${bluej.version.nodots}${bluej.rcsuffix}"/>
-    <property name="dist.linux.final" value="BlueJ-linux-${bluej.version.nodots}"/>
-    <property name="dist.win" value="BlueJ-windows-${bluej.version.nodots}${bluej.rcsuffix}"/>
-    <property name="dist.win.final" value="BlueJ-windows-${bluej.version.nodots}"/>
+    <property name="dist.linux" value="BlueJ-linux-${bluej.version}${bluej.rcsuffix}"/>
+    <property name="dist.linux.final" value="BlueJ-linux-${bluej.version}"/>
+    <property name="dist.win" value="BlueJ-windows-${bluej.version}${bluej.rcsuffix}"/>
+    <property name="dist.win.final" value="BlueJ-windows-${bluej.version}"/>
     <property name="dist.jar" value="bluej-dist.jar"/>        
     
-    <property name="bluej.source.zip" value="BlueJ-source-${bluej.version.nodots}${bluej.rcsuffix}.zip"/>
+    <property name="bluej.source.zip" value="BlueJ-source-${bluej.version}${bluej.rcsuffix}.zip"/>
     
     <!-- Library files to be installed as part of BlueJ -->
     <patternset id="bluej.libfiles">
@@ -633,7 +633,7 @@
         <!-- update version number -->
         <replaceregexp byline="true">
             <regexp pattern="VERSION" />
-            <substitution expression="${bluej.version.debian}" />
+            <substitution expression="${bluej.version}" />
             <fileset dir="bluejdeb/DEBIAN" includes="control" />
         </replaceregexp>
         
@@ -755,7 +755,7 @@
         <!-- update version number -->
         <replaceregexp byline="true">
             <regexp pattern="VERSION" />
-            <substitution expression="${bluej.version.debian}" />
+            <substitution expression="${bluej.version}" />
             <fileset dir="bluejdeb/DEBIAN" includes="control" />
         </replaceregexp>
         
