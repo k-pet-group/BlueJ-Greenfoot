@@ -118,7 +118,7 @@ packageBlueJMac.dependsOn assemble
 
 task packageBlueJWindows(type: Exec) {
     workingDir "package"
-    commandLine "ant", "windows-dist",
+    commandLine "ant", "windows-msi-bundled-dist", "windows-standalone",
             "-Dbuild_java_home=" + System.getProperty('java.home'),
             "-Dmac_bundled_jdk_path=" + System.getProperty('java.home') + "/../..",
             "-Dbluej.version=" + bluejVersion,
@@ -129,7 +129,7 @@ packageBlueJWindows.dependsOn assemble
 
 task packageBlueJLinux(type: Exec) {
     workingDir "package"
-    commandLine "fakeroot", "ant", "debian-dist",
+    commandLine "fakeroot", "ant", "debian-bundled-dist",
             "-Dbuild_java_home=" + System.getProperty('java.home'),
             "-Dmac_bundled_jdk_path=" + System.getProperty('java.home') + "/../..",
             "-Dbluej.version=" + bluejVersion,
