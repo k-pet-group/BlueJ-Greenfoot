@@ -640,26 +640,26 @@
         <!-- you must do this as root, sigh -->
                 <!-- (but we can also do it using fakeroot -->
         <chown owner="root">
-            <fileset dir="bluejdeb">
+            <fileset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="bluejdeb">
+            <dirset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>            
         </chown>
         <chgrp group="root">
-            <fileset dir="bluejdeb">
+            <fileset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="bluejdeb">
+            <dirset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>            
         </chgrp>
                 <chmod perm="g-w">
-            <fileset dir="bluejdeb">
+            <fileset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="bluejdeb">
+            <dirset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>            
                 </chmod>
@@ -762,26 +762,26 @@
         <!-- you must do this as root, sigh -->
                 <!-- (but we can also do it using fakeroot -->
         <chown owner="root">
-            <fileset dir="bluejdeb">
+            <fileset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="bluejdeb">
+            <dirset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>            
         </chown>
         <chgrp group="root">
-            <fileset dir="bluejdeb">
+            <fileset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="bluejdeb">
+            <dirset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>            
         </chgrp>
                 <chmod perm="g-w">
-            <fileset dir="bluejdeb">
+            <fileset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="bluejdeb">
+            <dirset dir="bluejdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>            
                 </chmod>
