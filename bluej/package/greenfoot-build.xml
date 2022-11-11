@@ -236,9 +236,17 @@
         </move>
         <delete dir="${zip_dir}/Greenfoot.app/Contents/Resources/Java/lib" />
 
-        <copy todir="${zip_dir}/Greenfoot.app/Contents/Resources/Java/javafx">
-            <fileset dir="${openjfx_path}" />
+        <copy todir="${zip_dir}/Greenfoot.app/Contents/Resources/Java/javafx" flatten="true">
+            <path>
+                <pathelement path="${openjfx_files}"/>
+            </path>
         </copy>
+        <move todir="${zip_dir}/Greenfoot.app/Contents/Resources/Java/javafx">
+            <fileset dir="${zip_dir}/Greenfoot.app/Contents/Resources/Java/javafx"/>
+            <mapper>
+                <mapper type="regexp" from="javafx.([^-]*)-.*jar" to="javafx.\1.jar" />
+            </mapper>
+        </move>
 
         <!-- Move the documentation into the app: -->
         <move todir="${zip_dir}/Greenfoot.app/Contents/Resources">

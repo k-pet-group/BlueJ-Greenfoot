@@ -123,3 +123,35 @@ runGreenfoot.dependsOn build
 
 group = 'org.bluej'
 description = 'greenfoot'
+
+task userJavadoc(type: Javadoc) {
+    doFirst {
+        mkdir("../bluej/doc/API")
+    }
+    source = sourceSets.main.allJava
+    includes = ['greenfoot/Actor.java',
+                'greenfoot/Color.java',
+                'greenfoot/Font.java',
+                'greenfoot/Greenfoot.java',
+                'greenfoot/GreenfootImage.java',
+                'greenfoot/GreenfootSound.java',
+                'greenfoot/MouseInfo.java',
+                'greenfoot/UserInfo.java',
+                'greenfoot/World.java']
+    destinationDir = file("../bluej/doc/API")
+    classpath = sourceSets.main.output.classesDirs + project.configurations.compileClasspath
+}
+userJavadoc.dependsOn assemble
+
+task packageGreenfootMac(type: Exec) {
+    workingDir "../bluej/package"
+    commandLine "ant", "-buildfile", "greenfoot-build.xml", "mac-dist",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Dmac_bundled_jdk_path=" + System.getProperty('java.home') + "/../..",
+            "-Dgreenfoot.version=" + greenfootVersion,
+            "-Dbluej_home=" + rootDir.getAbsoluteFile() + "/bluej/",
+            "-Dgreenfoot_home=" + projectDir.getAbsoluteFile(),
+            "-Dmacosx_sdk=" + toolProps["macosx_sdk"],
+            "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
+}
+packageGreenfootMac.dependsOn assemble, userJavadoc
