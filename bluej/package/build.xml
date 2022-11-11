@@ -186,7 +186,7 @@
         <!-- distribution jar, and stores its length in the        -->
         <!-- installer properties                                  -->
         <javac
-               executable="${build_java_home}/${java_command_dir_name}/javac"
+               executable="${build_java_home}/bin/javac"
                fork="yes"
                srcdir="."
                destdir="install_tmp"
@@ -199,7 +199,7 @@
         <java
                classname="InstallerProps"
                fork="yes"
-               jvm="${build_java_home}/${java_command_dir_name}/java"
+               jvm="${build_java_home}/bin/java"
             >
             <classpath>
                  <pathelement location="install_tmp" />
@@ -216,7 +216,7 @@
 
         <!-- compile the installer -->
         <javac
-               executable="${build_java_home}/${java_command_dir_name}/javac"
+               executable="${build_java_home}/bin/javac"
                fork="yes"
                srcdir="."
                destdir="install_tmp"
@@ -430,9 +430,17 @@
             <fileset dir="${win_bundled_jdk_path}" />
         </copy>
 
-        <copy todir="winsetup/standalone/bluej/lib/javafx">
-            <fileset dir="${openjfx_path}" />
+        <copy todir="winsetup/standalone/bluej/lib/javafx" flatten="true">
+            <path>
+                <pathelement path="${openjfx_files}"/>
+            </path>
         </copy>
+        <move todir="winsetup/standalone/bluej/lib/javafx">
+            <fileset dir="winsetup/standalone/bluej/lib/javafx"/>
+            <mapper>
+                <mapper type="regexp" from="javafx.([^-]*)-.*jar" to="javafx.\1.jar" />
+            </mapper>
+        </move>
 
         <!-- Fix the path to the JDK in bluej.defs -->
         <replaceregexp byline="true">
@@ -525,9 +533,17 @@
             <fileset dir="${win_bundled_jdk_path}" />
         </copy>
 
-        <copy todir="winsetup/SourceDir/lib/javafx">
-            <fileset dir="${openjfx_path}" />
+        <copy todir="winsetup/SourceDir/lib/javafx" flatten="true">
+            <path>
+                <pathelement path="${openjfx_files}"/>
+            </path>
         </copy>
+        <move todir="winsetup/SourceDir/lib/javafx">
+            <fileset dir="winsetup/SourceDir/lib/javafx"/>
+            <mapper>
+                <mapper type="regexp" from="javafx.([^-]*)-.*jar" to="javafx.\1.jar" />
+            </mapper>
+        </move>
         
         <!-- The heat tool scans all the files in SourceDir and generates
              a WiX file that has all the XML needed for installing all those files -->
