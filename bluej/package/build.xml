@@ -305,6 +305,12 @@
         <copy todir="${zip_dir}/BlueJ.app">
             <fileset dir="macfiles/BlueJ.app"/> 
         </copy>
+        
+        <replaceregexp byline="true">
+            <regexp pattern="-isysroot .*"/>
+            <substitution expression="-isysroot ${macosx_sdk} \\\\"/>
+            <fileset dir="macfiles/nativelauncher" includes="compile.sh"/>
+        </replaceregexp>
 
         <!-- build the native launcher -->
         <exec dir="macfiles/nativelauncher/" executable="/bin/bash">
