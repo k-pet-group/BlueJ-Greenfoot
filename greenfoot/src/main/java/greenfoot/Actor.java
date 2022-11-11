@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016,2018,2019,2021  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016,2018,2019,2021,2022  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -875,7 +875,6 @@ public abstract class Actor
      * directions, or may include diagonal steps, depending on the 'diagonal'
      * parameter. Thus, a distance/diagonal specification of (1,false) will
      * inspect four cells, (1,true) will inspect eight cells.
-     * <p>
      *
      * @param <A> The class of the object to look for.
      * @param distance Distance (in cells) in which to look for other objects.

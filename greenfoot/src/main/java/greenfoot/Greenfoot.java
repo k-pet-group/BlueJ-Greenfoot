@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2012,2014,2015,2019  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012,2014,2015,2019,2022  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,7 +34,7 @@ import greenfoot.sound.SoundFactory;
  * This utility class provides methods to control the simulation
  * and interact with the system.
  * 
- * <h3>Key names</h3>
+ * <h2>Key names</h2>
  * 
  * <p>Part of the functionality provided by this class is the ability to
  * retrieve keyboard input. The methods getKey() and isKeyDown() are used
