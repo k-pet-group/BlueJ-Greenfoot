@@ -115,3 +115,25 @@ task packageBlueJMac(type: Exec) {
         "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
 }
 packageBlueJMac.dependsOn assemble
+
+task packageBlueJWindows(type: Exec) {
+    workingDir "package"
+    commandLine "ant", "windows-dist",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Dmac_bundled_jdk_path=" + System.getProperty('java.home') + "/../..",
+            "-Dbluej.version=" + bluejVersion,
+            "-Dbluej_home=" + projectDir.getAbsoluteFile(),
+            "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
+}
+packageBlueJWindows.dependsOn assemble
+
+task packageBlueJLinux(type: Exec) {
+    workingDir "package"
+    commandLine "fakeroot", "ant", "debian-dist",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Dmac_bundled_jdk_path=" + System.getProperty('java.home') + "/../..",
+            "-Dbluej.version=" + bluejVersion,
+            "-Dbluej_home=" + projectDir.getAbsoluteFile(),
+            "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
+}
+packageBlueJLinux.dependsOn assemble
