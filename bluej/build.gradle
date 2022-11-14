@@ -87,6 +87,10 @@ task blueJCoreJar(type: Jar) {
     exclude "bluej/extensions2/**", "bluej/editor/**", "lang/**"
     destinationDirectory = new File(sourceSets.main.output.resourcesDir, 'lib')
 }
+task copyToLib(type: Copy) {
+    into new File(sourceSets.main.output.resourcesDir, 'lib')
+    from configurations.runtimeClasspath
+}
 
 blueJCoreJar.dependsOn compileJava
 
@@ -97,8 +101,10 @@ task runBlueJ(type: JavaExec) {
     args "-bluej.debug=true"
 }
 
-runBlueJ.dependsOn copyLibToBuild
-runBlueJ.dependsOn blueJCoreJar
+assemble.dependsOn copyLibToBuild
+assemble.dependsOn blueJCoreJar
+assemble.dependsOn copyToLib
+runBlueJ.dependsOn assemble
 test.dependsOn copyLibToTestBuild
 
 group = 'org.bluej'

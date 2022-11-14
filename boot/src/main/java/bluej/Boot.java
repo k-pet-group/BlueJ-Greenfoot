@@ -73,7 +73,7 @@ public class Boot
     // The second group are available to user code (and to bluej)
     // bluejcore.jar is necessary as it contains the support runtime
     // (bluej.runtime.* classes).
-    private static final String[] bluejUserJars = { "bluejcore.jar", "junit-*.jar", "hamcrest-core-1.3.jar", "hamcrest-library-1.3.jar", "lang-stride.jar" };
+    private static final String[] bluejUserJars = { "bluejcore.jar", "junit-*.jar", "hamcrest-*.jar", "lang-stride.jar" };
     // The number of jar files in the user jars which are built from the
     // BlueJ classes directory
     private static final int bluejUserBuildJars = 1;
