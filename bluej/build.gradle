@@ -70,7 +70,9 @@ repositories {
 
 javafx {
     version = "17.0.2"
-    modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.swing', 'javafx.web']
+    // Important that we depend on all the JavaFX modules, so that they are
+    // all made available to user code:
+    modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.media', 'javafx.swing', 'javafx.web']
 }
 
 task copyLibToBuild(type: Copy) {
