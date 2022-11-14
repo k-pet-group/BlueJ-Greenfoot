@@ -365,7 +365,7 @@ public class Boot
             {
                 return new File(defsLocation.toURI()).getParentFile();
             }
-            catch (URISyntaxException e)
+            catch (URISyntaxException | IllegalArgumentException e)
             {
                 e.printStackTrace();
                 // Try the other methods, I guess...
