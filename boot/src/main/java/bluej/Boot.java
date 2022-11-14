@@ -86,25 +86,7 @@ public class Boot
     private static Boot instance;
     // The jar files we expect in the BlueJ lib directory
     // The first lot are the ones to run BlueJ itself
-    private static final String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext2.jar",
-        "classgraph-4.8.90.jar",
-        "commons-logging-api-1.1.2.jar",
-        "diffutils-1.2.1.jar",
-        "guava-17.0.jar",
-        "hamcrest-core-1.3.jar",
-        "hamcrest-library-1.3.jar",
-        "httpclient-4.1.1.jar",
-        "httpcore-4.1.jar",
-        "httpmime-4.1.1.jar",
-        "jsch-0.1.53.jar",
-        "junit-*.jar",
-        "lang-stride.jar",
-        "nsmenufx-2.1.8.jar",
-        "org.eclipse.jgit-4.9.0.jar",
-        "wellbehavedfx-0.3.3.jar",
-        "slf4j-api-1.7.2.jar",
-        "slf4j-jdk14-1.7.2.jar",
-        "xom-1.3.7.jar" };
+    private static final String[] bluejJars = { "^bluejcore.jar" };
     // The variable form of the above
     private static String [] runtimeJars = bluejJars;
     private static String [] userJars = bluejUserJars;
@@ -592,16 +574,23 @@ public class Boot
         {
             // We may have more than 1 file if the jar name contains a wildcard *,
             File[] filesToAdd;
-            if (!jars[i].contains("*"))
+            if (jars[i].startsWith("^"))
             {
-                filesToAdd = new File[]{new File(libDir, jars[i])};
+                // Everything except this name:
+                File dir = new File(libDir.getPath());
+                String excludeJAR = jars[i].substring(1);
+                filesToAdd = dir.listFiles(f -> f.getName().endsWith(".jar") && !f.getName().equals(excludeJAR));
             }
-            else
+            else if (jars[i].contains("*"))
             {
                 File dir = new File(libDir.getPath());
                 String[] beforeAfter = jars[i].split("\\*");
                 FileFilter fileFilter = f -> f.getName().startsWith(beforeAfter[0]) && f.getName().endsWith(beforeAfter[1]);
                 filesToAdd = dir.listFiles(fileFilter);
+            }
+            else
+            {
+                filesToAdd = new File[]{new File(libDir, jars[i])};
             }
 
             for (File toAdd : filesToAdd)
