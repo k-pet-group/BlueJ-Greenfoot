@@ -75,10 +75,6 @@ javafx {
     modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.media', 'javafx.swing', 'javafx.web']
 }
 
-task copyLibToBuild(type: Copy) {
-    from 'lib'
-    into new File(sourceSets.main.output.resourcesDir, 'lib')
-}
 task copyLibToTestBuild(type: Copy) {
     from 'lib'
     into new File(sourceSets.test.output.resourcesDir, 'lib')
@@ -93,6 +89,8 @@ task blueJCoreJar(type: Jar) {
 task copyToLib(type: Copy) {
     into new File(sourceSets.main.output.resourcesDir, 'lib')
     from configurations.runtimeClasspath
+    from 'lib'
+    from 'build/libs/bluej.jar'
 }
 
 blueJCoreJar.dependsOn compileJava
@@ -104,7 +102,6 @@ task runBlueJ(type: JavaExec) {
     args "-bluej.debug=true"
 }
 
-assemble.dependsOn copyLibToBuild
 assemble.dependsOn blueJCoreJar
 assemble.dependsOn copyToLib
 runBlueJ.dependsOn assemble
