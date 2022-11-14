@@ -8,6 +8,7 @@ dependencies {
     annotationProcessor project(':threadchecker')
     compileOnly project(':threadchecker')
     implementation project(':boot')
+    implementation project(':lang-stride')
 
     implementation 'com.google.guava:guava:17.0'
     implementation 'com.googlecode.java-diff-utils:diffutils:1.2.1'
@@ -84,7 +85,7 @@ task copyLibToTestBuild(type: Copy) {
 task blueJCoreJar(type: Jar) {
     archiveFileName = "bluejcore.jar"
     from "build/classes/java/main"
-    exclude "bluej/extensions2/**", "bluej/editor/**", "lang/**"
+    exclude "bluej/extensions2/**", "bluej/editor/**"
     destinationDirectory = new File(sourceSets.main.output.resourcesDir, 'lib')
 }
 task copyToLib(type: Copy) {

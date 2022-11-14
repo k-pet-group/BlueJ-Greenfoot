@@ -1,0 +1,4 @@
+apply plugin: 'java-library'
+
+// Important this module doesn't have a version as several places in the build
+// refer to plain "lang-stride.jar"
