@@ -26,6 +26,9 @@ description = 'boot'
 
 sourceSets {
     splash
+    main {
+        resources.srcDirs "build/resources/main/bluej"
+    }
 }
 
 task drawBlueJSplashVersion(type: JavaExec) {
@@ -175,5 +178,5 @@ updateVersionNumber.dependsOn drawBlueJSplashVersion
 updateVersionNumber.dependsOn drawBlueJSplashVersion2x
 updateVersionNumber.dependsOn drawGreenfootSplashVersion
 updateVersionNumber.dependsOn drawGreenfootSplashVersion2x
-build.dependsOn updateVersionNumber
+jar.dependsOn updateVersionNumber
 
