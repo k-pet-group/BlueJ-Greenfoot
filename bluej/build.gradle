@@ -42,6 +42,10 @@ compileJava {
         // we use some private packages/classes currently:
         "--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED"]
 }
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
 
 test {
     useJUnit()

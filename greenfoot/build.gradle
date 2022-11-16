@@ -39,6 +39,10 @@ test {
 compileJava {
     options.compilerArgs += ["-Xplugin:threadchecker.TCPlugin"]
 }
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
 
 task copyLibToBuild(type: Copy) {
     from '../bluej/lib'
