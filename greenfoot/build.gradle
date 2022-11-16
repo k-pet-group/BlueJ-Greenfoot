@@ -149,7 +149,7 @@ userJavadoc.dependsOn assemble
 
 task packageGreenfootMac(type: Exec) {
     workingDir "../bluej/package"
-    commandLine "ant", "-buildfile", "greenfoot-build.xml", "mac-dist",
+    commandLine toolProps["ant_exe"], "-buildfile", "greenfoot-build.xml", "mac-dist",
             "-Dbuild_java_home=" + System.getProperty('java.home'),
             "-Dmac_bundled_jdk_path=" + System.getProperty('java.home') + "/../..",
             "-Dgreenfoot.version=" + greenfootVersion,
