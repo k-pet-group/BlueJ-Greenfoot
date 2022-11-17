@@ -786,6 +786,7 @@
     </target>
 
     <target name="zip-source"  description="create a zip of all the sources and other resources needed to build BlueJ." >
+        <!-- We now do this from Github
         <zip destfile="${bluej.source.zip}" compress="yes">
             <zipfileset dir="${bluej_home}" defaultexcludes="yes">
                 <include name="src/**/*.java" />       
@@ -805,7 +806,7 @@
                 <include name="icons/**/*" />           
                 <include name="lib/**/*" />
 
-                <!-- exclude Greenfoot files -->
+                <!- exclude Greenfoot files ->
                 <exclude name="lib/jl*"/>
                 <exclude name="lib/bluej.jar"/>
                 <exclude name="lib/bluejcore.jar"/>
@@ -834,6 +835,7 @@
                 <exclude name="**/.*"/>
             </zipfileset>
         </zip>
+        -->
     </target>
     
     <target name="clean">
