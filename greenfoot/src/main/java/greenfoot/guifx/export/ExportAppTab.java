@@ -87,8 +87,8 @@ public class ExportAppTab extends ExportLocalTab
 
         String sep = Config.isWinOS() ? ";" : ":";
         String javaAndClasspathBefore = "\"" + Config.getJDKExecutablePath(null, "java") + "\" -cp \"" +
-            Utility.urlsToFiles(Boot.getInstance().getJavaFXClassPath()).stream().map(f -> f.getAbsolutePath()).collect(Collectors.joining(sep)) + sep;
-        String javaAndClasspathAfter = "\" --module-path \"" + Boot.getInstance().getJavaFXLibDir() + "\" --add-modules=ALL-MODULE-PATH greenfoot.export.GreenfootScenarioApplication";
+            Utility.urlsToFiles(Boot.getInstance().getRuntimeUserClassPath()).stream().filter(f -> f.getName().startsWith("javafx")).map(f -> f.getAbsolutePath()).collect(Collectors.joining(sep)) + sep;
+        String javaAndClasspathAfter = /*"\" --module-path \"" + Boot.getInstance().getJavaFXLibDir() + "\" --add-modules=ALL-MODULE-PATH */ " greenfoot.export.GreenfootScenarioApplication";
 
         Hyperlink moreInfo = new Hyperlink(Config.getString("export.app.more"));
         moreInfo.setOnAction(event -> SwingUtilities.invokeLater(() -> Utility.openWebBrowser("https://www.greenfoot.org/doc/run_standalone")));
