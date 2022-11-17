@@ -159,3 +159,6 @@ task packageGreenfootMac(type: Exec) {
             "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
 }
 packageGreenfootMac.dependsOn assemble, userJavadoc
+
+distTar.enabled = false
+distZip.enabled = false

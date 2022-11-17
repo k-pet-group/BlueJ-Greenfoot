@@ -152,3 +152,6 @@ task packageBlueJLinux(type: Exec) {
             "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
 }
 packageBlueJLinux.dependsOn assemble
+
+distTar.enabled = false
+distZip.enabled = false
