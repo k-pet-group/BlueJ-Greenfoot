@@ -25,3 +25,7 @@
 *.class
 /classes
 /output
+
+bluej/build.properties
+
+*.args
