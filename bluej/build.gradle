@@ -96,7 +96,7 @@ task copyToLib(type: Copy) {
     from 'lib'
     from 'build/libs/bluej.jar'
 }
-
+copyToLib.dependsOn jar
 blueJCoreJar.dependsOn compileJava
 
 task runBlueJ(type: JavaExec) {
