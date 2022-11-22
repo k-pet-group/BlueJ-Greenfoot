@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="greenfoot-package" default="dist">
 
+    <import file="../shared.xml"/>
+    
     <!-- Most of the targets in this build file are designed to be called from the
          main Greenfoot build.xml file, as they require variables defined by it. -->
     
