@@ -31,6 +31,7 @@ jobs:
           choco install mingw -r --no-progress
           choco install sed -r --no-progress
           choco install wget -r --no-progress
+          choco install ant -r --no-progress
       - name: Check install locations
         run: |
           dir C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin
@@ -55,7 +56,7 @@ jobs:
       - name: Gradle Build and Test
         uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
         with:
-          arguments: :bluej:packageBlueJWindows --info --stacktrace --no-daemon          
+          arguments: :bluej:packageBlueJWindows :greenfoot:packageGreenfootWindows --info --stacktrace --no-daemon          
       - name: Archive BlueJ Windows installers
         uses: actions/upload-artifact@v3
         with:
@@ -95,7 +96,7 @@ jobs:
       - name: Gradle Build and Test
         uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
         with:
-          arguments: :bluej:packageBlueJLinux --info --stacktrace --no-daemon
+          arguments: :bluej:packageBlueJLinux :greenfoot:packageGreenfootLinux --info --stacktrace --no-daemon
       - name: Archive BlueJ Ubuntu installers
         uses: actions/upload-artifact@v3
         with:

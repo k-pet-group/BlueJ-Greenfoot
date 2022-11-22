@@ -152,12 +152,41 @@ task packageGreenfootMac(type: Exec) {
             "-Dbuild_java_home=" + System.getProperty('java.home'),
             "-Dmac_bundled_jdk_path=" + System.getProperty('java.home') + "/../..",
             "-Dgreenfoot.version=" + greenfootVersion,
+            "-Dgreenfoot.rcsuffix=" + greenfootRCSuffix,
             "-Dbluej_home=" + rootDir.getAbsoluteFile() + "/bluej/",
             "-Dgreenfoot_home=" + projectDir.getAbsoluteFile(),
             "-Dmacosx_sdk=" + toolProps["macosx_sdk"],
             "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
 }
 packageGreenfootMac.dependsOn assemble, userJavadoc
+
+task packageGreenfootWindows(type: Exec) {
+    workingDir "../bluej/package"
+    commandLine toolProps["ant_exe"], "-buildfile", "greenfoot-build.xml", "windows-msi-bundled-dist", "windows-standalone",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Dwin_bundled_jdk_path=" + System.getProperty('java.home'),
+            "-Dgreenfoot.version=" + greenfootVersion,
+            "-Dgreenfoot.rcsuffix=" + greenfootRCSuffix,
+            "-Dbluej_home=" + rootDir.getAbsoluteFile() + "/bluej/",
+            "-Dgreenfoot_home=" + projectDir.getAbsoluteFile(),
+            "-Dmingw_root=" + toolProps["mingw_root"],
+            "-Dwix_bin=" + toolProps["wix_bin"],
+            "-Dopenjfx_files=\"" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator) + "\""
+}
+packageGreenfootWindows.dependsOn assemble, userJavadoc
+
+task packageGreenfootLinux(type: Exec) {
+    workingDir "../bluej/package"
+    commandLine "fakeroot", toolProps["ant_exe"], "-buildfile", "greenfoot-build.xml", "debian-bundled-dist",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Ddeb_bundled_jdk_path=" + System.getProperty('java.home'),
+            "-Dgreenfoot.version=" + greenfootVersion,
+            "-Dgreenfoot.rcsuffix=" + greenfootRCSuffix,
+            "-Dbluej_home=" + rootDir.getAbsoluteFile() + "/bluej/",
+            "-Dgreenfoot_home=" + projectDir.getAbsoluteFile(),
+            "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
+}
+packageGreenfootLinux.dependsOn assemble, userJavadoc
 
 distTar.enabled = false
 distZip.enabled = false
