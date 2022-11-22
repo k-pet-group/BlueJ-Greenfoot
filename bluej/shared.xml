@@ -7,7 +7,7 @@
         <element name="options" optional="true" implicit="true"/>
         <sequential>
             <echo message="Compiling files in @{srcdir} ..."/>
-            <javac executable="${build_java_home}/${java_command_dir_name}/javac"
+            <javac executable="${build_java_home}/bin/javac"
                    fork="yes"
                    srcdir="@{srcdir}"
                    destdir="@{destdir}"
