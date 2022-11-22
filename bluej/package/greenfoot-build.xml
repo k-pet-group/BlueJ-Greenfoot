@@ -149,7 +149,7 @@
         <java
                classname="InstallerProps"
                fork="yes"
-               jvm="${build_java_home}/${java_command_dir_name}/java"
+               jvm="${build_java_home}/bin/java"
             >
             <classpath>
                 <pathelement location="install_tmp" />
@@ -167,7 +167,7 @@
         <!-- compile the installer -->
         <!-- Note: can't use compile task here because we are setting source 6 -->
         <javac
-               executable="${build_java_home}/${java_command_dir_name}/javac"
+               executable="${build_java_home}/bin/javac"
                fork="yes"
                srcdir="."
                destdir="install_tmp"
