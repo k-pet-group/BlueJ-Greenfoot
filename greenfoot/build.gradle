@@ -115,8 +115,7 @@ task runGreenfoot(type: JavaExec) {
     group = 'application'
     classpath sourceSets.main.runtimeClasspath
     main = "bluej.Boot"
-    args "-bluej.debug=true", "-greenfoot=true",
-        "-javafxjars=" + configurations.compileClasspath.findAll { it.name.startsWith("javafx") }.join(File.pathSeparator)
+    args "-bluej.debug=true", "-greenfoot=true"
     //"-useclassesdir=true", "-greenfootclassesdir=${build}", "-bluej.compiler.showunchecked=false" 
     //"-greenfoot.scenarios=${greenfoot.scenarios}", 
     //  "-javafxpath=${openjfx_path}"
