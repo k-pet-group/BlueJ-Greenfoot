@@ -126,7 +126,7 @@
         
         <!-- jar the entire distribution into one jar file            -->
         <!-- (use zip instead of jar to avoid generation of manifest) -->
-        <zip zipfile="${bluej.dist.jar}"
+        <zip zipfile="greenfoot-dist.jar"
              basedir="install_tmp"
              compress="yes"
         />
