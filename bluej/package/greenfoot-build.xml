@@ -294,7 +294,7 @@
             <arg value="${zip_dir}" />
             <arg value="Greenfoot.app" />
             <arg value="${mac_bundled_jdk_path}" />
-            <arg value="${greenfoot.dist.mac}" />
+            <arg value="Greenfoot-mac-${greenfoot.version}${greenfoot.rcsuffix}.zip" />
         </exec>
         <echo message="${bundleoutput}"/>
         
@@ -364,7 +364,7 @@
         </replaceregexp>
 
 
-        <zip destfile="Greenfoot-${greenfoot.version}${greenfoot.rcsuffix}.zip">
+        <zip destfile="Greenfoot-windows-${greenfoot.version}${greenfoot.rcsuffix}.zip">
             <zipfileset dir="winsetup/standalone"/>
         </zip>
 
@@ -402,7 +402,7 @@
         </exec>
         
         <exec dir="winsetup" executable="${wix_bin}/light.exe">
-            <arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj CheckboxExtrasDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o greenfoot-${greenfoot.version}.msi"/>
+            <arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj CheckboxExtrasDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o Greenfoot-windows-${greenfoot.version}${greenfoot.rcsuffix}.msi"/>
         </exec>
         <delete dir="winsetup/SourceDir" />
     </target>
@@ -572,7 +572,7 @@
         <exec executable="dpkg-deb" searchpath="true">
             <arg value="-b" />
             <arg file="gfdeb" />
-            <arg value="greenfoot-${greenfoot.version}${greenfoot.rcsuffix}.deb" />
+            <arg value="Greenfoot-linux-${greenfoot.version}${greenfoot.rcsuffix}.deb" />
         </exec>
         
         <delete dir="gfdeb" />
