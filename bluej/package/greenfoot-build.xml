@@ -286,7 +286,7 @@
             <arg value="${zip_dir}" />
             <arg value="Greenfoot.app" />
             <arg value="${mac_bundled_jdk_path}" />
-            <arg value="Greenfoot-mac-${greenfoot.version}${greenfoot.rcsuffix}.zip" />
+            <arg value="../Greenfoot-mac-${greenfoot.version}${greenfoot.rcsuffix}.zip" />
         </exec>
         <echo message="${bundleoutput}"/>
         
@@ -394,7 +394,7 @@
         </exec>
         
         <exec dir="winsetup" executable="${wix_bin}/light.exe">
-            <arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj CheckboxExtrasDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o Greenfoot-windows-${greenfoot.version}${greenfoot.rcsuffix}.msi"/>
+            <arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj CheckboxExtrasDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o ../Greenfoot-windows-${greenfoot.version}${greenfoot.rcsuffix}.msi"/>
         </exec>
         <delete dir="winsetup/SourceDir" />
     </target>
