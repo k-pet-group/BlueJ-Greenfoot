@@ -241,14 +241,6 @@
             </fileset>
         </move>
         <delete dir="${zip_dir}/doc" />
-
-
-        <!-- ZIP it -->
-        <zip destfile="${greenfootlegacy.dist.mac}" duplicate="fail">
-            <zipfileset dir="mac_tmp" excludes="${executable_files}" />
-            <!-- Make the files executable that need to be executable -->
-            <zipfileset dir="mac_tmp" filemode="755" includes="${executable_files}" />
-        </zip>
         
         <!-- Bundled JDK build -->
         <!-- rename Greenfoot.app to Greenfoot-legacy.app -->
@@ -572,7 +564,7 @@
         <exec executable="dpkg-deb" searchpath="true">
             <arg value="-b" />
             <arg file="gfdeb" />
-            <arg value="Greenfoot-linux-${greenfoot.version}${greenfoot.rcsuffix}.deb" />
+            <arg value="Greenfoot-linux-unbundled-${greenfoot.version}${greenfoot.rcsuffix}.deb" />
         </exec>
         
         <delete dir="gfdeb" />
@@ -706,7 +698,7 @@
         <exec executable="dpkg-deb" searchpath="true">
             <arg value="-b" />
             <arg file="gfdeb" />
-            <arg value="greenfoot-bundled-${greenfoot.version}${greenfoot.rcsuffix}.deb" />
+            <arg value="Greenfoot-linux-${greenfoot.version}${greenfoot.rcsuffix}.deb" />
         </exec>
 
         <delete dir="gfdeb" />
