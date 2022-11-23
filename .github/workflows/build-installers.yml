@@ -69,8 +69,8 @@ jobs:
         with:
           name: greenfoot-installers
           path: |
-              greenfoot/package/Greenfoot-windows*.msi
-              greenfoot/package/Greenfoot-windows*.zip
+              bluej/package/Greenfoot-windows*.msi
+              bluej/package/Greenfoot-windows*.zip
   Build-Ubuntu-Installers:
     runs-on: ubuntu-latest
     steps:
@@ -110,9 +110,9 @@ jobs:
         with:
           name: greenfoot-installers
           path: |
-            greenfoot/package/Greenfoot-linux*.deb
-            greenfoot/package/Greenfoot-generic*.jar
-            greenfoot/package/Greenfoot-source*.zip
+            bluej/package/Greenfoot-linux*.deb
+            bluej/package/Greenfoot-generic*.jar
+            bluej/package/Greenfoot-source*.zip
 
   Build-Mac-Installers:
     runs-on: macos-latest
@@ -164,6 +164,6 @@ jobs:
         with:
           name: greenfoot-installers
           path: |
-            greeenfoot/package/Greenfoot-mac*.zip
+            bluej/package/Greenfoot-mac*.zip
   
        
