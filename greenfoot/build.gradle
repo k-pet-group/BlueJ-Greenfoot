@@ -66,50 +66,46 @@ task copyGreenfootIcon2(type: Copy) {
     rename { 'greenfoot.png' }
 }
 
-build.dependsOn copyLibToBuild
-build.dependsOn copyImagelibToBuild
-build.dependsOn copyGreenfootIcon1
-build.dependsOn copyGreenfootIcon2
+assemble.dependsOn copyLibToBuild
+assemble.dependsOn copyImagelibToBuild
+assemble.dependsOn copyGreenfootIcon1
+assemble.dependsOn copyGreenfootIcon2
 
-task copyImagesToBuild(type: Copy) {
-    from 'resources/images'
-    into sourceSets.main.output.resourcesDir
-            // README icon in browserL
-    include "readme.png",
-            // Empty image - just to force same layout of compile and readme button
-            "compile.png",
-            // Image used when dragging object over an area where it can not be dropped
-            "noParking.png",
-            // Image selection dialog icon
-            "openRight.png",
-            // Control panel icons
-            "run.png", "step.png", "pause.png", "reset.png",
-            // Export icons
-            "export-app.png", "export-project.png", "export-publish.png", "export-publish-small.png", "export-webpage.png",
-            // Menu button used in image library dialog (gear with drop-arrow)
-            "menu-button.png",
-            // Execution/activity twirler
-            "swirl.png",
-            "dropdown.png"
-}
-
-build.dependsOn copyImagesToBuild
-
-task copyJars(type: Copy) {
-    from '../bluej/build/resources/main/lib'
+task copyToLib(type: Copy) {
     into new File(sourceSets.main.output.resourcesDir, 'lib')
-    include "bluejcore.jar"
-}
-copyJars.dependsOn ':bluej:blueJCoreJar'
-build.dependsOn copyJars
+    from configurations.runtimeClasspath
+    from 'lib'
+    from 'labels'
+    from '../bluej/build/libs/bluej.jar'
+} 
+copyToLib.dependsOn ':bluej:blueJCoreJar'
+copyToLib.dependsOn jar
 
 task greenfootJar(type: Jar) {
     archiveFileName = "greenfoot.jar"
     from "build/classes/java/main"
+    from('resources/images') {
+        include "readme.png",
+                // Empty image - just to force same layout of compile and readme button
+                "compile.png",
+                // Image used when dragging object over an area where it can not be dropped
+                "noParking.png",
+                // Image selection dialog icon
+                "openRight.png",
+                // Control panel icons
+                "run.png", "step.png", "pause.png", "reset.png",
+                // Export icons
+                "export-app.png", "export-project.png", "export-publish.png", "export-publish-small.png", "export-webpage.png",
+                // Menu button used in image library dialog (gear with drop-arrow)
+                "menu-button.png",
+                // Execution/activity twirler
+                "swirl.png",
+                "dropdown.png"
+    }
     destinationDirectory = new File(sourceSets.main.output.resourcesDir, 'lib')
 }
-
-build.dependsOn greenfootJar
+assemble.dependsOn greenfootJar
+assemble.dependsOn copyToLib
 
 task runGreenfoot(type: JavaExec) {
     group = 'application'

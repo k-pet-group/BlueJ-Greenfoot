@@ -71,15 +71,16 @@ public class Boot
     // Jars that should be included with exported scenarios
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};
     private static final String[] greenfootUserJars = { "greenfoot.jar", 
-        "bluejcore.jar", "bluejeditor.jar", "bluejext2.jar",
-        "junit-*.jar", "hamcrest-core-1.3.jar", "hamcrest-library-1.3.jar", "bluej.jar",
-        "classgraph-4.8.90.jar",
-        "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
-        JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.3.7.jar",
+        "bluejcore.jar",
+        "javafx-*.jar",
+        "junit-*.jar", "hamcrest-*.jar", "bluej.jar",
+        "classgraph-*.jar",
+        "diffutils-*.jar", "commons-logging-api-*.jar",
+        JLAYER_MP3_JAR, "opencsv-*.jar", "xom-*.jar",
         "lang-stride.jar",
-        "nsmenufx-2.1.8.jar", "wellbehavedfx-0.3.3.jar",
-        "guava-17.0.jar",
-        "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar"};
+        "nsmenufx-*.jar", "wellbehavedfx-*.jar",
+        "guava-*.jar",
+        "http*.jar"};
     private static final int greenfootUserBuildJars = 4;
     
     // A singleton boot object so the rest of BlueJ can pick up args etc.
