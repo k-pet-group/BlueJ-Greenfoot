@@ -394,7 +394,7 @@
         </exec>
         
         <exec dir="winsetup" executable="${wix_bin}/light.exe">
-            <arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj CheckboxExtrasDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o ../Greenfoot-windows-${greenfoot.version}${greenfoot.rcsuffix}.msi"/>
+            <arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj CheckboxExtrasDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o ../Greenfoot-windows-unbundled-${greenfoot.version}${greenfoot.rcsuffix}.msi"/>
         </exec>
         <delete dir="winsetup/SourceDir" />
     </target>
@@ -443,7 +443,7 @@
         </exec>
             
         <exec dir="winsetup" executable="${wix_bin}/light.exe">
-            <arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj CheckboxExtrasDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o ..\Greenfoot-${greenfoot.version}${greenfoot.rcsuffix}.msi"/>
+            <arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj CheckboxExtrasDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o ../Greenfoot-windows-${greenfoot.version}${greenfoot.rcsuffix}.msi"/>
         </exec>
         <delete dir="winsetup/SourceDir" />
     </target>
