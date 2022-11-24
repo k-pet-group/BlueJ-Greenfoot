@@ -22,41 +22,41 @@ This repository contains the source code for BlueJ and Greenfoot, licensed under
 Building and running
 ---
 
-BlueJ currently uses ant as its automated build tool, although this may change in future.  To build you will first need to install Ant (any recent version), Java (currently 17) JDK and JavaFX (also 17).  With ant on your path, check out the repository then execute (or equivalent commands on Linux):
+BlueJ uses Gradle as its automated build tool.  To build you will first need to install a Java (17) JDK.  Check out the repository then execute the following command to run BlueJ:
 
 ```
-cd bluej
-cp build.properties.template build.properties
-nano build.properties
+./gradlew runBlueJ
 ```
 
-In the build.properties file you will need to set the paths for `build_java_home` to your JDK and `openjfx_path` to your JavaFX installation.  Then you can run:
+Or to run Greenfoot:
 
 ```
-ant ready-to-run
+./gradlew runGreenfoot
 ```
-
-To run BlueJ, you can then execute: `ant run`.
-
-To build Greenfoot you must first perform the other steps above.  Then, assuming you are still in the BlueJ directory run:
-
-```
-cd ../greenfoot
-ant ready-to-run
-```
-
-There is no properties file that needs editing for Greenfoot; it uses the values from BlueJ that you already set.
-
-To run Greenfoot, you can then execute: `ant run-greenfoot`.
 
 Development
 ---
 
-Relatively recent instructions on setting up the project in IntelliJ IDEA are in the file <a href="bluej/doc/HOWTO.setup.bluej-greenfoot-in-intellij">bluej/doc/HOWTO.setup.bluej-greenfoot-in-intellij</a>.
+To work on the project, IntelliJ IDEA should import the Gradle project automatically, although you may need to set the JDK (17) and language level (also 17).
 
 Contributing
 ---
 
 We accept pull requests for translations or bug fixes.  If you plan to add a new feature or change existing behaviour we advise you to get in contact with us first, as we are likely to refuse any pull requests which are not part of our roadmap for BlueJ/Greenfoot.  One of the reasons for BlueJ and Greenfoot's success is their simplicity, which has been achieved by being very conservative in which features we choose to add.  
 
+Building Installers
+---
+
+The installers are built automatically on Github.  If you want to build them manually you will need to set any appropriate tool paths in tools.properties, and run the appropriate single command of the following set:
+
+```
+./gradlew packageBlueJWindows
+./gradlew packageBlueJLinux
+./gradlew packageBlueJMac
+./gradlew packageGreenfootWindows
+./gradlew packageGreenfootLinux
+./gradlew packageGreenfootMac
+```
+
+None of the installers can be cross-built, so you must build Windows on Windows, Mac on Mac and Linux on Debian/Ubuntu.  Windows requires an installation of WiX 3.10 and MinGW64 to build the installer.
 
