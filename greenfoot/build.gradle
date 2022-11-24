@@ -109,12 +109,9 @@ assemble.dependsOn copyToLib
 
 task runGreenfoot(type: JavaExec) {
     group = 'application'
-    classpath sourceSets.main.runtimeClasspath
+    classpath = files('build/resources/main/lib/boot.jar') + sourceSets.main.runtimeClasspath.filter { it.name.startsWith("javafx") }
     main = "bluej.Boot"
     args "-bluej.debug=true", "-greenfoot=true"
-    //"-useclassesdir=true", "-greenfootclassesdir=${build}", "-bluej.compiler.showunchecked=false" 
-    //"-greenfoot.scenarios=${greenfoot.scenarios}", 
-    //  "-javafxpath=${openjfx_path}"
     
 }
 runGreenfoot.dependsOn build
