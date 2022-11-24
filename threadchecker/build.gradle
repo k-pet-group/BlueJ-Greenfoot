@@ -1,0 +1,8 @@
+apply plugin: 'java-library'
+
+dependencies {
+    compileOnly project(':anns-threadchecker')
+}
+
+group = 'org.bluej'
+description = 'threadchecker'

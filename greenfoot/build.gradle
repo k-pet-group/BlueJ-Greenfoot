@@ -1,0 +1,188 @@
+apply plugin: 'java-library'
+apply plugin: 'org.openjfx.javafxplugin'
+apply plugin: 'application'
+
+dependencies {
+    annotationProcessor project(':anns-threadchecker')
+    compileOnly project(':anns-threadchecker')
+    annotationProcessor project(':threadchecker')
+    compileOnly project(':threadchecker')
+    implementation project(':bluej')
+    implementation project(':boot')
+
+    implementation 'au.com.bytecode:opencsv:2.4'
+    implementation 'org.apache.httpcomponents:httpclient:4.1.1'
+    implementation 'org.apache.httpcomponents:httpmime:4.1.1'
+    implementation 'javazoom:jlayer:1.0.1'
+
+    testCompileOnly project(':anns-threadchecker')
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+    testImplementation 'org.junit.platform:junit-platform-launcher:1.5.2'
+    testImplementation 'org.junit.vintage:junit-vintage-engine:5.5.2'
+}
+
+repositories {
+    mavenCentral()
+}
+
+javafx {
+    version = "17.0.2"
+    modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.swing', 'javafx.web']
+}
+
+test {
+    useJUnit()
+}
+
+compileJava {
+    options.compilerArgs += ["-Xplugin:threadchecker.TCPlugin"]
+}
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
+
+task copyLibToBuild(type: Copy) {
+    from '../bluej/lib'
+    from 'lib'
+    from 'labels'
+    into new File(sourceSets.main.output.resourcesDir, 'lib')
+}
+
+task copyImagelibToBuild(type: Copy) {
+    from 'imagelib'
+    into new File(sourceSets.main.output.resourcesDir, 'lib/greenfoot/imagelib')
+}
+task copyGreenfootIcon1(type: Copy) {
+    from file('resources/images/greenfoot-icon-16.png')
+    into new File(sourceSets.main.output.resourcesDir, 'lib/greenfoot/imagelib/other')
+    rename { 'greenfoot.png' }
+}
+task copyGreenfootIcon2(type: Copy) {
+    from file('resources/images/greenfoot-icon-16.png')
+    into new File(sourceSets.main.output.resourcesDir, 'images')
+    rename { 'greenfoot.png' }
+}
+
+assemble.dependsOn copyLibToBuild
+assemble.dependsOn copyImagelibToBuild
+assemble.dependsOn copyGreenfootIcon1
+assemble.dependsOn copyGreenfootIcon2
+
+task copyToLib(type: Copy) {
+    into new File(sourceSets.main.output.resourcesDir, 'lib')
+    from configurations.runtimeClasspath
+    from 'lib'
+    from 'labels'
+    from '../bluej/build/libs/bluej.jar'
+} 
+copyToLib.dependsOn ':bluej:blueJCoreJar'
+copyToLib.dependsOn jar
+
+task greenfootJar(type: Jar) {
+    archiveFileName = "greenfoot.jar"
+    from "build/classes/java/main"
+    from('resources/images') {
+        include "readme.png",
+                // Empty image - just to force same layout of compile and readme button
+                "compile.png",
+                // Image used when dragging object over an area where it can not be dropped
+                "noParking.png",
+                // Image selection dialog icon
+                "openRight.png",
+                // Control panel icons
+                "run.png", "step.png", "pause.png", "reset.png",
+                // Export icons
+                "export-app.png", "export-project.png", "export-publish.png", "export-publish-small.png", "export-webpage.png",
+                // Menu button used in image library dialog (gear with drop-arrow)
+                "menu-button.png",
+                // Execution/activity twirler
+                "swirl.png",
+                "dropdown.png"
+    }
+    destinationDirectory = new File(sourceSets.main.output.resourcesDir, 'lib')
+}
+assemble.dependsOn greenfootJar
+assemble.dependsOn copyToLib
+
+task runGreenfoot(type: JavaExec) {
+    group = 'application'
+    classpath sourceSets.main.runtimeClasspath
+    main = "bluej.Boot"
+    args "-bluej.debug=true", "-greenfoot=true"
+    //"-useclassesdir=true", "-greenfootclassesdir=${build}", "-bluej.compiler.showunchecked=false" 
+    //"-greenfoot.scenarios=${greenfoot.scenarios}", 
+    //  "-javafxpath=${openjfx_path}"
+    
+}
+runGreenfoot.dependsOn build
+
+
+group = 'org.bluej'
+description = 'greenfoot'
+
+task userJavadoc(type: Javadoc) {
+    doFirst {
+        mkdir("../bluej/doc/API")
+    }
+    source = sourceSets.main.allJava
+    includes = ['greenfoot/Actor.java',
+                'greenfoot/Color.java',
+                'greenfoot/Font.java',
+                'greenfoot/Greenfoot.java',
+                'greenfoot/GreenfootImage.java',
+                'greenfoot/GreenfootSound.java',
+                'greenfoot/MouseInfo.java',
+                'greenfoot/UserInfo.java',
+                'greenfoot/World.java']
+    destinationDir = file("../bluej/doc/API")
+    classpath = sourceSets.main.output.classesDirs + project.configurations.compileClasspath
+}
+userJavadoc.dependsOn assemble
+
+task packageGreenfootMac(type: Exec) {
+    workingDir "../bluej/package"
+    commandLine toolProps["ant_exe"], "-buildfile", "greenfoot-build.xml", "mac-dist",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Dmac_bundled_jdk_path=" + System.getProperty('java.home') + "/../..",
+            "-Dgreenfoot.version=" + greenfootVersion,
+            "-Dgreenfoot.rcsuffix=" + greenfootRCSuffix,
+            "-Dbluej_home=" + rootDir.getAbsoluteFile() + "/bluej/",
+            "-Dgreenfoot_home=" + projectDir.getAbsoluteFile(),
+            "-Dmacosx_sdk=" + toolProps["macosx_sdk"],
+            "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
+}
+packageGreenfootMac.dependsOn assemble, userJavadoc
+
+task packageGreenfootWindows(type: Exec) {
+    workingDir "../bluej/package"
+    commandLine toolProps["ant_exe"], "-buildfile", "greenfoot-build.xml", "windows-msi-bundled-dist", "windows-standalone",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Dwin_bundled_jdk_path=" + System.getProperty('java.home'),
+            "-Dgreenfoot.version=" + greenfootVersion,
+            "-Dgreenfoot.rcsuffix=" + greenfootRCSuffix,
+            "-Dbluej_home=" + rootDir.getAbsoluteFile() + "/bluej/",
+            "-Dgreenfoot_home=" + projectDir.getAbsoluteFile(),
+            "-Dmingw_root=" + toolProps["mingw_root"],
+            "-Dwix_bin=" + toolProps["wix_bin"],
+            "-Dopenjfx_files=\"" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator) + "\""
+}
+packageGreenfootWindows.dependsOn assemble, userJavadoc
+
+task packageGreenfootLinux(type: Exec) {
+    workingDir "../bluej/package"
+    commandLine "fakeroot", toolProps["ant_exe"], "-buildfile", "greenfoot-build.xml", "debian-bundled-dist",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Ddeb_bundled_jdk_path=" + System.getProperty('java.home'),
+            "-Dgreenfoot.version=" + greenfootVersion,
+            "-Dgreenfoot.rcsuffix=" + greenfootRCSuffix,
+            "-Dbluej_home=" + rootDir.getAbsoluteFile() + "/bluej/",
+            "-Dgreenfoot_home=" + projectDir.getAbsoluteFile(),
+            "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
+}
+packageGreenfootLinux.dependsOn assemble, userJavadoc
+
+distTar.enabled = false
+distZip.enabled = false

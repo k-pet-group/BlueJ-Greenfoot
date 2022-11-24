@@ -30,6 +30,7 @@
 #include <string>
 #include <cstring>
 #include <list>
+#include <vector>
 #include <shlwapi.h>
 #include <cstdio>
 
@@ -166,6 +167,32 @@ string escapeCmdlineParam(string arg)
     return output;
 }
 
+// Adapted from https://stackoverflow.com/a/1932861
+// out contains list of file names (without directory prefixed)
+void GetFilesInDirectory(std::vector<string> &out, const string &directory)
+{
+    HANDLE dir;
+    WIN32_FIND_DATA file_data;
+
+    if ((dir = FindFirstFile((directory + string(TEXT("/*"))).c_str(), &file_data)) == INVALID_HANDLE_VALUE)
+        return; /* No files found */
+
+    do {
+        const string file_name = file_data.cFileName;
+        const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+
+        if (file_name[0] == '.')
+            continue;
+
+        if (is_directory)
+            continue;
+
+        out.push_back(file_name);
+    } while (FindNextFile(dir, &file_data));
+
+    FindClose(dir);
+}
+
 // Launch VM as an external process
 // Returns - true if successful
 bool launchVMexternal(string jdkLocation)
@@ -188,16 +215,15 @@ bool launchVMexternal(string jdkLocation)
     }
 
     commandLine += TEXT("-classpath ");
-    string classPathString = bluejPath + TEXT("\\lib\\bluej.jar");
+    string classPathString = bluejPath + TEXT("\\lib\\boot.jar");
     string sep(TEXT(";"));
-    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.base.jar");
-    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.controls.jar");
-    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.fxml.jar");
-    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.graphics.jar");
-    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.media.jar");
-    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.properties.jar");
-    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.swing.jar");
-    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.web.jar");
+    std::vector<string> libFiles;
+    GetFilesInDirectory(libFiles, bluejPath + string(TEXT("/lib")));
+    for (std::vector<string>::iterator i = libFiles.begin(); i != libFiles.end(); ++i) {
+        if (i->find(TEXT("javafx")) == 0) {
+            classPathString += sep + bluejPath + string(TEXT("\\lib\\")) + *i;
+        }    
+    }
     commandLine += escapeCmdlineParam(classPathString);
 
     commandLine += TEXT(" bluej.Boot");
@@ -295,16 +321,15 @@ bool launchVM(string jdkLocation)
     char * jdkLocACP = wideToACP(jdkLocation);
 
     std::string classPathOpt = "-Djava.class.path=";
-    (classPathOpt += bjDirACP) += "\\lib\\bluej.jar";
+    (classPathOpt += bjDirACP) += "\\lib\\boot.jar";
     const char* sep = ";";
-    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.base.jar";
-    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.controls.jar";
-    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.fxml.jar";
-    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.graphics.jar";
-    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.media.jar";
-    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.properties.jar";
-    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.swing.jar";
-    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.web.jar";
+    std::vector<string> libFiles;
+    GetFilesInDirectory(libFiles, bluejPath + string(TEXT("/lib")));
+    for (std::vector<string>::iterator i = libFiles.begin(); i != libFiles.end(); ++i) {
+        if (i->find(TEXT("javafx")) == 0) {
+            (((classPathOpt += sep) += bjDirACP) += "\\lib\\") += wideToACP(*i);
+        }    
+    }
 
     delete [] bjDirACP;
     delete [] jdkLocACP;

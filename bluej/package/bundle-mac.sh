@@ -12,4 +12,5 @@
 cp -R -L "$3"/* "$1/$2/Contents/JDK" || exit 1
 # Zip it:
 cd "`dirname "$1"`" || exit 6
+echo Zipping $1 to $4 in `pwd`
 zip -q -y -r "$4" "`basename "$1"`" || exit 7
