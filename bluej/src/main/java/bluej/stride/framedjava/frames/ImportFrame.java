@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016,2018,2019,2020,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2018,2019,2020,2021,2022 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -222,7 +222,7 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
     }
 
     //cherry
-    public String getScreenReaderText() {
+    public String getScreenReaderText(View viewMode) {
         String fieldString;
         fieldString = (importField.getText().equals(""))? "blank" : importField.getText();
         return "import " + fieldString;

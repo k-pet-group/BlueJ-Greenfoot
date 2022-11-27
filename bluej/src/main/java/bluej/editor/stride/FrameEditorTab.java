@@ -99,6 +99,8 @@ import javafx.event.Event;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.AccessibleAttribute;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -137,8 +139,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -195,7 +195,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     private ScrollPane scroll;
     private boolean selectingByDrag;
     private BirdseyeManager birdseyeManager;
-    private Rectangle birdseyeSelection;
     private Pane birdseyeSelectionPane;
     // If escape is pressed, focus returns to where it was beforehand,
     // which is saved in these variables:
@@ -448,7 +447,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                             VBox vbox = new VBox();
                             for (Pair<CodeError, Frame> pair : getErrorLocationList()) {
                                 Frame frame = pair.getValue();
-                                vbox.getChildren().add(new Button(pair.getKey().getMessage() + " in the frame " + frame.getScreenReaderText() + frame.getParentCanvas().getParentLocationDescription()));
+                                vbox.getChildren().add(new Button(pair.getKey().getMessage() + " in the frame " + frame.getScreenReaderText(View.BIRDSEYE_NODOC) + frame.getParentCanvas().getParentLocationDescription()));
                             }
 
                             // display the list of errors
@@ -601,9 +600,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         }.start();
 
         JavaFXUtil.addChangeListener(viewProperty, menuManager::notifyView);
-        birdseyeSelection = new Rectangle();
-        JavaFXUtil.addStyleClass(birdseyeSelection, "birdseye-selection");
-        birdseyeSelectionPane = new Pane(birdseyeSelection);
+        birdseyeSelectionPane = new Pane();
         birdseyeSelectionPane.setVisible(false);
         birdseyeSelectionPane.setMouseTransparent(false);
         birdseyeSelectionPane.setOnMouseClicked(e -> {
@@ -2095,11 +2092,28 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         // We can't ask birdseyeSelectionPane to transform because it is not visible yet
         // Ask the class frame instead:
         Point2D onPane = getTopLevelFrame().getNode().sceneToLocal(scene);
-        
+
+        // We must make a new node each time because if we re-use the same node, it doesn't
+        // trigger the screen reader when we move up and down:
+        Rectangle selectionRect = new Rectangle() {
+            @Override
+            public Object queryAccessibleAttribute(AccessibleAttribute attribute, Object... parameters)
+            {
+                return switch (attribute)
+                    {
+                        case TEXT -> birdseyeManager.getAccessibleText(getView());
+                        case ROLE -> AccessibleRole.BUTTON;
+                        default -> super.queryAccessibleAttribute(attribute, parameters);
+                    };
+            }
+        };
+        JavaFXUtil.addStyleClass(selectionRect, "birdseye-selection");
+        Rectangle birdseyeSelection = selectionRect;
         birdseyeSelection.setX(onPane.getX());
         birdseyeSelection.setY(onPane.getY() + 1.5);
         birdseyeSelection.setWidth(n.getBoundsInLocal().getWidth());
         birdseyeSelection.setHeight(n.getBoundsInLocal().getHeight() - 1.5);
+        birdseyeSelectionPane.getChildren().setAll(birdseyeSelection);
         
         birdseyeSelection.setFocusTraversable(true);
         birdseyeSelection.requestFocus();

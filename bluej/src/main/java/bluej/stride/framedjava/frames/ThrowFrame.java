@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021,2022 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,21 +26,16 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.List;
-
 import bluej.stride.generic.FrameCanvas;
 import javafx.beans.property.SimpleIntegerProperty;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
-import bluej.stride.framedjava.ast.HighlightedBreakpoint;
-import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.ThrowElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
-import bluej.stride.operations.FrameOperation;
 
 /**
  * A Throw statement
@@ -78,7 +73,7 @@ public class ThrowFrame extends SingleLineFrame
     }
 
     //cherry
-    public String getScreenReaderText() {
+    public String getScreenReaderText(View viewMode) {
         String thrown;
         thrown = (param1.getText().equals(""))? "blank" : param1.getScreenreaderText();
         return "throw " + thrown;

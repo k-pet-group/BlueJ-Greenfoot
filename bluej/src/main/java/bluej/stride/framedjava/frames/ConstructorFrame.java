@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2020,2021,2022 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -120,7 +120,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
     }
 
     //cherry
-    public String getScreenReaderText() {
+    public String getScreenReaderText(View viewMode) {
 
         String text = "Constructor " + ScreenreaderDictionary.transcribeForScreenreader(getEditor().nameProperty().get());
 
@@ -128,8 +128,11 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         if (paramString.length() != 0) {
             text += " with parameters " + paramString.toString();
         }
-        // add documentation
-        text += ". Documentation: " + getDocumentation();
+        if (viewMode != View.BIRDSEYE_NODOC)
+        {
+            // add documentation
+            text += ". Documentation: " + getDocumentation();
+        }
 
         return text;
     }

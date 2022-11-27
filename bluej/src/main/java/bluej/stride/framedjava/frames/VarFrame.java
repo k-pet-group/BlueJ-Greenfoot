@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2021,2022 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -221,7 +221,7 @@ public class VarFrame extends SingleLineFrame implements CodeFrame<VarElement>, 
     }
 
     //cherry
-    public String getScreenReaderText() {
+    public String getScreenReaderText(View viewMode) {
         String text, name, type, accessString;
         name = (slotName.getText().trim().isEmpty())? "blank" : ScreenreaderDictionary.transcribeForScreenreader(slotName.getText());
         type = (slotType.getText().trim().isEmpty())? "blank" : slotType.getText();

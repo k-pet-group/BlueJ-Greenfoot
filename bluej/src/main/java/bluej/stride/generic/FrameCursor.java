@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2020,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2020,2021,2022 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -286,7 +286,7 @@ public class FrameCursor implements RecallableFocus
                 this.helpText = "frame cursor help text";
                 if (getFrameAfter() != null)
                 {
-                    this.normalText = getFrameAfter().getScreenReaderText();
+                    this.normalText = getFrameAfter().getScreenReaderText(getEditor().viewProperty().get());
                     this.helpText = "you are before a" + getFrameAfter().getFrameName() + "," + parentCanvas.getParentLocationDescription();
                 }
                 else

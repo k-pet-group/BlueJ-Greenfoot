@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2021,2022 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,6 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.stride.slots.EditableSlot;
@@ -37,8 +36,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Cursor;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
-import bluej.stride.framedjava.ast.HighlightedBreakpoint;
-import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.ReturnElement;
 import bluej.stride.framedjava.slots.OptionalExpressionSlot;
 import bluej.stride.generic.Frame;
@@ -46,7 +43,6 @@ import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
-import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.javafx.FXRunnable;
@@ -128,7 +124,7 @@ public class ReturnFrame extends SingleLineFrame
     }
 
     //cherry
-    public String getScreenReaderText() {
+    public String getScreenReaderText(View viewMode) {
         String valueString;
         valueString = (value.getText().equals(""))? "blank" : value.getScreenreaderText();
         return "return " + valueString;
