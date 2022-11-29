@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021,2022 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -141,7 +141,7 @@ public class WhileFrame extends SingleCanvasFrame
     }
 
     //cherry
-    public String getScreenReaderText() {
+    public String getScreenReaderText(View viewMode) {
         String condition;
         condition = (paramCondition.getScreenreaderText().equals(""))? "blank" : paramCondition.getScreenreaderText();
         return "while frame with condition " + condition;

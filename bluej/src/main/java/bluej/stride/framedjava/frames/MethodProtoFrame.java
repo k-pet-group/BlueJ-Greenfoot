@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020,2021,2022 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,15 +41,8 @@ import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.*;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeFrame<MethodProtoElement>
 {
@@ -104,7 +97,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     }
 
     //cherry
-    public String getScreenReaderText() {
+    public String getScreenReaderText(View viewMode) {
         StringBuilder paramString = new StringBuilder();
         String name, type;
 
@@ -127,8 +120,11 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         if (parentIsClass.get()) {
             text = abstractLabel.getText() + " " + text;
         }
-        // add documentation
-        text += ". Documentation: " + getDocumentation();
+        if (viewMode != View.BIRDSEYE_NODOC)
+        {
+            // add documentation
+            text += ". Documentation: " + getDocumentation();
+        }
 
         return text;
     }

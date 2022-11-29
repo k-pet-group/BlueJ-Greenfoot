@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2019,2020,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019,2020,2021,2022 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -165,7 +165,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     }
 
     //cherry
-    public String getScreenReaderText() {
+    public String getScreenReaderText(View viewMode) {
         // build string out of all params
         StringBuilder paramString = new StringBuilder();
         String name, type;
@@ -192,8 +192,11 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         if (staticModifier.get()) {
             text = staticLabel.getText() + " " + text;
         }
-        // append documentation
-        text += ". Documentation: " + getDocumentation();
+        if (viewMode != View.BIRDSEYE_NODOC)
+        {
+            // append documentation
+            text += ". Documentation: " + getDocumentation();
+        }
 
         return text;
     }

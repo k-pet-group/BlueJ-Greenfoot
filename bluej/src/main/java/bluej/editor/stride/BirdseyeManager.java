@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016,2022 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.editor.stride;
 
+import bluej.stride.generic.Frame.View;
 import javafx.scene.Node;
 
 import bluej.stride.generic.FrameCursor;
@@ -33,6 +34,11 @@ import bluej.utility.javafx.FXRunnable;
  */
 public interface BirdseyeManager
 {
+    /**
+     * Gets the description of the current frame for the screen reader.
+     */
+    String getAccessibleText(View viewMode);
+    
     /**
      * Gets the graphical Node corresponding to the frame around which the bird's eye view
      * selection rectangle should be drawn
