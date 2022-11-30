@@ -91,7 +91,6 @@ task blueJCoreJar(type: Jar) {
     destinationDirectory = new File(sourceSets.main.output.resourcesDir, 'lib')
 }
 task copyToLib(type: Copy) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     into new File(sourceSets.main.output.resourcesDir, 'lib')
     from configurations.runtimeClasspath
     from 'lib'
