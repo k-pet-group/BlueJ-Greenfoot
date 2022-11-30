@@ -1,0 +1,157 @@
+apply plugin: 'java-library'
+apply plugin: 'org.openjfx.javafxplugin'
+apply plugin: 'application'
+
+dependencies {
+    annotationProcessor project(':anns-threadchecker')
+    compileOnly project(':anns-threadchecker')
+    annotationProcessor project(':threadchecker')
+    compileOnly project(':threadchecker')
+    implementation project(':boot')
+    implementation project(':lang-stride')
+
+    implementation 'com.google.guava:guava:17.0'
+    implementation 'com.googlecode.java-diff-utils:diffutils:1.2.1'
+    implementation 'de.jangassen:nsmenufx:2.1.8'
+    implementation 'io.github.classgraph:classgraph:4.8.90'
+    implementation 'org.apache.httpcomponents:httpclient:4.1.1'
+    implementation 'org.apache.httpcomponents:httpmime:4.1.1'
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:4.9.0.201710071750-r'
+    implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'    
+    implementation 'org.junit.jupiter:junit-jupiter:5.5.2'
+    implementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
+    implementation 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+    implementation 'org.junit.platform:junit-platform-launcher:1.5.2'
+    implementation 'org.junit.vintage:junit-vintage-engine:5.5.2'
+    implementation 'xom:xom:1.3.7'
+
+    testAnnotationProcessor project(':anns-threadchecker')
+    testCompileOnly project(':anns-threadchecker')
+    testAnnotationProcessor project(':threadchecker')
+    testCompileOnly project(':threadchecker')
+    testImplementation 'com.pholser:junit-quickcheck-core:0.8.2'
+    testImplementation 'org.hamcrest:hamcrest-library:1.3'
+    testImplementation 'org.testfx:testfx-core:4.0.15-alpha'
+    testImplementation 'org.testfx:testfx-junit:4.0.15-alpha'
+    testImplementation 'org.testfx:openjfx-monocle:jdk-12.0.1+2'
+}
+
+compileJava {
+    options.compilerArgs += [
+        "-Xplugin:threadchecker.TCPlugin",
+        // we use some private packages/classes currently:
+        "--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED"]
+}
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
+
+test {
+    useJUnit()
+    jvmArgs += 
+            // Headless is the default because headed GUI tests are quite a surprise and cause havoc:
+            (("true".equals(project.findProperty("headless")) || project.findProperty("headless") == null) ? [
+                    // Headless:
+                    '-Djava.awt.headless=true',
+                    '-Dtestfx.robot=glass',
+                    '-Dtestfx.headless=true',
+                    '-Dprism.order=sw',
+                    '-Dprism.text=t2k',
+                    '-Dglass.platform=Monocle',
+                    '-Dmonocle.platform=Headless',
+                    '-Dheadless.geometry=1920x1200-32'] : [
+                    // Headed:
+                    '-Djava.awt.headless=true',
+                    '-Dtestfx.robot=glass',
+                    '-Dprism.text=t2k',
+            ])
+}
+
+repositories {
+    mavenCentral()
+}
+
+javafx {
+    version = "17.0.2"
+    // Important that we depend on all the JavaFX modules, so that they are
+    // all made available to user code:
+    modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.media', 'javafx.swing', 'javafx.web']
+}
+
+task copyLibToTestBuild(type: Copy) {
+    from 'lib'
+    into new File(sourceSets.test.output.resourcesDir, 'lib')
+}
+
+task blueJCoreJar(type: Jar) {
+    archiveFileName = "bluejcore.jar"
+    from "build/classes/java/main"
+    exclude "bluej/extensions2/**", "bluej/editor/**"
+    destinationDirectory = new File(sourceSets.main.output.resourcesDir, 'lib')
+}
+task copyToLib(type: Copy) {
+    into new File(sourceSets.main.output.resourcesDir, 'lib')
+    from configurations.runtimeClasspath
+    from 'lib'
+    from 'build/libs/bluej.jar'
+}
+copyToLib.dependsOn jar
+blueJCoreJar.dependsOn compileJava
+
+task runBlueJ(type: JavaExec) {
+    group = 'application'
+    classpath sourceSets.main.runtimeClasspath
+    main = "bluej.Boot"
+    args "-bluej.debug=true"
+}
+
+assemble.dependsOn blueJCoreJar
+assemble.dependsOn copyToLib
+runBlueJ.dependsOn assemble
+test.dependsOn copyLibToTestBuild
+
+group = 'org.bluej'
+description = 'bluej'
+
+task packageBlueJMac(type: Exec) {
+    workingDir "package"
+    commandLine toolProps["ant_exe"], "mac-dist",
+        "-Dbuild_java_home=" + System.getProperty('java.home'),
+        "-Dmac_bundled_jdk_path=" + System.getProperty('java.home') + "/../..",
+        "-Dbluej.version=" + bluejVersion,
+        "-Dbluej.rcsuffix=" + bluejRCSuffix,
+        "-Dbluej_home=" + projectDir.getAbsoluteFile(),
+        "-Dmacosx_sdk=" + toolProps["macosx_sdk"],
+        "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
+}
+packageBlueJMac.dependsOn assemble
+
+task packageBlueJWindows(type: Exec) {
+    workingDir "package"
+    commandLine toolProps["ant_exe"], "windows-msi-bundled-dist", "windows-standalone",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Dwin_bundled_jdk_path=" + System.getProperty('java.home'),
+            "-Dbluej.version=" + bluejVersion,
+            "-Dbluej.rcsuffix=" + bluejRCSuffix,
+            "-Dbluej_home=" + projectDir.getAbsoluteFile(),
+            "-Dmingw_root=" + toolProps["mingw_root"],
+            "-Dwix_bin=" + toolProps["wix_bin"],
+            "-Dopenjfx_files=\"" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator) + "\""
+}
+packageBlueJWindows.dependsOn assemble
+
+task packageBlueJLinux(type: Exec) {
+    workingDir "package"
+    commandLine "fakeroot", toolProps["ant_exe"], "debian-bundled-dist",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Ddeb_bundled_jdk_path=" + System.getProperty('java.home'),
+            "-Dbluej.version=" + bluejVersion,
+            "-Dbluej.rcsuffix=" + bluejRCSuffix,
+            "-Dbluej_home=" + projectDir.getAbsoluteFile(),
+            "-Dopenjfx_files=" + project.configurations.runtimeClasspath.filter { it.name.startsWith("javafx") }.join(File.pathSeparator)
+}
+packageBlueJLinux.dependsOn assemble
+
+distTar.enabled = false
+distZip.enabled = false

@@ -1,0 +1,19 @@
+\u0070ublic class EscapedUnicodeMethod extends \u0045rror
+{
+	// The above translates to "public class EscapedUnicodeMethod extends Error".
+
+    public void \u00E1\u00E4\u010Dd\u00E9\u011B\u00Eb\u00ED\u013A\u013E\u0148\u00F3\u00F6\u0155\u0159\u0161f\u00FA\u016F\u00FC\u00FD\u017E()
+    {
+    };
+
+    public void \u00C1\u00C4\u010CD\u00C9\u011A\u00CBI\u0139\u013D\u0147\u00D3\u00D6\u0154\u0158\u0160F\u00DA\u016E\u00DC\u00DD\u017D()
+    {
+    };
+
+//The presence of character with unicode greater than 0x0100 in the identifier
+//in the next definition blocks the refresh of ctxt file
+     int \u010Dern\u00E1  = 0;
+//Putting the previous statement in the comment or removing the
+//problematic character '\u010D' (unicode 0x010D) solve the "ctxt problem".
+//The last character '\u00E1' (unicode 0x00E1) make no problems.
+}

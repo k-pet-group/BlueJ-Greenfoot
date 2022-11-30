@@ -1,0 +1,26 @@
+public class Assert
+{
+   public static void main(String[] args)
+   {
+      try
+      {
+         doSomething();
+         doSomethingElse();
+      }
+      catch(AssertionError error)
+      {
+         error.printStackTrace();
+      }
+   }
+   public static int doSomething()
+   {
+      int i = 2;
+      assert i != 2 : "i was 2 for some reason";
+      return i;
+   }
+   public static int doSomethingElse()
+   {
+       assert (false);  // the default form
+       return 1;
+   }
+}

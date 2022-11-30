@@ -145,7 +145,22 @@ int launch(char *commandName) {
 			[classPath appendString:@":"];
 		}
 		if ([classPathEl hasPrefix:@"$JAVAROOT/"]) {
-			[classPath appendFormat:@"%@%@", javaPath, [classPathEl substringFromIndex:9]];
+		    if ([classPathEl containsString:@"*"]) {
+                NSError * error = nil;
+                NSArray *directoryContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:javaPath error:&error];
+		        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF like %@", [classPathEl substringFromIndex:10]];
+                NSArray *results = [directoryContents filteredArrayUsingPredicate:predicate];
+                BOOL firstWild = YES;
+                for (NSString *matched in results) {
+                    if (firstWild == NO) {
+                        [classPath appendString:@":"];
+                    }                
+                    [classPath appendFormat:@"%@/%@", javaPath, matched];
+                    firstWild = NO;
+                }
+            } else {
+			    [classPath appendFormat:@"%@%@", javaPath, [classPathEl substringFromIndex:9]];
+            }
 		}
 		else if ([classPathEl hasPrefix:@"$JVMROOT/"]) {
 			[classPath appendFormat:@"%@%@", runtimePath, [classPathEl substringFromIndex:8]];
@@ -155,6 +170,8 @@ int launch(char *commandName) {
 		}
 		first = NO;
 	}
+	
+	//printf("Class path: %s\n", [classPath UTF8String]);
 	
     //NSFileManager *defaultFileManager = [NSFileManager defaultManager];
     //NSArray *javaDirectoryContents = [defaultFileManager contentsOfDirectoryAtPath:javaPath error:nil];
