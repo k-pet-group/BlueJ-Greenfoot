@@ -25,3 +25,12 @@
 *.class
 /classes
 /output
+
+*.args
+
+bluej/build/
+anns-threadchecker/build
+boot/build
+lang-stride/build
+threadchecker/build
+greenfoot/build
