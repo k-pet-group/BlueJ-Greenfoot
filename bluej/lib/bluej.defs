@@ -344,11 +344,6 @@ bluej.menu.fontsize=12
 # default fontsize for the editor (can be changed in Preferences dialog)
 bluej.editor.fontsize=12
 
-# font and fontsize for the terminal (the size defaults to the editor font size
-# if not specified here)
-bluej.terminal.font=Monospaced
-#bluej.terminal.font=Monospaced-bold
-
 # The editor font. Only the font face is specified here, the font
 # size is specified in the BlueJ preference dialogue.  You can specify
 # any font name which has a corresponding TTF file in the lib/fonts directory:
