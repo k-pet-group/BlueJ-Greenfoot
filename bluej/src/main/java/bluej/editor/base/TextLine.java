@@ -237,7 +237,7 @@ public class TextLine extends TextFlow
         getChildren().addAll(bracketMatchShape, findResultShape, selectionShape);
         for (StyledSegment styledSegment : text)
         {
-            Text t = new Text(styledSegment.text.replace('\u0000', '\uFFFD'));
+            Text t = new Text(styledSegment.text.replace('\u0000', '\u2400'));
             t.setStyle(fontCSS.getValue());
             t.getStyleClass().add("editor-text");
             t.getStyleClass().addAll(styledSegment.cssClasses);

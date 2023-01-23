@@ -133,7 +133,7 @@ public class TryFrame extends SandwichCanvasesFrame
         int sectionIndex = canvases.indexOf(c);
         if (sectionIndex == -1)
         {
-            // This can happen during construction, just leave as default and we'll fix it later.
+            // This can happen during construction, just leave as default and we'll fix it later on in the constructor.
         }
         else if (sectionIndex == 0)
         {
