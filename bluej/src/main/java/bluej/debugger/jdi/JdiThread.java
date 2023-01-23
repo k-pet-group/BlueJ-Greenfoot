@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2018,2019,2020,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -553,6 +553,7 @@ class JdiThread extends DebuggerThread
                 return JdiObject.getDebuggerObject(frame.thisObject());
             }
         }
+        catch (IndexOutOfBoundsException e) { }
         catch (IncompatibleThreadStateException e) { }
         catch (VMDisconnectedException vmde) { }
         catch (InvalidStackFrameException ise) { } // thread was resumed elsewhere
