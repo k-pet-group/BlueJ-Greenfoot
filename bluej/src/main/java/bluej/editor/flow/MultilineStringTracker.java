@@ -170,35 +170,25 @@ public class MultilineStringTracker implements DocumentListener
         return document.getContent(tripleQuote.value + 3, lineEnd).chars().allMatch(Character::isWhitespace);
     }
 
-    /**
-     * Is the given position a valid closing of a multiline String?
-     * That is, is it preceded only by whitespace on its line?
-     */
-    private boolean validClosingMultiline(Position tripleQuote)
+    // Text blocks can never be on a single line
+    // (see https://docs.oracle.com/en/java/javase/15/text-blocks/index.html#:~:text=Using%20Text%20Blocks-,Text%20Block%20Syntax,without%20an%20intervening%20line%20terminator. )
+    // So you can't have opening then closing, but you can have closing then opening:
+    public static enum TextBlockRelation
     {
-        int lineStart = document.getLineStart(document.getLineFromPosition(tripleQuote.value));
-        return document.getContent(lineStart, tripleQuote.value).chars().allMatch(Character::isWhitespace);
-    }
-    
-    public static enum StringRelation {
-        ENTIRELY_INSIDE, INSIDE_OR_CLOSING_LINE
+        ENTIRELY_INSIDE, OPENING_LINE_ONLY, CLOSING_LINE_ONLY, CLOSING_AND_OPENING_LINE, NONE; 
     }
 
     /**
-     * Based on the last parameter, either:
-     * ENTIRELY_INSIDE: Checks if a given line is entirely contained within a multiline string literal
-     * (that is: it's inside the string literal and is NOT the opening or closing line of the literal).
-     * INSIDE_OR_CLOSING_LINE: As above, or it is the closing line of the literal. 
+     * Checks if any part of the line (starting and ending at the given positions) is part of a text block.
      * 
      * @param lineStart The zero-based position of the line start within the whole document
      * @param lineEnd The zero-based position of the line end within the whole document
      * @param startLatestScope The position of the surrounding scope.  Essentially this is a position
      *                         that is assumed to NOT be inside a multiline string literal, such that
      *                         we don't have to check for triple quotes any further back than that.
-     * @param stringRelation The relationship to check (see above)
-     * @return Whether the line satisfies the specified relation.
+     * @return Whether any portion of the line is inside a text block (see {@link TextBlockRelation}).
      */
-    public boolean checkStringRelation(int lineStart, int lineEnd, int startLatestScope, StringRelation stringRelation)
+    public TextBlockRelation getTextBlockRelation(int lineStart, int lineEnd, int startLatestScope)
     {
         // We first need to check if we're in a multiline string
         // literal, as that will determine the highlighting:
@@ -206,6 +196,7 @@ public class MultilineStringTracker implements DocumentListener
         // True if the whole line is in a string
         // If we are on an opening and/or closing line it will be false
         boolean entirelyInsideString = false;
+        boolean foundClosingOnThisLine = false;
         // We need to go from the first and work out which are valid multiline literals
         // and if we are in one:
         for (Position relevantTripleQuote : relevantTripleQuotes)
@@ -214,22 +205,27 @@ public class MultilineStringTracker implements DocumentListener
             {
                 // If the opening quote is on our line, do not count it:
                 if (relevantTripleQuote.getValue() >= lineStart && relevantTripleQuote.getValue() < lineEnd)
-                    break;
+                    return foundClosingOnThisLine ? TextBlockRelation.CLOSING_AND_OPENING_LINE : TextBlockRelation.OPENING_LINE_ONLY;
                 entirelyInsideString = true;
-            }
-            else if (entirelyInsideString && validClosingMultiline(relevantTripleQuote))
+            } else if (entirelyInsideString)
             {
+                // If we reach the else, it must be a closing quote:
                 entirelyInsideString = false;
                 // If the closing quote is on our line, stop after because we definitely won't be
                 // entirely enclosed in a string:
                 if (relevantTripleQuote.getValue() >= lineStart && relevantTripleQuote.getValue() < lineEnd)
                 {
-                    if (stringRelation == StringRelation.INSIDE_OR_CLOSING_LINE)
-                        return true;
-                    break;
+                    // We don't return immediately because we might yet find an opening quote later on the line, like in:
+                    // end of first""" + "some middle bit + """
+                    foundClosingOnThisLine = true;
                 }
             }
         }
-        return entirelyInsideString;
+        if (entirelyInsideString)
+            return TextBlockRelation.ENTIRELY_INSIDE;
+        else if (foundClosingOnThisLine)
+            return TextBlockRelation.CLOSING_LINE_ONLY;
+        else
+            return TextBlockRelation.NONE;
     }
 }

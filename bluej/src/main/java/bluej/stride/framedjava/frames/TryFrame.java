@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021,2023 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -131,10 +131,17 @@ public class TryFrame extends SandwichCanvasesFrame
     public String getLocationDescription(FrameCanvas c) {
         String text = "";
         int sectionIndex = canvases.indexOf(c);
-        if (sectionIndex==0) {
+        if (sectionIndex == -1)
+        {
+            // This can happen during construction, just leave as default and we'll fix it later on in the constructor.
+        }
+        else if (sectionIndex == 0)
+        {
             // "try" section
             text = " in the 'try' section,";
-        } else {
+        }
+        else
+        {
             // "catch" section
             text = " in the 'catch' section with parameter " + catchVars.get(sectionIndex-1) + " of type " + catchTypes.get(sectionIndex-1) + ",";
         }

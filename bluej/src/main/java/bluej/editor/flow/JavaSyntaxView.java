@@ -26,7 +26,7 @@ import bluej.editor.flow.FlowEditorPane.LineStyler;
 import bluej.editor.base.LineDisplay.LineDisplayListener;
 import bluej.editor.base.TextLine.StyledSegment;
 import bluej.editor.flow.JavaSyntaxView.SyntaxEvent.NodeChangeRecord;
-import bluej.editor.flow.MultilineStringTracker.StringRelation;
+import bluej.editor.flow.MultilineStringTracker.TextBlockRelation;
 import bluej.parser.Token;
 import bluej.parser.Token.TokenType;
 import bluej.parser.entity.EntityResolver;
@@ -455,9 +455,9 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
         // We first need to check if we're in a multiline string
         // literal, as that will determine the highlighting:
-        boolean entirelyInsideString = multilineStringTracker.checkStringRelation(lineStart, lineEnd, tas.startLatestScope(), StringRelation.ENTIRELY_INSIDE);
+        TextBlockRelation textBlockRelation = multilineStringTracker.getTextBlockRelation(lineStart, lineEnd, tas.startLatestScope());
 
-        if (entirelyInsideString)
+        if (textBlockRelation == TextBlockRelation.ENTIRELY_INSIDE)
         {
             lineStyle.add(new StyledSegment(List.of("token-string-literal"), lineContent.toString()));
         }
@@ -471,7 +471,16 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             while (nextToken.id != TokenType.END)
             {
                 String tokenContent = lineContent.subSequence(curPosInLine, curPosInLine + nextToken.length).toString();
-                List<String> tokenStyle = Collections.singletonList(nextToken.id.getCSSClass());
+                if (tokenContent.equals("\"\"\""))
+                {
+                    // We've encounted a triple quote; if we're expecting opening we change to inside,
+                    // otherwise it was a close and we just expect an opening quote:
+                    if (textBlockRelation == TextBlockRelation.OPENING_LINE_ONLY)
+                        textBlockRelation = TextBlockRelation.ENTIRELY_INSIDE;
+                    else
+                        textBlockRelation = TextBlockRelation.OPENING_LINE_ONLY;
+                }
+                List<String> tokenStyle = Collections.singletonList((textBlockRelation != TextBlockRelation.OPENING_LINE_ONLY && textBlockRelation != TextBlockRelation.NONE ? TokenType.STRING_LITERAL : nextToken.id).getCSSClass());
                 lineStyle.add(new StyledSegment(tokenStyle, tokenContent));
                 curPosInLine += nextToken.length;
                 nextToken = nextToken.next;

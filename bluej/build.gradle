@@ -99,6 +99,10 @@ task copyToLib(type: Copy) {
 copyToLib.dependsOn jar
 blueJCoreJar.dependsOn compileJava
 
+jar {
+    exclude 'lib'
+}
+
 task runBlueJ(type: JavaExec) {
     group = 'application'
     classpath sourceSets.main.runtimeClasspath

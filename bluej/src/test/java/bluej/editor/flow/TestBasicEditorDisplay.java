@@ -1067,8 +1067,26 @@ public class TestBasicEditorDisplay extends FXTest
                 {
                     String $keyword2#class$ = $string-literal#\"\"\"
                 $string-literal#        public class sealed$
-                        $string-literal#\"\"\"$ $keyword2#class$;
+                $string-literal#        \"\"\"$ $keyword2#class$;
                 }""");
+                
+        setText("""
+                class MyClass
+                {
+                    String class = \"\"\"
+                        public class sealed
+                        class \"\"\" class
+                        sealed;
+                }""");
+        checkTokens("""
+                $keyword2#class$ MyClass
+                {
+                    String $keyword2#class$ = $string-literal#\"\"\"
+                $string-literal#        public class sealed$
+                $string-literal#        class \"\"\"$ $keyword2#class$
+                        $keyword1#sealed$;
+                }""");
+
 
         setText("""
                 class MyClass
@@ -1086,11 +1104,11 @@ public class TestBasicEditorDisplay extends FXTest
                 {
                     String $keyword2#class$ = $string-literal#\"\"\"    
                 $string-literal#        public class sealed$
-                        $string-literal#\"\"\"$ $keyword2#class$ + $string-literal#\"\"\"$
+                $string-literal#        \"\"\"$ $keyword2#class$ + $string-literal#\"\"\"$
                 $string-literal#        foo$
                 $string-literal#        non-sealed$
                 $string-literal#        "" a "b"$
-                        $string-literal#\"\"\"$;
+                $string-literal#        \"\"\"$;
                 }""");
     }
 
