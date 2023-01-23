@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -80,6 +80,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -437,18 +439,34 @@ public final class Terminal
      */
     private void writeToPane(TerminalTextPane pane, String s, List<String> cssClasses)
     {
-        prepare();
-        if (errorText != null && pane == errorText)
-            showErrorPane();
-        
         // The form-feed character should clear the screen.
         int n = s.lastIndexOf('\f');
         if (n != -1) {
             clear();
             s = s.substring(n + 1);
         }
-
-        pane.append(new StyledSegment(cssClasses, s));
+        // Split up into lines for filtering:
+        ArrayList<String> lines = new ArrayList<>(Arrays.asList(s.split("\n")));
+        // Try to remove lines like these two:
+        //     Jan 23, 2023 12:09:30 PM com.sun.javafx.application.PlatformImpl startup
+        //     WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @18be7add'
+        if (lines.removeIf(l -> l.trim().endsWith("com.sun.javafx.application.PlatformImpl startup") || 
+            l.startsWith("WARNING: Unsupported JavaFX configuration: classes were loaded from")))
+        {
+            // No need to continue (and thus show the terminal window) if there's no new output to add:
+            if (lines.isEmpty())
+                return;
+            pane.append(new StyledSegment(cssClasses, String.join("\n", lines)));
+        }
+        else
+        {
+            // Nothing removed; no need to re-glue the list, just use the original string:
+            pane.append(new StyledSegment(cssClasses, s));
+        }
+        
+        prepare();
+        if (errorText != null && pane == errorText)
+            showErrorPane();
 
         if (errorText != null && pane != errorText)
         {
