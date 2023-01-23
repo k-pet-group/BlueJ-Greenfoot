@@ -23,7 +23,7 @@ package bluej.editor.flow;
 
 import bluej.Config;
 import bluej.editor.flow.Document.Bias;
-import bluej.editor.flow.MultilineStringTracker.StringRelation;
+import bluej.editor.flow.MultilineStringTracker.TextBlockRelation;
 import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -116,7 +116,7 @@ public class FlowIndent
             if (el.getEndOffset() > startp.getPosition() && el.getStartOffset() < endp.getPosition()) {
                 // Don't remove blank lines inside multiline string literals:
                 NodeAndPosition<ParsedNode> nodeAt = root.getNode().findNodeAt(el.getStartOffset(), root.getPosition());
-                if (multilineStringTracker.checkStringRelation(el.getStartOffset(), el.getEndOffset(), nodeAt == null ? root.getPosition() : nodeAt.getPosition(), StringRelation.ENTIRELY_INSIDE))
+                if (multilineStringTracker.getTextBlockRelation(el.getStartOffset(), el.getEndOffset(), nodeAt == null ? root.getPosition() : nodeAt.getPosition()) == TextBlockRelation.ENTIRELY_INSIDE)
                     continue;
                 
                 boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(doc, el));
@@ -153,7 +153,8 @@ public class FlowIndent
             // as it changes the content of the string literal.  Best to leave them alone even if they end up
             // with an odd indent relative to the surrounding:
             NodeAndPosition<ParsedNode> nodeAt = root.getNode().findNodeAt(el.getStartOffset(), root.getPosition());
-            if (multilineStringTracker.checkStringRelation(el.getStartOffset(), el.getEndOffset(), nodeAt == null ? root.getPosition() : nodeAt.getPosition(), StringRelation.INSIDE_OR_CLOSING_LINE))
+            TextBlockRelation textBlockRelation = multilineStringTracker.getTextBlockRelation(el.getStartOffset(), el.getEndOffset(), nodeAt == null ? root.getPosition() : nodeAt.getPosition());
+            if (textBlockRelation == TextBlockRelation.ENTIRELY_INSIDE || textBlockRelation == TextBlockRelation.CLOSING_LINE_ONLY || textBlockRelation == TextBlockRelation.CLOSING_AND_OPENING_LINE)
                 continue;
             
             // If the element overlaps at all with our area of interest:
