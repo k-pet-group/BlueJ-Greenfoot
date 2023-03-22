@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -136,6 +136,12 @@ public final class PackageEditor extends StackPane
     private double newExtendsDestX;
     @OnThread(Tag.FXPlatform)
     private double newExtendsDestY;
+    
+    // Measured in System.currentTimeMillis():
+    private long lastKeypress = 0;
+    private String currentSearch = "";
+    
+    
 
     /**
      * Construct a package editor for the given package.
@@ -1079,6 +1085,27 @@ public final class PackageEditor extends StackPane
     public Node getPkgMgrPaneNode()
     {
         return this;
+    }
+
+    /**
+     * The given String has been typed while focus was on a target in the class diagram. 
+     */
+    public void typedAtTarget(String entry)
+    {
+        long time = System.currentTimeMillis();
+        // If it's been more than a second since our previous entry, blank it and start again:
+        if (time - lastKeypress > 1000)
+        {
+            currentSearch = "";
+        }
+        currentSearch += entry;
+        lastKeypress = time;
+        // Now do the search and update our selection with the first found target:
+        pkg.findTargetsBeginningWith(currentSearch)
+            .sorted(Comparator.comparing(t -> t.getIdentifierName(), String.CASE_INSENSITIVE_ORDER))
+            .findFirst()
+            .ifPresent(t -> selectOnly(t));
+        // If nothing is found (either invalid search or the user kept typing beyond what is needed, do nothing)
     }
 
     /**

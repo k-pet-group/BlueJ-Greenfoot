@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2016,2017,2018,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2013,2016,2017,2018,2020,2021,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -304,6 +304,11 @@ public abstract class Target
 
                 e.consume();
             }
+            else if (Character.isJavaIdentifierStart(e.getCharacter().codePointAt(0)) || Character.isJavaIdentifierPart(e.getCharacter().codePointAt(0)))
+            {
+                // Update the target search with the key they typed:
+                pkg.getEditor().typedAtTarget(e.getCharacter());
+            }
         });
         pane.setOnKeyPressed(e -> {
             // Don't allow keyboard navigation around the class graph if the menu is showing:
@@ -356,7 +361,7 @@ public abstract class Target
                 }
                 e.consume();
             }
-            else if (e.getCode() == KeyCode.A && !e.isAltDown()) // Allow Ctrl or Cmd, or plain
+            else if (e.getCode() == KeyCode.A && e.isShortcutDown() && !e.isAltDown()) // Allow Ctrl or Cmd
             {
                 pkg.getEditor().selectAll();
                 e.consume();
