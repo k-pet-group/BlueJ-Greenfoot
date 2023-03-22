@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2015,2016,2017,2018,2019,2020,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -582,6 +582,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 }
 
                 item = new MenuItem(methodDescription);
+                item.setMnemonicParsing(false);
                 item.setOnAction(e -> il.executeMethod(method));
 
                 // check whether it's time for a submenu
