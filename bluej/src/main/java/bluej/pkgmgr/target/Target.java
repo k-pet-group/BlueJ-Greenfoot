@@ -306,6 +306,11 @@ public abstract class Target
             }
             else if (Character.isJavaIdentifierStart(e.getCharacter().codePointAt(0)) || Character.isJavaIdentifierPart(e.getCharacter().codePointAt(0)))
             {
+                // We only include characters in the search which could be part of Java identifiers.
+                // This is a convenient way to exclude all kinds of other characters which are/might be used
+                // for interface shortcuts, for example Space and Enter open the context menu (but also count
+                // as typed characters), + and - change sizes, etc.
+
                 // Update the target search with the key they typed:
                 pkg.getEditor().typedAtTarget(e.getCharacter());
             }
