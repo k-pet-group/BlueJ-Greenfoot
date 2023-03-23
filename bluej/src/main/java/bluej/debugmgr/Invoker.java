@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018,2019,2020,2021,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1063,7 +1063,7 @@ public class Invoker
         if (diagnostic.getType() == Diagnostic.ERROR) {
             if (! gotError) {
                 gotError = true;
-                errorMessage(diagnostic.getFileName(), diagnostic.getStartLine(), diagnostic.getMessage());
+                errorMessage(diagnostic.getMessage());
                 return true;
             }
         }
@@ -1074,7 +1074,7 @@ public class Invoker
     /**
      * An error was detected during compilation of the shell class.
      */
-    private void errorMessage(String filename, long lineNo, String message)
+    private void errorMessage(String message)
     {
         DataCollector.invokeCompileError(pkg, commandString, message);
         
@@ -1107,6 +1107,11 @@ public class Invoker
             startClass();
         }
         else {
+            if (!gotError)
+            {
+                gotError = true;
+                errorMessage("Compilation failed for unknown reason (compiler bug?)");
+            }
             finishCall(false);
         }
     }

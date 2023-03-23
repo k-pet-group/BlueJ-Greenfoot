@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021 Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023 Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import bluej.debugger.DebuggerObject;
 import bluej.views.CallableView;
@@ -3051,5 +3053,18 @@ public final class Package
         }
 
         return dependencies.stream().anyMatch(d -> d.getState() == State.HAS_ERROR && d.hasSourceCode());
+    }
+
+    /**
+     * Find any targets beginning with the given prefix 
+     * @param prefix The string prefix, to be compared case-insensitively
+     * @return A stream of matching targets.  Use immediately, as you may get a
+     * concurrent modification exception if the targets are modified while the stream
+     * is still used.
+     */
+    public synchronized Stream<Target> findTargetsBeginningWith(String prefix)
+    {
+        return StreamSupport.stream(targets.spliterator(), false)
+            .filter(t -> t.getIdentifierName().regionMatches(true, 0, prefix, 0, prefix.length()));
     }
 }
