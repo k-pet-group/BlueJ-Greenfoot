@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -733,7 +733,7 @@ public class CodePad extends VBox
         @OnThread(Tag.FXPlatform)
         public void beginExecution(InvokerRecord ir)
         {
-            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
+            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir, frame.getProject());
         }
 
         /*
