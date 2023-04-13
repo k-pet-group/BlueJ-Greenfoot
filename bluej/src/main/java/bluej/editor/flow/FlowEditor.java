@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1204,30 +1204,20 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             if (doc != null)
             {
                 /* Javadoc looks like this:
-                <a id="sampleMethod(java.lang.String)">
-                <!--   -->
-                </a>
-                <ul>
-                <li>
-                <h4>sampleMethod</h4>
+                <section class="detail" id="sampleMethod(int)">
+                <h3>sampleMethod</h3>
                  */
 
-                // First find the anchor.  Ignore anchors with ids that do not end in a closing bracket (they are not methods):
-                NodeList anchors = doc.getElementsByTagName("a");
-                for (int i = 0; i < anchors.getLength(); i++)
+                // First find the section.  Ignore sections with ids that do not end in a closing bracket (they are not methods):
+                NodeList sections = doc.getElementsByTagName("section");
+                for (int i = 0; i < sections.getLength(); i++)
                 {
-                    org.w3c.dom.Node anchorItem = anchors.item(i);
+                    org.w3c.dom.Node anchorItem = sections.item(i);
                     org.w3c.dom.Node anchorName = anchorItem.getAttributes().getNamedItem("id");
                     if (anchorName != null && anchorName.getNodeValue() != null && anchorName.getNodeValue().endsWith(")"))
                     {
-                        // Then find the ul child, then the li child of that, then the h4 child of that:
-                        org.w3c.dom.Node ulNode = findHTMLNode(anchorItem, org.w3c.dom.Node::getNextSibling, n -> "ul".equals(n.getLocalName()));
-                        if (ulNode == null)
-                            continue;
-                        org.w3c.dom.Node liNode = findHTMLNode(ulNode.getFirstChild(), org.w3c.dom.Node::getNextSibling, n -> "li".equals(n.getLocalName()));
-                        if (liNode == null)
-                            continue;
-                        org.w3c.dom.Node headerNode = findHTMLNode(liNode.getFirstChild(), org.w3c.dom.Node::getNextSibling, n -> "h4".equals(n.getLocalName()));
+                        // Then find the first h3 child of that:
+                        org.w3c.dom.Node headerNode = findHTMLNode(anchorItem.getFirstChild(), org.w3c.dom.Node::getNextSibling, n -> "h3".equals(n.getLocalName()));
                         if (headerNode != null)
                         {
                             // Make a link, and set a listener for it:
