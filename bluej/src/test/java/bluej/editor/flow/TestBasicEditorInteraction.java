@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2022,2023  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -314,7 +314,7 @@ public class TestBasicEditorInteraction extends FXTest
                     // Cut to end of caret line (ignoring anchor)
                     clearClipboard();
                     fx_(() -> flowEditor.getActions().getActionByName("cut-end-of-line").actionPerformed(false));
-                    assertEquals(content.substring(curPos, curLineEnd), fx(() -> Clipboard.getSystemClipboard().getString()));
+                    assertEquals(curPos == curLineEnd ? null : content.substring(curPos, curLineEnd), fx(() -> Clipboard.getSystemClipboard().getString()));
                     content = beforeLine + content.substring(curLineStart, curPos) + afterLine;
                     assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
                     break;
