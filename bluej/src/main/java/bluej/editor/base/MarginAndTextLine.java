@@ -181,6 +181,13 @@ public class MarginAndTextLine extends Region
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getItems().add(
             JavaFXUtil.makeMenuItem(
+                Config.getString("editor.toggle-breakpointLabel"),
+                () -> onClick.get(),
+                null
+            )
+        );
+        contextMenu.getItems().add(
+            JavaFXUtil.makeMenuItem(
                 Config.getString("prefmgr.edit.displaylinenumbers"),
                 () -> {PrefMgr.setFlag(PrefMgr.LINENUMBERS, !PrefMgr.getFlag(PrefMgr.LINENUMBERS)); },
                 null
