@@ -2435,6 +2435,17 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             && paramsMatch(tree.getNode(), paramTypes))
         {
             switchToSourceView();
+            // This is a bit of a hack.  We don't record the position of the
+            // actual method header that we want to focus.  But the start of the
+            // method node is either that position, or the start of the preceding
+            // Javadoc.  So if there's Javadoc we skip forward by that length,
+            // plus one (which we assume to be the newline afterwards).  This
+            // should work for most code, or at least get closer than the start
+            // of the Javadoc.
+            if (tree.getNode() instanceof MethodNode m && m.getJavadoc() != null)
+            {
+                offset += m.getJavadoc().length() + 1;
+            }
             flowEditorPane.positionCaret(offset);
             return true;
         }
