@@ -1687,7 +1687,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
         switchToSourceView();
 
-        if (diagnostic.getStartLine() >= 0 && diagnostic.getStartLine() < document.getLineCount())
+        if (diagnostic.getStartLine() >= 0 && diagnostic.getStartLine() <= document.getLineCount())
         {
             // Limit diagnostic display to a single line.
             int startPos = document.getPosition(new SourceLocation((int)diagnostic.getStartLine(), (int) diagnostic.getStartColumn()));
@@ -3202,8 +3202,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
          
             LocatableToken suggestToken = suggests.getSuggestionToken();
             AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getContainingMethodOrClassNode(flowEditorPane.getCaretPosition()));
-            Arrays.sort(possibleCompletions, AssistContent.getComparator());
-            completionCandidates.addAll(Arrays.asList(possibleCompletions));
+            if (possibleCompletions != null)
+            {
+                Arrays.sort(possibleCompletions, AssistContent.getComparator());
+                completionCandidates.addAll(Arrays.asList(possibleCompletions));
+            }
             
             // Create suggestions from all the candidates
             List<SuggestionDetails> suggestionDetails = completionCandidates.stream()
