@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import java.util.*;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
+import javafx.beans.binding.NumberBinding;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -101,6 +102,8 @@ public class PrefMgr
     @OnThread(Tag.FX)
     private static final IntegerProperty editorFontSize = new SimpleIntegerProperty(DEFAULT_JAVA_FONT_SIZE);
     @OnThread(Tag.FX)
+    private static final NumberBinding editorLineNumberFontSize = Bindings.multiply(editorFontSize, 0.75);
+    @OnThread(Tag.FX)
     private static final StringProperty editorStandardFont = new SimpleStringProperty("Roboto Mono");
     private static final StringProperty editorFallbackFont = new SimpleStringProperty("monospace");
     @OnThread(Tag.FX)
@@ -143,6 +146,8 @@ public class PrefMgr
     // slightly shrunken and doesn't set family
     @OnThread(Tag.FX)
     private static StringExpression editorFontSizeOnlyCSS;
+    @OnThread(Tag.FX)
+    private static StringExpression editorLineNumberFontSizeOnlyCSS;
 
     // A property to hold the Greenfoot player's name
     private static StringProperty playerName;
@@ -322,8 +327,10 @@ public class PrefMgr
         return editorFontSize;
     }
 
+    public static enum FontCSS { EDITOR_SIZE_ONLY, EDITOR_SIZE_AND_FAMILY, LINE_NUMBER_SIZE_ONLY }
+
     @OnThread(Tag.FX)
-    public static StringExpression getEditorFontCSS(boolean includeFamily)
+    public static StringExpression getEditorFontCSS(FontCSS type)
     {
         if (editorFontCSS == null)
         {
@@ -333,8 +340,14 @@ public class PrefMgr
                     "-fx-font-size: ", editorFontSize, "pt;",
                     "-fx-font-family: \"", editorStandardFont, "\";"
             );
+            editorLineNumberFontSizeOnlyCSS = Bindings.concat(
+                    "-fx-font-size: ", editorLineNumberFontSize, "pt;");
         }
-        return includeFamily ? editorFontCSS : editorFontSizeOnlyCSS;
+        return switch (type) {
+            case EDITOR_SIZE_ONLY -> editorFontSizeOnlyCSS;
+            case EDITOR_SIZE_AND_FAMILY -> editorFontCSS;
+            case LINE_NUMBER_SIZE_ONLY -> editorLineNumberFontSizeOnlyCSS;
+        };
     }
 
     /**

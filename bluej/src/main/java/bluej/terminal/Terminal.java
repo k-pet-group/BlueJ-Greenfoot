@@ -194,7 +194,7 @@ public final class Terminal
             sendInput(false);
             e.consume();
         });
-        input.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
+        input.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_AND_FAMILY));
         input.setEditable(false);
         // Mainly for visuals, we disable when not in use:
         JavaFXUtil.addChangeListenerAndCallNow(input.editableProperty(), newVal ->
@@ -750,7 +750,7 @@ public final class Terminal
                 }
             };
             errorText.getStyleClass().add("terminal-error");
-            errorText.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
+            errorText.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_AND_FAMILY));
             // Any selection in the error pane should clear existing selection in the output text pane
 
             errorText.addSelectionListener((caret, anchor) -> {

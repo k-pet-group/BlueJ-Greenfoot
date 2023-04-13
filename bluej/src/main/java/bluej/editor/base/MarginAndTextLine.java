@@ -318,6 +318,7 @@ public class MarginAndTextLine extends Region
                         label.setEllipsisString("\u2026");
                         label.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
                         JavaFXUtil.addStyleClass(label, "flow-line-label");
+                        label.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.LINE_NUMBER_SIZE_ONLY));
                         label.setMouseTransparent(true);
                         return label;
                     case STEP_MARK:
