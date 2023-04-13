@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2019,2021  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2019,2021,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -65,7 +65,7 @@ public final class StatusLabel extends VBox
     public StatusLabel(Status initialState, FlowEditor editor, FlowErrorManager errorManager)
     {
         JavaFXUtil.addStyleClass(this, "moe-status-label-wrapper");
-        styleProperty().bind(PrefMgr.getEditorFontCSS(false));
+        styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_ONLY));
         state = initialState;
         statusLabel = new Label();
         errorLabel = new Label();

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2023  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -179,7 +179,13 @@ public class MarginAndTextLine extends Region
 
         // Context menu to show or hide line numbers
         ContextMenu contextMenu = new ContextMenu();
-        // If they right-click on us, we show new-class and import-class actions:
+        contextMenu.getItems().add(
+            JavaFXUtil.makeMenuItem(
+                Config.getString("editor.toggle-breakpointLabel"),
+                () -> onClick.get(),
+                null
+            )
+        );
         contextMenu.getItems().add(
             JavaFXUtil.makeMenuItem(
                 Config.getString("prefmgr.edit.displaylinenumbers"),
@@ -198,7 +204,7 @@ public class MarginAndTextLine extends Region
             e.consume();
         });
 
-        // Right-clicks/control-clicks anywhere else in the line show this menu:
+        // Right-clicks/control-clicks anywhere else in the line show the menu passed to us:
         this.setOnContextMenuRequested(e -> {
             getContextMenuToShow.get().show(this, e.getScreenX(), e.getScreenY());
             e.consume();
@@ -312,6 +318,7 @@ public class MarginAndTextLine extends Region
                         label.setEllipsisString("\u2026");
                         label.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
                         JavaFXUtil.addStyleClass(label, "flow-line-label");
+                        label.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.LINE_NUMBER_SIZE_ONLY));
                         label.setMouseTransparent(true);
                         return label;
                     case STEP_MARK:

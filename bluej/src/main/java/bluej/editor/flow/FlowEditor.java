@@ -539,7 +539,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         BorderPane.setAlignment(info, Pos.TOP_LEFT);
         BorderPane.setAlignment(saveState, Pos.CENTER_RIGHT);
         JavaFXUtil.addStyleClass(commentsPanel, "moe-bottom-status-row");
-        commentsPanel.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
+        commentsPanel.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_ONLY));
 
         bottomArea.setBottom(commentsPanel);
         bottomArea.setTop(finder);
@@ -3228,7 +3228,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 return;
             Bounds spLoc = flowEditorPane.screenToLocal(screenPos);
 
-            StringExpression editorFontCSS = PrefMgr.getEditorFontCSS(true);
+            StringExpression editorFontCSS = PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_AND_FAMILY);
             SuggestionList suggestionList = new SuggestionList(new SuggestionListParent()
             {
                 @Override
@@ -3852,7 +3852,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             });
             errorVBox.getStyleClass().add("java-error-popup");
             // No need to bind as only matters if user increases font size while error showing:
-            tf.setStyle(PrefMgr.getEditorFontCSS(false).get());
+            tf.setStyle(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_ONLY).get());
             Config.addPopupStylesheets(errorVBox);
         }
     }

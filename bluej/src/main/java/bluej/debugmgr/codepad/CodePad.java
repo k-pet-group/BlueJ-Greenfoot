@@ -499,8 +499,8 @@ public class CodePad extends VBox
                 historyView.getSelectionModel().selectLast();
         });
 
-        inputField.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
-        historyView.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
+        inputField.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_ONLY));
+        historyView.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_ONLY));
 
         Nodes.addInputMap(inputField, InputMap.sequence(
             InputMap.consume(EventPattern.keyPressed(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN), e -> Utility.increaseFontSize(PrefMgr.getEditorFontSize())),

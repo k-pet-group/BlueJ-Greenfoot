@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -578,7 +578,7 @@ public class ExecControls
         stackList = new ListView<>();
         stackList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         JavaFXUtil.addStyleClass(stackList, "debugger-stack");
-        stackList.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
+        stackList.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_ONLY));
         JavaFXUtil.addChangeListenerPlatform(stackList.getSelectionModel().selectedIndexProperty(), index -> {
             DebuggerThread thread = getSelectedThreadDetails() == null ? null : getSelectedThreadDetails().getThread();
             boolean showSource = !autoSelectionEvent;
@@ -891,7 +891,7 @@ public class ExecControls
             // The spacing is added via CSS, not by space characters:
             HBox hBox = new HBox(access, type, name, new Label("="), objectImageView, this.value);
             hBox.visibleProperty().bind(nonEmpty);
-            hBox.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
+            hBox.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_ONLY));
             JavaFXUtil.addStyleClass(hBox, "debugger-var-cell");
             JavaFXUtil.addStyleClass(access, "debugger-var-access");
             JavaFXUtil.addStyleClass(type, "debugger-var-type");

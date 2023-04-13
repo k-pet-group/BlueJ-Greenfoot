@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2020,2022 Michael Kölling and John Rosenberg
+ Copyright (C) 2020,2022,2023 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -77,7 +77,7 @@ public abstract class FixDisplayManager
             getChildren().addAll(l, enterHint);
             HBox.setHgrow(l, Priority.ALWAYS);
             l.setMaxWidth(9999);
-            setStyle(PrefMgr.getEditorFontCSS(false).get());
+            setStyle(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_ONLY).get());
         }
         private void setHighlight(boolean highlight)
         {
