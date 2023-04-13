@@ -827,17 +827,26 @@ public class ExecControls
         
         public void actionPerformed(boolean viaContextMenu)
         {
-            try {
-                clearThreadDetails();
-                
-                // throws an illegal state exception
-                // if we press this whilst we are already
-                // restarting the remote VM
-                project.restartVM();
-                DataCollector.debuggerTerminate(project);
-            }
-            catch (IllegalStateException ise) { }
+            terminate();
         }
+    }
+
+    /**
+     * Terminates the current execution of the program by restarting the VM.
+     */
+    public void terminate()
+    {
+        try
+        {
+            clearThreadDetails();
+
+            // throws an illegal state exception
+            // if we press this whilst we are already
+            // restarting the remote VM
+            project.restartVM();
+            DataCollector.debuggerTerminate(project);
+        }
+        catch (IllegalStateException ise) { }
     }
 
     private static Node makeTerminateIcon()
