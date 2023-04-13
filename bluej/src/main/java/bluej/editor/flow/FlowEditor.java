@@ -1212,12 +1212,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 NodeList sections = doc.getElementsByTagName("section");
                 for (int i = 0; i < sections.getLength(); i++)
                 {
-                    org.w3c.dom.Node anchorItem = sections.item(i);
-                    org.w3c.dom.Node anchorName = anchorItem.getAttributes().getNamedItem("id");
-                    if (anchorName != null && anchorName.getNodeValue() != null && anchorName.getNodeValue().endsWith(")"))
+                    org.w3c.dom.Node sectionItem = sections.item(i);
+                    org.w3c.dom.Node sectionId = sectionItem.getAttributes().getNamedItem("id");
+                    if (sectionId != null && sectionId.getNodeValue() != null && sectionId.getNodeValue().endsWith(")"))
                     {
                         // Then find the first h3 child of that:
-                        org.w3c.dom.Node headerNode = findHTMLNode(anchorItem.getFirstChild(), org.w3c.dom.Node::getNextSibling, n -> "h3".equals(n.getLocalName()));
+                        org.w3c.dom.Node headerNode = findHTMLNode(sectionItem.getFirstChild(), org.w3c.dom.Node::getNextSibling, n -> "h3".equals(n.getLocalName()));
                         if (headerNode != null)
                         {
                             // Make a link, and set a listener for it:
@@ -1228,7 +1228,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
                             ((EventTarget) newLink).addEventListener("click", e ->
                             {
-                                String[] tokens = anchorName.getNodeValue().split("[(,)]");
+                                String[] tokens = sectionId.getNodeValue().split("[(,)]");
                                 List<String> paramTypes = new ArrayList<>();
                                 for (int t = 1; t < tokens.length; t++)
                                 {
