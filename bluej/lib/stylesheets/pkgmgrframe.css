@@ -304,6 +304,10 @@
     -fx-padding: 0px 0px 0px 10px;
     -fx-graphic-text-gap: 10px;
 }
+.codepad-row:bj-codepad-terminated-after {
+    -fx-border-width: 0 0 2 0;
+    -fx-border-color: black;
+}
 
 .codepad .text-field {
     /* This is the modena.css version:
