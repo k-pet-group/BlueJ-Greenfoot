@@ -59,26 +59,9 @@
         <exclude name="lib/*/greenfoot-labels" />
         <exclude name="lib/*/greenfootAPI" />
     </patternset>
-
-    <patternset id="bluej.examples">
-        <exclude name="**/*.pkh" />
-        <exclude name="**/.#*" />
-        <include name="examples/debugdemo/" />
-        <include name="examples/hello/" />
-        <include name="examples/people/" />
-        <include name="examples/people2/" />
-        <include name="examples/picture/" />
-        <include name="examples/file-reader/" />
-        <include name="examples/shapes/" />
-        <include name="examples/LED-Button/" />
-    </patternset>
     
     <patternset id="bluej.icons">
         <include name="icons/*" />
-    </patternset>
-
-    <patternset id="bluej.examples.classes">
-        <include name="examples/people/*.class" />
     </patternset>
 
     <fileset id="bluej.license.files" dir="${bluej_home}/doc/">
@@ -88,8 +71,6 @@
 
     <!-- These are files which should be made to have system line endings -->
     <patternset id="bluej.textfiles.utf8">
-        <include name="examples/**/*.java" />
-        <include name="examples/**/README.*" />
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
         <include name="lib/*/templates/**" />
@@ -113,7 +94,6 @@
             <fileset dir="${bluej_home}" >
                 <patternset refid="bluej.libfiles"/>
                 <patternset refid="bluej.libdirs"/>
-                <patternset refid="bluej.examples"/>
                 <patternset refid="bluej.icons" />
             </fileset>
             <fileset dir="${bluej_home}/build/resources/main" >
@@ -124,18 +104,6 @@
                 <include name="README.TXT"/>            
             </fileset>
         </copy>
-
-        <!-- make sure the people .class files are dated in the future so they
-             will appear to be compiled -->
-         <tstamp>
-            <format property="touch.time" pattern="yyyy-MM-dd" offset="5" unit="year"/>
-        </tstamp>
-
-        <touch datetime="${touch.time}" pattern="yyyy-MM-dd">
-            <fileset dir="install_tmp" >
-                <patternset refid="bluej.examples.classes"/>
-            </fileset>
-        </touch>
 
         <!-- make sure line endings are in unix format -->
         <fixcrlf srcdir="install_tmp" eol="lf" encoding="ISO-8859-1">
@@ -255,7 +223,6 @@
             <fileset dir="${bluej_home}">
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
-                <patternset refid="bluej.examples" />
             </fileset>
             <fileset dir="${bluej_home}/build/resources/main" >
                 <patternset refid="bluej.libfiles"/>
@@ -590,20 +557,8 @@
         </move>
         <delete dir="bluejdeb-lib-tmp" />
         
-        <!-- examples and documentation -->
-        <mkdir dir="bluej-examples-tmp" />
-        <copy todir="bluej-examples-tmp">
-            <fileset dir="${bluej_home}">
-                <patternset refid="bluej.examples" />
-            </fileset>
-        </copy>
+        <!-- documentation -->
         <mkdir dir="bluejdeb/usr/share/doc/BlueJ" />
-        <move todir="bluejdeb/usr/share/doc/BlueJ">
-            <fileset dir="bluej-examples-tmp/examples">
-                <patternset includes="**" />
-            </fileset>
-        </move>
-        <delete dir="bluej-examples-tmp" />
         <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/LICENSE.txt" />
         <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/THIRDPARTYLICENSE.txt" />
         <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/README.TXT" />
@@ -715,20 +670,8 @@
         </exec>
 
         
-        <!-- examples and documentation -->
-        <mkdir dir="bluej-examples-tmp" />
-        <copy todir="bluej-examples-tmp">
-            <fileset dir="${bluej_home}">
-                <patternset refid="bluej.examples" />
-            </fileset>
-        </copy>
+        <!-- documentation -->
         <mkdir dir="bluejdeb/usr/share/doc/BlueJ" />
-        <move todir="bluejdeb/usr/share/doc/BlueJ">
-            <fileset dir="bluej-examples-tmp/examples">
-                <patternset includes="**" />
-            </fileset>
-        </move>
-        <delete dir="bluej-examples-tmp" />
         <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/LICENSE.txt" />
         <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/THIRDPARTYLICENSE.txt" />
         <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/README.TXT" />
@@ -801,8 +744,7 @@
                 <include name="doc/BlueJ-architecture-and-design.txt" />
                 <include name="doc/BlueJ-parser.txt" />
                 <include name="doc/threading-issues.txt" />
-                <include name="doc/thirdpartylicenses/*" />
-                <include name="examples/**/*" />          
+                <include name="doc/thirdpartylicenses/*" />         
                 <include name="icons/**/*" />           
                 <include name="lib/**/*" />
 
