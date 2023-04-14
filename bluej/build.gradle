@@ -95,6 +95,7 @@ task copyToLib(type: Copy) {
     from configurations.runtimeClasspath
     from 'lib'
     from 'build/libs/bluej.jar'
+    duplicatesStrategy DuplicatesStrategy.WARN
 }
 copyToLib.dependsOn jar
 blueJCoreJar.dependsOn compileJava
