@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2018,2019,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -67,7 +67,10 @@ public class ProjectUtils
         }
         else if (debugger.getStatus() == Debugger.RUNNING)
         {
-            DialogManager.showErrorFX(msgWindow, "already-executing");
+            if (DialogManager.askQuestionFX(msgWindow, "already-executing-choice") == 1)
+            {
+                project.getExecControls().terminate();
+            }
             return false;
         }
         

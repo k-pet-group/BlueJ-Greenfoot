@@ -556,11 +556,13 @@ You cannot start another execution while the current one is still
 active. Use the debugger controls to either continue or terminate
 the current execution first.
 
-already-executing
+already-executing-choice
 Your program is already running. You cannot start another
-execution (or inspect a class) until the execution finishes. If
-the program is stuck in a loop, you can use the debugger to
-terminate it.
+execution (or inspect a class) until the execution finishes. You
+can continue to wait for it to complete, or you can terminate it.
+Wait
+Terminate
+null
 
 run-on-fx
 This project uses JavaFX.  Would you like BlueJ to run all future
