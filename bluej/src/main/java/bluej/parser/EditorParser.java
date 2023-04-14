@@ -382,7 +382,15 @@ public class EditorParser extends JavaParser
             return;
         }
         
-        if (isStatic) {
+        if (isStatic)
+        {
+            if (tokens.size() < 2)
+            {
+                // An invalid static import (like "import static Math;"); we should ignore it
+                return;
+            }
+            
+            
             // Apparently static inner classes can be imported with or without the "static" keyword
             // So, a static import imports a field and/or method and/or class.
             // That's right - the same import statement pulls in all three.
