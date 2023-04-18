@@ -95,8 +95,6 @@ public class Main
     /** On MacOS X, this will be set to the project we should open (if any) */ 
     private static List<File> initialProjects;
 
-    private static QuitResponse macEventResponse = null;  // used to respond to external quit events on MacOS
-
     /**
      * Only used on Mac.  For some reason, executing the AppleJavaExtensions open
      * file handler (that is set from Boot.main) on initial load (e.g. because
@@ -310,48 +308,6 @@ public class Main
     }
 
     /**
-     * Prepare Mac Application Swing menu using the java.awt.Desktop APIs.
-     */
-    @SuppressWarnings("threadchecker")
-    private static void prepareMacOSMenuSwing()
-    {
-        Desktop.getDesktop().setAboutHandler(e -> {
-            Platform.runLater(() -> guiHandler.handleAbout());
-        });
-
-        Desktop.getDesktop().setPreferencesHandler(e -> {
-            Platform.runLater(() -> guiHandler.handlePreferences());
-        });
-
-        Desktop.getDesktop().setQuitHandler((e, response) -> {
-            macEventResponse = response;
-            Platform.runLater(() -> guiHandler.handleQuit());
-            // response.confirmQuit() does not need to be called, since System.exit(0) is called explcitly
-            // response.cancelQuit() is called to cancel (in wantToQuit())
-        });
-
-        Desktop.getDesktop().setOpenFileHandler(e ->  {
-            if (launched)
-            {
-                List<File> files = e.getFiles();
-                Platform.runLater(() ->
-                {
-                    for (File file : files)
-                    {
-                        guiHandler.tryOpen(file, true);
-                    }
-                });
-            }
-            else
-                {
-                initialProjects = e.getFiles();
-            }
-        });
-
-        Boot.getInstance().setQuitHandler(() -> Platform.runLater(() -> guiHandler.handleQuit()));
-    }
-
-    /**
      * Handle the "quit" command: if any projects are open, prompt user to make sure, and quit if
      * confirmed.
      */
@@ -365,17 +321,6 @@ public class Main
         if (answer == 0)
         {
             doQuit();
-        }
-        else
-        {
-            SwingUtilities.invokeLater(() ->
-            {
-                if (macEventResponse != null)
-                {
-                    macEventResponse.cancelQuit();
-                    macEventResponse = null;
-                }
-            });
         }
     }
 
