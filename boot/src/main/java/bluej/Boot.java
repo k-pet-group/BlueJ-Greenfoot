@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
 /**
  * This class is the BlueJ boot loader. bluej.Boot is the class that should be 
@@ -106,6 +107,7 @@ public class Boot
     private static boolean isGreenfoot = false;
     private static File bluejLibDir;
     private static final ArrayList<File> macInitialProjects = new ArrayList<>();
+    private static Consumer<List<File>> openProjectHandler = null;
 
     @OnThread(Tag.FXPlatform)
     private SplashWindow splashWindow;
@@ -155,9 +157,19 @@ public class Boot
         Application.launch(App.class, args);
     }
 
-    public static List<File> getMacInitialProjects()
+    /**
+     * Sets the open file handler that will be passed files the Operating System
+     * tells us the user has requested.  Only relevant for macOS but fine to
+     * call on all platforms.
+     * @param openProjectHandler Will be passed list of files (i.e. package.bluej files) to open
+     */
+    @OnThread(Tag.FXPlatform)
+    public static void setFileOpenHandler(Consumer<List<File>> openProjectHandler)
     {
-        return macInitialProjects;
+        Boot.openProjectHandler = openProjectHandler;
+        if (!macInitialProjects.isEmpty())
+            openProjectHandler.accept(macInitialProjects);
+        macInitialProjects.clear();
     }
 
     /**
@@ -600,6 +612,11 @@ public class Boot
                         {
                             if (!f.contains(":") && !f.equals("bluej.Boot") && !f.startsWith("-"))
                                 macInitialProjects.add(new File(f));
+                        }
+                        if (openProjectHandler != null)
+                        {
+                            openProjectHandler.accept(macInitialProjects);
+                            macInitialProjects.clear();
                         }
                         super.handleOpenFilesAction(app, time, files);
                     }

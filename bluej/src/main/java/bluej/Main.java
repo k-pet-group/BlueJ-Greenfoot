@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -86,14 +86,6 @@ public class Main
 {
     private static final String MESSAGE_ROOT = "https://www.bluej.org/message/";
     private static final String TESTING_MESSAGE_ROOT = "https://www.bluej.org/message_test/";
-    /** 
-     * Whether we've officially launched yet. While false "open file" requests only
-     * set initialProject.
-     */
-    private static boolean launched = false;
-    
-    /** On MacOS X, this will be set to the project we should open (if any) */ 
-    private static List<File> initialProjects;
 
     /**
      * Only used on Mac.  For some reason, executing the AppleJavaExtensions open
@@ -188,29 +180,29 @@ public class Main
      */
     @OnThread(Tag.FXPlatform)
     private static Stage processArgs(String[] args)
-    {
-        launched = true;
-        
-        boolean oneOpened = false;
+    {        
+        final AtomicBoolean oneOpened = new AtomicBoolean(false);
 
         // Open any projects specified on the command line
         if (args.length > 0) {
             for (String arg : args) {
                 if (!arg.startsWith("-")) {
-                    oneOpened |= guiHandler.tryOpen(new File(arg), true);
+                    oneOpened.set(guiHandler.tryOpen(new File(arg), true) || oneOpened.get());
                 }
             }
         }
-
+        
         // Open a project if requested by the OS (Mac OS)
-        if (initialProjects != null) {
-            for (File initialProject : initialProjects) {
-                oneOpened |= guiHandler.tryOpen(initialProject, true);
+        Boot.setFileOpenHandler(fs -> {
+            for (File f : fs)
+            {
+                // This will set oneOpened after we stop caring about it, but that doesn't really matter:
+                oneOpened.set(guiHandler.tryOpen(f, true) || oneOpened.get());
             }
-        }
+        });
 
         // if we have orphaned packages, these are re-opened
-        if (!oneOpened) {
+        if (!oneOpened.get()) {
             // check for orphans...
             boolean openOrphans = "true".equals(Config.getPropString("bluej.autoOpenLastProject"));
             if (openOrphans && hadOrphanPackages()) {
@@ -219,13 +211,13 @@ public class Main
                 for (int i = 1; exists != null; i++) {
                     exists = Config.getPropString(Config.BLUEJ_OPENPACKAGE + i, null);
                     if (exists != null) {
-                        oneOpened |= guiHandler.tryOpen(new File(exists), false);
+                        oneOpened.set(guiHandler.tryOpen(new File(exists), false) | oneOpened.get());
                     }
                 }
             }
         }
 
-        Stage window = guiHandler.initialOpenComplete(oneOpened);
+        Stage window = guiHandler.initialOpenComplete(oneOpened.get());
         
         Boot.getInstance().disposeSplashWindow();
         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.EventType.APP_READY_EVENT));
@@ -240,7 +232,6 @@ public class Main
     private static void prepareMacOSApp()
     {
         storedContextClassLoader = Thread.currentThread().getContextClassLoader();
-        initialProjects = Boot.getMacInitialProjects();
 
         // Even though BlueJ is JavaFX, the open-files handling still goes
         // through the java.awt.Desktop handling, once it is loaded
