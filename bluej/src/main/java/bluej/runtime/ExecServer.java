@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017,2018,2019,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017,2018,2019,2021,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -274,7 +274,7 @@ public class ExecServer
                 if(event.getID() == WindowEvent.WINDOW_OPENED) {                    
                     if (source instanceof Window) {
                         addWindow((Window) source);
-                        Utility.bringToFront((Window) source);
+                        bringToFront((Window) source);
                         // To make sure that screen readers an
                         // nounce the window being open,
                         // we de-focus and re-focus it once the right application has focus:
@@ -350,6 +350,29 @@ public class ExecServer
     {
         if(!disposingAllWindows)   // don't bother if we are clearing up just now
             openWindows.remove(o);
+    }
+
+    /**
+     * Bring the current process to the front in the OS window stacking order.
+     * The given window will be brought to the front.
+     *
+     * <p>This method can be called from the debug VM.
+     *
+     * @param window   the window to be brought to the front. If null, the process
+     *                 is brought to the front.
+     */
+    @OnThread(Tag.Swing)
+    public static void bringToFront(final Window window)
+    {
+        // If not showing at all we return now.
+        if (window != null) {
+            if (!window.isShowing() || !window.getFocusableWindowState()) {
+                return;
+            }
+            window.toFront();
+        }
+
+        Utility.appToFront();
     }
 
     /**

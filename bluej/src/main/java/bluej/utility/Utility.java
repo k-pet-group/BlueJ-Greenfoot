@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -502,29 +502,6 @@ public class Utility
         catch (URISyntaxException use) { }
         
         return bluejDir;
-    }
-
-    /**
-     * Bring the current process to the front in the OS window stacking order.
-     * The given window will be brought to the front.
-     * 
-     * <p>This method can be called from the debug VM.
-     * 
-     * @param window   the window to be brought to the front. If null, the process
-     *                 is brought to the front.
-     */
-    @OnThread(Tag.Swing)
-    public static void bringToFront(final Window window)
-    {
-        // If not showing at all we return now.
-        if (window != null) {
-            if (!window.isShowing() || !window.getFocusableWindowState()) {
-                return;
-            }
-            window.toFront();
-        }
-
-        appToFront();
     }
 
     @OnThread(Tag.FXPlatform)
