@@ -143,7 +143,6 @@ import org.w3c.dom.events.EventTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.text.DefaultEditorKit;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -546,9 +545,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         setBottom(bottomArea);
 
         this.editorContextMenu = new ContextMenu(
-            getActions().getActionByName(DefaultEditorKit.cutAction).makeContextMenuItem(Config.getString("editor.cutLabel")),
-            getActions().getActionByName(DefaultEditorKit.copyAction).makeContextMenuItem(Config.getString("editor.copyLabel")),
-            getActions().getActionByName(DefaultEditorKit.pasteAction).makeContextMenuItem(Config.getString("editor.pasteLabel"))
+            getActions().getActionByName("cut-to-clipboard").makeContextMenuItem(Config.getString("editor.cutLabel")),
+            getActions().getActionByName("copy-to-clipboard").makeContextMenuItem(Config.getString("editor.copyLabel")),
+            getActions().getActionByName("paste-from-clipboard").makeContextMenuItem(Config.getString("editor.pasteLabel"))
         );
 
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), s -> {
@@ -3300,10 +3299,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                             suggestionListChoiceClicked(suggestionList, highlighted);
                             return Response.DISMISS;
                         case BACK_SPACE:
-                            actions.getActionByName(DefaultEditorKit.deletePrevCharAction).actionPerformed(false);
+                            actions.getActionByName("delete-previous").actionPerformed(false);
                             break;
                         case DELETE:
-                            actions.getActionByName(DefaultEditorKit.deleteNextCharAction).actionPerformed(false);
+                            actions.getActionByName("delete-next").actionPerformed(false);
                             break;
                     }
                     // If they delete to before the original position then
