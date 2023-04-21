@@ -251,7 +251,7 @@ public abstract class ClassRole
         // If we have a lot of items, we should create a submenu to fold some items in
         // 28 is a wild guess for now. It was 19 but with higher resolution screens, it became insufficient.
         int itemHeight = 28;
-        int itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
+        int itemsOnScreen = (int)Config.getScreenBounds().getHeight() / itemHeight;
         int sizeLimit = itemsOnScreen / 2;
         
         ArrayList<ClassTargetOperation> ops = new ArrayList<>();

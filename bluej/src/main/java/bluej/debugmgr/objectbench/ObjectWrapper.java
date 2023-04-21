@@ -180,7 +180,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     {
         // first one we construct will give us more info about the size of the screen
         if(!itemHeightKnown) {
-            itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
+            itemsOnScreen = (int)Config.getScreenBounds().getHeight() / itemHeight;
         }
 
         this.pmf = pmf;

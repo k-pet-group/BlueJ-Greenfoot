@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2019,2020,2021,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -287,7 +287,7 @@ public class UnitTestClassRole extends ClassRole
             // If we have a lot of items, we should create a submenu to fold some items in
             // 28 is a wild guess for now.
             int itemHeight = 28;
-            int itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
+            int itemsOnScreen = (int)Config.getScreenBounds().getHeight() / itemHeight;
             int sizeLimit = itemsOnScreen / 2;
 
             for(Method m : allMethods.collect(Collectors.toList())){

@@ -178,8 +178,6 @@ public final class Config
         
         isGreenfoot = bootingGreenfoot;
 
-        Platform.runLater(() -> {screenBounds = calculateScreenBounds();});
-
         // construct paths for the configuration directories
         Config.bluejLibDir = bluejLibDir;
         Config.greenfootLibDir = new File(bluejLibDir, "greenfoot");
@@ -626,6 +624,15 @@ public final class Config
             return new Rectangle2D(0, 0, 1280, 1024);
         }
         return Screen.getPrimary().getBounds();
+    }
+    
+    @OnThread(Tag.FXPlatform)
+    public static Rectangle2D getScreenBounds()
+    {
+        if (screenBounds == null)
+            screenBounds = calculateScreenBounds();
+        
+        return screenBounds;
     }
     
     /**
