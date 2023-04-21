@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2016,2019,2020,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2016,2019,2020,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,6 @@
  */
 package bluej.collect;
 
-import javax.swing.*;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -84,7 +83,7 @@ class DataCollectionDialog extends Dialog<Boolean>
 
         Hyperlink link = new Hyperlink(Config.getString("collect.dialog.ethics.seemore") + ".");
         link.setOnAction(e -> {
-            SwingUtilities.invokeLater(() -> Utility.openWebBrowser("https://www.bluej.org/blackbox/"));
+            Utility.openWebBrowser("https://www.bluej.org/blackbox/");
         });
 
         text.getChildren().addAll(

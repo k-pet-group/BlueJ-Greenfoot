@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016,2019,2021,2022  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016,2019,2021,2022,2023  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,6 @@ import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.*;
 import javax.tools.DocumentationTool;
 import javax.tools.ToolProvider;
 import java.io.BufferedReader;
@@ -230,7 +229,7 @@ public class DocuGenerator
                             }
                             if(openBrowser) {
                                 // logWriter.println("try to open: " + showFile.getPath());
-                                SwingUtilities.invokeLater(() -> Utility.openWebBrowser(showFile.getPath()));
+                                Utility.openWebBrowser(showFile.getPath());
                             }
                         }
                         else {
@@ -329,7 +328,7 @@ public class DocuGenerator
             int result = DialogManager.askQuestionFX(null, "show-or-generate");
             if (result == 0)
             {  // show only
-                SwingUtilities.invokeLater(() -> Utility.openWebBrowser(startPage.getPath()));
+                Utility.openWebBrowser(startPage.getPath());
                 return "";
             }
             if (result == 2)

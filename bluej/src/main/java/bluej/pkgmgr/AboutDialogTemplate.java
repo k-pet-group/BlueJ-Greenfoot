@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -172,8 +172,7 @@ public class AboutDialogTemplate extends Dialog<Void>
         {
             final URL softwareURL = new URL(websiteURL);
             Hyperlink link = new Hyperlink(softwareURL.toString());
-            link.setOnMouseClicked(e -> SwingUtilities.invokeLater(() ->
-                    Utility.openWebBrowser(softwareURL.toExternalForm())));
+            link.setOnMouseClicked(e -> Utility.openWebBrowser(softwareURL.toExternalForm()));
             
             HBox hbox = new HBox(new Label(Config.getString("about.moreInformation")), link);
             hbox.setAlignment(Pos.CENTER);

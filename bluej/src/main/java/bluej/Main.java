@@ -56,9 +56,6 @@ import org.w3c.dom.html.HTMLAnchorElement;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.desktop.QuitResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -476,7 +473,7 @@ public class Main
 
         // We wrap this in a Platform.runLater/Swing.invokeLater to make sure it
         // runs after any pending FX actions or Swing actions:
-        JavaFXUtil.runAfterCurrent(() -> SwingUtilities.invokeLater(() -> System.exit(0)));
+        JavaFXUtil.runAfterCurrent(() -> System.exit(0));
     }
 
     // See comment on the field.
@@ -603,7 +600,7 @@ public class Main
                     EventTarget target = evt.getCurrentTarget();
                     HTMLAnchorElement anchorElement = (HTMLAnchorElement) target;
                     String href = anchorElement.getHref();
-                    SwingUtilities.invokeLater(() -> Utility.openWebBrowser(href));
+                    Utility.openWebBrowser(href);
                     evt.preventDefault();
                 }
             }, false);

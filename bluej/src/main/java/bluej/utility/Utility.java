@@ -21,12 +21,6 @@
  */
 package bluej.utility;
 
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Shape;
-import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -94,96 +88,6 @@ public class Utility
      * Used to track which events have occurred for firstTimeThisRun()
      */
     private static Set<String> occurredEvents = new HashSet<String>();
-
-    /**
-     * Draw a thick rectangle - another of the things missing from the AWT
-     */
-    public static void drawThickRect(Graphics g, int x, int y, int width, int height, int thickness)
-    {
-        for (int i = 0; i < thickness; i++)
-            g.drawRect(x + i, y + i, width - 2 * i, height - 2 * i);
-    }
-    
-    /**
-     * Draw a thick rounded rectangle - another of the things missing from the AWT
-     */
-    public static void drawThickRoundRect(Graphics g, int x, int y, int width, int height, int arc, int thickness)
-    {
-        for (int i = 0; i < thickness; i++)
-            g.drawRoundRect(x + i, y + i, width - 2 * i, height - 2 * i, arc, arc);
-    }
-
-    /**
-     * Draw stripes over a rectangle - yet another thing missing from the AWT
-     */
-    public static void stripeRect(Graphics g, int x, int y, int width, int height, int separation, int thickness, Color color)
-    {
-        Color prev = g.getColor();
-        g.setColor(color);
-        for (int offset = 0; offset < width + height; offset += separation) {
-            for (int i = 0; i < thickness; i++, offset++) {
-                int x1, y1, x2, y2;
-
-                if (offset < height) {
-                    x1 = x;
-                    y1 = y + offset;
-                }
-                else {
-                    x1 = x + offset - height;
-                    y1 = y + height;
-                }
-
-                if (offset < width) {
-                    x2 = x + offset;
-                    y2 = y;
-                }
-                else {
-                    x2 = x + width;
-                    y2 = y + offset - width;
-                }
-
-                g.drawLine(x1, y1, x2, y2);
-            }
-        }
-        g.setColor(prev);
-    }
-
-    /**
-     * Draw a string at a given location on screen centered in a given
-     * rectangle.<br>
-     * Left justifies the string if it is too long to fit all of the string
-     * inside the rectangle.
-     */
-    public static void drawCentredText(Graphics g, String str, int x, int y, int width, int height)
-    {
-        FontMetrics fm = g.getFontMetrics();
-
-        Shape oldClip = g.getClip();
-        g.clipRect(x, y, width, height);
-        int xOffset = (width - fm.stringWidth(str)) / 2;
-        if (xOffset < 0) {
-            xOffset = 0;
-        }
-        // This is the space left around the text, divided by 2 (equal gap above and below)
-        // to get the top of the text, plus the ascent to get the baseline 
-        int yOffset = fm.getAscent() + ((height - fm.getAscent() - fm.getDescent()) / 2);
-        g.drawString(str, x + xOffset, y + yOffset);
-        g.setClip(oldClip);
-    }
-
-    /**
-     * Draw a string at a given location on screen right-aligned in a given
-     * rectangle.
-     */
-    public static void drawRightText(Graphics g, String str, int x, int y, int width, int height)
-    {
-        FontMetrics fm = g.getFontMetrics();
-
-        Shape oldClip = g.getClip();
-        g.clipRect(x, y, width, height);
-        g.drawString(str, x + width - fm.stringWidth(str), y + (height + fm.getAscent()) / 2);
-        g.setClip(oldClip);
-    }
 
     /**
      * Splits "string" by "Delimiter"
@@ -296,7 +200,7 @@ public class Utility
      * @param url the URL or file path to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.Any)
     public static boolean openWebBrowser(String url)
     {
         if (Config.isWinOS()) { // Windows
@@ -343,7 +247,7 @@ public class Utility
      * @param url the URL to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.Any)
     public static boolean openWebBrowser(URL url)
     {
         if (Config.isWinOS()) {
@@ -351,31 +255,11 @@ public class Utility
             return openWebBrowser(url.toString());
         }
         else {
-            Exception exception = null;
-
-            // Linux has a bug in Desktop class, see bug BLUEJ-1039, so don't use it.
-            if (!Config.isLinux() && Desktop.isDesktopSupported()) {
-                try {
-                    Desktop.getDesktop().browse(url.toURI());
-                }
-                catch (IOException ioe) { exception = ioe; }
-                catch (URISyntaxException use) { exception = use; }
-
-                if (exception == null) {
-                    return true; // success
-                }
-            }
-            
-            if (Config.isMacOS()) {
-                Debug.reportError("could not start web browser. exc: " + exception);
-                return false;
-            }
-            
-            // Unix and other
+            // Mac, Unix and other
 
             String cmd = mergeStrings(Config.getPropString("browserCmd1"), url.toString());
             String cmd2 = mergeStrings(Config.getPropString("browserCmd2"), url.toString());
-            String cmd3 = mergeStrings("xdg-open $", url.toString());
+            String cmd3 = mergeStrings(Config.isMacOS() ? "open $" : "xdg-open $", url.toString());
 
             Process p = null;
             try {
@@ -445,7 +329,7 @@ public class Utility
      * @param file the file to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.Any)
     public static boolean openWebBrowser(File file)
     {
         if (Config.isWinOS()) { // Windows
@@ -524,11 +408,6 @@ public class Utility
      */
     public static void appToFront()
     {
-        if (Config.isMacOS()) {
-            SwingUtilities.invokeLater(() -> Desktop.getDesktop().requestForeground(false));
-            return;
-        }
-
         String pid = getProcessId();
         boolean isWindows = Config.isWinOS();
 
@@ -695,26 +574,7 @@ public class Utility
         }
         return tabSpaces;
     }
-    
-    /**
-     * Makes a TabExpander object that will turn tabs into the appropriate
-     * white-space, based on the original String.  This means that the tabs
-     * will get aligned to the correct tab-stops rather than just being
-     * converted into a set number of spaces.  Thus, the TabExpander will match
-     * the behaviour of the editor.
-     */
-    public static TabExpander makeTabExpander(String line, int tabSize, final FontMetrics fontMetrics)
-    {
-        final int[] tabSpaces = Utility.calculateTabSpaces(line, tabSize);
-        
-        return new TabExpander() {
-            @Override
-            public float nextTabStop(float x, int tabOffset) {
-                return x + tabSpaces[tabOffset] * fontMetrics.charWidth(' ');
-            }
-        };
-    }
-    
+
     /**
      * Given a String and an index into it, along with the pre-calculated tabSpaces array,
      * advances the index by the given number of character widths.
