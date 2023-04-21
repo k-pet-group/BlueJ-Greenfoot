@@ -646,103 +646,11 @@ public final class FlowActions
                     return false;
                 }
             }
-            else
-            {
-                file = Config.getUserConfigFile(KEYS_FILE);
-                FileInputStream istream = new FileInputStream(file);
-                ObjectInputStream stream = new ObjectInputStream(istream);
-                //KeyStroke[] keys = keymap.getBoundKeyStrokes();
-                int version = 0;
-                int count = stream.readInt();
-                if (count > 100)
-                { // it was new format: version number stored first
-                    version = count;
-                    count = stream.readInt();
-                }
-                if (Config.isMacOS() && (version < 140))
-                {
-                    // do not attempt to load old bindings on MacOS when switching
-                    // to jdk 1.4.1
-                    istream.close();
-                    return false;
-                }
-
-                for (int i = 0; i < count; i++)
-                {
-                    Object keyBinding = stream.readObject();
-                    KeyCodeCombination keyCombination = null;
-                    if (keyBinding instanceof KeyStroke)
-                    {
-                        keyCombination = convertSwingBindingToFX((KeyStroke) keyBinding);
-                    }
-                    String actionName = (String) stream.readObject();
-                    if (actionName != null && keyCombination != null)
-                    {
-                        addKeyCombinationForAction(keyCombination, actionName);
-                    }
-                }
-                istream.close();
-
-                // set up bindings for new actions in recent releases
-
-                if (version < 252)
-                {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN), "increase-font");
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN), "decrease-font");
-                }
-                if (version < 300)
-                {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion");
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), "autoindent");
-                }
-                if (version < 320)
-                {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN), "compile");
-                }
-                if (version < 330)
-                {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN), "preferences");
-                }
-                if (version < 400)
-                {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN), "reset-font");
-                }
-                updateKeymap();
-                return true;
-            }
         }
-        catch (IOException | ClassNotFoundException exc) {
+        catch (IOException exc) {
             // ignore - file probably didn't exist (yet)
-            return false;
         }
-    }
-
-    // We can't use the recommended Java 9 replacement of getModifiersEx()
-    // because that is on the key event, and we are loading a KeyStroke
-    // object from a file, saved on an old BlueJ.  So we must continue
-    // checking against the old modifiers:
-    @SuppressWarnings("deprecation")
-    private static KeyCodeCombination convertSwingBindingToFX(KeyStroke swing)
-    {
-        List<Modifier> modifiers = new ArrayList<>();
-        if ((swing.getModifiers() & Event.CTRL_MASK) != 0)
-            modifiers.add(KeyCombination.CONTROL_DOWN);
-        if ((swing.getModifiers() & Event.SHIFT_MASK) != 0)
-            modifiers.add(KeyCombination.SHIFT_DOWN);
-        if ((swing.getModifiers() & Event.META_MASK) != 0)
-            modifiers.add(KeyCombination.META_DOWN);
-        if ((swing.getModifiers() & Event.ALT_MASK) != 0)
-            modifiers.add(KeyCombination.ALT_DOWN);
-
-        KeyCode code = JavaFXUtil.awtKeyCodeToFX(swing.getKeyCode());
-        if (code != null)
-        {
-            return new KeyCodeCombination(code, modifiers.toArray(new Modifier[0]));
-        }
-        else
-        {
-            return null;
-        }
+        return false;
     }
 
     // --------------------------------------------------------------------
