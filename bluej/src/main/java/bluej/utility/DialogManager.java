@@ -24,8 +24,6 @@ package bluej.utility;
 import bluej.BlueJTheme;
 import bluej.Config;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -128,20 +126,6 @@ public class DialogManager
             alert.initModality(Modality.WINDOW_MODAL);
             alert.setContentText(messageDialog);
             alert.showAndWait();
-        }
-    }
-
-    public static void showTextWithCopyButtonFX(javafx.stage.Window parent, String text, String title)
-    {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, text, ButtonType.OK, ButtonType.APPLY);
-        ((Button)alert.getDialogPane().lookupButton(ButtonType.APPLY)).setText(Config.getString("editor.copy-to-clipboardLabel"));
-        alert.setTitle(title);
-        alert.initOwner(parent);
-        alert.setHeaderText("");
-        alert.initModality(Modality.WINDOW_MODAL);
-        if (alert.showAndWait().orElse(ButtonType.OK) == ButtonType.APPLY)
-        {
-            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
         }
     }
 

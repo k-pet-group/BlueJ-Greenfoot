@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2013,2014,2016,2017,2018,2019,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2013,2014,2016,2017,2018,2019,2021,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-
-import javax.swing.SwingUtilities;
 
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.scene.Scene;

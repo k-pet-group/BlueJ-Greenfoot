@@ -26,7 +26,6 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 
-import java.awt.Desktop;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;

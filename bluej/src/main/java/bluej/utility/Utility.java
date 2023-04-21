@@ -55,9 +55,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.swing.*;
-import javax.swing.text.TabExpander;
-
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.FXPlatformSupplier;
 import com.google.common.collect.ImmutableSet;

@@ -44,6 +44,7 @@ import bluej.views.CallableView;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -62,8 +63,6 @@ import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.*;
-import java.awt.geom.Area;
 import java.util.List;
 import java.util.*;
 
@@ -346,15 +345,15 @@ public final class PackageEditor extends StackPane
      */
     public void findSpaceForVertex(Target t)
     {
-        Area a = new Area();
+        ArrayList<Rectangle2D> a = new ArrayList<>();
 
         for (Target vertex : pkg.getVertices())
         {
             // lets discount the vertex we are adding from the space
             // calculations
             if (vertex != t) {
-                Rectangle vr = new Rectangle(vertex.getX(), vertex.getY(), (int)vertex.getWidth(), (int)vertex.getHeight());
-                a.add(new Area(vr));
+                Rectangle2D vr = new Rectangle2D(vertex.getX(), vertex.getY(), (int)vertex.getWidth(), (int)vertex.getHeight());
+                a.add(vr);
             }
         }
         
@@ -364,12 +363,12 @@ public final class PackageEditor extends StackPane
         if (RIGHT_PLACEMENT_MIN > minWidth)
             minWidth = RIGHT_PLACEMENT_MIN;
 
-        Rectangle targetRect = new Rectangle((int)t.getWidth() + WHITESPACE_SIZE * 2, (int)t.getHeight() + WHITESPACE_SIZE * 2);
+        Rectangle2D targetRect = new Rectangle2D(0, 0, (int)t.getWidth() + WHITESPACE_SIZE * 2, (int)t.getHeight() + WHITESPACE_SIZE * 2);
 
         for (int y = 0; y < (2 * minHeight); y += 10) {
             for (int x = 0; x < (minWidth - t.getWidth() - 2 * WHITESPACE_SIZE); x += 10) {
-                targetRect.setLocation(x, y);
-                if (!a.intersects(targetRect)) {
+                final Rectangle2D targetRectMoved = new Rectangle2D(x, y, targetRect.getWidth(), targetRect.getHeight());
+                if (a.stream().noneMatch(r -> r.intersects(targetRectMoved))) {
                     t.setPos(x + 10, y + 10);
                     return;
                 }

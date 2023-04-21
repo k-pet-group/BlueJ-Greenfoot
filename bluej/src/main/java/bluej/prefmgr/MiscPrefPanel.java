@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2016,2018,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2016,2018,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,13 +21,10 @@
  */
 package bluej.prefmgr;
 
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.swing.KeyStroke;
 
 import bluej.pkgmgr.Project;
 import bluej.debugger.RunOnThread;

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -57,13 +57,6 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Window;
-
-import javax.swing.ImageIcon;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.JavaFXUtil;
@@ -127,10 +120,6 @@ public final class Config
     public static Rectangle2D screenBounds; // maximum dimensions of screen
     public static String debugLogName = bluejDebugLogName;
     public static List<String> fontOptions = new ArrayList<>();
-    // a border for components with keyboard focus
-    private static Border focusBorder;
-    // a border for components without keyboard focus
-    private static Border normalBorder;
     private static Properties systemProps;      // bluej.defs
     private static Properties userProps;        // <user home>/bluej.properties
     private static Properties greenfootProps;   // greenfoot.defs
@@ -1257,22 +1246,6 @@ public final class Config
 
         return null;
     }
-    
-    /**
-     * Find and return the icon for an image, using the definitions in the 
-     * properties files to find the actual image.
-     */
-    @OnThread(Tag.Swing)
-    public static ImageIcon getImageAsIcon(String propname)
-    {
-        try {
-            java.net.URL u = getImageFile(propname).toURI().toURL();
-            return new ImageIcon(u);
-        }
-        catch (java.net.MalformedURLException mue) { }
-        catch (NullPointerException npe) { }
-        return null;
-    }
 
     /**
      * Gets an image as an FX image.  Note that you pass the property name
@@ -1289,24 +1262,6 @@ public final class Config
         }
         catch (java.net.MalformedURLException mue) { }
         catch (NullPointerException npe) { }
-        return null;
-    }
-    
-    /**
-     * Return an icon for an image file name, without going through bluej.defs.
-     * The parameter specifies the final image name, not a property.
-     */
-    @OnThread(Tag.Swing)
-    public static ImageIcon getFixedImageAsIcon(String filename)
-    {
-        if (filename == null)
-            throw new IllegalArgumentException("Cannot load null image");
-        
-        File image = new File(bluejLibDir, "images" + File.separator + filename);
-        try {
-            return new ImageIcon(image.toURI().toURL());
-        }
-        catch (java.net.MalformedURLException mue) { }
         return null;
     }
 

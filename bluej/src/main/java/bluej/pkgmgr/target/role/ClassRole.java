@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2016,2017,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2016,2017,2019,2020,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,8 +22,6 @@
 package bluej.pkgmgr.target.role;
 
 import bluej.Config;
-import bluej.debugmgr.ConstructAction;
-import bluej.debugmgr.objectbench.InvokeAction;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -46,7 +44,6 @@ import javafx.scene.control.MenuItem;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
