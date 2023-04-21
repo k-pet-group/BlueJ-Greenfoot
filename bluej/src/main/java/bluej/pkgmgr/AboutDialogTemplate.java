@@ -47,8 +47,6 @@ import javafx.stage.Modality;
 import javafx.stage.Window;
 import javafx.util.Pair;
 
-import javax.swing.SwingUtilities;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -142,13 +140,18 @@ public class AboutDialogTemplate extends Dialog<Void>
                 " (" + System.getProperty("os.arch") + ")"));
 
         Button debugLogShow = new Button(Config.getString("about.openFolder"));
-        debugLogShow.setOnAction(e -> SwingUtilities.invokeLater(() -> {
+        debugLogShow.setOnAction(e -> {
             try
             {
-                // Linux has a bug in Desktop class, see bug BLUEJ-1039
-                if (!Config.isLinux() && Desktop.isDesktopSupported())
+                if (Config.isWinOS())
                 {
-                    Desktop.getDesktop().open(Config.getUserConfigDir());
+                    Runtime.getRuntime().exec(
+                        new String[] {"start", Config.getUserConfigDir().getAbsolutePath()});
+                }
+                else if (Config.isMacOS())
+                {
+                    Runtime.getRuntime().exec(
+                        new String[] {"open", Config.getUserConfigDir().getAbsolutePath()});
                 }
                 else if (Config.isLinux())
                 {
@@ -160,7 +163,7 @@ public class AboutDialogTemplate extends Dialog<Void>
             {
                 Debug.reportError(ex);
             }
-        }));
+        });
 
         HBox debugLog = new HBox(new Label(Config.getString("about.logfile") + " " +
                 Config.getUserConfigFile(Config.debugLogName)), debugLogShow);
