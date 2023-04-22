@@ -471,8 +471,8 @@ public class Main
         Config.handleExit();
         // exit with success status
 
-        // We wrap this in a Platform.runLater/Swing.invokeLater to make sure it
-        // runs after any pending FX actions or Swing actions:
+        // We wrap this in a Platform.runLater to make sure it
+        // runs after any pending FX actions:
         JavaFXUtil.runAfterCurrent(() -> System.exit(0));
     }
 
