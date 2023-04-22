@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,13 +21,6 @@
  */
 package bluej;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -41,10 +34,13 @@ import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.*;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
+import javafx.geometry.Dimension2D;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -58,15 +54,9 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Window;
-
-import javax.swing.ImageIcon;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.JavaFXUtil;
@@ -75,8 +65,6 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.lang.reflect.Field;
 
 /**
@@ -129,13 +117,9 @@ public final class Config
     // bluej configuration properties hierarchy
     // (command overrides user which overrides system)
     public static String language;      // message language (english, ...)
-    public static Rectangle screenBounds; // maximum dimensions of screen
+    public static Rectangle2D screenBounds; // maximum dimensions of screen
     public static String debugLogName = bluejDebugLogName;
     public static List<String> fontOptions = new ArrayList<>();
-    // a border for components with keyboard focus
-    private static Border focusBorder;
-    // a border for components without keyboard focus
-    private static Border normalBorder;
     private static Properties systemProps;      // bluej.defs
     private static Properties userProps;        // <user home>/bluej.properties
     private static Properties greenfootProps;   // greenfoot.defs
@@ -193,8 +177,6 @@ public final class Config
         initialCommandLineProps = tempCommandLineProps;
         
         isGreenfoot = bootingGreenfoot;
-
-        screenBounds = calculateScreenBounds();
 
         // construct paths for the configuration directories
         Config.bluejLibDir = bluejLibDir;
@@ -633,15 +615,24 @@ public final class Config
     /**
      * Get the screen size information
      */
-    private static Rectangle calculateScreenBounds()
+    @OnThread(Tag.FX)
+    private static Rectangle2D calculateScreenBounds()
     {
         // Don't throw an exception if we're testing in headless mode:
-        if (GraphicsEnvironment.isHeadless())
+        if (Screen.getScreens().isEmpty())
         {
-            return new Rectangle(0, 0, 1280, 1024);
+            return new Rectangle2D(0, 0, 1280, 1024);
         }
-        Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-        return new Rectangle(d);
+        return Screen.getPrimary().getBounds();
+    }
+    
+    @OnThread(Tag.FXPlatform)
+    public static Rectangle2D getScreenBounds()
+    {
+        if (screenBounds == null)
+            screenBounds = calculateScreenBounds();
+        
+        return screenBounds;
     }
     
     /**
@@ -1262,22 +1253,6 @@ public final class Config
 
         return null;
     }
-    
-    /**
-     * Find and return the icon for an image, using the definitions in the 
-     * properties files to find the actual image.
-     */
-    @OnThread(Tag.Swing)
-    public static ImageIcon getImageAsIcon(String propname)
-    {
-        try {
-            java.net.URL u = getImageFile(propname).toURI().toURL();
-            return new ImageIcon(u);
-        }
-        catch (java.net.MalformedURLException mue) { }
-        catch (NullPointerException npe) { }
-        return null;
-    }
 
     /**
      * Gets an image as an FX image.  Note that you pass the property name
@@ -1294,24 +1269,6 @@ public final class Config
         }
         catch (java.net.MalformedURLException mue) { }
         catch (NullPointerException npe) { }
-        return null;
-    }
-    
-    /**
-     * Return an icon for an image file name, without going through bluej.defs.
-     * The parameter specifies the final image name, not a property.
-     */
-    @OnThread(Tag.Swing)
-    public static ImageIcon getFixedImageAsIcon(String filename)
-    {
-        if (filename == null)
-            throw new IllegalArgumentException("Cannot load null image");
-        
-        File image = new File(bluejLibDir, "images" + File.separator + filename);
-        try {
-            return new ImageIcon(image.toURI().toURL());
-        }
-        catch (java.net.MalformedURLException mue) { }
         return null;
     }
 
@@ -1331,20 +1288,6 @@ public final class Config
             return new javafx.scene.image.Image(image.toURI().toURL().toString());
         }
         catch (java.net.MalformedURLException mue) { }
-        return null;
-    }
-
-    /**
-     * Find and return an image. The image will have to be tracked. 
-     */
-    public static Image getImage(String propname)
-    {
-        try {
-            java.net.URL u = getImageFile(propname).toURI().toURL();
-            return Toolkit.getDefaultToolkit().createImage(u);
-        }
-        catch (java.net.MalformedURLException mue) { }
-        catch (NullPointerException npe) { }        
         return null;
     }
 
@@ -1501,84 +1444,6 @@ public final class Config
     {
         return userPrefDir;
     }
-    
-    /**
-     * Return a color value from the bluej properties.
-     */
-    public static Color getItemColour(String itemname)
-    {
-        try {
-            String rgbStr = getPropString(itemname, "255,0,255");
-            String rgbVal[] = Utility.split(rgbStr, ",");
-
-            if (rgbVal.length < 3)
-                Debug.reportError("Error reading colour ["+itemname+"]");
-            else {
-                int r = Integer.parseInt(rgbVal[0].trim());
-                int g = Integer.parseInt(rgbVal[1].trim());
-                int b = Integer.parseInt(rgbVal[2].trim());
-
-                return new Color(r, g, b);
-            }
-        }
-        catch(NumberFormatException e) {
-            Debug.reportError("Could not get colour for " + itemname);
-        }
-
-        return null;
-    }
-    
-    /**
-     * Return a color value from the bluej properties.
-     * 
-     * If the value is not present, return null
-     */
-    public static Color getOptionalItemColour(String itemname)
-    {
-        try {
-            String rgbStr = getPropString(itemname, null);
-            if (rgbStr == null) {
-                return null;
-            }
-            
-            String rgbVal[] = Utility.split(rgbStr, ",");
-            if (rgbVal.length < 3) {
-                Debug.reportError("Error reading colour ["+itemname+"]");
-            }
-            else {
-                int r = Integer.parseInt(rgbVal[0].trim());
-                int g = Integer.parseInt(rgbVal[1].trim());
-                int b = Integer.parseInt(rgbVal[2].trim());
-                
-                return new Color(r, g, b);
-            }
-        }
-        catch(NumberFormatException e) {
-            Debug.reportError("Could not get colour for " + itemname);
-        }
-
-        return null;
-    }
-
-    /**
-     * Get a font from a specified property, using the given default font name and
-     * the given size. Font name can end with "-bold" to indicate bold style.
-     */
-    public static Font getFont(String propertyName, String defaultFontName, int size)
-    {
-        String fontName = getPropString(propertyName, defaultFontName);
-        
-        int style;
-        if(fontName.endsWith("-bold")) {
-            style = Font.BOLD;
-            fontName = fontName.substring(0, fontName.length()-5);
-        }
-        else {
-            style = Font.PLAIN;
-        }
-        
-        return new Font(fontName, style, size);
-    }
 
     /**
      * Store a point in the config files. The config properties
@@ -1609,7 +1474,7 @@ public final class Config
      * Unless both sizes can be found, null is returned.  A minimum size of
      * 50 in both dimensions is enforced.
      */
-    private static Dimension getSize(String itemPrefix)
+    private static Dimension2D getSize(String itemPrefix)
     {
         int w = getPropInteger(itemPrefix + ".width", -1);
         int h = getPropInteger(itemPrefix + ".height", -1);
@@ -1617,7 +1482,7 @@ public final class Config
         if (w == -1 || h == -1)
             return null;
 
-        return new Dimension(Math.max(w, 50), Math.max(h, 50));
+        return new Dimension2D(Math.max(w, 50), Math.max(h, 50));
     }
 
     /**
@@ -1905,36 +1770,6 @@ public final class Config
         }
     }
 
-    @OnThread(Tag.Swing)
-    public static Border getFocusBorder()
-    {
-        if (focusBorder == null)
-        {
-            focusBorder = new CompoundBorder(new LineBorder(Color.BLACK),
-                    new BevelBorder(BevelBorder.LOWERED,
-                            new Color(195, 195, 195),
-                            new Color(240, 240, 240),
-                            new Color(195, 195, 195),
-                            new Color(124, 124, 124)));
-        }
-        return focusBorder;
-    }
-
-    @OnThread(Tag.Swing)
-    public static Border getNormalBorder()
-    {
-        if (normalBorder == null)
-        {
-            normalBorder = new CompoundBorder(new EmptyBorder(1,1,1,1),
-                    new BevelBorder(BevelBorder.LOWERED,
-                            new Color(195, 195, 195),
-                            new Color(240, 240, 240),
-                            new Color(124, 124, 124),
-                            new Color(195, 195, 195)));
-        }
-        return normalBorder;
-    }
-
     public static void loadFXFonts()
     {
         if (!fontOptions.isEmpty())
@@ -1989,11 +1824,11 @@ public final class Config
         JavaFXUtil.addChangeListener(window.widthProperty(), x -> putSize(locationPrefix, (int)window.getWidth(), (int)window.getHeight()));
         JavaFXUtil.addChangeListener(window.heightProperty(), y -> putSize(locationPrefix, (int)window.getWidth(), (int)window.getHeight()));
 
-        Dimension location = getSize(locationPrefix);
+        Dimension2D location = getSize(locationPrefix);
         if (location != null)
         {
-            window.setWidth(location.width);
-            window.setHeight(location.height);
+            window.setWidth(location.getWidth());
+            window.setHeight(location.getHeight());
         }
     }
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2016,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2016,2019,2020,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,7 +35,6 @@ import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.*;
 import java.net.URL;
 import java.util.List;
 
@@ -130,7 +129,7 @@ public class ExtensionsDialog
         if (url != null)
         {
             Hyperlink link = new Hyperlink(url.toExternalForm());
-            link.setOnAction(e -> SwingUtilities.invokeLater(() -> Utility.openWebBrowser(url.toExternalForm())));
+            link.setOnAction(e -> Utility.openWebBrowser(url.toExternalForm()));
             mainPanel.getChildren().add(link);
         }
 

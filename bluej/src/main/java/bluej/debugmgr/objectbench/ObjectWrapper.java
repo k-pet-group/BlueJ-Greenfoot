@@ -21,7 +21,6 @@
  */
 package bluej.debugmgr.objectbench;
 
-import java.awt.Color;
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -112,9 +111,6 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     @OnThread(Tag.Any)
     static final String inheritedFrom = Config.getString("debugger.objectwrapper.inherited");
 
-    @OnThread(Tag.Any)
-    static final Color envOpColour = new Color(152,32,32);
-    
     public static final int WIDTH = 100;    // width including gap
     public static final int HEIGHT = 70;   // height including gap
     public static final double CORNER_SIZE = 36;
@@ -184,7 +180,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     {
         // first one we construct will give us more info about the size of the screen
         if(!itemHeightKnown) {
-            itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
+            itemsOnScreen = (int)Config.getScreenBounds().getHeight() / itemHeight;
         }
 
         this.pmf = pmf;

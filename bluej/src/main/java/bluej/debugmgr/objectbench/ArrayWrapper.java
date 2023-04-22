@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2023  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,6 @@
 package bluej.debugmgr.objectbench;
 
 
-import javax.swing.SwingUtilities;
 import javafx.beans.binding.When;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;

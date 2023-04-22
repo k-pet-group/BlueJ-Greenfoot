@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -102,7 +102,6 @@ import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -251,10 +250,6 @@ public class PkgMgrFrame
     private double bottomPaneLastDividerPos = 0.6; // default split
     @OnThread(Tag.FX)
     private Pane bottomOverlay;
-    // A dummy SwingNode to enable us to get the AWT frame ancestor which underpins
-    // the JavaFX window, mainly for the extensions
-    @OnThread(Tag.Any)
-    private SwingNode dummySwingNode;
     // The vertical split pane with controls+class diagram on top,
     // and bench+codepad split pane on the bottom.
     @OnThread(Tag.FX)
@@ -2782,16 +2777,11 @@ public class PkgMgrFrame
     public void showWebPage(String url)
     {
         // Web browser must use Swing as it uses Desktop class:
-        SwingUtilities.invokeLater(() ->
-        {
-            boolean openedBrowser = Utility.openWebBrowser(url);
-            Platform.runLater(() -> {
-                if (openedBrowser)
-                    setStatus(Config.getString("pkgmgr.webBrowserMsg"));
-                else
-                    setStatus(Config.getString("pkgmgr.webBrowserError"));
-            });
-        });
+        boolean openedBrowser = Utility.openWebBrowser(url);
+        if (openedBrowser)
+            setStatus(Config.getString("pkgmgr.webBrowserMsg"));
+        else
+            setStatus(Config.getString("pkgmgr.webBrowserError"));
     }
 
     // --- the following methods set up the GUI frame ---
@@ -2828,15 +2818,7 @@ public class PkgMgrFrame
         JavaFXUtil.addStyleClass(compileButton, "compile-button");
         topButtons.getChildren().add(compileButton);
         toolPanel.getChildren().add(topButtons);
-
-        dummySwingNode = new SwingNode();
-        SwingUtilities.invokeLater(() ->
-        {
-            dummySwingNode.setContent(new JLabel(""));
-        });
-        dummySwingNode.setFocusTraversable(false);
-        toolPanel.getChildren().add(dummySwingNode);
-
+        
         Pane space = new Pane();
         VBox.setVgrow(space, Priority.ALWAYS);
         toolPanel.getChildren().add(space);

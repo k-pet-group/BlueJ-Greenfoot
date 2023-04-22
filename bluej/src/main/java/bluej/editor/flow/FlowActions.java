@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,6 @@ import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
-import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
@@ -53,9 +52,6 @@ import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.*;
-import javax.swing.text.DefaultEditorKit;
-import java.awt.*;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -118,51 +114,51 @@ public final class FlowActions
             setDefaultKeyBindings();
         lastActionWasCut = false;
 
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME), actions.get(DefaultEditorKit.beginLineAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.END), actions.get(DefaultEditorKit.endLineAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.PAGE_UP), actions.get(DefaultEditorKit.pageUpAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.PAGE_DOWN), actions.get(DefaultEditorKit.pageDownAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT), actions.get(DefaultEditorKit.backwardAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT), actions.get(DefaultEditorKit.forwardAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.UP), actions.get(DefaultEditorKit.upAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.DOWN), actions.get(DefaultEditorKit.downAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME), actions.get("caret-begin-line"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.END), actions.get("caret-end-line"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.PAGE_UP), actions.get("page-up"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.PAGE_DOWN), actions.get("page-down"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT), actions.get("caret-backward"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT), actions.get("caret-forward"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.UP), actions.get("caret-up"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.DOWN), actions.get("caret-down"));
 
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBeginLineAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionEndLineAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHIFT_DOWN), actions.get("selection-begin-line"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHIFT_DOWN), actions.get("selection-end-line"));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.PAGE_UP, KeyCombination.SHIFT_DOWN), actions.get("selection-page-up"));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.PAGE_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-page-down"));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBackwardAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionForwardAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.UP, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionUpAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionDownAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.SHIFT_DOWN), actions.get("selection-backward"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.SHIFT_DOWN), actions.get("selection-forward"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.UP, KeyCombination.SHIFT_DOWN), actions.get("selection-up"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-down"));
 
         // Ctrl/Cmd-Home/End:
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHORTCUT_DOWN), actions.get(DefaultEditorKit.endAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionEndAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHORTCUT_DOWN), actions.get(DefaultEditorKit.beginAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBeginAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHORTCUT_DOWN), actions.get("caret-end"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-end"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHORTCUT_DOWN), actions.get("caret-begin"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-begin"));
 
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.BACK_SPACE), actions.get(DefaultEditorKit.deletePrevCharAction));
-        builtInKeymap.put(new KeyCodeCombination(KeyCode.DELETE), actions.get(DefaultEditorKit.deleteNextCharAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.BACK_SPACE), actions.get("delete-previous"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.DELETE), actions.get("delete-next"));
 
         if (Config.isMacOS())
         {
-            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.ALT_DOWN), actions.get(DefaultEditorKit.previousWordAction));
-            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.ALT_DOWN), actions.get(DefaultEditorKit.nextWordAction));
-            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.ALT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionPreviousWordAction));
-            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.ALT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionNextWordAction));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.ALT_DOWN), actions.get("caret-previous-word"));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.ALT_DOWN), actions.get("caret-next-word"));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.ALT_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-previous-word"));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.ALT_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-next-word"));
 
-            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.META_DOWN), actions.get(DefaultEditorKit.beginLineAction));
-            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.META_DOWN), actions.get(DefaultEditorKit.endLineAction));
-            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.META_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBeginLineAction));
-            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.META_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionEndLineAction));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.META_DOWN), actions.get("caret-begin-line"));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.META_DOWN), actions.get("caret-end-line"));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.META_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-begin-line"));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.META_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-end-line"));
         }
         else
         {
-            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.CONTROL_DOWN), actions.get(DefaultEditorKit.previousWordAction));
-            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN), actions.get(DefaultEditorKit.nextWordAction));
-            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionPreviousWordAction));
-            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionNextWordAction));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.CONTROL_DOWN), actions.get("caret-previous-word"));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN), actions.get("caret-next-word"));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-previous-word"));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-next-word"));
         }
 
         builtInKeymap.put(new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), new FlowAbstractAction("select-all", Category.EDIT)
@@ -650,103 +646,11 @@ public final class FlowActions
                     return false;
                 }
             }
-            else
-            {
-                file = Config.getUserConfigFile(KEYS_FILE);
-                FileInputStream istream = new FileInputStream(file);
-                ObjectInputStream stream = new ObjectInputStream(istream);
-                //KeyStroke[] keys = keymap.getBoundKeyStrokes();
-                int version = 0;
-                int count = stream.readInt();
-                if (count > 100)
-                { // it was new format: version number stored first
-                    version = count;
-                    count = stream.readInt();
-                }
-                if (Config.isMacOS() && (version < 140))
-                {
-                    // do not attempt to load old bindings on MacOS when switching
-                    // to jdk 1.4.1
-                    istream.close();
-                    return false;
-                }
-
-                for (int i = 0; i < count; i++)
-                {
-                    Object keyBinding = stream.readObject();
-                    KeyCodeCombination keyCombination = null;
-                    if (keyBinding instanceof KeyStroke)
-                    {
-                        keyCombination = convertSwingBindingToFX((KeyStroke) keyBinding);
-                    }
-                    String actionName = (String) stream.readObject();
-                    if (actionName != null && keyCombination != null)
-                    {
-                        addKeyCombinationForAction(keyCombination, actionName);
-                    }
-                }
-                istream.close();
-
-                // set up bindings for new actions in recent releases
-
-                if (version < 252)
-                {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN), "increase-font");
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN), "decrease-font");
-                }
-                if (version < 300)
-                {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion");
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), "autoindent");
-                }
-                if (version < 320)
-                {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN), "compile");
-                }
-                if (version < 330)
-                {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN), "preferences");
-                }
-                if (version < 400)
-                {
-                    addKeyCombinationForAction(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN), "reset-font");
-                }
-                updateKeymap();
-                return true;
-            }
         }
-        catch (IOException | ClassNotFoundException exc) {
+        catch (IOException exc) {
             // ignore - file probably didn't exist (yet)
-            return false;
         }
-    }
-
-    // We can't use the recommended Java 9 replacement of getModifiersEx()
-    // because that is on the key event, and we are loading a KeyStroke
-    // object from a file, saved on an old BlueJ.  So we must continue
-    // checking against the old modifiers:
-    @SuppressWarnings("deprecation")
-    private static KeyCodeCombination convertSwingBindingToFX(KeyStroke swing)
-    {
-        List<Modifier> modifiers = new ArrayList<>();
-        if ((swing.getModifiers() & Event.CTRL_MASK) != 0)
-            modifiers.add(KeyCombination.CONTROL_DOWN);
-        if ((swing.getModifiers() & Event.SHIFT_MASK) != 0)
-            modifiers.add(KeyCombination.SHIFT_DOWN);
-        if ((swing.getModifiers() & Event.META_MASK) != 0)
-            modifiers.add(KeyCombination.META_DOWN);
-        if ((swing.getModifiers() & Event.ALT_MASK) != 0)
-            modifiers.add(KeyCombination.ALT_DOWN);
-
-        KeyCode code = JavaFXUtil.awtKeyCodeToFX(swing.getKeyCode());
-        if (code != null)
-        {
-            return new KeyCodeCombination(code, modifiers.toArray(new Modifier[0]));
-        }
-        else
-        {
-            return null;
-        }
+        return false;
     }
 
     // --------------------------------------------------------------------
@@ -1152,13 +1056,13 @@ public final class FlowActions
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.D, SHORTCUT_MASK), "describe-key");
         // "help-mouse" not bound
 
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.C, SHORTCUT_MASK), DefaultEditorKit.copyAction);
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.X, SHORTCUT_MASK), DefaultEditorKit.cutAction);
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.V, SHORTCUT_MASK), DefaultEditorKit.pasteAction);
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.C, SHORTCUT_MASK), "copy-to-clipboard");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.X, SHORTCUT_MASK), "cut-to-clipboard");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.V, SHORTCUT_MASK), "paste-from-clipboard");
 
         // F2, F3, F4
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F2), "copy-line");
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F3), DefaultEditorKit.pasteAction);
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F3), "paste-from-clipboard");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F4), "cut-line");
 
         // cursor block
@@ -1760,7 +1664,7 @@ public final class FlowActions
     {
         public EndLineAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionEndLineAction : DefaultEditorKit.endLineAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-end-line" : "caret-end-line", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -1783,7 +1687,7 @@ public final class FlowActions
     {
         public EndDocumentAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionEndAction : DefaultEditorKit.endAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-end" : "caret-end", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -1797,7 +1701,7 @@ public final class FlowActions
     {
         public HomeLineAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionBeginLineAction : DefaultEditorKit.beginLineAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-begin-line" : "caret-begin-line", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -1839,7 +1743,7 @@ public final class FlowActions
     {
         public HomeDocumentAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionBeginAction : DefaultEditorKit.beginAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-begin" : "caret-begin", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -1853,7 +1757,7 @@ public final class FlowActions
     {
         public PrevPageAction(boolean withSelection)
         {
-            super(withSelection ? "selection-page-up" : DefaultEditorKit.pageUpAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-page-up" : "page-up", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -1881,7 +1785,7 @@ public final class FlowActions
     {
         public NextPageAction(boolean withSelection)
         {
-            super(withSelection ? "selection-page-down" : DefaultEditorKit.pageDownAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-page-down" : "page-down", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -1909,7 +1813,7 @@ public final class FlowActions
     {
         public PrevLineAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionUpAction : DefaultEditorKit.upAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-up" : "caret-up", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -1942,7 +1846,7 @@ public final class FlowActions
     {
         public NextLineAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionDownAction : DefaultEditorKit.downAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-down" : "caret-down", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -1975,7 +1879,7 @@ public final class FlowActions
     {
         public PrevCharAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionBackwardAction : DefaultEditorKit.backwardAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-backward" : "caret-backward", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -1989,7 +1893,7 @@ public final class FlowActions
     {
         public NextCharAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionForwardAction : DefaultEditorKit.forwardAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-forward" : "caret-forward", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -2003,7 +1907,7 @@ public final class FlowActions
     {
         public DeletePrevCharAction()
         {
-            super(DefaultEditorKit.deletePrevCharAction, Category.EDIT);
+            super("delete-previous", Category.EDIT);
         }
 
         @Override
@@ -2040,7 +1944,7 @@ public final class FlowActions
     {
         public DeleteNextCharAction()
         {
-            super(DefaultEditorKit.deleteNextCharAction, Category.EDIT);
+            super("delete-next", Category.EDIT);
         }
 
         @Override
@@ -2065,7 +1969,7 @@ public final class FlowActions
     {
         public NextWordAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionNextWordAction : DefaultEditorKit.nextWordAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-next-word" : "caret-next-word", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -2090,7 +1994,7 @@ public final class FlowActions
     {
         public PrevWordAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionPreviousWordAction : DefaultEditorKit.previousWordAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-previous-word" : "caret-previous-word", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -2117,7 +2021,7 @@ public final class FlowActions
     {
         public EndWordAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionEndWordAction : DefaultEditorKit.endWordAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-end-word" : "caret-end-word", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -2134,7 +2038,7 @@ public final class FlowActions
     {
         public BeginWordAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionBeginWordAction : DefaultEditorKit.beginWordAction, Category.MOVE_SCROLL, withSelection);
+            super(withSelection ? "selection-begin-word" : "caret-begin-word", Category.MOVE_SCROLL, withSelection);
         }
 
         @Override
@@ -2151,7 +2055,7 @@ public final class FlowActions
     {
         return action("delete-previous-word", Category.EDIT, () -> {
             FlowEditorPane c = getTextComponent();
-            FlowAbstractAction prevWordAct = actions.get(DefaultEditorKit.previousWordAction);
+            FlowAbstractAction prevWordAct = actions.get("caret-previous-word");
             int end = c.getCaretPosition();
             prevWordAct.actionPerformed(false);
             c.positionAnchor(end);
@@ -2161,7 +2065,7 @@ public final class FlowActions
 
     private FlowAbstractAction selectWordAction()
     {
-        return action(DefaultEditorKit.selectWordAction, Category.MOVE_SCROLL, () -> {
+        return action("select-word", Category.MOVE_SCROLL, () -> {
             FlowEditorPane c = getTextComponent();
             int origPos = c.getCaretPosition();
             int newStart = findWordLimit(c, origPos, false);

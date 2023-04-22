@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2015,2016,2018,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 2015,2016,2018,2021,2023  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -50,7 +50,6 @@ import org.w3c.dom.events.EventTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -102,7 +101,7 @@ public class WebTab extends FXTab
                     mainMoveMenu,
                     JavaFXUtil.makeMenuItem(Config.getString("frame.webmenu.open.external"), () -> {
                         String location = browser.getEngine().getLocation();
-                        SwingUtilities.invokeLater(() -> Utility.openWebBrowser(location));
+                        Utility.openWebBrowser(location);
                     }, new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN)),
                     JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.close"), () -> tab.getParent().close(tab), new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN))
             ));

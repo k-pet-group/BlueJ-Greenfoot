@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 1999-2010,2012,2014,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2012,2014,2016,2019,2023  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -36,7 +36,6 @@ import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;

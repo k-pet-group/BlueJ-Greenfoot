@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2023  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,11 +23,18 @@ package bluej.utility;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import bluej.parser.SourceLocation;
+import bluej.parser.SourceSpan;
+import bluej.parser.symtab.Selection;
+import bluej.pkgmgr.target.ClassTarget;
 import junit.framework.TestCase;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
@@ -224,5 +231,51 @@ public class JavaUtilTests extends TestCase
 
         assertTrue(JavaUtils.checkMemberAccess(baseR, new GenTypeClass(subsubR),
                 subR, Modifier.PROTECTED, false));
+    }
+    
+    private void checkReplacement(int startLine, int startColumn, int endLine, int endColumn, String replace, String expected)
+    {
+        List<String> orig = new ArrayList<>(Arrays.asList("""
+            abcde
+            fghij
+            klmno
+            pqrst
+            uvwxyz
+            """.split("\n")));
+
+        ClassTarget.replaceSelection(orig, new Selection(new SourceSpan(
+            new SourceLocation(startLine, startColumn),
+            new SourceLocation(endLine, endColumn)
+        )), replace);
+        assertEquals(expected, orig.stream().map(s -> s + "\n").collect(Collectors.joining()));
+    }
+    
+    public void testReplacement()
+    {
+        checkReplacement(1, 2, 1, 5, "000", """
+            a000e
+            fghij
+            klmno
+            pqrst
+            uvwxyz
+            """);
+
+        checkReplacement(1, 2, 2, 5, "000", """
+            a000j
+            klmno
+            pqrst
+            uvwxyz
+            """);
+
+        checkReplacement(1, 2, 4, 1, "0", """
+            a0pqrst
+            uvwxyz
+            """);
+        checkReplacement(1, 2, 4, 1, "0\n1\n2", """
+            a0
+            1
+            2pqrst
+            uvwxyz
+            """);
     }
 }

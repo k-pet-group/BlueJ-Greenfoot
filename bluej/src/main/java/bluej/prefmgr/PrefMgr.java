@@ -21,7 +21,6 @@
  */
 package bluej.prefmgr;
 
-import java.awt.Font;
 import java.io.File;
 import java.util.*;
 
@@ -93,11 +92,7 @@ public class PrefMgr
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
     // other constants
     private static final int NUM_RECENT_PROJECTS = Config.getPropInteger("bluej.numberOfRecentProjects", 12);
-    // initialised by a call to setMenuFontSize()
-    @OnThread(Tag.Swing)
-    private static Font popupMenuFont;
-    @OnThread(Tag.Swing)
-    private static Font italicMenuFont;
+
     // initialised by a call to setEditorFontSize()
     @OnThread(Tag.FX)
     private static final IntegerProperty editorFontSize = new SimpleIntegerProperty(DEFAULT_JAVA_FONT_SIZE);
@@ -207,18 +202,6 @@ public class PrefMgr
         for(int i = 0; i < recentProjects.size(); i++) {
             Config.putPropString("bluej.recentProject" + i, recentProjects.get(i));
         }
-    }
-
-    @OnThread(Tag.Swing)
-    public static Font getStandoutMenuFont()
-    {
-        return italicMenuFont;
-    }
-
-    @OnThread(Tag.Swing)
-    public static Font getPopupMenuFont()
-    {
-        return popupMenuFont;   
     }
 
     /**
@@ -439,15 +422,6 @@ public class PrefMgr
 
         //set the text file extensions to be seen as plain text file by BlueJ
         setEditorTextFileExtensions(Config.getPropString(editorTextFileExtensionsPropertyName, DEFAULT_TEXTFILE_EXTENSIONS));
-
-        //bluej menu font
-        int menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
-        Font menuFont = Config.getFont("bluej.menu.font", "SansSerif", menuFontSize);
-        
-        // popup menus are not permitted to be bold (MIK style guide) at present
-        // make popup menus same font as drop down menus
-        italicMenuFont = menuFont.deriveFont(Font.ITALIC);
-        popupMenuFont = menuFont.deriveFont(Font.PLAIN);
 
         // preferences other than fonts:
         highlightStrength.set(Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20));

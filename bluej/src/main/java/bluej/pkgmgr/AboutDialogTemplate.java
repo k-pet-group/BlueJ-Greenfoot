@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,6 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 
-import java.awt.Desktop;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -46,8 +45,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 import javafx.util.Pair;
-
-import javax.swing.SwingUtilities;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -142,13 +139,18 @@ public class AboutDialogTemplate extends Dialog<Void>
                 " (" + System.getProperty("os.arch") + ")"));
 
         Button debugLogShow = new Button(Config.getString("about.openFolder"));
-        debugLogShow.setOnAction(e -> SwingUtilities.invokeLater(() -> {
+        debugLogShow.setOnAction(e -> {
             try
             {
-                // Linux has a bug in Desktop class, see bug BLUEJ-1039
-                if (!Config.isLinux() && Desktop.isDesktopSupported())
+                if (Config.isWinOS())
                 {
-                    Desktop.getDesktop().open(Config.getUserConfigDir());
+                    Runtime.getRuntime().exec(
+                        new String[] {"start", Config.getUserConfigDir().getAbsolutePath()});
+                }
+                else if (Config.isMacOS())
+                {
+                    Runtime.getRuntime().exec(
+                        new String[] {"open", Config.getUserConfigDir().getAbsolutePath()});
                 }
                 else if (Config.isLinux())
                 {
@@ -160,7 +162,7 @@ public class AboutDialogTemplate extends Dialog<Void>
             {
                 Debug.reportError(ex);
             }
-        }));
+        });
 
         HBox debugLog = new HBox(new Label(Config.getString("about.logfile") + " " +
                 Config.getUserConfigFile(Config.debugLogName)), debugLogShow);
@@ -172,8 +174,7 @@ public class AboutDialogTemplate extends Dialog<Void>
         {
             final URL softwareURL = new URL(websiteURL);
             Hyperlink link = new Hyperlink(softwareURL.toString());
-            link.setOnMouseClicked(e -> SwingUtilities.invokeLater(() ->
-                    Utility.openWebBrowser(softwareURL.toExternalForm())));
+            link.setOnMouseClicked(e -> Utility.openWebBrowser(softwareURL.toExternalForm()));
             
             HBox hbox = new HBox(new Label(Config.getString("about.moreInformation")), link);
             hbox.setAlignment(Pos.CENTER);

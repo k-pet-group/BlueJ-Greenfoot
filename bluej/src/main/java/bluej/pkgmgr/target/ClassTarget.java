@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1653,26 +1653,43 @@ public class ClassTarget extends DependentTarget
         }
 
         // Change the relevant parts of the file
-        FileEditor fed = new FileEditor(getSourceFile());
+        Charset projectCharset = getPackage().getProject().getProjectCharset();
+        List<String> src = Files.readAllLines(getSourceFile().toPath(), projectCharset);
 
         if (semiReplacement != null) {
             Selection selSemi = info.getPackageSemiSelection();
-            fed.replaceSelection(selSemi, semiReplacement);
+            replaceSelection(src, selSemi, semiReplacement);
         }
         
         if (nameReplacement != null) {
             Selection selName = info.getPackageNameSelection();
-            fed.replaceSelection(selName, nameReplacement);
+            replaceSelection(src, selName, nameReplacement);
         }
 
         if (pkgStatementReplacement != null) {
             Selection selStatement = info.getPackageStatementSelection();
-            fed.replaceSelection(selStatement, pkgStatementReplacement);
+            replaceSelection(src, selStatement, pkgStatementReplacement);
         }
 
         // save changes back to disk
-        fed.save();
+        Files.write(getSourceFile().toPath(), src, projectCharset);
     }
+    
+    public static void replaceSelection(List<String> src, Selection toReplace, String replaceWith)
+    {
+        if (toReplace.getLine() == toReplace.getEndLine())
+        {
+            String orig = src.get(toReplace.getLine() - 1);
+            src.set(toReplace.getLine() - 1, orig.substring(0, toReplace.getColumn() - 1) + replaceWith + orig.substring(toReplace.getEndColumn() - 1));
+        }
+        else
+        {
+            src.set(toReplace.getLine() - 1, src.get(toReplace.getLine() - 1).substring(0, toReplace.getColumn() - 1) + replaceWith + src.get(toReplace.getEndLine() - 1).substring(toReplace.getEndColumn() - 1));
+            for (int l = toReplace.getLine(); l <= toReplace.getEndLine() - 1; l++)
+                src.remove(toReplace.getLine());
+        }
+    }
+        
 
     /**
      * Analyse the source code, and save retrieved information.

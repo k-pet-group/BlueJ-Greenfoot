@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2020,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,8 +31,6 @@ package bluej.editor.flow;
  */
 
 import bluej.editor.flow.Document;
-
-import javax.swing.text.*;
 
 /**
  * Class with several utility functions used by the text area component.
