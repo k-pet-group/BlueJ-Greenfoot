@@ -137,10 +137,6 @@ jobs:
         uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
         with:
           arguments: :bluej:packageBlueJMac :greenfoot:packageGreenfootMac --info --stacktrace --no-daemon
-      - name: Remove unneeded files
-        run: |
-          # We don't need these installers:
-          rm bluej/package/BlueJ-mac-legacy*zip
       - name: Archive BlueJ Mac installers
         uses: actions/upload-artifact@v3
         with:

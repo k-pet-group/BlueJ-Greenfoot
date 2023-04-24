@@ -252,7 +252,7 @@
         <echo message="Signing and verifying bundle (NOTE: Internet connection is required to sign)"/>
         <chmod perm="+x" file="bundle-mac.sh" />
         <exec executable="bundle-mac.sh" resolveexecutable="true" outputproperty="bundleoutput">
-            <arg value="${zip_dir}" />
+            <arg value="BlueJ.app" />
             <arg value="BlueJ.app" />
             <arg value="${mac_bundled_jdk_path}" />
             <arg value="${basedir}/${dist.mac}" />
