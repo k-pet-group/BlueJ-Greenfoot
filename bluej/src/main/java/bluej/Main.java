@@ -285,7 +285,7 @@ public class Main
             defaultApplicationMenu.getItems().get(defaultApplicationMenu.getItems().size()-1).
                     setOnAction(event -> guiHandler.handleQuit());
 
-            Boot.getInstance().setQuitHandler(() -> Platform.runLater(() -> guiHandler.handleQuit()));
+            Boot.getInstance().setQuitHandler(() -> JavaFXUtil.runAfterCurrent(() -> guiHandler.handleQuit()));
         });
     }
 
