@@ -214,15 +214,21 @@
                 identifier="org.bluej.BlueJ"
                 shortversion="${bluej.version}"
                 version="${bluej.version}"
-                icon="macfiles/BlueJ.app/Contents/Resources/bluej.icns"
+                icon="macfiles/bluej.icns"
                 mainclassname="bluej.Boot">
             <classpath file="openapp.jar"/>
             <bundledocument extensions="bluej"
                             name="BlueJ project"
-                            role="Editor">
-            </bundledocument>
+                            role="Editor"/>
+            <bundledocument extensions="bjar"
+                            name="BlueJ archive"
+                            role="Editor"/>
             <runtime dir="${mac_bundled_jdk_path}">
             </runtime>
+            <arch name="x86_64"/>
+            <option value="-Dapple.laf.useScreenMenuBar"/>
+            <option value="-Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2"/>
+            <option value="-Xmx512M" name="Xmx"/>
             <!-- <option value="- -add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED"/> -->
         </bundleapp>
 
