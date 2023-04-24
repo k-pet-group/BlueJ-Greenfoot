@@ -230,16 +230,8 @@ public class Main
     {
         storedContextClassLoader = Thread.currentThread().getContextClassLoader();
 
-        // Even though BlueJ is JavaFX, the open-files handling still goes
-        // through the java.awt.Desktop handling, once it is loaded
-        // So we must do the handler set up for AWT/Swing even though we're running
-        // in JavaFX.
-        // Crashes in macOS 13 (Ventura) 
-        // prepareMacOSMenuSwing();
-
-        // We are using the NSMenuFX library to fix Mac Application menu only when it is a FX
-        // menu. When the JDK APIs (i.e. handleAbout() etc) are fixed, both should go back to
-        // the way as in prepareMacOSMenuSwing().
+        // We are using the NSMenuFX library to fix Mac Application menu.  If JavaFX ever
+        // adds proper support for this, we should use that.
         prepareMacOSMenuFX();
 
         // This is not included in the above condition to avoid future bugs,
@@ -292,6 +284,8 @@ public class Main
             // Quit
             defaultApplicationMenu.getItems().get(defaultApplicationMenu.getItems().size()-1).
                     setOnAction(event -> guiHandler.handleQuit());
+
+            Boot.getInstance().setQuitHandler(() -> JavaFXUtil.runAfterCurrent(() -> guiHandler.handleQuit()));
         });
     }
 

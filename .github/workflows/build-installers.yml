@@ -42,13 +42,9 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           mkdir javafx && cd javafx && bash ../download-javafx.sh ${{ env.javafx_version }} win && cd ..
-          copy bluej/build.properties.template bluej/build.properties
           $propfile = 'tools.properties'
           $java_home_forward = $env:JAVA_HOME -replace '\\', '/'
           $workspace_forward = $PWD -replace '\\', '/'
-          # (Get-Content $propfile) -replace 'build_java_home=.*', "build_java_home=$java_home_forward" | Set-Content $propfile
-          # (Get-Content $propfile) -replace 'openjfx_path=.*', "openjfx_path=$workspace_forward/javafx" | Set-Content $propfile
-          # (Get-Content $propfile) -replace 'openjfx_monocle_path=.*', "openjfx_monocle_path=$workspace_forward/javafx" | Set-Content $propfile
           (Get-Content $propfile) -replace 'mingw_root=.*', "mingw_root=C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64" | Set-Content $propfile
           (Get-Content $propfile) -replace 'wix_bin=.*', "wix_bin=C:/Program Files (x86)/WiX Toolset v3.11/bin" | Set-Content $propfile
       - name: Validate Gradle wrapper
@@ -128,31 +124,19 @@ jobs:
           java-version: ${{ env.java_version }}
           java-package: jdk
           architecture: x64
-      - name: Install packages
-        run: |
-          cd ${{ github.workspace }}
-          brew install xz
-          wget --no-verbose https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX10.12.sdk.tar.xz
-          xz -d MacOSX*.tar.xz
-          tar -xf MacOSX*.tar
       - name: Check install locations
         run: |
           ls $JAVA_HOME
       - name: Install JavaFX and build
         run: |
           cd ${{ github.workspace }}
-          echo 'macosx_sdk=${{ github.workspace}}/MacOSX10.12.sdk' > tools.properties
-          echo 'ant_exe=ant' >> tools.properties
+          echo 'ant_exe=ant' > tools.properties
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
       - name: Gradle Build and Test
         uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
         with:
           arguments: :bluej:packageBlueJMac :greenfoot:packageGreenfootMac --info --stacktrace --no-daemon
-      - name: Remove unneeded files
-        run: |
-          # We don't need these installers:
-          rm bluej/package/BlueJ-mac-legacy*zip
       - name: Archive BlueJ Mac installers
         uses: actions/upload-artifact@v3
         with:

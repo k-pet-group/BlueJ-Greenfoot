@@ -123,7 +123,7 @@ task packageBlueJMac(type: Exec) {
     workingDir "package"
     commandLine toolProps["ant_exe"], "mac-dist",
         "-Dbuild_java_home=" + System.getProperty('java.home'),
-        "-Dmac_bundled_jdk_path=" + System.getProperty('java.home') + "/../..",
+        "-Dmac_bundled_jdk_path=" + System.getProperty('java.home'),
         "-Dbluej.version=" + bluejVersion,
         "-Dbluej.rcsuffix=" + bluejRCSuffix,
         "-Dbluej_home=" + projectDir.getAbsoluteFile(),

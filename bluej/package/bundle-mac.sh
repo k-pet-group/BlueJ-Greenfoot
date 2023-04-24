@@ -9,7 +9,7 @@
 
 # Copy JDK:
 # The -L is very important.  It copies symlinks to regular files, which is important for the signing as Mac signing hates symlinks
-cp -R -L "$3"/* "$1/$2/Contents/JDK" || exit 1
+# cp -R -L "$3"/* "$1/$2/Contents/JDK" || exit 1
 # Zip it:
 cd "`dirname "$1"`" || exit 6
 echo Zipping $1 to $4 in `pwd`
