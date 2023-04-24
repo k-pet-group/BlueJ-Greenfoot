@@ -42,13 +42,9 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           mkdir javafx && cd javafx && bash ../download-javafx.sh ${{ env.javafx_version }} win && cd ..
-          copy bluej/build.properties.template bluej/build.properties
           $propfile = 'tools.properties'
           $java_home_forward = $env:JAVA_HOME -replace '\\', '/'
           $workspace_forward = $PWD -replace '\\', '/'
-          # (Get-Content $propfile) -replace 'build_java_home=.*', "build_java_home=$java_home_forward" | Set-Content $propfile
-          # (Get-Content $propfile) -replace 'openjfx_path=.*', "openjfx_path=$workspace_forward/javafx" | Set-Content $propfile
-          # (Get-Content $propfile) -replace 'openjfx_monocle_path=.*', "openjfx_monocle_path=$workspace_forward/javafx" | Set-Content $propfile
           (Get-Content $propfile) -replace 'mingw_root=.*', "mingw_root=C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64" | Set-Content $propfile
           (Get-Content $propfile) -replace 'wix_bin=.*', "wix_bin=C:/Program Files (x86)/WiX Toolset v3.11/bin" | Set-Content $propfile
       - name: Validate Gradle wrapper
