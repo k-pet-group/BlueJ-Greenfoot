@@ -148,7 +148,7 @@ packageBlueJWindows.dependsOn assemble
 
 task packageBlueJLinux(type: Exec) {
     workingDir "package"
-    commandLine "fakeroot", toolProps["ant_exe"], "debian-bundled-dist",
+    commandLine "fakeroot", toolProps["ant_exe"], "dist", "debian-bundled-dist",
             "-Dbuild_java_home=" + System.getProperty('java.home'),
             "-Ddeb_bundled_jdk_path=" + System.getProperty('java.home'),
             "-Dbluej.version=" + bluejVersion,
