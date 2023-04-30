@@ -596,8 +596,8 @@ public class ClassTarget extends DependentTarget
             }
 
         }
-        catch (ClassNotFoundException cnfe) {}
-        catch (LinkageError le) {}
+        catch (ClassNotFoundException cnfe) { Debug.reportError(cnfe); }
+        catch (LinkageError le) { Debug.reportError(le); }
 
         // No suitable annotations found, so not a test class
         return false;
@@ -676,9 +676,11 @@ public class ClassTarget extends DependentTarget
         }
         catch (ClassNotFoundException cnfe)
         {
+            Debug.reportError(cnfe);
         }
         catch (LinkageError le)
         {
+            Debug.reportError(le);
         }
 
         // No suitable annotations found, so not a test class
@@ -710,8 +712,8 @@ public class ClassTarget extends DependentTarget
                 try {
                     junitClass = clLoader.loadClass("junit.framework.TestCase");
                 }
-                catch (ClassNotFoundException cnfe) {}
-                catch (LinkageError le) {}
+                catch (ClassNotFoundException cnfe) { Debug.reportError(cnfe); }
+                catch (LinkageError le) { Debug.reportError(le); }
             }
             
             if (junitClass == null) {
