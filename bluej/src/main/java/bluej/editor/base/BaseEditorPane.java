@@ -635,6 +635,14 @@ public abstract class BaseEditorPane extends Region
     }
 
     /**
+     * Gets the height of the lineContainer object.
+     */
+    protected final double getLineContainerHeight()
+    {
+        return lineContainer.getHeight();
+    }
+
+    /**
      * A listener for some mouse events that can occur in the editor but need handling elsewhere. 
      */
     @OnThread(Tag.FXPlatform)

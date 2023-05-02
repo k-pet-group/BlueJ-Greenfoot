@@ -474,7 +474,8 @@ public final class Terminal
                 pane.trimToMostRecentNLines(MAX_BUFFER_LINES);
         }
 
-        pane.scrollToEnd();
+        // We must wait the terminal to show before we try to scroll to the end:
+        JavaFXUtil.runAfterCurrent(pane::scrollToEnd);
     }
 
     /**
