@@ -223,9 +223,11 @@
             <bundledocument extensions="bjar"
                             name="BlueJ archive"
                             role="Editor"/>
-            <runtime dir="${mac_bundled_jdk_path}">
-            </runtime>
+            <runtime dir="${mac_bundled_jdk_path}"/>
             <arch name="x86_64"/>
+            <environment name="JAVA_HOME" value="$APP_ROOT/Contents/PlugIns/x64/Contents/Home">
+
+            </environment>
             <option value="-Dapple.laf.useScreenMenuBar"/>
             <option value="-Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2"/>
             <option value="-Xmx512M" name="Xmx"/>
@@ -247,6 +249,12 @@
         <move todir="BlueJ.app/Contents/Java">
             <fileset dir="BlueJ.app/Contents/Java/lib" />
         </move>
+        <!-- We also have to copy the java executable in ourselves, as by default
+             appbundler doesn't do so -->
+        <mkdir dir="BlueJ.app/Contents/PlugIns/x64/Contents/Home/bin"/>
+        <copy todir="BlueJ.app/Contents/PlugIns/x64/Contents/Home/bin">
+            <file basedir="${mac_bundled_jdk_path}/bin" name="java/"/>
+        </copy>
 
         <!-- codesign needs Internet connection to verify current time -->
         <echo message="Signing and verifying bundle (NOTE: Internet connection is required to sign)"/>
