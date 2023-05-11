@@ -255,6 +255,9 @@
         <copy todir="BlueJ.app/Contents/PlugIns/x64/Contents/Home/bin">
             <file basedir="${mac_bundled_jdk_path}/bin" name="java/"/>
         </copy>
+        <chmod perm="a+x">
+            <fileset dir="BlueJ.app/Contents/PlugIns/x64/Contents/Home/bin" includes="java" />
+        </chmod>
 
         <!-- codesign needs Internet connection to verify current time -->
         <echo message="Signing and verifying bundle (NOTE: Internet connection is required to sign)"/>
