@@ -225,9 +225,7 @@
                             role="Editor"/>
             <runtime dir="${mac_bundled_jdk_path}"/>
             <arch name="x86_64"/>
-            <environment name="JAVA_HOME" value="$APP_ROOT/Contents/PlugIns/x64/Contents/Home">
-
-            </environment>
+            <environment name="JAVA_HOME" value="$APP_ROOT/Contents/PlugIns/x64/Contents/Home"/>
             <option value="-Dapple.laf.useScreenMenuBar"/>
             <option value="-Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2"/>
             <option value="-Xmx512M" name="Xmx"/>
