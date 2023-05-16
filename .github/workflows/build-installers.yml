@@ -56,7 +56,7 @@ jobs:
       - name: Archive BlueJ Windows installers
         uses: actions/upload-artifact@v3
         with:
-          name: bluej-installers
+          name: bluej-installers-windows
           path: |
             bluej/package/BlueJ-windows*.msi
             bluej/package/BlueJ-windows*.zip
@@ -96,7 +96,7 @@ jobs:
       - name: Archive BlueJ Ubuntu installers
         uses: actions/upload-artifact@v3
         with:
-          name: bluej-installers
+          name: bluej-installers-other
           path: |
             bluej/package/BlueJ-linux*.deb
             bluej/package/BlueJ-generic*.jar
@@ -140,7 +140,7 @@ jobs:
       - name: Archive BlueJ Mac installers
         uses: actions/upload-artifact@v3
         with:
-          name: bluej-installers
+          name: bluej-installers-mac
           path: |
             bluej/package/BlueJ-mac*.zip
       - name: Archive Greenfoot Mac installers
