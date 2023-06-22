@@ -121,22 +121,22 @@ task updateVersionNumber {
     }
     // Update BlueJ version number in launcher EXE info:
     ant.replaceregexp(match:'(FILE|PRODUCT)VERSION .*', replace:"\\1VERSION ${bluejVersionCommas},0", byline:true) {
-        fileset(dir: '../bluej/package/winlaunch', includes: 'bluej-version.rc')
+        fileset(dir: '../bluej/package/winsetup', includes: 'bluej-version.rc')
     }
     ant.replaceregexp(match:'(\\s*VALUE \"\\w+Version\",).*', replace:"\\1 \"${bluejVersionNoSuffix}\"", byline:true) {
-        fileset(dir: '../bluej/package/winlaunch', includes: 'bluej-version.rc')
+        fileset(dir: '../bluej/package/winsetup', includes: 'bluej-version.rc')
     }
     // And in the launcher manifest:
     ant.replaceregexp(match:'(\\s*<assemblyIdentity\\s+version=)\".*\"', replace:"\\1\"${bluejVersionNoSuffix}.0\"", byline:true) {
-        fileset(dir: '../bluej/package/winlaunch', includes: 'bjmanifest.xml')
+        fileset(dir: '../bluej/package/winsetup', includes: 'bjmanifest.xml')
     }
     def bjMSIProductId = versionProps["bluej-" + bluejVersion];
     // Update the WiX build files with the GUID:
     ant.replaceregexp(match:'<Product Version=\'.*\' Id=\'.*\'', replace:"<Product Version='${bluejVersionNoSuffix}' Id='${bjMSIProductId}'", byline:true) {
-        fileset(dir: '../bluej/package/winlaunch', includes: 'bluej.wxs')
+        fileset(dir: '../bluej/package/winsetup', includes: 'bluej.wxs')
     }
     ant.replaceregexp(match:'(\\s*<Property\\s+Id=\"SOFTWAREVERSION\"\\s+Value=).*', replace:"\\1\"${bluejVersionNoSuffix}\"/>", byline:true) {
-        fileset(dir: '../bluej/package/winlaunch', includes: 'bluej.wxs')
+        fileset(dir: '../bluej/package/winsetup', includes: 'bluej.wxs')
     }
 
     //////////////////////////////////////
@@ -155,22 +155,22 @@ task updateVersionNumber {
     }
     // Update Greenfoot version number in launcher EXE info:
     ant.replaceregexp(match:'(FILE|PRODUCT)VERSION .*', replace:"\\1VERSION ${greenfootVersionCommas},0", byline:true) {
-        fileset(dir: '../bluej/package/winlaunch', includes: 'greenfoot-version.rc')
+        fileset(dir: '../bluej/package/winsetup', includes: 'greenfoot-version.rc')
     }
     ant.replaceregexp(match:'(\\s*VALUE \"\\w+Version\",).*', replace:"\\1 \"${greenfootVersionNoSuffix}\"", byline:true) {
-        fileset(dir: '../bluej/package/winlaunch', includes: 'greenfoot-version.rc')
+        fileset(dir: '../bluej/package/winsetup', includes: 'greenfoot-version.rc')
     }
     // And in the launcher manifest:
     ant.replaceregexp(match:'(\\s*<assemblyIdentity\\s+version=)\".*\"', replace:"\\1\"${greenfootVersionNoSuffix}.0\"", byline:true) {
-        fileset(dir: '../bluej/package/winlaunch', includes: 'gfmanifest.xml')
+        fileset(dir: '../bluej/package/winsetup', includes: 'gfmanifest.xml')
     }
     def gfMSIProductId = versionProps["greenfoot-" + greenfootVersion];
     // Update the WiX build files with the GUID:
     ant.replaceregexp(match:'<Product Version=\'.*\' Id=\'.*\'', replace:"<Product Version='${greenfootVersionNoSuffix}' Id='${gfMSIProductId}'", byline:true) {
-        fileset(dir: '../bluej/package/winlaunch', includes: 'greenfoot.wxs')
+        fileset(dir: '../bluej/package/winsetup', includes: 'greenfoot.wxs')
     }
     ant.replaceregexp(match:'(\\s*<Property\\s+Id=\"SOFTWAREVERSION\"\\s+Value=).*', replace:"\\1\"${greenfootVersionNoSuffix}\"/>", byline:true) {
-        fileset(dir: '../bluej/package/winlaunch', includes: 'greenfoot.wxs')
+        fileset(dir: '../bluej/package/winsetup', includes: 'greenfoot.wxs')
     }
 }
 
