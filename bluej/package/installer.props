@@ -32,14 +32,14 @@ install.javafx.classpath.unix = JAVAFX_CP="$JAVAFXPATH/lib/javafx.base.jar:$JAVA
 install.javafx.classpath.win = set JAVAFX_CP="%JAVAFXPATH%\\lib\\javafx.base.jar;%JAVAFXPATH%\\lib\\javafx.controls.jar;%JAVAFXPATH%\\lib\\javafx.fxml.jar;%JAVAFXPATH%\\lib\\javafx.graphics.jar;%JAVAFXPATH%\\lib\\javafx.media.jar;%JAVAFXPATH%\\lib\\javafx.properties.jar;%JAVAFXPATH%\\lib\\javafx.swing.jar;%JAVAFXPATH%\\lib\\javafx.web.jar"
 
 # additional commands to be added to MacOS script before execution
-install.commands.mac = CP="$APPBASE/lib/bluej.jar:/System/Library/Java"
+install.commands.mac = CP="$APPBASE/lib/boot.jar:/System/Library/Java"
 
 # additional commands to be added to Unix script before execution
-install.commands.unix = CP="$APPBASE/lib/bluej.jar"
+install.commands.unix = CP="$APPBASE/lib/boot.jar"
 
 # additional commands to be added to Windows batch file before execution
 # (windows should not have quotes surrounding CP string)
-install.commands.win = set CP=~\\lib\\bluej.jar
+install.commands.win = set CP=~\\lib\\boot.jar
 
 # java command-line options for unix (icluding MacOS)
 # (UNIX must have quotes around the $CP on the actual
