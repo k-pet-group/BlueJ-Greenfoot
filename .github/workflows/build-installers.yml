@@ -164,7 +164,6 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           cd bluej/package
-          rm *legacy*.zip
           bash sign-mac.sh ${{ secrets.DEVELOPER_NAME }} BlueJ-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }}
       - name: Archive BlueJ Mac installers
         uses: actions/upload-artifact@v3
