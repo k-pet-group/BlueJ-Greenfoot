@@ -127,27 +127,56 @@ jobs:
       - name: Check install locations
         run: |
           ls $JAVA_HOME
-      - name: Install JavaFX and build
+      - name: Run setup
         run: |
+          brew install npm && npm install -g appdmg
           cd ${{ github.workspace }}
           echo 'ant_exe=ant' > tools.properties
+      - name: Install the Apple certificate and provisioning profile
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: Vh4o2zhsnBE5f
+        run: |
+          # From https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+        
+          # import certificate and provisioning profile from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+        
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+        
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
       - name: Gradle Build and Test
         uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
         with:
           arguments: :bluej:packageBlueJMac :greenfoot:packageGreenfootMac --info --stacktrace --no-daemon
+      - name: Sign and package
+        run: |
+          cd ${{ github.workspace }}
+          cd bluej/package
+          rm *legacy*.zip
+          bash sign-mac.sh ${{ secrets.DEVELOPER_NAME }} BlueJ-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }}
       - name: Archive BlueJ Mac installers
         uses: actions/upload-artifact@v3
         with:
           name: bluej-installers-mac
           path: |
-            bluej/package/BlueJ-mac*.zip
+            bluej/package/BlueJ*.dmg
       - name: Archive Greenfoot Mac installers
         uses: actions/upload-artifact@v3
         with:
           name: greenfoot-installers
           path: |
-            bluej/package/Greenfoot-mac*.zip
+            bluej/package/Greenfoot*.dmg
   
        

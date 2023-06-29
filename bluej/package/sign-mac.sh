@@ -1,36 +1,62 @@
 #!/bin/bash
 #
 # Args:
-#   $1 - zipfile name
-#   $2 - developer name (Part after Developer ID Application in certificate
+#   $1 - developer name (Part after Developer ID Application in certificate
+#   $2 - zipfile name
+#   $3 - Apple ID for notarizing
+#   $4 - Password for notarizing (Apple-generated password, not the master password)
+#   $5 - Apple Team ID (available from developer profile page)
 
 echo '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict>    <key>com.apple.security.cs.allow-jit</key>    <true/>    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>    <true/>    <key>com.apple.security.cs.disable-executable-page-protection</key>    <true/>     <key>com.apple.security.cs.disable-library-validation</key><true/><key>com.apple.security.cs.allow-dyld-environment-variables</key>    <true/></dict></plist>' > entitlements.plist
 
-TOP_LEVEL=`zipinfo -1 "$1"  | head -n 1 | tr -d '\n'`
-unzip "$1"
-# Get rid of jmods which cause issue for signing and are not used by BlueJ as far as I know:
-rm -rf "$TOP_LEVEL"/*.app/Contents/JDK/Home/jmods
+echo "Unzip download..."
+TOP_LEVEL=`zipinfo -1 "$2"  | head -n 1 | tr -d '\n/'`
+BASE_NAME=`basename $2 ".zip"`
+
+unzip -q "$2"
+echo "Unzip download - done"
+
 # JLI causes problems but is not needed:
-rm "$TOP_LEVEL"/*.app/Contents/JDK/MacOS/libjli.dylib
-# Sign all executables and dylibs:
-find "$TOP_LEVEL"/*.app/Contents/JDK "$TOP_LEVEL"/*.app/Contents/Resources/Java/javafx -type f -and \( -perm +111 -or -iname "*.dylib" \) -exec codesign --timestamp --verbose --options=runtime --force -s "Developer ID Application: $2" --deep --entitlements entitlements.plist {} +
-# Sign the launcher:
-codesign --verbose=4 --timestamp --options=runtime --deep --force -s "Developer ID Application: $2" --entitlements entitlements.plist "$TOP_LEVEL"/*.app/Contents/MacOS/JavaAppLauncher
+rm "$TOP_LEVEL"/Contents/PlugIns/x64/Contents/MacOS/libjli.dylib
+# Fix permissions on JSA files, which are read-only by default:
+chmod u+w $TOP_LEVEL/Contents/PlugIns/x64/Contents/Home/lib/server/*.jsa
+
+# Sign the executable:
+echo "Signing BlueJ executable..."
+codesign --verbose=4 --timestamp --options=runtime --deep -s "Developer ID Application: $1" --entitlements entitlements.plist "$TOP_LEVEL"/Contents/MacOS/BlueJ
+echo "Signing BlueJ executable - done"
+
 # Sign whole thing together:
-codesign --verbose=4 --timestamp --options=runtime --deep --force -s "Developer ID Application: $2" --entitlements entitlements.plist "$TOP_LEVEL"/*.app/Contents/JDK
-codesign --verbose=4 --timestamp --options=runtime --deep --force -s "Developer ID Application: $2" --entitlements entitlements.plist "$TOP_LEVEL"/*.app
-echo Verifying bundle
-codesign --verify --deep --verbose=4 "$TOP_LEVEL"/*.app/Contents/MacOS/JavaAppLauncher
-codesign --verify --deep --verbose=4 "$TOP_LEVEL"/*.app
-spctl -a -t exec -vv "$TOP_LEVEL"/*.app || echo " *** failed to sign or verify Mac bundle ***"
+echo "Signing package..."
+codesign --verbose=4 --timestamp --options=runtime --force -s "Developer ID Application: $1" --entitlements entitlements.plist "$TOP_LEVEL"
+echo "Verifying bundle"
+codesign --verify --deep --verbose=4 --strict "$TOP_LEVEL"/Contents/MacOS/BlueJ
+codesign --verify --deep --verbose=4 --strict "$TOP_LEVEL"
 
-# Zip just the app for sending
-cd "$TOP_LEVEL"/ && zip -r -q -T -m ../notarize.zip * && cd ../
+spctl -a -t execute --ignore-cache -vv "$TOP_LEVEL" || echo " *** failed to sign or verify Mac bundle ***"
+echo "Signing package - done"
 
-echo "Next, do the following to notarize the app (replace username/keychain if necessary)"
-echo "Run (will take a few minutes to upload):"
-echo "  xcrun altool --primary-bundle-id org.bluej --username michael.kolling@kcl.ac.uk --password @keychain:'BlueJ Altool' --notarize-app --file notarize.zip"
-echo "That will give you a UUID.  Use this command to check on status (takes about 5 minutes after upload complete):"
-echo "  xcrun altool --primary-bundle-id org.bluej --username michael.kolling@kcl.ac.uk --password @keychain:'BlueJ Altool' --notarization-info REPLACE-WITH-UUID"
-echo "If that is successful, run this command line to unzip, staple and re-zip:"
-echo "  unzip -r notarize.zip -d \"$TOP_LEVEL\" && xcrun stapler staple \"$TOP_LEVEL\"/*.app && rm \"$1\" && zip -r -q -T -m \"$1\" \"$TOP_LEVEL\""
+# Zip just the app for sending. Must use ditto (not zip) to preserve permissions and meta-data
+/usr/bin/ditto -c -k --keepParent "$TOP_LEVEL" notarize.zip
+
+# Notarize the file, waiting for completion (usually around 5 minutes)
+echo ""
+echo "Notarizing..."
+xcrun notarytool submit --apple-id $3 --password $4 --team-id $5 --wait notarize.zip
+echo "Notarization complete"
+
+echo ""
+echo "Stapling ZIP"
+# uncompress the file again, using ditto. Staple.
+ditto -x -k notarize.zip .
+xcrun stapler staple $TOP_LEVEL
+
+# Now package it with appdmg:
+echo ""
+echo "Packaging into DMG"
+appdmg appdmg.json BlueJ-installer.dmg
+echo "Notarizing DMG"
+xcrun notarytool submit --apple-id $3 --password $4 --team-id $5 --wait BlueJ-installer.dmg
+echo "Stapling DMG"
+xcrun stapler staple BlueJ-installer.dmg
+echo "Finished"
