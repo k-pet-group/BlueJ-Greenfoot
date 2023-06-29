@@ -8,7 +8,6 @@
     <!-- Names of the the distributables created by the dist-target -->
     <property name="dist.jarinstaller" value="BlueJ-generic-${bluej.version}${bluej.rcsuffix}.jar"/>
     <property name="dist.jarinstaller.final" value="BlueJ-generic-${bluej.version}.jar"/>
-    <property name="dist.mac.legacy" value="BlueJ-mac-legacy-${bluej.version}${bluej.rcsuffix}.zip"/>
     <property name="dist.mac" value="BlueJ-mac-${bluej.version}${bluej.rcsuffix}.zip"/>
     <property name="dist.mac.final" value="BlueJ-mac-${bluej.version}.zip"/>
 
