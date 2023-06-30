@@ -1,4 +1,6 @@
 #!/bin/bash
+# Fail on any error:
+set -e
 #
 # Args:
 #   $1 - developer name (Part after Developer ID Application in certificate
@@ -56,7 +58,7 @@ echo ""
 echo "Packaging into DMG"
 appdmg ../appdmg.json BlueJ-installer.dmg
 echo "Notarizing DMG"
-xcrun notarytool submit --apple-id $3 --password $4 --team-id $5 --wait BlueJ-installer.dmg
+xcrun notarytool submit --apple-id $3 --password $4 --team-id $5 --wait BlueJ-installer.dmg | tee dmglog.txt || xcrun notarytool log `ggrep -oP 'id: \K\S+' dmglog.txt | head -n 1` --apple-id $3 --password $4 --team-id $5
 echo "Stapling DMG"
 xcrun stapler staple BlueJ-installer.dmg
 echo "Finished"
