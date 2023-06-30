@@ -56,7 +56,8 @@ xcrun stapler staple $TOP_LEVEL
 # Now package it with appdmg:
 echo ""
 echo "Packaging into DMG"
-appdmg ../appdmg.json BlueJ-installer.dmg
+cp ../appdmg.json .
+appdmg appdmg.json BlueJ-installer.dmg
 echo "Notarizing DMG"
 xcrun notarytool submit --apple-id $3 --password $4 --team-id $5 --wait BlueJ-installer.dmg | tee dmglog.txt
 xcrun notarytool log `ggrep -oP 'id: \K\S+' dmglog.txt | head -n 1` --apple-id $3 --password $4 --team-id $5
