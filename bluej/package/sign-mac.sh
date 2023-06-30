@@ -64,3 +64,4 @@ xcrun notarytool log `ggrep -oP 'id: \K\S+' dmglog.txt | head -n 1` --apple-id $
 echo "Stapling DMG"
 xcrun stapler staple BlueJ-installer.dmg
 echo "Finished"
+mv BlueJ-installer.dmg ..
