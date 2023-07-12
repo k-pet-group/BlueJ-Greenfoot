@@ -147,6 +147,11 @@ bluej.url.versionCheck=https://www.bluej.org/version.info
 #bluej.help.myCustomLib.url=https://www.google.com/
 #bluej.help.courseInfo.label=CS1 course info
 #bluej.help.courseInfo.url=https://www.bluej.org/help/archive.html
+bluej.help.items=duke coursera
+bluej.help.duke.label=Duke/Coursera Class Documentation
+bluej.help.duke.url=http://www.dukelearntoprogram.com/javadoc/index.html
+bluej.help.coursera.label=Duke/Coursera Resources
+bluej.help.coursera.url=http://www.dukelearntoprogram.com/
 
 
 #####################################################################
@@ -194,7 +199,6 @@ bluej.numberOfRecentProjects=12
 
 #bluej.userlibLocation=C\:\\some\\directory\\somewhere
 
-
 #####################################################################
 ## Where the extensions folder is. This is the folder which is
 ## searched for extensions (in jar files) when BlueJ starts.
@@ -204,7 +208,6 @@ bluej.numberOfRecentProjects=12
 #####################################################################
 
 #bluej.extensions.systempath=C\:\\some\\other\\directory
-
 
 #####################################################################
 ## Allow BlueJ to automatically open any projects that were open when 
@@ -316,16 +319,15 @@ bluej.macos.screenmenubar=true
 ##
 ## The bluej.templatePath property can be used to choose a different
 ## directory to store the templates (the default is
-## <bluej_home>/lib/<language>/templates).
+## <bluej_home>/lib/<language>/templates/newclass).
 ## Note: if the path contains backslashes, they must be written as
 ## double-backslashes (see example).
 #######################################################################
 
-bluej.classTemplates.java = stdclass interface unittest enum record
-bluej.classTemplates.stride = stdclass interface
-#bluej.templatePath = /home/mik/bluej/lib/english/templates
+bluej.classTemplates.java = stdclass abstract interface unittest enum
+bluej.classTemplates.stride = stdclass abstract interface
+#bluej.templatePath = /home/mik/bluej/lib/english/templates/newclass
 #bluej.templatePath = F:\\shared\\bluej\\templates
-
 
 #######################################################################
 ## Fonts. You can choose a font size for most of the interface
@@ -343,6 +345,11 @@ bluej.menu.fontsize=12
 
 # default fontsize for the editor (can be changed in Preferences dialog)
 bluej.editor.fontsize=12
+
+# font and fontsize for the terminal (the size defaults to the editor font size
+# if not specified here)
+bluej.terminal.font=Monospaced
+#bluej.terminal.font=Monospaced-bold
 
 # The editor font. Only the font face is specified here, the font
 # size is specified in the BlueJ preference dialogue.  You can specify
@@ -388,6 +395,7 @@ bluej.terminal.encoding=UTF-8
 bluej.editor.autoIndent=true
 bluej.editor.syntaxHilighting=true
 bluej.editor.displayLineNumbers=false
+bluej.editor.makeBackup=false
 bluej.editor.matchBrackets=true
 
 bluej.editor.tabsize=4
@@ -413,7 +421,9 @@ bluej.teamwork.showtools=false
 ## If this attribute is not specified, the compiler is run with
 ## default options.
 ## 
-## The following options will ALWAYS be added internally in BlueJ:
+## The following options will ALWAYS be added internally in BlueJ. If
+## you change these, funny things might happen (such as BlueJ not 
+## working at all!):
 ##
 ## -deprecation (Show description of each use of a deprecated method)
 ## -g           (Generate all debugging information)
