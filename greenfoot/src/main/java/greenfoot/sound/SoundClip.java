@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012,2013,2023  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -93,7 +93,7 @@ public class SoundClip implements Sound, LineListener
     /**
      * Creates a new sound clip
      */
-    public SoundClip(String name, URL url, SoundPlaybackListener listener)
+    public SoundClip(URL url, SoundPlaybackListener listener)
     {
         this.url = url;
         playbackListener = listener;
