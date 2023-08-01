@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2023  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,8 +21,16 @@
  */
 package greenfoot.sound;
 
+import bluej.Config;
+import bluej.prefmgr.PrefMgr;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Mixer;
+import java.util.Arrays;
+import java.util.List;
 
 public class SoundUtils
 {
@@ -101,5 +109,35 @@ public class SoundUtils
             bufferSize = -1;
         }
         return bufferSize;
+    }
+
+    /**
+     * Loads the mixer by using the saved preference
+     * @param input Whether this an input device (true) or output device (false)
+     * @return The mixer if successfully found, or null if either (a) the preference cannot be matched or (b) there is no saved preference.
+     */
+    @OnThread(Tag.Any)
+    public static Mixer loadMixer(boolean input)
+    {
+        return loadMixer(Arrays.stream(AudioSystem.getMixerInfo()).map(i -> AudioSystem.getMixer(i)).toList(), input);
+    }
+
+    /**
+     * Loads the mixer by using the saved preference, from the given possible list.
+     * @param input Whether this an input device (true) or output device (false)
+     * @return The mixer if successfully found, or null if either (a) the preference cannot be matched or (b) there is no saved preference.
+     */
+    @OnThread(Tag.Any)
+    static Mixer loadMixer(List<Mixer> possibles, boolean input)
+    {
+        String stored = Config.getPropString(input ? PrefMgr.GREENFOOT_SOUND_INPUT_DEVICE : PrefMgr.GREENFOOT_SOUND_OUTPUT_DEVICE);
+        for (Mixer mixer : possibles)
+        {
+            if ((mixer == null && stored.isBlank()) || (mixer != null && mixer.getMixerInfo().toString().equals(stored)))
+            {
+                return mixer;
+            }
+        }
+        return null;
     }
 }

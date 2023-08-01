@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017,2018,2019,2019,2020,2021,2022  Poul Henriksen and Michael Kolling
+ Copyright (C) 2017,2018,2019,2019,2020,2021,2022,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -86,6 +86,7 @@ import greenfoot.guifx.images.NewImageClassFrame;
 import greenfoot.guifx.images.SelectImageFrame;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
 import greenfoot.record.GreenfootRecorder;
+import greenfoot.sound.SoundPreferencePanel;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.GreenfootDebugHandler;
 import greenfoot.vmcomm.GreenfootDebugHandler.SimulationStateListener;
@@ -1290,7 +1291,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     public static void showPreferences()
     {
-        PrefMgrDialog.showDialog(null);
+        PrefMgrDialog.showDialog(null, new SoundPreferencePanel());
     }
 
     /**

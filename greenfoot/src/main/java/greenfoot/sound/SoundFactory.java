@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012,2023  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -113,7 +113,7 @@ public class SoundFactory
             } 
             else {
                 // The sound is small enough to be loaded into memory as a clip.
-                return new SoundClip(file, url, soundCollection);
+                return new SoundClip(url, soundCollection);
             }
         } catch (IOException e) {
             if (! quiet) {

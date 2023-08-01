@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2011,2016,2021  Poul Henriksen and Michael Kolling
+ Copyright (C) 2011,2016,2021,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,8 +23,9 @@ package greenfoot.sound;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
+import javax.sound.sampled.DataLine.Info;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 
 /**
@@ -48,7 +49,10 @@ public class MicLevelGrabber
         format = new AudioFormat(22050, 8, 1, true, true);
         updator = () -> {
             try {
-                TargetDataLine line = (TargetDataLine) AudioSystem.getLine(new DataLine.Info(TargetDataLine.class, format));
+                Mixer mixer = SoundUtils.loadMixer(true);
+                Info info = new Info(TargetDataLine.class, format);
+                // Use the specific mixer from the preferences if it is available (i.e. non-null):
+                TargetDataLine line = (TargetDataLine)(mixer == null ? AudioSystem.getLine(info) : mixer.getLine(info));
                 line.open();
                 line.start();
                 int bufferSize = (int) (format.getSampleRate() / 20) * format.getFrameSize();

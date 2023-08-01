@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012,2023  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.DataLine.Info;
@@ -432,8 +433,12 @@ public class SoundStream implements Sound, Runnable
     private AudioLine initialiseLine(DataLine.Info info, AudioFormat format)
             throws LineUnavailableException, IllegalArgumentException
     {
+        // Load mixer from the preferences:
+        Mixer mixer = SoundUtils.loadMixer(false);
+
+        // Use the specific mixer from the preferences if it is available (i.e. non-null):
         //Throws IllegalArgumentException if it can't find a line
-        SourceDataLine l = (SourceDataLine) AudioSystem.getLine(info);
+        SourceDataLine l = (SourceDataLine)(mixer == null ? AudioSystem.getLine(info) : mixer.getLine(info));
         printDebug("buffer size: " + l.getBufferSize());
         return new AudioLine(l, format);
     }

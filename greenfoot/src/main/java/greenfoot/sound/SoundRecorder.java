@@ -37,7 +37,9 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.DataLine.Info;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 
 import bluej.utility.Debug;
@@ -77,11 +79,22 @@ public class SoundRecorder
      * The reference should be updated roughly every half-second.
      * 
      * When the recording has finished, null will be put into the reference.
+     * 
+     * @param mixer The mixer to use, pass null to use the system default device.
      */
-    public AtomicReference<List<byte[]>> startRecording()
+    public AtomicReference<List<byte[]>> startRecording(Mixer mixer)
     {
-        try {
-            line = (TargetDataLine)AudioSystem.getLine(new DataLine.Info(TargetDataLine.class, format));
+        try
+        {
+            Info lineInfo = new Info(TargetDataLine.class, format);
+            if (mixer != null)
+            {
+                line = (TargetDataLine)mixer.getLine(lineInfo);
+            }
+            else
+            {
+                line = (TargetDataLine)AudioSystem.getLine(lineInfo);
+            }
             line.open();
             if (!line.getFormat().equals(format))
                 Debug.message("Format is not as expected" + line.getFormat().toString());

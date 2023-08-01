@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012,2013,2023  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,6 +36,7 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
@@ -93,7 +94,7 @@ public class SoundClip implements Sound, LineListener
     /**
      * Creates a new sound clip
      */
-    public SoundClip(String name, URL url, SoundPlaybackListener listener)
+    public SoundClip(URL url, SoundPlaybackListener listener)
     {
         this.url = url;
         playbackListener = listener;
@@ -140,8 +141,10 @@ public class SoundClip implements Sound, LineListener
         AudioInputStream stream = new AudioInputStream(is, format, clipData.getLength());
         DataLine.Info info = new DataLine.Info(Clip.class, format);
 
+        Mixer mixer = SoundUtils.loadMixer(false);
+        // Use the specific mixer from the preferences if it is available (i.e. non-null):
         // getLine throws illegal argument exception if it can't find a line.
-        soundClip = (Clip) AudioSystem.getLine(info);
+        soundClip = (Clip) (mixer == null ? AudioSystem.getLine(info) : mixer.getLine(info));
         soundClip.open(stream);
         
         // Note we don't use soundClip.getMicrosecondLength() due to an IcedTea bug:

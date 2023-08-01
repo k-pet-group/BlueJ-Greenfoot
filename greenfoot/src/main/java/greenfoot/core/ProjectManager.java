@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2015,2017,2018,2019,2021  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2015,2017,2018,2019,2021,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,6 +43,7 @@ import bluej.pkgmgr.DocPathEntry;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import greenfoot.core.GreenfootMain.VersionCheckInfo;
@@ -463,9 +464,16 @@ public class ProjectManager
         
         
         Properties debugVMProps = new Properties();
-        debugVMProps.put("bluej.language", Config.getPropString("bluej.language", ""));
-        debugVMProps.put("vm.language", Config.getPropString("vm.language", ""));
-        debugVMProps.put("vm.country", Config.getPropString("vm.country", ""));
+        // These are the only properties that need carrying across to the debug VM:
+        for (String prop : List.of(
+            "bluej.language",
+            "vm.language",
+            "vm.country",
+            PrefMgr.GREENFOOT_SOUND_INPUT_DEVICE,
+            PrefMgr.GREENFOOT_SOUND_OUTPUT_DEVICE))
+        {
+            debugVMProps.put(prop, Config.getPropString(prop, ""));
+        }
         File tmpPropsFile = null;
         try
         {
