@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2015,2016,2017,2019,2021  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2015,2016,2017,2019,2021,2023  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,6 +44,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -70,14 +71,15 @@ public class PrefMgrDialog
     /** Indicates whether the dialog has been prepared for display. */
     private boolean prepared = false;
     private Project curProject; // can be null
+    private MiscPrefPanel miscPrefPanel;
 
     /**
      * Show the preferences dialog when ready.  The dialog
      * may not be visible yet when this method returns.
      */
-    public static void showDialog(Project project)
+    public static void showDialog(Project project, MiscPrefPanelItem... extraMiscPanelItems)
     {
-        getInstance().prepareDialogThen(project, () -> {
+        getInstance().prepareDialogThen(project, Arrays.asList(extraMiscPanelItems), () -> {
             dialog.window.show();
             // Work around bug where every other time dialog is shown, it would have wrong size:
             dialog.tabbedPane.getScene().getWindow().sizeToScene();
@@ -91,7 +93,7 @@ public class PrefMgrDialog
      * @param paneNumber The index of the pane to show
      */
     public static void showDialog(Project project, int paneNumber) {
-        getInstance().prepareDialogThen(project, () -> {
+        getInstance().prepareDialogThen(project, List.of(), () -> {
             dialog.selectTab(paneNumber);
             dialog.window.show();
             // Work around bug where every other time dialog is shown, it would have wrong size:
@@ -102,7 +104,7 @@ public class PrefMgrDialog
      * Prepare this dialog for display then run the given action.
      */
     @OnThread(Tag.FXPlatform)
-    private void prepareDialogThen(Project project, FXPlatformRunnable runnable)
+    private void prepareDialogThen(Project project, List<MiscPrefPanelItem> miscPrefPanelItems, FXPlatformRunnable runnable)
     {
         if (!prepared)
         {
@@ -111,12 +113,12 @@ public class PrefMgrDialog
             else
             {
                 // Will only get called when it becomes true:
-                JavaFXUtil.addSelfRemovingListener(prefPanesCreated, b -> JavaFXUtil.runNowOrLater(() -> prepareDialogThen(project, runnable)));
+                JavaFXUtil.addSelfRemovingListener(prefPanesCreated, b -> JavaFXUtil.runNowOrLater(() -> prepareDialogThen(project, miscPrefPanelItems, runnable)));
                 return;
             }
             prepared = true;
         }
-        dialog.startEditing(project);
+        dialog.startEditing(project, miscPrefPanelItems);
         runnable.run();
     }
 
@@ -157,8 +159,8 @@ public class PrefMgrDialog
         EditorPrefPanel panel = new EditorPrefPanel();
         add(0, panel, Config.getString("prefmgr.edit.prefpaneltitle"), panel);
         // Misc will be third, for now is second:
-        MiscPrefPanel panel2 = new MiscPrefPanel();
-        add(1, panel2, Config.getString("prefmgr.misc.prefpaneltitle"), panel2);
+        miscPrefPanel = new MiscPrefPanel();
+        add(1, miscPrefPanel, Config.getString("prefmgr.misc.prefpaneltitle"), miscPrefPanel);
         // Interface will be fourth, for now is third:
         InterfacePanel panel3 = new InterfacePanel();
         add(2, panel3, Config.getString("prefmgr.interface.title"), panel3);
@@ -194,9 +196,11 @@ public class PrefMgrDialog
         titles.add(index, title);
     }
 
-    private void startEditing(Project project)
+    private void startEditing(Project project, List<MiscPrefPanelItem> miscPrefPanelItems)
     {
         curProject = project;
+        miscPrefPanel.setExtraItems(miscPrefPanelItems);
+        
         for (Iterator<PrefPanelListener> i = listeners.iterator(); i.hasNext(); ) {
             PrefPanelListener ppl = i.next();
             ppl.beginEditing(project);

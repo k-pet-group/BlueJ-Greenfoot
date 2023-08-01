@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import bluej.pkgmgr.Project;
 import bluej.debugger.RunOnThread;
+import com.google.common.collect.ImmutableList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -58,6 +59,7 @@ import threadchecker.Tag;
 public class MiscPrefPanel extends VBox 
                            implements PrefPanelListener
 {
+    private final int normalChildren;
     private CheckBox linkToLibBox;
     private CheckBox showUncheckedBox; // show "unchecked" compiler warning
     private TextField playerNameField;
@@ -66,6 +68,7 @@ public class MiscPrefPanel extends VBox
     private Label statusLabel;
     private ComboBox<RunOnThread> runOnThread;
     private Node threadRunSetting;
+    private List<MiscPrefPanelItem> extraItems;
 
     /**
      * Setup the UI for the dialog and event handlers for the buttons.
@@ -87,6 +90,7 @@ public class MiscPrefPanel extends VBox
             getChildren().add(makeVMPanel());
             getChildren().add(makeDataCollectionPanel());
         }
+        normalChildren = getChildren().size();
     }
 
     private Node makeDataCollectionPanel()
@@ -189,9 +193,13 @@ public class MiscPrefPanel extends VBox
         {
             playerNameField.setText(PrefMgr.getPlayerName().get());
         }
+        extraItems.forEach(p -> p.beginEditing(project));
     }
 
-    public void revertEditing(Project project) { }
+    public void revertEditing(Project project)
+    {
+        extraItems.forEach(p -> p.revertEditing(project));
+    }
 
     public void commitEditing(Project project)
     {
@@ -214,5 +222,24 @@ public class MiscPrefPanel extends VBox
         {
             PrefMgr.getPlayerName().set(playerNameField.getText());
         }
+        extraItems.forEach(p -> p.commitEditing(project));
+    }
+
+    /**
+     * Sets the extra items at the bottom of the panel (in Greenfoot, this is the sound devices).
+     * Replaces the previous extra items
+     * 
+     * @param miscPrefPanelItems The extra items to set.  All existing items will be removed.  Pass the empty list to make it blank.
+     */
+    public void setExtraItems(List<MiscPrefPanelItem> miscPrefPanelItems)
+    {
+        // Get rid of any old extra items:
+        getChildren().remove(normalChildren, getChildren().size());
+        // Add the new ones:
+        for (MiscPrefPanelItem miscPrefPanelItem : miscPrefPanelItems)
+        {
+            getChildren().add(PrefMgrDialog.headedVBoxTranslated(miscPrefPanelItem.getMiscPanelTitle(), miscPrefPanelItem.getMiscPanelContents()));
+        }
+        this.extraItems = ImmutableList.copyOf(miscPrefPanelItems);
     }
 }
