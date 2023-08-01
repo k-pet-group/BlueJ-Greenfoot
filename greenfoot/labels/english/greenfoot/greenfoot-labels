@@ -366,3 +366,4 @@ greenfoot.sound.input=Microphone
 greenfoot.sound.output=Output
 greenfoot.sound.prefs=Sound devices
 greenfoot.sound.warning=You will need to restart Greenfoot for any changes to take effect in the scenario.
+greenfoot.sound.device.default=Java default

@@ -112,7 +112,7 @@ public class SoundPreferencePanel extends GridPane implements MiscPrefPanelItem
             @Override
             public String toString(Mixer object)
             {
-                return object == null ? "Default" : object.getMixerInfo().getName();
+                return object == null ? Config.getString("greenfoot.sound.device.default") : object.getMixerInfo().getName();
             }
 
             @Override
