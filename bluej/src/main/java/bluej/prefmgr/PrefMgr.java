@@ -80,6 +80,9 @@ public class PrefMgr
     // (if we called it 0,1,2, tiny would be -1 which seems like a bad idea)
     public static final String PRINT_FONT_SIZE = "bluej.print.fontSize";
     
+    public static final String GREENFOOT_SOUND_INPUT_DEVICE = "greenfoot.sound.device.input";
+    public static final String GREENFOOT_SOUND_OUTPUT_DEVICE = "greenfoot.sound.device.output";
+    
     public static final int MIN_EDITOR_FONT_SIZE = 6;
     public static final int MAX_EDITOR_FONT_SIZE = 160;
     public static final int DEFAULT_STRIDE_FONT_SIZE = 11;

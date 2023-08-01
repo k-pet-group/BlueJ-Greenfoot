@@ -29,15 +29,9 @@ import bluej.utility.javafx.ResizableCanvas;
 import greenfoot.sound.MemoryAudioInputStream;
 import greenfoot.sound.Sound;
 import greenfoot.sound.SoundPlaybackListener;
+import greenfoot.sound.SoundPreferencePanel;
 import greenfoot.sound.SoundRecorder;
 import greenfoot.sound.SoundStream;
-
-import java.io.File;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicReference;
-
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
@@ -47,11 +41,24 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.io.File;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -96,6 +103,7 @@ public class SoundRecorderControls extends Stage
     private Button recordStop = new Button(recordLabel);
 
     private final SimpleBooleanProperty showingProperty = new SimpleBooleanProperty(false);
+    private SoundPreferencePanel soundPreferencePanel;
 
     /**
      * Creates a SoundRecorderDialog that will save the sounds
@@ -114,7 +122,10 @@ public class SoundRecorderControls extends Stage
             getIcons().add(icon);
         }
 
-        setOnShown(e -> showingProperty.set(true));
+        setOnShown(e -> {
+            soundPreferencePanel.beginEditing(null);
+            showingProperty.set(true);
+        });
         setOnHidden(e -> showingProperty.set(false));
         buildUI();
         setProject(project);
@@ -122,7 +133,9 @@ public class SoundRecorderControls extends Stage
 
     private void buildUI()
     {
-        BorderPane soundAndControls = new BorderPane(soundPanel, null, null, buildControlBox(), null);
+        soundPreferencePanel = new SoundPreferencePanel();
+                
+        BorderPane soundAndControls = new BorderPane(soundPanel, soundPreferencePanel, null, buildControlBox(), null);
         soundAndControls.setPadding(new Insets(12));
         BorderPane.setMargin(soundPanel, new Insets(12,12,12,12));
         soundAndControls.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, new CornerRadii(5, 5, 5, 5, false), null)));//new Insets(12)
@@ -131,8 +144,15 @@ public class SoundRecorderControls extends Stage
         Button closeButton = new Button(Config.getString("soundRecorder.close"));
         JavaFXUtil.addChangeListener(saveState.savedProperty(), newValue ->
                 closeButton.setText(Config.getString(newValue ? "soundRecorder.close" : "soundRecorder.close.without.saving")));
-        closeButton.setOnAction(event -> close());
-        this.setOnCloseRequest(event -> stopRecording());
+        closeButton.setOnAction(event -> {
+            stopRecording();
+            soundPreferencePanel.commitEditing(null);
+            close();
+        });
+        this.setOnCloseRequest(event -> {
+            stopRecording();
+            soundPreferencePanel.commitEditing(null);
+        });
 
         VBox contentPane = new VBox(20);
         contentPane.setAlignment(Pos.CENTER);
@@ -160,7 +180,7 @@ public class SoundRecorderControls extends Stage
             if (!recording)
             {
                 //Start recording
-                currentRecording = recorder.startRecording();
+                currentRecording = recorder.startRecording(soundPreferencePanel.getInputMixer());
                 recordStop.setText(stopRecordLabel);
                 playStop.setDisable(true);
                 recording = true;
@@ -262,6 +282,9 @@ public class SoundRecorderControls extends Stage
                     start = 0;
                     memoryStream = new MemoryAudioInputStream(recorder.getRawSound(), recorder.getFormat());
                 }
+                // Save the mixer preference so it takes effect for the sounds:
+                soundPreferencePanel.commitEditing(null);
+                
                 stream = new SoundStream(memoryStream, this);
                 playing = true;
                 playbackPosition = start;
