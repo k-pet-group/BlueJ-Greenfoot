@@ -36,6 +36,7 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
@@ -140,8 +141,9 @@ public class SoundClip implements Sound, LineListener
         AudioInputStream stream = new AudioInputStream(is, format, clipData.getLength());
         DataLine.Info info = new DataLine.Info(Clip.class, format);
 
+        Mixer mixer = SoundUtils.loadMixer(false);
         // getLine throws illegal argument exception if it can't find a line.
-        soundClip = (Clip) AudioSystem.getLine(info);
+        soundClip = (Clip) (mixer == null ? AudioSystem.getLine(info) : mixer.getLine(info));
         soundClip.open(stream);
         
         // Note we don't use soundClip.getMicrosecondLength() due to an IcedTea bug:
