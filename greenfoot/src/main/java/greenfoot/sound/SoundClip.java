@@ -142,6 +142,7 @@ public class SoundClip implements Sound, LineListener
         DataLine.Info info = new DataLine.Info(Clip.class, format);
 
         Mixer mixer = SoundUtils.loadMixer(false);
+        // Use the specific mixer from the preferences if it is available (i.e. non-null):
         // getLine throws illegal argument exception if it can't find a line.
         soundClip = (Clip) (mixer == null ? AudioSystem.getLine(info) : mixer.getLine(info));
         soundClip.open(stream);

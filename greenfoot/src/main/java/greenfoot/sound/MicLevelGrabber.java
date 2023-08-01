@@ -51,6 +51,7 @@ public class MicLevelGrabber
             try {
                 Mixer mixer = SoundUtils.loadMixer(true);
                 Info info = new Info(TargetDataLine.class, format);
+                // Use the specific mixer from the preferences if it is available (i.e. non-null):
                 TargetDataLine line = (TargetDataLine)(mixer == null ? AudioSystem.getLine(info) : mixer.getLine(info));
                 line.open();
                 line.start();

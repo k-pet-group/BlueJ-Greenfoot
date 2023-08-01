@@ -435,7 +435,8 @@ public class SoundStream implements Sound, Runnable
     {
         // Load mixer from the preferences:
         Mixer mixer = SoundUtils.loadMixer(false);
-        
+
+        // Use the specific mixer from the preferences if it is available (i.e. non-null):
         //Throws IllegalArgumentException if it can't find a line
         SourceDataLine l = (SourceDataLine)(mixer == null ? AudioSystem.getLine(info) : mixer.getLine(info));
         printDebug("buffer size: " + l.getBufferSize());
