@@ -1,523 +1,955 @@
-okay=\ud655\uc778 
-cancel=\ucde8\uc18c 
-close=\ub2eb\uae30 
+# This file is written in Korean (EUC-KR).
+# PLEASE OPEN IT WITH THE CORRECT ENCODING.
+
+okay=\ud655\uc778
+cancel=\ucde8\uc18c
+close=\ub2eb\uae30
 continue=\uacc4\uc18d
+or=\ub610\ub294
 
 main.invalidPackage=\ud328\ud0a4\uc9c0\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
 
-compileException=\ucef4\ud30c\uc77c\uc911 \uc608\uc678\uc0c1\ud669
-compiler.thread.title=BlueJ \ucef4\ud30c\uc77c\ub7ec \uc4f0\ub808\ub4dc
-compiler.invalidcompiler=bluej.compiler.type\uc740 \uc720\ud6a8\ud55c \ucef4\ud30c\uc77c\ub7ec \ud0c0\uc785\uc73c\ub85c \uc124\uc815\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.
-compiler.nocompiler=\ucef4\ud30c\uc77c\ub7ec\ub97c \uc2e4\ud589\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
+compileException=\ucef4\ud30c\uc77c \uc911 \uc608\uc678 \ubc1c\uc0dd
+compiler.thread.title=BlueJ \ucef4\ud30c\uc77c\ub7ec \uc2a4\ub808\ub4dc
 
-debugger.objectviewer.title=BlueJ:  \ud074\ub798\uc2a4\uc758 \uac1d\uccb4 \uc0c1\ud0dc \uac80\uc0ac
-debugger.resultviewer.title=BlueJ:  \ud568\uc218\uc758 \uacb0\uacfc \uac12
-debugger.objectviewer.staticListTitle=\uc815\uc801 \ud544\ub4dc
-debugger.objectviewer.objListTitle=\uac1d\uccb4 \ud544\ub4dc
-debugger.objectviewer.inspect=\uac1d\uccb4 \uc0c1\ud0dc \uac80\uc0ac
-debugger.objectviewer.get=\ucc38\uc870 \uac1d\uccb4 \uac00\uc838\uc624\uae30
-debugger.objectviewer.objectClassName=\ud074\ub798\uc2a4\uc758 \uac1d\uccb4
+debugger.assert.assertThatResIs=\uac80\uc0ac \ub300\uc0c1: \uacb0\uacfc\ub294
+debugger.assert.equalTo=\uac19\uc74c
+debugger.assert.equalToFloatingPoint=\ub3d9\ub4f1\ud568 (double \ub610\ub294 float)
+debugger.assert.sameAs=\ub3d9\uc77c\ud568
+debugger.assert.notSameAs=\ub2e4\ub984
+debugger.assert.notNull=null\uc774 \uc544\ub2d8
+debugger.assert.null=null
+debugger.assert.delta=\uc624\ucc28 \ubc94\uc704
 
-debugger.objectwrapper.methodException=\uba54\uc18c\ub4dc \uc811\uadfc \uc608\uc678:
-debugger.objectwrapper.invocationException=\ud638\ucd9c\uc2dc \ubc1c\uc0dd\ud55c \uc608\uc678:
-debugger.objectwrapper.inspect=\uac1d\uccb4 \uc0c1\ud0dc \uac80\uc0ac
-debugger.objectwrapper.remove=\uc0ad\uc81c
+debugger.inspector.title=$APPNAME:  \uac80\uc0ac\uc790
+debugger.inspector.object.title=$APPNAME:  \uac1d\uccb4 \uac80\uc0ac\uc790
+debugger.inspector.class.title=$APPNAME:  \ud074\ub798\uc2a4 \uac80\uc0ac\uc790
+debugger.inspector.enum.title=$APPNAME:  \uc5f4\uac70\ud615 \uac80\uc0ac\uc790
+debugger.inspector.interface.title=$APPNAME:  \uc778\ud130\ud398\uc774\uc2a4 \uac80\uc0ac\uc790
+debugger.inspector.result.title=$APPNAME:  \uba54\uc18c\ub4dc \uacb0\uacfc
+debugger.inspector.result.returned=\ubc18\ud658\ub428:
+debugger.inspector.object.noFields=\ud544\ub4dc\uac00 \uc5c6\uc2b5\ub2c8\ub2e4
+debugger.inspector.class.noFields=\ud544\ub4dc\uac00 \uc5c6\uc2b5\ub2c8\ub2e4
+debugger.inspector.showClass=\uc815\uc801 \ud544\ub4dc \ubcf4\uae30
+debugger.inspector.inspect=\uac80\uc0ac
+debugger.inspector.get=\uac00\uc838\uc624\uae30
+debugger.inspector.class.nameLabel=\ud074\ub798\uc2a4
+debugger.inspector.enum.nameLabel=\uc5f4\uac70\ud615
+debugger.inspector.interface.nameLabel=\uc778\ud130\ud398\uc774\uc2a4
+debugger.inspector.numFields=\ud544\ub4dc \uc218
+
+debugger.objectwrapper.methodException=\uba54\uc18c\ub4dc \uc811\uadfc \uc911 \uc608\uc678 \ubc1c\uc0dd:
+debugger.objectwrapper.invocationException=\ud638\ucd9c \uc911 \uc608\uc678 \ubc1c\uc0dd:
+debugger.objectwrapper.inspect=\uac80\uc0ac
+debugger.objectwrapper.remove=\uc81c\uac70
 debugger.objectwrapper.serializable=\uc9c1\ub82c\ud654
-debugger.objectwrapper.redefined=\uc7ac\uc815\uc758
-debugger.objectwrapper.inherited=\uc0c1\uc18d
+debugger.objectwrapper.redefined=\ub2e4\uc74c\uc5d0\uc11c \uc7ac\uc815\uc758\ub428:
+debugger.objectwrapper.inherited=\ub2e4\uc74c\uc5d0\uc11c \uc0c1\uc18d\ub428:
+debugger.objectwrapper.noMethods=(\uc811\uadfc \uac00\ub2a5\ud55c \uba54\uc18c\ub4dc \uc5c6\uc74c)
+debugger.objectwrapper.moreMethods=\ucd94\uac00 \uba54\uc18c\ub4dc
 
-debugger.threadstatus.finished=\uc885\ub8cc
-debugger.threadstatus.breakpoint=\uc911\ub2e8\uc810
-debugger.threadstatus.stopped=\uc815\uc9c0
-debugger.threadstatus.monitor=\ubaa8\ub2c8\ud130
+debugger.threadstatus.finished=\uc885\ub8cc\ub428
+debugger.threadstatus.breakpoint=\uc911\ub2e8\uc810\uc5d0\uc11c
+debugger.threadstatus.stopped=\uba48\ucda4
+debugger.threadstatus.monitor=\ubaa8\ub2c8\ud130\uc5d0\uc11c
 debugger.threadstatus.notstarted=\uc2dc\uc791\ub418\uc9c0 \uc54a\uc74c
-debugger.threadstatus.running=\ub3d9\uc791\uc911
-debugger.threadstatus.sleeping=sleeping
-debugger.threadstatus.unknown=\ubbf8\uc815\uc758 \uc0c1\ud0dc
-debugger.threadstatus.waiting=\ub300\uae30\uc911
-debugger.threadstatus.zombie=\uc880\ube44
+debugger.threadstatus.running=\uc2e4\ud589 \uc911
+debugger.threadstatus.sleeping=\uc7a0\uc790\ub294 \uc911
+debugger.threadstatus.unknown=\uc54c \uc218 \uc5c6\ub294 \uc0c1\ud0dc
+debugger.threadstatus.waiting=\ub300\uae30 \uc911
+debugger.threadstatus.zombie=\uc885\ub8cc\ub418\uc9c0 \uc54a\uc740 \uc0c1\ud0dc
 
 #Debugger messages
-debugger.jdiDebugger.noBreakpointMsg=\uc911\ub2e8\uc810 \ud574\uc81c: \uc774 \ub77c\uc778\uc5d0\uc11c \uc911\ub2e8\uc810\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
-debugger.jdiDebugger.noLineNumberMsg=\uc774 \ud074\ub798\uc2a4\ub294 \ub77c\uc778 \ub118\ubc84 \uc815\ubcf4 \uc5c6\uc774 \ucef4\ud30c\uc77c \ub418\uc5c8\uc2b5\ub2c8\ub2e4. \uc911\ub2e8\uc810\uc744 \uc124\uc815\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
-debugger.jdiDebugger.noCodeMsg=\uc911\ub2e8\uc810\uc744 \uc124\uc815\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4: \uc774 \ub77c\uc778\uc5d0\ub294 \ucf54\ub4dc\uac00 \uc5c6\uc2b5\ub2c8\ub2e4.
-debugger.jdiDebugger.internalErrorMsg=\uc911\ub2e8\uc810\uc744 \uc124\uc815\ud558\ub294\ub3d9\uc548 \ub0b4\ubd80\uc801\uc778 \uc5d0\ub7ec\uac00 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4.
+debugger.jdiDebugger.noBreakpointMsg=\uc911\ub2e8\uc810 \uc9c0\uc6b0\uae30: \uc774 \uc904\uc5d0 \uc911\ub2e8\uc810\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.
+debugger.jdiDebugger.noLineNumberMsg=\uc774 \ud074\ub798\uc2a4\ub294 \ub77c\uc778 \ubc88\ud638 \uc815\ubcf4\uac00 \uc5c6\uc774 \ucef4\ud30c\uc77c\ub418\uc5c8\uc2b5\ub2c8\ub2e4.\n\uc911\ub2e8\uc810\uc744 \uc124\uc815\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
+debugger.jdiDebugger.noCodeMsg=\uc911\ub2e8\uc810\uc744 \uc124\uc815\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4: \uc774 \uc904\uc5d0 \ucf54\ub4dc\uac00 \uc5c6\uc2b5\ub2c8\ub2e4.
+debugger.jdiDebugger.internalErrorMsg=\uc774 \uc911\ub2e8\uc810\uc744 \uc124\uc815\ud558\ub294 \ub3d9\uc548\n\ub0b4\ubd80 \uc624\ub958\uac00 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4.
 
-#library browser configuration
-browser.title=BlueJ:  \ub77c\uc774\ube0c\ub7ec\ub9ac \ube0c\ub77c\uc6b0\uc800
-browser.version=0.1
-browser.togglemessagebox.toggle.text=\uc774 \uba54\uc138\uc9c0\ub97c \ub2e4\uc2dc \ud45c\uc2dc\ud558\uc9c0 \uc54a\uaca0\uc2b5\ub2c8\ub2e4.
-
-browser.librarychooser.loading.status=\ub77c\uc774\ube0c\ub7ec\ub9ac \ub85c\ub529\uc911...
-browser.librarychooser.loaded.status=\ub77c\uc774\ube0c\ub7ec\ub9ac\uac00 \ub85c\ub4dc\ub428.
-browser.librarychooser.openingarchive.status=\ub77c\uc774\ube0c\ub7ec\ub9ac \ub85c\ub4dc\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
-browser.librarychooser.config.user=userlibs.properties
-
-browser.classchooser.classmenu.open=\uc5f4\uae30
-browser.classchooser.classmenu.use=\uc0ac\uc6a9\ud558\uae30...
-browser.classchooser.packagemenu.open=\uc5f4\uae30
-browser.classchooser.packagemenu.use=\uc0ac\uc6a9\ud558\uae30...
-
-browser.usepackage.dialog.text=\ud328\ud0a4\uc9c0\ub97c \uc120\ud0dd\ud558\uace0 \ud655\uc778\uc744 \ud074\ub9ad\ud558\uc138\uc694.
-
-browser.missingclass.text=The browser cannot locate the class $
-
-#library browser menus
-browser.menu.library=\ub77c\uc774\ube0c\ub7ec\ub9ac
-browser.menu.library.properties=\uc635\uc158...
-browser.menu.library.addlibrary=\ucd94\uac00...
-browser.menu.library.addlibrary.title=\ucd94\uac00 \ub77c\uc774\ube0c\ub7ec\ub9ac
-browser.menu.library.refresh=\uc0c8\ub85c\uace0\uce68
-browser.menu.library.close=\ub2eb\uae30
+#Debugger Accessibility messages
+debugger.accessibility.breakpoint=\uc2a4\ub808\ub4dc "$"\uac00 \uc911\ub2e8\uc810\uc5d0 \ub3c4\ub2ec\ud588\uc2b5\ub2c8\ub2e4.
+debugger.accessibility.paused=\uc2a4\ub808\ub4dc "$"\uac00 \uc77c\uc2dc \uc911\uc9c0\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=\ub77c\uc774\ube0c\ub7ec\ub9ac
-classmgr.userlibraries=\uc0ac\uc6a9\uc790 \ub77c\uc774\ube0c\ub7ec\ub9ac
-classmgr.systemlibraries=\uc2dc\uc2a4\ud15c \ub77c\uc774\ube0c\ub7ec\ub9ac
-classmgr.bootlibraries=\ubd80\ud2b8 \ub77c\uc774\ube0c\ub7ec\ub9ac
-classmgr.add=\ucd94\uac00
-classmgr.delete=\uc0ad\uc81c 
+classmgr.userlibraries=\uc124\uc815\uc5d0\uc11c\uc758 \uc0ac\uc6a9\uc790 \ub77c\uc774\ube0c\ub7ec\ub9ac
+classmgr.userliblibraries=\uc0ac\uc6a9\uc790 \ub77c\uc774\ube0c\ub7ec\ub9ac
+classmgr.addFile=\ud30c\uc77c \ucd94\uac00
+classmgr.delete=\uc0ad\uc81c
 classmgr.statuscolumn=\uc0c1\ud0dc
-classmgr.statusgood=\ub85c\ub4dc
-classmgr.statusbad=\uc5d0\ub7ec
-classmgr.statusnew=\ub85c\ub4dc \uc2e4\ud328
+classmgr.statusgood=\ub85c\ub4dc\ub428
+classmgr.statusbad=\uc624\ub958
+classmgr.statusnew=\ub85c\ub4dc\ub418\uc9c0 \uc54a\uc74c
 classmgr.locationcolumn=\uc704\uce58
-classmgr.descriptioncolumn=\uc124\uba85
-classmgr.bootclass=\ubd80\ud2b8 \ud074\ub798\uc2a4 \ub77c\uc774\ube0c\ub7ec\ub9ac
-classmgr.bluejclass=BlueJ \ud074\ub798\uc2a4 \ub77c\uc774\ube0c\ub7ec\ub9ac
-classmgr.error.unresolvable=\uc9c0\uc815\ub418\uc9c0 \uc54a\uc740 \uacbd\ub85c
-classmgr.error.nodescription=\uc124\uba85 \uc5c6\uc74c 
-classmgr.error.missingclasspath=\uc790\ubc14 \ud074\ub798\uc2a4 \uacbd\ub85c\uac00 \uc9c0\uc815\ub418\uc5b4 \uc788\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. \ud604\uc7ac \ub514\ub809\ud1a0\ub9ac\uc5d0 \uc788\ub294 \ud074\ub798\uc2a4\uac00 \uc9c0\uc815\ub418\uc5b4 \uc788\uc9c0 \uc54a\uc73c\ubbc0\ub85c \ud074\ub798\uc2a4\ub97c \ub85c\ub529\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
-classmgr.error.missingbootclasspath=Sun \ud604\uc7ac \ub514\ub809\ud1a0\ub9ac\uc5d0 \uc788\ub294 \ud074\ub798\uc2a4\uac00 \uc9c0\uc815\ub418\uc5b4 \uc788\uc9c0 \uc54a\uc73c\ubbc0\ub85c \ud074\ub798\uc2a4\ub97c \ub85c\ub529\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4\ubd80\ud2b8 \ud074\ub798\uc2a4 \uacbd\ub85c\uac00 \uc9c0\uc815\ub418\uc5b4 \uc788\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. BlueJ \ub294 JDK 1.2 \uc774\ud558\uc758 \ud658\uacbd\uc5d0\uc11c \ub3d9\uc791\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
+classmgr.error.unresolvable=\ud574\uacb0\ud560 \uc218 \uc5c6\ub294 \uacbd\ub85c
+classmgr.error.nodescription=\uc124\uba85 \uc5c6\uc74c
+classmgr.error.missingclasspath=Java \ud074\ub798\uc2a4\ud328\uc2a4 \uc5c6\uc74c. \ud604\uc7ac \ub514\ub809\ud130\ub9ac\uc758 \ud074\ub798\uc2a4\uac00 \uba3c\uc800 \ud574\uacb0\ub420 \uc218 \uc788\uc73c\ubbc0\ub85c\n\ud074\ub798\uc2a4 \ub85c\ub529 \ub3d9\uc791\uc774 \uc774\uc0c1\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.
+classmgr.error.missingbootclasspath=Sun \ubd80\ud2b8 \ud074\ub798\uc2a4\ud328\uc2a4 \uc5c6\uc74c. BlueJ\ub294 JDK 1.2 \uc774\uc804 \ud658\uacbd\uc5d0\uc11c \uc2e4\ud589\ub418\uc9c0 \uc54a\uc544\uc57c \ud569\ub2c8\ub2e4.
 
 # Preferences Manager user interface elements and error messages
-prefmgr.title=Preferences
+prefmgr.title=\ud658\uacbd \uc124\uc815
 
 # Miscellaneous Preferences panel
-prefmgr.misc.prefpaneltitle=\uc635\uc158
-prefmgr.misc.editor.title=\uc5d0\ub514\ud130 \uc124\uc815
-prefmgr.misc.editorfontsize=\uae00\uc790 \ud06c\uae30
-prefmgr.misc.usesyntaxhilighting=\uc608\uc57d\uc5b4 \uac15\uc870 \uc0ac\uc6a9
-prefmgr.misc.autoindent=\uc790\ub3d9 \ub4e4\uc5ec\uc4f0\uae30 (Enter \uc640 Tab \ud0a4)
-prefmgr.misc.displaylinenumbers=\ub77c\uc778 \ub118\ubc84 \ud45c\uc2dc
-prefmgr.misc.makeBackup=\uc18c\uc2a4 \ud30c\uc77c \ubc31\uc5c5
-prefmgr.misc.matchBrackets=\uad04\ud638 \uac80\uc0ac
-prefmgr.misc.compiler.title=\ucef4\ud30c\uc77c\ub7ec \uc124\uc815
-prefmgr.misc.usejdk14=JDK 1.4 \uc0ac\uc6a9\ud558\uae30
+prefmgr.misc.prefpaneltitle=\uae30\ud0c0
 prefmgr.misc.documentation.title=\ubb38\uc11c \uc124\uc815
 prefmgr.misc.jdkurlpath=JDK \ubb38\uc11c URL
-prefmgr.misc.linkToLib=\ud504\ub85c\uc81d\ud2b8 \ubb38\uc11c\ud654\uc5d0 \uc704\uc758 URL \uc0ac\uc6a9
-prefmgr.misc.linkToLibNoteLine1=\ub9cc\uc57d \uc704\uc758 URL \uc744 \ubb38\uc11c\ud654\uc2dc\uc5d0 \uc0ac\uc6a9\ud55c\ub2e4\uba74, \uc815\ud655\ud558\uace0 \uc5d1\uc138\uc2a4 \uac00\ub2a5\ud574\uc57c \ud569\ub2c8\ub2e4.
-prefmgr.misc.linkToLibNoteLine2=\uadf8\ub807\uc9c0\uc54a\uc73c\uba74 \ubb38\uc11c\ud654\ub294 \uc2e4\ud328\ud569\ub2c8\ub2e4. \uc624\ud504\ub77c\uc778 \uc0c1\ud0dc\ub85c \uc0ac\uc6a9\ud560 \uacbd\uc6b0 \uc774 \uc635\uc158\uc758 \uccb4\ud06c\ub97c \ud574\uc81c\ud558\uc2ed\uc2dc\uc624.
+prefmgr.misc.linkToLib=\ud504\ub85c\uc81d\ud2b8 \ubb38\uc11c \uc791\uc131 \uc2dc \uc774 URL\uc744 \uc0ac\uc6a9\ud574 \uc8fc\uc138\uc694.
+prefmgr.misc.linkToLibNoteLine1=\ub9cc\uc57d \uc774 URL\uc774 \ubb38\uc11c \uc0dd\uc131\uc5d0 \uc0ac\uc6a9\ub41c\ub2e4\uba74, \uc815\ud655\ud558\uace0 \uc811\uadfc\ud560 \uc218 \uc788\uc5b4\uc57c \ud569\ub2c8\ub2e4.
+prefmgr.misc.linkToLibNoteLine2=\uadf8\ub807\uc9c0 \uc54a\uc73c\uba74 \ubb38\uc11c \uc0dd\uc131\uc774 \uc2e4\ud328\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4. \uc624\ud504\ub77c\uc778 \uc791\uc5c5\uc744 \uc6d0\ud560 \uacbd\uc6b0 \uc774 \uc635\uc158\uc744 \uccb4\ud06c\ud574\uc81c \ud558\uc138\uc694.
+prefmgr.misc.tools.title=\uc120\ud0dd\uc801\uc778 \ub3c4\uad6c \uc124\uc815
+prefmgr.misc.showTesting=\ub2e8\uc704 \ud14c\uc2a4\ud2b8 \ub3c4\uad6c \ud45c\uc2dc
+prefmgr.misc.showTeam=\ud611\uc5c5 \uc81c\uc5b4 \ud45c\uc2dc
+prefmgr.misc.vm.title=\ucef4\ud30c\uc77c\ub7ec \ubc0f \ub7f0\ud0c0\uc784 \uc124\uc815
+prefmgr.misc.optimiseVM=\ucd5c\uc801\ud654 \uc0ac\uc6a9 (\ub354 \ube60\ub978 \uc2e4\ud589, \uadf8\ub7ec\ub098 \ub514\ubc84\uae45 \uc2dc \ubb38\uc81c\uac00 \ubc1c\uc0dd\ud560 \uc218 \uc788\uc74c)
+prefmgr.misc.addLibTitle=\ub514\ub809\ud130\ub9ac \ub610\ub294 jar/zip \ud30c\uc77c \uc120\ud0dd
+prefmgr.misc.libFileFilter=\ub77c\uc774\ube0c\ub7ec\ub9ac \ud30c\uc77c (*.jar;*.zip) \ub610\ub294 \ud074\ub798\uc2a4 \ub514\ub809\ud130\ub9ac
+prefmgr.misc.showUnchecked=\uc548\uc804\ud558\uc9c0 \uc54a\uc740 \uceec\ub809\uc158\uc774 \uc0ac\uc6a9\ub420 \ub54c \ucef4\ud30c\uc77c\ub7ec \uacbd\uace0 \ud45c\uc2dc
+prefmgr.misc.runOnThread=\uc2a4\ub808\ub4dc\uc5d0\uc11c \uc774 \ud504\ub85c\uc81d\ud2b8\uc758 \uc0ac\uc6a9\uc790 \ucf54\ub4dc \uc2e4\ud589
+prefmgr.misc.run.fx=JavaFX
+prefmgr.misc.run.swing=Swing/AWT
+prefmgr.misc.run.default=\uae30\ubcf8\uac12
+prefmgr.collection.title=\uc5f0\uad6c \ucc38\uc5ec
+prefmgr.collection.change=\ubcc0\uacbd
+prefmgr.collection.identifier.explanation=\uc5f0\uad6c\uc790\uac00 \uc694\uccad\ud55c \uacbd\uc6b0 \uc544\ub798 \uc815\ubcf4\ub97c \uc785\ub825\ud574\uc57c \ud569\ub2c8\ub2e4.
+prefmgr.collection.identifier.experiment=\uc2e4\ud5d8 \uc2dd\ubcc4\uc790
+prefmgr.collection.identifier.participant=\ucc38\uac00\uc790 \uc2dd\ubcc4\uc790
 
-# Features Panel
-prefmgr.features.title=\ud2b9\uc9d5 
+# Editor Preferences panel
+prefmgr.edit.prefpaneltitle=\uc5d0\ub514\ud130
+prefmgr.edit.editor.title=Java \uc5d0\ub514\ud130 \uc124\uc815
+prefmgr.edit.editorfontsize=\uae00\uc790 \ud06c\uae30
+prefmgr.edit.colortransparency=\ubc94\uc704 \uac15\uc870
+prefmgr.edit.usesyntaxhilighting=\uad6c\ubb38 \uac15\uc870 \uc0ac\uc6a9
+prefmgr.edit.autoindent=\uc790\ub3d9 \ub4e4\uc5ec\uc4f0\uae30 (Enter \ubc0f Tab \ud0a4)
+prefmgr.edit.closecurly=\ub2eb\ub294 \uc911\uad04\ud638 '}' \uc790\ub3d9 \ucd94\uac00
+prefmgr.edit.displaylinenumbers=\uc904 \ubc88\ud638 \ud45c\uc2dc
+prefmgr.edit.checkfilechangeondisk=\ub514\uc2a4\ud06c\uc5d0\uc11c \ud30c\uc77c \ubcc0\uacbd \ud655\uc778
+prefmgr.edit.matchBrackets=\ub300\uad04\ud638 \ub9e4\uce6d
+prefmgr.edit.keybindingstitle=\ud0a4 \ubc14\uc778\ub529
+prefmgr.edit.highlightLighter=\ubc1d\uc740 \uc0c9
+prefmgr.edit.highlightDarker=\uc5b4\ub450\uc6b4 \uc0c9
+prefmgr.edit.editor.texteditor.title=\ud14d\uc2a4\ud2b8 \uc5d0\ub514\ud130 \uc124\uc815
+prefmgr.edit.textfileextensions=\uc9c0\uc6d0\ub418\ub294 \ud30c\uc77c \ud655\uc7a5\uc790
+prefmgr.edit.texteditor.defaultFileExtensions=\uae30\ubcf8\uac12\uc73c\ub85c \uc7ac\uc124\uc815
+
+# Extensions Preferences panel
+prefmgr.extensions.noContent=\ud45c\uc2dc\ud560 \ud655\uc7a5 \uae30\ub2a5 \ub0b4\uc6a9\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.
+
+# Interface preferences panel
+prefmgr.interface.title=\uc778\ud130\ud398\uc774\uc2a4
+prefmgr.interface.language.title=\uc5b8\uc5b4 \uc120\ud0dd
+prefmgr.interface.language=\uc5b8\uc5b4
+prefmgr.interface.language.restart=\uc5b8\uc5b4 \uc124\uc815\uc774 \uc801\uc6a9\ub418\ub824\uba74 $APPNAME \uc744(\ub97c) \uc7ac\uc2dc\uc791\ud574\uc57c \ud569\ub2c8\ub2e4.
+prefmgr.interface.text.restart=\uc124\uc815\uc774 \uc801\uc6a9\ub418\ub824\uba74 $APPNAME \uc744(\ub97c) \uc7ac\uc2dc\uc791\ud574\uc57c \ud569\ub2c8\ub2e4.
+prefmgr.accessibility.title=\uc811\uadfc\uc131
+prefmgr.accessibility.support=\uc811\uadfc\uc131 \ubaa8\ub4dc [\uc2a4\ud06c\ub9b0 \ub9ac\ub354 \uc0ac\uc6a9 \uc2dc\ub9cc \uc0ac\uc6a9 \uac00\ub2a5]
 
 # Extensions Manager Help panel
-extmgr.extensions=Extensions
-extmgr.installed=\uc124\uce58\ub428 
-extmgr.project=\ud504\ub85c\uc81d\ud2b8 
-extmgr.statuscolumn=\uc0c1\ud0dc 
-extmgr.namecolumn=\uc774\ub984 
-extmgr.typecolumn=\ud615\uc2dd 
-extmgr.versioncolumn=\ubc84\uc804 
-extmgr.details=\uc0c1\uc138\uc0ac\ud56d 
-extmgr.details.status=\uc0c1\ud0dc 
-extmgr.details.name=\uc774\ub984 
-extmgr.details.location=\uc704\uce58 
-extmgr.details.type=\ud615\uc2dd 
-extmgr.details.version=\ubc84\uc804 
-extmgr.details.date=\ub0a0\uc9dc 
-extmgr.details.url=URL	
-extmgr.details.description=\uc124\uba85 
+extmgr.title=BlueJ:  \uc124\uce58\ub41c \ud655\uc7a5 \uae30\ub2a5
+extmgr.extensions=\ud655\uc7a5 \uae30\ub2a5
+extmgr.noExtensionInstalled=\ud655\uc7a5 \uae30\ub2a5\uc774 \uc124\uce58\ub418\uc5b4 \uc788\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.
+extmgr.systemExtensionShort=\uc2dc\uc2a4\ud15c
+extmgr.systemExtensionLong=\uc2dc\uc2a4\ud15c \ud655\uc7a5 \uae30\ub2a5 (\ubaa8\ub4e0 \ud504\ub85c\uc81d\ud2b8\uc5d0\uc11c \ud65c\uc131\ud654\ub428)
+extmgr.projectExtensionShort=\ud504\ub85c\uc81d\ud2b8
+extmgr.projectExtensionLong=\ud504\ub85c\uc81d\ud2b8 \ud655\uc7a5 \uae30\ub2a5 (\ud604\uc7ac \ud504\ub85c\uc81d\ud2b8\uc5d0\uc11c\ub9cc \ud65c\uc131\ud654\ub428)
+extmgr.details.location=\uc704\uce58:
+extmgr.details.version=\ubc84\uc804
 
-extmgr.status.notused=Not used
-extmgr.status.loaded=\ub85c\ub4dc\ub41c 
-extmgr.status.error=\uc5d0\ub7ec 
-extmgr.status.unloaded=Unloaded
-extmgr.version.unknown=Unknown
-extensions.nodescription=None given.
+extmgr.status.notused=\uc0ac\uc6a9\ub418\uc9c0 \uc54a\uc74c
+extmgr.status.loaded=\ub85c\ub4dc\ub428
+extmgr.status.error=\uc624\ub958
+extmgr.status.unloaded=\uc5b8\ub85c\ub4dc\ub428
+extmgr.version.unknown=\uc54c \uc218 \uc5c6\uc74c
+extensions.nodescription=\uc124\uba85 \uc5c6\uc74c.
+
+# Extension errors
+extmgr.error.nomanifest=\ub9e4\ub2c8\ud398\uc2a4\ud2b8 \ud30c\uc77c\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.
+extmgr.error.nomain=\ub9e4\ub2c8\ud398\uc2a4\ud2b8\uc5d0 Main-Class \uc18d\uc131\uc774 \ud3ec\ud568\ub418\uc5b4 \uc788\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.
+extmgr.error.notsubclass=\uba54\uc778 \ud074\ub798\uc2a4\uac00 Extension\uc758 \ud558\uc704 \ud074\ub798\uc2a4\uac00 \uc544\ub2d9\ub2c8\ub2e4.
+extmgr.error.cannotload=\ud655\uc7a5 \uae30\ub2a5\uc744 \ub85c\ub4dc\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
 
 #---------------
 #Editor labels
 #---------------
-editor.title=BlueJ: \uc5d0\ub514\ud130 
+editor.title=BlueJ: \ud3b8\uc9d1\uae30
 
 #button lables for toolbar commands
-editor.compileLabel = \ucef4\ud30c\uc77c 
-editor.undoLabel = \uc2e4\ud589\ucde8\uc18c 
-editor.cutLabel = \uc798\ub77c\ub0b4\uae30 
-editor.copyLabel = \ubcf5\uc0ac\ud558\uae30 
-editor.pasteLabel = \ubd99\uc5ec\ub123\uae30 
-editor.closeLabel = \ub2eb\uae30 
-editor.page-setupLabel = \ud398\uc774\uc9c0 \uc124\uc815 ...
+editor.compileLabel = \ucef4\ud30c\uc77c
+editor.undoLabel = \uc2e4\ud589 \ucde8\uc18c
+editor.cutLabel = \uc798\ub77c\ub0b4\uae30
+editor.copyLabel = \ubcf5\uc0ac\ud558\uae30
+editor.pasteLabel = \ubd99\uc5ec\ub123\uae30
+editor.closeLabel = \ub2eb\uae30
+editor.page-setupLabel = \ud398\uc774\uc9c0 \uc124\uc815...
 
 # menu labels (MUST be defined)
-editor.classLabel = \ud074\ub798\uc2a4 
-editor.editLabel = \uc5d0\ub514\ud2b8 
-editor.toolsLabel = \ub3c4\uad6c 
-editor.debugLabel = \ub514\ubc84\uadf8 
-editor.optionLabel = \uc635\uc158 
-editor.helpLabel = \ub3c4\uc6c0\ub9d0 
+editor.classLabel = \ud074\ub798\uc2a4
+editor.editLabel = \ud3b8\uc9d1
+editor.toolsLabel = \ub3c4\uad6c
+editor.debugLabel = \ub514\ubc84\uadf8
+editor.optionLabel = \uc635\uc158
+editor.helpLabel = \ub3c4\uc6c0\ub9d0
 
 # item labels (can be omitted if same as action name)
-editor.saveLabel = \uc800\uc7a5 
-editor.printLabel = \uc778\uc1c4 ...
-editor.closeLabel =\ub2eb\uae30 
+editor.saveLabel = \uc800\uc7a5
+editor.printLabel = \uc778\uc1c4...
+editor.closeLabel = \ub2eb\uae30
 
-editor.redoLabel = \ub2e4\uc2dc\uc2e4\ud589 
-editor.cut-to-clipboardLabel = \uc798\ub77c\ub0b4\uae30 
-editor.copy-to-clipboardLabel = \ubcf5\uc0ac\ud558\uae30 
-editor.paste-from-clipboardLabel = \ubd99\uc5ec\ub123\uae30 
-editor.indent-blockLabel = \ub4e4\uc5ec\uc4f0\uae30 
-editor.deindent-blockLabel = \ub0b4\uc5b4\uc4f0\uae30 
-editor.comment-blockLabel = \uc8fc\uc11d
-editor.uncomment-blockLabel = \uc8fc\uc11d\ucde8\uc18c 
-editor.insert-methodLabel = \uba54\uc18c\ub4dc \ucd94\uac00 
+editor.redoLabel = \uc7ac\uc2e4\ud589
+editor.cut-to-clipboardLabel = \uc798\ub77c\ub0b4\uae30
+editor.copy-to-clipboardLabel = \ubcf5\uc0ac
+editor.paste-from-clipboardLabel = \ubd99\uc5ec \ub123\uae30
+editor.indent-blockLabel = \ub4e4\uc5ec\uc4f0\uae30 \ub354\ud558\uae30
+editor.deindent-blockLabel = \ub4e4\uc5ec\uc4f0\uae30 \ube7c\uae30
+editor.autoindentLabel = \uc790\ub3d9 \uc815\ub82c
+editor.comment-blockLabel = \uc8fc\uc11d \ucc98\ub9ac
+editor.uncomment-blockLabel = \uc8fc\uc11d \ud574\uc81c
+editor.insert-methodLabel = \uba54\uc18c\ub4dc \uc0bd\uc785
+editor.add-javadocLabel = \uba54\uc18c\ub4dc \uc8fc\uc11d \ucd94\uac00
 
-editor.findLabel = \ucc3e\uae30 ...
-editor.find-nextLabel = \ub2e4\uc74c\ucc3e\uae30 
-editor.find-next-backwardLabel = \uc774\uc804\ucc3e\uae30 
-editor.replaceLabel = \uc0c8\ub85c\uace0\uce68 ...
-editor.compileLabel = \ucef4\ud30c\uc77c 
-editor.toggle-breakpointLabel = \uc911\ub2e8\uc810 \uc124\uc815\\\uc81c\uac70 
-editor.toggle-interface-viewLabel = \uc778\ud130\ud398\uc774\uc2a4 \ubcf4\uae30\uae30\ub2a5 \ubc18\uc804
+editor.new-findLabel = \uc0c8\ub85c\uc6b4 \uac80\uc0c9
+editor.findLabel = \uac80\uc0c9...
+editor.find-nextLabel = \ub2e4\uc74c \ud56d\ubaa9 \ucc3e\uae30
+editor.find-next-backwardLabel = \uc774\uc804 \ud56d\ubaa9 \ucc3e\uae30
+editor.go-to-lineLabel = \uc904 \uc774\ub3d9...
+editor.replaceLabel = \ubc14\uafb8\uae30...
+editor.toggle-breakpointLabel = \uc911\ub2e8\uc810 \uc124\uc815/\ud574\uc81c
+editor.set.breakpoint.hint = \uc911\ub2e8\uc810 \uc124\uc815\ud558\ub824\uba74 \ud074\ub9ad
+editor.set.breakpoint.fail = \uc774 \uc904\uc5d0 \uc911\ub2e8\uc810\uc744 \uc124\uc815\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
+editor.toggle-interface-viewLabel = \ubb38\uc11c \ubcf4\uae30 \uc804\ud658\ud558\uae30
 
-editor.implementationLabel = \uad6c\ud604\ubd80 
-editor.interfaceLabel = \uc778\ud130\ud398\uc774\uc2a4 
+editor.go-to-lineLabel = \ud574\ub2f9 \ub77c\uc778\uc73c\ub85c \uc774\ub3d9...
+editor.gotoline.title = \ub77c\uc778\uc73c\ub85c \uc774\ub3d9
+editor.gotoline.label = \ub77c\uc778 \ubc88\ud638 \uc785\ub825
+editor.gotoline.prompt= \ub77c\uc778 \ubc88\ud638
+editor.gotoline.notNumericMessage = \uc785\ub825\uc740 \ubc18\ub4dc\uc2dc \uc22b\uc790\uc5ec\uc57c \ud569\ub2c8\ub2e4.
 
-editor.state.readOnly = \uc77d\uae30\uc804\uc6a9 
-editor.state.saved = \uc800\uc7a5 
-editor.state.changed = \ubcc0\uacbd  
+editor.implementationLabel = \uc18c\uc2a4 \ucf54\ub4dc
+editor.interfaceLabel = \ubb38\uc11c
 
-editor.key-bindingsLabel = \ud0a4 \uc5f0\uacb0 ...
-editor.preferencesLabel = \uc124\uc815 ...
+editor.state.readOnly = \uc77d\uae30 \uc804\uc6a9
+editor.state.saved = \uc800\uc7a5 \uc644\ub8cc
+editor.state.changed = \ubcc0\uacbd\ub428
+
+editor.increase-fontLabel = \uae00\uc790 \ud06c\uae30 \uc99d\uac00
+editor.decrease-fontLabel = \uae00\uc790 \ud06c\uae30 \uac10\uc18c
+editor.reset-fontLabel = \uae00\uc790 \ud06c\uae30 \ucd08\uae30\ud654
+editor.key-bindingsLabel = \ub2e8\ucd95\ud0a4 \uc124\uc815...
+editor.preferencesLabel = \ud658\uacbd \uc124\uc815...
+
+editor.printDialog.title=BlueJ:  \uc18c\uc2a4 \ucf54\ub4dc \uc778\uc1c4
+editor.printDialog.printLineNumbers=\uc904 \ubc88\ud638 \ud3ec\ud568
+editor.printDialog.printHighlighting=\ubc94\uc704 \uac15\uc870 \ud3ec\ud568
+editor.printDialog.printHighlighting.tooltip=\uc774 \uae30\ub2a5\uc740 \uc778\uc1c4 \uc18d\ub3c4\uac00 \ub290\ub824\uc9c0\uba70 \ub300\uaddc\ubaa8 \uc778\uc1c4 \uc791\uc5c5\uc5d0\uc11c \uc9c0\uc6d0\ub418\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.
+editor.printDialog.fontSize=\uae00\uc790 \ud06c\uae30
+editor.printDialog.fontSize.small=\uc791\uac8c
+editor.printDialog.fontSize.standard=\ubcf4\ud1b5
+editor.printDialog.fontSize.large=\ud06c\uac8c
+
+# Editor quick fix messages
+editor.quickfix.correctToSugg.fixMsg=\ub2e4\uc74c\uc73c\ub85c \uc218\uc815\ud558\uc138\uc694:\u0020
+editor.quickfix.unknownType.errorMsg=\uc54c \uc218 \uc5c6\ub294 \ud0c0\uc785\uc785\ub2c8\ub2e4:\u0020
+editor.quickfix.unknownType.fixMsg.class=\ud074\ub798\uc2a4\ub97c \uc784\ud3ec\ud2b8\ud558\uc138\uc694\u0020
+editor.quickfix.unknownType.fixMsg.package=\ud328\ud0a4\uc9c0\ub97c \uc784\ud3ec\ud2b8\ud558\uc138\uc694\u0020
+editor.quickfix.undeclaredVar.errorMsg=\uc120\uc5b8\ub418\uc9c0 \uc54a\uc740 \ubcc0\uc218\uc785\ub2c8\ub2e4:\u0020
+editor.quickfix.undeclaredVar.fixMsg.local=\ubcc0\uc218\ub97c \uc774\uacf3\uc5d0\uc11c \uc120\uc5b8\ud558\uc138\uc694
+editor.quickfix.undeclaredVar.fixMsg.class=\ud074\ub798\uc2a4 \ub0b4\ubd80\uc5d0\uc11c \ud544\ub4dc\ub97c \uc120\uc5b8\ud558\uc138\uc694
+editor.quickfix.undeclaredMethod.errorMsg=\uc120\uc5b8\ub418\uc9c0 \uc54a\uc740 \uba54\uc18c\ub4dc\uc785\ub2c8\ub2e4:\u0020
+editor.quickfix.wrongComparisonOperator.errorMsg=\ubd88\ub9ac\uc5b8 \ud45c\ud604\uc2dd \ub300\uc2e0 \ub300\uc785\ubb38\uc744 \uc0ac\uc6a9\ud558\uc600\uc2b5\ub2c8\ub2e4. \n\
+                                                 "=="\ub97c \uc758\ubbf8\ud558\uc600\ub098\uc694?
+editor.quickfix.wrongComparisonOperator.fixMsg="=" \ub300\uc2e0 "=="\ub85c \ubc14\uafb8\uc138\uc694
+editor.quickfix.unreportedException.errorMsg.part1=\uac00\ub2a5\ud55c \uc608\uc678 \ud0c0\uc785\u0020
+editor.quickfix.unreportedException.errorMsg.part2=\u0020\uad00\ub9ac\uac00 \ud544\uc694\ud569\ub2c8\ub2e4.
+editor.quickfix.unreportedException.fixMsg.trycatch=\uc774 \ub77c\uc778\uc744 try/catch\ub85c \uac10\uc2f8\uc138\uc694
+editor.quickfix.unreportedException.fixMsg.throws=\uc774 \uc608\uc678\ub97c \ub2f4\uace0 \uc788\ub294 \uba54\uc18c\ub4dc\uc5d0\uc11c throws \ubb38\uc744 \ucd94\uac00\ud558\uc138\uc694
 
 # Dialog titles and texts
-editor.functions.title = \uc5d0\ub514\ud130 \uae30\ub2a5\ub4e4 
-editor.functions.editFunctions =\ud3b8\uc9d1  \uae30\ub2a5\ub4e4 
-editor.functions.moveScroll = \uc774\ub3d9 & \ud654\uba74\uc774\ub3d9 
-editor.functions.classFunctions = \ud074\ub798\uc2a4 \uae30\ub2a5\ub4e4 
-editor.functions.customisation = \uc0ac\uc6a9\uc790\ub9de\ucda4 
-editor.functions.help = \ub3c4\uc6c0\ub9d0 
-editor.functions.misc = \uc7a1\ub3d9\uc0ac\ub2c8 
-editor.functions.defaults=\ub514\ud3f4\ud2b8 
-editor.functions.categories=\uce74\ud14c\uace0\ub9ac :
-editor.functions.keys=\ud0a4 \uc5f0\uacb0 
-editor.functions.addkey=\ud0a4 \ucd94\uac00 
-editor.functions.delkey=\ud0a4 \uc0ad\uc81c 
+editor.functions.title = \ud3b8\uc9d1\uae30 \uae30\ub2a5
+editor.functions.editFunctions = \ud3b8\uc9d1 \uae30\ub2a5
+editor.functions.moveScroll = \uc774\ub3d9 \ubc0f \uc2a4\ud06c\ub864
+editor.functions.classFunctions = \ud074\ub798\uc2a4 \uae30\ub2a5
+editor.functions.customisation = \uc0ac\uc6a9\uc790 \uc815\uc758
+editor.functions.help = \ub3c4\uc6c0\ub9d0
+editor.functions.misc = \uae30\ud0c0
+editor.functions.defaults= \uae30\ubcf8 \uc124\uc815
+editor.functions.categories=\uce74\ud14c\uace0\ub9ac:
+editor.functions.keys=\ud0a4 \ubc14\uc778\ub529
+editor.functions.addkey=\ud0a4 \ucd94\uac00
+editor.functions.delkey=\ud0a4 \uc0ad\uc81c
 
-editor.find.title = \ucc3e\uae30 
-editor.find.find.label = \ucc3e\uae30 :
-editor.find.replace.label = \uc0c8\ub85c\uace0\uce68 :
-editor.find.findNext=\ub2e4\uc74c\ucc3e\uae30 
-editor.find.replace=\uc0c8\ub85c\uace0\uce68 
-editor.find.replaceAll=\ubaa8\ub450 \uc0c8\ub85c\uace0\uce68 
-editor.find.up=\uc704\ub85c \uac80\uc0c9 
-editor.find.down=\uc544\ub798\ub85c \uac80\uc0c9 
+editor.find.title = \ucc3e\uae30
+editor.find.find.label = \ucc3e\uc744 \ub0b4\uc6a9:
+editor.find.replace.label = \ub300\uccb4\ud560 \ub0b4\uc6a9:
+editor.find.findNext=\ub2e4\uc74c \ucc3e\uae30
+editor.find.replace=\ub300\uccb4
+editor.find.replaceAll=\uc804\uccb4 \ub300\uccb4
+editor.find.up=\uc704\ub85c \uac80\uc0c9
+editor.find.down=\uc544\ub798\ub85c \uac80\uc0c9
 editor.find.ignoreCase=\ub300\uc18c\ubb38\uc790 \ubb34\uc2dc
-editor.find.wholeWord=\uc628\uc804\ud55c \ub2e8\uc5b4 
+editor.find.wholeWord=\ub2e8\uc5b4 \uc804\uccb4
+editor.find.backward=\ub4a4\ub85c
+editor.find.forward=\uc55e\uc73c\ub85c
+editor.find.wrapAround=\uc804\uccb4 \ucc3e\uae30
+
+# FindPanel
+editor.findpanel.replacePanel=  \ubc14\uafb8\uae30
+editor.findpanel.findLabel=\ucc3e\uae30:
+editor.findpanel.findNext=\ub2e4\uc74c
+editor.findpanel.findPrevious=\uc774\uc804
+editor.findpanel.matchCase=\ub300\uc18c\ubb38\uc790 \uad6c\ubd84
+
+# ReplacePanel
+editor.replacePanel.replaceLabel=\ubc14\uafb8\uae30:
+editor.replacePanel.replaceOnce=\ud55c \ubc88
+editor.replacePanel.replaceAll=\ubaa8\ub450
+
+# "Add javadoc" function
+editor.addjavadoc.notAMethod=\uba54\uc18c\ub4dc \ub0b4\uc5d0\uc11c\ub9cc \uc0ac\uc6a9 \uac00\ub2a5\ud569\ub2c8\ub2e4.
+editor.addjavadoc.hasJavadoc=\uc774 \uba54\uc18c\ub4dc\ub294 \uc774\ubbf8 Javadoc \uc8fc\uc11d\uc774 \uc788\uc2b5\ub2c8\ub2e4.
+editor.addjavadoc.constructor=\uc0dd\uc131\uc790
+editor.addjavadoc.method=\uba54\uc18c\ub4dc
+editor.addjavadoc.parameter=\ud30c\ub77c\ubbf8\ud130
+editor.addjavadoc.returnValue=\ubc18\ud658\uac12
+
+# Messages shown as a result of a search with replace all
+editor.replaceAll.replaced=\ub300\uccb4\ub428
+editor.replaceAll.intancesOf=\uac1c\uc758 \uc778\uc2a4\ud134\uc2a4
+editor.replaceAll.string=\ubb38\uc790\uc5f4
+editor.replaceAll.notFoundNothingReplaced=\ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4. \ub300\uccb4\ub41c \uac83\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.
+
+# Messages shown as a result of a search with highlight all
+editor.highlight.found=\ucc3e\uc558\uc2b5\ub2c8\ub2e4
+editor.highlight.notFound=\ucc3e\uc9c0 \ubabb\ud588\uc2b5\ub2c8\ub2e4.
+
+# Message shown in code completion pane when nothing is found
+editor.completion.noMatch=\uc77c\uce58\ud558\ub294 \ud56d\ubaa9\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.
+
+#Message shown in code completion while processing
+editor.completion.working=\ub85c\ub4dc \uc911...
+
+# Messages shown when determining what function is bound to a given key
+editor.keypressed.keyIsNotBound=\uc774(\uac00) \ud568\uc218\uc5d0 \ubc14\uc778\ub529\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.
+editor.keypressed.callsTheFunction=\uc774(\uac00) \ud568\uc218\ub97c \ud638\ucd9c\ud569\ub2c8\ub2e4 "
 
 #Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Moe \ubc84\uc804
-editor.info.readingProblem = \uc774 \ud30c\uc77c\uc744 \uc77d\ub294\ub370 \ubb38\uc81c\uac00 \uc0dd\uacbc\uc2b5\ub2c8\ub2e4.
-editor.info.regularFile = (\uc815\uaddc\ud30c\uc77c\uc785\ub2c8\uae4c? \uc77d\uae30 \uc811\uadfc\uc744 \ud560 \uc218 \uc788\uc2b5\ub2c8\uae4c?)
-editor.info.newFile = \uc0c8\ud30c\uc77c
-editor.info.errorSaving = \ud30c\uc77c \uc800\uc7a5 \uc5d0\ub7ec!
-editor.info.compiled = \ud074\ub798\uc2a4 \ucef4\ud30c\uc77c \uc644\ub8cc - \uad6c\ubb38\uc5d0\ub7ec\uac00 \uc5c6\uc2b5\ub2c8\ub2e4
-editor.info.noChanges = \ubcc0\uacbd\uc0ac\ud56d\uc744 \uc800\uc7a5\ud560 \ud544\uc694\uac00 \uc5c6\uc2b5\ub2c8\ub2e4
-editor.info.emptySearchString = \ucc3e\uc744 \ubb38\uc790\uc5f4\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.
-editor.info.notFound = \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4 (\uacb0\uacfc \ub0b4 \uc7ac\uac80\uc0c9).
-editor.info.compiling = \ucef4\ud30c\uc77c\uc911...
-editor.info.cannotSetBreak = \uc911\ub2e8\uc810\uc744 \uc124\uc815\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4:\n\uc774 \uc5d0\ub514\ud130\uc640 \uad00\ub828\ub41c \ucf54\ub4dc\uac00 \uc5c6\uc2b5\ub2c8\ub2e4.
-editor.info.fileDisappeared = ERROR: \ud30c\uc77c\uc774 \uc874\uc7ac\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4!
-editor.info.fileReadError = ERROR: \uc774 \ud30c\uc77c\uc744 \uc77d\ub294 \ub3d9\uc548 \uc5d0\ub7ec\uac00 \ubc1c\uc0dd\ud558\uc600\uc2b5\ub2c8\ub2e4.
-editor.info.saved = \ud30c\uc77c \uc800\uc7a5 \uc644\ub8cc
-editor.info.printing = \uc778\uc1c4\uc911...
-editor.info.printed = \uc778\uc1c4\uc911... \uc644\ub8cc.
+editor.info.errorSaving = \ud30c\uc77c \uc800\uc7a5 \uc911 \uc624\ub958 \ubc1c\uc0dd!
+editor.info.compiled = \ud074\ub798\uc2a4\uac00 \ucef4\ud30c\uc77c\ub418\uc5c8\uc2b5\ub2c8\ub2e4 - \uad6c\ubb38 \uc624\ub958\uac00 \uc5c6\uc2b5\ub2c8\ub2e4.
+editor.info.compileError = \ud074\ub798\uc2a4\uc5d0\uc11c \uc624\ub958\uac00 \ubc1c\uacac\ub418\uc5c8\uc2b5\ub2c8\ub2e4.\n\ub2e4\uc74c \uc624\ub958\ub85c \uc774\ub3d9\ud558\ub824\uba74 $\ub97c \ub204\ub974\uac70\ub098 \uc624\ub978\ucabd \ub9c1\ud06c\ub97c \ud074\ub9ad\ud558\uc138\uc694.
+editor.info.noChanges = \uc800\uc7a5\ud560 \ubcc0\uacbd \uc0ac\ud56d\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.
+editor.info.emptySearchString = \uac80\uc0c9\uc5b4\uac00 \ube44\uc5b4 \uc788\uc2b5\ub2c8\ub2e4.
+editor.info.notFound = \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4 (\ub2e4\uc2dc \uac80\uc0c9\ud558\uc5ec \uac10\uc2f8\uae30\ub97c \uc2dc\ub3c4\ud558\uc138\uc694).
+editor.info.compiling = \ucef4\ud30c\uc77c \uc911...
+editor.info.cannotSetBreak = \uc911\ub2e8\uc810\uc744 \uc124\uc815\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4:\n\uc774 \uc5d0\ub514\ud130\uc5d0 \ucf54\ub4dc\uac00 \uc5c6\uc2b5\ub2c8\ub2e4.
+editor.info.fileDisappeared = \uc624\ub958: \ud30c\uc77c\uc774 \uc0ac\ub77c\uc84c\uc2b5\ub2c8\ub2e4!
+editor.info.fileReadError = \uc624\ub958: \ud30c\uc77c\uc744 \uc77d\ub294 \uc911 \uc624\ub958\uac00 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4.
+editor.info.saved = \ud30c\uc77c\uc774 \uc800\uc7a5\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+editor.info.printing = \uc778\uc1c4 \uc911...
+editor.info.printed = \uc778\uc1c4 \uc644\ub8cc.
 editor.info.cancelled = \ucde8\uc18c\ub428.
-editor.info.generatingDoc = \ud074\ub798\uc2a4 \uc778\ud130\ud398\uc774\uc2a4 \uc0dd\uc131\uc911...
-editor.info.loadingDoc = \ud074\ub798\uc2a4 \uc778\ud130\ud398\uc774\uc2a4 \ub85c\ub529\uc911...
-editor.info.docLoaded = \ud074\ub798\uc2a4 \uc778\ud130\ud398\uc774\uc2a4 \ub85c\ub529\uc911... \uc644\ub8cc.
-editor.info.docAborted = javadoc\uc0dd\uc131\uc911 \uc2ec\uac01\ud55c \ubb38\uc81c\uac00 \ubc1c\uc0dd\ud558\uc600\uc2b5\ub2c8\ub2e4.\n\uc778\ud130\ud398\uc774\uc2a4. \ucde8\uc18c\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+editor.info.generatingDoc = \ud074\ub798\uc2a4 \uc778\ud130\ud398\uc774\uc2a4 \uc0dd\uc131 \uc911...
+editor.info.loadingDoc = \ud074\ub798\uc2a4 \uc778\ud130\ud398\uc774\uc2a4 \ub85c\ub4dc \uc911...
+editor.info.docLoaded = \ud074\ub798\uc2a4 \uc778\ud130\ud398\uc774\uc2a4 \ub85c\ub4dc \uc644\ub8cc.
+editor.info.docAborted = javadoc \uc778\ud130\ud398\uc774\uc2a4\ub97c \ub9cc\ub4dc\ub294 \uc911 \uc2ec\uac01\ud55c \ubb38\uc81c\uac00 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4.\n\uc911\ub2e8\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
 editor.info.docDisappeared = HTML \ud30c\uc77c\uc744 \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4:
-editor.info.docNoFrames = \ud504\ub808\uc784 \ucc3d\uc774 \uc5d0\ub514\ud130 \ubbf8\ub9ac\ubcf4\uae30\uc5d0\uc11c \uc0ac\ub77c\uc84c\uc2b5\ub2c8\ub2e4.
-editor.info.tabsExpanded = Converted all TABs to spaces. (You are working\nwith soft TABs, the file contained hard TABs.)
-editor.printer.continued=\uacc4\uc18d
+editor.info.docNoFrames = \uc5d0\ub514\ud130 \ubbf8\ub9ac\ubcf4\uae30\uc5d0\uc11c \ud504\ub808\uc784 \ud45c\uc2dc\uac00 \ube44\ud65c\uc131\ud654\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+editor.info.tabsExpanded = \ubaa8\ub4e0 TAB\uc744 \uacf5\ubc31\uc73c\ub85c \ubcc0\ud658\ud588\uc2b5\ub2c8\ub2e4. (\uc18c\ud504\ud2b8 TAB\uc744\n\uc0ac\uc6a9 \uc911\uc774\uba70 \ud30c\uc77c\uc5d0 \ud558\ub4dc TAB\uc774 \ud3ec\ud568\ub418\uc5b4 \uc788\uc2b5\ub2c8\ub2e4.)
+editor.info.perfectIndent = \ub4e4\uc5ec\uc4f0\uae30\uac00 \uc774\ubbf8 \uc62c\ubc14\ub985\ub2c8\ub2e4.
+editor.printer.continued=\uacc4\uc18d\ub428
+editor.info.duplication = \uc774 \uc774\ub984\uc73c\ub85c \ub41c \ud074\ub798\uc2a4\uac00 \uc774\ubbf8 \uc774 \ud328\ud0a4\uc9c0\uc5d0 \uc788\uc2b5\ub2c8\ub2e4.
 #End Editor labels
 
-pkgmgr.chooseUsesFrom=\uc0ac\uc6a9\ud654\uc0b4\ud45c\uc758 \uc2dc\uc791\uc810 \ud074\ub798\uc2a4\ub97c \uc120\ud0dd\ud558\uc2ed\uc2dc\uc624.
-pkgmgr.chooseUsesTo=\uc0ac\uc6a9\ud654\uc0b4\ud45c\uc758 \ub3c4\ucc29\uc810 \ud074\ub798\uc2a4\ub97c \uc120\ud0dd\ud558\uc2ed\uc2dc\uc624
-pkgmgr.chooseInhFrom=\uc11c\ube0c \ud074\ub798\uc2a4\ub97c \uc120\ud0dd\ud558\uc2ed\uc2dc\uc624
-pkgmgr.chooseInhTo=\uc218\ud37c \ud074\ub798\uc2a4\ub97c \uc120\ud0dd\ud558\uc2ed\uc2dc\uc624
-pkgmgr.chooseArrow=\uc0ad\uc81c\ud560 \ud654\uc0b4\ud45c\ub97c \uc120\ud0dd\ud558\uc2ed\uc2dc\uc624
-pkgmgr.packageSaved=\ud328\ud0a4\uc9c0 \uc800\uc7a5 \uc644\ub8cc 
-pkgmgr.info.printing = \uc778\uc1c4\uc911...
-pkgmgr.info.printed = \uc778\uc1c4\uc911... \uc644\ub8cc.
+pkgmgr.chooseUsesFrom=\uc758\uc874\uc131\uc774 \uc788\ub294 \ud074\ub798\uc2a4\ub97c \uc120\ud0dd\ud558\uc138\uc694.
+pkgmgr.chooseUsesTo=\uc758\uc874\ud558\ub294 \ud074\ub798\uc2a4\ub97c \uc120\ud0dd\ud558\uc138\uc694.
+pkgmgr.chooseInhFrom=\uc0c1\uc18d\ubc1b\uc744 \ud558\uc704 \ud074\ub798\uc2a4\ub97c \uc120\ud0dd\ud558\uc138\uc694.
+pkgmgr.chooseInhTo=\uc0c1\uc704 \ud074\ub798\uc2a4/\uc778\ud130\ud398\uc774\uc2a4\ub97c \uc120\ud0dd\ud558\uc138\uc694.
+pkgmgr.chooseArrow=\uc0ad\uc81c\ud560 \ud654\uc0b4\ud45c\ub97c \uc120\ud0dd\ud558\uc138\uc694.
+pkgmgr.packageSaved=\ud328\ud0a4\uc9c0\uac00 \uc800\uc7a5\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+pkgmgr.info.printing = \uc778\uc1c4 \uc911...
+pkgmgr.info.printed = \uc778\uc1c4 \uc644\ub8cc.
 
-utility.packageChooser.previewPane1=\uc120\ud0dd\uac00\ub2a5\ud55c \ud328\ud0a4\uc9c0 
+utility.packageChooser.previewPane1=\uac00\ub2a5\ud55c \ubbf8\ub9ac\ubcf4\uae30
 utility.packageChooser.previewPane2=\ud328\ud0a4\uc9c0 \uad6c\uc870
 
 # dialog titles and texts
-pkgmgr.newPkg.title=\uc0c8\ud504\ub85c\uc81d\ud2b8
-pkgmgr.newPkg.buttonLabel=\uc0dd\uc131 
-pkgmgr.openPkg.title=\ud504\ub85c\uc81d\ud2b8 \uc5f4\uae30 
-pkgmgr.openPkg.buttonLabel=\uc5f4\uae30 
-pkgmgr.openNonBlueJPkg.title=BlueJ\ub85c \ub9cc\ub4e4\uc9c0 \uc54a\uc740 \ud504\ub85c\uc81d\ud2b8 \uc5f4\uae30
-pkgmgr.openNonBlueJPkg.buttonLabel=BlueJ\ud504\ub85c\uc81d\ud2b8\ub85c \uc5f4\uae30
-pkgmgr.saveAs.title=\ud504\ub85c\uc81d\ud2b8 \uc800\uc7a5 
-pkgmgr.saveAs.buttonLabel=\uc800\uc7a5 
-pkgmgr.addClass.title=\ucd94\uac00\ud560 \uc790\ubc14 \ud074\ub798\uc2a4 \uc120\ud0dd 
-pkgmgr.addClass.buttonLabel=\ucd94\uac00 
-pkgmgr.importPkg.title=\uac00\uc838\uc62c \ub514\ub809\ud1a0\ub9ac\ub97c \uc120\ud0dd\ud558\uc2ed\uc2dc\uc624
-pkgmgr.importPkg.buttonLabel=\uac00\uc838\uc624\uae30 
-pkgmgr.importPkgNew.title=\uac00\uc838\uc628 \uc0c8\ud504\ub85c\uc81d\ud2b8
+pkgmgr.title=BlueJ:  
+
+pkgmgr.newPkg.title=\uc0c8 \ud504\ub85c\uc81d\ud2b8
+pkgmgr.newMEpkg.title=\uc0c8 ME \ud504\ub85c\uc81d\ud2b8
+pkgmgr.newPkg.buttonLabel=\uc0dd\uc131
+pkgmgr.openPkg.title=\ud504\ub85c\uc81d\ud2b8 \uc5f4\uae30
+pkgmgr.openPkg.buttonLabel=\uc5f4\uae30
+pkgmgr.openNonBlueJPkg.title=Non-BlueJ \ud504\ub85c\uc81d\ud2b8 \uc5f4\uae30
+pkgmgr.openNonBlueJPkg.buttonLabel=BlueJ\uc5d0\uc11c \uc5f4\uae30
+pkgmgr.saveAs.title=\ud504\ub85c\uc81d\ud2b8 \uc800\uc7a5
+pkgmgr.saveAs.buttonLabel=\uc800\uc7a5
+pkgmgr.addClass.title=\ucd94\uac00\ud560 Java \ud074\ub798\uc2a4 \uc120\ud0dd
+pkgmgr.addClass.buttonLabel=\ucd94\uac00
+pkgmgr.importPkg.title=\uac00\uc838\uc62c \ub514\ub809\ud130\ub9ac \uc120\ud0dd
+pkgmgr.importPkg.buttonLabel=\uac00\uc838\uc624\uae30
+pkgmgr.importPkgNew.title=\uac00\uc838\uc62c \uc0c8 \ud504\ub85c\uc81d\ud2b8 \uc120\ud0dd
 pkgmgr.importPkgNew.buttonLabel=\uc0dd\uc131
 
-pkgmgr.newClass.msg=\ud074\ub798\uc2a4\uc758 \uc774\ub984\uc744 \uc785\ub825\ud558\uc2ed\uc2dc\uc624
-pkgmgr.newUses=\uc0ac\uc6a9\ud654\uc0b4\ud45c \ucd94\uac00
-pkgmgr.newExtends=\uc0c1\uc18d\ud654\uc0b4\ud45c \ucd94\uac00
-pkgmgr.unimplemented=\uc8c4\uc1a1\ud569\ub2c8\ub2e4 - \uc774 \uae30\ub2a5\uc740 \uc544\uc9c1 \uad6c\ud604\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.
-pkgmgr.pkgChooseError=Error! \uc720\ud6a8\ud55c \ud328\ud0a4\uc9c0 \uc774\ub984\uc744 \uc120\ud0dd\ud558\uc2ed\uc2dc\uc624.
-pkgmgr.chooseWebPage.title=HTML \ud398\uc774\uc9c0\ub97c \uc120\ud0dd\ud558\uc2ed\uc2dc\uc624.
+pkgmgr.newClass.msg=\ud074\ub798\uc2a4 \uc774\ub984\uc744 \uc785\ub825\ud558\uc138\uc694
+pkgmgr.newUses=\uc0c8\ub85c\uc6b4 Uses \ud654\uc0b4\ud45c
+pkgmgr.newExtends=\uc0c8\ub85c\uc6b4 Extends \ud654\uc0b4\ud45c
+pkgmgr.unimplemented=\uc8c4\uc1a1\ud569\ub2c8\ub2e4 - \uc774 \uae30\ub2a5\uc740 \uc544\uc9c1 \uad6c\ud604\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4
+pkgmgr.pkgChooseError=\uc720\ud6a8\ud55c \ud328\ud0a4\uc9c0 \uc774\ub984\uc744 \uc120\ud0dd\ud558\ub294 \uc911 \uc624\ub958\uac00 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4
+pkgmgr.chooseWebPage.title=HTML \ud398\uc774\uc9c0 \ub300\uc0c1 \uc120\ud0dd
+pkgmgr.chooseWebPage.buttonLabel=HTML \ud398\uc774\uc9c0 \uc800\uc7a5\ud558\uae30
 
-pkgmgr.parentpackagetarget.open=\uc5f4\uae30 
-pkgmgr.parentpackagetarget.openunamed=\uba85\uba85\ub418\uc9c0 \uc54a\uc740 \ud328\ud0a4\uc9c0 \uc5f4\uae30
+pkgmgr.parentpackagetarget.open=\uc5f4\uae30
+pkgmgr.parentpackagetarget.openunamed=\uc774\ub984 \uc5c6\ub294 \ud328\ud0a4\uc9c0 \uc5f4\uae30
 
-pkgmgr.packagemenu.open=\uc5f4\uae30 
-pkgmgr.packagemenu.remove=\uc0ad\uc81c 
+pkgmgr.noProjectOpened.message=\u2196 \ud504\ub85c\uc81d\ud2b8 \uba54\ub274\ub97c \uc0ac\uc6a9\ud558\uc5ec \ud504\ub85c\uc81d\ud2b8\ub97c \ub9cc\ub4e4\uac70\ub098 \uc5f4\uc5b4\uc8fc\uc138\uc694.
+pkgmgr.noClassesExisted.message=\u2196 \ud3b8\uc9d1 \uba54\ub274\ub97c \uc0ac\uc6a9\ud558\uc5ec \ud074\ub798\uc2a4\ub97c \ub9cc\ub4e4\uac70\ub098 \ucd94\uac00\ud574 \uc8fc\uc138\uc694.
 
-pkgmgr.classmenu.runApplet=\uc560\ud50c\ub9bf \uc2e4\ud589 
-pkgmgr.classmenu.edit=\uc5d0\ub514\ud130 \uc5f4\uae30 
-pkgmgr.classmenu.compile=\ucef4\ud30c\uc77c 
-pkgmgr.classmenu.remove=\uc0ad\uc81c 
+pkgmgr.packagemenu.open=\uc5f4\uae30
+pkgmgr.packagemenu.remove=\uc0ad\uc81c\ud558\uae30
 
-pkgmgr.view.label=\ubcf4\uae30
-pkgmgr.view.usesLabel=\uc0ac\uc6a9
-pkgmgr.view.inheritLabel=\uc0c1\uc18d
+pkgmgr.classmenu.edit=\uc5d0\ub514\ud130 \uc5f4\uae30
+pkgmgr.classmenu.compile=\ucef4\ud30c\uc77c
+pkgmgr.classmenu.inspect=\uac80\uc0ac
+pkgmgr.classmenu.remove=\uc0ad\uc81c
+pkgmgr.classmenu.duplicate=\ubcf5\uc81c...
+pkgmgr.classmenu.convertToJava=Java\ub85c \ubcc0\ud658
+pkgmgr.classmenu.convertToStride=Stride\ub85c \ubcc0\ud658
+pkgmgr.classmenu.createTest=\ud14c\uc2a4\ud2b8 \ud074\ub798\uc2a4 \uc0dd\uc131
+pkgmgr.classmenu.launchFX=JavaFX \uc560\ud50c\ub9ac\ucf00\uc774\uc158 \uc2e4\ud589
+pkgmgr.classmenu.moreMethods=\ub354 \ub9ce\uc740 \uba54\uc18c\ub4dc
+
+pkgmgr.extfilemenu.open=\uc5f4\uae30 (BlueJ \uc678\ubd80\uc5d0\uc11c)
+pkgmgr.extfilemenu.delete=\ud30c\uc77c \uc0ad\uc81c
+
+pkgmgr.team.title=\ud300\uc6cc\ud06c
+pkgmgr.test.title=\ud14c\uc2a4\ud2b8
+
+pkgmgr.test.label=\ud14c\uc2a4\ud2b8
+pkgmgr.test.record=\ub179\ud654
+pkgmgr.test.run=\ud14c\uc2a4\ud2b8 \uc2e4\ud589
+pkgmgr.test.end=\uc885\ub8cc
+pkgmgr.test.succeeded=\uc131\uacf5
+pkgmgr.test.invalidTestName=\ud14c\uc2a4\ud2b8 \uc774\ub984\uc740 \uc720\ud6a8\ud55c Java \uc2dd\ubcc4\uc790\uc5ec\uc57c \ud569\ub2c8\ub2e4
+pkgmgr.test.recording=\ub179\ud654 \uc911
+
+pkgmgr.test.popup.testAll=\uc804\uccb4 \ud14c\uc2a4\ud2b8 \uc2e4\ud589
+pkgmgr.test.popup.noTests=\ud14c\uc2a4\ud2b8 \uba54\uc18c\ub4dc\uac00 \uc5c6\uc2b5\ub2c8\ub2e4
+pkgmgr.test.popup.abstract=\ucd94\uc0c1 \ud074\ub798\uc2a4\ub294 \ud14c\uc2a4\ud2b8 \ud074\ub798\uc2a4\ub85c \uc0ac\uc6a9\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4
+pkgmgr.test.popup.createTest=\ud14c\uc2a4\ud2b8 \uba54\uc18c\ub4dc \uc0dd\uc131...
+pkgmgr.test.popup.benchToFixture=\uac1d\uccb4 \ubca4\uce58\ub97c \ud14c\uc2a4\ud2b8 \ud53d\uc2a4\ucc98\ub85c \ubcc0\uacbd
+pkgmgr.test.popup.fixtureToBench=\ud14c\uc2a4\ud2b8 \ud53d\uc2a4\ucc98\ub97c \uac1d\uccb4 \ubca4\uce58\ub85c \ubcc0\uacbd
+
+#Accessibility
+pkgmgr.objBench.title=\uac1d\uccb4 \ubca4\uce58
+pkgmgr.objBench.suffix.singular=\uac1d\uccb4
+pkgmgr.objBench.suffix.plural=\uac1d\uccb4\ub4e4
+pkgmgr.codepad.title=\ucf54\ub4dc\ud328\ub4dc
+pkgmgr.graphEditor.title=\ud074\ub798\uc2a4 \ub2e4\uc774\uc5b4\uadf8\ub7a8
+
+# codepad messages
+pkgmgr.codepad.uninitialized=\ub178\ud2b8: \ucf54\ub4dc\ud328\ub4dc \ubcc0\uc218\ub294 \uc778\uc2a4\ud134\uc2a4 \ud544\ub4dc\uc640 \ub3d9\uc77c\ud558\uac8c\n\uc790\ub3d9\uc73c\ub85c \ucd08\uae30\ud654\ub429\ub2c8\ub2e4.
+pkgmgr.codepad.vmTerminated=VM \uc7ac\uc124\uc815\uc774 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4.
+# The "variable has already been defined" error message in the codepad. The '$' symbol will be
+# replaced by the name of the problematic variable.
+pkgmgr.codepad.redefinedVar=$ \uc774(\uac00) \uc774\ubbf8 \uc815\uc758\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
 
 # "new class" dialog
-pkgmgr.newClass.title=BlueJ:  \uc0c8 \ud074\ub798\uc2a4 \uc0dd\uc131 
-pkgmgr.newClass.label=\ud074\ub798\uc2a4\uba85:
-pkgmgr.newClass.classType=\ud074\ub798\uc2a4\ud615 
-pkgmgr.newClass.stdclass=\ud074\ub798\uc2a4 
-pkgmgr.newClass.interface=\uc778\ud130\ud398\uc774\uc2a4 
-pkgmgr.newClass.applet=\uc560\ud50c\ub9bf 
-pkgmgr.newClass.appletj=\uc560\ud50c\ub9bf 
-pkgmgr.newClass.unittest=Unit \ud14c\uc2a4\ud2b8
+pkgmgr.newClass.title=BlueJ: \uc0c8\ub85c\uc6b4 \ud074\ub798\uc2a4 \uc0dd\uc131
+pkgmgr.newClass.label=\ud074\ub798\uc2a4 \uc774\ub984:
+pkgmgr.newClass.prompt=\uc0c8\ub85c\uc6b4 \ud074\ub798\uc2a4\uc758 \uc774\ub984\uc744 \uc785\ub825\ud558\uc138\uc694.
+pkgmgr.newClass.lang=\ud074\ub798\uc2a4 \uc5b8\uc5b4:
+pkgmgr.newClass.classType=\ud074\ub798\uc2a4 \ud0c0\uc785
+pkgmgr.newClass.stdclass=\ud074\ub798\uc2a4
+pkgmgr.newClass.interface=\uc778\ud130\ud398\uc774\uc2a4
+pkgmgr.newClass.unittest=\uc720\ub2db \ud14c\uc2a4\ud2b8
+pkgmgr.newClass.enum=\uc5f4\uac70\ud615
+pkgmgr.newClass.JavaFXclass= JavaFX \ud074\ub798\uc2a4
+pkgmgr.newClass.record=\ub808\ucf54\ub4dc
+pkgmgr.newClass.error.noType=\ud074\ub798\uc2a4 \ud0c0\uc785\uc774 \uc120\ud0dd\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.
+pkgmgr.newClass.error.typeNotAvailable=$LANGUAGE \uc5d0\uc11c \uc0ac\uc6a9\ud560 \uc218 \uc5c6\ub294 \ud0c0\uc785\uc785\ub2c8\ub2e4.
+pkgmgr.newClass.error.notValidClassName=\uc720\ud6a8\ud558\uc9c0 \uc54a\uc740 $LANGUAGE \ud074\ub798\uc2a4 \uc774\ub984\uc785\ub2c8\ub2e4.
+pkgmgr.newClass.error.windowsRestricted=Windows\uc5d0\uc11c \uc0ac\uc6a9\ud560 \uc218 \uc5c6\ub294 \ub2e8\uc5b4\uc785\ub2c8\ub2e4.
+
+
 
 # "new package" dialog
-pkgmgr.newPackage.title=BlueJ:  \uc0c8 \ud328\ud0a4\uc9c0 \uc0dd\uc131 
-pkgmgr.newPackage.label=\ud328\ud0a4\uc9c0\uba85:
+pkgmgr.newPackage.title=BlueJ:  \uc0c8 \ud328\ud0a4\uc9c0 \ub9cc\ub4e4\uae30
+pkgmgr.newPackage.label=\ud328\ud0a4\uc9c0 \uc774\ub984:
+pkgmgr.newPackage.prompt=\ud328\ud0a4\uc9c0 \uc774\ub984
 pkgmgr.newPackage.newPackage=\ud328\ud0a4\uc9c0
+pkgmgr.newPackage.error=\uc720\ud6a8\ud558\uc9c0 \uc54a\uc740 \ud328\ud0a4\uc9c0 \uc774\ub984\uc785\ub2c8\ub2e4.
+
+# "new CSS" dialog
+pkgmgr.newCSS.title=BlueJ:  \uc0c8 CSS \ud30c\uc77c \ub9cc\ub4e4\uae30
+pkgmgr.newCSS.label=CSS \ud30c\uc77c:
+pkgmgr.newCSS.prompt=\ud30c\uc77c\uba85
+pkgmgr.newCSS.newCSS=CSS
+pkgmgr.newCSS.error=\uc720\ud6a8\ud558\uc9c0 \uc54a\uc740 \ud30c\uc77c\uba85\uc785\ub2c8\ub2e4.
+
+# "duplicate class" dialog
+pkgmgr.duplicate.title=BlueJ: \ud074\ub798\uc2a4 \ubcf5\uc81c
+pkgmgr.duplicate.error.notValidClassName=\uc720\ud6a8\ud558\uc9c0 \uc54a\uc740 \ud074\ub798\uc2a4 \uc774\ub984\uc785\ub2c8\ub2e4.
+
 
 # "Use Library Class" dialog
 callLibraryDialog.title=BlueJ:  \ub77c\uc774\ube0c\ub7ec\ub9ac \ud074\ub798\uc2a4 \ud638\ucd9c
-callLibraryDialog.classLabel=\ud074\ub798\uc2a4 :
-callLibraryDialog.docButton=\ubb38\uc11c\ud654 
-callLibraryDialog.listHeading=\uc0dd\uc131\uc790\uc640 \uc815\uc801 \uba54\uc18c\ub4dc 
-callLibraryDialog.clickHere1=\uc0dd\uc131\uc790\uc640 \uc815\uc801 \uba54\uc18c\ub4dc\ub97c \ubcf4\ub824\uba74 
-callLibraryDialog.clickHere2=\ud074\ub798\uc2a4\uba85\uc744 \uc785\ub825\ud558\uace0 \uc5d4\ud130\ub97c \ub204\ub974\uc2ed\uc2dc\uc624.
-callLibraryDialog.classNotFound1=\ud074\ub798\uc2a4\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4 .
-callLibraryDialog.classNotFound2=(\ud074\ub798\uc2a4\uba85\uc744 \ud655\uc778\ud558\uace0 \ub2e4\uc2dc \uc5d4\ud130\ub97c \ub204\ub974\uc2ed\uc2dc\uc624.)
-
-# "Free Form Call" dialog
-freeCallDialog.title=BlueJ:  \ud3c9\uac00\ud558\uae30 
-freeCallDialog.fieldLabel=\ud3c9\uac00\ud558\uae30 :
-freeCallDialog.resultLabel=
-freeCallDialog.returnsResult= \ud45c\ud604\uc2dd\uc785\ub2c8\ub2e4.(\uacb0\uacfc\ub97c \ubc18\ud658)
-freeCallDialog.returnsNoResult=\ubb38\uc7a5\uc785\ub2c8\ub2e4. (\ubc18\ud658\ub418\ub294 \uacb0\uacfc\uac00 \uc5c6\uc74c)
+callLibraryDialog.classLabel=\ud074\ub798\uc2a4:
+callLibraryDialog.docButton=\ubb38\uc11c
+callLibraryDialog.listHeading=\uc0dd\uc131\uc790 \ubc0f \uc815\uc801 \uba54\uc18c\ub4dc
+callLibraryDialog.clickHere1=\uc804\uccb4 \ud074\ub798\uc2a4 \uc774\ub984\uc744 \uc785\ub825\ud558\uace0, Enter\ub97c \ub204\ub974\uc138\uc694.
+callLibraryDialog.clickHere2=\uc0dd\uc131\uc790\uc640 \uba54\uc18c\ub4dc\ub97c \ud45c\uc2dc\ud569\ub2c8\ub2e4.
+callLibraryDialog.classNotFound1=\ud074\ub798\uc2a4\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
+callLibraryDialog.classNotFound2=(\ud074\ub798\uc2a4 \uc774\ub984\uc744 \ud655\uc778\ud558\uace0 \ub2e4\uc2dc Enter\ub97c \ub204\ub974\uc138\uc694.)
 
 # "export" dialog
-pkgmgr.export.title=BlueJ:  \ud504\ub85c\uc81d\ud2b8 \ub0b4\ubcf4\ub0b4\uae30 
-pkgmgr.export.helpLine1=\ub0b4\ubcf4\ub0b4\uae30\ub294 \ud45c\uc900\uc790\ubc14 (BlueJ\ub85c \ub9cc\ub4e4\uc9c0 \uc54a\uc740) \ud615\uc2dd\uc73c\ub85c
-pkgmgr.export.helpLine2= \ud604\uc7ac \ud504\ub85c\uc81d\ud2b8\uc758 \ubcf5\uc0ac\ubcf8\uc744 \uc800\uc7a5\ud55c\ub2e4.
-pkgmgr.export.directoryLabel=\ub514\ub809\ud1a0\ub9ac \uad6c\uc870\uc5d0 \uc800\uc7a5
-pkgmgr.export.jarFileLabel=jar \ud30c\uc77c\ub85c \uc800\uc7a5 
-pkgmgr.export.classLabel=\uba54\uc778 \ud074\ub798\uc2a4 :
-pkgmgr.export.sourceLabel= \uc18c\uc2a4 \ud3ec\ud568
-pkgmgr.export.noClassText= \uc5c6\uc74c (\uc2e4\ud589\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4)
+pkgmgr.export.title=BlueJ:  Jar \ud30c\uc77c \uc0dd\uc131
+pkgmgr.export.helpLine1=\ud504\ub85c\uc81d\ud2b8\ub97c \ud3ec\ud568\ud558\ub294 \ub2e8\uc77c Java \uc544\uce74\uc774\ube0c(jar) \ud30c\uc77c\uc744 \uc0dd\uc131\ud569\ub2c8\ub2e4.
+pkgmgr.export.helpLine2=\uba54\uc778 \ud074\ub798\uc2a4\uac00 \uc9c0\uc815\ub418\uc5b4 \uc788\ub2e4\uba74 \uc2e4\ud589 \uac00\ub2a5\ud569\ub2c8\ub2e4.
+pkgmgr.export.classLabel=\uba54\uc778 \ud074\ub798\uc2a4:
+pkgmgr.export.includeLibs=\uc0ac\uc6a9\uc790 \ub77c\uc774\ube0c\ub7ec\ub9ac \ud3ec\ud568
+pkgmgr.export.sourceLabel=\uc18c\uc2a4 \ucf54\ub4dc \ud3ec\ud568
+pkgmgr.export.pkgFilesLabel=Bluej \ud504\ub85c\uc81d\ud2b8 \ud30c\uc77c \ud3ec\ud568
+pkgmgr.export.noClassText=\uc5c6\uc74c (\uc2e4\ud589\ud560 \uc218 \uc5c6\uc74c)
+pkgmgr.export.specifyJar=Jar \ud30c\uc77c \uc774\ub984 \uc9c0\uc815
 
 # "open-non-bluej" mismatch dialog
 pkgmgr.importmismatch.title=BlueJ:  \ud328\ud0a4\uc9c0 \ub77c\uc778 \ubd88\uc77c\uce58
-pkgmgr.importmismatch.helpLine1=\uacbd\uace0: \uc774\uac83\uc740 \ud574\ub2f9 \ud504\ub85c\uc81d\ud2b8\uc758 \ud074\ub798\uc2a4 \ud328\ud0a4\uc9c0\ub85c \uc120\uc5b8\ub41c
-pkgmgr.importmismatch.helpLine2=\uc790\ubc14 \ud504\ub85c\uc81d\ud2b8\uc758 \ucd5c\uc0c1\uc704 \ub514\ub809\ud1a0\ub9ac\uac00 \uc544\ub2d9\ub2c8\ub2e4.
-pkgmgr.importmismatch.helpLine3=\uc774 \ub514\ub809\ud1a0\ub9ac\ub97c \uc5f4\uba74 \ud504\ub85c\uc81d\ud2b8\ub0b4\uc758 \uc544\ub798\uc640 \uac19\uc740
-pkgmgr.importmismatch.helpLine4=\uc18c\uc2a4\ud30c\uc77c\uc758 \ubaa8\ub4e0 \ud328\ud0a4\uc9c0 \uc120\uc5b8\uc774 \ubcc0\uacbd\ub429\ub2c8\ub2e4.
-pkgmgr.importmismatch.helpLine5=\ub2f9\uc2e0\uc774 \uc120\ud0dd\ud55c \ub514\ub809\ud1a0\ub9ac\uc758 \ubd80\ubaa8 \ub514\ub809\ud1a0\ub9ac\ub97c \uc5f4\uc5b4\uc57c 
-pkgmgr.importmismatch.helpLine6=\ud560 \uac83\uc785\ub2c8\ub2e4. \uc608\ub97c\ub4e4\uba74, "org.bluej"\ud328\ud0a4\uc9c0\ub97c \ud3ec\ud568\ud558\ub294 
-pkgmgr.importmismatch.helpLine7= \uc790\ubc14 \ud504\ub85c\uc81d\ud2b8\ub97c \uc5f4\uae30 \uc704\ud574\uc11c\ub294, "org" \ub610\ub294 "bluej" \ub514\ub809\ud1a0\ub9ac\uac00
-pkgmgr.importmismatch.helpLine8=\uc544\ub2cc, "org"\ub97c \ud3ec\ud568\ud558\ub294 \ub514\ub809\ud1a0\ub9ac\ub97c \uc120\ud0dd\ud574\uc57c \ud569\ub2c8\ub2e4 
-pkgmgr.importmismatch.helpLine9=\uc5f4\uae30\ub97c \uacc4\uc18d\ud558\uc5ec \ud328\ud0a4\uc9c0 \uc120\uc5b8\uc744 \ubcc0\uacbd \ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?
+pkgmgr.importmismatch.helpLine1=\uacbd\uace0: \uc774\ub294 \uc77c\ubd80 \ud074\ub798\uc2a4\uc758 \ud328\ud0a4\uc9c0 \uc120\uc5b8\uc5d0\uc11c \uc608\uc0c1\ub418\ub294 \ucd5c\uc0c1\uc704 \ub514\ub809\ud130\ub9ac\uac00 \uc544\ub2d9\ub2c8\ub2e4.
+pkgmgr.importmismatch.helpLine2=\ud574\ub2f9 \ub514\ub809\ud130\ub9ac\ub97c \uc5f4\uba74 \ud504\ub85c\uc81d\ud2b8\uc758 \ubaa8\ub4e0 \ud328\ud0a4\uc9c0 \uc120\uc5b8\uc774 \ubcc0\uacbd\ub429\ub2c8\ub2e4.
+pkgmgr.importmismatch.helpLine3=\ub300\ubd80\ubd84\uc758 \uacbd\uc6b0 \uc120\ud0dd\ud55c \ub514\ub809\ud130\ub9ac\uc758 \uc0c1\uc704 \ub514\ub809\ud130\ub9ac\ub97c \uc5f4\uc5b4\uc57c \ud569\ub2c8\ub2e4.
+pkgmgr.importmismatch.helpLine4=\uc608\ub97c \ub4e4\uc5b4, "org.bluej" \ud328\ud0a4\uc9c0\ub97c \ud3ec\ud568\ud558\ub294 Java \ud504\ub85c\uc81d\ud2b8\ub97c \uc5f4\ub824\uba74
+pkgmgr.importmismatch.helpLine5=\ub514\ub809\ud130\ub9ac\ub97c \uc120\ud0dd\ud560 \ub54c "org" \ub514\ub809\ud130\ub9ac\uac00 \uc544\ub2cc "org"\ub97c \ud3ec\ud568\ud558\ub294 \ub514\ub809\ud130\ub9ac\ub97c \uc120\ud0dd\ud574\uc57c \ud569\ub2c8\ub2e4.
+pkgmgr.importmismatch.helpLine6=\ud504\ub85c\uc81d\ud2b8\uc758 \ud328\ud0a4\uc9c0 \uc120\uc5b8\uc744 \ubcc0\uacbd\ud558\uace0 \uacc4\uc18d\ud574\uc11c \uc5f4\uae4c\uc694?
+pkgmgr.importmismatch.helpLine7=
+pkgmgr.importmismatch.helpLine8=
+pkgmgr.importmismatch.helpLine9=
 
 # "import" failure dialog
-pkgmgr.importfailed.title=BlueJ:  \uc0c1\ud0dc\uac12 \uac00\uc838\uc624\uae30
-pkgmgr.importfailed.helpLine1=\ub2e4\uc74c\uacfc \uac19\uc740 \ud30c\uc77c\ub85c\ubd80\ud130 \uac00\uc838\uc624\uae30\uac00 \uc2e4\ud328\ud558\uc600\uc2b5\ub2c8\ub2e4 .
-pkgmgr.importfailed.helpLine2=\ub300\uc0c1 \ud504\ub85c\uc81d\ud2b8 \ub0b4\uc758 \ub2e4\uc74c\uacfc \uac19\uc740 \ud30c\uc77c\ub4e4\uc774 \uc874\uc7ac\ud558
-pkgmgr.importfailed.helpLine3=\uae30 \ub54c\ubb38\uc5d0 \ud30c\uc77c\ub85c\ubd80\ud130 \uac00\uc838\uc624\uae30\uac00 \uc2e4\ud328\ud558\uc600\uc2b5\ub2c8\ub2e4 .
+pkgmgr.importfailed.title=BlueJ:  \uac00\uc838\uc624\uae30 \uc0c1\ud0dc
+pkgmgr.importfailed.helpLine1=\ub2e4\uc74c \ud30c\uc77c\ub4e4\uc744 \ubcf5\uc0ac\ud558\ub294 \ub370 \uc2e4\ud328\ud588\uc2b5\ub2c8\ub2e4.
+pkgmgr.importfailed.helpLine2=\uc774\ub294 \ub300\uc0c1 \ud504\ub85c\uc81d\ud2b8\uc5d0 \uc774\ubbf8 \ud574\ub2f9 \ud30c\uc77c\ub4e4\uc774
+pkgmgr.importfailed.helpLine3=\uc788\ub294 \uacbd\uc6b0\uac00 \uac00\uc7a5 \uac00\ub2a5\uc131\uc774 \ub192\uc2b5\ub2c8\ub2e4.
 
 # "version check" dialog
-pkgmgr.versionDlg.title=BlueJ:  \uc0c8 \ubc84\uc804 \ud655\uc778\ud558\uae30  
-pkgmgr.versionDlg.helpLine1=\uc774 \uae30\ub2a5\uc740 \uc0c8\ub85c\uc6b4 BlueJ \ubc84\uc804\uc774 \uc788\ub294\uc9c0\ub97c \ud655\uc778\ud569\ub2c8\ub2e4 
-pkgmgr.versionDlg.helpLine2=\uc640 \uac19\uc740 \ubc84\uc804\uc744 \uc0ac\uc6a9\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4. \ucd5c\uc0c1\uc704 \ubc84\uc804\uc73c\ub85c \uc5c5\uadf8\ub808\uc774\ub4dc\ub97c \ud558\uae30 \uc704\ud574\uc11c\ub294 \uc628\ub77c\uc778 \uc0c1\ud0dc\uc774\uc5b4\uc57c \ud569\ub2c8\ub2e4.
-pkgmgr.versionDlg.check=\ubc84\uc804 \ud655\uc778 
-pkgmgr.versionDlg.upToDate=\ud604\uc7ac \ubc84\uc804\uc774 \ucd5c\uc0c1\uc704 \ubc84\uc804\uc785\ub2c8\ub2e4.
-pkgmgr.versionDlg.currentVersion=\ud604\uc7ac BlueJ \ubc84\uc804\uc740 
-pkgmgr.versionDlg.newVersion=\uac00\uc7a5 \ucd5c\uc2e0\uc758 BlueJ \ubc84\uc804\uc740 
+pkgmgr.versionDlg.title=BlueJ:  \uc0c8 \ubc84\uc804 \ud655\uc778
+pkgmgr.versionDlg.helpLine1=\uc774 \uae30\ub2a5\uc740 \uc0c8\ub85c\uc6b4 BlueJ \ubc84\uc804\uc774 \uc788\ub294\uc9c0 \ud655\uc778\ud569\ub2c8\ub2e4.
+pkgmgr.versionDlg.helpLine2=\uc628\ub77c\uc778 \uc0c1\ud0dc\uc5d0\uc11c\ub9cc \uc791\ub3d9\ud569\ub2c8\ub2e4.
+pkgmgr.versionDlg.upToDate=\ud604\uc7ac \ubc84\uc804\uc774 \ucd5c\uc2e0\uc785\ub2c8\ub2e4.
+pkgmgr.versionDlg.currentVersion=\ud604\uc7ac BlueJ \ubc84\uc804:
+pkgmgr.versionDlg.newVersion=\uac00\uc7a5 \ucd5c\uadfc BlueJ \ubc84\uc804:
 
-# run applet dialog
-pkgmgr.runApplet.title=BlueJ:  \uc560\ud50c\ub9bf \uc2e4\ud589\ud558\uae30
-pkgmgr.runApplet.webPageLabel=\uc6f9 \ud398\uc774\uc9c0 \uc0dd\uc131\ud558\uae30
-pkgmgr.runApplet.webPage=\uc6f9\ud398\uc774\uc9c0\ub9cc \uc0dd\uc131\ud558\uae30 
-pkgmgr.runApplet.appletviewer=\uc560\ud50c\ub9bf \ubdf0\uc5b4\uc5d0\uc11c \uc560\ud50c\ub9bf \uc2e4\ud589\ud558\uae30 
-pkgmgr.runApplet.webBrowser=\uc6f9 \ube0c\ub77c\uc6b0\uc800\uc5d0\uc11c \uc560\ud50c\ub9bf \uc2e4\ud589\ud558\uae30
-pkgmgr.runApplet.heightLbl=Height =
-pkgmgr.runApplet.widthLbl=Width =
-pkgmgr.runApplet.newParameterLbl=\uc0c8 \ub9e4\uac1c\ubcc0\uc218 \ucd94\uac00\ud558\uae30 
-pkgmgr.runApplet.appletParameterLbl= \uc560\ud50c\ub9bf \ub9e4\uac1c\ubcc0\uc218 
-pkgmgr.runApplet.nameLbl=Name =
-pkgmgr.runApplet.valueLbl=Value =
-pkgmgr.runApplet.paramName=PARAM NAME
-pkgmgr.runApplet.value=VALUE
-pkgmgr.runApplet.htmlComment=<!-- \uc774 \ud30c\uc77c\uc740  BlueJ \uc790\ubc14 \uac1c\ubc1c \ud658\uacbd\uc5d0 \uc758\ud574 \uc790\ub3d9\uc801\uc73c\ub85c \uc0dd\uc131\ub429\ub2c8\ub2e4  -->\n<!-- \uc560\ud50c\ub9bf\uc774 \uc2e4\ud589\ub420 \ub54c \ub9c8\ub2e4 -->\n<!-- \uc790\ub3d9\uc801\uc73c\ub85c \uc7ac\uc0dd\uc131\ub429\ub2c8\ub2e4.  \uc218\uc791\uc5c5\uc5d0 \uc758\ud574 \ubc1c\uc0dd\ud558\ub294 \ud30c\uc77c\ubcc0\uacbd\uc740 -->\n<!-- BlueJ \ud658\uacbd\ud558\uc5d0\uc11c \uc560\ud50c\ub9bf\uc774 \uc2e4\ud589\ub420 \ub54c \uc801\uc6a9\ub418\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.       -->\n<!-- \uc774 \ud30c\uc77c\uc744 \ubcf4\uc874\ud558\ub824\uba74 \ud328\ud0a4\uc9c0 \ub514\ub809\ud1a0\ub9ac\uc758 \uc678\ubd80\uc5d0 \uc788\ub294     -->\n<!-- \ub514\ub809\ud1a0\ub9ac\uc5d0 \uc800\uc7a5\ud558\uc2ed\uc2dc\uc624. -->
-pkgmgr.runApplet.htmlExportedComment=<!-- \uc774 \ud30c\uc77c\uc740 BlueJ \uc790\ubc14 \uac1c\ubc1c \ud658\uacbd\uc5d0 \uc758\ud574 \uc790\ub3d9\uc801\uc73c\ub85c \uc0dd\uc131\ub429\ub2c8\ub2e4.  -->\n<!-- \uc774 \ud398\uc774\uc9c0\uac00 \uc0dd\uc131\ub420 \ub54c \ucf54\ub4dc\uae30\ubc18 \ubcc0\uc218\ub294 \uc560\ud50c\ub9bf\uc774 \uc874\uc7ac\ud558\ub294   -->\n<!--  BlueJ \ud328\ud0a4\uc9c0 \ub514\ub809\ud1a0\ub9ac\uae4c\uc9c0\uc758 \uc808\ub300\uacbd\ub85c\ub85c \uc124\uc815\ub429\ub2c8\ub2e4. -->\n<!-- \ud328\ud0a4\uc9c0 \ub514\ub809\ud1a0\ub9ac\uae4c\uc9c0\uc758 \uc808\ub300\uacbd\ub85c\ub85c \uc124\uc815\ub429\ub2c8\ub2e4.       -->
-
-
-
+#print project dialog
+pkgmgr.printDialog.title=BlueJ:  \ud504\ub85c\uc81d\ud2b8 \uc778\uc1c4
+pkgmgr.printDialog.printDiagram=\ud074\ub798\uc2a4 \ub2e4\uc774\uc5b4\uadf8\ub7a8 \ud3ec\ud568
+pkgmgr.printDialog.printSource=\uc18c\uc2a4 \ucf54\ub4dc \ud3ec\ud568
+pkgmgr.printDialog.printReadme=\ud504\ub85c\uc81d\ud2b8 readme \ud3ec\ud568 
 
 # method call dialog
-pkgmgr.methodCall.titleCreate=BlueJ: \uac1d\uccb4 \uc0dd\uc131\ud558\uae30 
-pkgmgr.methodCall.titleCall=BlueJ:  \uba54\uc18c\ub4dc \ud638\ucd9c\ud558\uae30 
-pkgmgr.methodCall.namePrompt=\uc778\uc2a4\ud134\uc2a4 \uc774\ub984 :
-error.methodCall.emptyField=\uc5d0\ub7ec: \ub9e4\uac1c\ubcc0\uc218 \uc785\ub825\ub780\uc774 \ube44\uc5c8\uc2b5\ub2c8\ub2e4
-error.methodCall.illegalName=\uc778\uc2a4\ud134\uc2a4 \uc774\ub984\uc774 \uc790\ubc14 \uc2dd\ubcc4\uc790\uc774\uac70\ub098 \uc798\ubabb\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
-error.methodCall.duplicateName=\uc774\ubbf8 \uc874\uc7ac\ud558\ub294 \uac1d\uccb4\uc774\ub984\uc785\ub2c8\ub2e4.\n\uc720\uc77c\ud55c \uc774\ub984\uc744 \uc120\ud0dd\ud558\uc2ed\uc2dc\uc624.
+pkgmgr.methodCall.titleCreate=\uac1d\uccb4 \uc0dd\uc131
+pkgmgr.methodCall.titleCall=\uba54\uc18c\ub4dc \ud638\ucd9c
+pkgmgr.methodCall.namePrompt=\uc778\uc2a4\ud134\uc2a4 \uc774\ub984:
+pkgmgr.methodCall.typeParametersPrompt=\ud30c\ub77c\ubbf8\ud130 \ud0c0\uc785:
+pkgmgr.methodCall.typeParameterPrompt=\ud30c\ub77c\ubbf8\ud130 \ud0c0\uc785:
+error.methodCall.emptyField=\uc5d0\ub7ec: \ud30c\ub77c\ubbf8\ud130 \ud544\ub4dc\uac00 \ube44\uc5b4 \uc788\uc2b5\ub2c8\ub2e4.
+error.methodCall.emptyTypeField=\uc5d0\ub7ec: \ud30c\ub77c\ubbf8\ud130 \ud0c0\uc785 \ud544\ub4dc\uac00 \ube44\uc5b4 \uc788\uc2b5\ub2c8\ub2e4.\n\ubaa8\ub4e0 \ud30c\ub77c\ubbf8\ud130 \ud0c0\uc785\uc744 \ucc44\uc6b0\uac70\ub098 \ubaa8\ub450 \ube44\uc6cc\uc8fc\uc138\uc694.
+error.methodCall.illegalName=\uc778\uc2a4\ud134\uc2a4 \uc774\ub984\uc740 Java \uc2dd\ubcc4\uc790\uc5ec\uc57c \ud569\ub2c8\ub2e4.
+error.methodCall.duplicateName=\uc774 \uc774\ub984\uc744 \uac00\uc9c4 \uac1d\uccb4\uac00 \uc774\ubbf8 \uc874\uc7ac\ud569\ub2c8\ub2e4.\n\uc720\ub2c8\ud06c\ud55c \uc774\ub984\uc744 \uc120\ud0dd\ud574 \uc8fc\uc138\uc694.
 
 # Debugger dialog (ExecControls.java)
-debugger.execControls.windowTitle = BlueJ:  \ub514\ubc84\uac70 
+debugger.execControls.windowTitle = \ub514\ubc84\uac70
 debugger.execControls.stackTitle = \ud638\ucd9c \uc21c\uc11c
-debugger.execControls.staticTitle = \uc815\uc801 \ubcc0\uc218\ub4e4
-debugger.execControls.instanceTitle = \uc778\uc2a4\ud134\uc2a4 \ubcc0\uc218\ub4e4
-debugger.execControls.localTitle = \uc9c0\uc5ed \ubcc0\uc218\ub4e4
-debugger.execControls.threadTitle = \uc2a4\ub808\ub4dc\ub4e4
-debugger.execControls.updateText = \uac31\uc2e0\ud558\uae30
-debugger.execControls.systemThreads = \uc2dc\uc2a4\ud15c \uc2a4\ub808\ub4dc \ud45c\uc2dc
-debugger.execControls.haltButtonText = \uc911\ub2e8
-debugger.execControls.stepButtonText = Step (\ub2e4\uc74c\ub2e8\uacc4) 
-debugger.execControls.stepIntoButtonText = Step Into (\n \ub0b4\ubd80 \uc9c4\uc785) 
-debugger.execControls.continueButtonText = \uacc4\uc18d 
-debugger.execControls.terminateButtonText = \uc885\ub8cc 
+debugger.execControls.staticTitle = \uc815\uc801 \ubcc0\uc218
+debugger.execControls.instanceTitle = \uc778\uc2a4\ud134\uc2a4 \ubcc0\uc218
+debugger.execControls.localTitle = \ub85c\uceec \ubcc0\uc218
+debugger.execControls.threadTitle = \uc2a4\ub808\ub4dc
+debugger.execControls.haltButtonText = \uc911\uc9c0
+debugger.execControls.stepButtonText = \ub2e8\uacc4
+debugger.execControls.stepIntoButtonText = \ub2e8\uacc4 \uc548\uc73c\ub85c
+debugger.execControls.continueButtonText = \uacc4\uc18d
+debugger.execControls.terminateButtonText = \uc885\ub8cc
+
+debugger.options = \uc635\uc158
+debugger.hideSystemThreads = \uc2dc\uc2a4\ud15c \uc2a4\ub808\ub4dc \uc228\uae30\uae30
+debugger.threadRunning = <html><center>\uc2a4\ub808\ub4dc\uac00 \uc2e4\ud589 \uc911\uc774\uac70\ub098 \uc644\ub8cc\ub418\uc5c8\uc2b5\ub2c8\ub2e4.<br>\uc138\ubd80 \uc815\ubcf4\ub97c \ubcf4\ub824\uba74 \uc2a4\ub808\ub4dc\ub97c \uc911\uc9c0\ud574\uc57c \ud569\ub2c8\ub2e4.</html>
+debugger.noThreadSelected = \uc2a4\ub808\ub4dc\uac00 \uc120\ud0dd\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.
 
 # DialogManager labels
-dialogmgr.error = BlueJ:  \uc5d0\ub7ec
-dialogmgr.question = BlueJ:  \uc9c8\ubb38
-dialogmgr.message = BlueJ:  \uba54\uc138\uc9c0
+
+dialogmgr.error = \uc624\ub958
+dialogmgr.question = \uc9c8\ubb38
+dialogmgr.message = \uba54\uc2dc\uc9c0
 
 #Terminal Window
 terminal.options = \uc635\uc158
-terminal.title = BlueJ:  \ucd9c\ub825 \ud654\uba74
+terminal.title = \ud130\ubbf8\ub110 \ucc3d
 terminal.clear = \uc9c0\uc6b0\uae30
 terminal.copy = \ubcf5\uc0ac
 terminal.save = \ud30c\uc77c\ub85c \uc800\uc7a5...
+terminal.print = \uc778\uc1c4
 terminal.close = \ub2eb\uae30
-terminal.clearScreen = \uba54\uc18c\ub4dc \ud638\ucd9c\ud654\uba74 \uc9c0\uc6b0\uae30
-terminal.recordCalls = \uba54\uc18c\ub4dc \ud638\ucd9c \uae30\ub85d 
-terminal.buffering = \ubc84\ud37c\ub9c1 \ubb34\uc81c\ud55c
-terminal.save.title = \ud130\ubbf8\ub110 \ubb38\uc11c \uc800\uc7a5
+terminal.clearScreen = \uba54\uc18c\ub4dc \ud638\ucd9c \uc2dc \ud654\uba74 \uc9c0\uc6b0\uae30
+terminal.recordCalls = \uba54\uc18c\ub4dc \ud638\ucd9c \uae30\ub85d
+terminal.buffering = \ubb34\uc81c\ud55c \ubc84\ud37c\ub9c1
+terminal.save.title = \ud130\ubbf8\ub110 \ud14d\uc2a4\ud2b8 \uc800\uc7a5
 terminal.save.buttonText = \uc800\uc7a5
+terminal.notRunning=\ud504\ub85c\uadf8\ub7a8\uc774 \uc2e4\ud589 \uc911\uc77c \ub54c\ub9cc \uc785\ub825 \uac00\ub2a5\ud569\ub2c8\ub2e4.
+terminal.running=\uc785\ub825 \ud6c4 Enter\ub97c \ub20c\ub7ec \ud504\ub85c\uadf8\ub7a8\uc5d0 \uc804\uc1a1\ud558\uc138\uc694.
+
+#TestDisplay Window
+testdisplay.title = BlueJ:  \ud14c\uc2a4\ud2b8 \uacb0\uacfc
+testdisplay.counter.runs=\ud14c\uc2a4\ud2b8 \uc218:
+testdisplay.counter.errors=\uc624\ub958 \uc218:
+testdisplay.counter.failures=\uc2e4\ud328 \uc218:
+testdisplay.counter.totalTime=\ucd1d \uc2dc\uac04:
+testdisplay.showsource=\uc18c\uc2a4 \ubcf4\uae30
 
 # status messages
-pkgmgr.compiling=\ucef4\ud30c\uc77c...
-pkgmgr.compileDone=\ucef4\ud30c\uc77c... \uc644\ub8cc
-pkgmgr.creating=\uac1d\uccb4 \uc0dd\uc131...
-pkgmgr.createDone=\uac1d\uccb4 \uc0dd\uc131... \uc644\ub8cc
-pkgmgr.creatingVM=virtual machine \uc0dd\uc131...
-pkgmgr.creatingVMDone=virtual machine \uc0dd\uc131... \uc644\ub8cc
-pkgmgr.generatingDocu=\ubb38\uc11c \uc0dd\uc131...
-pkgmgr.docuGenerated=\ubb38\uc11c \uc0dd\uc131... \uc644\ub8cc
-pkgmgr.docuAborted=\ubb38\uc11c \uc0dd\uc131... \uc911\uc9c0
-pkgmgr.webBrowserMsg=\uc6f9 \ube0c\ub77c\uc6b0\uc800\uac00 \uc774\ubbf8 \uc2e4\ud589\uc911\uc785\ub2c8\ub2e4
-pkgmgr.webBrowserError=\uc6f9 \ube0c\ub77c\uc6b0\uc800\ub97c \uc2dc\uc791\ud558\uc9c0 \ubabb\ud588\uc2b5\ub2c8\ub2e4.
-pkgmgr.usesArrowMsg="\uc0ac\uc6a9" \uc758\uc874\uad00\uacc4\uac00 \uc120\uc5b8\ub418\uc5c8\uc9c0\ub9cc \uc2e4\uc81c \uc0ac\uc6a9\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4:
-pkgmgr.breakpointMsg=\uc911\ub2e8\uc810\uc744 \uc124\uc815\ud558\ub824\uba74 \ud074\ub798\uc2a4\uac00 \ucef4\ud30c\uc77c \ub418\uc5b4\uc57c \ud569\ub2c8\ub2e4.
-pkgmgr.appletInViewer=\uc560\ud50c\ub9bf\ubdf0\uc5b4\ub85c \uc560\ud50c\ub9bf \uc2e4\ud589
-pkgmgr.appletInBrowser=\uc6f9 \ube0c\ub77c\uc6b0\uc800\ub85c \uc560\ud50c\ub9bf \uc2e4\ud589
-pkgmgr.exported=\ub0b4\ubcf4\ub0b4\uae30 \uc644\ub8cc.
+pkgmgr.compiling=\ucef4\ud30c\uc77c \uc911...
+pkgmgr.compileDone=\ucef4\ud30c\uc77c \uc644\ub8cc.
+pkgmgr.creating=\uac1d\uccb4 \uc0dd\uc131 \uc911...
+pkgmgr.createDone=\uac1d\uccb4 \uc0dd\uc131 \uc644\ub8cc.
+pkgmgr.creatingVM=\uac00\uc0c1 \uba38\uc2e0 \ucd08\uae30\ud654 \uc911...
+pkgmgr.creatingVMDone=\uac00\uc0c1 \uba38\uc2e0 \ucd08\uae30\ud654 \uc644\ub8cc.
+pkgmgr.generatingDocu=\ubb38\uc11c \uc0dd\uc131 \uc911...
+pkgmgr.docuGenerated=\ubb38\uc11c \uc0dd\uc131 \uc644\ub8cc.
+pkgmgr.docuAborted=\ubb38\uc11c \uc0dd\uc131 \ucde8\uc18c.
+pkgmgr.webBrowserMsg=\uc6f9 \ube0c\ub77c\uc6b0\uc800\uac00 \uc2dc\uc791\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+pkgmgr.webBrowserError=\uc6f9 \ube0c\ub77c\uc6b0\uc800 \uc2dc\uc791 \uc624\ub958.
+pkgmgr.breakpointMsg=\uc911\ub2e8\uc810\ub97c \uc124\uc815\ud558\ub824\uba74 \ud074\ub798\uc2a4\ub97c \ucef4\ud30c\uc77c\ud574\uc57c \ud569\ub2c8\ub2e4.
 pkgmgr.exported.jar=jar \ud30c\uc77c\ub85c \ub0b4\ubcf4\ub0b4\uae30 \uc644\ub8cc.
-pkgmgr.error.open=\ud504\ub85c\uc81d\ud2b8\uac00 \uc874\uc7ac\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.
+pkgmgr.error.open=\ud504\ub85c\uc81d\ud2b8\uac00 \ub354 \uc774\uc0c1 \uc874\uc7ac\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.
+pkgmgr.checkingVersion=\ubc84\uc804 \uc11c\ubc84\uc5d0 \uc5f0\uacb0 \uc911...
 
 
-properties.heading.bluej=BlueJ \uc18d\uc131. \"bluej.defs\" \ud30c\uc77c\uc744 \uc624\ubc84\ub77c\uc774\ub4dc \ud558\uc5ec \uc124\uc815.
-properties.heading.moe=Moe \uc5d0\ub514\ud130 \uc18d\uc131. \"moe.defs\" \ud30c\uc77c\uc744 \uc624\ubc84\ub77c\uc774\ub4dc \ud558\uc5ec \uc124\uc815.
+
+# accessibility messages
+pkgmgr.accessibility.compileDone=\ucef4\ud30c\uc77c\uc774 \uc131\uacf5\uc801\uc73c\ub85c \uc644\ub8cc\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+
+properties.heading.bluej=BlueJ \uc18d\uc131. \uc774 \ud30c\uc77c\uc5d0\uc11c \uc124\uc815\ub41c \uac12\uc740 \"bluej.defs\" \ud30c\uc77c\uc5d0\uc11c \uc124\uc815\ub41c \uac12\ubcf4\ub2e4 \uc6b0\uc120\uc801\uc73c\ub85c \uc801\uc6a9\ub429\ub2c8\ub2e4.
+properties.heading.moe=Moe Editor \uc18d\uc131. \uc774 \ud30c\uc77c\uc5d0\uc11c \uc124\uc815\ub41c \uac12\uc740 \"moe.defs\" \ud30c\uc77c\uc5d0\uc11c \uc124\uc815\ub41c \uac12\ubcf4\ub2e4 \uc6b0\uc120\uc801\uc73c\ub85c \uc801\uc6a9\ub429\ub2c8\ub2e4.
 
 # menus and menu items
 
 menu.package=\ud504\ub85c\uc81d\ud2b8
 menu.package.new=\uc0c8 \ud504\ub85c\uc81d\ud2b8...
-menu.package.open=\ud504\ub85c\uc81d\ud2b8 \uc5f4\uae30...
-menu.package.openRecent=\ucd5c\uadfc\uc5d0 \uc0ac\uc6a9\ud55c \ud504\ub85c\uc81d\ud2b8 \uc5f4\uae30
-menu.package.openNonBlueJ=BlueJ\ub85c \ub9cc\ub4e4\uc9c0 \uc54a\uc740 \ud504\ub85c\uc81d\ud2b8 \uc5f4\uae30...
-menu.package.close=\ub2eb\uae30
-menu.package.save=\uc800\uc7a5
+menu.mepackage.new=\uc0c8 ME \ud504\ub85c\uc81d\ud2b8...
+menu.package.open=\ud504\ub85c\uc81d\ud2b8 \uc5f4\uae30...@O
+menu.package.openRecent=\ucd5c\uadfc\uc5d0 \uc5f4\ub9b0 \ud504\ub85c\uc81d\ud2b8 \uc5f4\uae30
+menu.package.openNonBlueJ=BlueJ\uac00 \uc544\ub2cc \ud504\ub85c\uc81d\ud2b8 \uc5f4\uae30...@^O
+menu.package.openArchive=ZIP/JAR \ud30c\uc77c \uc5f4\uae30...@^O
+menu.package.close=\ub2eb\uae30@W
+menu.package.save=\uc800\uc7a5@S
 menu.package.saveAs=\ub2e4\ub978 \uc774\ub984\uc73c\ub85c \uc800\uc7a5...
-menu.package.import=\uac00\uc838\uc624\uae30...
-menu.package.export=\ub0b4\ubcf4\ub0b4\uae30...
-menu.package.pageSetup=\ud398\uc774\uc9c0 \uc124\uc815...
-menu.package.print=\uc778\uc1c4...
-menu.package.quit=\uc885\ub8cc
+menu.package.import=\ubd88\ub7ec\uc624\uae30...
+menu.package.export=Jar \ud30c\uc77c \uc0dd\uc131...
+menu.package.pageSetup=\ud398\uc774\uc9c0 \uc124\uc815...@^P
+menu.package.print=\uc778\uc1c4...@P
+menu.package.quit=\uc885\ub8cc@Q
+
 
 menu.edit=\ud3b8\uc9d1
-menu.edit.newClass=\uc0c8 \ud074\ub798\uc2a4...
-menu.edit.newPackage=\uc0c8 \ud328\ud0a4\uc9c0...
-menu.edit.addClass=\ud30c\uc77c\ub85c\ubd80\ud130 \ud074\ub798\uc2a4 \ucd94\uac00...
-menu.edit.remove=\uc0ad\uc81c
-menu.edit.newUses=\uc0ac\uc6a9 \ud654\uc0b4\ud45c \ucd94\uac00...
-menu.edit.newInherits=\uc0c1\uc18d\ud654\uc0b4\ud45c \ucd94\uac00...
-menu.edit.removeArrow=\ud654\uc0b4\ud45c \uc0ad\uc81c...
+menu.edit.newClass=\uc0c8 \ud074\ub798\uc2a4...@N
+menu.edit.newPackage=\uc0c8 \ud328\ud0a4\uc9c0...@R
+menu.edit.newCSS=\uc0c8 CSS \ud30c\uc77c...
+menu.edit.addClass=\ud30c\uc77c\uc5d0\uc11c \ud074\ub798\uc2a4 \ucd94\uac00...
+menu.edit.remove=\uc0ad\uc81c@BACK_SPACE
+menu.edit.newUses=\uc0c8 \uc0ac\uc6a9 \ud654\uc0b4\ud45c...
+menu.edit.newInherits=\uc0c8 \uc0c1\uc18d \uad00\uacc4...
+menu.edit.removeArrow=\uc0ad\uc81c \ud654\uc0b4\ud45c...
 
 menu.tools=\ub3c4\uad6c
-menu.tools.compile=\ucef4\ud30c\uc77c
-menu.tools.compileSelected=\uc120\ud0dd \ucef4\ud30c\uc77c
+menu.tools.compile=\ucef4\ud30c\uc77c@K
+menu.tools.compileSelected=\uc120\ud0dd\ud55c \ud56d\ubaa9 \ucef4\ud30c\uc77c@^K
 menu.tools.rebuild=\ud328\ud0a4\uc9c0 \ub2e4\uc2dc \ube4c\ub4dc
-menu.tools.callLibrary=\ub77c\uc774\ube0c\ub7ec\ub9ac \ud074\ub798\uc2a4 \uc0ac\uc6a9...
-menu.tools.callFreeForm=\ud45c\ud604\uc2dd \ud3c9\uac00...
-menu.tools.generateDoc=\ud504\ub85c\uc81d\ud2b8 \ubb38\uc11c\ud654
-menu.tools.preferences=\uc635\uc158...
+menu.tools.callLibrary=\ub77c\uc774\ube0c\ub7ec\ub9ac \ud074\ub798\uc2a4 \uc0ac\uc6a9...@L
+menu.tools.generateDoc=\ud504\ub85c\uc81d\ud2b8 \ubb38\uc11c\ud654@J
+menu.tools.testing=\ud14c\uc2a4\ud2b8
+menu.tools.run=\ud14c\uc2a4\ud2b8 \uc2e4\ud589@^T
+menu.tools.end=\ub179\ud654 \uc885\ub8cc
+menu.tools.cancel=\ub179\ud654 \ucde8\uc18c
+menu.tools.teamwork=\ud300
+
+menu.tools.preferences=\ud658\uacbd \uc124\uc815...@,
+
 
 menu.view=\ubcf4\uae30
-menu.view.showUses=\uc0ac\uc6a9 \ud654\uc0b4\ud45c \ubcf4\uae30 
-menu.view.showInherits=\uc0c1\uc18d \ud654\uc0b4\ud45c \ubcf4\uae30 
-menu.view.showExecControls=\ub514\ubc84\uac70 \ubcf4\uae30 
-menu.view.showTerminal=\ucd9c\ub825\ud654\uba74 \ubcf4\uae30
+menu.view.showUses=\uc0ac\uc6a9 \uad00\uacc4 \ud45c\uc2dc
+menu.view.showInherits=\uc0c1\uc18d \uad00\uacc4 \ud45c\uc2dc
+menu.view.showExecControls=\ub514\ubc84\uac70 \ud45c\uc2dc@D
+menu.view.showTerminal=\ud130\ubbf8\ub110 \ud45c\uc2dc@T
+menu.view.showTextEval=\ucf54\ub4dc \ud328\ub4dc \ud45c\uc2dc@E
+menu.view.showTestDisplay=\ud14c\uc2a4\ud2b8 \uacb0\uacfc \ud45c\uc2dc
+menu.view.showTeamTest=\ud300 \ubc0f \ud14c\uc2a4\ud2b8 \ucee8\ud2b8\ub864 \ud45c\uc2dc@G
 
-menu.group=\uadf8\ub8f9 \uc791\uc5c5
-menu.group.make=\uadf8\ub8f9 \ud328\ud0a4\uc9c0 \uc0dd\uc131
-menu.group.open=\uadf8\ub8f9 \ud328\ud0a4\uc9c0 \uc5f4\uae30
-menu.group.updateSelected=\uc120\ud0dd\ub41c \uadf8\ub8f9 \uac31\uc2e0
-menu.group.updateAll=\uc804\uccb4 \uac31\uc2e0
-menu.group.commitSelected=\uc120\ud0dd\ub41c \uadf8\ub8f9 \uc2e4\ud589
-menu.group.commitAll=\uc804\uccb4 \uc2e4\ud589
-menu.group.statusSelection=\uc120\ud0dd \uc0c1\ud0dc
-menu.group.statusAll=\uc120\ud0dd \uc0c1\ud0dc
-menu.group.users=\uc0ac\uc6a9\uc790
-menu.group.configuration=\uc635\uc158
+codepad.prompt=\ud3c9\uac00\ud560 Java \ucf54\ub4dc \uc785\ub825
+codepad.selectAll=\uc804\uccb4 \uae30\ub85d \uc120\ud0dd
+codepad.addToBench=\uac1d\uccb4 \ubca4\uce58\uc5d0 \ucd94\uac00
+codepad.inspect=\uac80\uc0ac
+codepad.clear=\uae30\ub85d \uc9c0\uc6b0\uae30
+
+team.project.marker=\uacf5\uc720 \ud504\ub85c\uc81d\ud2b8
+team.commit=\ucee4\ubc0b@I
+team.commitPush=\ucee4\ubc0b/\ud478\uc2dc@I
+team.commitButton=\ucee4\ubc0b
+team.menu.commit=\uc800\uc7a5\uc18c\uc5d0 \ucee4\ubc0b\ud558\uae30...@I
+team.menu.commitPush=\uc800\uc7a5\uc18c\uc5d0 \ucee4\ubc0b/\ud478\uc2dc\ud558\uae30...@I
+team.commit.title=\uc800\uc7a5\uc18c\uc5d0 \ud30c\uc77c \ucee4\ubc0b\ud558\uae30
+team.commit.dcvs.title=\uc800\uc7a5\uc18c\uc5d0 \ud30c\uc77c \ucee4\ubc0b/\ud478\uc2dc\ud558\uae30
+team.commit.files=\ucee4\ubc0b\ud560 \ud30c\uc77c
+team.commitPush.commit.files=\ucee4\ubc0b\ud560 \uc900\ube44\uac00 \ub41c \ud30c\uc77c
+team.commitPush.push.files=\ud478\uc2dc\ud560 \uc900\ube44\uac00 \ub41c \ud30c\uc77c
+team.commit.comment=\ucee4\ubc0b \uba54\uc2dc\uc9c0
+team.commit.layout=(\ub2e4\uc774\uc5b4\uadf8\ub7a8 \ub808\uc774\uc544\uc6c3)
+team.commit.includelayout=\ub2e4\uc774\uc5b4\uadf8\ub7a8 \ub808\uc774\uc544\uc6c3 \ucee4\ubc0b\ud558\uae30
+team.commit.statusMessage=\ud504\ub85c\uc81d\ud2b8\ub97c \uc800\uc7a5\uc18c\uc5d0 \ucee4\ubc0b\ud558\ub294 \uc911\uc785\ub2c8\ub2e4...
+team.commit.statusDone=\ucee4\ubc0b\uc774 \uc644\ub8cc\ub418\uc5c8\uc2b5\ub2c8\ub2e4
+team.commit.moreFiles=(\uadf8 \uc678 - \uc0c1\ud0dc\ub97c \ud655\uc778\ud558\uc138\uc694)
+team.update=\uc5c5\ub370\uc774\ud2b8@U
+team.menu.update=\uc800\uc7a5\uc18c\uc5d0\uc11c \uc5c5\ub370\uc774\ud2b8\ud558\uae30...@U
+team.push=\ud478\uc2dc
+team.push.error=\ubcc0\uacbd \uc0ac\ud56d\uc744 \ud478\uc2dc\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4
+team.push.statusMessage=\ud504\ub85c\uc81d\ud2b8\ub97c \uc6d0\uaca9 \uc800\uc7a5\uc18c\uc5d0 \ud478\uc2dc\ud558\ub294 \uc911\uc785\ub2c8\ub2e4...
+team.push.statusDone=\ud478\uc2dc\uac00 \uc644\ub8cc\ub418\uc5c8\uc2b5\ub2c8\ub2e4
+team.update.statusMessage=\ud504\ub85c\uc81d\ud2b8\ub97c \uc5c5\ub370\uc774\ud2b8\ud558\ub294 \uc911\uc785\ub2c8\ub2e4...
+team.update.statusDone=\uc5c5\ub370\uc774\ud2b8\uac00 \uc644\ub8cc\ub418\uc5c8\uc2b5\ub2c8\ub2e4
+team.update.title=\uc800\uc7a5\uc18c\uc5d0\uc11c \ud30c\uc77c \uc5c5\ub370\uc774\ud2b8\ud558\uae30
+team.update.includelayout=\ub2e4\uc774\uc5b4\uadf8\ub7a8 \ub808\uc774\uc544\uc6c3 \uc5c5\ub370\uc774\ud2b8\ud558\uae30
+team.update.files=\uc5c5\ub370\uc774\ud2b8\ud560 \ud30c\uc77c
+team.checkout=\ud504\ub85c\uc81d\ud2b8 \uccb4\ud06c\uc544\uc6c3...
+team.checkout.statusMessage=\uacf5\uc720 \ud504\ub85c\uc81d\ud2b8\ub97c \uccb4\ud06c\uc544\uc6c3\ud558\ub294 \uc911\uc785\ub2c8\ub2e4
+team.history.allUsers=\ubaa8\ub4e0 \uc0ac\uc6a9\uc790
+team.history.allFiles=\ubaa8\ub4e0 \ud30c\uc77c
+team.history=\ud504\ub85c\uc81d\ud2b8 \ud788\uc2a4\ud1a0\ub9ac
+team.history.title=\ud504\ub85c\uc81d\ud2b8 \ud788\uc2a4\ud1a0\ub9ac
+team.history.filefilter=\ud30c\uc77c \ubcf4\uae30:
+team.history.userfilter=\uc0ac\uc6a9\uc790 \ubcf4\uae30:
+team.share=\uc774 \ud504\ub85c\uc81d\ud2b8 \uacf5\uc720\ud558\uae30
+team.share.short=\uacf5\uc720...
+team.share.statusMessage=\uc774 \ud504\ub85c\uc81d\ud2b8\ub97c \uacf5\uc720\ud558\ub294 \uc911\uc785\ub2c8\ub2e4
+team.includeLayout=\uc5c5\ub370\uc774\ud2b8\ud560 \ub54c \ub2e4\uc774\uc5b4\uadf8\ub7a8 \ub808\uc774\uc544\uc6c3 \ud3ec\ud568\ud558\uae30
+team.settings=\ud300\uc6cc\ud06c \uc124\uc815...
+team.status=\uc0c1\ud0dc
+team.status.local=\ub85c\uceec \uc0c1\ud0dc
+team.status.remote=\uc6d0\uaca9 \uc0c1\ud0dc
+team.status.resource=\ud30c\uc77c \uc774\ub984
+team.status.version=\ubc84\uc804
+team.status.refresh=\uc0c8\ub85c\uace0\uce68
+team.conflicts.title=\ucda9\ub3cc \ubc1c\uc0dd
+team.conflicts.classes=\ub2e4\uc74c \ud074\ub798\uc2a4\uc5d0\uc11c \ucda9\ub3cc\uc774 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4:
+team.conflicts.files=\ub2e4\uc74c \ud30c\uc77c\uc5d0\uc11c \ucda9\ub3cc\uc774 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4:
+team.conflicts.show=\ucda9\ub3cc \ubcf4\uae30
+team.error.username.at=\uc0ac\uc6a9\uc790 \uc774\ub984\uc5d0 @ \ubb38\uc790\uac00 \ud3ec\ud568\ub418\uc5b4 \uc788\uc5b4 BlueJ\uc5d0\uc11c \uc9c0\uc6d0\ub418\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.
+team.error.username.colon=\uc0ac\uc6a9\uc790 \uc774\ub984\uc5d0 : \ubb38\uc790\uac00 \ud3ec\ud568\ub418\uc5b4 \uc788\uc5b4 BlueJ\uc5d0\uc11c \uc9c0\uc6d0\ub418\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.
+team.error.password.at=\ube44\ubc00\ubc88\ud638\uc5d0 @ \ubb38\uc790\uac00 \ud3ec\ud568\ub418\uc5b4 \uc788\uc5b4 BlueJ\uc5d0\uc11c \uc9c0\uc6d0\ub418\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.
+team.error.unknownProtocol=\uc54c \uc218 \uc5c6\ub294 \ud504\ub85c\ud1a0\ucf5c\uc785\ub2c8\ub2e4.
+team.error.cannotParseServer=URI\uc5d0\uc11c \uc11c\ubc84\ub97c \uc2dd\ubcc4\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4. URI\uac00 \uc62c\ubc14\ub978\uc9c0 \ud655\uc778\ud558\uc138\uc694.
+team.error.cannotParsePath=URI\uc5d0\uc11c \uc800\uc7a5\uc18c \uacbd\ub85c\ub97c \uc2dd\ubcc4\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4. URI\uac00 \uc62c\ubc14\ub978\uc9c0 \ud655\uc778\ud558\uc138\uc694.
+team.error.needsPull=\uc800\uc7a5\uc18c\uac00 \ubcd1\ud569 \uc0c1\ud0dc\uc774\uba70, \ucee4\ubc0b\ub418\uc9c0 \uc54a\uc740 \ubcc0\uacbd \uc0ac\ud56d\uc774 \uc788\uc2b5\ub2c8\ub2e4. \uc9c4\ud589\ud558\ub824\uba74 \ud574\ub2f9 \ubcc0\uacbd \uc0ac\ud56d\uc744 \ucee4\ubc0b\ud558\uace0 \ud480\ud574\uc57c \ud569\ub2c8\ub2e4.
+team.error.noHeadBranch=\ub85c\uceec HEAD \ube0c\ub79c\uce58\ub97c \uac00\uc838\uc624\ub294 \uc911\uc5d0 \uc624\ub958\uac00 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4.
+
+# The following appear in brackets after a filename, in the
+# update/commit dialogs.
+team.status.delete=\uc800\uc7a5\uc18c\uc5d0\uc11c \uc0ad\uc81c
+team.status.add=\uc800\uc7a5\uc18c\uc5d0 \ucd94\uac00
+team.status.new=\uc0c8 \ud30c\uc77c
+team.status.removed=\uc0ad\uc81c
+team.status.needsmerge=\uc5c5\ub370\uc774\ud2b8 \ubcd1\ud569 \ud544\uc694
+team.status.needsupdate=\uc800\uc7a5\uc18c\uc5d0\uc11c \uc5c5\ub370\uc774\ud2b8 \ud544\uc694
+
+team.commit.message=\ucee4\ubc0b\ud558\uae30 \uc704\ud574, \ucee4\ubc0b \uba54\uc2dc\uc9c0\ub97c \uc791\uc131\ud558\uc138\uc694.
+team.nocommitfiles=\ucee4\ubc0b\ud560 \ud30c\uc77c\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.
+team.nopushfiles=\ud478\uc2dc\ud560 \ud30c\uc77c\uc774 \uc5c6\uc2b5\ub2c8\ub2e4. (\uba3c\uc800 \ucee4\ubc0b\ud558\uc138\uc694)
+team.noupdatefiles=\uc5c5\ub370\uc774\ud2b8\ud560 \ud30c\uc77c\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.
+team.pushNeeded=\uc6d0\uaca9 \uc800\uc7a5\uc18c\ubcf4\ub2e4 \uc800\uc7a5\uc18c\uac00 \uc55e\uc11c \uc788\uc2b5\ub2c8\ub2e4. \ud478\uc2dc\uac00 \ud544\uc694\ud569\ub2c8\ub2e4.
+team.pullNeeded=\uc6d0\uaca9 \uc800\uc7a5\uc18c\ubcf4\ub2e4 \uc800\uc7a5\uc18c\uac00 \ub4a4\uccd0\uc838 \uc788\uc2b5\ub2c8\ub2e4. \uc5c5\ub370\uc774\ud2b8\uac00 \ud544\uc694\ud569\ub2c8\ub2e4.
+
+team.statusinfo.upToDate=\ucd5c\uc2e0 \uc0c1\ud0dc\uc785\ub2c8\ub2e4.
+team.statusinfo.needsCheckout=\uc800\uc7a5\uc18c\uc5d0 \ucd94\uac00\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+team.statusinfo.needsUpdate=\uc800\uc7a5\uc18c\uc5d0\uc11c \uc218\uc815\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+team.statusinfo.removed=\uc800\uc7a5\uc18c\uc5d0\uc11c \uc81c\uac70\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+team.statusinfo.needsAdd=\ub85c\uceec\uc5d0 \ucd94\uac00\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+team.statusinfo.needsCommit=\ub85c\uceec\uc5d0\uc11c \uc218\uc815\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+team.statusinfo.deleted=\ub85c\uceec\uc5d0\uc11c \uc81c\uac70\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+team.statusinfo.needsMerge=\ubcd1\ud569\uc774 \ud544\uc694\ud569\ub2c8\ub2e4.
+team.statusinfo.unresolved=\ud574\uacb0\ub418\uc9c0 \uc54a\uc740 \ucda9\ub3cc\uc774 \uc788\uc2b5\ub2c8\ub2e4.
+team.statusinfo.hasConflicts=\ucda9\ub3cc\uc774 \uc788\uc2b5\ub2c8\ub2e4.
+team.statusinfo.weird=\uc774\uc0c1\ud55c \uc0c1\ud0dc\uc785\ub2c8\ub2e4.
+team.statusinfo.conflictAdd=\ub85c\uceec\uacfc \uc800\uc7a5\uc18c\uc5d0 \ubaa8\ub450 \ucd94\uac00\ub418\uc5c8\uc2b5\ub2c8\ub2e4(\ucda9\ub3cc).
+team.statusinfo.conflictLMRD=\ub85c\uceec\uc5d0\uc11c \uc218\uc815\ub418\uc5c8\uace0 \uc800\uc7a5\uc18c\uc5d0\uc11c \uc81c\uac70\ub418\uc5c8\uc2b5\ub2c8\ub2e4(\ucda9\ub3cc).
+team.statusinfo.conflictLDRM=\ub85c\uceec\uc5d0\uc11c \uc81c\uac70\ub418\uc5c8\uace0 \uc800\uc7a5\uc18c\uc5d0\uc11c \uc218\uc815\ub418\uc5c8\uc2b5\ub2c8\ub2e4(\ucda9\ub3cc).
+team.statusinfo.renamed=\ud30c\uc77c \uc774\ub984\uc774 \ubcc0\uacbd\ub418\uc5c8\uc2b5\ub2c8\ub2e4.
+
+team.statusinfo.dcvs.local.new=\uc0c8\ub85c\uc6b4 \uac83
+team.statusinfo.dcvs.local.modified=\ubcc0\uacbd\ub41c \uac83
+team.statusinfo.dcvs.local.deleted=\uc0ad\uc81c\ub41c \uac83
+team.statusinfo.dcvs.remote.new=\ud478\uc2dc \ud544\uc694(\uc0c8\ub85c\uc6b4 \uac83)
+team.statusinfo.dcvs.remote.modified=\ud478\uc2dc \ud544\uc694(\ubcc0\uacbd\ub41c \uac83)
+team.statusinfo.dcvs.remote.deleted=\ud478\uc2dc \ud544\uc694(\uc0ad\uc81c\ub41c \uac83)
+team.statusinfo.dcvs.remote.needs.pull=\uc5c5\ub370\uc774\ud2b8 \ud544\uc694
+team.statusinfo.dcvs.remote.removed=\uc5c5\ub370\uc774\ud2b8 \ud544\uc694(\uc81c\uac70\ub428)
+team.statusinfo.dcvs.remote.needs.push=\ud478\uc2dc \ud544\uc694
+
+team.settings.title = \ud300 \uc124\uc815
+team.settings.personal=\uac1c\uc778
+team.settings.location=\uc704\uce58
+team.settings.yourName=\ub2f9\uc2e0\uc758 \uc774\ub984
+team.settings.yourEmail=\ub2f9\uc2e0\uc758 \uc774\uba54\uc77c
+team.settings.user=\uc0ac\uc6a9\uc790
+team.settings.password=\ube44\ubc00\ubc88\ud638
+team.settings.savepwd=\uc774 \ucef4\ud4e8\ud130\uc5d0 \ube44\ubc00\ubc88\ud638 \uc800\uc7a5(\uad8c\uc7a5\ud558\uc9c0 \uc54a\uc74c)
+team.settings.savepwd.details=\ube44\ubc00\ubc88\ud638\ub294 \uc778\ucf54\ub529 \ub418\uc5b4 \ud30c\uc77c\uc5d0 \uc800\uc7a5\ub429\ub2c8\ub2e4. Git\uc744 \ud1b5\ud574 \uc6d0\ubcf8 \ud504\ub85c\uc81d\ud2b8 \ub514\ub809\ud130\ub9ac\ub97c \uacf5\uc720\ud560 \uc608\uc815\uc774\ub77c\uba74 \uc0c1\uc790\ub97c \uccb4\ud06c\ud558\uc9c0 \ub9c8\uc138\uc694.
+team.settings.server=\uc11c\ubc84
+team.settings.prefix=\uc800\uc7a5\uc18c \uacbd\ub85c
+team.settings.ext=ext (SSH \uc0ac\uc6a9)
+team.settings.pserver=pserver
+team.settings.protocol=\ud504\ub85c\ud1a0\ucf5c
+team.settings.uri=\uc800\uc7a5\uc18c URI
+team.settings.branch=\ube0c\ub79c\uce58
+team.settings.defaultBranch=\uae30\ubcf8 \ube0c\ub79c\uce58
+team.settings.checkConnection=\uc5f0\uacb0 \ud655\uc778
+
+team.moduleselect.title=\ud504\ub85c\uc81d\ud2b8 \uc120\ud0dd \ubc0f \uccb4\ud06c\uc544\uc6c3
+team.moduleselect.label=\ud504\ub85c\uc81d\ud2b8 \uc774\ub984\uc744 \uc120\ud0dd\ud558\uac70\ub098 \uc785\ub825\ud558\uc138\uc694:
+team.moduleselect.available=\uc0ac\uc6a9 \uac00\ub2a5\ud55c \ud504\ub85c\uc81d\ud2b8:
+team.moduleselect.show=\ubcf4\uae30
+
+team.checkingout=\ud504\ub85c\uc81d\ud2b8 \uccb4\ud06c\uc544\uc6c3 \uc911...
+team.checkedout=\ud504\ub85c\uc81d\ud2b8 \uccb4\ud06c\uc544\uc6c3 \uc644\ub8cc.
+team.checkout.filechooser.title=\uccb4\ud06c\uc544\uc6c3 \uc704\uce58 \uc9c0\uc815
+team.checkout.DVCS.filechooser.title=\uccb4\ud06c\uc544\uc6c3\ud560 \ud504\ub85c\uc81d\ud2b8 \uc0dd\uc131
+team.checkout.filechooser.button=\uccb4\ud06c\uc544\uc6c3
+
+team.share.initialMessage=\ud504\ub85c\uc81d\ud2b8 \uacf5\uc720 \ucd08\uae30\ud654
+
+team.sharing=\ud504\ub85c\uc81d\ud2b8 \uacf5\uc720 \uc911...
+team.shared=\ud504\ub85c\uc81d\ud2b8 \uacf5\uc720 \uc644\ub8cc.
+
+team.checkconn.checking=\uc5f0\uacb0 \ud655\uc778 \uc911...
+team.checkconn.ok=\uc5f0\uacb0\uc774 \uc815\uc0c1\uc785\ub2c8\ub2e4.
+team.checkconn.bad=\uc11c\ubc84\uc5d0 \uc5f0\uacb0\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
+
+team.load.SVNnotSupported.title=SVN \ubbf8\uc9c0\uc6d0
+
+team.load.SVNnotSupported.details=\uc774 \ubc84\uc804\uc758 BlueJ\ub294 \ub354 \uc774\uc0c1 SVN\uc744 \uc9c0\uc6d0\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.\n\n\ub2e4\uc74c \uc911 \ud558\ub098\ub97c \uc120\ud0dd\ud558\uc138\uc694:\n\t- \uc774 \ud504\ub85c\uc81d\ud2b8\ub97c \ub3c5\ub9bd \uc2e4\ud589\ud615\uc73c\ub85c \ub9cc\ub4e4\uae30\n\t  (\uc774\ub807\uac8c \ud558\uba74 SVN\uacfc \uad00\ub828\ub41c \ubaa8\ub4e0 \uc815\ubcf4\uac00 \uc81c\uac70\ub429\ub2c8\ub2e4),\n\ub610\ub294\n\t- \uc774 \ud504\ub85c\uc81d\ud2b8\ub97c \ud300 \uc791\uc5c5 \uae30\ub2a5 \uc5c6\uc774 \uc5f4\uae30\n\t  (SVN \uc815\ubcf4\ub294 \uc720\uc9c0\ub418\uba70, BlueJ 4 \ubc0f \uc774\uc804 \ubc84\uc804\uacfc \uacf5\uc720 \ud504\ub85c\uc81d\ud2b8\ub85c \uc5ec\uc804\ud788 \uc5f4 \uc218 \uc788\uc2b5\ub2c8\ub2e4).
+
+team.load.SVNnotSupported.details.RemoveSVNOption=\uc774 \ud504\ub85c\uc81d\ud2b8\ub97c \ub3c5\ub9bd \uc2e4\ud589\ud615\uc73c\ub85c \ub9cc\ub4e4\uae30
+team.load.SVNnotSupported.details.KeepSVNOption=\uc774 \ud504\ub85c\uc81d\ud2b8\ub97c \ud300 \uc791\uc5c5 \uae30\ub2a5 \uc5c6\uc774 \uc5f4\uae30
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 menu.help=\ub3c4\uc6c0\ub9d0
-menu.help.about=$APPNAME\uc5d0 \ub300\ud558\uc5ec
-menu.help.extensions=Installed Extensions
+menu.help.about=$APPNAME \uc815\ubcf4
+menu.help.extensions=\uc124\uce58\ub41c \ud655\uc7a5 \uae30\ub2a5
 menu.help.versionCheck=\ubc84\uc804 \ud655\uc778...
 menu.help.copyright=\uc800\uc791\uad8c
-menu.help.website=BlueJ \ud648\ud398\uc774\uc9c0 
-menu.help.tutorial=BlueJ \ud29c\ud1a0\ub9ac\uc5bc 
-menu.help.standardApi=\uc790\ubc14 \ud074\ub798\uc2a4 \ub77c\uc774\ube0c\ub7ec\ub9ac 
+menu.help.website=BlueJ \uc6f9 \uc0ac\uc774\ud2b8
+menu.help.onlinedoc=\uc628\ub77c\uc778 \ubb38\uc11c
+menu.help.tutorial=\uc778\ud130\ub799\ud2f0\ube0c \ud29c\ud1a0\ub9ac\uc5bc
+menu.help.standardApi=Java \ud074\ub798\uc2a4 \ub77c\uc774\ube0c\ub7ec\ub9ac
 
 # tool tips
 
-tooltip.newClass=\ud604\uc7ac \ud328\ud0a4\uc9c0\uc548\uc5d0 \uc0c8 \ud074\ub798\uc2a4\ub97c \uc0dd\uc131\ud569\ub2c8\ub2e4.
-tooltip.newUses=\uc0ac\uc6a9 \uad00\uacc4 \ud654\uc0b4\ud45c\ub97c \uc0bd\uc785\ud569\ub2c8\ub2e4.
-tooltip.newExtends=\uc0c1\uc18d \uad00\uacc4 \ud654\uc0b4\ud45c\ub97c \uc0bd\uc785\ud569\ub2c8\ub2e4.
-tooltip.compile=\ud604\uc7ac \ud328\ud0a4\uc9c0 \uc548\uc758 \ucef4\ud30c\uc77c\ub418\uc9c0 \uc54a\uc740 \ubaa8\ub4e0 \ud074\ub798\uc2a4\ub97c \ucef4\ud30c\uc77c \ud569\ub2c8\ub2e4.
-tooltip.showUses=\uc0ac\uc6a9\uad00\uacc4 \ud654\uc0b4\ud45c \ud45c\uc2dc \uc804\ud658.
-tooltip.showExtends=\uc0c1\uc18d\uad00\uacc4 \ud654\uc0b4\ud45c \ud45c\uc2dc \uc804\ud658. 
-tooltip.progress=\uc0c1\ud0dc \ud45c\uc2dc\ubc14 : virtual machine \uc774 \uc2e4\ud589\uc911\uc77c\ub54c \ud45c\uc2dc\ub429\ub2c8\ub2e4.
+tooltip.newClass=\uc774 \ud328\ud0a4\uc9c0\uc5d0 \uc0c8 \ud074\ub798\uc2a4 \uc0dd\uc131
+tooltip.newUses='uses' \uad00\uacc4 \uc0bd\uc785
+tooltip.newExtends=\uc0c1\uc18d \uad00\uacc4 \uc0bd\uc785
+tooltip.compile=\uc774 \ud328\ud0a4\uc9c0\uc758 \ucef4\ud30c\uc77c\ub418\uc9c0 \uc54a\uc740 \ubaa8\ub4e0 \ud074\ub798\uc2a4\ub97c \ucef4\ud30c\uc77c
+tooltip.test=\uc774 \ud328\ud0a4\uc9c0\uc758 \ucef4\ud30c\uc77c\ub41c \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8 \ud074\ub798\uc2a4\ub97c \uc2e4\ud589
+tooltip.progress=\uc791\uc5c5 \ud45c\uc2dc\uae30: \uac00\uc0c1 \uba38\uc2e0\uc774 \uc2e4\ud589 \uc911\uc778\uc9c0 \ud45c\uc2dc
+tooltip.test.end=\ud14c\uc2a4\ud2b8 \uba54\uc18c\ub4dc \ub179\ud654 \uc885\ub8cc \ubc0f \uc800\uc7a5
+tooltip.test.cancel=\ud14c\uc2a4\ud2b8 \uba54\uc18c\ub4dc \ub179\ud654 \ucde8\uc18c \ubc0f \uc0ad\uc81c
+tooltip.commit=\ub85c\uceec \ubcc0\uacbd \ub0b4\uc6a9\uc744 \uc800\uc7a5\uc18c\uc5d0 \ucee4\ubc0b
+tooltip.update=\uc800\uc7a5\uc18c\uc5d0\uc11c \uc218\uc815\ub41c \ub85c\uceec \ud30c\uc77c \uc5c5\ub370\uc774\ud2b8
+tooltip.status=\ud504\ub85c\uc81d\ud2b8\uc758 \ubaa8\ub4e0 \ud300\uc6cc\ud06c \ud30c\uc77c \uc0c1\ud0dc\ub97c \ud45c\uc2dc
 
+
+graph.tooltip.classBroken=\uc774 \ud074\ub798\uc2a4\ub294 \ud604\uc7ac \ud30c\uc2f1\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
+
+
+#Copyright
+
+menu.help.copyright.title=BlueJ \uc800\uc791\uad8c, \ub77c\uc774\uc120\uc2a4 \ubc0f \uc7ac\ubc30\ud3ec
+menu.help.copyright.line1=BlueJ\ub294 GNU \uc77c\ubc18 \uacf5\uc911 \ub77c\uc774\uc120\uc2a4 \ubc84\uc804 2 \ubc0f
+menu.help.copyright.line2=\ud074\ub798\uc2a4\ud328\uc2a4 \uc608\uc678 \uc870\ud56d\uc744 \ub530\ub985\ub2c8\ub2e4.
+menu.help.copyright.line3=\uc790\uc138\ud55c \ub0b4\uc6a9\uc740 LICENSE.txt \ubc0f
+menu.help.copyright.line4=THIRDPARTYLICENSE.txt \ud30c\uc77c\uc744 \ucc38\uc870\ud558\uc2ed\uc2dc\uc624.
+
+#Collection
+# The content for these is HTML, so don't use <, > or & without escaping:
+
+collect.dialog.title=\uc5f0\uad6c \ucc38\uc5ec
+
+collect.dialog.header1=BlueJ\ub294 \uc18c\ud504\ud2b8\uc6e8\uc5b4\ub97c \uac1c\uc120\ud558\uace0 \ud559\uc0dd\ub4e4\uc774 \ud504\ub85c\uadf8\ub798\ubc0d\uc744 \ubc30\uc6b0\ub294 \ubc29\uc2dd\uc744 \uc774\ud574\ud558\ub294 \ub370
+collect.dialog.header2=\ub3c4\uc6c0\uc744 \uc8fc\uae30 \uc704\ud574 \uc775\uba85 \uc0c1\ud638 \uc791\uc6a9 \uc815\ubcf4\ub97c \uc218\uc9d1\ud569\ub2c8\ub2e4.
+collect.dialog.header3=\ucc38\uc5ec\ud558\uc5ec \uc6b0\ub9ac\ub97c \ub3c4\uc640\uc8fc\uc138\uc694.
+
+collect.dialog.no=\uc544\ub2c8\uc694, \uac10\uc0ac\ud569\ub2c8\ub2e4.
+collect.dialog.yes=\ucc38\uc5ec\uc5d0 \ub3d9\uc758\ud558\uba70, \uc81c\uac00 16\uc138 \uc774\uc0c1\uc784\uc744 \ud655\uc778\ud569\ub2c8\ub2e4.
+
+collect.dialog.ethics1=\ucc38\uc5ec\uc5d0 \ub3d9\uc758\ud558\uc2dc\uba74, BlueJ \uc0ac\uc6a9\uc5d0 \uad00\ud55c \uae30\ub2a5 \ubc0f \ucf54\ub4dc \uc791\uc131\uacfc \uac19\uc740 \uc775\uba85 \ub370\uc774\ud130\ub97c \uc218\uc9d1\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4. \uc774\ub294 BlueJ \uadf8\ub8f9 \ubc0f \ub2e4\ub978 \ud559\uc220 \uc5f0\uad6c\uc5d0\uc11c \ud559\uc0dd\ub4e4\uc774 \ud504\ub85c\uadf8\ub798\ubc0d\uc744 \ubc30\uc6b0\ub294 \ubc29\uc2dd\uc744 \uc774\ud574\ud558\uace0 BlueJ \uc790\uccb4\ub97c \uac1c\uc120\ud558\ub294 \ub370 \uc0ac\uc6a9\ub429\ub2c8\ub2e4. \uac1c\uc778 \uc815\ubcf4\ub294 \uc6b0\ub9ac\uc5d0\uac8c \uc804\uc1a1\ub418\uac70\ub098 \uc800\uc7a5\ub418\uc9c0 \uc54a\uc73c\uba70, Java \ud074\ub798\uc2a4 \ucf54\uba58\ud2b8\ub294 \uc804\uc1a1 \uc804\uc5d0 \uc81c\uac70\ub429\ub2c8\ub2e4.
+collect.dialog.ethics.seemore=\uc790\uc138\ud788\ubcf4\uae30
+collect.dialog.ethics2=\ucc38\uc5ec\ub97c \uc911\ub2e8\ud558\uace0 \uc2f6\ub2e4\uba74, \ub3c4\uad6c/\ud658\uacbd\uc124\uc815/\uae30\ud0c0 \ub300\ud654\uc0c1\uc790\uc5d0\uc11c \ud655\uc778\ub780\uc744 \uc0ac\uc6a9\ud558\uc5ec \uc5b8\uc81c\ub4e0\uc9c0 \ucc38\uc5ec\ub97c \uc911\uc9c0\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.
+
+collect.status.optedin=\ud604\uc7ac \uc775\uba85 \uc5f0\uad6c \ub370\uc774\ud130 \uc218\uc9d1\uc5d0 \ucc38\uc5ec\ud558\uace0 \uc788\uc2b5\ub2c8\ub2e4.
+collect.status.nextsession=\ub2e4\uc74c\uc5d0 BlueJ\ub97c \uc2dc\uc791\ud560 \ub54c \uc775\uba85 \ub370\uc774\ud130 \uc218\uc9d1 \uc5f0\uad6c\ub97c \ud5c8\uc6a9\ud569\ub2c8\ub2e4.
+collect.status.optedout=\ud604\uc7ac \uc775\uba85 \uc5f0\uad6c \ub370\uc774\ud130 \uc218\uc9d1\uc5d0 \ucc38\uc5ec\ud558\uc9c0 \uc54a\uace0 \uc788\uc2b5\ub2c8\ub2e4.
+
+# About
+
+about.version=$APPNAME \ubc84\uc804
+about.java.version=Java \ubc84\uc804
+about.vm=\uac00\uc0c1 \uba38\uc2e0:
+about.javafx=JavaFX \ubc84\uc804:
+about.runningOn=\uc2e4\ud589 \uc911\uc778 \uc6b4\uc601\uccb4\uc81c:
+about.logfile=\ub514\ubc84\uadf8 \ub85c\uadf8 \ud30c\uc77c:
+about.moreInformation=\uc790\uc138\ud55c \uc815\ubcf4\ub294 \ub2e4\uc74c\uc744 \ucc38\uc870\ud558\uc138\uc694.
+about.theTeam=$APPNAME \ud300:
+about.openFolder=\ud3f4\ub354 \uc5f4\uae30
+about.general.title=\uc77c\ubc18
+about.translators.title=\ubc88\uc5ed\uc790
+about.contributors.title=\uae30\uc5ec\uc790
+about.previousTeamMembers.title=\uc774\uc804 \ud300 \uba64\ubc84:
+
+# Work Indicator
+workIndicator.resetMachine=Java \uac00\uc0c1 \uba38\uc2e0 \uc7ac\uc124\uc815@^R
+
+# Not a package
+notAProject.bluej.title=BlueJ \ud504\ub85c\uc81d\ud2b8\uac00 \uc544\ub2d9\ub2c8\ub2e4
+notAProject.bluej.message=\uc120\ud0dd\ud55c \ud3f4\ub354\ub294 BlueJ \ud504\ub85c\uc81d\ud2b8\ub97c \ud3ec\ud568\ud558\uace0 \uc788\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4:
+notAProject.bluej.subDirs=\uc77c\ubd80 \ud558\uc704 \ud3f4\ub354\ub294 BlueJ \ud504\ub85c\uc81d\ud2b8\ub97c \uac00\uc9c0\uace0 \uc788\uc2b5\ub2c8\ub2e4. \ub2e4\uc74c\uc744 \uc758\ubbf8\ud558\ub098\uc694:
+notAProject.bluej.subDirButton=\uc120\ud0dd\ud55c \ud3f4\ub354 \uc5f4\uae30
+notAProject.bluej.button=\ub2e4\uc2dc \uc120\ud0dd\ud558\uae30...
+
+# New project
+newProject.name=\uc774\ub984
+newProject.parent=\uc704\uce58
+newProject.path=\uacbd\ub85c
+newProject.parent.choose=\uc120\ud0dd...
+newProject.error.parentNotExist=\uc704\uce58\uac00 \uc874\uc7ac\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4
+newProject.error.compoundExist=\uacbd\ub85c\uac00 \uc774\ubbf8 \uc874\uc7ac\ud569\ub2c8\ub2e4
+newProject.error.pathInvalid=\uacbd\ub85c\uac00 \uc798\ubabb\ub418\uc5c8\uc2b5\ub2c8\ub2e4
+newProject.prompt=\uc0c8 \ud504\ub85c\uc81d\ud2b8\uc758 \uc774\ub984\uc744 \uc785\ub825\ud558\uc138\uc694
+
+# Class Diagram
+classTarget.noSource=\uc18c\uc2a4\uac00 \uc5c6\uc2b5\ub2c8\ub2e4
+
+bluej.central.msg.title=BlueJ - \ucd5c\uc2e0 \ub274\uc2a4
+
+printing.progress.title=\uc778\uc1c4 \uc911
+printing.progress.file=\ud30c\uc77c \uc9c4\ud589 (${cur}/${total} \uc904)
+printing.progress.project=\ud504\ub85c\uc81d\ud2b8 \uc9c4\ud589 (${cur}/${total} \ud56d\ubaa9)
+printing.progress.canceling=\ucde8\uc18c \uc911...
