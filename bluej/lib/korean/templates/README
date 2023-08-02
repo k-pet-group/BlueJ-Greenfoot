@@ -1,12 +1,7 @@
-This directory contains some templates used by BlueJ to generate files.
-These templates may be edited to change the default content of generated
-files.
+이 디렉터리에는 파일을 생성하기 위해 BlueJ에서 사용하는 일부 템플릿이 포함되어 있습니다. 
+이러한 템플릿은 생성된 파일의 기본 내용을 변경하기 위해 편집할 수 있습니다.
 
- - The readme and readmeexp templates may be freely edited.
- - The html template should be edited with care - things may not work 
-   if it is broken.
- - The shell template should probably NOT be edited (unless you REALLY
-   know what you're doing).
+- readme 템플릿은 자유롭게 편집할 수 있습니다.
+- method 템플릿은 신중하게 편집해야합니다. 이것은 편집 메뉴에서 새로운 메소드를 삽입할 때 사용됩니다.
 
-The subdirectory "newclass" contains templates for classes generated
-via the "New Class" function in BlueJ.
+하위 디렉터리 "newclass"에는 BlueJ에서 "새 클래스" 기능을 통해 생성된 클래스에 대한 템플릿이 포함되어 있습니다.
