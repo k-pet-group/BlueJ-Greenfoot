@@ -1961,6 +1961,7 @@ public class PkgMgrFrame
                 "Greek",        "Ioannis G. Baltopoulos",
                 "Hindi",        "Tajvir Singh",
                 "Italian",      "Angelo Papadia and Luzio Menna",
+                "Korean",       "Suk-Hyung Hwang, Juwon Hwang, and other members of the Korean BlueJ Users Group (KBUG)",
                 "Montenegrin",  "Omer Djokic",
                 "Persian",      "M. Shahdoost",
                 "Portuguese",   "Marco Aurelio Souza Mangan, Fabio Hedayioglu, and Fred Guedes Pereira",

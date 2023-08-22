@@ -227,19 +227,11 @@ public class AboutDialogTemplate extends Dialog<Void>
             tableView.getStyleClass().add("about-translators-table");
             tableView.setEditable(false);
 
-            // The width properties add up to 97% and not 100% to forbid the scroll from appearing,
-            // as there is no API, currently, to achieve this
             TableColumn<Pair<String, String>, String> languageColumn = new TableColumn<>();
             languageColumn.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getKey()));
 
             TableColumn<Pair<String, String>, String> nameColumn = new TableColumn<>();
             nameColumn.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getValue()));
-            
-            JavaFXUtil.addChangeListenerAndCallNow(tableView.widthProperty(), newVal -> 
-            {
-                languageColumn.setPrefWidth(newVal.doubleValue() * 0.17);
-                nameColumn. setPrefWidth(newVal.doubleValue() * 0.80);
-            });
 
             tableView.getColumns().setAll(languageColumn, nameColumn);
             vbox.getChildren().add(tableView);
