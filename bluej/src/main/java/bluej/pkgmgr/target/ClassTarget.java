@@ -596,6 +596,7 @@ public class ClassTarget extends DependentTarget
             }
 
         }
+        catch (NoClassDefFoundError ncdfe) { Debug.reportError(ncdfe); }
         catch (ClassNotFoundException cnfe) { Debug.reportError(cnfe); }
         catch (LinkageError le) { Debug.reportError(le); }
 
