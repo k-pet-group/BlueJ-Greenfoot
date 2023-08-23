@@ -4,8 +4,8 @@
     <taskdef name="bundleapp"
              classpath="appbundler-20230419.jar"
              classname="com.oracle.appbundler.AppBundlerTask"/>
-
     <import file="../shared.xml"/>
+    <property name="dist.mac" value="Greenfoot-mac-${greenfoot.version}${greenfoot.rcsuffix}.zip"/>
     
     <!-- Most of the targets in this build file are designed to be called from the
          main Greenfoot build.xml file, as they require variables defined by it. -->
