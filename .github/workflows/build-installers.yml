@@ -63,7 +63,7 @@ jobs:
       - name: Archive Greenfoot Windows installers
         uses: actions/upload-artifact@v3
         with:
-          name: greenfoot-installers
+          name: greenfoot-installers-windows
           path: |
               bluej/package/Greenfoot-windows*.msi
               bluej/package/Greenfoot-windows*.zip
@@ -104,7 +104,7 @@ jobs:
       - name: Archive Greenfoot Ubuntu installers
         uses: actions/upload-artifact@v3
         with:
-          name: greenfoot-installers
+          name: greenfoot-installers-other
           path: |
             bluej/package/Greenfoot-linux*.deb
             bluej/package/Greenfoot-generic*.jar
@@ -177,7 +177,7 @@ jobs:
       - name: Archive Greenfoot Mac installers
         uses: actions/upload-artifact@v3
         with:
-          name: greenfoot-installers
+          name: greenfoot-installers-mac
           path: |
             bluej/package/Greenfoot*.dmg
   
