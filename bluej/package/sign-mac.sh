@@ -9,6 +9,7 @@ set -e
 #   $4 - Password for notarizing (Apple-generated password, not the master password)
 #   $5 - Apple Team ID (available from developer profile page)
 #   $6 - dmg name
+#   $7 - appdmg.json name
 
 echo '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict>    <key>com.apple.security.cs.allow-jit</key>    <true/>    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>    <true/>    <key>com.apple.security.cs.disable-executable-page-protection</key>    <true/>     <key>com.apple.security.cs.disable-library-validation</key><true/><key>com.apple.security.cs.allow-dyld-environment-variables</key>    <true/></dict></plist>' > entitlements.plist
 
@@ -57,8 +58,8 @@ xcrun stapler staple $TOP_LEVEL
 # Now package it with appdmg:
 echo ""
 echo "Packaging into DMG"
-cp ../appdmg.json .
-appdmg appdmg.json $6
+cp ../$7 .
+appdmg $7 $6
 echo "Notarizing DMG"
 xcrun notarytool submit --apple-id $3 --password $4 --team-id $5 --wait $6 | tee dmglog.txt
 xcrun notarytool log `ggrep -oP 'id: \K\S+' dmglog.txt | head -n 1` --apple-id $3 --password $4 --team-id $5
