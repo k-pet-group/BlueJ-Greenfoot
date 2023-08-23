@@ -16,7 +16,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Load .env file
-        uses: xom9ikk/dotenv@v1.0.2
+        uses: xom9ikk/dotenv@v2
       - name: Install Java
         uses: actions/setup-java@v3
         with:
@@ -73,7 +73,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Load .env file
-        uses: xom9ikk/dotenv@v1.0.2
+        uses: xom9ikk/dotenv@v2
       - name: Install Java
         uses: actions/setup-java@v3
         with:
@@ -116,7 +116,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Load .env file
-        uses: xom9ikk/dotenv@v1.0.2
+        uses: xom9ikk/dotenv@v2
       - name: Install Java
         uses: actions/setup-java@v3
         with:
