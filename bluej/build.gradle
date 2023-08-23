@@ -122,6 +122,7 @@ description = 'bluej'
 
 task packageBlueJMac(type: Exec) {
     workingDir "package"
+    environment JAVA_HOME: System.getProperty('java.home')
     commandLine toolProps["ant_exe"], "mac-dist",
         "-Dbuild_java_home=" + System.getProperty('java.home'),
         "-Dmac_bundled_jdk_path=" + System.getProperty('java.home'),
