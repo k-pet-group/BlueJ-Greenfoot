@@ -562,6 +562,7 @@
         <chmod perm="755" file="bluejdeb/DEBIAN/postrm" />
         <exec executable="dpkg-deb" searchpath="true">
             <arg value="-b" />
+            <arg value="-Zxz" />
             <arg file="bluejdeb" />
             <arg value="${dist.linux}-unbundled.deb" />
         </exec>
@@ -675,6 +676,7 @@
         <chmod perm="755" file="bluejdeb/DEBIAN/postrm" />
         <exec executable="dpkg-deb" searchpath="true">
             <arg value="-b" />
+            <arg value="-Zxz" />
             <arg file="bluejdeb" />
             <arg value="${dist.linux}.deb" />
         </exec>

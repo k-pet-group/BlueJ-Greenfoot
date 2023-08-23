@@ -554,6 +554,7 @@
         <chmod perm="755" file="gfdeb/DEBIAN/postrm" />
         <exec executable="dpkg-deb" searchpath="true">
             <arg value="-b" />
+            <arg value="-Zxz" />
             <arg file="gfdeb" />
             <arg value="Greenfoot-linux-unbundled-${greenfoot.version}${greenfoot.rcsuffix}.deb" />
         </exec>
@@ -688,6 +689,7 @@
         <chmod perm="755" file="gfdeb/DEBIAN/postrm" />
         <exec executable="dpkg-deb" searchpath="true">
             <arg value="-b" />
+            <arg value="-Zxz" />
             <arg file="gfdeb" />
             <arg value="Greenfoot-linux-${greenfoot.version}${greenfoot.rcsuffix}.deb" />
         </exec>
