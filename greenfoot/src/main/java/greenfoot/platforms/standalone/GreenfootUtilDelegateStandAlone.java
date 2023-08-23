@@ -271,15 +271,6 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
             socket = null;
             throw new GreenfootStorageException("Error connecting to storage server: " + e.getMessage());
         }
-        catch (AccessControlException ace) {
-            if (socket != null) {
-                try {
-                    socket.close();
-                }
-                catch (IOException ioe) {}
-                socket = null;
-            }
-        }
     }
     
     private ByteBuffer makeRequest(int plusBytes)
