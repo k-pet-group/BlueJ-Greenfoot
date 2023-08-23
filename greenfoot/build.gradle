@@ -144,7 +144,7 @@ task packageGreenfootMac(type: Exec) {
     environment JAVA_HOME: System.getProperty('java.home')
     commandLine toolProps["ant_exe"], "-buildfile", "greenfoot-build.xml", "mac-dist",
             "-Dbuild_java_home=" + System.getProperty('java.home'),
-            "-Dmac_bundled_jdk_path=" + System.getProperty('java.home') + "/../..",
+            "-Dmac_bundled_jdk_path=" + System.getProperty('java.home'),
             "-Dgreenfoot.version=" + greenfootVersion,
             "-Dgreenfoot.rcsuffix=" + greenfootRCSuffix,
             "-Dbluej_home=" + rootDir.getAbsoluteFile() + "/bluej/",

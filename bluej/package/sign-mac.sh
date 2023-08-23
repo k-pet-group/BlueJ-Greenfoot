@@ -8,6 +8,7 @@ set -e
 #   $3 - Apple ID for notarizing
 #   $4 - Password for notarizing (Apple-generated password, not the master password)
 #   $5 - Apple Team ID (available from developer profile page)
+#   $6 - dmg name
 
 echo '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict>    <key>com.apple.security.cs.allow-jit</key>    <true/>    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>    <true/>    <key>com.apple.security.cs.disable-executable-page-protection</key>    <true/>     <key>com.apple.security.cs.disable-library-validation</key><true/><key>com.apple.security.cs.allow-dyld-environment-variables</key>    <true/></dict></plist>' > entitlements.plist
 
@@ -25,14 +26,14 @@ chmod u+w $TOP_LEVEL/Contents/PlugIns/x64/Contents/Home/lib/server/*.jsa
 
 # Sign the executable:
 echo "Signing BlueJ executable..."
-codesign --verbose=4 --timestamp --options=runtime --deep -s "Developer ID Application: $1" --entitlements entitlements.plist "$TOP_LEVEL"/Contents/MacOS/BlueJ
+codesign --verbose=4 --timestamp --options=runtime --deep -s "Developer ID Application: $1" --entitlements entitlements.plist "$TOP_LEVEL"/Contents/MacOS/*
 echo "Signing BlueJ executable - done"
 
 # Sign whole thing together:
 echo "Signing package..."
 codesign --verbose=4 --timestamp --options=runtime --force -s "Developer ID Application: $1" --entitlements entitlements.plist "$TOP_LEVEL"
 echo "Verifying bundle"
-codesign --verify --deep --verbose=4 --strict "$TOP_LEVEL"/Contents/MacOS/BlueJ
+codesign --verify --deep --verbose=4 --strict "$TOP_LEVEL"/Contents/MacOS/*
 codesign --verify --deep --verbose=4 --strict "$TOP_LEVEL"
 
 spctl -a -t execute --ignore-cache -vv "$TOP_LEVEL" || echo " *** failed to sign or verify Mac bundle ***"
@@ -57,11 +58,11 @@ xcrun stapler staple $TOP_LEVEL
 echo ""
 echo "Packaging into DMG"
 cp ../appdmg.json .
-appdmg appdmg.json BlueJ-installer.dmg
+appdmg appdmg.json $6
 echo "Notarizing DMG"
-xcrun notarytool submit --apple-id $3 --password $4 --team-id $5 --wait BlueJ-installer.dmg | tee dmglog.txt
+xcrun notarytool submit --apple-id $3 --password $4 --team-id $5 --wait $6 | tee dmglog.txt
 xcrun notarytool log `ggrep -oP 'id: \K\S+' dmglog.txt | head -n 1` --apple-id $3 --password $4 --team-id $5
 echo "Stapling DMG"
-xcrun stapler staple BlueJ-installer.dmg
+xcrun stapler staple $6
 echo "Finished"
-mv BlueJ-installer.dmg ..
+mv $6 ..

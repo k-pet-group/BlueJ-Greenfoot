@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="greenfoot-package" default="dist">
+    <!-- appbundler built from https://github.com/TheInfiniteKind/appbundler -->
+    <taskdef name="bundleapp"
+             classpath="appbundler-20230419.jar"
+             classname="com.oracle.appbundler.AppBundlerTask"/>
 
     <import file="../shared.xml"/>
     
@@ -187,100 +191,72 @@
         </delete>
     </target>
 
-    <target name="mac-dist">
-        <antcall target="pre-dist" />
-        <delete dir="mac_tmp" />
-        
-        <!-- Create the directory which will be the top level directory when unzipped-->
-        <property name="zip_dir" location="mac_tmp/Greenfoot ${greenfoot.version}/" />
-        <mkdir dir="${zip_dir}" />
-        
-        <!-- Files in this list will get the executable attribute set -->
-        <property name="executable_files" value="**/PkgInfo,**/JavaApplicationStub" />
+    <target name="mac-dist" depends="pre-dist">
+        <!-- build the native launcher -->
+        <bundleapp
+                minimumSystemVersion="10.12"
+                jvmrequired="17"
+                jdkPreferred="true"
+                outputdirectory="."
+                name="Greenfoot"
+                displayname="Greenfoot"
+                executableName="Greenfoot"
+                identifier="org.greenfoot.Greenfoot"
+                shortversion="${greenfoot.version}"
+                version="${greenfoot.version}"
+                icon="../../greenfoot/resources/images/greenfoot.icns"
+                mainclassname="bluej.Boot">
+            <classpath file="openapp.jar"/>
+            <bundledocument extensions="greenfoot"
+                            name="Greenfoot project"
+                            role="Editor"/>
+            <bundledocument extensions="gfar"
+                            name="Greenfoot archive"
+                            role="Editor"/>
+            <runtime dir="${mac_bundled_jdk_path}"/>
+            <arch name="x86_64"/>
+            <environment name="JAVA_HOME" value="$APP_ROOT/Contents/PlugIns/x64/Contents/Home"/>
+            <option value="-Dapple.laf.useScreenMenuBar"/>
+            <option value="-Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2"/>
+            <option value="-Xmx512M" name="Xmx"/>
+            <!-- <option value="- -add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED"/> -->
+        </bundleapp>
+        <!-- We have to manually copy the lib directory ourselves because appbundler
+                    flattens the directory structure -->
 
-        <!-- Legacy build -->
-        <!-- copy the skeleton mac dir -->
-        <copy todir="${zip_dir}/Greenfoot.app">
-            <fileset dir="macfiles/Greenfoot-legacy.app"/> 
-        </copy>
-
-        <!-- update version number -->
-        <replaceregexp byline="true">
-            <regexp pattern="VERSION" />
-            <substitution expression="${greenfoot.version}" />
-            <fileset dir="${zip_dir}/Greenfoot.app/Contents" includes="Info.plist" />
-        </replaceregexp>
-        
-        <!-- construct the directory structure we want for the distribution -->
-        <copy todir="${zip_dir}" preservelastmodified="true">
-            <fileset dir="install_tmp"/>
-        </copy>
-        
-        <!-- The lib dir should not be in the root dir, so we move the contents to the proper mac-location -->
-        <move todir="${zip_dir}/Greenfoot.app/Contents/Resources/Java">
-            <fileset dir="${zip_dir}/lib/" />
-        </move>
-        <delete dir="${zip_dir}/Greenfoot.app/Contents/Resources/Java/lib" />
-
-        <copy todir="${zip_dir}/Greenfoot.app/Contents/Resources/Java/javafx" flatten="true">
-            <path>
-                <pathelement path="${openjfx_files}"/>
-            </path>
-        </copy>
-        <move todir="${zip_dir}/Greenfoot.app/Contents/Resources/Java/javafx">
-            <fileset dir="${zip_dir}/Greenfoot.app/Contents/Resources/Java/javafx"/>
-            <mapper>
-                <mapper type="regexp" from="javafx.([^-]*)-.*jar" to="javafx.\1.jar" />
-            </mapper>
-        </move>
-
-        <!-- Move the documentation into the app: -->
-        <move todir="${zip_dir}/Greenfoot.app/Contents/Resources">
-            <fileset dir="${zip_dir}">
-                <patternset refid="gfapidoc.files" />
+        <copy todir="Greenfoot.app/Contents/Java">
+            <fileset dir="${bluej_home}">
+                <patternset refid="bluej.libfiles" />
+                <patternset refid="bluej.libdirs" />
             </fileset>
-        </move>
-        <delete dir="${zip_dir}/doc" />
-        
-        <!-- Bundled JDK build -->
-        <!-- rename Greenfoot.app to Greenfoot-legacy.app -->
-        <move file="${zip_dir}/Greenfoot.app" tofile="${zip_dir}/Greenfoot-legacy.app" />
-            
-        <!-- copy the skeleton mac dir -->
-        <copy todir="${zip_dir}/Greenfoot.app" preservelastmodified="true">
-            <fileset dir="macfiles/Greenfoot.app"/>
+            <fileset dir="${bluej_home}/build/resources/main" >
+                <patternset refid="bluej.libfiles"/>
+            </fileset>
         </copy>
-
-        <!-- update version number -->
-        <replaceregexp byline="true">
-            <regexp pattern="VERSION" />
-            <substitution expression="${greenfoot.version}" />
-            <fileset dir="${zip_dir}/Greenfoot.app/Contents" includes="Info.plist" />
-        </replaceregexp>
-        
-        <!-- Move contents from legacy app to new app -->
-        <move file="${zip_dir}/Greenfoot-legacy.app/Contents/Resources/Java"
-            todir="${zip_dir}/Greenfoot.app/Contents/Resources" />
-        <move file="${zip_dir}/Greenfoot-legacy.app/Contents/Resources/doc"
-              todir="${zip_dir}/Greenfoot.app/Contents/Resources" />
-        
-        <!-- Remove the legacy app -->
-        <delete dir="${zip_dir}/Greenfoot-legacy.app" />
-
-        <property name="executable_files2" value="**/PkgInfo,**/JavaAppLauncher" />
-        <chmod perm="+x">
-            <fileset dir="${zip_dir}/Greenfoot.app/Contents" includes="${executable_files2}" />
+        <move todir="Greenfoot.app/Contents/Java">
+            <fileset dir="Greenfoot.app/Contents/Java/lib" />
+        </move>
+        <!-- We also have to copy the java executable in ourselves, as by default
+             appbundler doesn't do so -->
+        <mkdir dir="Greenfoot.app/Contents/PlugIns/x64/Contents/Home/bin"/>
+        <copy todir="Greenfoot.app/Contents/PlugIns/x64/Contents/Home/bin">
+            <file basedir="${mac_bundled_jdk_path}/bin" name="java/"/>
+        </copy>
+        <chmod perm="a+x">
+            <fileset dir="Greenfoot.app/Contents/PlugIns/x64/Contents/Home/bin" includes="java" />
         </chmod>
-        
+
+        <!-- codesign needs Internet connection to verify current time -->
+        <echo message="Signing and verifying bundle (NOTE: Internet connection is required to sign)"/>
         <chmod perm="+x" file="bundle-mac.sh" />
         <exec executable="bundle-mac.sh" resolveexecutable="true" outputproperty="bundleoutput">
-            <arg value="${zip_dir}" />
+            <arg value="Greenfoot.app" />
             <arg value="Greenfoot.app" />
             <arg value="${mac_bundled_jdk_path}" />
-            <arg value="../Greenfoot-mac-${greenfoot.version}${greenfoot.rcsuffix}.zip" />
+            <arg value="${basedir}/${dist.mac}" />
         </exec>
         <echo message="${bundleoutput}"/>
-        
+
         <delete dir="mac_tmp" />
         <antcall target="greenfoot-dist-cleanup" />
     </target>
