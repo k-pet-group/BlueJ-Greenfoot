@@ -191,7 +191,8 @@
         </delete>
     </target>
 
-    <target name="mac-dist" depends="pre-dist">
+    <target name="mac-dist">
+        <antcall target="pre-dist" />
         <!-- build the native launcher -->
         <bundleapp
                 minimumSystemVersion="10.12"
@@ -227,7 +228,7 @@
                     flattens the directory structure -->
 
         <copy todir="Greenfoot.app/Contents/Java">
-            <fileset dir="${bluej_home}">
+            <fileset dir="install_tmp">
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
             </fileset>
