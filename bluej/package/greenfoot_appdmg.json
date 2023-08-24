@@ -1,6 +1,6 @@
 {
   "title": "Greenfoot Installer",
-  "icon": "../../../greenfoot/resources/images/greenfoot.icns",
+  "icon": "greenfoot-installer-icon.icns",
   "background": "../greenfoot_installer_background.png",
   "window" : {
     "position": {

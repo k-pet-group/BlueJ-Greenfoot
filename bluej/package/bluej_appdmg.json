@@ -1,6 +1,6 @@
 {
   "title": "BlueJ Installer",
-  "icon": "../macfiles/bluej.icns",
+  "icon": "bluej-installer-icon.icns",
   "background": "../installer_background.png",
   "window" : {
     "position": {
