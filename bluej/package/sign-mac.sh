@@ -59,6 +59,10 @@ xcrun stapler staple $TOP_LEVEL
 echo ""
 echo "Packaging into DMG"
 cp ../$7 .
+cp ../$8 .
+chmod +x ../convert-png-to-icns.sh
+../convert-png-to-icns.sh $8
+rm $8
 appdmg $7 $6
 echo "Notarizing DMG"
 xcrun notarytool submit --apple-id $3 --password $4 --team-id $5 --wait $6 | tee dmglog.txt

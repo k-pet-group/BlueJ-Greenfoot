@@ -130,6 +130,7 @@ jobs:
       - name: Run setup
         run: |
           brew install grep
+          brew install imagemagick
           brew install npm && npm install -g appdmg
           cd ${{ github.workspace }}
           echo 'ant_exe=ant' > tools.properties
@@ -167,8 +168,8 @@ jobs:
           cd bluej/package
           mkdir tmpsign
           cd tmpsign
-          bash ../sign-mac.sh ${{ secrets.DEVELOPER_NAME }} ../BlueJ-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }} BlueJ-installer.dmg bluej_appdmg.json
-          bash ../sign-mac.sh ${{ secrets.DEVELOPER_NAME }} ../Greenfoot-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }} Greenfoot-installer.dmg greenfoot_appdmg.json
+          bash ../sign-mac.sh ${{ secrets.DEVELOPER_NAME }} ../BlueJ-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }} BlueJ-installer.dmg bluej_appdmg.json bluej-installer-icon.png
+          bash ../sign-mac.sh ${{ secrets.DEVELOPER_NAME }} ../Greenfoot-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }} Greenfoot-installer.dmg greenfoot_appdmg.json greenfoot-installer-icon.png
       - name: Archive BlueJ Mac installers
         uses: actions/upload-artifact@v3
         with:
