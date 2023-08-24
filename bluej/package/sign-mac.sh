@@ -10,6 +10,7 @@ set -e
 #   $5 - Apple Team ID (available from developer profile page)
 #   $6 - dmg name
 #   $7 - appdmg.json name
+#   $8 - installer icon name (minus png extension)
 
 echo '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict>    <key>com.apple.security.cs.allow-jit</key>    <true/>    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>    <true/>    <key>com.apple.security.cs.disable-executable-page-protection</key>    <true/>     <key>com.apple.security.cs.disable-library-validation</key><true/><key>com.apple.security.cs.allow-dyld-environment-variables</key>    <true/></dict></plist>' > entitlements.plist
 
@@ -59,10 +60,10 @@ xcrun stapler staple $TOP_LEVEL
 echo ""
 echo "Packaging into DMG"
 cp ../$7 .
-cp ../$8 .
+cp ../$8.png .
 chmod +x ../convert-png-to-icns.sh
 ../convert-png-to-icns.sh $8
-rm $8
+rm $8.png
 appdmg $7 $6
 echo "Notarizing DMG"
 xcrun notarytool submit --apple-id $3 --password $4 --team-id $5 --wait $6 | tee dmglog.txt
