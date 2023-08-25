@@ -6,6 +6,7 @@
              classname="com.oracle.appbundler.AppBundlerTask"/>
     <import file="../shared.xml"/>
     <property name="dist.mac" value="Greenfoot-mac-${greenfoot.version}${greenfoot.rcsuffix}.zip"/>
+    <property name="installer.jar" value="Greenfoot-generic-${greenfoot.version}${greenfoot.rcsuffix}.jar"/>
     
     <!-- Most of the targets in this build file are designed to be called from the
          main Greenfoot build.xml file, as they require variables defined by it. -->
@@ -168,7 +169,7 @@
         </javac>
 
         <!-- bundle the resulting class into the final distribution jar file -->
-        <jar jarfile="${bluej.installer.jar}"
+        <jar jarfile="${installer.jar}"
              basedir="install_tmp"
              compress="no"
              manifest="manifest"
