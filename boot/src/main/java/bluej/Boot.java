@@ -76,7 +76,7 @@ public class Boot
         "javafx-*.jar",
         "junit-*.jar", "hamcrest-*.jar", "opentest4j-*.jar", "bluej.jar",
         "classgraph-*.jar",
-        "diffutils-*.jar", "commons-logging-api-*.jar",
+        "diffutils-*.jar", "commons-logging*.jar",
         JLAYER_MP3_JAR, "opencsv-*.jar", "xom-*.jar",
         "lang-stride.jar",
         "nsmenufx-*.jar", "wellbehavedfx-*.jar",

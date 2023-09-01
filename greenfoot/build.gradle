@@ -13,6 +13,7 @@ dependencies {
     implementation 'au.com.bytecode:opencsv:2.4'
     implementation 'org.apache.httpcomponents:httpclient:4.1.1'
     implementation 'org.apache.httpcomponents:httpmime:4.1.1'
+    implementation 'commons-logging:commons-logging:1.2'
     implementation 'javazoom:jlayer:1.0.1'
 
     testCompileOnly project(':anns-threadchecker')
