@@ -57,11 +57,11 @@ public abstract class Extension
     /**
      * Obtains the minor version of the Extensions API.
      *
-     * @return An integer indicating the minor version of the Extensions API. Currently 3.
+     * @return An integer indicating the minor version of the Extensions API. Currently 4.
      */
     protected static final int getExtensionsAPIVersionMinor()
     {
-        return 3;
+        return 4;
     }
 
     /**
