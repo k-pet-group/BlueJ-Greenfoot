@@ -134,12 +134,6 @@ public final class ExtensionsMenuManager
         }
     }
 
-    @OnThread(Tag.Any)
-    private FXPlatformRunnable supplierToRunnable(FXPlatformSupplier<Menu> menuFXSupplier)
-    {
-        return () -> {menuFXSupplier.get();};
-    }
-
     private ObservableList<MenuItem> getItems()
     {
         if (popupMenu != null)
