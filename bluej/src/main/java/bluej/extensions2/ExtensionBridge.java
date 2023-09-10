@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2016,2019,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2016,2019,2021,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -89,15 +89,15 @@ public final class ExtensionBridge
         bClass.nameChanged(newName);
     }
 
-    public static MenuItem getMenuItem(BlueJ aBluej, ExtensionMenu attachedObject)
+    public static List<MenuItem> getMenuItems(BlueJ aBluej, ExtensionMenu attachedObject)
     {
-        return aBluej.getMenuItem(attachedObject);
+        return aBluej.getMenuItems(attachedObject);
     }
 
-    public static void postMenuItem(BlueJ aBluej, ExtensionMenu attachedObject,
-                                    MenuItem onThisItem)
+    public static void postMenuItems(BlueJ aBluej, ExtensionMenu attachedObject,
+                                     List<MenuItem> onTheseItems)
     {
-        aBluej.postMenuItem(attachedObject, onThisItem);
+        aBluej.postMenuItem(attachedObject, onTheseItems);
     }
 
     public static Project getProject(BProject bProject) throws ProjectNotOpenException

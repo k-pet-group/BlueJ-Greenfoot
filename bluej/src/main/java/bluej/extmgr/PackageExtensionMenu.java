@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2019,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,7 @@ import javafx.scene.control.MenuItem;
  * 
  * @author Simon Gerlach
  */
-public class PackageExtensionMenu implements ExtensionMenu
+public class PackageExtensionMenu implements ExtensionMenuSingle
 {
     private Package bluejPackage;
 

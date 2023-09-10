@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016,2018,2019,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2018,2019,2021,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -850,23 +850,20 @@ public final class BlueJ
     }
 
     /**
-     * Calls the extension to get the right menu item.
+     * Calls the extension to get the right menu item(s).
      * This is already wrapped for errors in the caller.
-     * It is right for it to create a new wrapped object each time.
-     * Extensions do not to share objects.
-     * It is here since it can access all constructors directly.
      *
      * @param  attachedObject  an {@link ExtensionMenu} object that will contain the generated {@link MenuItem}.
-     * @return                 The generated {@link MenuItem}, <code>null</code> if the extension has not installed any {@link MenuGenerator},
+     * @return                 The generated {@link MenuItem}s, <code>null</code> if the extension has not installed any {@link MenuGenerator},
      *                          or if the argument <code>attachedObject</code> is <code>null</code>.
      */
-    MenuItem getMenuItem(ExtensionMenu attachedObject)
+    List<MenuItem> getMenuItems(ExtensionMenu attachedObject)
     {
         if ((currentMenuGen == null) || (attachedObject == null)) {
             return null;
         }
 
-        return attachedObject.getMenuItem(currentMenuGen);
+        return attachedObject.getMenuItems(currentMenuGen);
     }
 
 
@@ -874,12 +871,12 @@ public final class BlueJ
      * Posts a notification of a menu going to be displayed
      *
      * @param  attachedObject  an {@link ExtensionMenu} object that contains extension generated {@link MenuItem} object.
-     * @param  onThisItem  an {@link MenuItem} object that triggered a call to this method.
+     * @param  onTheseItems  a list of {@link MenuItem} objects that are associated with this extension, that triggered a call to this method.
      */
-    void postMenuItem(ExtensionMenu attachedObject, MenuItem onThisItem)
+    void postMenuItem(ExtensionMenu attachedObject, List<MenuItem> onTheseItems)
     {
         if ((currentMenuGen != null) && (attachedObject != null)) {
-            attachedObject.postMenuItem(currentMenuGen, onThisItem);
+            attachedObject.postMenuItems(currentMenuGen, onTheseItems);
         }
     }
 

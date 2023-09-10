@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2019,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,8 @@ package bluej.extmgr;
 import bluej.extensions2.MenuGenerator;
 import javafx.scene.control.MenuItem;
 
+import java.util.List;
+
 /**
  * This interface provides methods for retrieving custom menu entries of an
  * extension and to notify it if a menu is about to show. Implementations of
@@ -34,14 +36,14 @@ import javafx.scene.control.MenuItem;
 public interface ExtensionMenu
 {
     /**
-     * Calls the extension to get a menu item.
+     * Calls the extension to get a list of menu items.
      * 
      * @param menuGenerator
      *            The {@link MenuGenerator} which creates the menu.
-     * @return The {@link MenuItem} the extension provides or <code>null</code>
+     * @return The {@link MenuItem}s the extension provides or empty list
      *         if it does not provide a menu entry.
      */
-    MenuItem getMenuItem(MenuGenerator menuGenerator);
+    List<MenuItem> getMenuItems(MenuGenerator menuGenerator);
 
     /**
      * Post a notification about a menu going to be displayed.
@@ -49,7 +51,7 @@ public interface ExtensionMenu
      * @param menuGenerator
      *            The {@link MenuGenerator} which creates the menu.
      * @param onThisItem
-     *            The {@link MenuItem} which is about to show.
+     *            The list of {@link MenuItem}s which are about to show, as previously returned by getMenuItems (it may not be the same list instance exactly, but it will have the same content in the same order).
      */
-    void postMenuItem(MenuGenerator menuGenerator, MenuItem onThisItem);
+    void postMenuItems(MenuGenerator menuGenerator, List<MenuItem> onThisItem);
 }

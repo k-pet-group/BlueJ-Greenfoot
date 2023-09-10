@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2014,2016,2018,2019,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2012,2013,2014,2016,2018,2019,2021,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -642,13 +642,14 @@ public class ExtensionWrapper
     /**
      *  Calls the EXTENSION getMenuItem in a safe way
      */
-    public MenuItem safeGetMenuItem(ExtensionMenu attachedObject)
+    public List<MenuItem> safeGetMenuItems(ExtensionMenu attachedObject)
     {
         if (extensionBluej == null) 
             return null;
 
         try {
-            return ExtensionBridge.getMenuItem(extensionBluej, attachedObject);
+            List<MenuItem> menuItems = ExtensionBridge.getMenuItems(extensionBluej, attachedObject);
+            return menuItems == null ? Collections.emptyList() : menuItems;
         }
         catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safeMenuGenGetMenuItem: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
@@ -660,13 +661,13 @@ public class ExtensionWrapper
     /**
      *  Calls the EXTENSION postMenuItem in a safe way
      */
-    public void safePostMenuItem(ExtensionMenu attachedObject, MenuItem onThisItem)
+    public void safePostMenuItems(ExtensionMenu attachedObject, List<MenuItem> onTheseItems)
     {
         if (extensionBluej == null) 
             return;
 
         try {
-            ExtensionBridge.postMenuItem(extensionBluej, attachedObject, onThisItem );
+            ExtensionBridge.postMenuItems(extensionBluej, attachedObject, onTheseItems);
         }
         catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safePostGenGetMenuItem: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
