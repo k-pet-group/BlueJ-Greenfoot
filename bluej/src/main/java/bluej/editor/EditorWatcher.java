@@ -31,6 +31,7 @@ import bluej.compiler.CompileType;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.pkgmgr.Package;
 import bluej.stride.generic.Frame;
+import javafx.scene.control.ContextMenu;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -201,4 +202,9 @@ public interface EditorWatcher
      * If in doubt, pass 0.
      */
     void showPreferences(int paneIndex);
+
+    default void addExtensionContextMenuItemsToJavaEditor(ContextMenu contextMenu)
+    {
+        // Default is to do nothing with the menu.  This is overridden by subclasses.
+    }
 }

@@ -40,7 +40,9 @@ import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions2.*;
 import bluej.extensions2.event.ClassEvent;
+import bluej.extmgr.ExtensionMenu;
 import bluej.extmgr.ExtensionsManager;
+import bluej.extmgr.ExtensionsMenuManager;
 import bluej.parser.ParseFailure;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
@@ -80,7 +82,9 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
@@ -2732,6 +2736,28 @@ public class ClassTarget extends DependentTarget
     public void showingInterface(boolean showing)
     {
         this.showingInterface = showing;
+    }
+
+    @Override
+    public void addExtensionContextMenuItemsToJavaEditor(ContextMenu contextMenu)
+    {
+        if (getBClass() == null)
+            return; // Can't do anything if no class
+        new ExtensionsMenuManager(contextMenu, ExtensionsManager.getInstance(), new ExtensionMenu()
+        {
+            @Override
+            public List<MenuItem> getMenuItems(MenuGenerator menuGenerator)
+            {
+                List<MenuItem> editorContextMenuItems = menuGenerator.getJavaEditorContextMenuItems(getBClass());
+                return editorContextMenuItems == null || editorContextMenuItems.isEmpty() ? Collections.emptyList() : new ArrayList<>(editorContextMenuItems);
+            }
+
+            @Override
+            public void postMenuItems(MenuGenerator menuGenerator, List<MenuItem> onThisItem)
+            {
+                menuGenerator.notifyPostJavaEditorContextMenu(getBClass(), onThisItem);
+            }
+        }).addExtensionMenu(getPackage().getProject());
     }
 
     @Override
