@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2012,2013,2014,2016,2017,2019,2021,2022  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2012,2013,2014,2016,2017,2019,2021,2022,2023  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -94,6 +94,7 @@ public class EditorParser extends JavaParser
     
     private boolean gotExtends = false;
     private boolean gotImplements = false;
+    private boolean gotPermits = false;
     
     private boolean gotNewType = true;  // whether we've seen the type in a "new TYPE(..." expression,
         // assuming we're in such an expression. (If false, we have seen new, but not the type).
@@ -577,6 +578,7 @@ public class EditorParser extends JavaParser
         top.setImplementedTypes(implementedTypes);
         gotExtends = false;
         gotImplements = false;
+        gotPermits = false;
         
         TypeInnerNode bodyNode = new TypeInnerNode(scopeStack.peek());
         bodyNode.setInner(true);
@@ -898,6 +900,7 @@ public class EditorParser extends JavaParser
         innermostType = innermostType.getContainingClass();
         gotExtends = false;
         gotImplements = false;
+        gotPermits = false;
     }
     
     @Override
@@ -1084,6 +1087,10 @@ public class EditorParser extends JavaParser
             if (supert != null) {
                 implementedTypes.add(supert);
             }
+        }
+        else if (gotPermits)
+        {
+            // Currently, do nothing with this
         }
         else if (! gotNewType) {
             gotNewType = true;
@@ -1323,6 +1330,7 @@ public class EditorParser extends JavaParser
     {
         gotExtends = true;
         gotImplements = false;
+        gotPermits = false;
     }
     
     @Override
@@ -1330,6 +1338,15 @@ public class EditorParser extends JavaParser
     {
         gotImplements = true;
         gotExtends = false;
+        gotPermits = false;
+    }
+
+    @Override
+    protected void beginTypeDefPermits(LocatableToken permitsToken)
+    {
+        gotImplements = false;
+        gotExtends = false;
+        gotPermits = true;
     }
 
     @Override
