@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2014,2016,2023  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -120,6 +120,7 @@ public class InfoParser extends EditorParser
     
     private boolean gotExtends; // next type spec is the superclass/superinterfaces
     private boolean gotImplements; // next type spec(s) are interfaces
+    private boolean gotPermits;
     private List<Selection> interfaceSelections;
     private Selection lastCommaSelection;
 
@@ -393,6 +394,7 @@ public class InfoParser extends EditorParser
         classLevel++;
         gotExtends = false;
         gotImplements = false;
+        gotPermits = false;
     }
     
     @Override
@@ -414,7 +416,7 @@ public class InfoParser extends EditorParser
         EntityResolver resolver = new PositionedResolver(scopeStack.peek(), tokpos - topOffset);
         
         JavaEntity tentity = ParseUtils.getTypeEntity(resolver, currentQuerySource(), tokens);
-        if (tentity != null && ! gotExtends && ! gotImplements) {
+        if (tentity != null && ! gotExtends && ! gotImplements && !gotPermits) {
             typeReferences.add(tentity);
         }
         
@@ -628,6 +630,7 @@ public class InfoParser extends EditorParser
         super.gotTypeDefName(nameToken);
         gotExtends = false; // haven't seen "extends ..." yet
         gotImplements = false;
+        gotPermits = false;
         if (classLevel == 0) {
             if (info == null || isPublic && !info.foundPublicClass()) {
                 info = new ClassInfo();
@@ -683,10 +686,20 @@ public class InfoParser extends EditorParser
         if (classLevel == 0 && storeCurrentClassInfo) {
             gotExtends = false;
             gotImplements = true;
+            gotPermits = false;
             interfaceSelections = new LinkedList<Selection>();
             interfaceSelections.add(getSelection(implementsToken));
             interfaceEntities = new LinkedList<JavaEntity>();
         }
+    }
+
+    @Override
+    protected void beginTypeDefPermits(LocatableToken permitsToken)
+    {
+        super.beginTypeDefPermits(permitsToken);
+        gotExtends = false;
+        gotImplements = false;
+        gotPermits = true;
     }
 
     @Override
