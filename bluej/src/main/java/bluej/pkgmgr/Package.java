@@ -1723,16 +1723,15 @@ public final class Package
             while (! queue.isEmpty()) {
                 ClassTarget head = queue.remove(0);
 
-                for (Dependency d : head.dependencies()) {
-                    if (!(d.getTo() instanceof ClassTarget)) {
-                        continue;
-                    }
-
-                    ClassTarget to = (ClassTarget) d.getTo();
-                    if (!to.isCompiled() && ! to.isQueued() && toCompile.add(to)) {
-                        to.ensureSaved();
-                        to.setQueued(true);
-                        queue.add(to);
+                for (DependentTarget dependency : head.dependencies())
+                {
+                    if (dependency instanceof ClassTarget to)
+                    {
+                        if (!to.isCompiled() && ! to.isQueued() && toCompile.add(to)) {
+                            to.ensureSaved();
+                            to.setQueued(true);
+                            queue.add(to);
+                        }
                     }
                 }
             }
@@ -3040,9 +3039,9 @@ public final class Package
         while (!toCalculate.isEmpty())
         {
             ClassTarget t = toCalculate.removeFirst();
-            for (Dependency d : t.dependencies())
+            for (DependentTarget dependency : t.dependencies())
             {
-                ClassTarget to = (ClassTarget) d.getTo();
+                ClassTarget to = (ClassTarget) dependency;
                 // If it's a dependency we haven't encountered before, we'll also
                 // need to calculate its dependencies:
                 if (dependencies.add(to))

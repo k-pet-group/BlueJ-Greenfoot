@@ -1004,9 +1004,9 @@ public class ClassTarget extends DependentTarget
         
         alreadyInvalidated.add(this);
         
-        for (Dependency d : dependents())
+        for (DependentTarget d : dependents())
         {
-            ClassTarget dependent = (ClassTarget) d.getFrom();
+            ClassTarget dependent = (ClassTarget) d;
             
             if (dependent.hasSourceCode() && !alreadyInvalidated.contains(dependent))
             {

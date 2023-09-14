@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2016,2017,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2016,2017,2019,2020,2021,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,8 @@ package bluej.pkgmgr.target;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
@@ -205,22 +207,29 @@ public abstract class DependentTarget extends EditableTarget
         }
     }
 
+    /**
+     * Returns the collection of all classes that this class is dependent upon.
+     * For example, if this class has a field of type Foo, Foo will be in this list.
+     */
     @OnThread(Tag.Any)
-    public synchronized Collection<Dependency> dependencies()
+    public final synchronized Collection<DependentTarget> dependencies()
     {
-        List<Dependency> d = new ArrayList<>();
-        d.addAll(parents);
-        d.addAll(outUses);
-        return d;
+        return Stream.concat(parents.stream(), outUses.stream())
+            .map(Dependency::getTo)
+            .collect(Collectors.toList());
     }
 
+    /**
+     * Returns the collection of all classes that depend on this class.
+     * For example, if a class Foo has a field of the type of this class,
+     * Foo will be in the list.
+     */
     @OnThread(Tag.Any)
-    public synchronized Collection<Dependency> dependents()
+    public final synchronized Collection<DependentTarget> dependents()
     {
-        List<Dependency> d = new ArrayList<>();
-        d.addAll(children);
-        d.addAll(inUses);
-        return d;
+        return Stream.concat(children.stream(), inUses.stream())
+            .map(Dependency::getFrom)
+            .collect(Collectors.toList());
     }
     
     /**
