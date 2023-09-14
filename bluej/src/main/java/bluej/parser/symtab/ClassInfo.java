@@ -55,7 +55,6 @@ public final class ClassInfo
     private String superclass;
 
     private List<String> implemented = new ArrayList<String>();
-    private List<String> imported = new ArrayList<String>();
     private List<String> used = new ArrayList<String>();
     private List<SavedComment> comments = new LinkedList<SavedComment>();
     
