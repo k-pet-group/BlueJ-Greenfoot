@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2015,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2015,2016,2017,2019,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,12 +47,6 @@ public class UsesDependency extends Dependency
     public UsesDependency(Package pkg, DependentTarget from, DependentTarget to)
     {
         super(pkg, from, to);
-    }
-
-    @OnThread(Tag.Any)
-    public UsesDependency(Package pkg)
-    {
-        this(pkg, (DependentTarget)null, null);
     }
 
     @OnThread(Tag.Any)

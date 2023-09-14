@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2015,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2015,2016,2019,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,11 +40,6 @@ public class ExtendsDependency extends Dependency
     public ExtendsDependency(Package pkg, DependentTarget from, DependentTarget to)
     {
         super(pkg, from, to);
-    }
-
-    public ExtendsDependency(Package pkg)
-    {
-        this(pkg, null, null);
     }
 
     @OnThread(Tag.FXPlatform)

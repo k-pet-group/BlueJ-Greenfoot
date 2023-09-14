@@ -54,6 +54,7 @@ import bluej.pkgmgr.*;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
+import bluej.pkgmgr.dependency.PermitsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.actions.*;
 import bluej.pkgmgr.target.role.AbstractClassRole;
@@ -1004,9 +1005,9 @@ public class ClassTarget extends DependentTarget
         
         alreadyInvalidated.add(this);
         
-        for (Dependency d : dependents())
+        for (DependentTarget d : dependents())
         {
-            ClassTarget dependent = (ClassTarget) d.getFrom();
+            ClassTarget dependent = (ClassTarget) d;
             
             if (dependent.hasSourceCode() && !alreadyInvalidated.contains(dependent))
             {
@@ -1840,6 +1841,17 @@ public class ClassTarget extends DependentTarget
             {
                 UsesDependency dependency = new UsesDependency(getPackage(), this, used);
                 getPackage().addDependency(dependency);
+            }
+        }
+
+        // handle permits classes
+        vect = info.getPermits();
+        for (Iterator<String> it = vect.iterator(); it.hasNext();) {
+            String name = it.next();
+            DependentTarget permits = getPackage().getDependentTarget(name);
+            if (permits != null)
+            {
+                getPackage().addDependency(new PermitsDependency(getPackage(), this, permits));
             }
         }
     }

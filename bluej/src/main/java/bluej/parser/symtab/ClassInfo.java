@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2013,2014,2016,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -55,8 +55,9 @@ public final class ClassInfo
     private String superclass;
 
     private List<String> implemented = new ArrayList<String>();
-    private List<String> imported = new ArrayList<String>();
     private List<String> used = new ArrayList<String>();
+    
+    private List<String> permits = new ArrayList<>();
     private List<SavedComment> comments = new LinkedList<SavedComment>();
     
     private List<String> typeParameterTexts = new ArrayList<String>();
@@ -158,18 +159,18 @@ public final class ClassInfo
             implemented.add(name);
         }
     }
-    
-    public void addImported(String name)
+
+    public void addPermits(String name)
     {
         if(name.equals(this.name)) {
             return;
         }
-    
-        if(!imported.contains(name)) {
-            imported.add(name);
+
+        if(!permits.contains(name)) {
+            permits.add(name);
         }
     }
-
+    
     public void addUsed(String name)
     {
         if(name.equals(this.name)) {
@@ -477,6 +478,15 @@ public final class ClassInfo
         return used;
     }
 
+    /**
+     * Get the list of classes in the permits clause, if any (a list of String).
+     * Returns an empty list if there are none.
+     */
+    public List<String> getPermits()
+    {
+        return permits;
+    }
+
     public Properties getComments()
     {
         Properties props = new SortedProperties();
@@ -518,32 +528,5 @@ public final class ClassInfo
     public boolean hadParseError()
     {
         return hadParseError;
-    }
-
-    public void print()
-    {
-        System.out.println();
-        System.out.println("superclass: " + superclass);
-
-        System.out.println();
-        System.out.println("implements:");
-        Iterator<String> it = implemented.iterator();
-        while(it.hasNext()) {
-            System.out.println("   " + it.next());
-        }
-
-        System.out.println();
-        System.out.println("uses:");
-        it = used.iterator();
-        while(it.hasNext()) {
-            System.out.println("   " + it.next());
-        }
-
-        System.out.println();
-        System.out.println("imports:");
-        it = imported.iterator();
-        while(it.hasNext()) {
-            System.out.println("   " + it.next());
-        }
     }
 }
