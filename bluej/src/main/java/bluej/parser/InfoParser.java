@@ -28,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -94,6 +95,7 @@ public class InfoParser extends EditorParser
     
     private List<JavaEntity> interfaceEntities;
     //private List<Selection> interfaceSelections;
+    private List<JavaEntity> permitsEntities;
     
     /** Represents a method description */
     class MethodDesc
@@ -318,6 +320,19 @@ public class InfoParser extends EditorParser
                 info.addImplements(""); // gap filler
             }
         }
+        if (permitsEntities != null && !permitsEntities.isEmpty()) {
+            for (JavaEntity permitsEnt : permitsEntities) {
+                TypeEntity iEnt = permitsEnt.resolveAsType();
+                if (iEnt != null) {
+                    GenTypeClass iType = iEnt.getType().asClass();
+                    if (iType != null) {
+                        info.addPermits(iType.getReflective().getName());
+                        continue;
+                    }
+                }
+                info.addPermits(""); // gap filler
+            }
+        }
     }
     
     /**
@@ -458,6 +473,13 @@ public class InfoParser extends EditorParser
                     info.setExtendsInsertSelection(new Selection(interfaceSel.getEndLine(),
                             interfaceSel.getEndColumn()));
                 }
+            }
+        }
+        else if (gotPermits)
+        {
+            JavaEntity permitsEnt = ParseUtils.getTypeEntity(scopeStack.get(0), null, tokens);
+            if (permitsEnt != null) {
+                permitsEntities.add(permitsEnt);
             }
         }
     }
@@ -700,6 +722,7 @@ public class InfoParser extends EditorParser
         gotExtends = false;
         gotImplements = false;
         gotPermits = true;
+        permitsEntities = new ArrayList<>();
     }
 
     @Override

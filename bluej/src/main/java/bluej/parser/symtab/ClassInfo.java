@@ -56,6 +56,8 @@ public final class ClassInfo
 
     private List<String> implemented = new ArrayList<String>();
     private List<String> used = new ArrayList<String>();
+    
+    private List<String> permits = new ArrayList<>();
     private List<SavedComment> comments = new LinkedList<SavedComment>();
     
     private List<String> typeParameterTexts = new ArrayList<String>();
@@ -155,6 +157,17 @@ public final class ClassInfo
 
         if(!implemented.contains(name)) {
             implemented.add(name);
+        }
+    }
+
+    public void addPermits(String name)
+    {
+        if(name.equals(this.name)) {
+            return;
+        }
+
+        if(!permits.contains(name)) {
+            permits.add(name);
         }
     }
     
@@ -463,6 +476,15 @@ public final class ClassInfo
     public List<String> getUsed()
     {
         return used;
+    }
+
+    /**
+     * Get the list of classes in the permits clause, if any (a list of String).
+     * Returns an empty list if there are none.
+     */
+    public List<String> getPermits()
+    {
+        return permits;
     }
 
     public Properties getComments()
