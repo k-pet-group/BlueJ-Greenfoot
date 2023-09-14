@@ -69,6 +69,9 @@ public abstract class DependentTarget extends EditableTarget
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<Dependency> children;
 
+    @OnThread(value = Tag.Any, requireSynchronized = true)
+    private List<PermitsDependency> permits;
+
     @OnThread(value = Tag.Any,requireSynchronized = true)
     protected DependentTarget assoc;
 
@@ -85,6 +88,7 @@ public abstract class DependentTarget extends EditableTarget
         outUses = new ArrayList<>();
         parents = new ArrayList<>();
         children = new ArrayList<>();
+        permits = new ArrayList<>();
 
         assoc = null;
     }
@@ -158,6 +162,10 @@ public abstract class DependentTarget extends EditableTarget
                 return;
             parents.add(d);
         }
+        else if (d instanceof PermitsDependency pd) {
+            if (!permits.contains(pd))
+                permits.add(pd);
+        }
     }
 
     @OnThread(Tag.FXPlatform)
@@ -227,9 +235,13 @@ public abstract class DependentTarget extends EditableTarget
     @OnThread(Tag.Any)
     public final synchronized Collection<DependentTarget> dependents()
     {
-        return Stream.concat(children.stream(), inUses.stream())
-            .map(Dependency::getFrom)
-            .collect(Collectors.toList());
+        // For children and inUses, we depend on the From in the dependency.
+        // Permits dependencies are weird because we make the To depend on the From (which will be us).
+        return Stream.concat(
+                Stream.concat(children.stream(), inUses.stream())
+                    .map(Dependency::getFrom),
+                permits.stream().map(Dependency::getTo)
+            ).collect(Collectors.toList());
     }
     
     /**

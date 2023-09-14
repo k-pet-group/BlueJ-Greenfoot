@@ -70,7 +70,9 @@ public abstract class Dependency
         /** Represents an extends-dependency */
         EXTENDS,
         /** Represents an implements-dependency */
-        IMPLEMENTS;
+        IMPLEMENTS,
+        /** Represents a permits-dependency */
+        PERMITS;
     }
 
     @OnThread(Tag.Any)
