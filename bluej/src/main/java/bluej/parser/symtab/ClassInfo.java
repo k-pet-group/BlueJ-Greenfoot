@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2013,2014,2016,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -159,17 +159,6 @@ public final class ClassInfo
         }
     }
     
-    public void addImported(String name)
-    {
-        if(name.equals(this.name)) {
-            return;
-        }
-    
-        if(!imported.contains(name)) {
-            imported.add(name);
-        }
-    }
-
     public void addUsed(String name)
     {
         if(name.equals(this.name)) {
@@ -518,32 +507,5 @@ public final class ClassInfo
     public boolean hadParseError()
     {
         return hadParseError;
-    }
-
-    public void print()
-    {
-        System.out.println();
-        System.out.println("superclass: " + superclass);
-
-        System.out.println();
-        System.out.println("implements:");
-        Iterator<String> it = implemented.iterator();
-        while(it.hasNext()) {
-            System.out.println("   " + it.next());
-        }
-
-        System.out.println();
-        System.out.println("uses:");
-        it = used.iterator();
-        while(it.hasNext()) {
-            System.out.println("   " + it.next());
-        }
-
-        System.out.println();
-        System.out.println("imports:");
-        it = imported.iterator();
-        while(it.hasNext()) {
-            System.out.println("   " + it.next());
-        }
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2015,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2015,2016,2019,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,20 +22,15 @@
 package bluej.pkgmgr.dependency;
 
 import bluej.Config;
-import bluej.extensions2.ExtensionBridge;
-import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.DependentTarget;
 import bluej.pkgmgr.target.Target;
-import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * A dependency between two targets in a package.
@@ -84,12 +79,6 @@ public abstract class Dependency
         this.from = from;
         this.to = to;
         this.pkg = pkg;
-    }
-
-    @OnThread(Tag.Any)
-    public Dependency(Package pkg)
-    {
-        this(pkg, (DependentTarget)null, null);
     }
 
     @Override
