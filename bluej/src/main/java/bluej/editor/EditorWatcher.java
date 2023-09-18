@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2020,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,7 @@ import bluej.compiler.CompileType;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.pkgmgr.Package;
 import bluej.stride.generic.Frame;
+import javafx.scene.control.ContextMenu;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -201,4 +202,9 @@ public interface EditorWatcher
      * If in doubt, pass 0.
      */
     void showPreferences(int paneIndex);
+
+    default void addExtensionContextMenuItemsToJavaEditor(ContextMenu contextMenu)
+    {
+        // Default is to do nothing with the menu.  This is overridden by subclasses.
+    }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2016,2019,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2012,2013,2016,2019,2021,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -359,14 +359,16 @@ public class ExtensionsManager
                     continue;
                 }
     
-                MenuItem anItem = aWrapper.safeGetMenuItem(attachedObject);
-                if (anItem == null) {
+                List<MenuItem> items = aWrapper.safeGetMenuItems(attachedObject);
+                if (items == null || items.isEmpty()) {
                     continue;
                 }
-    
-                anItem.getProperties().put("bluej.extmgr.ExtensionWrapper", aWrapper);
-    
-                menuItems.add(anItem);
+
+                for (MenuItem item : items)
+                {
+                    item.getProperties().put("bluej.extmgr.ExtensionWrapper", aWrapper);
+                    menuItems.add(item);
+                }
             }
         }
 

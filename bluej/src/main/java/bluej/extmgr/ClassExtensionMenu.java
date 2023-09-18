@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2016,2019,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,7 +35,7 @@ import threadchecker.Tag;
  * 
  * @author Simon Gerlach
  */
-public class ClassExtensionMenu implements ExtensionMenu
+public class ClassExtensionMenu implements ExtensionMenuSingle
 {
     private final ClassTarget classTarget;
 

@@ -549,6 +549,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             getActions().getActionByName("copy-to-clipboard").makeContextMenuItem(Config.getString("editor.copyLabel")),
             getActions().getActionByName("paste-from-clipboard").makeContextMenuItem(Config.getString("editor.pasteLabel"))
         );
+        // watcher is null for plain text files, and during testing:
+        if (watcher != null)
+        {
+            watcher.addExtensionContextMenuItemsToJavaEditor(this.editorContextMenu);
+        }
 
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), s -> {
             javaSyntaxView.fontSizeChanged();

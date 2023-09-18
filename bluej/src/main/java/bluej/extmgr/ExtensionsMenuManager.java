@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2012,2013,2016,2019,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,9 +22,6 @@
 package bluej.extmgr;
 
 import bluej.pkgmgr.Project;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXPlatformSupplier;
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.control.ContextMenu;
@@ -35,6 +32,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 
 
@@ -134,12 +132,6 @@ public final class ExtensionsMenuManager
         }
     }
 
-    @OnThread(Tag.Any)
-    private FXPlatformRunnable supplierToRunnable(FXPlatformSupplier<Menu> menuFXSupplier)
-    {
-        return () -> {menuFXSupplier.get();};
-    }
-
     private ObservableList<MenuItem> getItems()
     {
         if (popupMenu != null)
@@ -160,9 +152,10 @@ public final class ExtensionsMenuManager
         // Take copy to iterate because we're doing removal:
         final ObservableList<MenuItem> items = getItems();
         ArrayList<MenuItem> popupMenuItems = new ArrayList<>(items);
-        for (MenuItem aComponent : popupMenuItems) {
+        IdentityHashMap<ExtensionWrapper, ArrayList<MenuItem>> itemsByExtension = new IdentityHashMap<>();
+        for (MenuItem menuItem : popupMenuItems) {
 
-            ExtensionWrapper aWrapper = (ExtensionWrapper) aComponent.getProperties().get(
+            ExtensionWrapper aWrapper = (ExtensionWrapper) menuItem.getProperties().get(
                     "bluej.extmgr.ExtensionWrapper");
 
             if (aWrapper == null) {
@@ -171,17 +164,21 @@ public final class ExtensionsMenuManager
 
             if (!aWrapper.isValid())
             {
-                items.remove(aComponent);
+                items.remove(menuItem);
             }
             else
             {
-                synchronized (this)
-                {
-                    aWrapper.safePostMenuItem(menuGenerator, aComponent);
-                }
+                itemsByExtension.computeIfAbsent(aWrapper, x -> new ArrayList<>()).add(menuItem);
             }
             itemsCount++;
         }
+
+        itemsByExtension.forEach((aWrapper, menuItems) -> {
+            synchronized (this)
+            {
+                aWrapper.safePostMenuItems(menuGenerator, menuItems);
+            }
+        });
 
         if (itemsCount <= 0) {
             items.remove(menuSeparator);

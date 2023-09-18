@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 1999-2009,2012,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2018,2019,2023  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -22,6 +22,9 @@
 package bluej.extensions2;
 
 import javafx.scene.control.MenuItem;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Extensions which wish to add a menu item to BlueJ's menus should register an
@@ -66,7 +69,7 @@ public class MenuGenerator
      * should not retain references to the menu items created.
      *
      * @param bPackage a {@link BPackage} object wrapping the BlueJ package with which this menu item will be associated.
-     * @return This method should return a {@link MenuItem} object to be added to the Ppackage menu for this extensions, <code>null</code> is returned by default.
+     * @return This method should return a {@link MenuItem} object to be added to the Package menu for this extensions, <code>null</code> is returned by default.
      */
     public MenuItem getPackageMenuItem(BPackage bPackage)
     {
@@ -93,6 +96,17 @@ public class MenuGenerator
     public MenuItem getObjectMenuItem(BObject bObject)
     {
         return null;
+    }
+
+    /**
+     * Returns the list of MenuItem to be added to the context menu in the Java editor.
+     * @param bClass The class being edited (which will be a Java class, at least when this method is called -- users can convert classes to Stride if they want, but the context menu will no longer show in the editor in that case).
+     * @return A list of 0, 1, or more MenuItem to be added to the context menu.  If you have many items, it may be better interface design to use a sub-menu (i.e. an instance of Menu).
+     * @since Extensions API 3.4 (BlueJ 5.2.1)
+     */
+    public List<MenuItem> getJavaEditorContextMenuItems(BClass bClass)
+    {
+        return Collections.emptyList();
     }
 
     /**
@@ -148,4 +162,16 @@ public class MenuGenerator
         return;
     }
 
+    /**
+     * Called by BlueJ when a Java editor context menu with items added by an extension is about to
+     * be displayed. An extension can use this notification to decide whether
+     * to enable/disable menu items and so on.
+     * @param bClass a {@link Class} object wrapping the Java class for which this menu is to be displayed.
+     * @param menuItems a list of {@link MenuItem} objects associated with this extension that are about to be be displayed (as provided by the
+     * extension in a previous call to {@link #getJavaEditorContextMenuItems(BClass)} for this class).
+     * @since Extensions API 3.4 (BlueJ 5.2.1)
+     */
+    public void notifyPostJavaEditorContextMenu(BClass bClass, List<MenuItem> menuItems)
+    {
+    }
 }
