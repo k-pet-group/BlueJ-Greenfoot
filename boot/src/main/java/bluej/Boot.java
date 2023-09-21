@@ -173,12 +173,70 @@ public class Boot
     }
 
     /**
+     * Get the URLs making up the JavaFX class path.
+     */
+    public URL[] getJavaFXClassPath()
+    {
+        // Ubuntu names its JARs differently, so the entire set of paths is passed in as a command-line argument:
+        String javafxJarsProp = commandLineProps.getProperty("javafxjars", null);
+        if (javafxJarsProp != null)
+        {
+            return Arrays.stream(javafxJarsProp.split(":")).map(s -> {
+                try
+                {
+                    return new File(s).toURI().toURL();
+                }
+                catch (MalformedURLException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }).toArray(URL[]::new);
+        }
+
+        File javafxLibPath = getJavaFXLibDir();
+
+        URL[] urls = new URL[javafxJars.length];
+        for (int i = 0; i < javafxJars.length; i++)
+        {
+            try
+            {
+                urls[i] = new File(javafxLibPath, javafxJars[i]).toURI().toURL();
+            }
+            catch (MalformedURLException e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+        return urls;
+    }
+
+    /**
+     * Gets the lib directory within the JavaFX installation.
+     */
+    public File getJavaFXLibDir()
+    {
+        String javafxPathProp = commandLineProps.getProperty("javafxpath", null);
+        File javafxPath;
+        if (javafxPathProp != null)
+        {
+            javafxPath = new File(javafxPathProp);
+        }
+        else
+        {
+            // If no javafxpath property passed, assume JavaFX is bundled
+            javafxPath = new File(getBluejLibDir(), "javafx");
+        }
+
+        return new File(javafxPath, "lib");
+    }
+
+    /**
      * Gets the path to the JavaFX src zip, which may or may not exist.
      * @return
      */
     public File getJavaFXSourcePath()
     {
-        File javafxLibPath = new File(getBluejLibDir(), "javafx");
+        File javafxLibPath = getJavaFXLibDir();
         File javafxSrcPath = new File(javafxLibPath, "src.zip");
         return javafxSrcPath;
     }
@@ -500,8 +558,8 @@ public class Boot
         javaHomeDir = new File(System.getProperty("java.home"));
 
         try {
-            runtimeClassPath = getKnownJars(getBluejLibDir(), runtimeJars);
-            runtimeUserClassPath = getKnownJars(getBluejLibDir(), userJars);
+            runtimeClassPath = getKnownJars(getBluejLibDir(), runtimeJars, false);
+            runtimeUserClassPath = getKnownJars(getBluejLibDir(), userJars, true);
         }
         catch (Exception exc) {
             exc.printStackTrace();
@@ -515,15 +573,11 @@ public class Boot
      * @param jars    the names of the jar files whose urls to add in the
      *                returned list
      * @param isForUserVM  True if any jar files required for the user VM should be included.
-     * @param numBuildJars  The number of jar files in the jars array which
-     *                  are built from the BlueJ source. If running from eclipse
-     *                  these can be replaced with a single entry - the classes
-     *                  directory.
-     * 
+     *
      * @return  URLs of the required JAR files
      * @exception  MalformedURLException  for any problems with the URLs
      */
-    private static URL[] getKnownJars(File libDir, String[] jars) 
+    private URL[] getKnownJars(File libDir, String[] jars, boolean isForUserVM)
         throws MalformedURLException
     {
         // by default, we require all our known jars to be present
@@ -564,7 +618,13 @@ public class Boot
                     urlList.add(toAdd.toURI().toURL());
             }
         }
-    
+
+        if (isForUserVM)
+        {
+            // Only need to specially add JavaFX for the user VM, it will
+            // already be on classpath for server VM:
+            urlList.addAll(Arrays.asList(getJavaFXClassPath()));
+        }
         return (URL[]) urlList.toArray(new URL[0]);
     }
     
