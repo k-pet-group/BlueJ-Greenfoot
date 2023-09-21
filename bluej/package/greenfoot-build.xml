@@ -113,7 +113,14 @@
             
         <copy tofile="install_tmp/README.TXT"
             file="${greenfoot_home}/doc/Greenfoot-README.txt" />
-        
+
+        <!-- Don't bundle JavaFX, user will need to install it themselves: -->
+        <delete>
+            <fileset dir="install_tmp/lib">
+                <include name="javafx*.jar"/>
+            </fileset>
+        </delete>
+
         <!-- jar the entire distribution into one jar file            -->
         <!-- (use zip instead of jar to avoid generation of manifest) -->
         <zip zipfile="greenfoot-dist.jar"

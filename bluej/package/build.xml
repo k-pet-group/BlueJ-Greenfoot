@@ -117,6 +117,15 @@
         </fixcrlf>
         
         <chmod dir="install_tmp" perm="a+r"/>
+
+        <!-- Don't bundle JavaFX, user will need to install it themselves: -->
+        <delete>
+            <fileset dir="install_tmp/lib">
+                <include name="javafx*.jar"/>
+            </fileset>
+        </delete>
+
+
         <!-- jar the entire distribution into one jar file            -->
         <!-- (use zip instead of jar to avoid generation of manifest) -->
         <zip zipfile="${dist.jar}"
