@@ -450,8 +450,9 @@ public final class Terminal
         // Try to remove lines like these two:
         //     Jan 23, 2023 12:09:30 PM com.sun.javafx.application.PlatformImpl startup
         //     WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @18be7add'
-        if (lines.removeIf(l -> l.trim().endsWith("com.sun.javafx.application.PlatformImpl startup") || 
-            l.startsWith("WARNING: Unsupported JavaFX configuration: classes were loaded from")))
+        //     WARNUNG: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @28f3d2a1'
+        if (lines.removeIf(l -> l.trim().endsWith("com.sun.javafx.application.PlatformImpl startup") ||    
+            l.contains("Unsupported JavaFX configuration: classes were loaded from")))
         {
             // No need to continue (and thus show the terminal window) if there's no new output to add:
             if (lines.isEmpty())
