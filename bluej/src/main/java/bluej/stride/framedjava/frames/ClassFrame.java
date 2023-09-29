@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022,2023 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -195,7 +195,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     //cherry
     public String getLocationDescription() {
         String text;
-        if (!nameProperty().get().isEmpty() && !nameProperty().get().equals("null")) {
+        if (nameProperty().get() != null && !nameProperty().get().isEmpty()) {
             text = " in the class " + nameProperty().get();
         }
         else {
