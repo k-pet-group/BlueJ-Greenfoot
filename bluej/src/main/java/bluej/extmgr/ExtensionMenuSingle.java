@@ -56,7 +56,11 @@ public interface ExtensionMenuSingle extends ExtensionMenu
     @Override
     default List<MenuItem> getMenuItems(MenuGenerator menuGenerator)
     {
-        return Collections.singletonList(getMenuItem(menuGenerator));
+        MenuItem menuItem = getMenuItem(menuGenerator);
+        if (menuItem != null)
+            return Collections.singletonList(menuItem);
+        else
+            return Collections.emptyList();
     }
 
     // Default implementation to work with a single menu item.  Do not override.

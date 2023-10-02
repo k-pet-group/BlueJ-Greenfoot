@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -260,7 +260,10 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
 
         // We put all the info in the graphic, so that we can use the graphic as a drag target:
         setText("");
-        Label titleLabel = new Label(initialSource.getName());
+        Label titleLabel = new Label();
+        // nameProperty will be updated after load, but it will also be read
+        // during load, so important we set it as early as we can:
+        nameProperty.set(initialSource.getName());
         titleLabel.textProperty().bind(nameProperty);
         HBox tabHeader = new HBox(titleLabel, makeClassGraphicIcon(imageProperty, 16, false));
         tabHeader.setAlignment(Pos.CENTER);

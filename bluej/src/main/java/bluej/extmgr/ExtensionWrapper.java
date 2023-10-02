@@ -640,7 +640,8 @@ public class ExtensionWrapper
 
 
     /**
-     *  Calls the EXTENSION getMenuItem in a safe way
+     *  Calls the EXTENSION getMenuItem in a safe way.
+     *  All items in returned list will be non-null
      */
     public List<MenuItem> safeGetMenuItems(ExtensionMenu attachedObject)
     {
@@ -649,7 +650,16 @@ public class ExtensionWrapper
 
         try {
             List<MenuItem> menuItems = ExtensionBridge.getMenuItems(extensionBluej, attachedObject);
-            return menuItems == null ? Collections.emptyList() : menuItems;
+            if (menuItems == null)
+            {
+                return Collections.emptyList();
+            }
+            else
+            {
+                menuItems = new ArrayList<>(menuItems);
+                menuItems.removeIf(m -> m == null);
+                return menuItems;
+            }
         }
         catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safeMenuGenGetMenuItem: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
