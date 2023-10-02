@@ -2355,7 +2355,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     @Override
     public ObservableStringValue nameProperty()
     {
-        Debug.printCallStack("Name for " + System.identityHashCode(this) + " is in property " + System.identityHashCode(nameProperty) + " with value " + nameProperty.get(), 3);
         // We don't just return the class frame's name property direct because
         // this method will get called by the constructor frame initialisation, before
         // the class frame has finished initialisation.  So nameProperty acts as a 
