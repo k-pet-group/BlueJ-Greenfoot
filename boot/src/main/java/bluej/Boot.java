@@ -216,18 +216,17 @@ public class Boot
     public File getJavaFXLibDir()
     {
         String javafxPathProp = commandLineProps.getProperty("javafxpath", null);
-        File javafxPath;
         if (javafxPathProp != null)
         {
-            javafxPath = new File(javafxPathProp);
+            return new File(new File(javafxPathProp), "lib");
         }
         else
         {
             // If no javafxpath property passed, assume JavaFX is bundled
-            javafxPath = new File(getBluejLibDir(), "javafx");
+            return new File(getBluejLibDir(), "javafx");
         }
 
-        return new File(javafxPath, "lib");
+
     }
 
     /**
