@@ -4,12 +4,12 @@
     <taskdef name="bundleapp"
              classpath="appbundler-20230419.jar"
              classname="com.oracle.appbundler.AppBundlerTask"/>
-
+    <import file="../shared.xml"/>
     <!-- Names of the the distributables created by the dist-target -->
     <property name="dist.jarinstaller" value="BlueJ-generic-${bluej.version}${bluej.rcsuffix}.jar"/>
     <property name="dist.jarinstaller.final" value="BlueJ-generic-${bluej.version}.jar"/>
-    <property name="dist.mac" value="BlueJ-mac-${bluej.version}${bluej.rcsuffix}.zip"/>
-    <property name="dist.mac.final" value="BlueJ-mac-${bluej.version}.zip"/>
+    <property name="dist.mac" value="BlueJ-mac-${bluej.version}${bluej.rcsuffix}.dmg"/>
+    <property name="dist.mac.final" value="BlueJ-mac-${bluej.version}.dmg"/>
 
     <property name="dist.linux" value="BlueJ-linux-${bluej.version}${bluej.rcsuffix}"/>
     <property name="dist.linux.final" value="BlueJ-linux-${bluej.version}"/>
@@ -313,6 +313,11 @@
         <delete dir="winsetup/standalone/greenfoot" failonerror="false"/>
         <delete dir="winsetup/standalone" includes="*.exe" />
         <unzip src="${dist.jar}" dest="winsetup/standalone/bluej" />
+        <copy todir="winsetup/standalone/bluej">
+            <fileset dir="${bluej_home}/build/resources/main">
+                <include name="lib/javafx*.jar"/>
+            </fileset>
+        </copy>
         <!-- make sure line endings are in windows format -->
         <fixcrlf srcdir="winsetup/standalone/bluej" eol="crlf" encoding="ISO-8859-1">
             <patternset refid="bluej.textfiles.iso88591" />
@@ -332,17 +337,6 @@
             <fileset dir="${win_bundled_jdk_path}" />
         </copy>
 
-        <copy todir="winsetup/standalone/bluej/lib/javafx" flatten="true">
-            <path>
-                <pathelement path="${openjfx_files}"/>
-            </path>
-        </copy>
-        <move todir="winsetup/standalone/bluej/lib/javafx">
-            <fileset dir="winsetup/standalone/bluej/lib/javafx"/>
-            <mapper>
-                <mapper type="regexp" from="javafx.([^-]*)-.*jar" to="javafx.\1.jar" />
-            </mapper>
-        </move>
 
         <!-- Fix the path to the JDK in bluej.defs -->
         <replaceregexp byline="true">
@@ -370,6 +364,11 @@
         <delete dir="winsetup/SourceDir" />
         <delete dir="winsetup" includes="*.wixobj" />
         <unzip src="${dist.jar}" dest="winsetup/SourceDir" />
+        <copy todir="winsetup/SourceDir">
+            <fileset dir="${bluej_home}/build/resources/main">
+                <include name="lib/javafx*.jar"/>
+            </fileset>
+        </copy>
 
         <!-- make sure line endings are in windows format -->
         <fixcrlf srcdir="winsetup/SourceDir" eol="crlf" encoding="ISO-8859-1">
@@ -414,6 +413,11 @@
         <delete dir="winsetup/SourceDir" />
         <delete dir="winsetup" includes="*.wixobj" />
         <unzip src="${dist.jar}" dest="winsetup/SourceDir" />
+        <copy todir="winsetup/SourceDir">
+            <fileset dir="${bluej_home}/build/resources/main">
+                <include name="lib/javafx*.jar"/>
+            </fileset>
+        </copy>
 
         <!-- make sure line endings are in windows format -->
         <fixcrlf srcdir="winsetup/SourceDir" eol="crlf" encoding="ISO-8859-1">
@@ -434,18 +438,6 @@
         <copy todir="winsetup/SourceDir/jdk">
             <fileset dir="${win_bundled_jdk_path}" />
         </copy>
-
-        <copy todir="winsetup/SourceDir/lib/javafx" flatten="true">
-            <path>
-                <pathelement path="${openjfx_files}"/>
-            </path>
-        </copy>
-        <move todir="winsetup/SourceDir/lib/javafx">
-            <fileset dir="winsetup/SourceDir/lib/javafx"/>
-            <mapper>
-                <mapper type="regexp" from="javafx.([^-]*)-.*jar" to="javafx.\1.jar" />
-            </mapper>
-        </move>
         
         <!-- The heat tool scans all the files in SourceDir and generates
              a WiX file that has all the XML needed for installing all those files -->
@@ -595,18 +587,6 @@
                 <patternset refid="bluej.libfiles"/>
             </fileset>
         </copy>
-        <mkdir dir="bluejdeb-lib-tmp/lib/javafx"/>
-        <copy todir="bluejdeb-lib-tmp/lib/javafx" flatten="true">
-            <path>
-                <pathelement path="${openjfx_files}"/>
-            </path>
-        </copy>
-        <move todir="bluejdeb-lib-tmp/lib/javafx">
-            <fileset dir="bluejdeb-lib-tmp/lib/javafx"/>
-            <mapper>
-                <mapper type="regexp" from="javafx.([^-]*)-.*jar" to="javafx.\1.jar" />
-            </mapper>
-        </move>
         
         <move todir="bluejdeb/usr/share/bluej">
             <fileset dir="bluejdeb-lib-tmp/lib">

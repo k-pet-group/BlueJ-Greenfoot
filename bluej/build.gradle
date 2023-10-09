@@ -160,5 +160,13 @@ task packageBlueJLinux(type: Exec) {
 }
 packageBlueJLinux.dependsOn assemble
 
+task urlsRC(type: Exec) {
+    workingDir "package"
+    commandLine toolProps["ant_exe"], "-S", "urls-rc",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Dbluej.version=" + bluejVersion,
+            "-Dbluej.rcsuffix=" + bluejRCSuffix
+}
+
 distTar.enabled = false
 distZip.enabled = false
