@@ -8,8 +8,8 @@
     <!-- Names of the the distributables created by the dist-target -->
     <property name="dist.jarinstaller" value="BlueJ-generic-${bluej.version}${bluej.rcsuffix}.jar"/>
     <property name="dist.jarinstaller.final" value="BlueJ-generic-${bluej.version}.jar"/>
-    <property name="dist.mac" value="BlueJ-mac-${bluej.version}${bluej.rcsuffix}.dmg"/>
-    <property name="dist.mac.final" value="BlueJ-mac-${bluej.version}.dmg"/>
+    <property name="dist.mac" value="BlueJ-mac-${bluej.version}${bluej.rcsuffix}"/>
+    <property name="dist.mac.final" value="BlueJ-mac-${bluej.version}"/>
 
     <property name="dist.linux" value="BlueJ-linux-${bluej.version}${bluej.rcsuffix}"/>
     <property name="dist.linux.final" value="BlueJ-linux-${bluej.version}"/>
@@ -272,7 +272,7 @@
             <arg value="BlueJ.app" />
             <arg value="BlueJ.app" />
             <arg value="${mac_bundled_jdk_path}" />
-            <arg value="${basedir}/${dist.mac}" />
+            <arg value="${basedir}/${dist.mac}.zip" />
         </exec>
         <echo message="${bundleoutput}"/>
 
@@ -731,7 +731,7 @@
 
     <target name="urls-rc">
         <echo message="Mac:"/>
-        <test_url system="bluej" filename="rc/${dist.mac}"/>
+        <test_url system="bluej" filename="rc/${dist.mac}.dmg"/>
         <echo message="Windows MSI:"/>
         <test_url system="bluej" filename="rc/${dist.win}.msi"/>
         <echo message="Windows ZIP:"/>
@@ -744,7 +744,7 @@
 
     <target name="urls-final">
         <echo message="Mac:"/>
-        <test_url system="bluej" filename="${dist.mac.final}"/>
+        <test_url system="bluej" filename="${dist.mac.final}.dmg"/>
         <echo message="Windows MSI:"/>
         <test_url system="bluej" filename="${dist.win.final}.msi"/>
         <echo message="Windows ZIP:"/>
