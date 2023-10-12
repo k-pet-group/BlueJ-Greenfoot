@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011,2012,2013,2014,2016,2019,2021  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2012,2013,2014,2016,2019,2021,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,6 +37,7 @@ import threadchecker.Tag;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -498,8 +499,6 @@ public class Simulation extends Thread
         // so we remember the first interrupted exception and throw it
         // when all the actors have acted.
         ActInterruptedException interruptedException = null;
-        
-        List<? extends Actor> objects = null;
 
         try
         {
@@ -516,8 +515,19 @@ public class Simulation extends Thread
         }
         // We need to make a copy so that the original collection can be
         // modified by the actors' act() methods.
-        objects = new ArrayList<Actor>(WorldVisitor.getObjectsListInActOrder(world));
-        for (Actor actor : objects)
+        // We decrement all actor's sleep counters and only include in the list
+        // those actors which should act this round.  That way, any changes to sleep
+        // will not take effect until the end of the full act cycle.
+        Collection<Actor> allObjects = WorldVisitor.getObjectsListInActOrder(world);
+        List<Actor> awakeObjects = new ArrayList<>(allObjects.size());
+        // This is awkward with streams because it's a map and filter, and we can't just filter
+        // because filter is not meant to modify anything, so just use a classic loop:
+        for (Actor possiblySleepingActor : allObjects)
+        {
+            if (ActorVisitor.decrementSleepForIfPositive(possiblySleepingActor))
+                awakeObjects.add(possiblySleepingActor);
+        }
+        for (Actor actor : awakeObjects)
         {
             if (!enabled)
             {

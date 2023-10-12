@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016,2018,2019,2021,2022  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016,2018,2019,2021,2022,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -111,6 +111,8 @@ public abstract class Actor
     private int imageWidth;
     /** Cached image hieght */
     private int imageHeight;
+    /** How many more act cycles the actor is sleeping for */
+    private int sleepingFor = 0;
 
     static {
         //Do this in a 'try' since a failure at this point will crash Greenfoot.
@@ -318,6 +320,31 @@ public abstract class Actor
     public void turn(int amount)
     {
         setRotation(rotation + amount);
+    }
+
+    /**
+     * Sets this actor to sleep for the given number of cycles.
+     *
+     * <p>A sleeping actor will not have act() called it on by the Greenfoot system as usual.
+     * So if you call sleepFor(1) then it will skip the next single act() call.  If you
+     * call sleepFor(3) then it will skip the next three, and so on.</p>
+     *
+     * <p>The actor can still be collided with, will still show in the world, and you can still
+     * manually call methods on it (including act(), if you wish, or sleepFor() if you wish
+     * to increase or cancel the sleep).</p>
+     *
+     * <p>If you call sleepFor() again, the latest value will replace the current one.
+     * So you can wake an actor up by calling sleepFor(0).  If you use a negative number such
+     * as -1, the actor will sleep indefinitely (unless sleepFor() is called again to replace
+     * the value).</p>
+     *
+     * @param sleepFor The number of future act cycles to skip acting, 0 to stop sleeping, or
+     *                 a negative number to sleep indefinitely.
+     * @since Greenfoot 3.8.1
+     */
+    public void sleepFor(int sleepFor)
+    {
+        setSleepingFor(sleepFor);
     }
     
     /**
@@ -1061,6 +1088,18 @@ public abstract class Actor
     final int getSequenceNumber()
     {
         return mySequenceNumber;
+    }
+
+    // package-visible, only to be called by ActorVisitor
+    final int getSleepingFor()
+    {
+        return sleepingFor;
+    }
+
+    // package-visible, only to be called by ActorVisitor
+    final void setSleepingFor(int sleepingFor)
+    {
+        this.sleepingFor = sleepingFor;
     }
 
     /**

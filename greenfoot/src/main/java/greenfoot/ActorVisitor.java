@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -166,4 +166,22 @@ public class ActorVisitor
     {
         actor.setLastPaintSeqNum(num);
     }
+
+    /**
+     * Decrements the sleep counter if it is positive, and returns whether the actor was awake.
+     * @param actor The actor to change the sleep counter for.
+     * @return Whether the actor was awake (sleep count == 0) before this method was called.
+     */
+    public static boolean decrementSleepForIfPositive(Actor actor)
+    {
+        int s = actor.getSleepingFor();
+        if (s > 0)
+        {
+            s -= 1;
+            actor.setSleepingFor(s);
+        }
+        // Has to be exactly zero.  Positive means we were (and maybe still are) counting down, negative means we are sleeping indefinitely.
+        return s == 0;
+    }
+
 }
