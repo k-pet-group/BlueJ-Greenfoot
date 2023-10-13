@@ -174,11 +174,13 @@ public class ActorVisitor
      */
     public static boolean decrementSleepForIfPositive(Actor actor)
     {
+        // If sleepFor is 1 (or higher), we will decrement it to zero but remain asleep.
+        // If we are zero or lower we will not decrement.
         int s = actor.getSleepingFor();
         if (s > 0)
         {
-            s -= 1;
-            actor.setSleepingFor(s);
+            // Important that we don't change s here, we base our return on the value before the decrement, not after.
+            actor.setSleepingFor(s - 1);
         }
         // Has to be exactly zero.  Positive means we were (and maybe still are) counting down, negative means we are sleeping indefinitely.
         return s == 0;
