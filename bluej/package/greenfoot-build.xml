@@ -99,6 +99,8 @@
             <fileset dir="${bluej_home}/package">
                 <patternset refid="greenfoot.scenarios" />
             </fileset>
+            <fileset dir="${greenfoot_home}" includes="common/**">
+            </fileset>
         </copy>
         <copy todir="install_tmp/doc" preservelastmodified="true">
             <fileset dir="${greenfoot_home}/doc">

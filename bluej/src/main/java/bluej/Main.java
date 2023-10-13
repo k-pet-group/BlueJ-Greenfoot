@@ -81,8 +81,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class Main
 {
-    private static final String MESSAGE_ROOT = "https://www.bluej.org/message/";
-    private static final String TESTING_MESSAGE_ROOT = "https://www.bluej.org/message_test/";
+    private static final String BLUEJ_MESSAGE_ROOT = "https://www.bluej.org/message/";
+    private static final String BLUEJ_TESTING_MESSAGE_ROOT = "https://www.bluej.org/message_test/";
+
+    private static final String GREENFOOT_MESSAGE_ROOT = "https://www.greenfoot.org/message/";
+    private static final String GREENFOOT_TESTING_MESSAGE_ROOT = "https://www.greenfoot.org/message_test/";
+
 
     /**
      * Only used on Mac.  For some reason, executing the AppleJavaExtensions open
@@ -116,8 +120,13 @@ public class Main
 
         CompletableFuture<Stage> futureMainWindow = new CompletableFuture<>();
         // Must do this after Config initialisation:
-        if (!Config.isGreenfoot())
-            new Thread(() -> fetchAndShowCentralMsg(PrefMgr.getFlag(PrefMgr.NEWS_TESTING) ?  TESTING_MESSAGE_ROOT : MESSAGE_ROOT, futureMainWindow), "Fetching news message").start();
+        new Thread(() ->
+            fetchAndShowCentralMsg(
+                PrefMgr.getFlag(PrefMgr.NEWS_TESTING) ?
+                    (Config.isGreenfoot() ? GREENFOOT_TESTING_MESSAGE_ROOT : BLUEJ_TESTING_MESSAGE_ROOT)
+                    : (Config.isGreenfoot() ? GREENFOOT_MESSAGE_ROOT : BLUEJ_MESSAGE_ROOT), futureMainWindow),
+            "Fetching news message"
+        ).start();
 
         if (guiHandler == null)
         {
