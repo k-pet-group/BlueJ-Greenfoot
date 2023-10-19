@@ -242,6 +242,7 @@
             <fileset dir="install_tmp">
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
+                <patternset refid="gfapidoc.files" />
             </fileset>
             <fileset dir="${bluej_home}/build/resources/main" >
                 <patternset refid="bluej.libfiles"/>
