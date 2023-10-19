@@ -1019,26 +1019,6 @@ public class Utility
         return orig.stream().filter(x -> x != null).collect(Collectors.toList());
     }
 
-    /**
-     * Tries to locate the top level greenfoot dir. This method takes the
-     * different platforms into account. Specifically the Mac has a different
-     * structure.
-     * 
-     * @throws IOException If it can't read the greenfoot dir.
-     * 
-     */
-    public static File getGreenfootDir()
-        throws IOException
-    {
-        File libDir = Config.getBlueJLibDir();
-        // The parent dir of the lib dir is the top level dir of greenfoot
-        File greenfootDir = libDir.getParentFile();
-        if (greenfootDir == null || !(greenfootDir.isDirectory() && greenfootDir.canRead())) {
-            throw new IOException("Could not read from greenfoot directory: " + greenfootDir);
-        }
-        return greenfootDir;
-    }
-
     public static String getGreenfootApiDocURL(String page) throws IOException,
             MalformedURLException
     {
@@ -1051,7 +1031,7 @@ public class Utility
         }
         else
         {
-            File greenfootDir = getGreenfootDir();
+            File greenfootDir = Config.getGreenfootLibDir();
             File location = new File(greenfootDir, "/doc/API/" + page);
             if (location.canRead()) {
                 customUrl = location.toURI().toURL().toString();

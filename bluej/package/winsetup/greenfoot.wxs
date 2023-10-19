@@ -5,7 +5,7 @@
      If you get a build failure here with a message about ${greenfoot-3.1.0} or similar not being a legal
       guid value, then it is because you failed to make a new GUID for this version: see the
       update-version-number task in ant for details on what to do. -->
-<Product Version='3.8.0' Id='41ad39a1-7328-454a-847b-814b0d008df0'
+<Product Version='3.8.1' Id='e9f90c70-f233-4193-b697-6830fc31fcbd'
     Name='Greenfoot' UpgradeCode='3ec7b829-9e53-4132-b2bf-fb7d4c08aebc'
     Language='1033' Codepage='1252' Manufacturer='Greenfoot Team'>
     
@@ -23,7 +23,7 @@
     <Property Id="ALLUSERS" Secure="yes" />
     
     <Property Id="SOFTWARE" Value="Greenfoot"/>
-    <Property Id="SOFTWAREVERSION" Value="3.8.0"/>
+    <Property Id="SOFTWAREVERSION" Value="3.8.1"/>
     <Property Id="SOFTWAREPROJECTEXT" Value="greenfoot"/>
     <Property Id="SOFTWAREARCHIVEEXT" Value="gfar"/>
     <!-- Define all the necessary GUIDs here, to make sure they are different from BlueJ -->

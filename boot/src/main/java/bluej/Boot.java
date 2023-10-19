@@ -60,8 +60,8 @@ public class Boot
     // version.properties file and then the :boot:updateVersionNumber task should be
     // executed to change them here and elsewhere where needed.
     public static final String BLUEJ_VERSION = "5.2.1";
-    public static final String GREENFOOT_VERSION = "3.8.0";
-    public static final String GREENFOOT_API_VERSION = "3.0.0";
+    public static final String GREENFOOT_VERSION = "3.8.1";
+    public static final String GREENFOOT_API_VERSION = "3.1.0";
 
     public static final String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
     

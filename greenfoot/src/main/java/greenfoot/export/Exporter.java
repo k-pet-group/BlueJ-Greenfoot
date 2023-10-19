@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2015,2018,2022  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2015,2018,2022,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -360,14 +360,10 @@ public class Exporter implements PublishListener
         }         
         
         // Add text file with license information
-        try {
-            File license = new File(Utility.getGreenfootDir(), "GREENFOOT_LICENSES.txt");
-            if(license.exists()) {
-                jarCreator.addFile(license);
-            }
-        }
-        catch (IOException e) {
-            // Ignore exceptions with license file since it is not a crucial thing to include.
+        File license = new File(Config.getGreenfootLibDir(), "GREENFOOT_LICENSES.txt");
+        if (license.exists())
+        {
+            jarCreator.addFile(license);
         }
         
         jarCreator.create();
