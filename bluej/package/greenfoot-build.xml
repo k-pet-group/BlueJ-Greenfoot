@@ -89,6 +89,7 @@
             <fileset dir="${bluej_home}">
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
+                <patternset refid="gfapidoc.files" />
             </fileset>
             <fileset dir="${greenfoot_home}/build/resources/main" >
                 <patternset refid="bluej.libfiles" />
@@ -98,11 +99,6 @@
                 <patternset refid="greenfoot.scenarios" />
             </fileset>
             <fileset dir="${greenfoot_home}" includes="common/**">
-            </fileset>
-        </copy>
-        <copy todir="install_tmp/greenfoot" preservelastmodified="true">
-            <fileset dir="${bluej_home}">
-                <patternset refid="gfapidoc.files" />
             </fileset>
         </copy>
         <copy todir="install_tmp/doc" preservelastmodified="true">
@@ -125,6 +121,34 @@
                 <include name="javafx*.jar"/>
             </fileset>
         </delete>
+
+        <!-- Include the classes from the common directory -->
+        <javadoc destdir="${greenfoot_home}/common"
+                 Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes"
+                 classpath="${greenfoot_home}/build/classes/java/main:${threadchecker.build}"
+                 encoding="UTF-8"
+                 executable="${build_java_home}/bin/javadoc"
+                 additionalparam="-Xdoclint:none"
+        >
+                <fileset dir="${greenfoot_home}/common/"/>
+        </javadoc>
+
+        <copy todir="install_tmp/greenfoot" preservelastmodified="true">
+            <fileset dir="${greenfoot_home}">
+                <patternset>
+                    <include name="common/*.java" />
+                    <include name="common/*.stride" />
+                    <!-- <include name="common/${common.class}.class" /> -->
+                    <include name="common/*.html" />
+                    <include name="common/*.png" />
+                    <include name="common/*.jpg" />
+                    <include name="common/*.jpeg" />
+                    <include name="common/inherit.gif" />
+                    <include name="common/*.js" />
+                    <include name="common/*.css" />
+                </patternset>
+            </fileset>
+        </copy>
 
         <!-- jar the entire distribution into one jar file            -->
         <!-- (use zip instead of jar to avoid generation of manifest) -->
@@ -245,16 +269,19 @@
             <fileset dir="install_tmp">
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
+                <patternset refid="gfapidoc.files" />
             </fileset>
             <fileset dir="${bluej_home}/build/resources/main" >
                 <patternset refid="bluej.libfiles"/>
             </fileset>
         </copy>
         <copy todir="Greenfoot.app/Contents/Java/greenfoot">
-            <fileset dir="install_tmp/greenfoot">
-                <patternset refid="gfapidoc.files" />
-            </fileset>
             <fileset dir="${greenfoot_home}" includes="common/**"/>
+        </copy>
+        <copy todir="Greenfoot.app/Contents/Java/doc">
+            <fileset dir="install_tmp/doc">
+                <patternset refid="greenfoot.license.files" />
+            </fileset>
         </copy>
 
         <move todir="Greenfoot.app/Contents/Java">
