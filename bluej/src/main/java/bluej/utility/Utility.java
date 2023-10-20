@@ -1031,8 +1031,8 @@ public class Utility
         }
         else
         {
-            File greenfootDir = Config.getGreenfootLibDir();
-            File location = new File(greenfootDir, "/doc/API/" + page);
+            File blueJLibDir = Config.getBlueJLibDir();
+            File location = new File(blueJLibDir, "/doc/API/" + page);
             if (location.canRead()) {
                 customUrl = location.toURI().toURL().toString();
             }
