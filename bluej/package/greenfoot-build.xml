@@ -347,6 +347,11 @@
         <delete dir="winsetup/standalone/greenfoot" failonerror="false"/>
         <delete dir="winsetup/standalone" includes="*.exe" />
         <unzip src="greenfoot-dist.jar" dest="winsetup/standalone/greenfoot" />
+        <copy todir="winsetup/standalone/bluej">
+            <fileset dir="${bluej_home}/build/resources/main">
+                <include name="lib/javafx*.jar"/>
+            </fileset>
+        </copy>
 
         <!-- Copy top-level special launcher -->
         <copy todir="winsetup/standalone" file="winusblaunch/greenfoot.exe"/>
@@ -385,6 +390,11 @@
         <delete dir="winsetup/SourceDir" />
         <delete dir="winsetup" includes="*.wixobj" />
         <unzip src="greenfoot-dist.jar" dest="winsetup/SourceDir" />
+        <copy todir="winsetup/SourceDir">
+            <fileset dir="${bluej_home}/build/resources/main">
+                <include name="lib/javafx*.jar"/>
+            </fileset>
+        </copy>
 
         <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
@@ -421,6 +431,11 @@
         <delete dir="winsetup/SourceDir" />
         <delete dir="winsetup" includes="*.wixobj" />
         <unzip src="greenfoot-dist.jar" dest="winsetup/SourceDir" />
+        <copy todir="winsetup/SourceDir">
+            <fileset dir="${bluej_home}/build/resources/main">
+                <include name="lib/javafx*.jar"/>
+            </fileset>
+        </copy>
         
         <!-- Fix the path to the JDK in bluej.defs -->
         <replaceregexp byline="true">
