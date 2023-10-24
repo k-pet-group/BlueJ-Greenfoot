@@ -350,7 +350,7 @@
         <delete dir="winsetup/standalone/greenfoot" failonerror="false"/>
         <delete dir="winsetup/standalone" includes="*.exe" />
         <unzip src="greenfoot-dist.jar" dest="winsetup/standalone/greenfoot" />
-        <copy todir="winsetup/standalone/bluej">
+        <copy todir="winsetup/standalone/greenfoot">
             <fileset dir="${bluej_home}/build/resources/main">
                 <include name="lib/javafx*.jar"/>
             </fileset>
