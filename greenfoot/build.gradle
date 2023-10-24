@@ -181,3 +181,11 @@ packageGreenfootLinux.dependsOn assemble, userJavadoc
 
 distTar.enabled = false
 distZip.enabled = false
+
+task urlsRC(type: Exec) {
+    workingDir "../bluej/package"
+    commandLine toolProps["ant_exe"], "-S",  "-buildfile", "greenfoot-build.xml", "urls-rc",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Dgreenfoot.version=" + greenfootVersion,
+            "-Dgreenfoot.rcsuffix=" + greenfootRCSuffix
+}
