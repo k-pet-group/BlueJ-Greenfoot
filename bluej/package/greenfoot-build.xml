@@ -89,8 +89,8 @@
             <fileset dir="${bluej_home}">
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
-                <patternset refid="gfapidoc.files" />
             </fileset>
+            
             <fileset dir="${greenfoot_home}/build/resources/main" >
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
@@ -98,10 +98,13 @@
             <fileset dir="${bluej_home}/package">
                 <patternset refid="greenfoot.scenarios" />
             </fileset>
-            <fileset dir="${greenfoot_home}" includes="common/**">
+        </copy>
+        <copy todir="install_tmp/lib" preservelastmodified="true">
+            <fileset dir="${bluej_home}">
+                <patternset refid="gfapidoc.files" />
             </fileset>
         </copy>
-        <copy todir="install_tmp/doc" preservelastmodified="true">
+        <copy todir="install_tmp/lib/doc" preservelastmodified="true">
             <fileset dir="${greenfoot_home}/doc">
                 <patternset refid="greenfoot.license.files" />
             </fileset>
@@ -133,7 +136,7 @@
                 <fileset dir="${greenfoot_home}/common/"/>
         </javadoc>
 
-        <copy todir="install_tmp/greenfoot" preservelastmodified="true">
+        <copy todir="install_tmp/lib/greenfoot" preservelastmodified="true">
             <fileset dir="${greenfoot_home}">
                 <patternset>
                     <include name="common/*.java" />
