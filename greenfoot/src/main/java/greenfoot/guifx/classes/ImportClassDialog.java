@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2018,2019  Poul Henriksen and Michael Kolling
+ Copyright (C) 2018,2019,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,7 +37,6 @@ import javafx.stage.Modality;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.FileFilter;
 import java.net.MalformedURLException;
@@ -199,7 +198,7 @@ public class ImportClassDialog extends Dialog<File>
      */
     public static File findImage(File classFile)
     {
-        String[] extensions = ImageIO.getReaderFileSuffixes();
+        String[] extensions = new String[]{"png", "jpg", "jpeg", "gif", "bmp", "tiff"};
 
         File directory = classFile.getAbsoluteFile().getParentFile();
         String stemName = GreenfootUtil.removeExtension(classFile.getAbsoluteFile().getName());

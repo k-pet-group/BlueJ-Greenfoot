@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2013,2016,2018,2021  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2011,2013,2016,2018,2021,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -58,8 +58,6 @@ import javafx.stage.Window;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import javax.swing.*;
 
 /**
  * A dialog allowing the user to export a scenario in a variety of ways.
@@ -378,7 +376,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         setProgress(false, msg);
         if (success)
         {
-            SwingUtilities.invokeLater(() -> Utility.openWebBrowser(Config.getPropString("greenfoot.gameserver.address") + "/home"));
+            JavaFXUtil.runAfterCurrent(() -> Utility.openWebBrowser(Config.getPropString("greenfoot.gameserver.address") + "/home"));
         }
     }
     

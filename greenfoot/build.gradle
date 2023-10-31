@@ -11,10 +11,12 @@ dependencies {
     implementation project(':boot')
 
     implementation 'au.com.bytecode:opencsv:2.4'
-    implementation 'org.apache.httpcomponents:httpclient:4.1.1'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     implementation 'org.apache.httpcomponents:httpmime:4.1.1'
     implementation 'commons-logging:commons-logging:1.2'
     implementation 'javazoom:jlayer:1.0.1'
+    implementation 'org.glavo:simple-png:0.2.0'
+    implementation 'org.glavo:simple-png-javafx:0.2.0'
 
     testCompileOnly project(':anns-threadchecker')
     testImplementation 'org.junit.jupiter:junit-jupiter:5.5.2'

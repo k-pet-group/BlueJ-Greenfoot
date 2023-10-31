@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2015,2021  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2015,2021,2023  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,8 +26,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.awt.Desktop;
-
 import bluej.Config;
 import bluej.utility.Debug;
 import threadchecker.OnThread;
@@ -46,36 +44,13 @@ public class ExternalAppLauncher
     private static String imageEditor = Config.getPropString("greenfoot.editor.image", null);
 
     /**
-     * Opens a file using the OS default program for that file type.
-     * 
-     * @param file the file to open.
-     */
-    @OnThread(Tag.Swing)
-    public static void openFile(File file)
-    {
-        try {
-            if (Desktop.isDesktopSupported()) {
-                Desktop desktop = Desktop.getDesktop();
-                desktop.open(file);
-            }
-            else {
-                throw new RuntimeException(
-                        "Cannot open editor for the file, because the Desktop class is not supported on this platform.");
-            }
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    /**
      * Opens an image for editing using the OS default editor for that file
      * type. Only difference from editFile is that this method uses a specific
      * override for images as specified in greenfoot.defs.
      * 
      * @param file the file to open for editing.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.Any)
     public static void editImage(File file)
     {
         boolean success = false;
@@ -95,23 +70,24 @@ public class ExternalAppLauncher
      * 
      * @param file the file to open for editing.
      */
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.Any)
     private static void editFile(File file)
     {
         try {
-            if (Desktop.isDesktopSupported()) {
-                Desktop desktop = Desktop.getDesktop();
-                if (desktop.isSupported(Desktop.Action.EDIT)) {
-                    desktop.edit(file);
-                } else {
-                    // They're probably on Linux; let's take our best guess
-                    // and use GIMP:
-                    Runtime.getRuntime().exec(new String []{"gimp", file.getAbsolutePath()}, null, null);
-                }
+            if (Config.isWinOS())
+            {
+                // Windows; use built-in paint
+                Runtime.getRuntime().exec(new String []{"mspaint", file.getAbsolutePath()}, null, null);
             }
-            else {
-                throw new RuntimeException(
-                        "Cannot open editor for the file, because the Desktop class is not supported on this platform.");
+            else if (Config.isMacOS())
+            {
+                Runtime.getRuntime().exec(new String []{"open", "-a", "Preview", file.getAbsolutePath()}, null, null);
+            }
+            else
+            {
+                // They're probably on Linux; let's take our best guess
+                // and use GIMP:
+                Runtime.getRuntime().exec(new String []{"gimp", file.getAbsolutePath()}, null, null);
             }
         }
         catch (IOException ex) {

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2013,2015,2018,2019  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2011,2013,2015,2018,2019,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import static greenfoot.export.Exporter.ExportFunction;
 import bluej.Boot;
 import bluej.Config;
 import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.export.mygame.ExportInfo;
 import greenfoot.export.mygame.ScenarioInfo;
 
@@ -49,8 +50,6 @@ import javafx.stage.Window;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import javax.swing.SwingUtilities;
 
 /**
  * Export dialog's tab for exporting to a standalone application.
@@ -91,7 +90,7 @@ public class ExportAppTab extends ExportLocalTab
         String javaAndClasspathAfter = /*"\" --module-path \"" + Boot.getInstance().getJavaFXLibDir() + "\" --add-modules=ALL-MODULE-PATH */ " greenfoot.export.GreenfootScenarioApplication";
 
         Hyperlink moreInfo = new Hyperlink(Config.getString("export.app.more"));
-        moreInfo.setOnAction(event -> SwingUtilities.invokeLater(() -> Utility.openWebBrowser("https://www.greenfoot.org/doc/run_standalone")));
+        moreInfo.setOnAction(event -> JavaFXUtil.runAfterCurrent(() -> Utility.openWebBrowser("https://www.greenfoot.org/doc/run_standalone")));
 
         Label commandLineExplanation = new Label("Command to run scenario on this machine:");
 
