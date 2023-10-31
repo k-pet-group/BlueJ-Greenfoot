@@ -272,6 +272,8 @@
             <fileset dir="install_tmp">
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
+            </fileset>
+            <fileset dir="${bluej_home}">
                 <patternset refid="gfapidoc.files" />
             </fileset>
             <fileset dir="${bluej_home}/build/resources/main" >
@@ -282,7 +284,7 @@
             <fileset dir="${greenfoot_home}" includes="common/**"/>
         </copy>
         <copy todir="Greenfoot.app/Contents/Java/doc">
-            <fileset dir="install_tmp/doc">
+            <fileset dir="${greenfoot_home}/doc">
                 <patternset refid="greenfoot.license.files" />
             </fileset>
         </copy>
