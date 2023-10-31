@@ -227,9 +227,8 @@ bluej.autoOpenLastProject=true
 # First, try to open the URL in a running firefox process. If that 
 # fails, start firefox.  The first dollar sign ($) will be 
 # replaced by the URL to be opened.
-browserCmd1=firefox -remote openURL($)
-browserCmd2=firefox $
-
+browserCmd1=firefox $
+browserCmd2=chromium-browser $
 
 #######################################################################
 ## Documentation generation. This specifies the command used for

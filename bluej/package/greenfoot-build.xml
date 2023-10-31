@@ -272,6 +272,8 @@
             <fileset dir="install_tmp">
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
+            </fileset>
+            <fileset dir="${bluej_home}">
                 <patternset refid="gfapidoc.files" />
             </fileset>
             <fileset dir="${bluej_home}/build/resources/main" >
@@ -282,7 +284,7 @@
             <fileset dir="${greenfoot_home}" includes="common/**"/>
         </copy>
         <copy todir="Greenfoot.app/Contents/Java/doc">
-            <fileset dir="install_tmp/doc">
+            <fileset dir="${greenfoot_home}/doc">
                 <patternset refid="greenfoot.license.files" />
             </fileset>
         </copy>
@@ -608,6 +610,7 @@
     </target>
 
     <target name="debian-bundled-dist">
+        <antcall target="pre-dist" />
         <mkdir dir="gfdeb" />
         <copy todir="gfdeb">
             <fileset dir="gfdebianfiles" includes="DEBIAN/**" />
@@ -637,6 +640,20 @@
         <move todir="gfdeb/usr/share/greenfoot">
             <fileset dir="gfdeb-lib-tmp/lib">
                 <patternset includes="**" />
+            </fileset>
+            <fileset dir="install_tmp/lib/greenfoot">
+                <patternset>
+                    <include name="common/*.java" />
+                    <include name="common/*.stride" />
+                    <!-- <include name="common/${common.class}.class" /> -->
+                    <include name="common/*.html" />
+                    <include name="common/*.png" />
+                    <include name="common/*.jpg" />
+                    <include name="common/*.jpeg" />
+                    <include name="common/inherit.gif" />
+                    <include name="common/*.js" />
+                    <include name="common/*.css" />
+                </patternset>
             </fileset>
         </move>
         <delete dir="gfdeb-lib-tmp" />
