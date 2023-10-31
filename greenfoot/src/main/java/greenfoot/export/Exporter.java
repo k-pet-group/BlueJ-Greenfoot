@@ -34,7 +34,6 @@ import greenfoot.guifx.export.ExportDialog;
 import greenfoot.guifx.export.ProxyAuthDialog;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -47,8 +46,7 @@ import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Dimension2D;
 
-import javax.imageio.ImageIO;
-
+import org.glavo.png.javafx.PNGJavaFXUtils;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -261,8 +259,8 @@ public class Exporter implements PublishListener
             String formatName = "png";
             try {
                 tmpImgFile = File.createTempFile("greenfoot", "." + formatName, null);
-                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(scenarioInfo.getImage(), null);
-                ImageIO.write(bufferedImage, formatName, tmpImgFile);
+                PNGJavaFXUtils.writeImage(scenarioInfo.getImage(), tmpImgFile.toPath());
+                
                 // make sure it is deleted on exit (should be deleted right after
                 // the publish finish - but just in case...)
                 tmpImgFile.deleteOnExit();              

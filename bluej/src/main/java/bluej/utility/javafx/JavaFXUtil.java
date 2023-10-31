@@ -79,7 +79,6 @@ import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;

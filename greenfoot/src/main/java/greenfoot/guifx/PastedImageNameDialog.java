@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2014,2016,2017,2018  Poul Henriksen and Michael Kolling
+ Copyright (C) 2014,2016,2017,2018,2023  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -37,10 +37,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.glavo.png.javafx.PNGJavaFXUtils;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
@@ -147,16 +147,13 @@ public class PastedImageNameDialog extends FXCustomizedDialog<File>
     {
         try
         {
-            if (ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file))
-            {
-                return true;
-            }
+            PNGJavaFXUtils.writeImage(image, file.toPath());
+            return true;
         }
         catch (IOException ex)
         {
-            // No need to repeat the error message here and in case writing the image returned false.
+            DialogManager.showErrorFX(asWindow(), "imagelib-writing-image-failed");
+            return false;
         }
-        DialogManager.showErrorFX(asWindow(), "imagelib-writing-image-failed");
-        return false;
     }
 }

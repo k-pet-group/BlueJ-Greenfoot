@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2009,2010,2016,2018  Poul Henriksen and Michael Kolling
+ Copyright (C) 2009,2010,2016,2018,2023  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -24,26 +24,25 @@ package greenfoot.guifx.images;
 import bluej.Config;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXCustomizedDialog;
+import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.util.ExternalAppLauncher;
-
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.glavo.png.javafx.PNGJavaFXUtils;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * A new image dialog, used for specifying the properties of an image before its
@@ -152,20 +151,17 @@ public class NewImageDialog extends FXCustomizedDialog<File>
      */
     private boolean writeImageAndEdit(File file)
     {
-        BufferedImage im = new BufferedImage((Integer) width.getValue(), (Integer) height.getValue(), BufferedImage.TYPE_INT_ARGB);
         try
         {
-            if (ImageIO.write(im, "png", file))
-            {
-                SwingUtilities.invokeLater(() -> ExternalAppLauncher.editImage(file));
-                return true;
-            }
+            PNGJavaFXUtils.writeImage(new WritableImage((Integer) width.getValue(), (Integer) height.getValue()), file.toPath());
+            // If no exception, edit it:
+            JavaFXUtil.runAfterCurrent(() -> ExternalAppLauncher.editImage(file));
+            return true;
         }
         catch (IOException ex)
         {
-            // No need to repeat the error message here and in case writing the image returned false.
+            DialogManager.showErrorFX(asWindow(), "imagelib-writing-image-failed");
+            return false;
         }
-        DialogManager.showErrorFX(asWindow(), "imagelib-writing-image-failed");
-        return false;
     }
 }

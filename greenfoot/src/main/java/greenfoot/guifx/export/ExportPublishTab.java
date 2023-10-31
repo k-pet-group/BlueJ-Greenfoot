@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2017,2018,2022  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2017,2018,2022,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,8 +64,6 @@ import javafx.scene.layout.VBox;
 import org.apache.http.conn.ConnectTimeoutException;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import javax.swing.*;
 
 /**
  * Pane used for exporting to Greenfoot Gallery
@@ -336,7 +334,7 @@ public class ExportPublishTab extends ExportTab
 
         Hyperlink createAccountLabel = new Hyperlink(Config.getString("export.publish.createAccount"));
         createAccountLabel.getStyleClass().add("create-account-label");
-        createAccountLabel.setOnAction(event -> SwingUtilities.invokeLater(() -> Utility.openWebBrowser(createAccountUrl)));
+        createAccountLabel.setOnAction(event -> JavaFXUtil.runAfterCurrent(() -> Utility.openWebBrowser(createAccountUrl)));
 
         HBox loginPane = new HBox(loginLabel,
                 usernameLabel, userNameField,
@@ -353,7 +351,7 @@ public class ExportPublishTab extends ExportTab
     private Pane getHelpBox()
     {
         Hyperlink serverLink = new Hyperlink(serverURL);
-        serverLink.setOnAction(event -> SwingUtilities.invokeLater(() -> Utility.openWebBrowser(serverURL)));
+        serverLink.setOnAction(event -> JavaFXUtil.runAfterCurrent(() -> Utility.openWebBrowser(serverURL)));
 
         HBox helpBox = new HBox(new Label(helpLine + " ("), serverLink, new Label(")"));
         helpBox.getStyleClass().add("help-box");

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2018  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2012,2018,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,6 @@ import greenfoot.UserInfo;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.Component;
 import java.net.URL;
 import java.util.List;
 

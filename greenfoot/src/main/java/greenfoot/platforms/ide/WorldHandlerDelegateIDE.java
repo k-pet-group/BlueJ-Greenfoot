@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018,2023  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,7 +35,6 @@ import greenfoot.util.GreenfootUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.Color;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -50,8 +49,6 @@ import java.util.List;
 public class WorldHandlerDelegateIDE
     implements WorldHandlerDelegate
 {
-    protected final Color envOpColour = new Color(152,32,32);
-    
     private final VMCommsSimulation vmCommsSimulation;
     
     private boolean worldInitialising;

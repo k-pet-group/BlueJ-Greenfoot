@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2005-2009,2010,2014,2015,2016,2017,2018,2019  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2014,2015,2016,2017,2018,2019,2023  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -56,8 +56,6 @@ import javafx.stage.Window;
 import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import javax.swing.*;
 
 /**
  * A Pane for selecting a class image. The image can be selected from either the
@@ -433,7 +431,7 @@ class ImageLibPane extends VBox
     private void editImage(ImageListEntry entry)
     {
         File file = entry.getImageFile();
-        SwingUtilities.invokeLater(() -> ExternalAppLauncher.editImage(file));
+        JavaFXUtil.runAfterCurrent(() -> ExternalAppLauncher.editImage(file));
     }
 
     private void pasteImage()

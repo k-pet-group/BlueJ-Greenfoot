@@ -70,11 +70,10 @@ import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
-
 import greenfoot.Actor;
 import greenfoot.core.ProjectManager;
-import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.export.ScenarioSaver;
+import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.guifx.ControlPanel.ControlPanelListener;
 import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
@@ -90,7 +89,6 @@ import greenfoot.sound.SoundPreferencePanel;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.GreenfootDebugHandler;
 import greenfoot.vmcomm.GreenfootDebugHandler.SimulationStateListener;
-
 import greenfoot.vmcomm.VMCommsMain;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -105,7 +103,16 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.CacheHint;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -131,15 +138,19 @@ import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.IntBuffer;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.OptionalInt;
+import java.util.Properties;
+import java.util.Queue;
 
 import static bluej.pkgmgr.target.EditableTarget.MENU_STYLE_INBUILT;
 import static greenfoot.vmcomm.Command.*;
@@ -1073,11 +1084,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     private static void openWebBrowser(String url)
     {
-        EventQueue.invokeLater(() -> {
+        JavaFXUtil.runAfterCurrent(() -> {
             boolean success = Utility.openWebBrowser(url);
             if (! success)
             {
-                Platform.runLater(() -> DialogManager.showErrorFX(null, "cannot-open-browser"));
+                DialogManager.showErrorFX(null, "cannot-open-browser");
             }
         });
     }
