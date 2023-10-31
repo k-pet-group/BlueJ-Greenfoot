@@ -610,6 +610,7 @@
     </target>
 
     <target name="debian-bundled-dist">
+        <antcall target="pre-dist" />
         <mkdir dir="gfdeb" />
         <copy todir="gfdeb">
             <fileset dir="gfdebianfiles" includes="DEBIAN/**" />
@@ -639,6 +640,20 @@
         <move todir="gfdeb/usr/share/greenfoot">
             <fileset dir="gfdeb-lib-tmp/lib">
                 <patternset includes="**" />
+            </fileset>
+            <fileset dir="install_tmp/lib/greenfoot">
+                <patternset>
+                    <include name="common/*.java" />
+                    <include name="common/*.stride" />
+                    <!-- <include name="common/${common.class}.class" /> -->
+                    <include name="common/*.html" />
+                    <include name="common/*.png" />
+                    <include name="common/*.jpg" />
+                    <include name="common/*.jpeg" />
+                    <include name="common/inherit.gif" />
+                    <include name="common/*.js" />
+                    <include name="common/*.css" />
+                </patternset>
             </fileset>
         </move>
         <delete dir="gfdeb-lib-tmp" />
