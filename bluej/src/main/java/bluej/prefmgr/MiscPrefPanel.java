@@ -60,7 +60,6 @@ public class MiscPrefPanel extends VBox
                            implements PrefPanelListener
 {
     private final int normalChildren;
-    private CheckBox linkToLibBox;
     private CheckBox showUncheckedBox; // show "unchecked" compiler warning
     private TextField playerNameField;
     private TextField participantIdentifierField;
@@ -76,9 +75,7 @@ public class MiscPrefPanel extends VBox
     public MiscPrefPanel()
     {
         JavaFXUtil.addStyleClass(this, "prefmgr-pref-panel");
-        
-        getChildren().add(makeDocumentationPanel());
-        
+
         if (Config.isGreenfoot()) {
             getChildren().add(makePlayerNamePanel());
             if (Boot.isTrialRecording())
@@ -158,20 +155,8 @@ public class MiscPrefPanel extends VBox
         return PrefMgrDialog.headedVBox("prefmgr.misc.playername.title", contents);
     }
 
-    private Node makeDocumentationPanel()
-    {
-        List<Node> contents = new ArrayList<>();
-
-        linkToLibBox = new CheckBox(Config.getString("prefmgr.misc.linkToLib"));
-        contents.add(linkToLibBox);
-
-        contents.add(PrefMgrDialog.wrappedLabel(Config.getStringList("prefmgr.misc.linkToLibNoteLine").stream().collect(Collectors.joining(" "))));
-        return PrefMgrDialog.headedVBox("prefmgr.misc.documentation.title", contents);
-    }
-
     public void beginEditing(Project project)
     {
-        linkToLibBox.setSelected(PrefMgr.getFlag(PrefMgr.LINK_LIB));
         if(!Config.isGreenfoot()) {
             showUncheckedBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED));
             if (project == null)
@@ -203,7 +188,6 @@ public class MiscPrefPanel extends VBox
 
     public void commitEditing(Project project)
     {
-        PrefMgr.setFlag(PrefMgr.LINK_LIB, linkToLibBox.isSelected());
         if(!Config.isGreenfoot()) {
             PrefMgr.setFlag(PrefMgr.SHOW_UNCHECKED, showUncheckedBox.isSelected());
             if (project != null)
