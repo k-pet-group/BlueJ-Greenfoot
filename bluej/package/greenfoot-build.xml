@@ -641,6 +641,9 @@
             <fileset dir="gfdeb-lib-tmp/lib">
                 <patternset includes="**" />
             </fileset>
+        </move>
+        
+        <copy todir="gfdeb/usr/share/greenfoot/greenfoot">
             <fileset dir="install_tmp/lib/greenfoot">
                 <patternset>
                     <include name="common/*.java" />
@@ -655,7 +658,7 @@
                     <include name="common/*.css" />
                 </patternset>
             </fileset>
-        </move>
+        </copy>
         <delete dir="gfdeb-lib-tmp" />
 
         <mkdir dir="gfdeb/usr/share/greenfoot/jdk" />
