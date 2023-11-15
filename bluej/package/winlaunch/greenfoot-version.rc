@@ -1,5 +1,5 @@
-FILEVERSION 3,8,1,0
-PRODUCTVERSION 3,8,1,0
+FILEVERSION 3,8,2,0
+PRODUCTVERSION 3,8,2,0
 BEGIN
 	BLOCK "StringFileInfo"
 	BEGIN
@@ -7,11 +7,11 @@ BEGIN
 		BEGIN
 			VALUE "CompanyName", "BlueJ group"
 			VALUE "FileDescription", "Greenfoot Launcher"
-			VALUE "FileVersion", "3.8.1"
+			VALUE "FileVersion", "3.8.2"
 			VALUE "InternalName", "greenfoot"
 			VALUE "OriginalFilename", "greenfoot.exe"
 			VALUE "ProductName", "Greenfoot"
-			VALUE "ProductVersion", "3.8.1"
+			VALUE "ProductVersion", "3.8.2"
 		END
 	END
 END
