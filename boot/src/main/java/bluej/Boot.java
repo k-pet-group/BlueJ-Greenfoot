@@ -81,6 +81,7 @@ public class Boot
         "lang-stride.jar",
         "nsmenufx-*.jar", "wellbehavedfx-*.jar",
         "guava-*.jar",
+        "simple-png*.jar",
         "http*.jar"};
     private static final int greenfootUserBuildJars = 4;
     
