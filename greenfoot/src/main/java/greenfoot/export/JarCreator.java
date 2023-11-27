@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2018,2019  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2018,2019,2023  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -122,29 +122,6 @@ public class JarCreator
         this.jarName = jarName;
         properties = new Properties();
     }
-    
-    /**
-     * Export the class files for a project.
-     * 
-     * Convenience constructor that includes settings that are common for all
-     * projects and export types. This will exclude BlueJ metafiles.
-     * 
-     * @param project The project to be exported.
-     * @param exportDir The directory to export to.
-     * @param jarName Name of the jar file that should be created.
-     * @param worldClass Name of the main class.
-     * @param lockScenario Should the exported scenario include 'act'
-     *            and speedslider.
-     * @param hideControls Should the exported scenario include the controls panel
-     * @param applet Whether the export is for an applet on a webpage (true) or for a stand-alone JAR (false) 
-     */
-    public JarCreator(Project project, File exportDir, String jarName, String worldClass,
-                      boolean lockScenario, boolean hideControls, boolean fullScreen, boolean applet)
-    {   
-        this(project, exportDir, jarName, worldClass, lockScenario, applet);
-        properties.put("scenario.hideControls", "" + hideControls);
-        properties.put("scenario.fullScreen", "" + fullScreen);
-    }
 
     /**
      * Export the class files for a project.
@@ -157,11 +134,10 @@ public class JarCreator
      * @param jarName Name of the jar file that should be created.
      * @param worldClass Name of the main class.
      * @param lockScenario Should the exported scenario include 'act'
-     *            and speedslider.
-     * @param applet Whether the export is for an applet on a webpage (true) or for a stand-alone JAR (false) 
+     *                     and speedslider.
      */
     public JarCreator(Project project, File exportDir, String jarName, String worldClass,
-                      boolean lockScenario, boolean applet)
+                      boolean lockScenario)
     {   
         this(exportDir, jarName);
         
@@ -197,7 +173,7 @@ public class JarCreator
         addSkipDir(Project.projectLibDirName);
         
         // Set the main class
-        String mainClass = (applet ? GreenfootScenarioViewer.class : GreenfootScenarioApplication.class).getCanonicalName();
+        String mainClass = GreenfootScenarioViewer.class.getCanonicalName();
         setMainClass(mainClass);
         
         // Add the properties read by the GreenfootScenarioViewer
