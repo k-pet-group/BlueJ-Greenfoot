@@ -129,7 +129,7 @@ jobs:
         run: |
           brew install grep
           brew install imagemagick
-          brew install python@3.10 && python3 -m pip install distutils
+          brew install python@3.9 && python3 -m pip install distutils
           brew install npm && npm install -g appdmg
           cd ${{ github.workspace }}
           echo 'ant_exe=ant' > tools.properties
