@@ -130,8 +130,7 @@ jobs:
           brew install grep
           brew install imagemagick
           brew install python@3.9
-          alias python=/usr/local/opt/python@3.9/libexec/bin/python3
-          alias python3=/usr/local/opt/python@3.9/libexec/bin/python3
+          export PATH=/usr/local/opt/python@3.9/libexec/bin:$PATH
           brew install npm && npm install -g appdmg
           cd ${{ github.workspace }}
           echo 'ant_exe=ant' > tools.properties
