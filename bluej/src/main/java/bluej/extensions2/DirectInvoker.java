@@ -25,6 +25,7 @@ import bluej.BlueJEvent;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ExecutionEvent;
+import bluej.debugmgr.ExecutionEvent.Result;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -106,7 +107,7 @@ class DirectInvoker
             DebuggerObject result = watcher.getResult();
 
             Platform.runLater(() -> {
-                String resultType = watcher.getResultType();
+                Result resultType = watcher.getResultType();
                 if (resultType != null)
                 {
                     ExecutionEvent ee = new ExecutionEvent(pkgFrame.getPackage(), callable.getClassName(), null);
@@ -199,7 +200,7 @@ class DirectInvoker
             DebuggerObject result = watcher.getResult();
     
             Platform.runLater(() -> {
-                String resultType = watcher.getResultType();
+                Result resultType = watcher.getResultType();
                 if (resultType != null)
                 {
                     ExecutionEvent ee = new ExecutionEvent(pkgFrame.getPackage(), callable.getClassName(),
@@ -228,15 +229,15 @@ class DirectInvoker
     private static void raiseEvent(ExecutionEvent event, CallableView callable, String [] argStrings, 
             DirectResultWatcher watcher, DebuggerObject result)
     {
-        String resultType = watcher.getResultType();
+        Result resultType = watcher.getResultType();
         
         event.setParameters(callable.getParamTypes(false), argStrings);
         event.setResult(resultType);
-        if (resultType == ExecutionEvent.NORMAL_EXIT) {
+        if (resultType == ExecutionEvent.Result.NORMAL_EXIT) {
             event.setResultObject(result);
             event.setObjectName(watcher.getResultName());
         }
-        else if (resultType == ExecutionEvent.EXCEPTION_EXIT) {
+        else if (resultType == ExecutionEvent.Result.EXCEPTION_EXIT) {
             event.setException(watcher.getException());
         }
         
@@ -364,7 +365,7 @@ class DirectInvoker
         private boolean resultReady;
         @OnThread(value = Tag.Any, requireSynchronized = true)
         private boolean isFailed;
-        private String resultType;
+        private ExecutionEvent.Result resultType;
 
         private DebuggerObject result;
         private ExceptionDescription exception;
@@ -454,7 +455,7 @@ class DirectInvoker
         public synchronized void putResult(DebuggerObject aResult, String anObjectName, InvokerRecord ir)
         {
             result = aResult;
-            resultType = ExecutionEvent.NORMAL_EXIT;
+            resultType = ExecutionEvent.Result.NORMAL_EXIT;
             resultName = anObjectName;
             resultReady = true;
             notifyAll();
@@ -482,7 +483,7 @@ class DirectInvoker
         public synchronized void putException(ExceptionDescription exception, InvokerRecord ir)
         {
             this.exception = exception;
-            resultType = ExecutionEvent.EXCEPTION_EXIT;
+            resultType = ExecutionEvent.Result.EXCEPTION_EXIT;
             putError(exception.getText(), ir);
         }
         
@@ -492,7 +493,7 @@ class DirectInvoker
          */
         public void putVMTerminated(InvokerRecord ir, boolean terminatedByUserCode)
         {
-            resultType = terminatedByUserCode ? ExecutionEvent.NORMAL_EXIT : ExecutionEvent.TERMINATED_EXIT;
+            resultType = terminatedByUserCode ? ExecutionEvent.Result.NORMAL_EXIT : ExecutionEvent.Result.TERMINATED_EXIT;
             putError("Terminated", ir);
         }
 
@@ -527,7 +528,7 @@ class DirectInvoker
          * ExecutionEvent.TERMINATED_EXIT if the user VM exited for any reason;<br>
          * null if compilation failure occurred.
          */
-        public String getResultType()
+        public ExecutionEvent.Result getResultType()
         {
             return resultType;
         }

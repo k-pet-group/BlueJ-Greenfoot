@@ -31,6 +31,7 @@ import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugmgr.ExecutionEvent;
+import bluej.debugmgr.ExecutionEvent.Result;
 import bluej.editor.base.LineDisplay;
 import bluej.editor.base.TextLine;
 import bluej.editor.base.TextLine.StyledSegment;
@@ -539,9 +540,9 @@ public final class Terminal
     {
         if (recordMethodCalls.get()) {
             String result = null;
-            String resultType = event.getResult();
+            Result resultType = event.getResult();
             
-            if (resultType == ExecutionEvent.NORMAL_EXIT) {
+            if (resultType == ExecutionEvent.Result.NORMAL_EXIT) {
                 DebuggerObject object = event.getResultObject();
                 if (object != null) {
                     if (event.getClassName() != null && event.getMethodName() == null) {
@@ -563,10 +564,10 @@ public final class Terminal
                     }
                 }
             }
-            else if (resultType == ExecutionEvent.EXCEPTION_EXIT) {
+            else if (resultType == ExecutionEvent.Result.EXCEPTION_EXIT) {
                 result = "    Exception occurred.";
             }
-            else if (resultType == ExecutionEvent.TERMINATED_EXIT) {
+            else if (resultType == ExecutionEvent.Result.TERMINATED_EXIT) {
                 result = "    VM terminated.";
             }
             

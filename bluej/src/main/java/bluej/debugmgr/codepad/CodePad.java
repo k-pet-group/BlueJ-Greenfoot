@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -857,7 +857,7 @@ public class CodePad extends VBox
 
             ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
             executionEvent.setCommand(command);
-            executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+            executionEvent.setResult(ExecutionEvent.Result.NORMAL_EXIT);
             executionEvent.setResultObject(result);
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
 
@@ -934,7 +934,7 @@ public class CodePad extends VBox
         {
             ExecutionEvent executionEvent = new ExecutionEvent(frame.getPackage());
             executionEvent.setCommand(command);
-            executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
+            executionEvent.setResult(ExecutionEvent.Result.EXCEPTION_EXIT);
             executionEvent.setException(exception);
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
             updateInspectors();
