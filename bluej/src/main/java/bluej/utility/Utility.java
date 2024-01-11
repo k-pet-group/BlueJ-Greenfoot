@@ -445,7 +445,13 @@ public class Utility
             // Use Applescript to activate us:
             try
             {
-                Runtime.getRuntime().exec (new String[] {"osascript", "-e", "activate application \"" + Config.getApplicationName() + "\""});
+                // So ordinarily, when running fully packaged, we will always be running and the if statement
+                // is redundant.  But in development mode, our application name is not set, and without the
+                // surrounding if-statement, the development BlueJ/Greenfoot launches the installed BlueJ/Greenfoot
+                // to activate it, which is quite annoying.  So only activate us if we're running as our
+                // proper application name.  (This will still activate installed BlueJ/Greenfoot if it's running
+                // while developing, but we'll just live with that.)
+                Runtime.getRuntime().exec (new String[] {"osascript", "-e", "if application \"" + Config.getApplicationName() + "\" is running then activate application \"" + Config.getApplicationName() + "\" end if"});
             }
             catch (IOException e)
             {
