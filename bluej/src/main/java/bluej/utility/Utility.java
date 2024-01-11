@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -439,6 +439,18 @@ public class Utility
                 Debug.reportError("While trying to launch \"" + command[0] + "\", got this IOException:", e);
             }
             catch (InterruptedException ie) {}
+        }
+        else if (Config.isMacOS())
+        {
+            // Use Applescript to activate us:
+            try
+            {
+                Runtime.getRuntime().exec (new String[] {"osascript", "-e", "activate application \"" + Config.getApplicationName() + "\""});
+            }
+            catch (IOException e)
+            {
+                Debug.reportError(e);
+            }
         }
     }
 
