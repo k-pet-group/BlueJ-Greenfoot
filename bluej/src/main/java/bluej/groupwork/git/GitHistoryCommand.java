@@ -76,7 +76,7 @@ public class GitHistoryCommand extends GitCommand
                 //Jgit returns the date by seconds after epoch, but Java works in
                 //milliseconds. conversion is needed.
                 Date date = new Date(rev.getCommitTime() * 1000L);
-                String dateString = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss").format(date);
+                String dateString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
 
                 HistoryInfo info = new HistoryInfo(files.toArray(new String[files.size()]), "", dateString, rev.getAuthorIdent().getName(), rev.getFullMessage());
                 listener.logInfoAvailable(info);
