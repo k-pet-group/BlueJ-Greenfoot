@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2024  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -72,6 +73,10 @@ public class LineDisplay
     private double lineHeightEstimate = 1.0;   
     
     private final boolean showLeftMargin;
+
+    // Cache the line height for a particular style:
+    private String heightCachedForStyle = null;
+    private double cachedHeight;
 
     public LineDisplay(DoubleExpression horizScrollProperty, StringExpression fontCSS, boolean showLeftMargin, BaseEditorPaneListener editorPaneListener)
     {
@@ -400,7 +405,12 @@ public class LineDisplay
      */
     public double calculateLineHeight()
     {
-        return calculateLineHeight(List.of(new StyledSegment(List.of(), "Xy")), -1);
+        if (!Objects.equals(heightCachedForStyle, fontCSS.getValue()))
+        {
+            heightCachedForStyle = fontCSS.getValue();
+            cachedHeight = calculateLineHeight(List.of(new StyledSegment(List.of(), "Xy")), -1);
+        }
+        return cachedHeight;
     }
 
     /**
