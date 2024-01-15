@@ -234,7 +234,7 @@ public class TextLine extends TextFlow
         hideErrorUnderline();
         // Since getChildren() has listeners, it's a bit more optimal to construct the list and set it once
         // rather than manipulate getChildren as we go along:
-        ArrayList<Node> children = new ArrayList<>(5 + text.size());
+        ArrayList<Node> children = new ArrayList<>(backgroundNodes.size() + 3 + text.size() + 1);
         children.addAll(backgroundNodes);
         children.addAll(List.of(bracketMatchShape, findResultShape, selectionShape));
         for (StyledSegment styledSegment : text)
