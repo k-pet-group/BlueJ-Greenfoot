@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017,2018,2019,2019,2020,2021,2022,2023  Poul Henriksen and Michael Kolling
+ Copyright (C) 2017,2018,2019,2019,2020,2021,2022,2023,2024  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -2541,6 +2541,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 "Hamza Hamza",
                 "Fabio Hedayioglu",
                 "Poul Henriksen",
+                "Charalampos Kyfonidis",
                 "Davin McCall",
                 "Philip Stevens",
                 "Ian Utting",

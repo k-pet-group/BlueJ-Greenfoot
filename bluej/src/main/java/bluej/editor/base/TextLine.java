@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2023,2024  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -232,18 +232,21 @@ public class TextLine extends TextFlow
         
         hideSelection();
         hideErrorUnderline();
-        getChildren().clear();
-        getChildren().addAll(backgroundNodes);
-        getChildren().addAll(bracketMatchShape, findResultShape, selectionShape);
+        // Since getChildren() has listeners, it's a bit more optimal to construct the list and set it once
+        // rather than manipulate getChildren as we go along:
+        ArrayList<Node> children = new ArrayList<>(backgroundNodes.size() + 3 + text.size() + 1);
+        children.addAll(backgroundNodes);
+        children.addAll(List.of(bracketMatchShape, findResultShape, selectionShape));
         for (StyledSegment styledSegment : text)
         {
             Text t = new Text(styledSegment.text.replace('\u0000', '\u2400'));
             t.setStyle(fontCSS.getValue());
             t.getStyleClass().add("editor-text");
             t.getStyleClass().addAll(styledSegment.cssClasses);
-            getChildren().add(t);
+            children.add(t);
         }
-        getChildren().add(errorUnderlineShape);
+        children.add(errorUnderlineShape);
+        getChildren().setAll(children);
         latestContent = new ArrayList<>(text);
     }
 

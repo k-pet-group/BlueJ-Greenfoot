@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2024  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,7 +24,10 @@ package bluej.editor.base;
 import bluej.editor.base.BaseEditorPane.BaseEditorPaneListener;
 import bluej.editor.base.TextLine.StyledSegment;
 import bluej.editor.flow.Document;
+import bluej.utility.Debug;
 import bluej.utility.javafx.FXFunction;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.geometry.Bounds;
@@ -41,6 +44,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -72,6 +76,11 @@ public class LineDisplay
     private double lineHeightEstimate = 1.0;   
     
     private final boolean showLeftMargin;
+
+    // Cache the line height and withs for a particular style:
+    private String cachedForStyle = null;
+    private double cachedHeight;
+    private final Cache<String, Double> cachedLineWidths = CacheBuilder.newBuilder().maximumSize(400).build();
 
     public LineDisplay(DoubleExpression horizScrollProperty, StringExpression fontCSS, boolean showLeftMargin, BaseEditorPaneListener editorPaneListener)
     {
@@ -386,6 +395,23 @@ public class LineDisplay
      */
     public double calculateLineWidth(String line)
     {
+        // This method checks if our cached fontCSS is up to date so it's important to call it:
+        calculateLineHeight();
+        try
+        {
+            return cachedLineWidths.get(line, () -> calculateLineWidthFromOffScreen(line));
+        }
+        catch (Exception e)
+        {
+            Debug.reportError(e);
+            // Shouldn't happen, try calling method direct, without cache:
+            return calculateLineWidthFromOffScreen(line);
+        }
+    }
+
+    // Do not call this method directly; call calculateLineWidth() instead so that the cache is used.
+    private double calculateLineWidthFromOffScreen(String line)
+    {
         TextLine textLine = new TextLine(false);
         // Must be in a scene for CSS (for font family/size) to get applied correctly:
         Scene s = new Scene(textLine);
@@ -400,7 +426,13 @@ public class LineDisplay
      */
     public double calculateLineHeight()
     {
-        return calculateLineHeight(List.of(new StyledSegment(List.of(), "Xy")), -1);
+        if (!Objects.equals(cachedForStyle, fontCSS.getValue()))
+        {
+            cachedForStyle = fontCSS.getValue();
+            cachedLineWidths.invalidateAll();
+            cachedHeight = calculateLineHeight(List.of(new StyledSegment(List.of(), "Xy")), -1);
+        }
+        return cachedHeight;
     }
 
     /**

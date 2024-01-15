@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1977,6 +1977,7 @@ public class PkgMgrFrame
                 "Hamza Hamza",
                 "Fabio Hedayioglu",
                 "Poul Henriksen",
+                "Charalampos Kyfonidis",
                 "Davin McCall",
                 "Clive Miller",
                 "Andrew Patterson",
@@ -3127,6 +3128,10 @@ public class PkgMgrFrame
             menu.getItems().add(new OnlineDocAction(this).makeMenuItem());
             menu.getItems().add(new InteractiveTutorialAction(this).makeMenuItem());
             menu.getItems().add(new StandardAPIHelpAction(this).makeMenuItem());
+            if (!Config.isGreenfoot())
+            {
+                menu.getItems().add(new JavaFXAPIHelpAction(this).makeMenuItem());
+            }
             addUserHelpItems(menu);
             menubar.getMenus().add(menu);
         }

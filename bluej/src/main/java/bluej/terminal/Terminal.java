@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -302,7 +302,7 @@ public final class Terminal
             buffer.notifyReaders();
         }
         this.input.clear();
-        writeToPane(text, inputString, STDOUT_INPUT);
+        writeToPane(PaneType.STDOUT, inputString, STDOUT_INPUT);
     }
 
     /**
@@ -434,10 +434,12 @@ public final class Terminal
         }
     }
 
+    enum PaneType { STDOUT, STDERR }
+
     /**
      * Write some text to the terminal.
      */
-    private void writeToPane(TerminalTextPane pane, String s, List<String> cssClasses)
+    private void writeToPane(PaneType paneType, String s, List<String> cssClasses)
     {
         // The form-feed character should clear the screen.
         int n = s.lastIndexOf('\f');
@@ -451,28 +453,29 @@ public final class Terminal
         //     Jan 23, 2023 12:09:30 PM com.sun.javafx.application.PlatformImpl startup
         //     WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @18be7add'
         //     WARNUNG: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @28f3d2a1'
-        if (lines.removeIf(l -> l.trim().endsWith("com.sun.javafx.application.PlatformImpl startup") ||    
+        if (paneType == PaneType.STDERR && lines.removeIf(l -> l.trim().endsWith("com.sun.javafx.application.PlatformImpl startup") ||
             l.contains("Unsupported JavaFX configuration: classes were loaded from")))
         {
             // No need to continue (and thus show the terminal window) if there's no new output to add:
             if (lines.isEmpty())
                 return;
-            pane.append(new StyledSegment(cssClasses, String.join("\n", lines)));
+            s = String.join("\n", lines);
         }
-        else
+        // Only show the error pane once we know there's something to add:
+        if (paneType == PaneType.STDERR)
         {
-            // Nothing removed; no need to re-glue the list, just use the original string:
-            pane.append(new StyledSegment(cssClasses, s));
+            showErrorPane();
         }
+
+        TerminalTextPane pane = paneType == PaneType.STDOUT ? text : errorText;
+        pane.append(new StyledSegment(cssClasses, s));
         
         prepare();
-        if (errorText != null && pane == errorText)
-            showErrorPane();
 
-        if (errorText != null && pane != errorText)
+        if (paneType == PaneType.STDOUT)
         {
             if (!unlimitedBufferingCall.get())
-                pane.trimToMostRecentNLines(MAX_BUFFER_LINES);
+                text.trimToMostRecentNLines(MAX_BUFFER_LINES);
         }
 
         // We must wait the terminal to show before we try to scroll to the end:
@@ -778,6 +781,7 @@ public final class Terminal
         }
         splitPane.getItems().remove(errorText);
         errorShown = false;
+        errorText = null;
     }
 
 
@@ -905,11 +909,10 @@ public final class Terminal
                         String s = new String(cbuf, off, len);
                         if (isErrorOut)
                         {
-                            showErrorPane();
-                            writeToPane(errorText, s, STDERR_NORMAL);
+                            writeToPane(PaneType.STDERR, s, STDERR_NORMAL);
                         }
                         else
-                            writeToPane(text, s, STDOUT_OUTPUT);
+                            writeToPane(PaneType.STDOUT, s, STDOUT_OUTPUT);
                     }
                     catch (Throwable t)
                     {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -405,10 +405,10 @@ public class Utility
      */
     public static void appToFront()
     {
-        String pid = getProcessId();
-        boolean isWindows = Config.isWinOS();
 
-        if (isWindows) {
+        if (Config.isWinOS()) {
+            String pid = getProcessId();
+
             // Use WSH (Windows Script Host) to execute a javascript that brings
             // a window to front.
             File libdir = calculateBluejLibDir();
@@ -422,23 +422,39 @@ public class Utility
             try {
                 Process p = Runtime.getRuntime().exec(command);
                 new ExternalProcessLogger(command[0], commandAsStr.toString(), p).start();
-                if (isWindows) {
-                    // An apparent JDK bug causes us to lose the ability to receive
-                    // input if the script is executed while a popup window is showing.
-                    // In an attempt to avoid that we'll wait for the script to execute
-                    // now:
-                    if (Platform.isFxApplicationThread())
-                        // Don't wait on FX as the script can fire a GUI event which will be handled
-                        // on the FX thread, so would deadlock if we block the GUI thread:
-                        new ProcessWaiter(p);
-                    else
-                        new ProcessWaiter(p).waitForProcess(500);
-                }
+                // An apparent JDK bug causes us to lose the ability to receive
+                // input if the script is executed while a popup window is showing.
+                // In an attempt to avoid that we'll wait for the script to execute
+                // now:
+                if (Platform.isFxApplicationThread())
+                    // Don't wait on FX as the script can fire a GUI event which will be handled
+                    // on the FX thread, so would deadlock if we block the GUI thread:
+                    new ProcessWaiter(p);
+                else
+                    new ProcessWaiter(p).waitForProcess(500);
             }
             catch (IOException e) {
                 Debug.reportError("While trying to launch \"" + command[0] + "\", got this IOException:", e);
             }
             catch (InterruptedException ie) {}
+        }
+        else if (Config.isMacOS())
+        {
+            // Use Applescript to activate us:
+            try
+            {
+                // So ordinarily, when running fully packaged, we will always be running and the if statement
+                // is redundant.  But in development mode, our application name is not set, and without the
+                // surrounding if-statement, the development BlueJ/Greenfoot launches the installed BlueJ/Greenfoot
+                // to activate it, which is quite annoying.  So only activate us if we're running as our
+                // proper application name.  (This will still activate installed BlueJ/Greenfoot if it's running
+                // while developing, but we'll just live with that.)
+                Runtime.getRuntime().exec (new String[] {"osascript", "-e", "if application \"" + Config.getApplicationName() + "\" is running then activate application \"" + Config.getApplicationName() + "\" end if"});
+            }
+            catch (IOException e)
+            {
+                Debug.reportError(e);
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -138,6 +138,17 @@ public class Boot
         try
         {
             shown.get();
+            // The Mac splash delay...
+            // So in theory, by now the splash window should be showing.
+            // We showed the window in the code above and only then
+            // completed the future.  We're not even running on the FX thread
+            // now for a while, so FX is free to do what it needs to do.
+            // However, on Mac, it seems that the window does not actually
+            // show.  But if we put a sleep here, even just this 100ms, it
+            // reliably seems to show.  This won't slow down startup much but
+            // it will mean the splash screen will show when it should
+            // (i.e. ASAP after launch).  So hence this delay:
+            Thread.sleep(100);
         }
         catch (InterruptedException | ExecutionException e)
         {
