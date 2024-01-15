@@ -3128,6 +3128,10 @@ public class PkgMgrFrame
             menu.getItems().add(new OnlineDocAction(this).makeMenuItem());
             menu.getItems().add(new InteractiveTutorialAction(this).makeMenuItem());
             menu.getItems().add(new StandardAPIHelpAction(this).makeMenuItem());
+            if (!Config.isGreenfoot())
+            {
+                menu.getItems().add(new JavaFXAPIHelpAction(this).makeMenuItem());
+            }
             addUserHelpItems(menu);
             menubar.getMenus().add(menu);
         }

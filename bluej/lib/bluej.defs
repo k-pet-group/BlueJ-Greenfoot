@@ -115,6 +115,8 @@ bluej.url.reference=https://www.bluej.org/reference/manual.pdf
 # is ignored). You can adjust the user preferences via the preferences
 # dialog (found under the "tools" menu) in BlueJ.
 url.javaStdLib=https://docs.oracle.com/en/java/javase/17/docs/api/
+# Ditto for JavaFX
+url.javaFXLib=https://openjfx.io/javadoc/20/
 
 # Location of the Java standard library sources. This does not need to
 # be specified if the "src.jar" file is in the standard location (in

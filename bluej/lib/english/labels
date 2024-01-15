@@ -859,6 +859,7 @@ menu.help.website=BlueJ _Web Site
 menu.help.onlinedoc=Online _Documentation
 menu.help.tutorial=Interactive _Tutorial
 menu.help.standardApi=Java _Class Libraries
+menu.help.javafxApi=JavaF_X GUI Libraries
 
 # tool tips
 
