@@ -405,10 +405,10 @@ public class Utility
      */
     public static void appToFront()
     {
-        String pid = getProcessId();
-        boolean isWindows = Config.isWinOS();
 
-        if (isWindows) {
+        if (Config.isWinOS()) {
+            String pid = getProcessId();
+
             // Use WSH (Windows Script Host) to execute a javascript that brings
             // a window to front.
             File libdir = calculateBluejLibDir();
@@ -422,18 +422,16 @@ public class Utility
             try {
                 Process p = Runtime.getRuntime().exec(command);
                 new ExternalProcessLogger(command[0], commandAsStr.toString(), p).start();
-                if (isWindows) {
-                    // An apparent JDK bug causes us to lose the ability to receive
-                    // input if the script is executed while a popup window is showing.
-                    // In an attempt to avoid that we'll wait for the script to execute
-                    // now:
-                    if (Platform.isFxApplicationThread())
-                        // Don't wait on FX as the script can fire a GUI event which will be handled
-                        // on the FX thread, so would deadlock if we block the GUI thread:
-                        new ProcessWaiter(p);
-                    else
-                        new ProcessWaiter(p).waitForProcess(500);
-                }
+                // An apparent JDK bug causes us to lose the ability to receive
+                // input if the script is executed while a popup window is showing.
+                // In an attempt to avoid that we'll wait for the script to execute
+                // now:
+                if (Platform.isFxApplicationThread())
+                    // Don't wait on FX as the script can fire a GUI event which will be handled
+                    // on the FX thread, so would deadlock if we block the GUI thread:
+                    new ProcessWaiter(p);
+                else
+                    new ProcessWaiter(p).waitForProcess(500);
             }
             catch (IOException e) {
                 Debug.reportError("While trying to launch \"" + command[0] + "\", got this IOException:", e);
