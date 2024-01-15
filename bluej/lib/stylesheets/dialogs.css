@@ -240,7 +240,7 @@
     -fx-spacing: 1em;
 }
 .formatted-print-flow .formatted-print-line {
-    -fx-font-size: 100%;
+    -fx-font-size: 110%;
 }
 .formatted-print-flow .formatted-print-line:bj-bold {
     -fx-font-weight: bold;
@@ -255,13 +255,13 @@
     -fx-fill: darkslategrey;
 }
 .formatted-print-flow .formatted-print-line:bj-size-default {
-    -fx-font-size: 100%;
+    -fx-font-size: 110%;
 }
 .formatted-print-flow .formatted-print-line:bj-size-small {
-    -fx-font-size: 90%;
+    -fx-font-size: 100%;
 }
 .formatted-print-flow .formatted-print-line:bj-size-large {
-    -fx-font-size: 110%;
+    -fx-font-size: 120%;
 }
 
 /* Extensions Dialog */
