@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,10 +64,21 @@ public class GitHistoryCommand extends GitCommand
                 //the subtree.
                 try (TreeWalk treeWalk = new TreeWalk(repo.getRepository())){
                     treeWalk.addTree(rev.getTree());
-                    boolean hasNext = treeWalk.next();
-                    while (hasNext) {
-                        files.add(treeWalk.getPathString());
-                        hasNext = treeWalk.next();
+                    // We now look for all the parent commits and add those trees:
+                    for (RevCommit parent : rev.getParents()) {
+                        treeWalk.addTree(parent.getTree());
+                    }
+
+                    while (treeWalk.next()) {
+                        // For each file in the tree walk, we compare its file mode and hash to the
+                        // parent commits.  If it is the same as any parent, the file is NOT changed and we do NOT add it
+                        // If it is different to all parents, or there are no parents, we add the file as having been changed.
+                        int similarParents = 0;
+                        for (int i = 1; i < treeWalk.getTreeCount(); i++)
+                            if (treeWalk.getFileMode(i) == treeWalk.getFileMode(0) && treeWalk.getObjectId(0).equals(treeWalk.getObjectId(i)))
+                                similarParents++;
+                        if (similarParents == 0)
+                            files.add(treeWalk.getPathString());
                     }
                 } catch (IOException ex) {
                     Debug.reportError(ex.getMessage());
