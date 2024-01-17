@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014,2015,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2013,2014,2015,2017,2018,2019,2020,2021,2022,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,9 @@ import java.util.stream.Stream;
 
 import bluej.parser.entity.*;
 import bluej.parser.nodes.FieldNode;
+import bluej.parser.nodes.MethodBodyNode;
 import bluej.parser.nodes.MethodNode;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.VariableDeclaration;
 import bluej.parser.symtab.ClassInfo;
@@ -656,4 +658,37 @@ public class ParseUtils
         }
         return base.setTypeArgs(taList);
     }
+
+    /**
+     * Find all the local variables declared in the given method node.
+     * @param positionNode The method node to look in
+     * @return The list of all local variables declared in that method.
+     */
+    public static List<FieldNode> findLocalVariables(MethodNode positionNode)
+    {
+        Iterator<NodeAndPosition<ParsedNode>> methodContentIterator = positionNode.getChildren(0);
+        while (methodContentIterator.hasNext())
+        {
+            NodeAndPosition methodChild = methodContentIterator.next();
+            if (methodChild.getNode() instanceof MethodBodyNode)
+            {
+                // the method should have a body: we look for the variables
+                Iterator<NodeAndPosition<ParsedNode>> methodBodyIterator = ((MethodBodyNode) methodChild.getNode()).getChildren(0);
+                List<FieldNode> fieldList = new ArrayList<>();
+                while (methodBodyIterator.hasNext())
+                {
+                    NodeAndPosition methodBodyChild = methodBodyIterator.next();
+                    // (Note: the FieldNode class actually covers both fields and variables objects)
+                    if (methodBodyChild.getNode() instanceof FieldNode f)
+                    {
+                        fieldList.add(f);
+                    }
+                }
+                //return the variables we found
+                return fieldList;
+            }
+        }
+        // if we didn't find anything, then we return an empty list.
+        return List.of();
+    }    
 }

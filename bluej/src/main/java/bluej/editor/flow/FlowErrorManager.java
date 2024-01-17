@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022,2024  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,7 +60,6 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -952,35 +951,14 @@ public class FlowErrorManager implements ErrorQuery
                         .distinct()
                         .map(SimpleCorrectionInfo::new);
             }
-            else
+            else if (positionNode instanceof MethodNode m)
             {
                 // for local variables, we only look up directly into the method node
-                Iterator<NodeTree.NodeAndPosition<ParsedNode>> methodContentIterator = positionNode.getChildren(0);
-                while (methodContentIterator.hasNext())
-                {
-                    NodeTree.NodeAndPosition methodChild = methodContentIterator.next();
-                    if (methodChild.getNode() instanceof MethodBodyNode)
-                    {
-                        // the method should have a body: we look for the variables
-                        Iterator<NodeTree.NodeAndPosition<ParsedNode>> methodBodyIterator = ((MethodBodyNode) methodChild.getNode()).getChildren(0);
-                        List<String> varNameList = new ArrayList<>();
-                        while (methodBodyIterator.hasNext())
-                        {
-                            NodeTree.NodeAndPosition methodBodyChild = methodBodyIterator.next();
-                            // (Note: the FieldNode class actually covers both fields and variables objects)
-                            if (methodBodyChild.getNode() instanceof FieldNode)
-                            {
-                                varNameList.add(((FieldNode) methodBodyChild.getNode()).getName());
-                            }
-                        }
-                        //return the variables we found
-                        return varNameList.stream()
-                            .distinct()
-                            .map(SimpleCorrectionInfo::new);
-                    }
-                }
-                 // if we didn't find anything, then we return an empty stream.
-                 return Stream.empty();
+                return ParseUtils.findLocalVariables(m).stream().distinct().map(FieldNode::getName).map(SimpleCorrectionInfo::new);
+            }
+            else
+            {
+                return Stream.empty();
             }
         }
     }
