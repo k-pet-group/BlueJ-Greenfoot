@@ -939,7 +939,7 @@ public class FlowErrorManager implements ErrorQuery
                 if (editor.getProject() == null)
                     return null;
 
-                AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, editor.getProject().getJavadocResolver(), null, positionNode);
+                AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, editor.getProject().getJavadocResolver(), null, positionNode instanceof MethodNode m ? m : null);
                 if (values == null)
                     return null;
 

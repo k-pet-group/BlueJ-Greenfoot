@@ -32,7 +32,6 @@ import bluej.parser.nodes.MethodBodyNode;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
-import bluej.parser.nodes.VariableDeclaration;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.role.Kind;
@@ -78,12 +77,12 @@ public class ParseUtils
      * If there are can be no valid completions in the given context, returns null.
      */
     @OnThread(Tag.FXPlatform)
-    public static AssistContent[] getPossibleCompletions(ExpressionTypeInfo suggests, JavadocResolver javadocResolver, AssistContentConsumer consumer, ParsedNode currentPosNode)
+    public static AssistContent[] getPossibleCompletions(ExpressionTypeInfo suggests, JavadocResolver javadocResolver, AssistContentConsumer consumer, MethodNode surroundingMethod)
     {
         GenTypeClass exprType = initGetPossibleCompletions(suggests);
         if (exprType != null)
         {
-            List<AssistContent> completions = getCompletionsForTarget(exprType, suggests, javadocResolver, consumer, currentPosNode);
+            List<AssistContent> completions = getCompletionsForTarget(exprType, suggests, javadocResolver, consumer, surroundingMethod);
             return completions.toArray(new AssistContent[completions.size()]);
         }
         return null;
@@ -194,13 +193,13 @@ public class ParseUtils
      * @param suggests        Information about the code suggestions
      * @param javadocResolver Resolver for fetching Javadoc
      * @param consumer        The consumer to be called with each AssistContent, if non-null (may be null)
-     * @param currentPosNode  The node in which the editor cursors is currently in (significant node, with a name)
+     * @param surroundingMethod  The method node in which the editor cursors is currently in, or null if not in a method
      *
      * @return The list of found completions.
      */
     @OnThread(Tag.FXPlatform)
     private static List<AssistContent> getCompletionsForTarget(GenTypeClass exprType, ExpressionTypeInfo suggests,
-                                                               JavadocResolver javadocResolver, AssistContentConsumer consumer, ParsedNode currentPosNode)
+                                                               JavadocResolver javadocResolver, AssistContentConsumer consumer, MethodNode surroundingMethod)
     {
         GenTypeClass accessType = suggests.getAccessType();
         Reflective accessReflective = (accessType != null) ? accessType.getReflective() : null;
@@ -237,36 +236,6 @@ public class ParseUtils
                     method.getModifiers(), suggests.isStatic()));
                 completions.addAll(discoverElements(exprType, javadocResolver, contentSigs,
                     typeArgs, mset, consumer));
-                // Look for local variables of this method if matching the method found at the current location
-                if (currentPosNode != null && currentPosNode instanceof MethodNode)
-                {
-                    MethodNode currentPosMethodNode = ((MethodNode) currentPosNode);
-                    mset.forEach(methodReflective -> {
-                        //Check if the methods' signatures are the same
-                        if (methodReflective.getName().equals(currentPosMethodNode.getName())
-                            && methodReflective.getParamTypes().size() == currentPosMethodNode.getParamTypes().size()
-                            && methodReflective.getReturnType().asType().equals(currentPosMethodNode.getReturnType().getType())
-                            && methodReflective.getParamTypes().equals(currentPosMethodNode.getParamTypes().stream().flatMap(javaEntity -> Stream.of(javaEntity.getType())).collect(Collectors.toList())))
-                        {
-                            // The signature are the same, we can save the local variable in the corrections list
-                            // The variables are not at the MethodNode level, we need to dig into the MethodBodyLevel
-                            Map<String, Set<VariableDeclaration>> locVars = currentPosMethodNode.getLocVarNodes();
-                            locVars.forEach((varName, fieldNodeSet) -> {
-                                // Depth of set values should be 1...
-                                VariableDeclaration locVarFieldNode = fieldNodeSet.iterator().next();
-                                JavaType type = locVarFieldNode.getFieldType().getType();
-                                if (type != null)
-                                {
-                                    GenTypeParameter fieldType = type.getUpperBound();
-                                    FieldCompletion completion = new FieldCompletion(fieldType.toString(true), varName,
-                                            locVarFieldNode.getModifiers(), methodReflective.getDeclaringType().getName() + "."
-                                            + methodReflective.getName());
-                                    completions.add(completion);
-                                }
-                            });
-                        }
-                    });
-                }
             }
 
             Map<String, FieldReflective> fields = exprType.getReflective().getDeclaredFields();
@@ -319,6 +288,19 @@ public class ParseUtils
             }
 
         }
+        
+        if (surroundingMethod != null)
+        {
+            // Find and add the local variables:
+            findLocalVariables(surroundingMethod).forEach(var -> {
+                completions.add(new FieldCompletion(var.getFieldTypeAsPlainString(), var.getName(), var.getModifiers(), null));
+            });
+            for (int i = 0; i < surroundingMethod.getParamNames().size(); i++)
+            {
+                completions.add(new FieldCompletion(surroundingMethod.getParamTypes().get(i).getName(), surroundingMethod.getParamNames().get(i), 0, null));
+            }
+        }
+        
         return completions;
     }
 

@@ -209,6 +209,27 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
         }
         return ftype;
     }
+
+    /**
+     * Get the type of the field as a simple plain string (does not include any generic parts).
+     */
+    public String getFieldTypeAsPlainString()
+    {
+        if (isVarType)
+        {
+            return "var";
+        }
+        else if (firstNode != null)
+        {
+            return firstNode.getFieldTypeAsPlainString();
+        }
+        else if (fieldType != null)
+        {
+            return fieldType.getName();
+        }
+        
+        return "";
+    }
     
     /**
      * Get the modifiers of this field 

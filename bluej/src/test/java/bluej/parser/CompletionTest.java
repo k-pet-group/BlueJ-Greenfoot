@@ -43,6 +43,7 @@ import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageResolver;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.lexer.LocatableToken;
+import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.utility.JavaReflective;
@@ -959,7 +960,7 @@ public class CompletionTest
                 throw new RuntimeException("Not implemented in test stub.");
             }
             
-        }, null, aNode.getContainingMethodOrClassNode(98));
+        }, null, (MethodNode)aNode.getContainingMethodOrClassNode(98));
         
         for (AssistContent assist : assists) {
             assist.getJavadoc();
@@ -1044,7 +1045,7 @@ public class CompletionTest
             {
                 throw new RuntimeException("Not implemented in test stub.");
             }
-        }, null, aNode.getContainingMethodOrClassNode(57));
+        }, null, (MethodNode)aNode.getContainingMethodOrClassNode(57));
         
         assertNotNull(acontent);
     }
