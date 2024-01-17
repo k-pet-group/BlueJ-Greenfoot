@@ -939,7 +939,7 @@ public class FlowErrorManager implements ErrorQuery
                 if (editor.getProject() == null)
                     return null;
 
-                AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, editor.getProject().getJavadocResolver(), null, positionNode instanceof MethodNode m ? m : null);
+                AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, editor.getProject().getJavadocResolver(), null, positionNode instanceof MethodNode m ? m : null, -1);
                 if (values == null)
                     return null;
 
@@ -954,7 +954,7 @@ public class FlowErrorManager implements ErrorQuery
             else if (positionNode instanceof MethodNode m)
             {
                 // for local variables, we only look up directly into the method node
-                return ParseUtils.findLocalVariables(m).stream().distinct().map(FieldNode::getName).map(SimpleCorrectionInfo::new);
+                return ParseUtils.findLocalVariables(m, -1).stream().distinct().map(FieldNode::getName).map(SimpleCorrectionInfo::new);
             }
             else
             {

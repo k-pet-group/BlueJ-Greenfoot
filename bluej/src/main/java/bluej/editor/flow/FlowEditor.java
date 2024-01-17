@@ -3205,7 +3205,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         
          
             LocatableToken suggestToken = suggests.getSuggestionToken();
-            AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getContainingMethodOrClassNode(flowEditorPane.getCaretPosition()) instanceof MethodNode m ? m : null);
+            AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getContainingMethodOrClassNode(flowEditorPane.getCaretPosition()) instanceof MethodNode m ? m : null, flowEditorPane.getCaretPosition());
             if (possibleCompletions != null)
             {
                 Arrays.sort(possibleCompletions, AssistContent.getComparator());

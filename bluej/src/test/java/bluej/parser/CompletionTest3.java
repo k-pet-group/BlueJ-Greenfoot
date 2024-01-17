@@ -117,7 +117,7 @@ public class CompletionTest3
         resolver.addCompilationUnit("", p.node());
 
         int pos = p.positionStart("A");
-        AssistContent[] results = ParseUtils.getPossibleCompletions(p.node().getExpressionType(pos, p.doc()), dummyJavadocResolver, null, p.node().getContainingMethodOrClassNode(pos) instanceof MethodNode m ? m : null);
+        AssistContent[] results = ParseUtils.getPossibleCompletions(p.node().getExpressionType(pos, p.doc()), dummyJavadocResolver, null, p.node().getContainingMethodOrClassNode(pos) instanceof MethodNode m ? m : null, pos);
         List<AC> acs = Arrays.stream(results).map(AC::new).collect(Collectors.toList());
         List<String> namesOnly = Arrays.stream(results).map(AssistContent::getName).collect(Collectors.toList());
 

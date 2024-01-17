@@ -1259,7 +1259,7 @@ public class FrameEditor implements Editor
         ArrayList<AssistContent> joined = new ArrayList<>();
         if (suggests != null)
         {
-            AssistContent[] assists = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, null);
+            AssistContent[] assists = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, null, -1);
             if (assists != null)
                 joined.addAll(Arrays.asList(assists));
         }
@@ -1296,11 +1296,11 @@ public class FrameEditor implements Editor
         {
             members = new ArrayList<>();
             // Add it whether overridden or not:
-            ParseUtils.getPossibleCompletions(suggests, javadocResolver, (ac, isOverridden) -> members.add(ac), null);
+            ParseUtils.getPossibleCompletions(suggests, javadocResolver, (ac, isOverridden) -> members.add(ac), null, -1);
         }
         else
         {
-            AssistContent[] result = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, null);
+            AssistContent[] result = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, null, -1);
             if (result == null)
                 members = Collections.emptyList();
             else

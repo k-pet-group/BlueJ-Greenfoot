@@ -75,14 +75,20 @@ public class ParseUtils
     /**
      * Get the possible code completions, based on the provided suggestions context.
      * If there are can be no valid completions in the given context, returns null.
+     * 
+     * @param suggests        Information about the code suggestions
+     * @param javadocResolver Resolver for fetching Javadoc
+     * @param consumer        The consumer to be called with each AssistContent, if non-null (may be null)
+     * @param surroundingMethod  The method node in which the editor cursors is currently in, or null if not in a method
+     * @param ourPos          The position in the file to use to filter our local variable declarations that are after this position, or -1 if you don't want/need to filter 
      */
     @OnThread(Tag.FXPlatform)
-    public static AssistContent[] getPossibleCompletions(ExpressionTypeInfo suggests, JavadocResolver javadocResolver, AssistContentConsumer consumer, MethodNode surroundingMethod)
+    public static AssistContent[] getPossibleCompletions(ExpressionTypeInfo suggests, JavadocResolver javadocResolver, AssistContentConsumer consumer, MethodNode surroundingMethod, int ourPos)
     {
         GenTypeClass exprType = initGetPossibleCompletions(suggests);
         if (exprType != null)
         {
-            List<AssistContent> completions = getCompletionsForTarget(exprType, suggests, javadocResolver, consumer, surroundingMethod);
+            List<AssistContent> completions = getCompletionsForTarget(exprType, suggests, javadocResolver, consumer, surroundingMethod, ourPos);
             return completions.toArray(new AssistContent[completions.size()]);
         }
         return null;
@@ -199,7 +205,7 @@ public class ParseUtils
      */
     @OnThread(Tag.FXPlatform)
     private static List<AssistContent> getCompletionsForTarget(GenTypeClass exprType, ExpressionTypeInfo suggests,
-                                                               JavadocResolver javadocResolver, AssistContentConsumer consumer, MethodNode surroundingMethod)
+                                                               JavadocResolver javadocResolver, AssistContentConsumer consumer, MethodNode surroundingMethod, int ourPos)
     {
         GenTypeClass accessType = suggests.getAccessType();
         Reflective accessReflective = (accessType != null) ? accessType.getReflective() : null;
@@ -292,7 +298,7 @@ public class ParseUtils
         if (surroundingMethod != null)
         {
             // Find and add the local variables:
-            findLocalVariables(surroundingMethod).forEach(var -> {
+            findLocalVariables(surroundingMethod, ourPos).forEach(var -> {
                 completions.add(new FieldCompletion(var.getFieldTypeAsPlainString(), var.getName(), var.getModifiers(), null));
             });
             for (int i = 0; i < surroundingMethod.getParamNames().size(); i++)
@@ -643,12 +649,12 @@ public class ParseUtils
 
     /**
      * Find all the local variables declared in the given method node.
-     * @param positionNode The method node to look in
+     * @param methodNode The method node to look in
      * @return The list of all local variables declared in that method.
      */
-    public static List<FieldNode> findLocalVariables(MethodNode positionNode)
+    public static List<FieldNode> findLocalVariables(MethodNode methodNode, int ourPos)
     {
-        Iterator<NodeAndPosition<ParsedNode>> methodContentIterator = positionNode.getChildren(0);
+        Iterator<NodeAndPosition<ParsedNode>> methodContentIterator = methodNode.getChildren(0);
         while (methodContentIterator.hasNext())
         {
             NodeAndPosition methodChild = methodContentIterator.next();
@@ -661,7 +667,7 @@ public class ParseUtils
                 {
                     NodeAndPosition methodBodyChild = methodBodyIterator.next();
                     // (Note: the FieldNode class actually covers both fields and variables objects)
-                    if (methodBodyChild.getNode() instanceof FieldNode f)
+                    if (methodBodyChild.getNode() instanceof FieldNode f && (ourPos < 0 || f.getAbsoluteEditorPosition() < ourPos))
                     {
                         fieldList.add(f);
                     }

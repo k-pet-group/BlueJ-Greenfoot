@@ -960,7 +960,7 @@ public class CompletionTest
                 throw new RuntimeException("Not implemented in test stub.");
             }
             
-        }, null, (MethodNode)aNode.getContainingMethodOrClassNode(98));
+        }, null, (MethodNode)aNode.getContainingMethodOrClassNode(98), -1);
         
         for (AssistContent assist : assists) {
             assist.getJavadoc();
@@ -1045,7 +1045,7 @@ public class CompletionTest
             {
                 throw new RuntimeException("Not implemented in test stub.");
             }
-        }, null, (MethodNode)aNode.getContainingMethodOrClassNode(57));
+        }, null, (MethodNode)aNode.getContainingMethodOrClassNode(57), -1);
         
         assertNotNull(acontent);
     }
