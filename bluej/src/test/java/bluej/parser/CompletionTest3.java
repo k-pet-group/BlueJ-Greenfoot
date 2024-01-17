@@ -211,4 +211,74 @@ public class CompletionTest3
                 }
                 """);
     }
+
+    @Test
+    public void testArrayTypes()
+    {
+        assertNamesAtA(List.of("int[] arr1", "int[][] arr2", "List param1"), List.of(), """
+                class Foo
+                {
+                    <T> void foo(List<T> param1)
+                    {
+                        int[] arr1;
+                        int[][] arr2;
+                        /*A*/
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testLoopVars()
+    {
+        assertNamesAtA(List.of("int i", "String s"), List.of(), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        for (int i = 0;i < 10; i++)
+                        {
+                            for (String s : myList)
+                            {
+                                /*A*/
+                            }
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testInstanceofVar()
+    {
+        assertNamesAtA(List.of("String s"), List.of(), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        if ("hi" instanceof String s)
+                        {
+                            /*A*/
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testVarRelativePosition()
+    {
+        assertNamesAtA(List.of("int var1", "int var2", "String var3"), List.of("var4"), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        int var1, var2;
+                        String var3;
+                        /*A*/
+                        List<String> var4;
+                    }
+                }
+                """);
+    }
 }
