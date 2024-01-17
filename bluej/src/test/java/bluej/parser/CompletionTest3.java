@@ -281,4 +281,28 @@ public class CompletionTest3
                 }
                 """);
     }
+
+    @Test
+    public void testVarRelativePositionAndNested()
+    {
+        assertNamesAtA(List.of("int var1", "int var2", "String var3"), List.of("var2b", "var4"), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        int var1, var2;
+                        if (true)
+                        {
+                            int var2b;
+                        }
+                        if (true)
+                        {
+                            String var3;
+                            /*A*/
+                            List<String> var4;
+                        }
+                    }
+                }
+                """);
+    }
 }
