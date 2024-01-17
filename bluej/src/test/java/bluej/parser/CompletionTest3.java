@@ -25,6 +25,7 @@ import bluej.JavaFXThreadingRule;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.ParseUtility.StartEnd;
 import bluej.parser.entity.ClassLoaderResolver;
+import bluej.parser.nodes.MethodNode;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.utility.Debug;
 import org.hamcrest.MatcherAssert;
@@ -88,36 +89,123 @@ public class CompletionTest3
         Debug.setDebugStream(new OutputStreamWriter(System.out));
         resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
     }
+    
+    record AC(String type, String name)
+    {
+        // Allow constructing from a space-separated String, or constructing from an AssistContent
+        public AC(String typeSpaceName)
+        {
+            this(typeSpaceName.split(" ")[0], typeSpaceName.split(" ")[1]);
+        }
+        public AC(AssistContent ac)
+        {
+            this(ac.getType(), ac.getName());
+        }
+    }
 
     /**
      * Asserts that the given names are/aren't available for autocomplete
      * at position "A" in the source, i.e. where
      * / * A * / (without spaces) occurs in the source.
-     * @param namesShouldBeAvailable A list of names which should be available.
+     * @param typesAndNamesShouldBeAvailable A list of space-separated types and names (e.g. "int x") which should be available.
      * @param namesShouldNotBeAvailable A list of names which should not be available
      * @param javaSrc The Java source code                        
      */
-    private void assertNamesAtA(List<String> namesShouldBeAvailable, List<String> namesShouldNotBeAvailable, String javaSrc)
+    private void assertNamesAtA(List<String> typesAndNamesShouldBeAvailable, List<String> namesShouldNotBeAvailable, String javaSrc)
     {
         Parsed p = parse(javaSrc, resolver);
         resolver.addCompilationUnit("", p.node());
 
         int pos = p.positionStart("A");
-        AssistContent[] results = ParseUtils.getPossibleCompletions(p.node().getExpressionType(pos, p.doc()), dummyJavadocResolver, null, p.node().getContainingMethodOrClassNode(pos));
-        List<String> names = Arrays.stream(results).map(AssistContent::getName).collect(Collectors.toList());
+        AssistContent[] results = ParseUtils.getPossibleCompletions(p.node().getExpressionType(pos, p.doc()), dummyJavadocResolver, null, p.node().getContainingMethodOrClassNode(pos) instanceof MethodNode m ? m : null);
+        List<AC> acs = Arrays.stream(results).map(AC::new).collect(Collectors.toList());
+        List<String> namesOnly = Arrays.stream(results).map(AssistContent::getName).collect(Collectors.toList());
 
-        MatcherAssert.assertThat(names, Matchers.hasItems(namesShouldBeAvailable.toArray(String[]::new)));
-        MatcherAssert.assertThat(names, Matchers.not(Matchers.hasItems(namesShouldNotBeAvailable.toArray(String[]::new))));
+        MatcherAssert.assertThat(acs, Matchers.hasItems(typesAndNamesShouldBeAvailable.stream().map(AC::new).toArray(AC[]::new)));
+        if (!namesShouldNotBeAvailable.isEmpty())
+        {
+            MatcherAssert.assertThat(namesOnly, Matchers.not(Matchers.hasItems(namesShouldNotBeAvailable.toArray(String[]::new))));
+        }
     }
 
     @Test
     public void testFieldsInInitialiser()
     {
-        assertNamesAtA(List.of("field1", "field2"), List.of("field3"), """
+        assertNamesAtA(List.of("int field1", "int field2"), List.of("field3"), """
                 class Foo
                 {
                     int field1, field2;
                     {
+                        /*A*/
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testLocalVarsInConstructor()
+    {
+        // Note: List<String> is not imported, but should still pass through to code completion:
+        assertNamesAtA(List.of("int var1", "int var2", "String var3", "List var4"), List.of(), """
+                class Foo
+                {
+                    Foo()
+                    {
+                        int var1, var2;
+                        String var3;
+                        List<String> var4;
+                        /*A*/
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testParamsInConstructor()
+    {
+        assertNamesAtA(List.of("int var1", "int var2", "String var3", "List var4", "List param1", "T param2", "int param3"), List.of(), """
+                class Foo
+                {
+                    <T> Foo(List<T> param1, T param2, int param3)
+                    {
+                        int var1, var2;
+                        String var3;
+                        List<String> var4;
+                        /*A*/
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testLocalVarsInMethod()
+    {
+        assertNamesAtA(List.of("int var1", "int var2", "String var3", "List var4", "var var5"), List.of(), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        int var1, var2;
+                        String var3;
+                        List<String> var4;
+                        var var5;
+                        /*A*/
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testParamsInMethod()
+    {
+        assertNamesAtA(List.of("int var1", "int var2", "String var3", "List var4", "List param1", "T param2", "int param3"), List.of(), """
+                class Foo
+                {
+                    <T> void foo(List<T> param1, T param2, int param3)
+                    {
+                        int var1, var2;
+                        String var3;
+                        List<String> var4;
                         /*A*/
                     }
                 }
