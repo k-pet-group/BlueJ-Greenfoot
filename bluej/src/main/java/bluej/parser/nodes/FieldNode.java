@@ -225,7 +225,7 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
         }
         else if (fieldType != null)
         {
-            return fieldType.getName();
+            return fieldType.getName() + "[]".repeat(arrayDecls);
         }
         
         return "";
