@@ -113,11 +113,7 @@ public class CompletionTest3
      */
     private void assertNamesAtA(List<String> typesAndNamesShouldBeAvailable, List<String> namesShouldNotBeAvailable, String javaSrc)
     {
-        Parsed p = parse(javaSrc, resolver);
-        resolver.addCompilationUnit("", p.node());
-
-        int pos = p.positionStart("A");
-        AssistContent[] results = ParseUtils.getPossibleCompletions(p.node().getExpressionType(pos, p.doc()), dummyJavadocResolver, null, p.node().getContainingMethodOrClassNode(pos) instanceof MethodNode m ? m : null, pos);
+        AssistContent[] results = getNamesAtA(javaSrc);
         List<AC> acs = Arrays.stream(results).map(AC::new).collect(Collectors.toList());
         List<String> namesOnly = Arrays.stream(results).map(AssistContent::getName).collect(Collectors.toList());
 
@@ -126,6 +122,16 @@ public class CompletionTest3
         {
             MatcherAssert.assertThat(namesOnly, Matchers.not(Matchers.hasItems(namesShouldNotBeAvailable.toArray(String[]::new))));
         }
+    }
+
+    private AssistContent[] getNamesAtA(String javaSrc)
+    {
+        Parsed p = parse(javaSrc, resolver);
+        resolver.addCompilationUnit("", p.node());
+
+        int pos = p.positionStart("A");
+        AssistContent[] results = ParseUtils.getPossibleCompletions(p.node().getExpressionType(pos, p.doc()), dummyJavadocResolver, null, p.node().getContainingMethodOrClassNode(pos) instanceof MethodNode m ? m : null, pos);
+        return results;
     }
 
     @Test
@@ -323,5 +329,45 @@ public class CompletionTest3
                     }
                 }
                 """);
+    }
+
+    @Test
+    public void testOverlappingFieldsAndLocals()
+    {
+        AssistContent[] results = getNamesAtA("""
+            class Foo
+            {
+                int x;
+                String y;
+                Object a;
+                
+                public Foo(double x, int y, int z)
+                {
+                    this.x = (int)x;
+                    this.y = Integer.toString(y);
+                    /*A*/
+                }
+            """);
+        List<AC> acs = Arrays.stream(results).map(AC::new).collect(Collectors.toList());
+        // We check what is there.  It should show two lots of x and y,
+        // but the fields should be shown as "this.x/y" since that's the
+        // only way to access them here:
+
+        // Hamcrest doesn't have a good way for checking exactly one, so we
+        // do that first, then check the types for everything after:
+        MatcherAssert.assertThat(acs.stream().filter(ac ->ac.name.equals("x")).collect(Collectors.toList()), Matchers.hasSize(1));
+        MatcherAssert.assertThat(acs.stream().filter(ac ->ac.name.equals("y")).collect(Collectors.toList()), Matchers.hasSize(1));
+        MatcherAssert.assertThat(acs.stream().filter(ac ->ac.name.equals("z")).collect(Collectors.toList()), Matchers.hasSize(1));
+        MatcherAssert.assertThat(acs.stream().filter(ac ->ac.name.equals("a")).collect(Collectors.toList()), Matchers.hasSize(1));
+        MatcherAssert.assertThat(acs.stream().filter(ac ->ac.name.equals("this.x")).collect(Collectors.toList()), Matchers.hasSize(1));
+        MatcherAssert.assertThat(acs.stream().filter(ac ->ac.name.equals("this.y")).collect(Collectors.toList()), Matchers.hasSize(1));
+        MatcherAssert.assertThat(acs, Matchers.hasItems(
+            new AC("int this.x"),
+            new AC("String this.y"),
+            new AC("Object a"),
+            new AC("double x"),
+            new AC("int y"),
+            new AC("int z")
+        ));
     }
 }
