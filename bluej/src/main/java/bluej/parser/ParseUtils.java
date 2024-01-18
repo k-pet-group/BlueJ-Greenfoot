@@ -298,7 +298,7 @@ public class ParseUtils
 
         }
 
-        if (surroundingMethod != null)
+        if (surroundingMethod != null && suggests.isPlain())
         {
             // Find and add the local variables:
             findLocalVariables(findInnerMostNode(ourPos - surroundingMethod.getAbsoluteEditorPosition(), surroundingMethod), surroundingMethod, ourPos).forEach(var -> {

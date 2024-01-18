@@ -266,6 +266,25 @@ public class CompletionTest3
     }
 
     @Test
+    public void testNoLocalsOnThisDot()
+    {
+        assertNamesAtA(List.of("int field1", "int field2", "Object field3"), List.of("param1", "var1", "var2", "var3"), """
+                class Foo
+                {
+                    int field1, field2;
+                    Object field3;
+                    
+                    void foo(int param1)
+                    {
+                        int var1, var2;
+                        String var3;
+                        this./*A*/
+                    }
+                }
+                """);
+    }
+
+    @Test
     public void testVarRelativePosition()
     {
         assertNamesAtA(List.of("int var1", "int var2", "String var3"), List.of("var4"), """
