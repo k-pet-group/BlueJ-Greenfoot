@@ -302,7 +302,7 @@ public class ParseUtils
         if (surroundingMethod != null && suggests.isPlain())
         {
             // Find and add the local variables:
-            findLocalVariables(findInnerMostNode(ourPos - surroundingMethod.getAbsoluteEditorPosition(), surroundingMethod), surroundingMethod, ourPos).forEach(var -> {
+            findLocalVariables(findInnerMostNode(ourPos - surroundingMethod.getAbsoluteEditorPosition(), surroundingMethod), surroundingMethod, ourPos - (suggests.getSuggestionToken() == null ? 0 : suggests.getSuggestionToken().getLength())).forEach(var -> {
                 AssistContent completion = LocalCompletion.getCompletion(var.getFieldTypeAsPlainString(), var.getName(), false);
                 if (completion != null)
                 {

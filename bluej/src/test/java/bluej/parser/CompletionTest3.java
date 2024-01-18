@@ -370,4 +370,23 @@ public class CompletionTest3
             new AC("int z")
         ));
     }
+
+    @Test
+    public void testNoIncorrectVars()
+    {
+        // Saw a behaviour where with a partial expression, we were considering this a variable declaration in progress
+        // and showing a variable that did not really exist (in this case, "myObj" with type "x"):
+        assertNamesAtA(List.of("int var1", "int var2", "String var3"), List.of( "myObj"), """
+                class Foo
+                {
+                    <T> void foo(List<T> param1, T param2, int param3)
+                    {
+                        int var1, var2;
+                        String var3;
+                        x/*A*/
+                        myObj.toString();
+                    }
+                }
+                """);
+    }
 }
