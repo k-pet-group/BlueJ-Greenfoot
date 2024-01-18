@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014,2015,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2013,2014,2015,2017,2018,2019,2020,2021,2022,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,11 @@ import java.util.stream.Stream;
 
 import bluej.parser.entity.*;
 import bluej.parser.nodes.FieldNode;
+import bluej.parser.nodes.JavaParentNode;
+import bluej.parser.nodes.MethodBodyNode;
 import bluej.parser.nodes.MethodNode;
+import bluej.parser.nodes.NodeTree;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.VariableDeclaration;
 import bluej.parser.symtab.ClassInfo;
@@ -74,14 +78,20 @@ public class ParseUtils
     /**
      * Get the possible code completions, based on the provided suggestions context.
      * If there are can be no valid completions in the given context, returns null.
+     * 
+     * @param suggests        Information about the code suggestions
+     * @param javadocResolver Resolver for fetching Javadoc
+     * @param consumer        The consumer to be called with each AssistContent, if non-null (may be null)
+     * @param surroundingMethod  The method node in which the editor cursors is currently in, or null if not in a method
+     * @param ourPos          The position in the file to use to filter our local variable declarations that are after this position, or -1 if you don't want/need to filter 
      */
     @OnThread(Tag.FXPlatform)
-    public static AssistContent[] getPossibleCompletions(ExpressionTypeInfo suggests, JavadocResolver javadocResolver, AssistContentConsumer consumer, ParsedNode currentPosNode)
+    public static AssistContent[] getPossibleCompletions(ExpressionTypeInfo suggests, JavadocResolver javadocResolver, AssistContentConsumer consumer, MethodNode surroundingMethod, int ourPos)
     {
         GenTypeClass exprType = initGetPossibleCompletions(suggests);
         if (exprType != null)
         {
-            List<AssistContent> completions = getCompletionsForTarget(exprType, suggests, javadocResolver, consumer, currentPosNode);
+            List<AssistContent> completions = getCompletionsForTarget(exprType, suggests, javadocResolver, consumer, surroundingMethod, ourPos);
             return completions.toArray(new AssistContent[completions.size()]);
         }
         return null;
@@ -192,13 +202,13 @@ public class ParseUtils
      * @param suggests        Information about the code suggestions
      * @param javadocResolver Resolver for fetching Javadoc
      * @param consumer        The consumer to be called with each AssistContent, if non-null (may be null)
-     * @param currentPosNode  The node in which the editor cursors is currently in (significant node, with a name)
+     * @param surroundingMethod  The method node in which the editor cursors is currently in, or null if not in a method
      *
      * @return The list of found completions.
      */
     @OnThread(Tag.FXPlatform)
     private static List<AssistContent> getCompletionsForTarget(GenTypeClass exprType, ExpressionTypeInfo suggests,
-                                                               JavadocResolver javadocResolver, AssistContentConsumer consumer, ParsedNode currentPosNode)
+                                                               JavadocResolver javadocResolver, AssistContentConsumer consumer, MethodNode surroundingMethod, int ourPos)
     {
         GenTypeClass accessType = suggests.getAccessType();
         Reflective accessReflective = (accessType != null) ? accessType.getReflective() : null;
@@ -235,36 +245,6 @@ public class ParseUtils
                     method.getModifiers(), suggests.isStatic()));
                 completions.addAll(discoverElements(exprType, javadocResolver, contentSigs,
                     typeArgs, mset, consumer));
-                // Look for local variables of this method if matching the method found at the current location
-                if (currentPosNode != null && currentPosNode instanceof MethodNode)
-                {
-                    MethodNode currentPosMethodNode = ((MethodNode) currentPosNode);
-                    mset.forEach(methodReflective -> {
-                        //Check if the methods' signatures are the same
-                        if (methodReflective.getName().equals(currentPosMethodNode.getName())
-                            && methodReflective.getParamTypes().size() == currentPosMethodNode.getParamTypes().size()
-                            && methodReflective.getReturnType().asType().equals(currentPosMethodNode.getReturnType().getType())
-                            && methodReflective.getParamTypes().equals(currentPosMethodNode.getParamTypes().stream().flatMap(javaEntity -> Stream.of(javaEntity.getType())).collect(Collectors.toList())))
-                        {
-                            // The signature are the same, we can save the local variable in the corrections list
-                            // The variables are not at the MethodNode level, we need to dig into the MethodBodyLevel
-                            Map<String, Set<VariableDeclaration>> locVars = currentPosMethodNode.getLocVarNodes();
-                            locVars.forEach((varName, fieldNodeSet) -> {
-                                // Depth of set values should be 1...
-                                VariableDeclaration locVarFieldNode = fieldNodeSet.iterator().next();
-                                JavaType type = locVarFieldNode.getFieldType().getType();
-                                if (type != null)
-                                {
-                                    GenTypeParameter fieldType = type.getUpperBound();
-                                    FieldCompletion completion = new FieldCompletion(fieldType.toString(true), varName,
-                                            locVarFieldNode.getModifiers(), methodReflective.getDeclaringType().getName() + "."
-                                            + methodReflective.getName());
-                                    completions.add(completion);
-                                }
-                            });
-                        }
-                    });
-                }
             }
 
             Map<String, FieldReflective> fields = exprType.getReflective().getDeclaredFields();
@@ -317,7 +297,39 @@ public class ParseUtils
             }
 
         }
+
+        if (surroundingMethod != null)
+        {
+            // Find and add the local variables:
+            findLocalVariables(findInnerMostNode(ourPos - surroundingMethod.getAbsoluteEditorPosition(), surroundingMethod), surroundingMethod, ourPos).forEach(var -> {
+                completions.add(new FieldCompletion(var.getFieldTypeAsPlainString(), var.getName(), var.getModifiers(), null));
+            });
+            
+            for (int i = 0; i < surroundingMethod.getParamNames().size(); i++)
+            {
+                completions.add(new FieldCompletion(surroundingMethod.getParamTypes().get(i).getName(), surroundingMethod.getParamNames().get(i), 0, null));
+            }
+        }
+        
         return completions;
+    }
+
+    /**
+     * Find the inner most ParsedNode that contains the given relative position.
+     * 
+     * @param targetRelPos The position relative to node to search for
+     * @param node The node to search within
+     * @return Either node if there's no child node at that position, or recurses into the child node using this method.
+     */
+    public static ParsedNode findInnerMostNode(int targetRelPos, ParsedNode node)
+    {
+        NodeAndPosition<ParsedNode> nap = node.findNodeAt(targetRelPos, 0);
+        if (nap != null && nap.getNode() != null && nap.getNode() != node)
+        {
+            node = nap.getNode();
+            node = findInnerMostNode(targetRelPos - nap.getPosition(), node);
+        }
+        return node;
     }
 
     /**
@@ -656,4 +668,30 @@ public class ParseUtils
         }
         return base.setTypeArgs(taList);
     }
+
+    /**
+     * Find all the local variables available at the given node, by going up the tree
+     * until we reach methodNodeToStopAt
+     * 
+     * @param curNode The node to start at
+     * @param methodNodeToStopAt The method node to stop at when we are going
+     * @return The list of all local variables declared in the method, available at ourPos within curNode.
+     */
+    public static List<VariableDeclaration> findLocalVariables(ParsedNode curNode, MethodNode methodNodeToStopAt, int ourPos)
+    {
+        List<VariableDeclaration> valid = new ArrayList<>();
+        if (curNode instanceof JavaParentNode jpn)
+        {
+            jpn.getLocVarNodes().values().stream().flatMap(Set::stream).filter(var -> {
+                return ourPos < 0 || var.getAbsoluteEditorPosition() < ourPos;
+            }).forEach(valid::add);
+        }
+        // Go up the tree and look for more:
+        // We look for exact same object, so != rather than .equals():
+        if (curNode != methodNodeToStopAt)
+        {
+            valid.addAll(findLocalVariables(curNode.getParentNode(), methodNodeToStopAt, ourPos));
+        }
+        return valid;
+    }    
 }

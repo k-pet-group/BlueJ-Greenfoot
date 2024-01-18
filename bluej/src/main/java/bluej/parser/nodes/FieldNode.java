@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2019,2020,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2019,2020,2022,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -208,6 +208,27 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
             ftype = new UnresolvedArray(ftype);
         }
         return ftype;
+    }
+
+    /**
+     * Get the type of the field as a simple plain string (does not include any generic parts).
+     */
+    public String getFieldTypeAsPlainString()
+    {
+        if (isVarType)
+        {
+            return "var";
+        }
+        else if (firstNode != null)
+        {
+            return firstNode.getFieldTypeAsPlainString();
+        }
+        else if (fieldType != null)
+        {
+            return fieldType.getName() + "[]".repeat(arrayDecls);
+        }
+        
+        return "";
     }
     
     /**
