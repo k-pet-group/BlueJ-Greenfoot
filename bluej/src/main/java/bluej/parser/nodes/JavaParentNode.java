@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2014,2016,2017,2019,2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2014,2016,2017,2019,2021,2022,2023,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -565,4 +565,13 @@ public abstract class JavaParentNode extends ParentParsedNode
         token.next = new Token(0, TokenType.END);
         return dummyTok.next;
     }
+
+    /**
+     * Gets the local variables of this item
+     */
+    public Map<String, Set<VariableDeclaration>> getLocVarNodes()
+    {
+        return Map.copyOf(variables);
+    }
+    
 }

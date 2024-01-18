@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2022  Michael Kolling and John Rosenberg 
+ Copyright (C) 2022,2024  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,7 +45,18 @@ public interface VariableDeclaration
     int getOffsetFromParent();
 
     /**
+     * The absolute position in the file as a whole
+     */
+    int getAbsoluteEditorPosition();
+
+    /**
      * The OR-ed together modifiers for the variable (final, volatile, etc)
      */
     int getModifiers();
+
+    /**
+     * Gets the field type as a plain string, for displaying in the autocomplete
+     */
+    public String getFieldTypeAsPlainString();
+
 }

@@ -43,3 +43,4 @@ target2.typeParameters=
 target2.width=80
 target2.x=390
 target2.y=210
+project.invoke.thread=FX

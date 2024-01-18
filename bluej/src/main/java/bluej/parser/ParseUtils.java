@@ -28,10 +28,13 @@ import java.util.stream.Stream;
 
 import bluej.parser.entity.*;
 import bluej.parser.nodes.FieldNode;
+import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.nodes.MethodBodyNode;
 import bluej.parser.nodes.MethodNode;
+import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
+import bluej.parser.nodes.VariableDeclaration;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.role.Kind;
@@ -294,13 +297,14 @@ public class ParseUtils
             }
 
         }
-        
+
         if (surroundingMethod != null)
         {
             // Find and add the local variables:
-            findLocalVariables(surroundingMethod, ourPos).forEach(var -> {
+            findLocalVariables(findInnerMostNode(ourPos - surroundingMethod.getAbsoluteEditorPosition(), surroundingMethod), surroundingMethod, ourPos).forEach(var -> {
                 completions.add(new FieldCompletion(var.getFieldTypeAsPlainString(), var.getName(), var.getModifiers(), null));
             });
+            
             for (int i = 0; i < surroundingMethod.getParamNames().size(); i++)
             {
                 completions.add(new FieldCompletion(surroundingMethod.getParamTypes().get(i).getName(), surroundingMethod.getParamNames().get(i), 0, null));
@@ -308,6 +312,24 @@ public class ParseUtils
         }
         
         return completions;
+    }
+
+    /**
+     * Find the inner most ParsedNode that contains the given relative position.
+     * 
+     * @param targetRelPos The position relative to node to search for
+     * @param node The node to search within
+     * @return Either node if there's no child node at that position, or recurses into the child node using this method.
+     */
+    public static ParsedNode findInnerMostNode(int targetRelPos, ParsedNode node)
+    {
+        NodeAndPosition<ParsedNode> nap = node.findNodeAt(targetRelPos, 0);
+        if (nap != null && nap.getNode() != null && nap.getNode() != node)
+        {
+            node = nap.getNode();
+            node = findInnerMostNode(targetRelPos - nap.getPosition(), node);
+        }
+        return node;
     }
 
     /**
@@ -648,35 +670,28 @@ public class ParseUtils
     }
 
     /**
-     * Find all the local variables declared in the given method node.
-     * @param methodNode The method node to look in
-     * @return The list of all local variables declared in that method.
+     * Find all the local variables available at the given node, by going up the tree
+     * until we reach methodNodeToStopAt
+     * 
+     * @param curNode The node to start at
+     * @param methodNodeToStopAt The method node to stop at when we are going
+     * @return The list of all local variables declared in the method, available at ourPos within curNode.
      */
-    public static List<FieldNode> findLocalVariables(MethodNode methodNode, int ourPos)
+    public static List<VariableDeclaration> findLocalVariables(ParsedNode curNode, MethodNode methodNodeToStopAt, int ourPos)
     {
-        Iterator<NodeAndPosition<ParsedNode>> methodContentIterator = methodNode.getChildren(0);
-        while (methodContentIterator.hasNext())
+        List<VariableDeclaration> valid = new ArrayList<>();
+        if (curNode instanceof JavaParentNode jpn)
         {
-            NodeAndPosition methodChild = methodContentIterator.next();
-            if (methodChild.getNode() instanceof MethodBodyNode)
-            {
-                // the method should have a body: we look for the variables
-                Iterator<NodeAndPosition<ParsedNode>> methodBodyIterator = ((MethodBodyNode) methodChild.getNode()).getChildren(0);
-                List<FieldNode> fieldList = new ArrayList<>();
-                while (methodBodyIterator.hasNext())
-                {
-                    NodeAndPosition methodBodyChild = methodBodyIterator.next();
-                    // (Note: the FieldNode class actually covers both fields and variables objects)
-                    if (methodBodyChild.getNode() instanceof FieldNode f && (ourPos < 0 || f.getAbsoluteEditorPosition() < ourPos))
-                    {
-                        fieldList.add(f);
-                    }
-                }
-                //return the variables we found
-                return fieldList;
-            }
+            jpn.getLocVarNodes().values().stream().flatMap(Set::stream).filter(var -> {
+                return ourPos < 0 || var.getAbsoluteEditorPosition() < ourPos;
+            }).forEach(valid::add);
         }
-        // if we didn't find anything, then we return an empty list.
-        return List.of();
+        // Go up the tree and look for more:
+        // We look for exact same object, so != rather than .equals():
+        if (curNode != methodNodeToStopAt)
+        {
+            valid.addAll(findLocalVariables(curNode.getParentNode(), methodNodeToStopAt, ourPos));
+        }
+        return valid;
     }    
 }

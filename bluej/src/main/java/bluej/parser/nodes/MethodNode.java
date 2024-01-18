@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2019,2020,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2019,2020,2022,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -266,24 +266,5 @@ public class MethodNode extends JavaParentNode
             }
         }
         return super.getExpressionType(pos, nodePos, defaultType, document, null);
-    }
-
-    /**
-     * Gets the local variables nodes of a method.
-     *
-     * @return a Map object containing the local variables nodes of that method.
-     */
-    public Map<String, Set<VariableDeclaration>> getLocVarNodes()
-    {
-        Iterator<NodeAndPosition<ParsedNode>> children = getChildren(0);
-        while (children.hasNext())
-        {
-            NodeAndPosition<ParsedNode> child = children.next();
-            if (child.getNode() instanceof MethodBodyNode)
-            {
-                return ((MethodBodyNode) child.getNode()).variables;
-            }
-        }
-        return null;
     }
 }

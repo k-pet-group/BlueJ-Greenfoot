@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2012,2013,2014,2016,2017,2019,2021,2022,2023  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2012,2013,2014,2016,2017,2019,2021,2022,2023,2024  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1426,7 +1426,8 @@ public class EditorParser extends JavaParser
         JavaEntity fieldType = ParseUtils.getTypeEntity(resolver, currentQuerySource(), lastTypeSpec);
         arrayDecls = 0;
         
-        int finalPos = scopeStack.get(targetIndex + 1).getOffsetFromParent();//insPos - curOffset;
+        final int finalAbsPos = scopeStack.get(targetIndex + 1).getAbsoluteEditorPosition();
+        final int finalOffsetFromParent = scopeStack.get(targetIndex + 1).getOffsetFromParent();//insPos - curOffset;
         int modifiers = currentModifiers;
         scopeStack.get(targetIndex).insertInstanceofVar(
                 new VariableDeclaration()
@@ -1446,13 +1447,25 @@ public class EditorParser extends JavaParser
                     @Override
                     public int getOffsetFromParent()
                     {
-                        return finalPos;
+                        return finalOffsetFromParent;
+                    }
+
+                    @Override
+                    public int getAbsoluteEditorPosition()
+                    {
+                        return finalAbsPos;
                     }
 
                     @Override
                     public int getModifiers()
                     {
                         return modifiers;
+                    }
+
+                    @Override
+                    public String getFieldTypeAsPlainString()
+                    {
+                        return fieldType.getName();
                     }
                 });
     }
