@@ -21,6 +21,9 @@
  */
 package bluej.extensions2;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * This exception will be thrown when the parameters passed to an invocation
  * do not match the list of arguments of the invocation.
@@ -31,6 +34,7 @@ package bluej.extensions2;
  */
 public class InvocationArgumentException extends ExtensionException
 {
+    @OnThread(Tag.Any)
   InvocationArgumentException (String reason) {
       super (reason);
   }

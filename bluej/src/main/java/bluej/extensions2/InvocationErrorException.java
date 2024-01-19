@@ -21,6 +21,9 @@
  */
 package bluej.extensions2;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * This exception will be thrown when an exception occurs during a method or constructor 
  * invocation. The most likely cause of this exception is the user cancelling a 
@@ -32,6 +35,7 @@ package bluej.extensions2;
  */
 public class InvocationErrorException extends ExtensionException
 {
+    @OnThread(Tag.Any)
   InvocationErrorException (String reason) {
       super (reason);
   }

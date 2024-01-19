@@ -23,14 +23,21 @@ package bluej.extensions2;
 
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions2.DirectInvoker.OffThreadWaiter;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.MethodView;
 import bluej.views.View;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
+import javafx.application.Platform;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.lang.reflect.Modifier;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A wrapper for a method of a BlueJ class.
@@ -154,6 +161,22 @@ public class BMethod
         return bluej_view.getModifiers();
     }
 
+    @OnThread(Tag.Any)
+    sealed interface Outcome {
+        @OnThread(Tag.Any)
+        record Success(PkgMgrFrame pkgMgrFrame, DirectInvoker invoker, OffThreadWaiter result) implements Outcome {}
+        @OnThread(Tag.Any)
+        record FailureProject(ProjectNotOpenException e) implements Outcome {}
+        @OnThread(Tag.Any)
+        record FailurePackage(PackageNotFoundException e) implements Outcome {}
+        @OnThread(Tag.Any)
+        record FailureInvocationArgument(InvocationArgumentException e) implements Outcome {}
+        @OnThread(Tag.Any)
+        record FailureInvocationError(InvocationErrorException e) implements Outcome {}
+        @OnThread(Tag.Any)
+        record FailureOther(RuntimeException e) implements Outcome {}
+    }
+    
     /**
      * Invokes this method on the given object. Note that this method should
      * not be called from the JavaFX (GUI) thread.
@@ -189,33 +212,110 @@ public class BMethod
      * @throws InvocationArgumentException if the <code>params</code> don't match the object's arguments.
      * @throws InvocationErrorException if an error occurs during the invocation.
      */
+    @OnThread(Tag.Worker)
     public Object invoke (BObject onThis, Object[] params)
         throws ProjectNotOpenException, PackageNotFoundException,
             InvocationArgumentException, InvocationErrorException
     {
-        ObjectWrapper instanceWrapper=null;
-        // If it is a method call on a live object get the identifier for it.
-        if ( onThis != null ) instanceWrapper = onThis.getObjectWrapper();
+        CompletableFuture<Outcome> resultFuture = new CompletableFuture<>();
+        Platform.runLater(() -> {
+            ObjectWrapper instanceWrapper = null;
+            // If it is a method call on a live object get the identifier for it.
+            if (onThis != null) instanceWrapper = onThis.getObjectWrapper();
 
-        PkgMgrFrame  pkgFrame = parentId.getPackageFrame();
-        DirectInvoker invoker = new DirectInvoker(pkgFrame);
-        DebuggerObject result = invoker.invokeMethod (instanceWrapper, bluej_view, params);
+            try
+            {
+                PkgMgrFrame pkgFrame = parentId.getPackageFrame();
+                DirectInvoker invoker = new DirectInvoker(pkgFrame);
+                Outcome.Success success = new Outcome.Success(pkgFrame, invoker, invoker.invokeMethod(instanceWrapper, bluej_view, params));
+                resultFuture.complete(success);
+            }
+            catch (ProjectNotOpenException e)
+            {
+                resultFuture.complete(new Outcome.FailureProject(e));
+            }
+            catch (PackageNotFoundException e)
+            {
+                resultFuture.complete(new Outcome.FailurePackage(e));
+            }
+            catch (InvocationArgumentException e)
+            {
+                resultFuture.complete(new Outcome.FailureInvocationArgument(e));
+            }
+            catch (InvocationErrorException e)
+            {
+                resultFuture.complete(new Outcome.FailureInvocationError(e));
+            }
+            catch (RuntimeException e)
+            {
+                resultFuture.complete(new Outcome.FailureOther(e));
+            }
+        });
+        try
+        {
+            Outcome outcome = resultFuture.get();
+            if (outcome instanceof Outcome.Success details)
+            {
+                DebuggerObject result = details.result.waitForResult();
 
-        // We return null if the method is void (as per Reflection), which might 
-        // either be a null result object, or a valid result object representing null
-        if (result == null || result.isNullObject()) return null;
+                // We return null if the method is void (as per Reflection), which might 
+                // either be a null result object, or a valid result object representing null
+                if (result == null || result.isNullObject()) return null;
 
-        String resultName = invoker.getResultName();
+                String resultName = details.invoker.getResultName();
 
-        ObjectReference objRef = result.getObjectReference();
-        ReferenceType type = objRef.referenceType();
+                ObjectReference objRef = result.getObjectReference();
+                ReferenceType type = objRef.referenceType();
 
-        // It happens that the REAL result is in the result field of this Object...
-        Field thisField = type.fieldByName ("result");
-        if ( thisField == null ) return null;
+                // It happens that the REAL result is in the result field of this Object...
+                Field thisField = type.fieldByName("result");
+                if (thisField == null) return null;
 
-        // DOing this is the correct way of returning the right object. Tested 080303, Damiano
-        return BField.doGetVal(pkgFrame, resultName, objRef.getValue(thisField));
+                // DOing this is the correct way of returning the right object. Tested 080303, Damiano
+                // Have to wrap in optional because CompletableFuture doesn't like having null values:
+                CompletableFuture<Optional<Object>> resultObject = new CompletableFuture<>();
+                Platform.runLater(() -> {
+                    try
+                    {
+                        resultObject.complete(Optional.ofNullable(BField.doGetVal(details.pkgMgrFrame, resultName, objRef.getValue(thisField))));
+                    }
+                    catch (RuntimeException e)
+                    {
+                        resultObject.complete(Optional.empty());
+                    }
+                });
+                return resultObject.get().orElse(null);
+            }
+            else if (outcome instanceof Outcome.FailureProject f)
+            {
+                throw f.e;
+            }
+            else if (outcome instanceof Outcome.FailurePackage f)
+            {
+                throw f.e;
+            }
+            else if (outcome instanceof Outcome.FailureInvocationArgument f)
+            {
+                throw f.e;
+            }
+            else if (outcome instanceof Outcome.FailureInvocationError f)
+            {
+                throw f.e;
+            }
+            else if (outcome instanceof Outcome.FailureOther f)
+            {
+                throw f.e;
+            }
+            // This is impossible to reach but Java things outcome could be null:
+            else
+            {
+                throw new RuntimeException("Invocation failed impossibly, outcome was " + outcome);
+            }
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            throw new InvocationErrorException(e.getMessage());
+        }
     }
     
   

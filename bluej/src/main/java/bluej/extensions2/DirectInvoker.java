@@ -28,12 +28,16 @@ import bluej.debugmgr.ExecutionEvent;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions2.BMethod.Outcome;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Utility;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+import javafx.application.Platform;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Provides a gateway to invoke methods on objects using a specified set of parameters.
@@ -44,6 +48,7 @@ import bluej.views.MethodView;
 class DirectInvoker
 {
     private final PkgMgrFrame pkgFrame;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private String resultName;
 
 
@@ -84,38 +89,55 @@ class DirectInvoker
      * @throws InvocationArgumentException   if the argument list is not consistent with the signature
      * @throws InvocationErrorException      if there is a system error
      */
-    DebuggerObject invokeConstructor(ConstructorView callable, Object[] args)
+    @OnThread(Tag.FXPlatform)
+    OffThreadWaiter invokeConstructor(ConstructorView callable, Object[] args)
              throws InvocationArgumentException, InvocationErrorException
     {
         if (!paramsAlmostMatch(args, callable.getParameters())) {
             throw new InvocationArgumentException("invokeConstructor: bad arglist");
         }
-
         DirectResultWatcher watcher = new DirectResultWatcher();
         Invoker invoker = new Invoker(pkgFrame, callable, watcher);
         String [] argStrings = convObjToString(args);
         invoker.invokeDirect(argStrings);
 
-        // this will wait() on the invoke to finish
-        DebuggerObject result = watcher.getResult();
-        
-        String resultType = watcher.getResultType();
-        if (resultType != null) {
-            ExecutionEvent ee = new ExecutionEvent(pkgFrame.getPackage(), callable.getClassName(), null);
-            raiseEvent(ee, callable, argStrings, watcher);
-        }
+        return () -> {
+            // this will wait() on the invoke to finish
+            DebuggerObject result = watcher.getResult();
 
-        if (watcher.isFailed()) {
-            throw new InvocationErrorException("invokeConstructor: Error=" + watcher.getError());
-        }
+            Platform.runLater(() -> {
+                String resultType = watcher.getResultType();
+                if (resultType != null)
+                {
+                    ExecutionEvent ee = new ExecutionEvent(pkgFrame.getPackage(), callable.getClassName(), null);
+                    raiseEvent(ee, callable, argStrings, watcher, result);
+                }
+            });
 
-        if (result == null) {
-            // This is most likely an error, but not of the sort above. Unlikely to happen
-            throw new InvocationErrorException("invokeConstructor: ERROR: result==null");
-        }
+            if (watcher.isFailed())
+            {
+                throw new InvocationErrorException("invokeConstructor: Error=" + watcher.getError());
+            }
 
-        resultName = watcher.getResultName();
-        return result;
+            if (result == null)
+            {
+                // This is most likely an error, but not of the sort above. Unlikely to happen
+                throw new InvocationErrorException("invokeConstructor: ERROR: result==null");
+            }
+
+            synchronized (this)
+            {
+                resultName = watcher.getResultName();
+            }
+            return result;
+        };
+    }
+    
+    // An interface for a method call to be done off the FX thread, which may throw an exception
+    interface OffThreadWaiter
+    {
+        @OnThread(Tag.Worker)
+        public DebuggerObject waitForResult() throws InvocationErrorException;
     }
 
 
@@ -153,7 +175,8 @@ class DirectInvoker
      * @exception InvocationArgumentException  Thrown if the arglist is not consistent with the signature
      * @exception InvocationErrorException     Thrown if there is a system error
      */
-    DebuggerObject invokeMethod(ObjectWrapper onThisObjectInstance, MethodView callable, Object[] args)
+    @OnThread(Tag.FXPlatform)
+    OffThreadWaiter invokeMethod(ObjectWrapper onThisObjectInstance, MethodView callable, Object[] args)
              throws InvocationArgumentException, InvocationErrorException
     {
         if (!paramsAlmostMatch(args, callable.getParameters())) {
@@ -171,34 +194,40 @@ class DirectInvoker
         String [] argStrings = convObjToString(args);
         invoker.invokeDirect(convObjToString(args));
 
-        // this will wait() on the invoke to finish
-        DebuggerObject result = watcher.getResult();
-
-        String resultType = watcher.getResultType();
-        if (resultType != null) {
-            ExecutionEvent ee = new ExecutionEvent(pkgFrame.getPackage(), callable.getClassName(),
-                    (onThisObjectInstance==null)?null:onThisObjectInstance.getName());
-            ee.setMethodName(callable.getName());
-            raiseEvent(ee, callable, argStrings, watcher);
-        }
-
-        if (watcher.isFailed()) {
-            throw new InvocationErrorException("invokeMethod: Error=" + watcher.getError());
-        }
-
-        // The "real" object is the first Field in this object.. BUT it is not always
-        // an Object, it may be a primitive one...
-        resultName = watcher.getResultName();
-        return result;
+        return () -> {
+            // this will wait() on the invoke to finish
+            DebuggerObject result = watcher.getResult();
+    
+            Platform.runLater(() -> {
+                String resultType = watcher.getResultType();
+                if (resultType != null)
+                {
+                    ExecutionEvent ee = new ExecutionEvent(pkgFrame.getPackage(), callable.getClassName(),
+                        (onThisObjectInstance == null) ? null : onThisObjectInstance.getName());
+                    ee.setMethodName(callable.getName());
+                    raiseEvent(ee, callable, argStrings, watcher, result);
+                }
+            });
+    
+            if (watcher.isFailed()) {
+                throw new InvocationErrorException("invokeMethod: Error=" + watcher.getError());
+            }
+    
+            // The "real" object is the first Field in this object.. BUT it is not always
+            // an Object, it may be a primitive one...
+            synchronized (this) {
+                resultName = watcher.getResultName();
+            }
+            return result;
+        };
     }
 
     /**
      * Raise an appropriate execution event, after a result has been received.
      */
     private static void raiseEvent(ExecutionEvent event, CallableView callable, String [] argStrings, 
-            DirectResultWatcher watcher)
+            DirectResultWatcher watcher, DebuggerObject result)
     {
-        DebuggerObject result = watcher.getResult();
         String resultType = watcher.getResultType();
         
         event.setParameters(callable.getParamTypes(false), argStrings);
@@ -215,11 +244,14 @@ class DirectInvoker
     }
 
     /**
-     * Returns the result object name of an invocation
+     * Returns the result object name of an invocation.
+     * 
+     * Safe to call on any thread, after invokeMethod or invokeConstructor has finished
      *
      * @return    The resultName value
      */
-    String getResultName()
+    @OnThread(Tag.Any)
+    synchronized String getResultName()
     {
         return resultName;
     }
@@ -330,13 +362,16 @@ class DirectInvoker
     class DirectResultWatcher implements ResultWatcher
     {
         private boolean resultReady;
+        @OnThread(value = Tag.Any, requireSynchronized = true)
         private boolean isFailed;
         private String resultType;
 
         private DebuggerObject result;
         private ExceptionDescription exception;
+        @OnThread(value = Tag.Any, requireSynchronized = true)
         private String errorMsg;
         // When there is a fail this is the reason.
+        @OnThread(value = Tag.Any, requireSynchronized = true)
         private String resultName;
 
 
@@ -358,6 +393,7 @@ class DirectInvoker
          *
          * @return    The result value
          */
+        @OnThread(Tag.Worker)
         public synchronized DebuggerObject getResult()
         {
             while (!resultReady) {
@@ -367,7 +403,10 @@ class DirectInvoker
                 catch (InterruptedException exc) {
                     // This is correct, if someone wants to get me out of this I should
                     // obey to the oreder !
-                    isFailed = true;
+                    synchronized (this)
+                    {
+                        isFailed = true;
+                    }
                     errorMsg = "getResult: Interrupt: Exception=" + exc.getMessage();
                     return null;
                 }
@@ -383,6 +422,7 @@ class DirectInvoker
          *
          * @return    The failed value
          */
+        @OnThread(Tag.Any)
         public synchronized boolean isFailed()
         {
             return isFailed;
@@ -462,7 +502,8 @@ class DirectInvoker
          *
          * @return    The error value
          */
-        public String getError()
+        @OnThread(Tag.Any)
+        public synchronized String getError()
         {
             return errorMsg;
         }
@@ -473,6 +514,7 @@ class DirectInvoker
          *
          * @return    The resultName value
          */
+        @OnThread(Tag.Any)
         public String getResultName()
         {
             return resultName;
