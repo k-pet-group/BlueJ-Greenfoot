@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2019,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,9 @@
  */
 package bluej.extensions2;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * This exception will be thrown when the parameters passed to an invocation
  * do not match the list of arguments of the invocation.
@@ -31,6 +34,7 @@ package bluej.extensions2;
  */
 public class InvocationArgumentException extends ExtensionException
 {
+    @OnThread(Tag.Any)
   InvocationArgumentException (String reason) {
       super (reason);
   }

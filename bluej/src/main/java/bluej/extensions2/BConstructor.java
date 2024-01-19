@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2012,2019,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,8 +24,15 @@ package bluej.extensions2;
 
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions2.BMethod.Outcome;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.ConstructorView;
+import javafx.application.Platform;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A wrapper for a constructor of a BlueJ class.
@@ -146,25 +153,98 @@ public class BConstructor
      * @throws InvocationArgumentException  if the <code>initargs</code> don't match the constructor's arguments.
      * @throws InvocationErrorException     if an error occurs during the invocation.
      */
+    @OnThread(Tag.Worker)
     public BObject newInstance(Object[] initargs)
              throws ProjectNotOpenException, PackageNotFoundException,
             InvocationArgumentException, InvocationErrorException
     {
-        PkgMgrFrame pkgFrame = parentId.getPackageFrame();
+        CompletableFuture<Outcome> resultFuture = new CompletableFuture<>();
+        Platform.runLater(() -> {
+            try
+            {
+                PkgMgrFrame pkgFrame = parentId.getPackageFrame();
 
-        DirectInvoker invoker = new DirectInvoker(pkgFrame);
-        DebuggerObject result = invoker.invokeConstructor(bluej_view, initargs);
+                DirectInvoker invoker = new DirectInvoker(pkgFrame);
+                resultFuture.complete(new Outcome.Success(pkgFrame, invoker, invoker.invokeConstructor(bluej_view, initargs)));
+            }
+            catch (ProjectNotOpenException e)
+            {
+                resultFuture.complete(new Outcome.FailureProject(e));
+            }
+            catch (PackageNotFoundException e)
+            {
+                resultFuture.complete(new Outcome.FailurePackage(e));
+            }
+            catch (InvocationArgumentException e)
+            {
+                resultFuture.complete(new Outcome.FailureInvocationArgument(e));
+            }
+            catch (InvocationErrorException e)
+            {
+                resultFuture.complete(new Outcome.FailureInvocationError(e));
+            }
+            catch (RuntimeException e)
+            {
+                resultFuture.complete(new Outcome.FailureOther(e));
+            }
+        });
+        try
+        {
+            Outcome outcome = resultFuture.get();
+            if (outcome instanceof Outcome.Success details)
+            {
+                DebuggerObject result = details.result().waitForResult();
+                if (result == null)
+                {
+                    return null;
+                }
 
-        if (result == null) {
-            return null;
+                String resultName = details.invoker().getResultName();
+                PkgMgrFrame pmf = details.pkgMgrFrame();
+
+                CompletableFuture<BObject> resultObject = new CompletableFuture<>();
+                Platform.runLater(() -> {
+                    try
+                    {
+                        resultObject.complete(new BObject(ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, result.getGenType(), resultName)));
+                    }
+                    catch (RuntimeException e)
+                    {
+                        resultObject.complete(null);
+                    }
+                });
+                return resultObject.get();
+            }
+            else if (outcome instanceof Outcome.FailureProject f)
+            {
+                throw f.e();
+            }
+            else if (outcome instanceof Outcome.FailurePackage f)
+            {
+                throw f.e();
+            }
+            else if (outcome instanceof Outcome.FailureInvocationArgument f)
+            {
+                throw f.e();
+            }
+            else if (outcome instanceof Outcome.FailureInvocationError f)
+            {
+                throw f.e();
+            }
+            else if (outcome instanceof Outcome.FailureOther f)
+            {
+                throw f.e();
+            }
+            // This is impossible to reach but Java thinks outcome could be null:
+            else
+            {
+                throw new RuntimeException("Invocation failed impossibly, outcome was " + outcome);
+            }
         }
-
-        String resultName = invoker.getResultName();
-        PkgMgrFrame pmf = parentId.getPackageFrame();
-
-        ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, result.getGenType(), resultName);
-
-        return new BObject(wrapper);
+        catch (InterruptedException | ExecutionException e)
+        {
+            throw new InvocationErrorException(e.getMessage());
+        }
     }
 
     /**
