@@ -852,6 +852,12 @@ public class SuggestionList
             {
                 eligible.put(i, new EligibleDetail(0, 0, prefix.length()));
             }
+            else if (sugg.toLowerCase().startsWith("this." + prefix.toLowerCase()))
+            {
+                // If there is a completion like "this.foodList" (which appears because the field is shadowed by a local variable named foodList)
+                // then we show it as directly relevant if the user types "foo".
+                eligible.put(i, new EligibleDetail("this.".length(), 0, prefix.length()));
+            }
             else if (allowSimilar)
             {
                 // Look if this text starts a word in the identifier:
