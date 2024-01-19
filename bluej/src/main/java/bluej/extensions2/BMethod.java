@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2019,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -306,7 +306,7 @@ public class BMethod
             {
                 throw f.e;
             }
-            // This is impossible to reach but Java things outcome could be null:
+            // This is impossible to reach but Java thinks outcome could be null:
             else
             {
                 throw new RuntimeException("Invocation failed impossibly, outcome was " + outcome);
