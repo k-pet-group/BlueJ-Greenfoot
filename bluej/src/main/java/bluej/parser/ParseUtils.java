@@ -38,6 +38,7 @@ import bluej.parser.nodes.VariableDeclaration;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.role.Kind;
+import bluej.stride.framedjava.frames.LocalCompletion;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.debugger.gentype.FieldReflective;
@@ -298,20 +299,44 @@ public class ParseUtils
 
         }
 
-        if (surroundingMethod != null)
+        if (surroundingMethod != null && suggests.isPlain())
         {
             // Find and add the local variables:
-            findLocalVariables(findInnerMostNode(ourPos - surroundingMethod.getAbsoluteEditorPosition(), surroundingMethod), surroundingMethod, ourPos).forEach(var -> {
-                completions.add(new FieldCompletion(var.getFieldTypeAsPlainString(), var.getName(), var.getModifiers(), null));
+            findLocalVariables(findInnerMostNode(ourPos - surroundingMethod.getAbsoluteEditorPosition(), surroundingMethod), surroundingMethod, ourPos - (suggests.getSuggestionToken() == null ? 0 : suggests.getSuggestionToken().getLength())).forEach(var -> {
+                AssistContent completion = LocalCompletion.getCompletion(var.getFieldTypeAsPlainString(), var.getName(), false);
+                if (completion != null)
+                {
+                    scopeField(completions, var.getName());
+                    completions.add(completion);
+                }
             });
             
             for (int i = 0; i < surroundingMethod.getParamNames().size(); i++)
             {
-                completions.add(new FieldCompletion(surroundingMethod.getParamTypes().get(i).getName(), surroundingMethod.getParamNames().get(i), 0, null));
+                String name = surroundingMethod.getParamNames().get(i);
+                AssistContent completion = LocalCompletion.getCompletion(surroundingMethod.getParamTypes().get(i).getName(), name, true);
+                if (completion != null)
+                {
+                    scopeField(completions, name);
+                    completions.add(completion);
+                }
             }
         }
         
         return completions;
+    }
+
+    private static void scopeField(List<AssistContent> completions, String name)
+    {
+        // Checks for any fields with the given name, and renames them to "this.{field}"
+        for (ListIterator<AssistContent> iterator = completions.listIterator(); iterator.hasNext(); )
+        {
+            AssistContent completion = iterator.next();
+            if (completion.getName().equals(name) && completion.getKind() == AssistContent.CompletionKind.FIELD)
+            {
+                iterator.set(new PrefixCompletionWrapper(completion, "this."));
+            }
+        }
     }
 
     /**
