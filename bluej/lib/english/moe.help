@@ -8,6 +8,8 @@
 
 delete-previous=\n Delete the character before the caret.
 delete-next=\n Delete the character after the caret.
+delete-previous-word=\n Delete the word before the caret.
+delete-next-word=\n Delete the word after the caret.
 copy-to-clipboard=\n Copy the selected text to the clipboard. From there, it can be\n pasted somewhere else later (see paste-from-clipboard).
 cut-to-clipboard= Cut the selection from the text and move it to the clipboard.\n From there, it can be pasted somewhere else later (see\n paste-from-clipboard).
 copy-line=\n Copy the current line to the clipboard. Successive \n copy operations add to the clipbord.

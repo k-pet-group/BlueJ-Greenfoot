@@ -8,6 +8,8 @@
 
 delete-previous=\n Zeichen vor dem Cursor l\u00f6schen.
 delete-next=\n Zeichen nach dem Cursor l\u00f6schen.
+delete-previous-word=\n Wort vor dem Cursor l\u00f6schen.
+delete-next-word=\n Wort nach dem Cursor l\u00f6schen.
 copy-to-clipboard=\n Ausgew\u00e4hlten Text in die Zwischenablage kopieren. Von dort kann er\n woanders eingef\u00fcgt werden (vgl. paste-from-clipboard).
 cut-to-clipboard=\n Ausgew\u00e4hlten Text in die Zwischenablage ausschneiden. Von dort kann\n er woanders eingef\u00fcgt werden (vgl. paste-from-clipboard).
 copy-line=\n Aktuelle Zeile in die Zwischenablage kopieren.\n Danach Kopiertes wird an die Zwischenablage angef\u00fcgt.
