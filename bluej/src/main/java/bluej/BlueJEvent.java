@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2016,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2016,2019,2024  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -90,11 +90,7 @@ public class BlueJEvent
     @OnThread(Tag.FXPlatform)
     public static void raiseEvent(int eventId, Object arg)
     {
-        Object[] listenersCopy = listeners.toArray();
-        for (int i = listenersCopy.length - 1; i >= 0; i--) {
-            BlueJEventListener listener = (BlueJEventListener) listenersCopy[i];
-            listener.blueJEvent(eventId, arg, null);
-        }
+        raiseEvent(eventId, arg, null);
     }
 
     /**
