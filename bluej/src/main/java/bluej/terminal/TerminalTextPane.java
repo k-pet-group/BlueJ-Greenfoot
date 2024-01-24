@@ -22,6 +22,7 @@
 package bluej.terminal;
 
 import bluej.Config;
+import bluej.editor.base.BackgroundItem;
 import bluej.editor.base.BaseEditorPane;
 import bluej.editor.base.EditorPosition;
 import bluej.editor.base.TextLine.StyledSegment;
@@ -29,6 +30,7 @@ import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.input.Clipboard;
@@ -37,12 +39,18 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -65,6 +73,99 @@ public abstract class TerminalTextPane extends BaseEditorPane
     private Pos caretPos = new Pos(0, 0, 0);
     private Pos anchorPos = new Pos(0, 0, 0);
 
+    // The line may be negative in some circumstances (see Section, below).
+    // In this case, column should be ignored.  If the column is Integer.MAX_VALUE
+    // it means to take the whole line as included, no matter how long.
+    // Both column and line are zero-based.
+    record TerminalPos(int line, int column)
+    {
+        public TerminalPos subtractLines(int linesToSubtract)
+        {
+            return new TerminalPos(line - linesToSubtract, column);
+        }
+    } 
+    
+    // endLine is negative if ongoing.  startLine is negative if the start has scrolled off the top
+    // It is possible for them to both be negative if the section is very long and ongoing.
+    // All values of the pos are inclusive.  The columns should be ignored if the line is negative.
+    record Section(TerminalPos start, TerminalPos end) {}
+    
+    private final ArrayList<Section> currentSections = new ArrayList<>();
+
+    // Get the current end position of the content as a start position
+    // This is different to getCurEnd() because it does not do any extra
+    // calculation about trailing newlines.
+    private TerminalPos getCurStart()
+    {
+        if (content.isEmpty())
+        {
+            return new TerminalPos(0, 0);
+        }
+        else
+        {
+            return new TerminalPos(content.size() - 1, content.get(content.size() - 1).getText().length());
+        }
+    }
+    
+    // Get the current end position of the content as an end position
+    // This is different to getCurStart() because if the content ends if a newline
+    // (the last content is a blank line), we take the end position as being the end
+    // of the previous line, not the start of the new line (if there's no content on that line)
+    private TerminalPos getCurEnd()
+    {
+        // If the final line is empty, we count the current end as the whole of the line before
+        if (content.isEmpty())
+        {
+            return new TerminalPos(0, 0);
+        }
+        else
+        {
+            String lastLine = content.get(content.size() - 1).getText();
+            if (lastLine.isEmpty())
+            {
+                return new TerminalPos(content.size() - 2, Integer.MAX_VALUE);
+            }
+            else
+            {
+                return new TerminalPos(content.size() - 1, lastLine.length());
+            }
+        }
+    }
+    
+    public void markNewSection()
+    {
+        if (!currentSections.isEmpty())
+        {
+            int lastLineIndex = currentSections.size() - 1;
+            // If current last section was marked as ongoing, finish it:
+            if (currentSections.get(lastLineIndex).end.line < 0)
+            {
+                currentSections.set(lastLineIndex, new Section(currentSections.get(lastLineIndex).start, getCurEnd()));
+            }
+        }
+        currentSections.add(new Section(getCurStart(), new TerminalPos(-1, 0)));
+    }
+
+    // End the current section of content.
+    public void endSection()
+    {        
+        if (!currentSections.isEmpty())
+        {
+            // If the content is empty we get rid of all sections: 
+            if (content.isEmpty())
+            {
+                currentSections.clear();
+            }
+            else
+            {
+                int lastSection = currentSections.size() - 1;
+                currentSections.set(lastSection, new Section(currentSections.get(lastSection).start, getCurEnd()));
+                updateRender(false);
+            }
+        }
+    }    
+    
+    
     public TerminalTextPane()
     {
         super(false, new BaseEditorPaneListener()
@@ -210,7 +311,82 @@ public abstract class TerminalTextPane extends BaseEditorPane
     
     public abstract void focusPrevious();
     public abstract void focusNext();
-    
+
+    @Override
+    protected void updateRender(boolean ensureCaretVisible)
+    {
+        super.updateRender(ensureCaretVisible);
+        // Recalculate all sections in the terminal:
+        HashMap<Integer, List<BackgroundItem>> map = new HashMap<>();
+        boolean reschedule = false;
+        for (int i = 0; i < content.size(); i++)
+        {
+            for (Section s : currentSections)
+            {
+                final double singleRadius = 5;
+                // All are specific to this section, on this line:
+                double topRadius = 0, bottomRadius = 0;
+                // Top or bottom inset of 0 basically means "don't draw the grey line":
+                double topInset = 0, bottomInset = 0;
+                // Default is whole width:
+                double leftInset = 0, rightInset = getTextDisplayWidth()-1.0;
+
+                // Each section could begin and/or end on the current line
+                // If neither, it may be ongoing through this line, or just not overlapping at all.
+                // So there's quite a few circumstances to consider.  We start with beginning:
+                if (s.start.line == i)
+                {
+                    topRadius = singleRadius;
+                    topInset = 1;
+                    if (s.start.column >= 0 && s.start.column < content.get(i).getText().length())
+                    {
+                        Optional<Double> edge = lineDisplay.calculateLeftEdgeX(i, s.start.column);
+                        reschedule |= edge.isEmpty();
+                        leftInset = edge.orElse(leftInset);
+                    }
+                    if (s.end.line == i)
+                    {
+                        bottomRadius = singleRadius;
+                        bottomInset = 1;
+                        if (s.end.column >= 0 && s.end.column <= content.get(i).getText().length())
+                        {
+                            Optional<Double> edge = lineDisplay.calculateLeftEdgeX(i, s.end.column);
+                            reschedule |= edge.isEmpty();
+                            rightInset = edge.orElse(rightInset);
+                        }
+                    }
+                }
+                else if (s.end.line == i)
+                {
+                    bottomRadius = singleRadius;
+                    bottomInset = 1;
+                    if (s.end.column >= 0 && s.end.column <= content.get(i).getText().length())
+                    {
+                        Optional<Double> edge = lineDisplay.calculateLeftEdgeX(i, s.end.column);
+                        reschedule |= edge.isEmpty();
+                        rightInset = edge.orElse(rightInset);
+                    }
+                }
+                else if (!(s.start.line < i && (s.end.line == -1 || s.end.line > i)))
+                {
+                    // Does not overlap this line at all:
+                    continue;
+                }
+                
+                CornerRadii radii = new CornerRadii(topRadius, topRadius, bottomRadius, bottomRadius, false);
+                Insets bodyInsets = new Insets(topInset, 1, bottomInset, 1);
+                map.computeIfAbsent(i, _i -> new ArrayList<>()).add(new BackgroundItem(leftInset, rightInset - leftInset,
+                    new BackgroundFill(Color.LIGHTGRAY, radii, null),
+                    new BackgroundFill(Color.WHITE, radii, bodyInsets)));
+            }
+        }
+        lineDisplay.applyScopeBackgrounds(map);        
+        if (reschedule)
+        {
+            JavaFXUtil.runAfterNextLayout(getScene(), () -> updateRender(false));
+        }
+    }
+
     public final void requestFocusAndShowCaret()
     {
         requestFocus();
@@ -318,6 +494,20 @@ public abstract class TerminalTextPane extends BaseEditorPane
             anchorPos = makePosition(
                 newAnchorLine, Math.min(anchorPos.getColumn(), getLineLength(newAnchorLine))
             );
+            // Adjust line offset of any current lines in the display to match what we've just changed:
+            for (ListIterator<Section> iterator = currentSections.listIterator(); iterator.hasNext(); )
+            {
+                Section s = iterator.next();
+                // Check for scrolling off the top entirely, if it's not currently ongoing:
+                if (s.end.line > 0 && s.end.line < linesToSubtract)
+                {
+                    iterator.remove();
+                }
+                else
+                {
+                    iterator.set(new Section(s.start.subtractLines(linesToSubtract), s.end.subtractLines(linesToSubtract)));
+                }
+            }
             updateRender(false);
         }
     }
@@ -354,6 +544,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
         caretPos = new Pos(0, 0, 0);
         anchorPos = new Pos(0, 0, 0);
         setContent(Collections.singletonList(new ContentLine(new ArrayList<>())));
+        currentSections.clear();
     }
 
     /**

@@ -50,7 +50,6 @@ import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -89,6 +88,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -143,7 +143,7 @@ public final class Terminal
     private final BooleanProperty showingProperty = new SimpleBooleanProperty(false);
 
     @OnThread(Tag.Any) private final Reader in = new TerminalReader();
-    @OnThread(Tag.Any) private final Writer out = new TerminalWriter(false);
+    @OnThread(Tag.Any) private final TerminalWriter out = new TerminalWriter(false);
     @OnThread(Tag.Any) private final Writer err = new TerminalWriter(true);
 
     private Stage window;
@@ -177,6 +177,7 @@ public final class Terminal
             }
         };
         text.getStyleClass().add("terminal-output");
+        text.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_AND_FAMILY));
         text.addSelectionListener((caret, anchor) -> {
             if (errorText != null && errorText.getCaretEditorPosition().getPosition() != errorText.getAnchorEditorPosition().getPosition())
             {
@@ -509,6 +510,7 @@ public final class Terminal
         if(clearOnMethodCall.get()) {
             clear();
         }
+        text.markNewSection();
         if(recordMethodCalls.get()) {
             text.append(new StyledSegment(STDOUT_METHOD_RECORDING, callString + "\n"));
         }
@@ -724,6 +726,24 @@ public final class Terminal
         }
         else if (eventId == BlueJEvent.EXECUTION_RESULT) {
             methodResult((ExecutionEvent) arg);
+            endSectionWhenNoPendingWrites();
+        }
+    }
+
+    /**
+     * End the output section, if there are no writes pending to stdout.
+     * Otherwise, reschedule ourselves (to end the section once no more writes are pending)
+     */
+    @OnThread(Tag.FXPlatform)
+    private void endSectionWhenNoPendingWrites()
+    {
+        if (out.pendingWrites.get() > 0)
+        {
+            JavaFXUtil.runAfterCurrent(() -> endSectionWhenNoPendingWrites());
+        }
+        else
+        {
+            text.endSection();
         }
     }
 
@@ -889,6 +909,7 @@ public final class Terminal
     private class TerminalWriter extends Writer
     {
         private boolean isErrorOut;
+        private AtomicInteger pendingWrites = new AtomicInteger(0);
         
         TerminalWriter(boolean isError)
         {
@@ -899,6 +920,7 @@ public final class Terminal
         public void write(final char[] cbuf, final int off, final int len)
         {
             try {
+                pendingWrites.incrementAndGet();
                 // We use a wait so that terminal output is limited to
                 // the processing speed of the event queue. This means the UI
                 // will still respond to user input even if the output is really
@@ -922,6 +944,7 @@ public final class Terminal
                     finally
                     {
                         written.complete(true);
+                        pendingWrites.decrementAndGet();
                     }
                 });
                 // Timeout in case something goes wrong with the printing:
