@@ -890,7 +890,8 @@ public final class FlowActions
                 new DeletePrevCharAction(),
                 new DeleteNextCharAction(),
 
-                deleteWordAction(),
+                deletePreviousWordAction(),
+                deleteNextWordAction(),
                 selectWordAction(),
                 saveAction(),
                 printAction(),
@@ -2051,13 +2052,25 @@ public final class FlowActions
         }
     }
 
-    private FlowAbstractAction deleteWordAction()
+    private FlowAbstractAction deletePreviousWordAction()
     {
         return action("delete-previous-word", Category.EDIT, () -> {
             FlowEditorPane c = getTextComponent();
             FlowAbstractAction prevWordAct = actions.get("caret-previous-word");
             int end = c.getCaretPosition();
             prevWordAct.actionPerformed(false);
+            c.positionAnchor(end);
+            c.replaceSelection("");
+        });
+    }
+
+    private FlowAbstractAction deleteNextWordAction()
+    {
+        return action("delete-next-word", Category.EDIT, () -> {
+            FlowEditorPane c = getTextComponent();
+            FlowAbstractAction nextWordAct = actions.get("caret-next-word");
+            int end = c.getCaretPosition();
+            nextWordAct.actionPerformed(false);
             c.positionAnchor(end);
             c.replaceSelection("");
         });
