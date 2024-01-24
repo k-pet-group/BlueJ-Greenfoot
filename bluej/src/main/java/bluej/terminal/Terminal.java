@@ -511,6 +511,8 @@ public final class Terminal
             clear();
         }
         text.markNewSection();
+        if (errorText != null)
+            errorText.clear();
         if(recordMethodCalls.get()) {
             text.append(new StyledSegment(STDOUT_METHOD_RECORDING, callString + "\n"));
         }
@@ -531,6 +533,9 @@ public final class Terminal
         if(clearOnMethodCall.get()) {
             clear();
         }
+        text.markNewSection();
+        if (errorText != null)
+            errorText.clear();
         if(recordMethodCalls.get()) {
             String callString = ir.getResultTypeString() + " " + ir.getResultName() + " = " + ir.toExpression() + ";";
             text.append(new StyledSegment(STDOUT_METHOD_RECORDING, callString + "\n"));
