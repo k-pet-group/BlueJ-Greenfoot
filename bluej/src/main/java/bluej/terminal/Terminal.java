@@ -31,6 +31,7 @@ import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugmgr.ExecutionEvent;
+import bluej.debugmgr.ExecutionEvent.Result;
 import bluej.editor.base.LineDisplay;
 import bluej.editor.base.TextLine;
 import bluej.editor.base.TextLine.StyledSegment;
@@ -49,7 +50,6 @@ import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -88,6 +88,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -142,7 +143,7 @@ public final class Terminal
     private final BooleanProperty showingProperty = new SimpleBooleanProperty(false);
 
     @OnThread(Tag.Any) private final Reader in = new TerminalReader();
-    @OnThread(Tag.Any) private final Writer out = new TerminalWriter(false);
+    @OnThread(Tag.Any) private final TerminalWriter out = new TerminalWriter(false);
     @OnThread(Tag.Any) private final Writer err = new TerminalWriter(true);
 
     private Stage window;
@@ -176,6 +177,7 @@ public final class Terminal
             }
         };
         text.getStyleClass().add("terminal-output");
+        text.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_AND_FAMILY));
         text.addSelectionListener((caret, anchor) -> {
             if (errorText != null && errorText.getCaretEditorPosition().getPosition() != errorText.getAnchorEditorPosition().getPosition())
             {
@@ -508,6 +510,9 @@ public final class Terminal
         if(clearOnMethodCall.get()) {
             clear();
         }
+        text.markNewSection(callString);
+        if (errorText != null)
+            errorText.clear();
         if(recordMethodCalls.get()) {
             text.append(new StyledSegment(STDOUT_METHOD_RECORDING, callString + "\n"));
         }
@@ -528,8 +533,11 @@ public final class Terminal
         if(clearOnMethodCall.get()) {
             clear();
         }
+        String callString = ir.getResultTypeString() + " " + ir.getResultName() + " = " + ir.toExpression() + ";";
+        text.markNewSection(callString);
+        if (errorText != null)
+            errorText.clear();
         if(recordMethodCalls.get()) {
-            String callString = ir.getResultTypeString() + " " + ir.getResultName() + " = " + ir.toExpression() + ";";
             text.append(new StyledSegment(STDOUT_METHOD_RECORDING, callString + "\n"));
         }
         newMethodCall = true;
@@ -539,9 +547,9 @@ public final class Terminal
     {
         if (recordMethodCalls.get()) {
             String result = null;
-            String resultType = event.getResult();
+            Result resultType = event.getResult();
             
-            if (resultType == ExecutionEvent.NORMAL_EXIT) {
+            if (resultType == ExecutionEvent.Result.NORMAL_EXIT) {
                 DebuggerObject object = event.getResultObject();
                 if (object != null) {
                     if (event.getClassName() != null && event.getMethodName() == null) {
@@ -563,10 +571,10 @@ public final class Terminal
                     }
                 }
             }
-            else if (resultType == ExecutionEvent.EXCEPTION_EXIT) {
+            else if (resultType == ExecutionEvent.Result.EXCEPTION_EXIT) {
                 result = "    Exception occurred.";
             }
-            else if (resultType == ExecutionEvent.TERMINATED_EXIT) {
+            else if (resultType == ExecutionEvent.Result.TERMINATED_EXIT) {
                 result = "    VM terminated.";
             }
             
@@ -723,6 +731,24 @@ public final class Terminal
         }
         else if (eventId == BlueJEvent.EXECUTION_RESULT) {
             methodResult((ExecutionEvent) arg);
+            endSectionWhenNoPendingWrites();
+        }
+    }
+
+    /**
+     * End the output section, if there are no writes pending to stdout.
+     * Otherwise, reschedule ourselves (to end the section once no more writes are pending)
+     */
+    @OnThread(Tag.FXPlatform)
+    private void endSectionWhenNoPendingWrites()
+    {
+        if (out.pendingWrites.get() > 0)
+        {
+            JavaFXUtil.runAfterCurrent(() -> endSectionWhenNoPendingWrites());
+        }
+        else
+        {
+            text.endSection();
         }
     }
 
@@ -888,6 +914,9 @@ public final class Terminal
     private class TerminalWriter extends Writer
     {
         private boolean isErrorOut;
+        // The number of pending writes (content that has been received on the
+        // IO thread, but not yet displayed in the terminal via the FX thread)
+        private AtomicInteger pendingWrites = new AtomicInteger(0);
         
         TerminalWriter(boolean isError)
         {
@@ -898,6 +927,7 @@ public final class Terminal
         public void write(final char[] cbuf, final int off, final int len)
         {
             try {
+                pendingWrites.incrementAndGet();
                 // We use a wait so that terminal output is limited to
                 // the processing speed of the event queue. This means the UI
                 // will still respond to user input even if the output is really
@@ -921,6 +951,7 @@ public final class Terminal
                     finally
                     {
                         written.complete(true);
+                        pendingWrites.decrementAndGet();
                     }
                 });
                 // Timeout in case something goes wrong with the printing:

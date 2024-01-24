@@ -24,6 +24,7 @@ package bluej.editor.base;
 import bluej.editor.base.BaseEditorPane.BaseEditorPaneListener;
 import bluej.editor.base.TextLine.StyledSegment;
 import bluej.editor.flow.Document;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXFunction;
 import com.google.common.cache.Cache;
@@ -34,7 +35,10 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.PathElement;
+import javafx.scene.text.Font;
 import javafx.scene.text.HitInfo;
+import javafx.scene.text.Text;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -45,8 +49,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * A class to handle the display of the set of visible lines in an editor window.
@@ -88,6 +94,41 @@ public class LineDisplay
         this.horizScrollProperty = horizScrollProperty;
         this.editorPaneListener = editorPaneListener;
         this.showLeftMargin = showLeftMargin;
+    }
+
+    /**
+     * Gets the X pixel position of the left edge of the given position
+     * @param lineIndex The line index (0 based in document, using same index as getVisibleLine)
+     * @param posInLine The column position in the line
+     * @return The position if we could calculate it, or empty if not (because we need a layout first)
+     */
+    @OnThread(Tag.FXPlatform)
+    public Optional<Double> calculateLeftEdgeX(int lineIndex, int posInLine)
+    {
+        if (isLineVisible(lineIndex))
+        {
+            TextLine line = getVisibleLine(lineIndex).textLine;
+            // If the line needs layout, the positions won't be accurate:
+            if (line.isNeedsLayout())
+                return Optional.empty();
+            // Sometimes, it seems that the line can have the CSS for the font,
+            // and claim it doesn't need layout, but the font on the Text items
+            // has not actually been switched to the right font.  In this case
+            // the positions will be inaccurate, so we should not calculate:
+            Font curFont = line.getChildren().stream().flatMap(n -> n instanceof Text ? Stream.of(((Text)n).getFont()) : Stream.empty()).findFirst().orElse(null);
+            if (curFont != null && !curFont.getFamily().equals(PrefMgr.getEditorFontFamily()))
+                return Optional.empty();
+            PathElement[] elements = line.caretShape(posInLine, true);
+            Path path = new Path(elements);
+            Bounds bounds = path.getBoundsInLocal();
+            // If the bounds are at left edge but char is not, might not have laid out yet:
+            if (posInLine > 0 && bounds.getMaxX() < 2.0)
+            {
+                return Optional.empty();
+            }
+            return Optional.of((bounds.getMinX() + bounds.getMaxX()) / 2.0);
+        }
+        return Optional.empty();
     }
 
     /**

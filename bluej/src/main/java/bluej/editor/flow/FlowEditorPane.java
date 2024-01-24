@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022,2024  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,28 +33,21 @@ import bluej.editor.base.LineDisplay.LineDisplayListener;
 import bluej.editor.base.MarginAndTextLine.MarginDisplay;
 import bluej.editor.base.TextLine.HighlightType;
 import bluej.editor.base.TextLine.StyledSegment;
-import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.AccessibleAttribute;
-import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Region;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -70,7 +63,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * A FlowEditorPane is a component with (optional) horizontal and vertical scroll bars.
@@ -515,31 +507,8 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     static Optional<Double> getLeftEdgeX(int leftOfCharIndex, Document document, LineDisplay lineDisplay)
     {
         int lineIndex = document.getLineFromPosition(leftOfCharIndex);
-        if (lineDisplay.isLineVisible(lineIndex))
-        {
-            TextLine line = lineDisplay.getVisibleLine(lineIndex).textLine;
-            // If the line needs layout, the positions won't be accurate:
-            if (line.isNeedsLayout())
-                return Optional.empty();
-            // Sometimes, it seems that the line can have the CSS for the font,
-            // and claim it doesn't need layout, but the font on the Text items
-            // has not actually been switched to the right font.  In this case
-            // the positions will be inaccurate, so we should not calculate:
-            Font curFont = line.getChildren().stream().flatMap(n -> n instanceof Text ? Stream.of(((Text)n).getFont()) : Stream.empty()).findFirst().orElse(null);
-            if (curFont != null && !curFont.getFamily().equals(PrefMgr.getEditorFontFamily()))
-                return Optional.empty();
-            int posInLine = leftOfCharIndex - document.getLineStart(lineIndex);
-            PathElement[] elements = line.caretShape(posInLine, true);
-            Path path = new Path(elements);
-            Bounds bounds = path.getBoundsInLocal();
-            // If the bounds are at left edge but char is not, might not have laid out yet:
-            if (posInLine > 0 && bounds.getMaxX() < 2.0)
-            {
-                return Optional.empty();
-            }
-            return Optional.of((bounds.getMinX() + bounds.getMaxX()) / 2.0);
-        }
-        return Optional.empty();
+        int posInLine = leftOfCharIndex - document.getLineStart(lineIndex);
+        return lineDisplay.calculateLeftEdgeX(lineIndex, posInLine);
     }
 
     public Optional<Bounds> getCaretBoundsOnScreen(int position)

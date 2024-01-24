@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2024  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,26 +37,35 @@ import bluej.pkgmgr.Package;
 @OnThread(Tag.Any)
 public class ExecutionEvent
 {
-    /**
-     * The execution has finished normally;
-     */
-    public static final String NORMAL_EXIT = "Normal exit";
+    public static enum Result
+    {
+        /**
+         * The execution has finished normally;
+         */
+        NORMAL_EXIT("Normal exit"),
 
-    /**
-     * The execution has finished due to an exception
-     */
-    public static final String EXCEPTION_EXIT = "An exception occurred";
+        /**
+         * The execution has finished due to an exception
+         */
+        EXCEPTION_EXIT("An exception occurred"),
 
-    /**
-     * The execution has finished because the user has forcefully terminated it
-     */
-    public static final String TERMINATED_EXIT = "User terminated";
+        /**
+         * The execution has finished because the user has forcefully terminated it
+         */
+        TERMINATED_EXIT("User terminated");
+        
+        private final String text;
+        private Result(String text)
+        {
+            this.text = text;
+        }
+    }
     
     private String className, objectName;
     private String methodName;
     private JavaType[] signature;
     private String[] parameters;
-    private String result;
+    private Result result;
     private String command;
     private Package pkg;
     private DebuggerObject resultObject;   // If there is a result object it goes here.
@@ -109,11 +118,10 @@ public class ExecutionEvent
     /**
      * Set the result of the execution. This should be one of:
      * NORMAL_EXIT - the execution terminated successfully
-     * FORCED_EXIT - System.exit() was called
      * EXCEPTION_EXIT - the execution failed due to an exception
      * TERMINATED_EXIT - the user terminated the VM before execution completed
      */
-    public void setResult (String result)
+    public void setResult (Result result)
     {
         this.result = result;
     }
@@ -198,7 +206,7 @@ public class ExecutionEvent
      * EXCEPTION_EXIT - the execution failed due to an exception
      * TERMINATED_EXIT - the user terminated the VM before execution completed
      */
-    public String getResult()
+    public Result getResult()
     {
         return result;
     }

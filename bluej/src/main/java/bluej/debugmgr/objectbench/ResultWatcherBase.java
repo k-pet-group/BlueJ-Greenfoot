@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2017,2018,2019,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -96,7 +96,7 @@ public abstract class ResultWatcherBase implements ResultWatcher
             executionEvent.setMethodName(mv.getName());
         }
         executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
-        executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+        executionEvent.setResult(ExecutionEvent.Result.NORMAL_EXIT);
         executionEvent.setResultObject(result);
         BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
 
@@ -152,7 +152,7 @@ public abstract class ResultWatcherBase implements ResultWatcher
     {
         ExecutionEvent executionEvent = new ExecutionEvent(pkg, className, objInstanceName);
         executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
-        executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
+        executionEvent.setResult(ExecutionEvent.Result.EXCEPTION_EXIT);
         executionEvent.setException(exception);
         BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
 
@@ -165,7 +165,7 @@ public abstract class ResultWatcherBase implements ResultWatcher
     {
         ExecutionEvent executionEvent = new ExecutionEvent(pkg, className, objInstanceName);
         executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
-        executionEvent.setResult(terminatedByUserCode ? ExecutionEvent.NORMAL_EXIT : ExecutionEvent.TERMINATED_EXIT);
+        executionEvent.setResult(terminatedByUserCode ? ExecutionEvent.Result.NORMAL_EXIT : ExecutionEvent.Result.TERMINATED_EXIT);
         BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
     }
 }

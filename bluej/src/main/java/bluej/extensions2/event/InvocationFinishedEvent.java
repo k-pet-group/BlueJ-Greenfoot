@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2019,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2014,2019,2021,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.ExecutionEvent;
+import bluej.debugmgr.ExecutionEvent.Result;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions2.BPackage;
 import bluej.extensions2.ExtensionBridge;
@@ -95,16 +96,16 @@ public class InvocationFinishedEvent implements ExtensionEvent
     public InvocationFinishedEvent(ExecutionEvent exevent)
     {
         terminationType = EventType.UNKNOWN_EXIT;
-        String resultType = exevent.getResult();
+        Result resultType = exevent.getResult();
         switch (resultType)
         {
-            case ExecutionEvent.NORMAL_EXIT:
+            case NORMAL_EXIT:
                 terminationType = EventType.NORMAL_EXIT;
                 break;
-            case ExecutionEvent.EXCEPTION_EXIT:
+            case EXCEPTION_EXIT:
                 terminationType = EventType.EXCEPTION_EXIT;
                 break;
-            case ExecutionEvent.TERMINATED_EXIT:
+            case TERMINATED_EXIT:
                 terminationType = EventType.TERMINATED_EXIT;
                 break;
         }
