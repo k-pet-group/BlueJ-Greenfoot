@@ -914,6 +914,8 @@ public final class Terminal
     private class TerminalWriter extends Writer
     {
         private boolean isErrorOut;
+        // The number of pending writes (content that has been received on the
+        // IO thread, but not yet displayed in the terminal via the FX thread)
         private AtomicInteger pendingWrites = new AtomicInteger(0);
         
         TerminalWriter(boolean isError)

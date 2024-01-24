@@ -79,6 +79,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
     private final Tooltip tooltip = new Tooltip();
     private EditorPosition lastMousePos;
     
+    // A record holding a location in the terminal window.
     // The line may be negative in some circumstances (see Section, below).
     // In this case, column should be ignored.  If the column is Integer.MAX_VALUE
     // it means to take the whole line as included, no matter how long.
@@ -114,7 +115,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
     }
     
     // Get the current end position of the content as an end position
-    // This is different to getCurStart() because if the content ends if a newline
+    // This is different to getCurStart() because if the content ends in a newline
     // (the last content is a blank line), we take the end position as being the end
     // of the previous line, not the start of the new line (if there's no content on that line)
     private TerminalPos getCurEnd()
