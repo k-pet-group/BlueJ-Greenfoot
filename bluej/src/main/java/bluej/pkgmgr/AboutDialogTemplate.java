@@ -145,7 +145,7 @@ public class AboutDialogTemplate extends Dialog<Void>
                 if (Config.isWinOS())
                 {
                     Runtime.getRuntime().exec(
-                        new String[] {"start", Config.getUserConfigDir().getAbsolutePath()});
+                        new String[] {"cmd", "/c", "start", Config.getUserConfigDir().getAbsolutePath()});
                 }
                 else if (Config.isMacOS())
                 {
