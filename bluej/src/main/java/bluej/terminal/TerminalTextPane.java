@@ -26,6 +26,7 @@ import bluej.editor.base.BackgroundItem;
 import bluej.editor.base.BaseEditorPane;
 import bluej.editor.base.EditorPosition;
 import bluej.editor.base.TextLine.StyledSegment;
+import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.collect.ImmutableList;
@@ -33,6 +34,7 @@ import com.google.common.collect.Lists;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyEvent;
@@ -43,6 +45,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 
+import javax.tools.Tool;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -67,12 +70,15 @@ public abstract class TerminalTextPane extends BaseEditorPane
     private final ArrayList<ContentLine> content = new ArrayList<>();
     // Listeners to call when the content of the pane changes
     private final ArrayList<FXPlatformRunnable> contentListeners = new ArrayList<>();
-    
+
     // The position of the caret and the anchor.  The Pos class is immutable so the instance
     // will be swapped out as a whole if it changes.
     private Pos caretPos = new Pos(0, 0, 0);
     private Pos anchorPos = new Pos(0, 0, 0);
-
+    
+    private final Tooltip tooltip = new Tooltip();
+    private EditorPosition lastMousePos;
+    
     // The line may be negative in some circumstances (see Section, below).
     // In this case, column should be ignored.  If the column is Integer.MAX_VALUE
     // it means to take the whole line as included, no matter how long.
@@ -88,7 +94,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
     // endLine is negative if ongoing.  startLine is negative if the start has scrolled off the top
     // It is possible for them to both be negative if the section is very long and ongoing.
     // All values of the pos are inclusive.  The columns should be ignored if the line is negative.
-    record Section(TerminalPos start, TerminalPos end) {}
+    record Section(TerminalPos start, TerminalPos end, String title) {}
     
     private final ArrayList<Section> currentSections = new ArrayList<>();
 
@@ -132,18 +138,19 @@ public abstract class TerminalTextPane extends BaseEditorPane
         }
     }
     
-    public void markNewSection()
+    public void markNewSection(String sectionTitle)
     {
         if (!currentSections.isEmpty())
         {
             int lastLineIndex = currentSections.size() - 1;
             // If current last section was marked as ongoing, finish it:
-            if (currentSections.get(lastLineIndex).end.line < 0)
+            Section last = currentSections.get(lastLineIndex);
+            if (last.end.line < 0)
             {
-                currentSections.set(lastLineIndex, new Section(currentSections.get(lastLineIndex).start, getCurEnd()));
+                currentSections.set(lastLineIndex, new Section(last.start, getCurEnd(), last.title));
             }
         }
-        currentSections.add(new Section(getCurStart(), new TerminalPos(-1, 0)));
+        currentSections.add(new Section(getCurStart(), new TerminalPos(-1, 0), sectionTitle));
     }
 
     // End the current section of content.
@@ -159,7 +166,8 @@ public abstract class TerminalTextPane extends BaseEditorPane
             else
             {
                 int lastSection = currentSections.size() - 1;
-                currentSections.set(lastSection, new Section(currentSections.get(lastSection).start, getCurEnd()));
+                Section last = currentSections.get(lastSection);
+                currentSections.set(lastSection, new Section(last.start, getCurEnd(), last.title));
                 updateRender(false);
             }
         }
@@ -191,7 +199,53 @@ public abstract class TerminalTextPane extends BaseEditorPane
         });
         // Set the content to be empty on construction:
         clear();
+
+        Tooltip.install(this, tooltip);
+         
+        tooltip.setOnShowing(e -> {
+            if (lastMousePos != null)
+            {
+                for (Section s : currentSections)
+                {
+                    if (s.start.line > lastMousePos.getLine())
+                        continue; // We are before its start line
+                    if (s.end.line >= 0 && s.end.line < lastMousePos.getLine())
+                        continue; // We are after its end line
+                    if (s.start.line == lastMousePos.getLine() && lastMousePos.getColumn() < s.start.column)
+                        continue; // We are on the start line, but before its start column
+                    if (s.end.line == lastMousePos.getLine() && lastMousePos.getColumn() > s.end.column)
+                        continue; // We are on the end line, but after its end column
+                    // We're inside!
+                    tooltip.setText(s.title);
+                    return;
+                }
+                tooltip.setText("");
+            }
+        });
+        // Because the tooltip is for the whole node, it will show even while you mouse around.
+        // To avoid that, we listen for mouse movements and hide it:
+        addEventFilter(MouseEvent.MOUSE_MOVED, e -> {
+            lastMousePos = getCaretPositionForMouseEvent(e).orElse(null);
+            // If we hide it, it will not show again until you mouse around for a while
+            // So instead we uninstall and reinstall, which allows reshowing sooner:
+            if (tooltip.isShowing())
+            {
+                Tooltip.uninstall(this, tooltip);
+                Tooltip.install(this, tooltip);
+            }
+        });
+        addEventFilter(ScrollEvent.ANY, e -> {
+            // Hide tooltip and invalidate mouse position:
+            lastMousePos = null;
+            if (tooltip.isShowing())
+            {
+                Tooltip.uninstall(this, tooltip);
+                Tooltip.install(this, tooltip);
+            }
+        });
+        
     }
+    
 
     @Override
     protected void keyPressed(KeyEvent event)
@@ -505,7 +559,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
                 }
                 else
                 {
-                    iterator.set(new Section(s.start.subtractLines(linesToSubtract), s.end.subtractLines(linesToSubtract)));
+                    iterator.set(new Section(s.start.subtractLines(linesToSubtract), s.end.subtractLines(linesToSubtract), s.title));
                 }
             }
             updateRender(false);
