@@ -12,7 +12,7 @@ dependencies {
 
     implementation 'com.google.guava:guava:33.0.0-jre'
     implementation 'com.googlecode.java-diff-utils:diffutils:1.2.1'
-    implementation 'de.jangassen:nsmenufx:2.1.8'
+    implementation 'de.jangassen:nsmenufx:3.1.0'
     implementation 'io.github.classgraph:classgraph:4.8.90'
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     implementation 'org.apache.httpcomponents:httpmime:4.1.1'
