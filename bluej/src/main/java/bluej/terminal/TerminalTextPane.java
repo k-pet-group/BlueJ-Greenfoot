@@ -376,6 +376,9 @@ public abstract class TerminalTextPane extends BaseEditorPane
         boolean reschedule = false;
         for (int i = 0; i < content.size(); i++)
         {
+            // Can't work it out for non visible lines:
+            if (!lineDisplay.isLineVisible(i))
+                break;
             for (Section s : currentSections)
             {
                 final double singleRadius = 5;

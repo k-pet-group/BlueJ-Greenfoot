@@ -27,6 +27,8 @@ import javafx.scene.layout.Region;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.Arrays;
+
 /**
  * A background item on a TextLine, usually a scope background, but can also be
  * a marker for the current step line or a breakpoint line.
@@ -36,6 +38,7 @@ public class BackgroundItem extends Region
 {
     final double x;
     final double width;
+    private final BackgroundFill[] backgroundFills;
 
     /**
      * Create a background item with the given X position and width, and the given background fills.  This constructor sets the item to be unmanaged.
@@ -45,6 +48,17 @@ public class BackgroundItem extends Region
         this.x = x;
         this.width = width;
         setManaged(false);
+        this.backgroundFills = backgroundFills.clone();
         setBackground(new Background(backgroundFills));
+    }
+
+    /**
+     * Returns true if this background item is equivalent to the given parameter.
+     * This is like .equals() but I don't want to override that in case it messes
+     * with JavaFX (since we extend Region and go in the GUI).
+     */
+    public boolean sameAs(BackgroundItem o)
+    {
+        return o != null && x == o.x && width == o.width && Arrays.deepEquals(backgroundFills, o.backgroundFills);
     }
 }

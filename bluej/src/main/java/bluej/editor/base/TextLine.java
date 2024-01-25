@@ -311,10 +311,27 @@ public class TextLine extends TextFlow
         errorUnderlineShape.setVisible(false);
     }
 
-    public void setScopeBackgrounds(Collection<BackgroundItem> nodes)
+    public void setScopeBackgrounds(List<BackgroundItem> nodes)
     {
         if (nodes == null)
             nodes = Collections.emptyList();
+
+        if (this.backgroundNodes.size() == nodes.size())
+        {
+            boolean anyChanged = false;
+            for (int i = 0; i < this.backgroundNodes.size(); i++)
+            {
+                if (!this.backgroundNodes.get(i).sameAs(nodes.get(i)))
+                {
+                    anyChanged = true;
+                    break;
+                }
+            }
+            // No need to change the JavaFX content and trigger a layout
+            // if the content is actually all equivalent:
+            if (!anyChanged)
+                return;
+        }
         
         this.backgroundNodes = new ArrayList<>(nodes);
         int selectionIndex = getChildren().indexOf(bracketMatchShape);
