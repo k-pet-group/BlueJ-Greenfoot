@@ -413,8 +413,8 @@ public class FrameCursor implements RecallableFocus
                         // more elements than only the root), we do not delete the complete frame but only remove the last joint.
                         final FrameCanvas lastJointCanvas =  ((MultiCanvasFrame)target).getLastCanvas();
                         deleteEffort = lastJointCanvas.getBlockContents().stream()
-                            .map((frame) -> frame.calculateEffort())
-                            .reduce(0, (subTotal, effort) -> subTotal + effort);
+                            .mapToInt(frame -> frame.calculateEffort())
+                            .sum();
                         ((MultiCanvasFrame)target).removeCanvas(lastJointCanvas);
                     }
                     else

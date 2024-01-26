@@ -140,7 +140,7 @@ public class TryFrame extends SandwichCanvasesFrame
             // "try" section
             text = " in the 'try' section,";
         }
-        else if(c == ((TryFrame)(c.getParent())).getTailCanvas())
+        else if(c == this.getTailCanvas())
         {
             // "finally" section
             text = " in the 'finally' section,";
