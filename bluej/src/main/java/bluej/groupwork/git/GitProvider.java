@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,9 +31,15 @@ import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.UnsupportedSettingException;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.LsRemoteCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -42,21 +48,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.LsRemoteCommand;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.transport.JschConfigSessionFactory;
-import org.eclipse.jgit.transport.OpenSshConfig;
-import org.eclipse.jgit.transport.SshSessionFactory;
-import org.eclipse.jgit.transport.SshTransport;
-import org.eclipse.jgit.transport.Transport;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.eclipse.jgit.util.FS;
-
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 /**
  * Teamwork provider for Git.
@@ -108,32 +99,6 @@ public class GitProvider implements TeamworkProvider
             lsRemoteCommand.setTags(false); //disable refs/tags in reference results
             lsRemoteCommand.setHeads(false); //disable refs/heads in reference results
 
-            //It seems that ssh host fingerprint check is not working properly. 
-            //Disable it in a ssh connection.
-            if (gitUrlString.startsWith("ssh"))
-            {
-                SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
-                    @Override
-                    protected void configure(OpenSshConfig.Host host, Session sn)
-                    {
-                        java.util.Properties config = new java.util.Properties();
-                        config.put("StrictHostKeyChecking", "no");
-                        sn.setConfig(config);
-                    }
-
-                    @Override
-                    protected JSch createDefaultJSch(FS fs) throws JSchException
-                    {
-                        return super.createDefaultJSch(fs);
-                    }
-                };
-                
-                lsRemoteCommand.setTransportConfigCallback((Transport t) -> {
-                    SshTransport sshTransport = (SshTransport) t;
-                    sshTransport.setSshSessionFactory(sshSessionFactory);
-                });
-            }
-            
             lsRemoteCommand.call(); //executes the lsRemote commnand.
         }
         catch (GitAPIException ex)

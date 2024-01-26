@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,16 +22,7 @@
 package bluej.groupwork.git;
 
 import bluej.groupwork.TeamworkCommand;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
 import org.eclipse.jgit.api.TransportCommand;
-import org.eclipse.jgit.transport.JschConfigSessionFactory;
-import org.eclipse.jgit.transport.OpenSshConfig;
-import org.eclipse.jgit.transport.SshSessionFactory;
-import org.eclipse.jgit.transport.SshTransport;
-import org.eclipse.jgit.transport.Transport;
-import org.eclipse.jgit.util.FS;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -65,32 +56,8 @@ public abstract class GitCommand implements TeamworkCommand
      */
     public void disableFingerprintCheck(TransportCommand command)
     {
-        //check if the command is not null and conects via ssh.
-        if (command != null && (repository.getReposUrl().startsWith("ssh") || repository.getReposUrl().startsWith("https"))) {
-            //disable ssh host fingerprint check.
-            SshSessionFactory sshSessionFactory = new JschConfigSessionFactory()
-            {
-                @Override
-                protected void configure(OpenSshConfig.Host host, Session sn)
-                {
-                    java.util.Properties config = new java.util.Properties();
-                    config.put("StrictHostKeyChecking", "no");
-                    sn.setConfig(config);
-                }
-
-                @Override
-                protected JSch createDefaultJSch(FS fs) throws JSchException
-                {
-                    return super.createDefaultJSch(fs);
-                }
-            };
-
-            command.setTransportConfigCallback((Transport t) -> {
-                if (t instanceof SshTransport) {
-                    SshTransport sshTransport = (SshTransport) t;
-                    sshTransport.setSshSessionFactory(sshSessionFactory);
-                }
-            });
+        //check if the command is not null and conects via ssh or http(s).
+        if (command != null && (repository.getReposUrl().startsWith("ssh") || repository.getReposUrl().startsWith("http"))) {
             //add credentials to both ssh and https transports.
             //github uses this information inorder to provide writing access 
             //to https connections.
