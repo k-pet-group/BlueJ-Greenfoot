@@ -110,6 +110,9 @@
 }
 .about-version {
     -fx-font-weight: bold;
+}
+.about-version-last {
+    -fx-font-weight: bold;
     -fx-padding: 0 0 1em 0;
 }
 .about-info-link {

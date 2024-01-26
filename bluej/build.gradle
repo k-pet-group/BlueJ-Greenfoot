@@ -80,6 +80,11 @@ javafx {
     modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.media', 'javafx.swing', 'javafx.web']
 }
 
+task recordCommitID(type: Exec) {
+    commandLine "git", "rev-parse", "--short=8", "HEAD"
+    standardOutput new FileOutputStream("${projectDir}/lib/buildid.txt")
+}
+
 task copyLibToTestBuild(type: Copy) {
     from 'lib'
     into new File(sourceSets.test.output.resourcesDir, 'lib')
@@ -98,6 +103,7 @@ task copyToLib(type: Copy) {
     from 'build/libs/bluej.jar'
     duplicatesStrategy DuplicatesStrategy.WARN
 }
+copyToLib.dependsOn recordCommitID
 copyToLib.dependsOn jar
 blueJCoreJar.dependsOn compileJava
 

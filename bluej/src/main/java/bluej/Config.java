@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -665,6 +666,7 @@ public final class Config
                     else {
                         Debug.message("BlueJ version " + Boot.BLUEJ_VERSION);
                     }
+                    Debug.message("Build ID: " + getBuildID());
                     Debug.message("Java version " + System.getProperty("java.version"));
                     Debug.message("JavaFX version " + System.getProperty("javafx.runtime.version"));
                     Debug.message("Virtual machine: " +
@@ -689,6 +691,18 @@ public final class Config
         // - bluej.debug=true or
         // - creating the debug log failed
         Debug.setDebugStream(new OutputStreamWriter(System.out));
+    }
+
+    public static String getBuildID()
+    {
+        try
+        {
+            return Files.readString(new File(getBlueJLibDir(), "buildid.txt").toPath()).trim();
+        }
+        catch (IOException e)
+        {
+            return "Unknown (" + e.getLocalizedMessage() + ")";
+        }
     }
 
     /**
