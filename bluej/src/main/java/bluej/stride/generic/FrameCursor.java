@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2020,2021,2022 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2020,2021,2022,2024 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -402,11 +402,27 @@ public class FrameCursor implements RecallableFocus
                 Frame target = parentCanvas.getFrameBefore(FrameCursor.this);
                 if (target != null)
                 {
+                    final boolean isDeletingJointFrame = (target instanceof MultiCanvasFrame) && target.getCanvases().count() > 1;
                     editor.beginRecordingState(FrameCursor.this);
-                    FrameCursor cursorBeforeTarget = parentCanvas.getCursorBefore(target);
+                    FrameCursor cursorBeforeTarget = (isDeletingJointFrame) ? FrameCursor.this : parentCanvas.getCursorBefore(target);
                     editor.recordEdits(StrideEditReason.FLUSH);
-                    editor.showUndoDeleteBanner(target.calculateEffort());
-                    parentCanvas.removeBlock(target);
+                    final int deleteEffort;
+                    if(isDeletingJointFrame)
+                    {
+                        // In the case of backspace being hit below a "joint" frame (that is, a multicanvas frame with
+                        // more elements than only the root), we do not delete the complete frame but only remove the last joint.
+                        final FrameCanvas lastJointCanvas =  ((MultiCanvasFrame)target).getLastCanvas();
+                        deleteEffort = lastJointCanvas.getBlockContents().stream()
+                            .mapToInt(frame -> frame.calculateEffort())
+                            .sum();
+                        ((MultiCanvasFrame)target).removeCanvas(lastJointCanvas);
+                    }
+                    else
+                    {
+                        deleteEffort = target.calculateEffort();
+                        parentCanvas.removeBlock(target);
+                    }           
+                    editor.showUndoDeleteBanner(deleteEffort);      
                     editor.recordEdits(StrideEditReason.DELETE_FRAMES_KEY_BKSP);
                     editor.modifiedFrame(target, false);
                     cursorBeforeTarget.requestFocus();
