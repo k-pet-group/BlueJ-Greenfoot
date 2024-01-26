@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2021,2023 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2021,2023,2024 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -140,9 +140,14 @@ public class TryFrame extends SandwichCanvasesFrame
             // "try" section
             text = " in the 'try' section,";
         }
+        else if(c == ((TryFrame)(c.getParent())).getTailCanvas())
+        {
+            // "finally" section
+            text = " in the 'finally' section,";
+        }
         else
         {
-            // "catch" section
+            // a "catch" section
             text = " in the 'catch' section with parameter " + catchVars.get(sectionIndex-1) + " of type " + catchTypes.get(sectionIndex-1) + ",";
         }
         text += " in a 'try-catch' frame,";
