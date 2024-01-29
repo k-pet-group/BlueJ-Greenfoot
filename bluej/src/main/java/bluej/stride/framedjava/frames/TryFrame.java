@@ -147,8 +147,8 @@ public class TryFrame extends SandwichCanvasesFrame
         }
         else
         {
-            // a "catch" section
-            text = " in the 'catch' section with parameter " + catchVars.get(sectionIndex-1) + " of type " + catchTypes.get(sectionIndex-1) + ",";
+            // "catch" section
+            text = " in the 'catch' section with parameter " + catchVars.get(sectionIndex-1).getText() + " of type " + catchTypes.get(sectionIndex-1).getText() + ",";
         }
         text += " in a 'try-catch' frame,";
         if (getParentCanvas()!=null && getParentCanvas().getParent() != null) {

@@ -125,9 +125,12 @@ public class AboutDialogTemplate extends Dialog<Void>
 
         bottom.getChildren().add(new Label(""));
         bottom.getChildren().add(JavaFXUtil.withStyleClass(
-                new Label(Config.getString("about.version") + " " + version + "  (" +
-                        Config.getString("about.java.version") + " " +
-                        System.getProperty("java.version") + ")"), "about-version"));
+                new Label(Config.getString("about.version") + " " + version), "about-version"));
+        bottom.getChildren().add(JavaFXUtil.withStyleClass(
+            new Label("Build ID: " + Config.getBuildID()), "about-version"));
+        bottom.getChildren().add(JavaFXUtil.withStyleClass(
+            new Label(Config.getString("about.java.version") + " " +
+                System.getProperty("java.version")), "about-version-last"));
         bottom.getChildren().add(new Label(Config.getString("about.vm") + " " +
                 System.getProperty("java.vm.name") + " " +
                 System.getProperty("java.vm.version") +
