@@ -179,11 +179,9 @@ public class ExecControls
         buttons.setPrefColumns(buttons.getChildren().size());
         JavaFXUtil.addStyleClass(buttons, "debugger-buttons");
         this.fxContent = new BorderPane();
-        BorderPane vars = new BorderPane();
-        vars.setTop(labelled(staticList, staticTitle));
-        SplitPane varSplit = new SplitPane(labelled(instanceList, instanceTitle), labelled(localList, localTitle));
+        SplitPane varSplit = new SplitPane(labelled(staticList, staticTitle), labelled(instanceList, instanceTitle), labelled(localList, localTitle));
         varSplit.setOrientation(Orientation.VERTICAL);
-        vars.setCenter(varSplit);
+        varSplit.setDividerPositions(0.1, 0.6);
         
         // There are two possible pane layouts: with thread list and without.
         BorderPane lhsPane;
@@ -199,7 +197,7 @@ public class ExecControls
         JavaFXUtil.addStyleClass(lhsPane, "debugger-thread-and-stack");
         
         fxContent.setTop(makeMenuBar());
-        fxContent.setCenter(new SplitPane(lhsPane, vars));
+        fxContent.setCenter(new SplitPane(lhsPane, varSplit));
         fxContent.setBottom(buttons);
         JavaFXUtil.addStyleClass(fxContent, "debugger");
         // Menu bar will be added later:
