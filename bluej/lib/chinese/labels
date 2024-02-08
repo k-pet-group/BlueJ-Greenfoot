@@ -495,7 +495,7 @@ properties.heading.moe=Moe \u7f16\u8f91\u5668\u7279\u6027. \u53ef\u4ee5\u901a\u8
 menu.package=\u9879\u76ee
 menu.package.new=\u65b0\u9879\u76ee...
 menu.package.open=\u6253\u5f00\u9879\u76ee...@O
-menu.package.openRecent=\u6253\u5f00\u6700\u8fd1\u7684
+menu.package.openRecent=\u6253\u5f00\u6700\u8fd1\u7684\u9879\u76ee
 menu.package.openNonBlueJ=\u6253\u5f00\u975eBlueJ\u9879\u76ee...
 menu.package.close=\u5173\u95ed@W
 menu.package.save=\u4fdd\u5b58@S
@@ -587,4 +587,4 @@ about.moreInfo=\u66f4\u591a\u7684\u4fe1\u606f\u5728
 about.theTeam=$APPNAME\u5f00\u53d1\u5c0f\u7ec4:
 
 # Work Indicator
-workIndicator.resetMachine=\u91cd\u542f\u673a\u5668@^R
+workIndicator.resetMachine=\u91cd\u542f Java \u865a\u62df\u673a@^R
