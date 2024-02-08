@@ -243,6 +243,14 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         getChildren().addAll(new ObjectBackground(CORNER_SIZE, 
             new When(focusedProperty()).then(FOCUSED_BORDER).otherwise(UNFOCUSED_BORDER)), 
             label, highlight);
+        // If we set the highlight as a normal managed child, there is an annoying effect
+        // when cancelling and reapplying the highlight (while stepping through code) that
+        // the highlight rectangle would grow to encompass itself during layout, and would
+        // gradually get bigger and bigger.  To avoid that, we set it unmanaged and bind its
+        // size to our own, which prevents it trying to encompass itself:
+        highlight.setManaged(false);
+        highlight.widthProperty().bind(widthProperty());
+        highlight.heightProperty().bind(heightProperty());
         setBackground(null);
         setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
     }
