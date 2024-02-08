@@ -603,6 +603,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
         anchorPos = new Pos(0, 0, 0);
         setContent(Collections.singletonList(new ContentLine(new ArrayList<>())));
         currentSections.clear();
+        lineDisplay.applyScopeBackgrounds(Map.of());
     }
 
     /**
