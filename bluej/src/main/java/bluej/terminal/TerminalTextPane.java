@@ -378,7 +378,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
         {
             // Can't work it out for non visible lines:
             if (!lineDisplay.isLineVisible(i))
-                break;
+                continue;
             for (Section s : currentSections)
             {
                 final double singleRadius = 5;
