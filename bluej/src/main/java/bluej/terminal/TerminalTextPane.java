@@ -378,7 +378,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
         {
             // Can't work it out for non visible lines:
             if (!lineDisplay.isLineVisible(i))
-                break;
+                continue;
             for (Section s : currentSections)
             {
                 final double singleRadius = 5;
@@ -603,6 +603,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
         anchorPos = new Pos(0, 0, 0);
         setContent(Collections.singletonList(new ContentLine(new ArrayList<>())));
         currentSections.clear();
+        lineDisplay.applyScopeBackgrounds(Map.of());
     }
 
     /**
