@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023 Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024 Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -2732,8 +2732,15 @@ public final class Package
                 {
                     targetsToAnalyse.add(t);
                 }
-                else
+                else if (!successful)
                 {
+                    // Note: it's important to have the !successful check above.  Without this, we can
+                    // end up in this branch for empty .java files.  Empty files are a weird case because
+                    // they "compile" successfully (javac reports success) but they don't generate a .class file,
+                    // so our checks generally indicate they are not compiled.  Combined with the code below,
+                    // we used to end up in a loop of infinitely compiling them to see if they could be compiled
+                    // on their own, but they never actually end up in the compiled state because there's no class generated.
+                    
                     // To prevent an issue that may happen when classes are batched in one compile job
                     // and an error in one may prevent others being compiled even though they could be 
                     // compiled separately, we check for all the classes that can be compiled and have
