@@ -96,19 +96,19 @@ prefmgr.misc.showUnchecked=\u663e\u793a\u7f16\u8bd1\u5668\u8b66\u544a\u5f53\u4f7
 
 # Editor Preferences panel
 prefmgr.edit.prefpaneltitle=\u7f16\u8f91\u5668
-prefmgr.edit.editor.title=\u7f16\u8f91\u5668\u8bbe\u5b9a
+prefmgr.edit.editor.title=Java \u7f16\u8f91\u5668\u8bbe\u5b9a
 prefmgr.edit.editorfontsize=\u5b57\u4f53\u5927\u5c0f
-prefmgr.edit.colortransparency=Scope Highlighting
+prefmgr.edit.colortransparency=\u4f5c\u7528\u57df\u9ad8\u4eae
 prefmgr.edit.usesyntaxhilighting=\u4f7f\u7528\u8bed\u6cd5\u9ad8\u4eae
 prefmgr.edit.autoindent=\u81ea\u52a8\u5bf9\u9f50 (\u56de\u8f66\u548cTab\u952e)
 prefmgr.edit.displaylinenumbers=\u663e\u793a\u884c\u53f7
-prefmgr.edit.checkfilechangeondisk=Check file changes on the disk
+prefmgr.edit.checkfilechangeondisk=\u68c0\u67e5\u78c1\u76d8\u4e0a\u7684\u6587\u4ef6\u53d8\u5316
 prefmgr.edit.matchBrackets=\u5339\u914d\u62ec\u53f7
-prefmgr.edit.highlightLighter=Lighter
-prefmgr.edit.highlightDarker=Darker
-prefmgr.edit.editor.texteditor.title=Text editor settings
-prefmgr.edit.textfileextensions=Supported file extensions
-prefmgr.edit.texteditor.defaultFileExtensions=Reset to default
+prefmgr.edit.highlightLighter=\u4eae
+prefmgr.edit.highlightDarker=\u6697
+prefmgr.edit.editor.texteditor.title=\u6587\u672c\u7f16\u8f91\u5668\u8bbe\u5b9a
+prefmgr.edit.textfileextensions=\u652f\u6301\u7684\u6587\u4ef6\u6269\u5c55\u540d
+prefmgr.edit.texteditor.defaultFileExtensions=\u6062\u590d\u9ed8\u8ba4\u914d\u7f6e
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  \u5df2\u5b89\u88c5\u7684\u6269\u5c55
@@ -347,7 +347,7 @@ pkgmgr.newClass.enum=\u679a\u4e3e
 pkgmgr.newClass.JavaFXclass= JavaFX \u7c7b
 pkgmgr.newClass.record=Record
 pkgmgr.newClass.error.noType=\u672a\u9009\u62e9\u65b0\u7c7b\u7684\u7c7b\u578b
-pkgmgr.newClass.error.typeNotAvailable=所选类型在 $LANGUAGE 里不可用
+pkgmgr.newClass.error.typeNotAvailable=\u6240\u9009\u7c7b\u578b\u5728 $LANGUAGE \u4e2d\u4e0d\u53ef\u7528
 pkgmgr.newClass.error.notValidClassName=\u4e0d\u662f\u6709\u6548\u7684 $LANGUAGE \u7c7b\u540d
 pkgmgr.newClass.error.windowsRestricted=\u7c7b\u540d\u4e3a Windows \u9650\u5236\u8bcd
 
