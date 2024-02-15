@@ -1,0 +1,31 @@
+$PKGLINE
+/**
+ * 在此处编写对记录类 $CLASSNAME 的描述.
+ *
+ * @author (你的名字)
+ * @version (一个版本号或一个日期)
+ * @param x 此记录类的示例 x 参数
+ * @param y 此记录类的示例 y 参数
+ */
+public record $CLASSNAME(int x, int y)
+{
+    /**
+     * $CLASSNAME 类的记录实例(records)的一个额外的构造器
+     */
+    public $CLASSNAME()
+    {
+        this(0, 0);
+    }
+
+    /**
+     * An example of a method - replace this comment with your own
+     *
+     * @param  z  方法的一个示例参数
+     * @return    x、y、z 之和
+     */
+    public int sampleMethod(int z)
+    {
+        // 在此处加上你的代码
+        return x + y + z;
+    }
+}
