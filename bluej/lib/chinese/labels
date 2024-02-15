@@ -327,15 +327,21 @@ pkgmgr.test.popup.fixtureToBench=\u6d4b\u8bd5\u5de5\u5177\u5230\u5bf9\u8c61\u69f
 
 
 # "new class" dialog
-pkgmgr.newClass.title=BlueJ:  \u5efa\u65b0\u7c7b
+pkgmgr.newClass.title=BlueJ: \u521b\u5efa\u65b0\u7c7b
 pkgmgr.newClass.label=\u7c7b\u540d:
+pkgmgr.newClass.prompt=\u8f93\u5165\u65b0\u7c7b\u7684\u540d\u79f0
+pkgmgr.newClass.lang=\u7f16\u7a0b\u8bed\u8a00:
 pkgmgr.newClass.classType=\u7c7b\u7684\u7c7b\u578b
 pkgmgr.newClass.stdclass=\u7c7b
 pkgmgr.newClass.interface=\u63a5\u53e3
-pkgmgr.newClass.applet=Applet
-pkgmgr.newClass.appletj=Applet
 pkgmgr.newClass.unittest=\u5355\u5143\u6d4b\u8bd5
 pkgmgr.newClass.enum=\u679a\u4e3e
+pkgmgr.newClass.JavaFXclass= JavaFX \u7c7b
+pkgmgr.newClass.record=Record
+pkgmgr.newClass.error.noType=\u672a\u9009\u62e9\u65b0\u7c7b\u7684\u7c7b\u578b
+pkgmgr.newClass.error.typeNotAvailable=所选类型在 $LANGUAGE 里不可用
+pkgmgr.newClass.error.notValidClassName=\u4e0d\u662f\u6709\u6548\u7684 $LANGUAGE \u7c7b\u540d
+pkgmgr.newClass.error.windowsRestricted=\u7c7b\u540d\u4e3a Windows \u9650\u5236\u8bcd
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  \u5efa\u65b0\u5305
