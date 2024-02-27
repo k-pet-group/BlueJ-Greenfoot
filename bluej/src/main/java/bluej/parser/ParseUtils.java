@@ -39,6 +39,7 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.role.Kind;
 import bluej.stride.framedjava.frames.LocalCompletion;
+import bluej.utility.Debug;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.debugger.gentype.FieldReflective;
@@ -130,10 +131,20 @@ public class ParseUtils
                     for(File innerClassFile : ct.getInnerClassFiles())
                     {
                         Class<?> c = pkg.getProject().loadClass(innerClassFile.getName().replaceFirst("\\.class$",""));
-                        // If simple name is empty, it's an anonymous class, so we don't want code completions for those:
-                        if (c != null && !c.getSimpleName().isEmpty())
+                        try
                         {
-                           nestedTypes.add(new AssistContentThreadSafe(new ImportedTypeCompletion(c, pkg.getProject().getJavadocResolver())));
+                            // If simple name is empty, it's an anonymous class, so we don't want code completions for those:
+                            if (c != null && !c.getSimpleName().isEmpty())
+                            {
+                                nestedTypes.add(new AssistContentThreadSafe(new ImportedTypeCompletion(c, pkg.getProject().getJavadocResolver())));
+                            }
+                        }
+                        catch (Throwable t)
+                        {
+                            // It is possible that getSimpleName throws an error (which inherits from Throwable, not Exception)
+                            // so we must guard against that.  We don't need to do anything, we just won't add it as a completion.
+                            // We may as well log the error, though:
+                            Debug.reportError(t);
                         }
                     }
                 }

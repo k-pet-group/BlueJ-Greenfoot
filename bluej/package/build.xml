@@ -31,6 +31,7 @@
 
     <patternset id="bluej.libdirs">
         <exclude name="**/.#*" />
+        <include name="lib/buildid.txt" />
         <include name="lib/images/*.gif" />
         <include name="lib/images/*.png" />
         <include name="lib/images/*.jpg" />
