@@ -1,0 +1,70 @@
+$PKGLINE
+
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+
+/**
+ * 在此处编写对 JavaFX 类 $CLASSNAME 的描述.
+ *
+ * @author (你的名字)
+ * @version (一个版本号或一个日期)
+ */
+public class $CLASSNAME extends Application
+{
+    // 跟踪计数, 标签(label)显示计数:
+    private int count = 0;
+    private Label myLabel = new Label("0");
+
+    /**
+     * start 方法是每个 JavaFX 应用程序的主入口点(main entry point). 
+     * 它在 init() 方法已返回并且系统已准备好让应用程序开始运行时被调用.
+     *
+     * @param  stage 此应用程序的主舞台(main stage).
+     */
+    @Override
+    public void start(Stage stage)
+    {
+        // 创建一个按钮(Button)或任何控件(control items).
+        Button myButton = new Button("Count");
+
+        // 创建一个新网格面板(grid pane).
+        GridPane pane = new GridPane();
+        pane.setPadding(new Insets(10, 10, 10, 10));
+        pane.setMinSize(300, 300);
+        pane.setVgap(10);
+        pane.setHgap(10);
+
+        // 使用方法引用(method reference)设置按钮的动作
+        myButton.setOnAction(this::buttonClick);
+
+        // 将按钮和标签添加到面板中
+        pane.add(myLabel, 1, 0);
+        pane.add(myButton, 0, 0);
+
+        // JavaFX 在舞台(窗口/window)内必须有一个场景(Scene, 窗口的内容)
+        Scene scene = new Scene(pane, 300,100);
+        stage.setTitle("JavaFX Example");
+        stage.setScene(scene);
+
+        // 显示舞台(窗口)
+        stage.show();
+    }
+
+    /**
+     * 此方法将在按钮被点击时执行
+     * 它将计数增加 1
+     */
+    private void buttonClick(ActionEvent event)
+    {
+        // 计算按钮点击次数并在标签上显示结果
+        count = count + 1;
+        myLabel.setText(Integer.toString(count));
+    }
+}
