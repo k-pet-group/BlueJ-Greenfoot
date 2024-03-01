@@ -77,6 +77,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
     private Pos anchorPos = new Pos(0, 0, 0);
     
     private final Tooltip tooltip = new Tooltip();
+    private boolean tooltipInstalled = false;
     private EditorPosition lastMousePos;
     
     // A record holding a location in the terminal window.
@@ -202,25 +203,13 @@ public abstract class TerminalTextPane extends BaseEditorPane
         clear();
 
         Tooltip.install(this, tooltip);
+        tooltipInstalled = true;
          
         tooltip.setOnShowing(e -> {
             if (lastMousePos != null)
             {
-                for (Section s : currentSections)
-                {
-                    if (s.start.line > lastMousePos.getLine())
-                        continue; // We are before its start line
-                    if (s.end.line >= 0 && s.end.line < lastMousePos.getLine())
-                        continue; // We are after its end line
-                    if (s.start.line == lastMousePos.getLine() && lastMousePos.getColumn() < s.start.column)
-                        continue; // We are on the start line, but before its start column
-                    if (s.end.line == lastMousePos.getLine() && lastMousePos.getColumn() > s.end.column)
-                        continue; // We are on the end line, but after its end column
-                    // We're inside!
-                    tooltip.setText(s.title);
-                    return;
-                }
-                tooltip.setText("");
+                String text = calculateTextForLastMousePos();
+                tooltip.setText(text);
             }
         });
         // Because the tooltip is for the whole node, it will show even while you mouse around.
@@ -233,6 +222,23 @@ public abstract class TerminalTextPane extends BaseEditorPane
             {
                 Tooltip.uninstall(this, tooltip);
                 Tooltip.install(this, tooltip);
+                tooltipInstalled = true;
+            }
+            else
+            {
+                boolean contentToShow = !calculateTextForLastMousePos().isEmpty();
+                if (!contentToShow && tooltipInstalled)
+                {
+                    // We don't want to risk showing an empty tooltip, so uninstall it now before tooltip is triggered there:
+                    Tooltip.uninstall(this, tooltip);
+                    tooltipInstalled = false;
+                }
+                else if (contentToShow && !tooltipInstalled)
+                {
+                    // There is content to show, so put the tooltip back on ready to show after a hover:
+                    Tooltip.install(this, tooltip);
+                    tooltipInstalled = true;
+                }
             }
         });
         addEventFilter(ScrollEvent.ANY, e -> {
@@ -246,7 +252,37 @@ public abstract class TerminalTextPane extends BaseEditorPane
         });
         
     }
-    
+
+    /**
+     * Calculates the tooltip that would be shown at lastMousePos.  If the tooltip
+     * should be blank, either because there's no output at that location, or because
+     * the mouse isn't over a valid location, the empty string is returned (not null).
+     */
+    private String calculateTextForLastMousePos()
+    {
+        String text = "";
+        if (lastMousePos == null)
+            return text;
+        for (Section s : currentSections)
+        {
+            if (s.start.line > lastMousePos.getLine())
+                continue; // We are before its start line
+            if (s.end.line >= 0 && s.end.line < lastMousePos.getLine())
+                continue; // We are after its end line
+            if (s.start.line == lastMousePos.getLine() && lastMousePos.getColumn() < s.start.column)
+                continue; // We are on the start line, but before its start column
+            if (s.end.line == lastMousePos.getLine() && lastMousePos.getColumn() >= s.end.column)
+                continue; // We are on the end line, but after its end column.  Important to have >=
+                          // because if a line ends at say column 10, and there's nothing at column 11
+                          // we don't want to show a tooltip there, but the position will be clamped
+                          // to column 10 by the lookup in the text pane (because column 11 doesn't exist).
+            // We're inside!
+            text = s.title;
+            break;
+        }
+        return text;
+    }
+
 
     @Override
     protected void keyPressed(KeyEvent event)
