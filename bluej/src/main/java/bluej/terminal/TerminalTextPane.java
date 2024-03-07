@@ -44,6 +44,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 import javax.tools.Tool;
 import java.util.ArrayList;
@@ -176,7 +177,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
     }    
     
     
-    public TerminalTextPane()
+    public TerminalTextPane(Stage terminalWindow)
     {
         super(false, new BaseEditorPaneListener()
         {
@@ -201,9 +202,6 @@ public abstract class TerminalTextPane extends BaseEditorPane
         });
         // Set the content to be empty on construction:
         clear();
-
-        Tooltip.install(this, tooltip);
-        tooltipInstalled = true;
          
         tooltip.setOnShowing(e -> {
             if (lastMousePos != null)
@@ -216,6 +214,48 @@ public abstract class TerminalTextPane extends BaseEditorPane
         // To avoid that, we listen for mouse movements and hide it:
         addEventFilter(MouseEvent.MOUSE_MOVED, e -> {
             lastMousePos = getCaretPositionForMouseEvent(e).orElse(null);
+
+            recalcTooltip(terminalWindow);
+        });
+        addEventFilter(ScrollEvent.ANY, e -> {
+            // Hide tooltip and invalidate mouse position:
+            lastMousePos = null;
+            if (tooltip.isShowing())
+            {
+                Tooltip.uninstall(this, tooltip);
+                Tooltip.install(this, tooltip);
+            }
+        });
+        // We add/remove the tooltip on window focused; see comment in recalcTooltip()
+        JavaFXUtil.addChangeListenerPlatformAndCallNow(terminalWindow.focusedProperty(), f -> recalcTooltip(terminalWindow));
+        
+    }
+
+    private void recalcTooltip(Stage terminalWindow)
+    {
+        // There is a bug in JavaFX where if a tooltip is shown for a normal window, that normal window
+        // (the parent of the tooltip window) is brought to the front, just behind the tooltip.
+        // Bug report: https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8088624
+        
+        // This has an annoying implication for our tooltips, which potentially cover the whole of the
+        // terminal pane in the case of a long output: if you leave the window open partially behind the
+        // other windows, then if your mouse strays over the visible portion of the terminal window and
+        // you stop moving the mouse, the terminal suddenly pops to the front and shows its tooltip.
+        // This is quite unexpected, irritating, and it's not obvious what you did to trigger this behaviour.
+        
+        // So, to avoid this we uninstall the tooltip whenever the terminal window is unfocused.  It seems
+        // fine to only show the tooltip if the window has focus, and it avoids this annoying behaviour.
+        if (!terminalWindow.isFocused())
+        {
+            if (tooltipInstalled)
+            {
+                Tooltip.uninstall(this, tooltip);
+                tooltipInstalled = false;
+            }
+        }
+        else
+        {
+
             // If we hide it, it will not show again until you mouse around for a while
             // So instead we uninstall and reinstall, which allows reshowing sooner:
             if (tooltip.isShowing())
@@ -240,17 +280,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
                     tooltipInstalled = true;
                 }
             }
-        });
-        addEventFilter(ScrollEvent.ANY, e -> {
-            // Hide tooltip and invalidate mouse position:
-            lastMousePos = null;
-            if (tooltip.isShowing())
-            {
-                Tooltip.uninstall(this, tooltip);
-                Tooltip.install(this, tooltip);
-            }
-        });
-        
+        }
     }
 
     /**
