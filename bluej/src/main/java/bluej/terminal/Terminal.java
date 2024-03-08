@@ -157,7 +157,8 @@ public final class Terminal
         this.project = project;
 
         buffer = new InputBuffer(65536);
-        text = new TerminalTextPane() {
+        window = new Stage();
+        text = new TerminalTextPane(window) {
             @Override
             public void focusPrevious()
             {
@@ -224,7 +225,6 @@ public final class Terminal
         mainPanel.setCenter(splitPane);
 
         mainPanel.setTop(makeMenuBar());
-        window = new Stage();
         window.setWidth(500);
         window.setHeight(500);
         BlueJTheme.setWindowIconFX(window);
@@ -764,7 +764,7 @@ public final class Terminal
         }
 
         if(errorText == null) {
-            errorText = new TerminalTextPane() {
+            errorText = new TerminalTextPane(window) {
                 @Override
                 public void focusPrevious()
                 {
