@@ -26,7 +26,7 @@ jobs:
           architecture: x64
       - name: Install choco packages
         run: |
-          choco install wixtoolset -r --no-progress
+          choco install wixtoolset -r --no-progress --version 3.11 --force
           choco install msys2 -r --no-progress
           choco install mingw -r --no-progress
           choco install sed -r --no-progress
