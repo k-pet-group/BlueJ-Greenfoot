@@ -26,7 +26,7 @@ jobs:
           architecture: x64
       - name: Install choco packages
         run: |
-          choco install wixtoolset -r --no-progress --version 3.11 --force
+          choco install wixtoolset -r --no-progress
           choco install msys2 -r --no-progress
           choco install mingw -r --no-progress
           choco install sed -r --no-progress
@@ -37,7 +37,7 @@ jobs:
           dir C:/ProgramData/mingw64/mingw64/bin
           dir 'C:/Program Files/'
           dir 'C:/Program Files (x86)/'
-          dir 'C:/Program Files (x86)/WiX Toolset v3.11/bin'
+          dir 'C:/Program Files (x86)/WiX Toolset v3.14/bin'
       - name: Install JavaFX and build
         run: |
           cd ${{ github.workspace }}
@@ -46,7 +46,7 @@ jobs:
           $java_home_forward = $env:JAVA_HOME -replace '\\', '/'
           $workspace_forward = $PWD -replace '\\', '/'
           (Get-Content $propfile) -replace 'mingw_root=.*', "mingw_root=C:/ProgramData/mingw64/mingw64" | Set-Content $propfile
-          (Get-Content $propfile) -replace 'wix_bin=.*', "wix_bin=C:/Program Files (x86)/WiX Toolset v3.11/bin" | Set-Content $propfile
+          (Get-Content $propfile) -replace 'wix_bin=.*', "wix_bin=C:/Program Files (x86)/WiX Toolset v3.14/bin" | Set-Content $propfile
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
       - name: Gradle Build and Test
