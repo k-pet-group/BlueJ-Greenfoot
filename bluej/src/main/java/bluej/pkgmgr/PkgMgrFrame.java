@@ -1952,7 +1952,7 @@ public class PkgMgrFrame
                 "Afrikaans",    "Petri Jooste",
                 "Arabic",       "Abdelkader Zitouni",
                 "Catalan",      "Santiago Manrique",
-                "Chinese",      "Ma Wing Ho and Biao Ma",
+                "Chinese",      "Ma Wing Ho, Biao Ma and Qilan Lin",
                 "Czech",        "Rudolf Pecinovský",
                 "Danish",       "Jacob Nordfalk",
                 "Dutch",        "Kris Coolsaet",
