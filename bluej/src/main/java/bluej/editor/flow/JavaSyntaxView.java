@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2015,2016,2017,2018,2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2015,2016,2017,2018,2019,2020,2021,2022,2024  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1995,27 +1995,20 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * and thus the later items in the list overdraw the earlier ones.  Hence the earlier items in the list
      * are from the outermost scopes, and the latest items are the innermost scopes.
      */
-    private static class SingleNestedScope
-    {
-        private final ParsedNode lhsFrom;
+    private static record SingleNestedScope(
+        ParsedNode lhsFrom,
         // lhs and rhs are in pixels:
-        private final int lhs;
-        private final int rhs;
-        private final boolean starts;
-        private final boolean ends;
-        private final Color fillColor;
-        private final Color edgeColor;
+        int lhs,
+        int rhs,
+        boolean starts,
+        boolean ends,
+        Color fillColor,
+        Color edgeColor)
+    {
 
-        public SingleNestedScope(ParsedNode lhsFrom, int lhs, int rhs, boolean starts, boolean ends, Color fillColor, Color edgeColor)
+        public SingleNestedScope
         {
-            this.lhsFrom = lhsFrom;
-            lhs -= lhsFrom.isInner() ? LEFT_INNER_SCOPE_MARGIN : LEFT_OUTER_SCOPE_MARGIN;
-            this.lhs = Math.max(0, lhs);
-            this.rhs = rhs;
-            this.starts = starts;
-            this.ends = ends;
-            this.fillColor = fillColor;
-            this.edgeColor = edgeColor;
+            lhs = Math.max(0, lhs - (lhsFrom.isInner() ? LEFT_INNER_SCOPE_MARGIN : LEFT_OUTER_SCOPE_MARGIN));
         }
     }
 

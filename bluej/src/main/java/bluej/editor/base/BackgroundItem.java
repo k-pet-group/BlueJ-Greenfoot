@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2021,2024  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,5 +60,13 @@ public class BackgroundItem extends Region
     public boolean sameAs(BackgroundItem o)
     {
         return o != null && x == o.x && width == o.width && Arrays.deepEquals(backgroundFills, o.backgroundFills);
+    }
+
+    /**
+     * Make an equivalent copy with the same properties
+     */
+    public BackgroundItem makeCopy()
+    {
+        return new BackgroundItem(x, width, backgroundFills.clone());
     }
 }

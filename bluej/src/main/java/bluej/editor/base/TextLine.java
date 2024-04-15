@@ -28,6 +28,7 @@ import bluej.utility.javafx.ResizableRectangle;
 import com.google.common.collect.Lists;
 import javafx.beans.binding.StringExpression;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.IndexRange;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
@@ -332,8 +333,18 @@ public class TextLine extends TextFlow
             if (!anyChanged)
                 return;
         }
-        
         this.backgroundNodes = new ArrayList<>(nodes);
+        // It is possible that some nodes will already be assigned to another line.
+        // For any nodes where that is the case, copy them:
+        for (int i = 0; i < this.backgroundNodes.size(); i++)
+        {
+            Parent curParent = this.backgroundNodes.get(i).getParent();
+            if (curParent != null && curParent != this)
+            {
+                this.backgroundNodes.set(i, this.backgroundNodes.get(i).makeCopy());
+            }
+        }
+
         int selectionIndex = getChildren().indexOf(bracketMatchShape);
         getChildren().remove(0, selectionIndex);
         getChildren().addAll(0, backgroundNodes);
