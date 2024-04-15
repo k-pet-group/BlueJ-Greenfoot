@@ -109,14 +109,16 @@ public class Main
      * the first package manager frame.
      */
     @OnThread(Tag.Any)
-    public Main(ClassLoader runtimeClassLoader)
+    public Main(ClassLoader runtimeClassLoader, String toLog)
     {
         Boot boot = Boot.getInstance();
         final String[] args = Boot.cmdLineArgs;
         Properties commandLineProps = boot.getCommandLineProperties();
         File bluejLibDir = Boot.getBluejLibDir();
 
+        Debug.time("Made Main");
         Config.initialise(bluejLibDir, commandLineProps, boot.isGreenfoot());
+        Debug.time("Inited Config");
 
         CompletableFuture<Stage> futureMainWindow = new CompletableFuture<>();
         // Must do this after Config initialisation:
@@ -156,13 +158,18 @@ public class Main
         // the dispatch thread. It will then be processed before the call to
         // processArgs() (just below) is called.
         if (Config.isMacOS()) {
+            Debug.time("Preparing Mac App");
             prepareMacOSApp();
+            Debug.time("Prepared Mac App");
         }
         
         // process command line arguments, start BlueJ!
+        Debug.time("Running later start");
         Platform.runLater(() -> {
+            Debug.time("Starting on FX");
             List<ExtensionWrapper> loadedExtensions = ExtensionsManager.getInstance().getLoadedExtensions(null);
             DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), loadedExtensions);
+            Debug.time("Processing args");
             Stage stage = processArgs(args);
             futureMainWindow.complete(stage);
         });
@@ -175,6 +182,7 @@ public class Main
                 updateStats();
             }
         }.start();
+        Debug.time("Constructed main...\n" + toLog);
     }
 
     /**
@@ -197,7 +205,8 @@ public class Main
                 }
             }
         }
-        
+
+        Debug.time("Setting file handled");
         // Open a project if requested by the OS (Mac OS)
         Boot.setFileOpenHandler(fs -> {
             for (File f : fs)
@@ -207,6 +216,7 @@ public class Main
             }
         });
 
+        Debug.time("Looking for orphands");
         // if we have orphaned packages, these are re-opened
         if (!oneOpened.get()) {
             // check for orphans...
@@ -217,14 +227,17 @@ public class Main
                 for (int i = 1; exists != null; i++) {
                     exists = Config.getPropString(Config.BLUEJ_OPENPACKAGE + i, null);
                     if (exists != null) {
+                        Debug.time("Opening orphan");
                         oneOpened.set(guiHandler.tryOpen(new File(exists), false) | oneOpened.get());
                     }
                 }
             }
         }
 
+        Debug.time("Completing open");
         Stage window = guiHandler.initialOpenComplete(oneOpened.get());
-        
+
+        Debug.time("Removing splash");
         Boot.getInstance().disposeSplashWindow();
         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.EventType.APP_READY_EVENT));
         

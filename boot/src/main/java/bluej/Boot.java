@@ -110,6 +110,12 @@ public class Boot
     private static final ArrayList<File> macInitialProjects = new ArrayList<>();
     private static Consumer<List<File>> openProjectHandler = null;
 
+    public static final StringBuffer BOOT_LOG = new StringBuffer();
+    public static void log(String msg)
+    {
+        BOOT_LOG.append(System.currentTimeMillis() + ": " + msg + "\n");
+    }
+
     @OnThread(Tag.FXPlatform)
     private SplashWindow splashWindow;
     
@@ -127,14 +133,17 @@ public class Boot
      * 
      * @param props the properties (created from the args)
      */
+    @SuppressWarnings("threadchecker")
     private Boot(Properties props, final FXPlatformSupplier<Image> image)
     {
+        log("Boot()");
         CompletableFuture<Boolean> shown = new CompletableFuture<>();
         // Display the splash window:
         Platform.runLater(() -> {
             splashWindow = new SplashWindow(image.get());
             shown.complete(true);
         });
+        log("Started splash");
         try
         {
             shown.get();
@@ -149,10 +158,12 @@ public class Boot
             // it will mean the splash screen will show when it should
             // (i.e. ASAP after launch).  So hence this delay:
             Thread.sleep(100);
+            log("Succeeded splash");
         }
         catch (InterruptedException | ExecutionException e)
         {
             // Just ignore it and continue, I guess...
+            log("Exception: " + e.getMessage());
         }
 
         this.commandLineProps = props;
@@ -165,6 +176,7 @@ public class Boot
      */
     public static void main(String[] args)
     {
+        log("Boot.main");
         cmdLineArgs = args;
         Application.launch(App.class, args);
     }
@@ -262,6 +274,7 @@ public class Boot
     @OnThread(Tag.Any)
     public static void subMain()
     {
+        log("subMain()");
         Properties commandLineProps = processCommandLineProperties(cmdLineArgs);
         isGreenfoot = commandLineProps.getProperty("greenfoot", "false").equals("true");
         
@@ -271,9 +284,13 @@ public class Boot
             @OnThread(Tag.FXPlatform)
             public Image get()
             {
+                log("Image.get()");
                 URL url = Boot.class.getResource(isGreenfoot ? "gen-greenfoot-splash.png" : "gen-bluej-splash.png");
                 if (url != null)
+                {
+                    log("Image.get() return");
                     return new Image(url.toString());
+                }
                 else
                 {
                     // Just use blank
@@ -546,13 +563,15 @@ public class Boot
     @OnThread(Tag.Any)
     private void bootBluej()
     {
+        log("bootBlueJ()");
         initializeBoot();
         try {
             URLClassLoader runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
  
             // Construct a bluej.Main object. This starts BlueJ "proper".
             Class<?> mainClass = Class.forName("bluej.Main", true, runtimeLoader);
-            mainClass.getDeclaredConstructor(ClassLoader.class).newInstance(runtimeLoader);
+            log("Making main");
+            mainClass.getDeclaredConstructor(ClassLoader.class, String.class).newInstance(runtimeLoader, BOOT_LOG.toString());
             
         } catch (ClassNotFoundException | InstantiationException | NoSuchMethodException 
                 | InvocationTargetException | IllegalAccessException exc) {
@@ -654,6 +673,7 @@ public class Boot
     {
         public App()
         {
+            log("App()");
             if (System.getProperty("os.name").contains("OS X"))
             {
                 // Previously, we used this code before launching the application,
@@ -705,6 +725,7 @@ public class Boot
         @Override
         @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public void start(Stage s) throws Exception {
+            log("App.start()");
             Platform.setImplicitExit(false);
             s.setTitle("BlueJ");
             new Thread(() -> subMain(), "subMain thread").start();

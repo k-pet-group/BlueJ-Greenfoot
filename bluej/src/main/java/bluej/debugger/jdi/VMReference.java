@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import bluej.debugger.Debugger.EventHandlerRunnable;
 import bluej.debugger.RunOnThread;
@@ -457,7 +458,8 @@ public class VMReference
     @OnThread(Tag.Any)
     private Process launchVM(File initDir, String [] params)
         throws IOException
-    {    
+    {
+        Debug.time("Launching VM:\n" + Arrays.stream(params).collect(Collectors.joining("\n")));
         Process vmProcess = Runtime.getRuntime().exec(params, null, initDir);
         BufferedReader bro = new BufferedReader(new InputStreamReader(vmProcess.getInputStream()));
         BufferedReader bre = new BufferedReader(new InputStreamReader(vmProcess.getErrorStream()));

@@ -195,7 +195,7 @@ public class Debug
         long t = System.currentTimeMillis();
         int millis = (int)(t % 1000);
         long whole = t / 1000;
-        message(String.format("T+..%03d.%03d: ", whole % 1000, millis) + msg);
+        message(String.format("%d: ", t) + msg);
     }
 
     /**
