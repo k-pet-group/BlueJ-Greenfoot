@@ -225,6 +225,15 @@ bluej.autoOpenLastProject=true
 #bluej.projectPath=C\:\\some\\directory\\somewhere
 
 #####################################################################
+## If set, define the default location for BlueJ projects when BlueJ
+## loads for the first time. 
+## Note that this property will be overwritten in bluej.properties
+## with any other location the users select in BlueJ.
+#####################################################################
+
+#bluej.projectPathC\:\\some\\directory\\somewhere
+
+#####################################################################
 ## Web browser. The following are the commands used for opening a
 ## web browser. (Only relevant for systems other than Windows and
 ## MacOS. On Win and MacOS, the mechanism is built-in.)
