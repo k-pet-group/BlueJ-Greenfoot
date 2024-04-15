@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -263,12 +263,10 @@ public class ClassTarget extends DependentTarget
             }
         };
 
-        pane.setCenter(canvas);
-
         // We need to add label to the stack pane element
         // to be used later for visual indication that class lacks source
         noSourceLabel = new Label("");
-        StackPane stackPane = new StackPane(pane.getCenter(), noSourceLabel);
+        StackPane stackPane = new StackPane(canvas, noSourceLabel);
         StackPane.setAlignment(noSourceLabel, Pos.TOP_CENTER);
         StackPane.setAlignment(canvas, Pos.CENTER);
         pane.setCenter(stackPane);
