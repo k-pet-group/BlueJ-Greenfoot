@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2019,2020,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2019,2020,2022,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -359,7 +359,7 @@ public class TextParser extends JavaParser
     }
 
     @OnThread(Tag.FXPlatform)
-    private strictfp void doCast()
+    private void doCast()
     {
         // Conversions allowed are specified in JLS 3rd ed. 5.5.
         // But see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7029688
@@ -1012,7 +1012,7 @@ public class TextParser extends JavaParser
      * Process an operator which performs binary numeric promotion and which allows
      * the result to be a constant expression.
      */
-    private strictfp void doBnpOp(Operator op, ValueEntity arg1, ValueEntity arg2)
+    private void doBnpOp(Operator op, ValueEntity arg1, ValueEntity arg2)
     {
         JavaType a1type = arg1.getType();
         JavaType a2type = arg2.getType();
