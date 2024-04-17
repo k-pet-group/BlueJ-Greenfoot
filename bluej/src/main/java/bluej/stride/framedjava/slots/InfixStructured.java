@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2024 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1566,20 +1566,28 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     /**
      * Handles inserting the given text at the given caret position in the given slot-field.
      */
+    @Override
     @OnThread(Tag.FXPlatform)
-    public void insert(StructuredSlotField f, int posInField, String text)
+    public void insert(StructuredSlotField f, int posInField, int endPosInField, String text)
     {
-        modificationPlatform(token -> insertImpl(f, posInField, text, true, token));
+        modificationPlatform(token -> insertImpl(f, posInField, endPosInField, text, true, token));
+    }
+
+    @OnThread(Tag.FXPlatform)
+    protected CaretPos insertImpl(StructuredSlotField f, int posInField, String text, boolean user,
+                               StructuredSlot.ModificationToken token)
+    {
+        return insertImpl(f, posInField, posInField, text, user, token);
     }
     
     /**
-     * Implementation of insert method, used directly by test classes.
+     * Implementation of insert method, used by test classes via testingInsert method.
      */
     @OnThread(Tag.FXPlatform)
-    public CaretPos insertImpl(StructuredSlotField f, int posInField, String text, boolean user,
+    private CaretPos insertImpl(StructuredSlotField f, int posInField, int endPosInField, String text, boolean user,
             StructuredSlot.ModificationToken token)
     {
-        if ( parent == null && !text.isEmpty() && text.length() > 0 && closingChars.contains(text.charAt(0)) ) {
+        if (parent == null && !text.isEmpty() && posInField == endPosInField && closingChars.contains(text.charAt(0)) ) {
             slot.focusNext();
             return null;
         }
@@ -1592,11 +1600,22 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         CaretPos pos = new CaretPos(index, new CaretPos(posInField, null));
         
         // Unless it's a opening bracket, any insertion must involve first deleting the selection:
-        if (text.length() > 0 && !isOpeningBracket(text.charAt(0)) && text.charAt(0) != '\"' && text.charAt(0) != '\'')
+        if (posInField == endPosInField && text.length() > 0 && !isOpeningBracket(text.charAt(0)) && text.charAt(0) != '\"' && text.charAt(0) != '\'')
         {
             CaretPos postDeletion = deleteSelectionImpl(pos, token);
             if (postDeletion != null)
                 pos = postDeletion;
+        }
+        else if (posInField != endPosInField)
+        {
+            // We directly alter the slot without changing anything else.
+            // This is for things like Chinese entry, where we want to replace the
+            // QWERTY characters with a symbol, but it should never modify brackets, operators, etc
+            String existing = f.getText();
+            int start = Math.min(posInField, endPosInField);
+            int end = Math.max(posInField, endPosInField);
+            f.setText(existing.substring(0, start) + existing.substring(end), token);
+            pos = new CaretPos(index, new CaretPos(start, null));
         }
         
         for (int i = 0; i < text.length(); i++)
@@ -2316,7 +2335,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     public void insertNext(BracketedStructured bracketedExpression, String text)
     {
         int index = fields.indexOf(bracketedExpression);
-        insert((StructuredSlotField) fields.get(index + 1), 0, text);
+        insert((StructuredSlotField) fields.get(index + 1), 0, 0, text);
     }
 
     // For testing purposes, package visible

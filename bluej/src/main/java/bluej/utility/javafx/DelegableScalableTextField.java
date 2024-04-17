@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2024 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,7 +39,7 @@ import javafx.scene.layout.Region;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTextField
+public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTextField
 {
     private final SimpleStyleableDoubleProperty bjMinWidthProperty = new SimpleStyleableDoubleProperty(BJ_MIN_WIDTH_META_DATA);
     /**
@@ -68,7 +68,7 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void insertText(int index, String text)
     {
-        delegate.insert(delegateId, index, text);
+        delegate.insert(delegateId, index, index, text);
     }
     
     @Override
@@ -192,7 +192,11 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     {
         // Do not delete, we'll handle case there is a selection:
         //deleteText(start, end);
-        insertText(start, text);
+        // We need to pass the range though, because if user is entering
+        // foreign characters (e.g. Chinese) we may need to replace the
+        // earlier QWERTY characters with the target character:
+        delegate.insert(delegateId, start, end, text);
+
     }
 
     @Override

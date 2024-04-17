@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2024 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,22 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public interface TextFieldDelegate<IDENTIFIER>
 {
-    void insert(IDENTIFIER id, int index, String text);
+    /**
+     * Note that there are really two cases for index and end:
+     *  1. index==end; the insertion is just a character typed at the cursor
+     *  2. index and end are different; this does NOT relate to selection
+     *     because we track selection ourselves so there should never be a selection
+     *     in the field according to JavaFX.  Thus they are only different when
+     *     we are replacing characters as part of foreign character entry,
+     *     e.g. in Chinese replacing QWERTY characters with the destination
+     *     Chinese character.
+     *
+     * @param id The identifier of the field
+     * @param index One end of the position of the text to replace with the insertion
+     * @param end The other end of the position of the text to replace with the insertion
+     * @param text The text  to insert
+     */
+    void insert(IDENTIFIER id, int index, int end, String text);
 
     // This will be called speculatively by deletePrevious and deleteNext, in case
     // there is a selection.  It should return false if there is no selection (but not give an exception)
