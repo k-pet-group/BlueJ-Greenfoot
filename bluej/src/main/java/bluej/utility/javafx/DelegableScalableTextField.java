@@ -455,9 +455,11 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
                 return;
             }
 
-            // If this is the first part of a composed text, set imstart:
+            // If this is the first part of a composed text, set imstart,
+            // and delete any existing selection:
             if (imStart == -1)
             {
+                delegate.deleteSelection();
                 imStart = this.getCaretPosition();
             }
             // Work out the full composed text:
