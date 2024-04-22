@@ -73,12 +73,14 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
     private final TextFieldDelegate<DELEGATE_IDENT> delegate;
     private final DELEGATE_IDENT delegateId;
 
-    // Keep track of InputMethod (IM) positions, e.g. for entering Chinese with
-    // the on-screen IME keyboard.  imStart is the start of the current sequence of
+    // Keep track of InputMethod (IM) character positions within this field,
+    // e.g. for entering Chinese with the on-screen IME keyboard.
+    // imStart is the start of the current sequence within this field of
     // "composing" characters that could end up staying as English or transformed into
     // a related Chinese (or other language) string.  imLength is the length (starting at
     // imStart) of this portion.  When there is no current IM entry, imStart is set to -1
-    // and imLength is set to 0.
+    // and imLength is set to 0.  These are constrained to this field; they cannot extend
+    // outside the field or across fields.
     private int imStart = -1;
     private int imLength;
     
