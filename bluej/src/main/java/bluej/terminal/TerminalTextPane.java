@@ -213,6 +213,10 @@ public abstract class TerminalTextPane extends BaseEditorPane
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.decreaseFontSize(PrefMgr.getEditorFontSize())),
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN)), e -> PrefMgr.getEditorFontSize().set(PrefMgr.DEFAULT_JAVA_FONT_SIZE))
         ));
+
+        JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), s -> {
+            lineDisplay.fontSizeChanged();
+        });
     }
 
     @Override
