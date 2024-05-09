@@ -77,10 +77,6 @@ public abstract class TerminalTextPane extends BaseEditorPane
     private Pos caretPos = new Pos(0, 0, 0);
     private Pos anchorPos = new Pos(0, 0, 0);
     
-    private final Tooltip tooltip = new Tooltip();
-    private boolean tooltipInstalled = false;
-    private EditorPosition lastMousePos;
-    
     // A record holding a location in the terminal window.
     // The line may be negative in some circumstances (see Section, below).
     // In this case, column should be ignored.  If the column is Integer.MAX_VALUE
@@ -97,7 +93,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
     // endLine is negative if ongoing.  startLine is negative if the start has scrolled off the top
     // It is possible for them to both be negative if the section is very long and ongoing.
     // All values of the pos are inclusive.  The columns should be ignored if the line is negative.
-    record Section(TerminalPos start, TerminalPos end, String title) {}
+    record Section(TerminalPos start, TerminalPos end) {}
     
     private final ArrayList<Section> currentSections = new ArrayList<>();
 
@@ -150,10 +146,10 @@ public abstract class TerminalTextPane extends BaseEditorPane
             Section last = currentSections.get(lastLineIndex);
             if (last.end.line < 0)
             {
-                currentSections.set(lastLineIndex, new Section(last.start, getCurEnd(), last.title));
+                currentSections.set(lastLineIndex, new Section(last.start, getCurEnd()));
             }
         }
-        currentSections.add(new Section(getCurStart(), new TerminalPos(-1, 0), sectionTitle));
+        currentSections.add(new Section(getCurStart(), new TerminalPos(-1, 0)));
     }
 
     // End the current section of content.
@@ -170,7 +166,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
             {
                 int lastSection = currentSections.size() - 1;
                 Section last = currentSections.get(lastSection);
-                currentSections.set(lastSection, new Section(last.start, getCurEnd(), last.title));
+                currentSections.set(lastSection, new Section(last.start, getCurEnd()));
                 updateRender(false);
             }
         }
@@ -202,117 +198,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
         });
         // Set the content to be empty on construction:
         clear();
-         
-        tooltip.setOnShowing(e -> {
-            if (lastMousePos != null)
-            {
-                String text = calculateTextForLastMousePos();
-                tooltip.setText(text);
-            }
-        });
-        // Because the tooltip is for the whole node, it will show even while you mouse around.
-        // To avoid that, we listen for mouse movements and hide it:
-        addEventFilter(MouseEvent.MOUSE_MOVED, e -> {
-            lastMousePos = getCaretPositionForMouseEvent(e).orElse(null);
-
-            recalcTooltip(terminalWindow);
-        });
-        addEventFilter(ScrollEvent.ANY, e -> {
-            // Hide tooltip and invalidate mouse position:
-            lastMousePos = null;
-            if (tooltip.isShowing())
-            {
-                Tooltip.uninstall(this, tooltip);
-                Tooltip.install(this, tooltip);
-            }
-        });
-        // We add/remove the tooltip on window focused; see comment in recalcTooltip()
-        JavaFXUtil.addChangeListenerPlatformAndCallNow(terminalWindow.focusedProperty(), f -> recalcTooltip(terminalWindow));
-        
     }
-
-    private void recalcTooltip(Stage terminalWindow)
-    {
-        // There is a bug in JavaFX where if a tooltip is shown for a normal window, that normal window
-        // (the parent of the tooltip window) is brought to the front, just behind the tooltip.
-        // Bug report: https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8088624
-        
-        // This has an annoying implication for our tooltips, which potentially cover the whole of the
-        // terminal pane in the case of a long output: if you leave the window open partially behind the
-        // other windows, then if your mouse strays over the visible portion of the terminal window and
-        // you stop moving the mouse, the terminal suddenly pops to the front and shows its tooltip.
-        // This is quite unexpected, irritating, and it's not obvious what you did to trigger this behaviour.
-        
-        // So, to avoid this we uninstall the tooltip whenever the terminal window is unfocused.  It seems
-        // fine to only show the tooltip if the window has focus, and it avoids this annoying behaviour.
-        if (!terminalWindow.isFocused())
-        {
-            if (tooltipInstalled)
-            {
-                Tooltip.uninstall(this, tooltip);
-                tooltipInstalled = false;
-            }
-        }
-        else
-        {
-
-            // If we hide it, it will not show again until you mouse around for a while
-            // So instead we uninstall and reinstall, which allows reshowing sooner:
-            if (tooltip.isShowing())
-            {
-                Tooltip.uninstall(this, tooltip);
-                Tooltip.install(this, tooltip);
-                tooltipInstalled = true;
-            }
-            else
-            {
-                boolean contentToShow = !calculateTextForLastMousePos().isEmpty();
-                if (!contentToShow && tooltipInstalled)
-                {
-                    // We don't want to risk showing an empty tooltip, so uninstall it now before tooltip is triggered there:
-                    Tooltip.uninstall(this, tooltip);
-                    tooltipInstalled = false;
-                }
-                else if (contentToShow && !tooltipInstalled)
-                {
-                    // There is content to show, so put the tooltip back on ready to show after a hover:
-                    Tooltip.install(this, tooltip);
-                    tooltipInstalled = true;
-                }
-            }
-        }
-    }
-
-    /**
-     * Calculates the tooltip that would be shown at lastMousePos.  If the tooltip
-     * should be blank, either because there's no output at that location, or because
-     * the mouse isn't over a valid location, the empty string is returned (not null).
-     */
-    private String calculateTextForLastMousePos()
-    {
-        String text = "";
-        if (lastMousePos == null)
-            return text;
-        for (Section s : currentSections)
-        {
-            if (s.start.line > lastMousePos.getLine())
-                continue; // We are before its start line
-            if (s.end.line >= 0 && s.end.line < lastMousePos.getLine())
-                continue; // We are after its end line
-            if (s.start.line == lastMousePos.getLine() && lastMousePos.getColumn() < s.start.column)
-                continue; // We are on the start line, but before its start column
-            if (s.end.line == lastMousePos.getLine() && lastMousePos.getColumn() >= s.end.column)
-                continue; // We are on the end line, but after its end column.  Important to have >=
-                          // because if a line ends at say column 10, and there's nothing at column 11
-                          // we don't want to show a tooltip there, but the position will be clamped
-                          // to column 10 by the lookup in the text pane (because column 11 doesn't exist).
-            // We're inside!
-            text = s.title;
-            break;
-        }
-        return text;
-    }
-
 
     @Override
     protected void keyPressed(KeyEvent event)
@@ -629,7 +515,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
                 }
                 else
                 {
-                    iterator.set(new Section(s.start.subtractLines(linesToSubtract), s.end.subtractLines(linesToSubtract), s.title));
+                    iterator.set(new Section(s.start.subtractLines(linesToSubtract), s.end.subtractLines(linesToSubtract)));
                 }
             }
             updateRender(false);
