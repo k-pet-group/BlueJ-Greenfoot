@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2018,2021 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2018,2021,2024 Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -575,9 +575,9 @@ public class VMCommsMain implements Closeable
     /**
      * End a drag, identified by the given id.
      */
-    public synchronized void endDrag(int dragId)
+    public synchronized void endDrag(int dragId, int cellX, int cellY)
     {
-        pendingCommands.add(new Command(COMMAND_END_DRAG, dragId));
+        pendingCommands.add(new Command(COMMAND_END_DRAG, dragId, cellX, cellY));
     }
     
     /**

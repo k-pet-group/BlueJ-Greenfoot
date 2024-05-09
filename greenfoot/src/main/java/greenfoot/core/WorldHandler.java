@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018,2024  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -640,7 +640,7 @@ public class WorldHandler
      * Completes the current drag if it is the given drag ID
      */
     @OnThread(Tag.Any)
-    public void finishDrag(int dragId)
+    public void finishDrag(int dragId, int ax, int ay)
     {
         Simulation.getInstance().runLater(() -> {
             // if the operation was cancelled, add the object back into the
@@ -652,8 +652,7 @@ public class WorldHandler
                     // This makes sure that a single (final) setLocation
                     // call is received by the actor when dragging ends.
                     // This matters if the actor has overridden setLocation
-                    int ax = ActorVisitor.getX(dragActor);
-                    int ay = ActorVisitor.getY(dragActor);
+
                     // First we set the position to be the pre-drag position.
                     // This means that if the user overrides setLocation and
                     // chooses not to call the inherited setLocation, the position

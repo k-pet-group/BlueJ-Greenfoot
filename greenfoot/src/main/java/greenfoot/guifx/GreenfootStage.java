@@ -1621,9 +1621,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 // Finish any current drag:
                 if (curDragRequest != -1)
                 {
-                    debugHandler.getVmComms().endDrag(curDragRequest);
-                    curDragRequest = -1;
                     Point2D cellPos = pixelToCellCoordinates(worldPos);
+                    debugHandler.getVmComms().endDrag(curDragRequest, (int)cellPos.getX(), (int)cellPos.getY());
+                    curDragRequest = -1;
                     saveTheWorldRecorder.moveActor(draggedActor, (int)cellPos.getX(), (int)cellPos.getY());
                 }
             }
