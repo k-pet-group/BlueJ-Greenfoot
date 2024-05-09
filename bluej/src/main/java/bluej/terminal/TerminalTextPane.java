@@ -26,6 +26,7 @@ import bluej.editor.base.BackgroundItem;
 import bluej.editor.base.BaseEditorPane;
 import bluej.editor.base.EditorPosition;
 import bluej.editor.base.TextLine.StyledSegment;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -326,35 +327,48 @@ public abstract class TerminalTextPane extends BaseEditorPane
         // Recalculate all sections in the terminal:
         HashMap<Integer, List<BackgroundItem>> map = new HashMap<>();
         boolean reschedule = false;
-        for (int i = 0; i < content.size(); i++)
+        if (PrefMgr.getFlag(PrefMgr.SHOW_TERMINAL_SCOPES))
         {
-            // Can't work it out for non visible lines:
-            if (!lineDisplay.isLineVisible(i))
-                continue;
-            for (Section s : currentSections)
+            for (int i = 0; i < content.size(); i++)
             {
-                final double singleRadius = 5;
-                // All are specific to this section, on this line:
-                double topRadius = 0, bottomRadius = 0;
-                // Top or bottom inset of 0 basically means "don't draw the grey line":
-                double topInset = 0, bottomInset = 0;
-                // Default is whole width:
-                double leftInset = 0, rightInset = getTextDisplayWidth()-1.0;
-
-                // Each section could begin and/or end on the current line
-                // If neither, it may be ongoing through this line, or just not overlapping at all.
-                // So there's quite a few circumstances to consider.  We start with beginning:
-                if (s.start.line == i)
+                // Can't work it out for non visible lines:
+                if (!lineDisplay.isLineVisible(i))
+                    continue;
+                for (Section s : currentSections)
                 {
-                    topRadius = singleRadius;
-                    topInset = 1;
-                    if (s.start.column >= 0 && s.start.column < content.get(i).getText().length())
+                    final double singleRadius = 5;
+                    // All are specific to this section, on this line:
+                    double topRadius = 0, bottomRadius = 0;
+                    // Top or bottom inset of 0 basically means "don't draw the grey line":
+                    double topInset = 0, bottomInset = 0;
+                    // Default is whole width:
+                    double leftInset = 0, rightInset = getTextDisplayWidth() - 1.0;
+
+                    // Each section could begin and/or end on the current line
+                    // If neither, it may be ongoing through this line, or just not overlapping at all.
+                    // So there's quite a few circumstances to consider.  We start with beginning:
+                    if (s.start.line == i)
                     {
-                        Optional<Double> edge = lineDisplay.calculateLeftEdgeX(i, s.start.column);
-                        reschedule |= edge.isEmpty();
-                        leftInset = edge.orElse(leftInset);
-                    }
-                    if (s.end.line == i)
+                        topRadius = singleRadius;
+                        topInset = 1;
+                        if (s.start.column >= 0 && s.start.column < content.get(i).getText().length())
+                        {
+                            Optional<Double> edge = lineDisplay.calculateLeftEdgeX(i, s.start.column);
+                            reschedule |= edge.isEmpty();
+                            leftInset = edge.orElse(leftInset);
+                        }
+                        if (s.end.line == i)
+                        {
+                            bottomRadius = singleRadius;
+                            bottomInset = 1;
+                            if (s.end.column >= 0 && s.end.column <= content.get(i).getText().length())
+                            {
+                                Optional<Double> edge = lineDisplay.calculateLeftEdgeX(i, s.end.column);
+                                reschedule |= edge.isEmpty();
+                                rightInset = edge.orElse(rightInset);
+                            }
+                        }
+                    } else if (s.end.line == i)
                     {
                         bottomRadius = singleRadius;
                         bottomInset = 1;
@@ -364,33 +378,21 @@ public abstract class TerminalTextPane extends BaseEditorPane
                             reschedule |= edge.isEmpty();
                             rightInset = edge.orElse(rightInset);
                         }
-                    }
-                }
-                else if (s.end.line == i)
-                {
-                    bottomRadius = singleRadius;
-                    bottomInset = 1;
-                    if (s.end.column >= 0 && s.end.column <= content.get(i).getText().length())
+                    } else if (!(s.start.line < i && (s.end.line == -1 || s.end.line > i)))
                     {
-                        Optional<Double> edge = lineDisplay.calculateLeftEdgeX(i, s.end.column);
-                        reschedule |= edge.isEmpty();
-                        rightInset = edge.orElse(rightInset);
+                        // Does not overlap this line at all:
+                        continue;
                     }
+
+                    CornerRadii radii = new CornerRadii(topRadius, topRadius, bottomRadius, bottomRadius, false);
+                    Insets bodyInsets = new Insets(topInset, 1, bottomInset, 1);
+                    map.computeIfAbsent(i, _i -> new ArrayList<>()).add(new BackgroundItem(leftInset, rightInset - leftInset,
+                            new BackgroundFill(Color.LIGHTGRAY, radii, null),
+                            new BackgroundFill(Color.WHITE, radii, bodyInsets)));
                 }
-                else if (!(s.start.line < i && (s.end.line == -1 || s.end.line > i)))
-                {
-                    // Does not overlap this line at all:
-                    continue;
-                }
-                
-                CornerRadii radii = new CornerRadii(topRadius, topRadius, bottomRadius, bottomRadius, false);
-                Insets bodyInsets = new Insets(topInset, 1, bottomInset, 1);
-                map.computeIfAbsent(i, _i -> new ArrayList<>()).add(new BackgroundItem(leftInset, rightInset - leftInset,
-                    new BackgroundFill(Color.LIGHTGRAY, radii, null),
-                    new BackgroundFill(Color.WHITE, radii, bodyInsets)));
             }
         }
-        lineDisplay.applyScopeBackgrounds(map);        
+        lineDisplay.applyScopeBackgrounds(map);
         if (reschedule)
         {
             JavaFXUtil.runAfterNextLayout(getScene(), () -> updateRender(false));

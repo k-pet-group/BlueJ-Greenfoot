@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -67,6 +67,7 @@ public class PrefMgr
     public static final String SHOW_UNCHECKED = "bluej.compiler.showunchecked";
     public static final String SCOPE_HIGHLIGHTING_STRENGTH = "bluej.editor.scopeHilightingStrength";
     public static final String NAVIVIEW_EXPANDED="bluej.naviviewExpanded.default";
+    public static final String SHOW_TERMINAL_SCOPES = "bluej.terminal.showScopes";
     public static final String ACCESSIBILITY_SUPPORT = "bluej.accessibility.support";
     public static final String NEWS_TESTING = "bluej.news.testing";
     public static final String START_WITH_SUDO = "bluej.startWithSudo";
@@ -443,6 +444,7 @@ public class PrefMgr
         flags.put(SHOW_TEAM_TOOLS, Config.getPropString(SHOW_TEAM_TOOLS, "false"));
         flags.put(SHOW_TEXT_EVAL, Config.getPropString(SHOW_TEXT_EVAL, "false"));
         flags.put(SHOW_UNCHECKED, Config.getPropString(SHOW_UNCHECKED, "true"));
+        flags.put(SHOW_TERMINAL_SCOPES, Config.getPropString(SHOW_TERMINAL_SCOPES, "true"));
         flags.put(ACCESSIBILITY_SUPPORT, Config.getPropString(ACCESSIBILITY_SUPPORT, "false"));
         flags.put(START_WITH_SUDO, Config.getPropString(START_WITH_SUDO, "true"));
         flags.put(STRIDE_SIDEBAR_SHOWING, Config.getPropString(STRIDE_SIDEBAR_SHOWING, "true"));
