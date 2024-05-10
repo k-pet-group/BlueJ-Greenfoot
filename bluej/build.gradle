@@ -45,7 +45,7 @@ compileJava {
 }
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-    options.release = 17
+    options.release = 21
 }
 
 test {
@@ -116,10 +116,13 @@ task runBlueJ(type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
     main = "bluej.Boot"
     args "-bluej.debug=true"
+    //systemProperties(Map.of("javafx.sg.warn", "true"));
 }
 
 assemble.dependsOn blueJCoreJar
 assemble.dependsOn copyToLib
+compileTestJava.dependsOn blueJCoreJar
+compileTestJava.dependsOn copyToLib
 runBlueJ.dependsOn assemble
 test.dependsOn copyLibToTestBuild
 
