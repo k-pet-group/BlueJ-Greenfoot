@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018,2019,2021  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018,2019,2021,2024  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -540,8 +540,8 @@ public class VMCommsSimulation
                         WorldHandler.getInstance().continueDragging(data[1], data[2], data[3]);
                         break;
                     case Command.COMMAND_END_DRAG:
-                        // Will be drag-ID:
-                        WorldHandler.getInstance().finishDrag(data[1]);
+                        // Will be drag-ID, cell X, cell Y:
+                        WorldHandler.getInstance().finishDrag(data[1], data[2], data[3]);
                         break;
                     case Command.COMMAND_ANSWERED:
                         // Store the codepoints we received:

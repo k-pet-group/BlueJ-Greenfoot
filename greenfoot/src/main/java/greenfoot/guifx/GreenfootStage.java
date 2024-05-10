@@ -1185,6 +1185,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     {
                         DialogManager.showErrorFX(this, "cannot-save-world");
                     }
+                    else
+                    {
+                        this.project.scheduleCompilation(true, CompileReason.USER,
+                                CompileType.INDIRECT_USER_COMPILE, this.project.getUnnamedPackage());
+                    }
                 }, null),
                 JavaFXUtil.makeMenuItem(Config.getString("menu.tools.recompileAll"), () -> project.getUnnamedPackage().rebuild(), null),
                 JavaFXUtil.makeMenuItem("menu.tools.generateDoc",new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN),
@@ -1621,9 +1626,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 // Finish any current drag:
                 if (curDragRequest != -1)
                 {
-                    debugHandler.getVmComms().endDrag(curDragRequest);
-                    curDragRequest = -1;
                     Point2D cellPos = pixelToCellCoordinates(worldPos);
+                    debugHandler.getVmComms().endDrag(curDragRequest, (int)cellPos.getX(), (int)cellPos.getY());
+                    curDragRequest = -1;
                     saveTheWorldRecorder.moveActor(draggedActor, (int)cellPos.getX(), (int)cellPos.getY());
                 }
             }
@@ -1884,6 +1889,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                             if (!saveTheWorldRecorder.writeCode(className -> ((ClassTarget) target).getEditor()))
                             {
                                 DialogManager.showErrorFX(this, "cannot-save-world");
+                            }
+                            else
+                            {
+                                this.project.scheduleCompilation(true, CompileReason.USER,
+                                        CompileType.INDIRECT_USER_COMPILE, this.project.getUnnamedPackage());
                             }
                         });
                         contextMenu.getItems().add(saveTheWorld);
