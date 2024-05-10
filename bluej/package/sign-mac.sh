@@ -24,7 +24,9 @@ echo "Unzip download - done"
 # JLI causes problems but is not needed:
 rm "$TOP_LEVEL"/Contents/PlugIns/x64/Contents/MacOS/libjli.dylib
 # Fix permissions on JSA files, which are read-only by default:
-chmod u+w $TOP_LEVEL/Contents/PlugIns/x64/Contents/Home/lib/server/*.jsa
+# These files are currently missing due to https://github.com/adoptium/adoptium-support/issues/937
+# We should restore this once the files are put back
+#chmod u+w $TOP_LEVEL/Contents/PlugIns/x64/Contents/Home/lib/server/*.jsa
 
 # Sign the executable:
 echo "Signing BlueJ executable..."
