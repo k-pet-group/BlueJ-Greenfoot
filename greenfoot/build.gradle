@@ -73,6 +73,10 @@ assemble.dependsOn copyLibToBuild
 assemble.dependsOn copyImagelibToBuild
 assemble.dependsOn copyGreenfootIcon1
 assemble.dependsOn copyGreenfootIcon2
+jar.dependsOn copyLibToBuild
+jar.dependsOn copyImagelibToBuild
+jar.dependsOn copyGreenfootIcon1
+jar.dependsOn copyGreenfootIcon2
 
 task copyToLib(type: Copy) {
     into new File(sourceSets.main.output.resourcesDir, 'lib')
