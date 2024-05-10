@@ -1,9 +1,9 @@
 plugins {
-    id 'org.openjfx.javafxplugin' version '0.0.13' apply false
+    id 'org.openjfx.javafxplugin' version '0.1.0' apply false
 }
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-    options.release = 17
+    options.release = 21
 }
 subprojects {
     ext.versionProps = new Properties()
