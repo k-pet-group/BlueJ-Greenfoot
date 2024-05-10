@@ -540,7 +540,7 @@ public class VMCommsSimulation
                         WorldHandler.getInstance().continueDragging(data[1], data[2], data[3]);
                         break;
                     case Command.COMMAND_END_DRAG:
-                        // Will be drag-ID:
+                        // Will be drag-ID, cell X, cell Y:
                         WorldHandler.getInstance().finishDrag(data[1], data[2], data[3]);
                         break;
                     case Command.COMMAND_ANSWERED:
