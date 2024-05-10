@@ -121,6 +121,8 @@ task runBlueJ(type: JavaExec) {
 
 assemble.dependsOn blueJCoreJar
 assemble.dependsOn copyToLib
+compileTestJava.dependsOn blueJCoreJar
+compileTestJava.dependsOn copyToLib
 runBlueJ.dependsOn assemble
 test.dependsOn copyLibToTestBuild
 
