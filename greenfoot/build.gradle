@@ -77,6 +77,10 @@ jar.dependsOn copyLibToBuild
 jar.dependsOn copyImagelibToBuild
 jar.dependsOn copyGreenfootIcon1
 jar.dependsOn copyGreenfootIcon2
+compileTestJava.dependsOn copyLibToBuild
+compileTestJava.dependsOn copyImagelibToBuild
+compileTestJava.dependsOn copyGreenfootIcon1
+compileTestJava.dependsOn copyGreenfootIcon2
 
 task copyToLib(type: Copy) {
     into new File(sourceSets.main.output.resourcesDir, 'lib')
@@ -111,8 +115,11 @@ task greenfootJar(type: Jar) {
     }
     destinationDirectory = new File(sourceSets.main.output.resourcesDir, 'lib')
 }
+greenfootJar.dependsOn compileJava
 assemble.dependsOn greenfootJar
 assemble.dependsOn copyToLib
+jar.dependsOn greenfootJar
+compileTestJava.dependsOn copyToLib
 
 task runGreenfoot(type: JavaExec) {
     group = 'application'
