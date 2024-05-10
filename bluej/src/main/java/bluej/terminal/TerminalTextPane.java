@@ -26,7 +26,9 @@ import bluej.editor.base.BackgroundItem;
 import bluej.editor.base.BaseEditorPane;
 import bluej.editor.base.EditorPosition;
 import bluej.editor.base.TextLine.StyledSegment;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.collect.ImmutableList;
@@ -37,6 +39,9 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -45,6 +50,9 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.InputMap;
+import org.fxmisc.wellbehaved.event.Nodes;
 
 import javax.tools.Tool;
 import java.util.ArrayList;
@@ -77,10 +85,6 @@ public abstract class TerminalTextPane extends BaseEditorPane
     private Pos caretPos = new Pos(0, 0, 0);
     private Pos anchorPos = new Pos(0, 0, 0);
     
-    private final Tooltip tooltip = new Tooltip();
-    private boolean tooltipInstalled = false;
-    private EditorPosition lastMousePos;
-    
     // A record holding a location in the terminal window.
     // The line may be negative in some circumstances (see Section, below).
     // In this case, column should be ignored.  If the column is Integer.MAX_VALUE
@@ -97,7 +101,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
     // endLine is negative if ongoing.  startLine is negative if the start has scrolled off the top
     // It is possible for them to both be negative if the section is very long and ongoing.
     // All values of the pos are inclusive.  The columns should be ignored if the line is negative.
-    record Section(TerminalPos start, TerminalPos end, String title) {}
+    record Section(TerminalPos start, TerminalPos end) {}
     
     private final ArrayList<Section> currentSections = new ArrayList<>();
 
@@ -150,10 +154,10 @@ public abstract class TerminalTextPane extends BaseEditorPane
             Section last = currentSections.get(lastLineIndex);
             if (last.end.line < 0)
             {
-                currentSections.set(lastLineIndex, new Section(last.start, getCurEnd(), last.title));
+                currentSections.set(lastLineIndex, new Section(last.start, getCurEnd()));
             }
         }
-        currentSections.add(new Section(getCurStart(), new TerminalPos(-1, 0), sectionTitle));
+        currentSections.add(new Section(getCurStart(), new TerminalPos(-1, 0)));
     }
 
     // End the current section of content.
@@ -170,7 +174,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
             {
                 int lastSection = currentSections.size() - 1;
                 Section last = currentSections.get(lastSection);
-                currentSections.set(lastSection, new Section(last.start, getCurEnd(), last.title));
+                currentSections.set(lastSection, new Section(last.start, getCurEnd()));
                 updateRender(false);
             }
         }
@@ -202,117 +206,18 @@ public abstract class TerminalTextPane extends BaseEditorPane
         });
         // Set the content to be empty on construction:
         clear();
-         
-        tooltip.setOnShowing(e -> {
-            if (lastMousePos != null)
-            {
-                String text = calculateTextForLastMousePos();
-                tooltip.setText(text);
-            }
+
+        // Add shortcuts to allow changing font size:
+        Nodes.addInputMap(this, InputMap.sequence(
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.increaseFontSize(PrefMgr.getEditorFontSize())),
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.decreaseFontSize(PrefMgr.getEditorFontSize())),
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN)), e -> PrefMgr.getEditorFontSize().set(PrefMgr.DEFAULT_JAVA_FONT_SIZE))
+        ));
+
+        JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), s -> {
+            lineDisplay.fontSizeChanged();
         });
-        // Because the tooltip is for the whole node, it will show even while you mouse around.
-        // To avoid that, we listen for mouse movements and hide it:
-        addEventFilter(MouseEvent.MOUSE_MOVED, e -> {
-            lastMousePos = getCaretPositionForMouseEvent(e).orElse(null);
-
-            recalcTooltip(terminalWindow);
-        });
-        addEventFilter(ScrollEvent.ANY, e -> {
-            // Hide tooltip and invalidate mouse position:
-            lastMousePos = null;
-            if (tooltip.isShowing())
-            {
-                Tooltip.uninstall(this, tooltip);
-                Tooltip.install(this, tooltip);
-            }
-        });
-        // We add/remove the tooltip on window focused; see comment in recalcTooltip()
-        JavaFXUtil.addChangeListenerPlatformAndCallNow(terminalWindow.focusedProperty(), f -> recalcTooltip(terminalWindow));
-        
     }
-
-    private void recalcTooltip(Stage terminalWindow)
-    {
-        // There is a bug in JavaFX where if a tooltip is shown for a normal window, that normal window
-        // (the parent of the tooltip window) is brought to the front, just behind the tooltip.
-        // Bug report: https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8088624
-        
-        // This has an annoying implication for our tooltips, which potentially cover the whole of the
-        // terminal pane in the case of a long output: if you leave the window open partially behind the
-        // other windows, then if your mouse strays over the visible portion of the terminal window and
-        // you stop moving the mouse, the terminal suddenly pops to the front and shows its tooltip.
-        // This is quite unexpected, irritating, and it's not obvious what you did to trigger this behaviour.
-        
-        // So, to avoid this we uninstall the tooltip whenever the terminal window is unfocused.  It seems
-        // fine to only show the tooltip if the window has focus, and it avoids this annoying behaviour.
-        if (!terminalWindow.isFocused())
-        {
-            if (tooltipInstalled)
-            {
-                Tooltip.uninstall(this, tooltip);
-                tooltipInstalled = false;
-            }
-        }
-        else
-        {
-
-            // If we hide it, it will not show again until you mouse around for a while
-            // So instead we uninstall and reinstall, which allows reshowing sooner:
-            if (tooltip.isShowing())
-            {
-                Tooltip.uninstall(this, tooltip);
-                Tooltip.install(this, tooltip);
-                tooltipInstalled = true;
-            }
-            else
-            {
-                boolean contentToShow = !calculateTextForLastMousePos().isEmpty();
-                if (!contentToShow && tooltipInstalled)
-                {
-                    // We don't want to risk showing an empty tooltip, so uninstall it now before tooltip is triggered there:
-                    Tooltip.uninstall(this, tooltip);
-                    tooltipInstalled = false;
-                }
-                else if (contentToShow && !tooltipInstalled)
-                {
-                    // There is content to show, so put the tooltip back on ready to show after a hover:
-                    Tooltip.install(this, tooltip);
-                    tooltipInstalled = true;
-                }
-            }
-        }
-    }
-
-    /**
-     * Calculates the tooltip that would be shown at lastMousePos.  If the tooltip
-     * should be blank, either because there's no output at that location, or because
-     * the mouse isn't over a valid location, the empty string is returned (not null).
-     */
-    private String calculateTextForLastMousePos()
-    {
-        String text = "";
-        if (lastMousePos == null)
-            return text;
-        for (Section s : currentSections)
-        {
-            if (s.start.line > lastMousePos.getLine())
-                continue; // We are before its start line
-            if (s.end.line >= 0 && s.end.line < lastMousePos.getLine())
-                continue; // We are after its end line
-            if (s.start.line == lastMousePos.getLine() && lastMousePos.getColumn() < s.start.column)
-                continue; // We are on the start line, but before its start column
-            if (s.end.line == lastMousePos.getLine() && lastMousePos.getColumn() >= s.end.column)
-                continue; // We are on the end line, but after its end column.  Important to have >=
-                          // because if a line ends at say column 10, and there's nothing at column 11
-                          // we don't want to show a tooltip there, but the position will be clamped
-                          // to column 10 by the lookup in the text pane (because column 11 doesn't exist).
-            // We're inside!
-            text = s.title;
-            break;
-        }
-        return text;
-    }
-
 
     @Override
     protected void keyPressed(KeyEvent event)
@@ -440,35 +345,48 @@ public abstract class TerminalTextPane extends BaseEditorPane
         // Recalculate all sections in the terminal:
         HashMap<Integer, List<BackgroundItem>> map = new HashMap<>();
         boolean reschedule = false;
-        for (int i = 0; i < content.size(); i++)
+        if (PrefMgr.getFlag(PrefMgr.SHOW_TERMINAL_SCOPES))
         {
-            // Can't work it out for non visible lines:
-            if (!lineDisplay.isLineVisible(i))
-                continue;
-            for (Section s : currentSections)
+            for (int i = 0; i < content.size(); i++)
             {
-                final double singleRadius = 5;
-                // All are specific to this section, on this line:
-                double topRadius = 0, bottomRadius = 0;
-                // Top or bottom inset of 0 basically means "don't draw the grey line":
-                double topInset = 0, bottomInset = 0;
-                // Default is whole width:
-                double leftInset = 0, rightInset = getTextDisplayWidth()-1.0;
-
-                // Each section could begin and/or end on the current line
-                // If neither, it may be ongoing through this line, or just not overlapping at all.
-                // So there's quite a few circumstances to consider.  We start with beginning:
-                if (s.start.line == i)
+                // Can't work it out for non visible lines:
+                if (!lineDisplay.isLineVisible(i))
+                    continue;
+                for (Section s : currentSections)
                 {
-                    topRadius = singleRadius;
-                    topInset = 1;
-                    if (s.start.column >= 0 && s.start.column < content.get(i).getText().length())
+                    final double singleRadius = 5;
+                    // All are specific to this section, on this line:
+                    double topRadius = 0, bottomRadius = 0;
+                    // Top or bottom inset of 0 basically means "don't draw the grey line":
+                    double topInset = 0, bottomInset = 0;
+                    // Default is whole width:
+                    double leftInset = 0, rightInset = getTextDisplayWidth() - 1.0;
+
+                    // Each section could begin and/or end on the current line
+                    // If neither, it may be ongoing through this line, or just not overlapping at all.
+                    // So there's quite a few circumstances to consider.  We start with beginning:
+                    if (s.start.line == i)
                     {
-                        Optional<Double> edge = lineDisplay.calculateLeftEdgeX(i, s.start.column);
-                        reschedule |= edge.isEmpty();
-                        leftInset = edge.orElse(leftInset);
-                    }
-                    if (s.end.line == i)
+                        topRadius = singleRadius;
+                        topInset = 1;
+                        if (s.start.column >= 0 && s.start.column < content.get(i).getText().length())
+                        {
+                            Optional<Double> edge = lineDisplay.calculateLeftEdgeX(i, s.start.column);
+                            reschedule |= edge.isEmpty();
+                            leftInset = edge.orElse(leftInset);
+                        }
+                        if (s.end.line == i)
+                        {
+                            bottomRadius = singleRadius;
+                            bottomInset = 1;
+                            if (s.end.column >= 0 && s.end.column <= content.get(i).getText().length())
+                            {
+                                Optional<Double> edge = lineDisplay.calculateLeftEdgeX(i, s.end.column);
+                                reschedule |= edge.isEmpty();
+                                rightInset = edge.orElse(rightInset);
+                            }
+                        }
+                    } else if (s.end.line == i)
                     {
                         bottomRadius = singleRadius;
                         bottomInset = 1;
@@ -478,33 +396,21 @@ public abstract class TerminalTextPane extends BaseEditorPane
                             reschedule |= edge.isEmpty();
                             rightInset = edge.orElse(rightInset);
                         }
-                    }
-                }
-                else if (s.end.line == i)
-                {
-                    bottomRadius = singleRadius;
-                    bottomInset = 1;
-                    if (s.end.column >= 0 && s.end.column <= content.get(i).getText().length())
+                    } else if (!(s.start.line < i && (s.end.line == -1 || s.end.line > i)))
                     {
-                        Optional<Double> edge = lineDisplay.calculateLeftEdgeX(i, s.end.column);
-                        reschedule |= edge.isEmpty();
-                        rightInset = edge.orElse(rightInset);
+                        // Does not overlap this line at all:
+                        continue;
                     }
+
+                    CornerRadii radii = new CornerRadii(topRadius, topRadius, bottomRadius, bottomRadius, false);
+                    Insets bodyInsets = new Insets(topInset, 1, bottomInset, 1);
+                    map.computeIfAbsent(i, _i -> new ArrayList<>()).add(new BackgroundItem(leftInset, rightInset - leftInset,
+                            new BackgroundFill(Color.LIGHTGRAY, radii, null),
+                            new BackgroundFill(Color.WHITE, radii, bodyInsets)));
                 }
-                else if (!(s.start.line < i && (s.end.line == -1 || s.end.line > i)))
-                {
-                    // Does not overlap this line at all:
-                    continue;
-                }
-                
-                CornerRadii radii = new CornerRadii(topRadius, topRadius, bottomRadius, bottomRadius, false);
-                Insets bodyInsets = new Insets(topInset, 1, bottomInset, 1);
-                map.computeIfAbsent(i, _i -> new ArrayList<>()).add(new BackgroundItem(leftInset, rightInset - leftInset,
-                    new BackgroundFill(Color.LIGHTGRAY, radii, null),
-                    new BackgroundFill(Color.WHITE, radii, bodyInsets)));
             }
         }
-        lineDisplay.applyScopeBackgrounds(map);        
+        lineDisplay.applyScopeBackgrounds(map);
         if (reschedule)
         {
             JavaFXUtil.runAfterNextLayout(getScene(), () -> updateRender(false));
@@ -629,7 +535,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
                 }
                 else
                 {
-                    iterator.set(new Section(s.start.subtractLines(linesToSubtract), s.end.subtractLines(linesToSubtract), s.title));
+                    iterator.set(new Section(s.start.subtractLines(linesToSubtract), s.end.subtractLines(linesToSubtract)));
                 }
             }
             updateRender(false);

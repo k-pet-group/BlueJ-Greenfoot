@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2014,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2014,2016,2019,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -50,7 +50,9 @@ public class InterfacePanel extends VBox
 {
     private ArrayList<String> allLangsInternal;
     private ComboBox langDropdown;
-    
+
+    private CheckBox terminalScopes;
+
     private CheckBox accessibility;
     
     private CheckBox toggleTestNewsMode;
@@ -108,8 +110,11 @@ public class InterfacePanel extends VBox
             Label t = new Label(Config.getString("prefmgr.interface.language.restart"));
             langPanel.add(t);
         }
-        getChildren().add(PrefMgrDialog.headedVBox("prefmgr.interface.language.title", langPanel));        
-        
+        getChildren().add(PrefMgrDialog.headedVBox("prefmgr.interface.language.title", langPanel));
+
+        terminalScopes = new CheckBox(Config.getString("prefmgr.terminal.scopes"));
+        getChildren().add(PrefMgrDialog.headedVBox("prefmgr.terminal.title", Arrays.asList(terminalScopes)));
+
         accessibility = new CheckBox(Config.getString("prefmgr.accessibility.support"));
         getChildren().add(PrefMgrDialog.headedVBox("prefmgr.accessibility.title", Arrays.asList(accessibility)));
         
@@ -134,6 +139,8 @@ public class InterfacePanel extends VBox
             curLangIndex = 0;
         }
         langDropdown.getSelectionModel().select(curLangIndex);
+
+        terminalScopes.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TERMINAL_SCOPES));
         
         accessibility.setSelected(PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT));
         
@@ -149,7 +156,11 @@ public class InterfacePanel extends VBox
     public void commitEditing(Project project)
     {
         Config.putPropString("bluej.language", allLangsInternal.get(langDropdown.getSelectionModel().getSelectedIndex()));
-        
+
+        PrefMgr.setFlag(PrefMgr.SHOW_TERMINAL_SCOPES, terminalScopes.isSelected());
+        // Re-render the terminal in case things changed:
+        project.getTerminal().rerenderStdout();
+
         PrefMgr.setFlag(PrefMgr.ACCESSIBILITY_SUPPORT, accessibility.isSelected());
 
         // Only counts as selected if selected and visible:

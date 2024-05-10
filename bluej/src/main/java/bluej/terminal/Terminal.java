@@ -436,6 +436,12 @@ public final class Terminal
         }
     }
 
+    // Rerenders the stdout pane.
+    public void rerenderStdout()
+    {
+        text.updateRender(false);
+    }
+
     enum PaneType { STDOUT, STDERR }
 
     /**

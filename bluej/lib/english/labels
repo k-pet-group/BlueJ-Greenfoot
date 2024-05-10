@@ -140,6 +140,8 @@ prefmgr.interface.language.restart=You will need to restart $APPNAME for the lan
 prefmgr.interface.text.restart=You will need to restart $APPNAME for the setting to take effect.
 prefmgr.accessibility.title=Accessibility
 prefmgr.accessibility.support=Accessibility Mode [only for use with screen readers]
+prefmgr.terminal.title=Terminal
+prefmgr.terminal.scopes=Show Terminal execution scopes
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Installed Extensions
