@@ -2899,8 +2899,7 @@ public class JavaParser extends JavaParserCallbacks
             case 31: // LITERAL_switch
                 // Switch expression
                 parseSwitchExpression(token);
-                token = nextToken();
-                continue exprLoop;                
+                break;
             default:
                 tokenStream.pushBack(token);
                 error("Invalid expression token: " + token.getText());
