@@ -13,7 +13,7 @@ repositories {
 }
 
 javafx {
-    version = "20.0.1"
+    version = "21.0.3"
     modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.swing']
 }
 
