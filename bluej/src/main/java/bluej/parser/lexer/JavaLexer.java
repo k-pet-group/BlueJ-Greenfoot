@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2009,2010,2011,2012,2014,2016,2022  Michael Kolling and John Rosenberg 
+ Copyright (C) 2009,2010,2011,2012,2014,2016,2022,2024  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -109,6 +109,7 @@ public final class JavaLexer implements TokenStream
         keywords.put("true", JavaTokenTypes.LITERAL_true);
         keywords.put("try", JavaTokenTypes.LITERAL_try);
         keywords.put("volatile", JavaTokenTypes.LITERAL_volatile);
+        keywords.put("when", JavaTokenTypes.LITERAL_when);
         keywords.put("while", JavaTokenTypes.LITERAL_while);
         keywords.put("void", JavaTokenTypes.LITERAL_void);
         keywords.put("yield", JavaTokenTypes.LITERAL_yield);
