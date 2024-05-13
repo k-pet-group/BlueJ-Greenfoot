@@ -1139,8 +1139,8 @@ public class JavaParser extends JavaParserCallbacks
             case 10: // LITERAL_default
                 gotSwitchDefault();
                 token = nextToken();
-                if (token.getType() != JavaTokenTypes.COLON) {
-                    error("Expecting ':' at end of case expression");
+                if (token.getType() != JavaTokenTypes.COLON && token.getType() != JavaTokenTypes.LAMBDA) {
+                    error("Expecting ':' or '->' at end of case expression");
                     tokenStream.pushBack(token);
                     return null;
                 }
@@ -2899,8 +2899,7 @@ public class JavaParser extends JavaParserCallbacks
             case 31: // LITERAL_switch
                 // Switch expression
                 parseSwitchExpression(token);
-                token = nextToken();
-                continue exprLoop;                
+                break;
             default:
                 tokenStream.pushBack(token);
                 error("Invalid expression token: " + token.getText());

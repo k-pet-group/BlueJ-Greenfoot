@@ -832,6 +832,74 @@ public class BasicParseTest
         assertFalse(info.isEnum());
     }
 
+    @Test
+    public void testNewSwitch1()
+    {
+        String aSrc =
+                """
+                class Foo
+                {
+                    {
+                        switch ("hi") {
+                            case "bye" -> System.out.println("Error");
+                            default -> System.out.println("Expected");
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testSwitchExpression1()
+    {
+        String aSrc =
+                """
+                class Foo
+                {
+                    public int bar()
+                    {
+                        return switch ("hi") {
+                            case "bye" -> -1;
+                            default -> 0;
+                        };
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testSwitchExpression2()
+    {
+        String aSrc =
+                """
+                class Foo
+                {
+                    public int bar()
+                    {
+                        return switch ("hi") {
+                            case "bye" -> -1;
+                            default -> 0;
+                        } + switch ("bye") {
+                            case "hi" -> -1;
+                            default -> 0;
+                        };
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
 
     // Examples mostly from https://openjdk.org/jeps/409
     @Test
