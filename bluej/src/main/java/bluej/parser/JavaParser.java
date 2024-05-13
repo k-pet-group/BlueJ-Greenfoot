@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017,2021,2022,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1088,16 +1088,62 @@ public class JavaParser extends JavaParserCallbacks
             case 8: // LITERAL_switch
                 return parseSwitchStatement(token);
             case 9: // LITERAL_case
+            {
                 gotSwitchCase();
-                // No (unbracketed) lambdas allowed in a case expression:
-                parseExpression(false, false);
-                token = nextToken();
                 boolean hadCommas = false;
-                while (token.getType() == JavaTokenTypes.COMMA)
+                // Special case: null, which can be followed by default:
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_null)
                 {
-                    parseExpression(false, false);
+                    // Consume null, then get next:
                     token = nextToken();
-                    hadCommas = true;
+                    token = nextToken();
+                    // Now check for comma:
+                    if (token.getType() == JavaTokenTypes.COMMA)
+                    {
+                        // Get next token after that:
+                        token = nextToken();
+                        if (token.getType() != JavaTokenTypes.LITERAL_default)
+                        {
+                            error("Only default can follow null in a case");
+                        }
+                        else
+                        {
+                            // Fine, get the token after that (the arrow):
+                            token = nextToken();
+                        }
+                    }
+                }
+                else
+                {
+                    // Could be a pattern variable:
+                    // A declaration of a variable?
+                    List<LocatableToken> tlist = new LinkedList<LocatableToken>();
+                    boolean isTypeSpec = parseTypeSpec(true, true, tlist);
+                    token = tokenStream.LA(1);
+                    pushBackAll(tlist);
+                    if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
+                        token = tlist.get(0);
+                        gotDeclBegin(token);
+                        parseVariableDeclarations(token, false);
+                        token = nextToken();
+                        if (token.getType() == JavaTokenTypes.LITERAL_when)
+                        {
+                            parseExpression(false, false);
+                            token = nextToken();
+                        }
+                    }
+                    else
+                    {
+                        // No (unbracketed) lambdas allowed in a case expression:
+                        parseExpression(false, false);
+                        token = nextToken();
+                        while (token.getType() == JavaTokenTypes.COMMA)
+                        {
+                            parseExpression(false, false);
+                            token = nextToken();
+                            hadCommas = true;
+                        }
+                    }
                 }
                 if (token.getType() == JavaTokenTypes.LAMBDA)
                 {
@@ -1136,6 +1182,7 @@ public class JavaParser extends JavaParserCallbacks
                     return null;
                 }
                 return token;
+            }
             case 10: // LITERAL_default
                 gotSwitchDefault();
                 token = nextToken();
