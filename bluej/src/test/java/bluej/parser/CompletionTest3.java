@@ -293,7 +293,7 @@ public class CompletionTest3
     @Test
     public void testSwitchInstanceofVar2()
     {
-        assertNamesAtA(List.of(), List.of(), """
+        assertNamesAtA(List.of(), List.of("s"), """
                 class Foo
                 {
                     void foo()
@@ -312,7 +312,7 @@ public class CompletionTest3
     @Test
     public void testSwitchInstanceofVar3()
     {
-        assertNamesAtA(List.of(), List.of(), """
+        assertNamesAtA(List.of(), List.of("s"), """
                 class Foo
                 {
                     void foo()
@@ -323,6 +323,26 @@ public class CompletionTest3
                             }
                         }
                         /*A*/
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testSwitchInstanceofVar5()
+    {
+        assertNamesAtA(List.of("Integer i"), List.of("s"), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case String s ->
+                            {
+                            }
+                            case Integer i -> { /*A*/ }
+                            default -> {}
+                        }
                     }
                 }
                 """);

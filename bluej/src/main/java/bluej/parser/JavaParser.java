@@ -987,9 +987,9 @@ public class JavaParser extends JavaParserCallbacks
         }
     }
 
-    public final void parseStatement()
+    public final LocatableToken parseStatement()
     {
-        parseStatement(nextToken(), false);
+        return parseStatement(nextToken(), false);
     }
 
     private static int [] statementTokenIndexes = new int[JavaTokenTypes.INVALID + 1];
@@ -1089,7 +1089,7 @@ public class JavaParser extends JavaParserCallbacks
                 return parseSwitchStatement(token);
             case 9: // LITERAL_case
             {
-                gotSwitchCase();
+                beginSwitchCase(token);
                 boolean hadCommas = false;
                 // Special case: null, which can be followed by default:
                 if (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_null)
@@ -1145,6 +1145,7 @@ public class JavaParser extends JavaParserCallbacks
                         }
                     }
                 }
+                gotSwitchCaseType(token, token.getType() == JavaTokenTypes.LAMBDA);
                 if (token.getType() == JavaTokenTypes.LAMBDA)
                 {
                     // Right-hand side can be a single expression, a block or a throw
@@ -1153,7 +1154,7 @@ public class JavaParser extends JavaParserCallbacks
                     if (token.getType() == JavaTokenTypes.LCURLY || token.getType() == JavaTokenTypes.LITERAL_throw)
                     {
                         // Block or throw; both are statements:
-                        parseStatement();
+                        token = parseStatement();
                     }
                     else
                     {
@@ -1164,14 +1165,17 @@ public class JavaParser extends JavaParserCallbacks
                         {
                             error("Expecting ';' after case body");
                             tokenStream.pushBack(token);
+                            endSwitchCase(token, true);
                             return null;
                         }
                     }
+                    endSwitchCase(token, true);
                 }
                 else if (token.getType() != JavaTokenTypes.COLON)
                 {
                     error("Expecting ':' at end of case expression");
                     tokenStream.pushBack(token);
+                    endSwitchCase(token, false);
                     return null;
                 }
                 else if (hadCommas)
@@ -1179,7 +1183,12 @@ public class JavaParser extends JavaParserCallbacks
                     // COLON and hadCommas; incorrect:
                     error("Comma-separated expressions not valid before ':' in case expression");
                     tokenStream.pushBack(token);
+                    endSwitchCase(token, false);
                     return null;
+                }
+                else
+                {
+                    endSwitchCase(token, false);
                 }
                 return token;
             }
