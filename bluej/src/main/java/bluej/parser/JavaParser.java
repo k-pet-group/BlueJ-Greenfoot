@@ -1089,7 +1089,7 @@ public class JavaParser extends JavaParserCallbacks
                 return parseSwitchStatement(token);
             case 9: // LITERAL_case
             {
-                beginSwitchCase(token);
+                beginSwitchCase(tokenStream.LA(1));
                 boolean hadCommas = false;
                 // Special case: null, which can be followed by default:
                 if (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_null)
