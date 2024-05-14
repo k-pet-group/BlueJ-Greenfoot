@@ -481,7 +481,11 @@ public class JavaParserCallbacks
     }
 
 
-    protected void gotSwitchCase() { }
+    protected void beginSwitchCase(LocatableToken token) { }
+
+    protected void gotSwitchCaseType(LocatableToken token, boolean isArrowSyntax) { }
+
+    protected void endSwitchCase(LocatableToken token, boolean wasArrowSyntax) { }
 
     protected void gotSwitchDefault() { }
 

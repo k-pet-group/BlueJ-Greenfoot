@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2014,2016,2019,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2013,2014,2016,2019,2022,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1120,5 +1120,243 @@ public class BasicParseTest
         ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
         assertNotNull(info);
         assertTrue(info.hadParseError());
+    }
+
+    @Test
+    public void testPatternInstanceof4()
+    {
+        String aSrc =
+                """
+                class A {
+                    static String formatterPatternSwitch(Object obj) {
+                        return switch (obj) {
+                            case Integer i -> String.format("int %d", i);
+                            case Long l    -> String.format("long %d", l);
+                            case Double d  -> String.format("double %f", d);
+                            case String s  -> String.format("String %s", s);
+                            default        -> obj.toString();
+                        };
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testPatternInstanceof5()
+    {
+        String aSrc =
+                """
+                class A {
+                    static void testFooBarNew(String s) {
+                        switch (s) {
+                            case null         -> System.out.println("Oops");
+                            case "Foo", "Bar" -> System.out.println("Great");
+                            default           -> System.out.println("Ok");
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testPatternInstanceof6()
+    {
+        String aSrc =
+                """
+                class A {
+                    static void testStringOld(String response) {
+                        switch (response) {
+                            case null -> { }
+                            case String s -> {
+                                if (s.equalsIgnoreCase("YES"))
+                                    System.out.println("You got it");
+                                else if (s.equalsIgnoreCase("NO"))
+                                    System.out.println("Shame");
+                                else
+                                    System.out.println("Sorry?");
+                            }
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testPatternInstanceof7()
+    {
+        String aSrc =
+                """
+                class A {
+                    static void testStringNew(String response) {
+                        switch (response) {
+                            case null -> { }
+                            case String s
+                            when s.equalsIgnoreCase("YES") -> {
+                                System.out.println("You got it");
+                            }
+                            case String s
+                            when s.equalsIgnoreCase("NO") -> {
+                                System.out.println("Shame");
+                            }
+                            case String s -> {
+                                System.out.println("Sorry?");
+                            }
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testPatternInstanceof8()
+    {
+        String aSrc =
+                """
+                class A {
+                    static void testStringEnhanced(String response) {
+                        switch (response) {
+                            case null -> { }
+                            case "y", "Y" -> {
+                                System.out.println("You got it");
+                            }
+                            case "n", "N" -> {
+                                System.out.println("Shame");
+                            }
+                            case String s
+                            when s.equalsIgnoreCase("YES") -> {
+                                System.out.println("You got it");
+                            }
+                            case String s
+                            when s.equalsIgnoreCase("NO") -> {
+                                System.out.println("Shame");
+                            }
+                            case String s -> {
+                                System.out.println("Sorry?");
+                            }
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testPatternInstanceof9()
+    {
+        String aSrc =
+                """
+                class A {
+                    static void exhaustiveSwitchWithBetterEnumSupport(CardClassification c) {
+                         switch (c) {
+                             case Suit.CLUBS -> {
+                                 System.out.println("It's clubs");
+                             }
+                             case Suit.DIAMONDS -> {
+                                 System.out.println("It's diamonds");
+                             }
+                             case Suit.HEARTS -> {
+                                 System.out.println("It's hearts");
+                             }
+                             case Suit.SPADES -> {
+                                 System.out.println("It's spades");
+                             }
+                             case Tarot t -> {
+                                 System.out.println("It's a tarot");
+                             }
+                         }
+                     }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testPatternInstanceof10()
+    {
+        String aSrc =
+                """
+                class A {
+                    void testScope4(Object obj) {
+                        switch (obj) {
+                            case String s:
+                                System.out.println("A string: " + s);  // s in scope here!
+                            default:
+                                System.out.println("Done");            // s not in scope here
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testPatternInstanceof11()
+    {
+        String aSrc =
+                """
+                class A {
+                    void testScope4(Object obj) {
+                        switch (obj) {
+                            case String s ->
+                                System.out.println("A string: " + s);
+                            case null, default ->
+                                System.out.println("The rest (including null)");
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testPatternInstanceof12()
+    {
+        String aSrc =
+                """
+                 sealed interface I<T> permits A, B {}
+                 final class A<X> implements I<String> {}
+                 final class B<Y> implements I<Y> {}
+                 
+                 class Foo {
+                     static int testGenericSealedExhaustive(I<Integer> i) {
+                         return switch (i) {
+                             // Exhaustive as no A case possible!
+                             case B<Integer> bi -> 42;
+                         };
+                     }
+                 }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
     }
 }

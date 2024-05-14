@@ -1325,9 +1325,9 @@ public class JavaStrideParser extends JavaParser
     }
 
     @Override
-    protected void gotSwitchCase()
+    protected void beginSwitchCase(LocatableToken token)
     {
-        super.gotSwitchCase();
+        super.beginSwitchCase(token);
         withExpression(e -> switchHandlers.peek().gotCase(e));
     }
 

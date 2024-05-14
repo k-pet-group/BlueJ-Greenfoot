@@ -758,7 +758,40 @@ public class EditorParser extends JavaParser
         scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(loopNode);
     }
-    
+
+    // We always start a new scope node when we see a case, because if it's a pattern with an arrow
+    // (e.g. case String s ->) we need to constrain the variable's scope to just that case.
+    // However, if it's a standard expression with a colon, we do not want this, but we can't tell
+    // the difference until we've parsed the pattern.  So we make a node here, then we end it either
+    // when we hit the colon, or after the end of the whole body if it was an arrow: see the
+    // gotSwitchCaseType and endSwitchCase methods below.
+    @Override
+    protected void beginSwitchCase(LocatableToken token)
+    {
+        JavaParentNode caseNode = new InnerNode(scopeStack.peek());
+        int curOffset = getTopNodeOffset();
+        int insPos = lineColToPosition(token.getLine(), token.getColumn());
+        beginNode(insPos);
+        scopeStack.peek().insertNode(caseNode, insPos - curOffset, 0, nodeStructureListener);
+        scopeStack.push(caseNode);
+    }
+
+    @Override
+    protected void gotSwitchCaseType(LocatableToken token, boolean isArrowSyntax) {
+        if (!isArrowSyntax)
+        {
+            endTopNode(token, false);
+        }
+    }
+
+    @Override
+    protected void endSwitchCase(LocatableToken token, boolean wasArrowSyntax) {
+        if (wasArrowSyntax)
+        {
+            endTopNode(token, false);
+        }
+    }
+
     @Override
     protected void endSwitchBlock(LocatableToken token)
     {

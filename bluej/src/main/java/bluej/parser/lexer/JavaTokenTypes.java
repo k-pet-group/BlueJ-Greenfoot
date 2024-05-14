@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009, 2012,2014,2022  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009, 2012,2014,2022,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -145,7 +145,8 @@ public interface JavaTokenTypes
     int LITERAL_sealed = 177;
     int LITERAL_non_sealed = 178;
     int LITERAL_permits = 179;
+    int LITERAL_when = 180;
     
-    int INVALID = 180;
+    int INVALID = 181;
     
 }

@@ -272,6 +272,101 @@ public class CompletionTest3
     }
 
     @Test
+    public void testSwitchInstanceofVar()
+    {
+        assertNamesAtA(List.of("String s"), List.of(), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case String s ->
+                            {
+                                /*A*/
+                            }
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testSwitchInstanceofVar2()
+    {
+        assertNamesAtA(List.of(), List.of("s"), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case String s ->
+                            {
+                            }
+                            default -> { /*A*/ }
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testSwitchInstanceofVar3()
+    {
+        assertNamesAtA(List.of(), List.of("s"), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case String s ->
+                            {
+                            }
+                        }
+                        /*A*/
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testSwitchInstanceofVar5()
+    {
+        assertNamesAtA(List.of("Integer i"), List.of("s"), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case String s ->
+                            {
+                            }
+                            case Integer i -> { /*A*/ }
+                            default -> {}
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testSwitchInstanceofVar4()
+    {
+        assertNamesAtA(List.of("String s"), List.of(), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case String s when /*A*/ ->
+                            {
+                            }
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
     public void testNoLocalsOnThisDot()
     {
         assertNamesAtA(List.of("int field1", "int field2", "Object field3"), List.of("param1", "var1", "var2", "var3"), """

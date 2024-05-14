@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2022  Michael Kolling and John Rosenberg
+ Copyright (C) 2022,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -162,7 +162,7 @@ public class SwitchExpressionTest
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
 
         assertEquals(Arrays.asList(
-            "/*switch-inner*/", "MONDAY", "FRIDAY", "SUNDAY", "System.out.println(6)", "TUESDAY", "System.out.println(7)", "THURSDAY", "SATURDAY", "System.out.println(8)", "WEDNESDAY", "System.out.println(9)"
+            "/*switch-inner*/", "MONDAY, FRIDAY, SUNDAY -> System.out.println(6)", "TUESDAY                -> System.out.println(7)", "THURSDAY, SATURDAY     -> System.out.println(8)", "WEDNESDAY              -> System.out.println(9)"
         ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
 
     }
@@ -187,7 +187,7 @@ public class SwitchExpressionTest
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
 
         assertEquals(Arrays.asList(
-            "/*switch-inner*/", "a", "{System.out.println(1);}", "e", "new Exception()", "f", "{return 2;}", "{if (true) return 7;}"
+            "/*switch-inner*/", "a -> {System.out.println(1);", "e -> throw new Exception()", "f -> {return 2;", "{if (true) return 7;}"
         ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
     }
 
@@ -227,7 +227,7 @@ public class SwitchExpressionTest
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
         // Break and throw are ignored, only the expressions get put in the tree:
         assertEquals(Arrays.asList(
-            "/*switch-inner*/", "MONDAY", "FRIDAY", "SUNDAY", "6", "TUESDAY", "7", "THURSDAY", "SATURDAY", "8", "WEDNESDAY", "9", "new IllegalStateException(\"Invalid day: \" + day)"
+            "/*switch-inner*/", "MONDAY, FRIDAY, SUNDAY -> 6", "TUESDAY                -> 7", "THURSDAY, SATURDAY     -> 8", "WEDNESDAY              -> 9", "new IllegalStateException(\"Invalid day: \" + day)"
         ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
 
     }
@@ -264,7 +264,7 @@ public class SwitchExpressionTest
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
         // Break and throw are ignored, only the expressions get put in the tree:
         assertEquals(Arrays.asList(
-            "/*switch-inner*/", "1", "\"one\"", "2", "\"two\"", "\"many\""
+            "/*switch-inner*/", "1 -> \"one\"", "2 -> \"two\"", "\"many\""
         ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
 
     }
@@ -304,7 +304,7 @@ public class SwitchExpressionTest
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
         // Break and throw are ignored, only the expressions get put in the tree:
         assertEquals(Arrays.asList(
-            "/*switch-inner*/", "MONDAY", "0", "TUESDAY", "1",
+            "/*switch-inner*/", "MONDAY  -> 0", "TUESDAY -> 1",
 """
 {
         int k = day.toString().length();
@@ -390,7 +390,7 @@ public class SwitchExpressionTest
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
 
         assertEquals(Arrays.asList(
-            "/*switch-inner*/", "a", "b -> c", "e", "f -> g -> h", "i -> j"
+            "/*switch-inner*/", "a -> b -> c", "e -> f -> g -> h", "i -> j"
         ), switchBodyContent.stream().map(nap -> p.nodeContent(nap).trim()).collect(Collectors.toList()));
     }
 }

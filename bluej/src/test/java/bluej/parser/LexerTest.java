@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2009,2010,2011,2012,2014,2016,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 2009,2010,2011,2012,2014,2016,2022,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -154,7 +154,7 @@ public class LexerTest extends junit.framework.TestCase
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
         // Control flow
-        ts = getLexerFor("try catch throw if while do else switch case break continue");
+        ts = getLexerFor("try catch throw if while do else switch case break continue default when");
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_try);
         token = (LocatableToken) ts.nextToken();
@@ -177,6 +177,10 @@ public class LexerTest extends junit.framework.TestCase
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_break);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_continue);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_default);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_when);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
