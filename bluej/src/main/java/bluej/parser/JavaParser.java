@@ -1119,17 +1119,8 @@ public class JavaParser extends JavaParserCallbacks
                     // A declaration of a variable?
                     PatternParse pp = lookAheadParsePattern();
                     switch (pp) {
-                        case PatternParse.TypeThenVariableName -> {
-                            gotDeclBegin(token);
-                            parseVariableDeclarations(token, false);
-                            token = nextToken();
-                            if (token.getType() == JavaTokenTypes.LITERAL_when) {
-                                parseExpression(false, false);
-                                token = nextToken();
-                            }
-                        }
-                        case PatternParse.RecordPattern -> {
-                            if (!parseRecordPattern(true))
+                        case PatternParse.RecordPattern, PatternParse.TypeThenVariableName -> {
+                            if (!parseRecordPattern(false))
                             {
                                 return null;
                             }
@@ -2134,20 +2125,24 @@ public class JavaParser extends JavaParserCallbacks
         return true;
     }
 
-    private boolean parseRecordPattern(boolean outermost)
+    // Parses a record pattern and handles the declaration of any variable(s).
+    private boolean parseRecordPattern(boolean partOfInstanceof)
     {
         List<LocatableToken> typeSpecTokens = new LinkedList<LocatableToken>();
-        if (!parseTypeSpec(false, false, typeSpecTokens)) {
+        if (!parseTypeSpec(false, partOfInstanceof, typeSpecTokens)) {
             return false;
         }
         gotTypeSpec(typeSpecTokens);
 
         LocatableToken token = nextToken();
-        if (!outermost && token.getType() == JavaTokenTypes.LBRACK)
+        // Instanceof parses the array declarations as part of the type, whereas case parses
+        // them separately here (it just works out that way because of how they handle variable declarations):
+        if (!partOfInstanceof && token.getType() == JavaTokenTypes.LBRACK)
         {
             // Square bracket, can be an array part of a type if not outermost
             tokenStream.pushBack(token);
             parseArrayDeclarators();
+            token = nextToken();
         }
         switch (token.getType())
         {
@@ -2157,12 +2152,12 @@ public class JavaParser extends JavaParserCallbacks
                 if (token.getType() != JavaTokenTypes.RPAREN)
                 {
                     tokenStream.pushBack(token);
-                    if (!parseRecordPattern(false))
+                    if (!parseRecordPattern(partOfInstanceof))
                         return false;
                     token = nextToken();
                     while (token.getType() == JavaTokenTypes.COMMA) {
                         // Can have comma then another pattern:
-                        if (!parseRecordPattern(false))
+                        if (!parseRecordPattern(partOfInstanceof))
                             return false;
                         token = nextToken();
                     }
@@ -2178,6 +2173,16 @@ public class JavaParser extends JavaParserCallbacks
             case JavaTokenTypes.IDENT -> {
                 // A variable name for a declaration
 
+                // Have to treat instanceof differently, because it has different scope rules:
+                if (partOfInstanceof)
+                {
+                    gotInstanceOfVar(token);
+                }
+                else
+                {
+                    gotVariableDecl(typeSpecTokens.get(0), token, false);
+                    endVariable(token, true);
+                }
             }
         }
 
@@ -3055,12 +3060,7 @@ public class JavaParser extends JavaParserCallbacks
                     gotInstanceOfOperator(token);
                     switch (lookAheadParsePattern())
                     {
-                        case PatternParse.TypeThenVariableName -> {
-                            parseTypeSpec(true);
-                            token = nextToken();
-                            gotInstanceOfVar(token);
-                        }
-                        case PatternParse.RecordPattern -> {
+                        case PatternParse.TypeThenVariableName, PatternParse.RecordPattern -> {
                             parseRecordPattern(true);
                         }
                         case PatternParse.OnlyType -> {
