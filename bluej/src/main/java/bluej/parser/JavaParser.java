@@ -1117,31 +1117,28 @@ public class JavaParser extends JavaParserCallbacks
                 {
                     // Could be a pattern variable:
                     // A declaration of a variable?
-                    List<LocatableToken> tlist = new LinkedList<LocatableToken>();
-                    boolean isTypeSpec = parseTypeSpec(true, true, tlist);
-                    token = tokenStream.LA(1);
-                    pushBackAll(tlist);
-                    if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
-                        token = tlist.get(0);
-                        gotDeclBegin(token);
-                        parseVariableDeclarations(token, false);
-                        token = nextToken();
-                        if (token.getType() == JavaTokenTypes.LITERAL_when)
-                        {
-                            parseExpression(false, false);
+                    PatternParse pp = lookAheadParsePattern();
+                    switch (pp) {
+                        case PatternParse.RecordPattern, PatternParse.TypeThenVariableName -> {
+                            if (!parseRecordPattern(false))
+                            {
+                                return null;
+                            }
                             token = nextToken();
+                            if (token.getType() == JavaTokenTypes.LITERAL_when) {
+                                parseExpression(false, false);
+                                token = nextToken();
+                            }
                         }
-                    }
-                    else
-                    {
-                        // No (unbracketed) lambdas allowed in a case expression:
-                        parseExpression(false, false);
-                        token = nextToken();
-                        while (token.getType() == JavaTokenTypes.COMMA)
-                        {
+                        default -> {
+                            // No (unbracketed) lambdas allowed in a case expression:
                             parseExpression(false, false);
                             token = nextToken();
-                            hadCommas = true;
+                            while (token.getType() == JavaTokenTypes.COMMA) {
+                                parseExpression(false, false);
+                                token = nextToken();
+                                hadCommas = true;
+                            }
                         }
                     }
                 }
@@ -2127,6 +2124,70 @@ public class JavaParser extends JavaParserCallbacks
         }
         return true;
     }
+
+    // Parses a record pattern and handles the declaration of any variable(s).
+    private boolean parseRecordPattern(boolean partOfInstanceof)
+    {
+        List<LocatableToken> typeSpecTokens = new LinkedList<LocatableToken>();
+        if (!parseTypeSpec(false, partOfInstanceof, typeSpecTokens)) {
+            return false;
+        }
+        gotTypeSpec(typeSpecTokens);
+
+        LocatableToken token = nextToken();
+        // Instanceof parses the array declarations as part of the type, whereas case parses
+        // them separately here (it just works out that way because of how they handle variable declarations):
+        if (!partOfInstanceof && token.getType() == JavaTokenTypes.LBRACK)
+        {
+            // Square bracket, can be an array part of a type if not outermost
+            tokenStream.pushBack(token);
+            parseArrayDeclarators();
+            token = nextToken();
+        }
+        switch (token.getType())
+        {
+            case JavaTokenTypes.LPAREN -> {
+                // Now we process a nested pattern
+                token = nextToken();
+                if (token.getType() != JavaTokenTypes.RPAREN)
+                {
+                    tokenStream.pushBack(token);
+                    if (!parseRecordPattern(partOfInstanceof))
+                        return false;
+                    token = nextToken();
+                    while (token.getType() == JavaTokenTypes.COMMA) {
+                        // Can have comma then another pattern:
+                        if (!parseRecordPattern(partOfInstanceof))
+                            return false;
+                        token = nextToken();
+                    }
+                }
+
+                // Must now be closing bracket:
+                if (token.getType() != JavaTokenTypes.RPAREN)
+                {
+                    return false;
+                }
+            }
+
+            case JavaTokenTypes.IDENT -> {
+                // A variable name for a declaration
+
+                // Have to treat instanceof differently, because it has different scope rules:
+                if (partOfInstanceof)
+                {
+                    gotInstanceOfVar(token);
+                }
+                else
+                {
+                    gotVariableDecl(typeSpecTokens.get(0), token, false);
+                    endVariable(token, true);
+                }
+            }
+        }
+
+        return true;
+    }
         
     /**
      * Parse a type specification. This includes class name(s) (Xyz.Abc), type arguments
@@ -2997,12 +3058,17 @@ public class JavaParser extends JavaParserCallbacks
                     break;
                 case 9: // LITERAL_instanceof
                     gotInstanceOfOperator(token);
-                    parseTypeSpec(true);
-                    if (tokenStream.LA(1).getType() == JavaTokenTypes.IDENT)
+                    switch (lookAheadParsePattern())
                     {
-                        // A pattern-matching instance of
-                        token = nextToken();
-                        gotInstanceOfVar(token);
+                        case PatternParse.TypeThenVariableName, PatternParse.RecordPattern -> {
+                            parseRecordPattern(true);
+                        }
+                        case PatternParse.OnlyType -> {
+                            parseTypeSpec(true);
+                        }
+                        default -> {
+                            error("Expected type or pattern following instanceof");
+                        }
                     }
                     break;
                 case 10: // DOT
@@ -3111,6 +3177,56 @@ public class JavaParser extends JavaParserCallbacks
                     }
                 }
             }
+        }
+    }
+
+    // Java now has the notion of patterns, which can occur in instanceof:
+    //     if (obj instance String s) { }
+    // Or in case statements:
+    //     case String s -> { }
+    // In both cases they can be record patterns, with variables declared inside a nested structure:
+    //     case Rectangle(Point(int ax, int ay), Point b) -> {}
+    // The challenge with parsing them is that when you parse the type, you don't know
+    // in the instanceof cases if there will be a variable name following, and you don't know if
+    // the type could actually be a pattern until you hit the round bracket.  Also, in case statements
+    // it could actually be an expression instead.
+    // So when we parse there are multiple possible outcomes:
+    // - Just a type (valid for instanceof)
+    // - A type and then a variable name
+    // - A record pattern (including new variable names, but not followed by them)
+    // - None of the above (could be a parse error, but could be an expression that is valid for case)
+    private enum PatternParse
+    {
+        OnlyType,
+        TypeThenVariableName,
+        RecordPattern,
+        Other
+    }
+    // Looks ahead in token stream to estimate what kind of pattern follows (see comment and data type above)
+    // When it returns, the token stream will be in the same state as when the method is called; nothing
+    // is actually consumed or processed.  This is used for after "instanceof", and after "case".
+    // Note that a parse error still may occur (especially for record patterns) when parsing fully:
+    private PatternParse lookAheadParsePattern() {
+        List<LocatableToken> tlist = new LinkedList<LocatableToken>();
+        boolean isTypeSpec = parseTypeSpec(true, true, tlist);
+        LocatableToken laToken = tokenStream.LA(1);
+        pushBackAll(tlist);
+        if (isTypeSpec) {
+            return switch (laToken.getType()) {
+                case JavaTokenTypes.IDENT ->
+                    // A type then variable name e.g. String s or List<String> list
+                        PatternParse.TypeThenVariableName;
+                case JavaTokenTypes.LPAREN ->
+                    // A record pattern, e.g. Empty() or Point(int x, int y)
+                        PatternParse.RecordPattern;
+                default ->
+                    // Just a type, e.g. String or Integer:
+                        PatternParse.OnlyType;
+            };
+        }
+        else
+        {
+            return PatternParse.Other;
         }
     }
 

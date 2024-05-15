@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2022  Michael Kolling and John Rosenberg
+ Copyright (C) 2022,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -557,6 +557,35 @@ public class CompletionTest2
                     throw new Exception();
                 // s is in scope
                 System.out.println(s./*A*/length());
+            }
+        """));
+
+        // Test record patterns:
+        assertTypeAtA("java.lang.String", withLambdaDefs("""
+            public final boolean equals(Object o) {
+                return (o instanceof WrappedString(String s)) &&
+                    s./*A*/equalsIgnoreCase(this);
+            }
+        """));
+
+        assertTypeAtA("java.lang.String[][][]", withLambdaDefs("""
+            public final boolean equals(Object o) {
+                return (o instanceof WrappedString(String[][][] s)) &&
+                    s./*A*/equalsIgnoreCase(this);
+            }
+        """));
+
+        assertTypeAtA("java.lang.Object", withLambdaDefs("""
+            public final boolean equals(Object o) {
+                return (o instanceof WrappedString(String[][][] s, Object o)) &&
+                    !o./*A*/toString().isEmpty();
+            }
+        """));
+
+        assertTypeAtA("java.lang.Double[]", withLambdaDefs("""
+            public final boolean equals(Object o) {
+                return (o instanceof WrappedString(String[][][] s, Object o, Double[] d)) &&
+                    d./*A*/length() > 0;
             }
         """));
         

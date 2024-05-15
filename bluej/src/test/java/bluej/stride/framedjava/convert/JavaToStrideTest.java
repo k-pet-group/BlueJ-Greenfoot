@@ -587,7 +587,8 @@ public class JavaToStrideTest
 
     private static CaseElement genCase()
     {
-        return new CaseElement(null, genExpression(), some(() -> genStatement(2)), true);
+        // Case expressions can only be constants:
+        return new CaseElement(null, filled(oneOf("0", "\"hi\"", "'d'")), some(() -> genStatement(2)), true);
     }
 
     private static boolean rand()

@@ -1359,4 +1359,355 @@ public class BasicParseTest
         assertNotNull(info);
         assertFalse(info.hadParseError());
     }
+
+    @Test
+    public void testPatternInstanceof13()
+    {
+        String aSrc =
+                """
+                class Foo {
+                     static void testScope1(Object obj) {
+                         switch (obj) {
+                             case Character c
+                             when c.charValue() == 7:
+                                 System.out.println("Ding!");
+                                 break;
+                             default:
+                                 break;
+                         }
+                     }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPattern1()
+    {
+        String aSrc =
+                """
+                // As of Java 16
+                record Point(int x, int y)
+                {                       
+                    static void printSum(Object obj) {
+                        if (obj instanceof Point p) {
+                            int x = p.x();
+                            int y = p.y();
+                            System.out.println(x+y);
+                        }
+                    }
+                                    
+                    // As of Java 21
+                    static void printSum(Object obj) {
+                        if (obj instanceof Point(int x, int y)) {
+                            System.out.println(x+y);
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPattern2()
+    {
+        String aSrc =
+                """
+                record Point(int x, int y) {}
+                enum Color { RED, GREEN, BLUE }
+                record ColoredPoint(Point p, Color c) {}
+                record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight)
+                {               
+                    // As of Java 21
+                    static void printUpperLeftColoredPoint(Rectangle r) {
+                        if (r instanceof Rectangle(ColoredPoint ul, ColoredPoint lr)) {
+                             System.out.println(ul.c());
+                        }
+                    }
+                    
+                    static void printColorOfUpperLeftPoint(Rectangle r) {
+                        if (r instanceof Rectangle(ColoredPoint(Point p, Color c),
+                                                   ColoredPoint lr)) {
+                            System.out.println(c);
+                        }
+                    }
+                    
+                    // As of Java 21
+                    static void printXCoordOfUpperLeftPointWithPatterns(Rectangle r) {
+                        if (r instanceof Rectangle(ColoredPoint(Point(var x, var y), var c),
+                                                   var lr)) {
+                            System.out.println("Upper-left corner: " + x);
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPattern3()
+    {
+        String aSrc =
+                """
+                record Pair(Object x, Object y) {}
+                 
+                class P
+                {
+                  {
+                    Pair p = new Pair(42, 42);
+                 
+                    if (p instanceof Pair(String s, String t)) {
+                      System.out.println(s + ", " + t);
+                    } else {
+                      System.out.println("Not a pair of strings");
+                    }
+                  }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPattern4()
+    {
+        String aSrc =
+                """
+                record MyPair<S,T>(S fst, T snd) {
+                                
+                    static void recordInference(MyPair<String, Integer> pair){
+                        switch (pair) {
+                            case MyPair(var f, var s) ->
+                                {} // Inferred record pattern MyPair<String,Integer>(var f, var s)
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPattern5()
+    {
+        String aSrc =
+                """
+                record Box<T>(T t) {
+                                
+                    static void test1(Box<Box<String>> bbs) {
+                        if (bbs instanceof Box<Box<String>>(Box(var s))) {
+                            System.out.println("String " + s);
+                        }
+                    }
+                    
+                    static void test2(Box<Box<String>> bbs) {
+                        if (bbs instanceof Box(Box(var s))) {
+                            System.out.println("String " + s);
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPattern6()
+    {
+        String aSrc =
+                """
+                class A {}
+                class B extends A {}
+                sealed interface I permits C, D {}
+                final class C implements I {}
+                final class D implements I {}
+                record Pair<T>(T x, T y) {}
+                                        
+                class Foo
+                {
+                    {
+                        Pair<A> p1;
+                        Pair<I> p2;
+                                        
+                        // As of Java 21
+                        switch (p1) {                 // Error!
+                            case Pair<A>(A a, B b) -> {return;}
+                            case Pair<A>(B b, A a) -> {break;}
+                        }
+                                        
+                        // As of Java 21
+                        switch (p2) {
+                            case Pair<I>(I i, C c) -> {throw new NullPointerException();}
+                            case Pair<I>(I i, D d) -> {return;}
+                        }
+                                        
+                        switch (p2) {
+                            case Pair<I>(C c, I i) -> {break;}
+                            case Pair<I>(D d, C c) -> {break;}
+                            case Pair<I>(D d1, D d2) -> {return 2;}
+                        }
+                                        
+                        // As of Java 21
+                        switch (p2) {                        // Error!
+                            case Pair<I>(C fst, D snd) -> {if (true) {return 7;}}
+                            case Pair<I>(D fst, C snd) -> {return 5;}
+                            case Pair<I>(I fst, C snd) -> {return 9;}
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPattern7()
+    {
+        String aSrc =
+                """
+                record Empty() {
+                    static void foo(Empty e) {
+                        switch (e) {
+                            case Empty() -> {}
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPattern8()
+    {
+        String aSrc =
+                """
+                record MyPair<S,T>(S fst, T snd) {
+                                
+                    static void recordInference(MyPair<String, Integer> pair){
+                        switch (pair) {
+                            case MyPair(var f, Integer s):
+                                break;
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertFalse(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPatternFail1()
+    {
+        String aSrc =
+                """
+                class Foo
+                {
+                    {
+                        if ("hi" instanceof "bye") {}
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertTrue(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPatternFail2()
+    {
+        String aSrc =
+                """
+                class Foo
+                {
+                    {
+                        if ("hi" instanceof Point(int x, int y) p) {}
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertTrue(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPatternFail3()
+    {
+        String aSrc =
+                """
+                class Foo
+                {
+                    {
+                        if ("hi" instanceof Point(int x, int y) when true) {}
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertTrue(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPatternFail4()
+    {
+        String aSrc =
+                """
+                class Foo
+                {
+                    {
+                        switch ("hi") {
+                            case Point(int x, int y) p -> {}
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertTrue(info.hadParseError());
+    }
+
+    @Test
+    public void testRecordPatternFail5()
+    {
+        String aSrc =
+                """
+                class Foo
+                {
+                    {
+                        switch ("hi") {
+                            case "bye" when true -> {}
+                        }
+                    }
+                }
+                """;
+
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        assertNotNull(info);
+        assertTrue(info.hadParseError());
+    }
 }

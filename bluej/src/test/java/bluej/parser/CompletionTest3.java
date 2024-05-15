@@ -367,6 +367,25 @@ public class CompletionTest3
     }
 
     @Test
+    public void testSwitchInstanceofVar6()
+    {
+        assertNamesAtA(List.of("String[][][] sss"), List.of(), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case String[][][] sss ->
+                            {
+                                /*A*/
+                            }
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
     public void testNoLocalsOnThisDot()
     {
         assertNamesAtA(List.of("int field1", "int field2", "Object field3"), List.of("param1", "var1", "var2", "var3"), """
@@ -480,6 +499,139 @@ public class CompletionTest3
                         String var3;
                         x/*A*/
                         myObj.toString();
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testSwitchRecordVar()
+    {
+        assertNamesAtA(List.of("String s"), List.of(), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case WrappedString(String s) ->
+                            {
+                                /*A*/
+                            }
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testSwitchRecordVar2()
+    {
+        assertNamesAtA(List.of(), List.of("s"), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case WrappedString(String s) ->
+                            {
+                            }
+                            default -> { /*A*/ }
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testSwitchRecordVar3()
+    {
+        assertNamesAtA(List.of(), List.of("s"), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case WrappedString(String s) ->
+                            {
+                            }
+                        }
+                        /*A*/
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testSwitchRecordVar4()
+    {
+        assertNamesAtA(List.of("Integer i"), List.of("s"), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case WrappedString(String s) ->
+                            {
+                            }
+                            case WrappedInteger(Integer i) -> { /*A*/ }
+                            default -> {}
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testSwitchRecordVar5()
+    {
+        assertNamesAtA(List.of("String s"), List.of(), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case WrappedString(String s) when /*A*/ ->
+                            {
+                            }
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testSwitchRecordVar6()
+    {
+        assertNamesAtA(List.of("String s", "Integer i", "Object o"), List.of("Grandparent", "Parent", "Child"), """
+                class Foo
+                {
+                    void foo()
+                    {
+                        switch ("hi") {
+                            case Grandparent(Parent(String s, Child(Integer i, Object o))) ->
+                            {
+                                /*A*/
+                            }
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
+    public void testSwitchRecordVar7()
+    {
+        assertNamesAtA(List.of("var a", "var b"), List.of("x", "y"), """
+                record Point(Integer x, Double y) 
+                {
+                    static void foo()
+                    {
+                        switch ("hi") {
+                            case Point(var a, var b) ->
+                            {
+                                /*A*/
+                            }
+                        }
                     }
                 }
                 """);
