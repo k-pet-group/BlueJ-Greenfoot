@@ -265,6 +265,8 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
                 // Set imstart and imlength back to having no selection:
                 imStart = -1;
                 imLength = 0;
+                showHighlights(HighlightType.IME_INPUT, getImeInput());
+                positionCaret(end);
                 // I don't think committed and composed can both be there in one event, so return:
                 return;
             }
@@ -285,7 +287,17 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
             FlowEditorPane.this.replaceText(imStart, imStart + imLength, composed.toString(), EditType.IME_EDIT);
             // Update imlength to the new composed length:
             imLength = composed.length();
+            positionCaret(imStart + imLength, EditType.IME_EDIT);
+            showHighlights(HighlightType.IME_INPUT, getImeInput());
         }
+    }
+
+    public List<int[]> getImeInput()
+    {
+        if (imStart != -1)
+            return List.of(new int[]{imStart, imStart + imLength});
+        else
+            return List.of();
     }
 
     @Override
@@ -703,7 +715,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     {
         if (editType == EditType.NON_IME_EDIT)
         {
-            nonIMEdit();
+            //nonIMEdit();
         }
         caret.moveTo(position);
         anchor.moveTo(position);

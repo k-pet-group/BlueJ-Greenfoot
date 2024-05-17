@@ -456,6 +456,7 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
                 // Set imstart and imlength back to having no selection:
                 imStart = -1;
                 imLength = 0;
+                positionCaret(end);
                 // I don't think committed and composed can both be there in one event, so return:
                 return;
             }
@@ -477,6 +478,7 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
             super.replaceText(imStart, imStart + imLength, composed.toString());
             // Update imlength to the new composed length:
             imLength = composed.length();
+            positionCaret(imStart + imLength);
         }
     }
     

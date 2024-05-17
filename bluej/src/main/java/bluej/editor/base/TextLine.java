@@ -65,7 +65,7 @@ public class TextLine extends TextFlow
 
     public static enum HighlightType
     {
-        FIND_RESULT, BRACKET_MATCH;
+        FIND_RESULT, BRACKET_MATCH, IME_INPUT;
     }
 
     private final boolean printing;
@@ -73,6 +73,7 @@ public class TextLine extends TextFlow
     private final Path selectionShape = new Path();
     private final Path findResultShape = new Path();
     private final Path bracketMatchShape = new Path();
+    private final Path imeInputShape = new Path();
     private final Path errorUnderlineShape = new Path();
     // Ranges are column locations relative to start of line, 0 is beginning.
     private final ArrayList<IndexRange> errorLocations = new ArrayList<>();
@@ -92,10 +93,12 @@ public class TextLine extends TextFlow
         findResultShape.setManaged(false);
         bracketMatchShape.getStyleClass().add("flow-bracket-match");
         bracketMatchShape.setManaged(false);
+        imeInputShape.getStyleClass().add("flow-ime-input");
+        imeInputShape.setManaged(false);
         errorUnderlineShape.setStroke(Color.RED);
         errorUnderlineShape.setFill(null);
         errorUnderlineShape.setManaged(false);
-        getChildren().setAll(bracketMatchShape, findResultShape, selectionShape, errorUnderlineShape);
+        getChildren().setAll(bracketMatchShape, findResultShape, selectionShape, imeInputShape, errorUnderlineShape);
         clip = new ResizableRectangle();
         clip.widthProperty().bind(widthProperty());
         clip.heightProperty().bind(heightProperty());
@@ -237,7 +240,7 @@ public class TextLine extends TextFlow
         // rather than manipulate getChildren as we go along:
         ArrayList<Node> children = new ArrayList<>(backgroundNodes.size() + 3 + text.size() + 1);
         children.addAll(backgroundNodes);
-        children.addAll(List.of(bracketMatchShape, findResultShape, selectionShape));
+        children.addAll(List.of(bracketMatchShape, findResultShape, selectionShape, imeInputShape));
         for (StyledSegment styledSegment : text)
         {
             Text t = new Text(styledSegment.text.replace('\u0000', '\u2400'));
@@ -268,7 +271,11 @@ public class TextLine extends TextFlow
     public void showHighlight(HighlightType highlightType, List<int[]> positions)
     {
         runOnceLaidOut(() -> {
-            Path shape = highlightType == HighlightType.FIND_RESULT ? this.findResultShape : this.bracketMatchShape;
+            Path shape = switch (highlightType) {
+                case FIND_RESULT -> this.findResultShape;
+                case BRACKET_MATCH -> this.bracketMatchShape;
+                case IME_INPUT -> this.imeInputShape;
+            };
             shape.getElements().setAll(positions.stream().flatMap(p -> Arrays.stream(rangeShape(p[0], p[1]))).toArray(PathElement[]::new));
             shape.setVisible(!shape.getElements().isEmpty());
         });
