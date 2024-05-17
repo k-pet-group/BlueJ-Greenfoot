@@ -434,18 +434,21 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
     }
 
     @OnThread(Tag.FXPlatform)
-    private void handleInputMethodEvent(InputMethodEvent event) {
+    private void handleInputMethodEvent(InputMethodEvent event)
+    {
         // This is adapted from the default handler in TextInputControlSkin.  That handler
         // uses selection to keep track of some things.  We keep track manually here but
         // there is not currently a visual representation of the highlight.
 
         // Check we're in an editable state:
-        if (this.isEditable() && !this.textProperty().isBound() && !this.isDisabled()) {
+        if (this.isEditable() && !this.textProperty().isBound() && !this.isDisabled())
+        {
 
             // Committed text is the final bit that the user might select from the on-screen IME keyboard,
             // or the plain English bit by pressing a key.
             // Insert committed text
-            if (event.getCommitted().length() != 0) {
+            if (event.getCommitted().length() != 0)
+            {
                 final int start = imStart;
                 final int end = imStart + imLength;
                 // Must call super so we don't do any extra Stride processing:
