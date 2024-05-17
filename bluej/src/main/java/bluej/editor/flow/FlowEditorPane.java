@@ -34,11 +34,15 @@ import bluej.editor.base.MarginAndTextLine.MarginDisplay;
 import bluej.editor.base.TextLine.HighlightType;
 import bluej.editor.base.TextLine.StyledSegment;
 import bluej.utility.javafx.JavaFXUtil;
+import com.sun.javafx.scene.input.ExtendedInputMethodRequests;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.AccessibleAttribute;
+import javafx.scene.Scene;
 import javafx.scene.control.IndexRange;
+import javafx.scene.input.InputMethodEvent;
+import javafx.scene.input.InputMethodTextRun;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -48,6 +52,7 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
+import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -101,6 +106,16 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     // situations (like: "typed '{', pasted some content" or "typed '{' then went up a line and pressed enter").
     private boolean justAddedOpeningCurlyBracket;
 
+    // Keep track of InputMethod (IM) character positions within this field,
+    // e.g. for entering Chinese with the on-screen IME keyboard.
+    // imStart is the start of the current sequence within this document of
+    // "composing" characters that could end up staying as English or transformed into
+    // a related Chinese (or other language) string.  imLength is the length (starting at
+    // imStart) of this portion.  When there is no current IM entry, imStart is set to -1
+    // and imLength is set to 0.
+    private int imStart = -1;
+    private int imLength;
+
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
         super(true, listener);
@@ -118,6 +133,75 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         document.addListener(false, (origStartIncl, replaced, replacement, linesRemoved, linesAdded) -> {
             notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
         });
+
+        setOnInputMethodTextChanged(this::handleInputMethodEvent);
+        // This implementation has been copied from TextInputControlSkin but it's important
+        // to copy it because it uses our imStart/imLength fields.
+        setInputMethodRequests(new ExtendedInputMethodRequests() {
+            @Override public Point2D getTextLocation(int offset) {
+                Scene scene = getScene();
+                Window window = scene != null ? scene.getWindow() : null;
+                if (window == null) {
+                    return new Point2D(0, 0);
+                }
+                // Don't use imstart here because it isn't initialized yet.
+                Bounds characterBounds = lineDisplay.getBoundsForRange(document, getSelectionStart(), getSelectionEnd())[0];
+                Point2D p = localToScene(characterBounds.getMinX(), characterBounds.getMaxY());
+                Point2D location = new Point2D(window.getX() + scene.getX() + p.getX(),
+                        window.getY() + scene.getY() + p.getY());
+                return location;
+            }
+
+            @Override public int getLocationOffset(int x, int y) {
+                return FlowEditorPane.this.getCaretPositionForLocalPoint(FlowEditorPane.this.screenToLocal(x, y)).map(p -> p.getPosition()).orElse(Integer.MAX_VALUE) - imStart;
+            }
+
+            @Override public void cancelLatestCommittedText() {
+                nonIMEdit();
+            }
+
+            @Override public String getSelectedText() {
+                return FlowEditorPane.this.getSelectedText();
+            }
+
+            @Override public int getInsertPositionOffset() {
+                int caretPosition = getCaretPosition();
+                if (caretPosition < imStart) {
+                    return caretPosition;
+                } else if (caretPosition < imStart + imLength) {
+                    return imStart;
+                } else {
+                    return caretPosition - imLength;
+                }
+            }
+
+            @Override public String getCommittedText(int begin, int end) {
+                if (begin < imStart) {
+                    if (end <= imStart) {
+                        return document.getContent(begin, end).toString();
+                    } else {
+                        return document.getContent(begin, imStart) + document.getContent(imStart + imLength, end + imLength).toString();
+                    }
+                } else {
+                    return document.getContent(begin + imLength, end + imLength).toString();
+                }
+            }
+
+            @Override public int getCommittedTextLength() {
+                return document.getLength() - imLength;
+            }
+        });
+    }
+
+    /**
+     * Called whenever the content of the field, or the position of the caret, has been changed
+     * by an action *other* than an InputMethodEvent.  So we need to call this method at the start of
+     * just about every other method in this class.
+     */
+    private void nonIMEdit()
+    {
+        imStart = -1;
+        imLength = 0;
     }
 
     @Override
@@ -157,6 +241,53 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         return super.queryAccessibleAttribute(accessibleAttribute, objects);
     }
 
+
+    @OnThread(Tag.FXPlatform)
+    private void handleInputMethodEvent(InputMethodEvent event)
+    {
+        // This is adapted from the default handler in TextInputControlSkin.  That handler
+        // uses selection to keep track of some things.  We keep track manually here but
+        // there is not currently a visual representation of the highlight.
+
+        // Check we're in an editable state:
+        if (this.isEditable() && !this.isDisabled())
+        {
+
+            // Committed text is the final bit that the user might select from the on-screen IME keyboard,
+            // or the plain English bit by pressing a key.
+            // Insert committed text
+            if (event.getCommitted().length() != 0)
+            {
+                final int start = imStart;
+                final int end = imStart + imLength;
+                // Must call super so we don't do any extra Stride processing:
+                FlowEditorPane.this.replaceText(start, end, event.getCommitted(), EditType.IME_EDIT);
+                // Set imstart and imlength back to having no selection:
+                imStart = -1;
+                imLength = 0;
+                // I don't think committed and composed can both be there in one event, so return:
+                return;
+            }
+
+            // If this is the first part of a composed text, set imstart,
+            // and delete any existing selection:
+            if (imStart == -1)
+            {
+                FlowEditorPane.this.replaceSelection("");
+                imStart = this.getCaretPosition();
+            }
+            // Work out the full composed text:
+            StringBuilder composed = new StringBuilder();
+            for (InputMethodTextRun run : event.getComposed()) {
+                composed.append(run.getText());
+            }
+            // Replace the IM section with the latest text:
+            FlowEditorPane.this.replaceText(imStart, imStart + imLength, composed.toString(), EditType.IME_EDIT);
+            // Update imlength to the new composed length:
+            imLength = composed.length();
+        }
+    }
+
     @Override
     protected EditorPosition makePosition(int line, int column)
     {
@@ -170,6 +301,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         if (event.getCode() == KeyCode.CONTEXT_MENU)
         {
             showContextMenuAtCaret();
+            nonIMEdit();
             event.consume();
         }
     }
@@ -198,6 +330,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         if (character.charAt(0) > 0x1F
             && character.charAt(0) != 0x7F
             && !event.isMetaDown()) { // Not sure about this one -- NCCB note this comment is from the original source
+            // Replace selection will call nonIMEdit for us:
             replaceSelection(character);
             JavaFXUtil.runAfterCurrent(() -> scheduleCaretUpdate(true));
             // Must do this last, to avoid the cursor movement in textChanged()
@@ -566,8 +699,12 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     /**
      * Set the position of the caret and anchor, and scroll to ensure the caret is on screen.
      */
-    public void positionCaret(int position)
+    public void positionCaret(int position, EditType editType)
     {
+        if (editType == EditType.NON_IME_EDIT)
+        {
+            nonIMEdit();
+        }
         caret.moveTo(position);
         anchor.moveTo(position);
         targetColumnForVerticalMovement = -1;
@@ -575,6 +712,12 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         updateRender(true);
         callSelectionListeners();
     }
+    // The default move is a non-IME:
+    public void positionCaret(int position)
+    {
+        positionCaret(position, EditType.NON_IME_EDIT);
+    }
+
 
     /**
      * Set the position of the caret and anchor, but do not scroll.
@@ -600,6 +743,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     @Override
     protected void moveCaret(EditorPosition position, boolean ensureCaretVisible)
     {
+        nonIMEdit();
         caret.moveTo(position.getPosition());
         targetColumnForVerticalMovement = -1;
         justAddedOpeningCurlyBracket = false;
@@ -655,11 +799,17 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
 
     public void replaceSelection(String text)
     {
-        int start = getSelectionStart();
-        int end = getSelectionEnd();
+        nonIMEdit(); // IME calls replaceText directly, not this method
+        replaceText(getSelectionStart(), getSelectionEnd(), text, EditType.NON_IME_EDIT);
+    }
+
+    private enum EditType { IME_EDIT, NON_IME_EDIT}
+
+    private void replaceText(int start, int end, String text, EditType editType)
+    {
         document.replaceText(start, end, text);
         // This makes sure the anchor is reset, too:
-        positionCaret(start + text.length());
+        positionCaret(start + text.length(), editType);
     }
 
     public int getSelectionEnd()
