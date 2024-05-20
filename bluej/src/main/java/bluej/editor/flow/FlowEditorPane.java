@@ -260,8 +260,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
             {
                 final int start = imStart;
                 final int end = imStart + imLength;
-                // Must call super so we don't do any extra Stride processing:
-                FlowEditorPane.this.replaceText(start, end, event.getCommitted(), EditType.IME_EDIT);
+                FlowEditorPane.this.replaceText(start, end, event.getCommitted());
                 // Set imstart and imlength back to having no selection:
                 imStart = -1;
                 imLength = 0;
@@ -284,10 +283,10 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
                 composed.append(run.getText());
             }
             // Replace the IM section with the latest text:
-            FlowEditorPane.this.replaceText(imStart, imStart + imLength, composed.toString(), EditType.IME_EDIT);
+            FlowEditorPane.this.replaceText(imStart, imStart + imLength, composed.toString());
             // Update imlength to the new composed length:
             imLength = composed.length();
-            positionCaret(imStart + imLength, EditType.IME_EDIT);
+            positionCaret(imStart + imLength);
             showHighlights(HighlightType.IME_INPUT, getImeInput());
         }
     }
@@ -711,12 +710,8 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     /**
      * Set the position of the caret and anchor, and scroll to ensure the caret is on screen.
      */
-    public void positionCaret(int position, EditType editType)
+    public void positionCaret(int position)
     {
-        if (editType == EditType.NON_IME_EDIT)
-        {
-            //nonIMEdit();
-        }
         caret.moveTo(position);
         anchor.moveTo(position);
         targetColumnForVerticalMovement = -1;
@@ -724,12 +719,6 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         updateRender(true);
         callSelectionListeners();
     }
-    // The default move is a non-IME:
-    public void positionCaret(int position)
-    {
-        positionCaret(position, EditType.NON_IME_EDIT);
-    }
-
 
     /**
      * Set the position of the caret and anchor, but do not scroll.
@@ -812,16 +801,16 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     public void replaceSelection(String text)
     {
         nonIMEdit(); // IME calls replaceText directly, not this method
-        replaceText(getSelectionStart(), getSelectionEnd(), text, EditType.NON_IME_EDIT);
+        replaceText(getSelectionStart(), getSelectionEnd(), text);
     }
 
     private enum EditType { IME_EDIT, NON_IME_EDIT}
 
-    private void replaceText(int start, int end, String text, EditType editType)
+    private void replaceText(int start, int end, String text)
     {
         document.replaceText(start, end, text);
         // This makes sure the anchor is reset, too:
-        positionCaret(start + text.length(), editType);
+        positionCaret(start + text.length());
     }
 
     public int getSelectionEnd()
