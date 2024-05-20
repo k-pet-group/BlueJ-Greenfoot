@@ -514,6 +514,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 }
                 flowEditorPane.showHighlights(HighlightType.FIND_RESULT, findResults);
                 flowEditorPane.showHighlights(HighlightType.BRACKET_MATCH, bracketMatches);
+                flowEditorPane.showHighlights(HighlightType.IME_INPUT, flowEditorPane.getImeInput());
             }
         });
 

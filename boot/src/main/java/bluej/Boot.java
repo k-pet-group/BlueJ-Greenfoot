@@ -59,7 +59,7 @@ public class Boot
     // The version numbers for BlueJ and Greenfoot are changed in the top-level
     // version.properties file and then the :boot:updateVersionNumber task should be
     // executed to change them here and elsewhere where needed.
-    public static final String BLUEJ_VERSION = "5.3.0";
+    public static final String BLUEJ_VERSION = "5.4.0";
     public static final String GREENFOOT_VERSION = "3.8.2";
     public static final String GREENFOOT_API_VERSION = "3.1.0";
 

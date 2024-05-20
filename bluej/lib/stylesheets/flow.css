@@ -55,6 +55,12 @@
     -fx-stroke: null;
 }
 
+.text-line .flow-ime-input {
+    -fx-fill: hsb(180, 50%, 70%);
+    -fx-stroke: null;
+}
+
+
 .line-container {
     -fx-background-color: white;
 }
