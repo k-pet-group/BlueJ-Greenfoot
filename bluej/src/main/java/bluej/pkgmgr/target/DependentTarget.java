@@ -246,27 +246,6 @@ public abstract class DependentTarget extends EditableTarget
                 permits.stream().map(Dependency::getTo)
             ).collect(Collectors.toList());
     }
-    
-    /**
-     * Get the dependencies between this target and its parent(s).
-     * The returned list should not be modified and may be a view or a copy.
-     */
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    public synchronized List<Dependency> getParents()
-    {
-        return Collections.unmodifiableList(new ArrayList<>(parents));
-    }
-    
-    /**
-     * Get the dependencies between this target and its children.
-     * 
-     * @return
-     */
-    @OnThread(value = Tag.Any)
-    public synchronized List<Dependency> getChildrenDependencies()
-    {
-        return Collections.unmodifiableList(new ArrayList<>(children));
-    }
 
     @OnThread(Tag.Any)
     public synchronized List<Dependency> dependentsAsList()
