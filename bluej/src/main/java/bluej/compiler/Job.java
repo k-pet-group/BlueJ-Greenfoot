@@ -37,47 +37,19 @@ import bluej.classmgr.BPClassLoader;
  *
  * @author  Michael Cahill
  */
-class Job
+record Job(CompileInputFile[] sources, Compiler compiler, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
+           boolean internal, // true for compiling shell files,
+                             // or user files if we want to suppress
+                             // "unchecked" warnings, false otherwise
+           List<String> userCompileOptions, Charset fileCharset, CompileType type, CompileReason reason)
 {
-    Compiler compiler;  // The compiler for this job
-    CompileObserver observer;
-    File destDir;
-    BPClassLoader bpClassLoader;
-    CompileInputFile sources[];
-    boolean internal; // true for compiling shell files, 
-                      // or user files if we want to suppress 
-                      // "unchecked" warnings, false otherwise
-    private List<String> userCompileOptions;
-    private Charset fileCharset;
-    private CompileType type;
-    private CompileReason reason;
-
     /**
      * Generator for unique ascending compilation identifiers.  It doesn't matter if it's shared between
      * packages or between projects, it just needs to be unique and ascending.  An individual user won't manage
      * 2 billion compilations in a single session, so integer is fine:
      */
     private static final AtomicInteger nextCompilationSequence = new AtomicInteger(1);
-    
-    /**
-     * Create a job with a set of sources.
-     */
-    public Job(CompileInputFile[] sourceFiles, Compiler compiler, CompileObserver observer,
-                        BPClassLoader bpClassLoader, File destDir, boolean internal,
-                        List<String> userCompileOptions, Charset fileCharset, CompileType type, CompileReason reason)
-    {
-        this.sources = sourceFiles;
-        this.compiler = compiler;
-        this.observer = observer;
-        this.bpClassLoader = bpClassLoader;
-        this.destDir = destDir;
-        this.internal = internal;
-        this.userCompileOptions = userCompileOptions;
-        this.fileCharset = fileCharset;
-        this.type = type;
-        this.reason = reason;
-    }
-    
+
     /**
      * Compile this job
      */

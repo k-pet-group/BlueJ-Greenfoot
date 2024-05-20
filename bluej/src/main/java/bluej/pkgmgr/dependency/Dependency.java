@@ -39,7 +39,7 @@ import java.util.Properties;
  * @author Michael Kolling
  */
 @OnThread(Tag.FXPlatform)
-public abstract class Dependency
+public abstract sealed class Dependency permits ExtendsOrImplementsDependency, UsesDependency, PermitsDependency
 {
     @OnThread(Tag.Any)
     public final Target from;

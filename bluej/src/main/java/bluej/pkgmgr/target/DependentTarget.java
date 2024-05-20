@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2016,2017,2019,2020,2021,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2016,2017,2019,2020,2021,2023,2024  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -222,7 +222,10 @@ public abstract class DependentTarget extends EditableTarget
     @OnThread(Tag.Any)
     public final synchronized Collection<DependentTarget> dependencies()
     {
-        return Stream.concat(parents.stream(), outUses.stream())
+        // It is important we include permits, because javac treats it as a dependency,
+        // and without this, we can end up endlessly trying to compile a sealed parent class
+        // without realising that the problem is a compile error in the child class
+        return Stream.concat(Stream.concat(parents.stream(), outUses.stream()), permits.stream())
             .map(Dependency::getTo)
             .collect(Collectors.toList());
     }
@@ -242,27 +245,6 @@ public abstract class DependentTarget extends EditableTarget
                     .map(Dependency::getFrom),
                 permits.stream().map(Dependency::getTo)
             ).collect(Collectors.toList());
-    }
-    
-    /**
-     * Get the dependencies between this target and its parent(s).
-     * The returned list should not be modified and may be a view or a copy.
-     */
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    public synchronized List<Dependency> getParents()
-    {
-        return Collections.unmodifiableList(new ArrayList<>(parents));
-    }
-    
-    /**
-     * Get the dependencies between this target and its children.
-     * 
-     * @return
-     */
-    @OnThread(value = Tag.Any)
-    public synchronized List<Dependency> getChildrenDependencies()
-    {
-        return Collections.unmodifiableList(new ArrayList<>(children));
     }
 
     @OnThread(Tag.Any)

@@ -34,6 +34,11 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import bluej.debugger.DebuggerObject;
+import bluej.pkgmgr.dependency.Dependency;
+import bluej.pkgmgr.dependency.ExtendsDependency;
+import bluej.pkgmgr.dependency.ExtendsOrImplementsDependency;
+import bluej.pkgmgr.dependency.ImplementsDependency;
+import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.views.CallableView;
 import com.google.common.collect.Sets;
 import javafx.application.Platform;
@@ -43,8 +48,6 @@ import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.pkgmgr.target.CSSTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
-import bluej.pkgmgr.dependency.ExtendsDependency;
-import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.Config;
 import bluej.collect.DataCollectionCompileObserverWrapper;
@@ -61,8 +64,6 @@ import bluej.extensions2.event.CompileEvent;
 import bluej.extensions2.event.CompileEvent.EventType;
 import bluej.extmgr.ExtensionsManager;
 import bluej.parser.symtab.ClassInfo;
-import bluej.pkgmgr.dependency.Dependency;
-import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
@@ -197,7 +198,7 @@ public final class Package
     }
 
     //package-visible
-    List<Dependency> getExtendsArrows()
+    List<ExtendsOrImplementsDependency> getExtendsArrows()
     {
         return extendsArrows;
     }
@@ -206,7 +207,7 @@ public final class Package
     private final List<UsesDependency> usesArrows = new ArrayList<>();
 
     @OnThread(value = Tag.FXPlatform)
-    private final List<Dependency> extendsArrows = new ArrayList<>();
+    private final List<ExtendsOrImplementsDependency> extendsArrows = new ArrayList<>();
 
     /** True if we currently have a compile queued up waiting for debugger to become idle */
     @OnThread(Tag.FXPlatform)
@@ -2967,27 +2968,31 @@ public final class Package
             return;
         }
 
-        if (d instanceof UsesDependency)
+        switch (d)
         {
-            if (usesArrows.contains(d))
+            case UsesDependency ud ->
             {
-                return;
+                if (usesArrows.contains(ud))
+                {
+                    return;
+                }
+                else
+                {
+                    usesArrows.add(ud);
+                }
             }
-            else
+            case ExtendsOrImplementsDependency eid ->
             {
-                usesArrows.add((UsesDependency) d);
+                if (extendsArrows.contains(eid))
+                {
+                    return;
+                }
+                else
+                {
+                    extendsArrows.add(eid);
+                }
             }
-        }
-        else
-        {
-            if (extendsArrows.contains(d))
-            {
-                return;
-            }
-            else
-            {
-                extendsArrows.add(d);
-            }
+            default -> {}
         }
 
         DependentTarget from1 = d.getFrom();

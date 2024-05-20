@@ -36,7 +36,7 @@ import java.util.Properties;
  * @author  Michael Kolling
  */
 @OnThread(Tag.FXPlatform)
-public class UsesDependency extends Dependency
+public final class UsesDependency extends Dependency
 {
     // All are rounded to the nearest integer + 0.5 boundary
     // to make the lines sharp;
