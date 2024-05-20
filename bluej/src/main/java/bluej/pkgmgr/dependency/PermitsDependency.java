@@ -45,7 +45,7 @@ import threadchecker.Tag;
  * to fix up its dependencies) but without the ExtendsDependency, Child will not
  * get recompiled.  So we use the PermitsDependency to make sure Child is compiled too.
  */
-public class PermitsDependency extends Dependency
+public final class PermitsDependency extends Dependency
 {
     public PermitsDependency(Package pkg, DependentTarget sealedParent, DependentTarget permittedChild)
     {

@@ -34,7 +34,7 @@ import java.util.Properties;
  * @author Michael Kolling
  */
 @OnThread(Tag.FXPlatform)
-public class ExtendsDependency extends Dependency
+public final class ExtendsDependency extends ExtendsOrImplementsDependency
 {
     @OnThread(Tag.Any)
     public ExtendsDependency(Package pkg, DependentTarget from, DependentTarget to)
