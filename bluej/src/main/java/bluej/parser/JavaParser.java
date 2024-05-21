@@ -1122,6 +1122,9 @@ public class JavaParser extends JavaParserCallbacks
                         case PatternParse.RecordPattern, PatternParse.TypeThenVariableName -> {
                             if (!parseRecordPattern(false))
                             {
+                                error("Failed to parse record pattern");
+                                tokenStream.pushBack(token);
+                                endSwitchCase(token, true);
                                 return null;
                             }
                             token = nextToken();
