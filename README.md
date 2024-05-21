@@ -22,7 +22,7 @@ This repository contains the source code for BlueJ and Greenfoot, licensed under
 Building and running
 ---
 
-BlueJ uses Gradle as its automated build tool.  To build you will first need to install a Java (17) JDK.  Check out the repository then execute the following command to run BlueJ:
+BlueJ uses Gradle as its automated build tool.  To build you will first need to install a Java (21) JDK.  Check out the repository then execute the following command to run BlueJ:
 
 ```
 ./gradlew runBlueJ
@@ -37,7 +37,7 @@ Or to run Greenfoot:
 Development
 ---
 
-To work on the project, IntelliJ IDEA should import the Gradle project automatically, although you may need to set the JDK (17) and language level (also 17).
+To work on the project, IntelliJ IDEA should import the Gradle project automatically, although you may need to set the JDK (21) and language level (also 21).
 
 Contributing
 ---
