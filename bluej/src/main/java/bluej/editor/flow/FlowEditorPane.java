@@ -260,12 +260,12 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
             {
                 final int start = imStart;
                 final int end = imStart + imLength;
+                // This call will also position the caret at the end of the inserted text:
                 FlowEditorPane.this.replaceText(start, end, event.getCommitted());
                 // Set imstart and imlength back to having no selection:
                 imStart = -1;
                 imLength = 0;
                 showHighlights(HighlightType.IME_INPUT, getImeInput());
-                positionCaret(end);
                 // I don't think committed and composed can both be there in one event, so return:
                 return;
             }
