@@ -38,10 +38,9 @@ jobs:
           dir 'C:/Program Files/'
           dir 'C:/Program Files (x86)/'
           dir 'C:/Program Files (x86)/WiX Toolset v3.14/bin'
-      - name: Install JavaFX and build
+      - name: Set tool locations
         run: |
           cd ${{ github.workspace }}
-          mkdir javafx && cd javafx && bash ../download-javafx.sh ${{ env.javafx_version }} win && cd ..
           $propfile = 'tools.properties'
           $java_home_forward = $env:JAVA_HOME -replace '\\', '/'
           $workspace_forward = $PWD -replace '\\', '/'
