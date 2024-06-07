@@ -636,7 +636,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
     public void append(StyledSegment styledSegment)
     {
         // Append, accounting for newlines:
-        String remainder = styledSegment.getText();
+        String remainder = styledSegment.getText().replaceAll("\r", "");
         while (!remainder.isEmpty())
         {
             int newlineIndex = remainder.indexOf('\n');
@@ -648,8 +648,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
             }
             else
             {
-                // Chop '\r' before '\n', if it is present:
-                String beforeNewline = remainder.substring(0, newlineIndex > 0 && remainder.charAt(newlineIndex - 1) == '\r' ? newlineIndex - 1 : newlineIndex);
+                String beforeNewline = remainder.substring(0, newlineIndex);
                 content.get(content.size() - 1).append(new StyledSegment(styledSegment.getStyleClasses(), beforeNewline));
                 content.add(new ContentLine(new ArrayList<>()));
                 remainder = remainder.substring(newlineIndex + 1);
