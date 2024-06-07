@@ -74,7 +74,7 @@ repositories {
 }
 
 javafx {
-    version = "21.0.3"
+    version = "21.0.3" // javafx_version_setting <-- The Github Actions on Linux uses this to find and replace this line
     // Important that we depend on all the JavaFX modules, so that they are
     // all made available to user code:
     modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.media', 'javafx.swing', 'javafx.web']
