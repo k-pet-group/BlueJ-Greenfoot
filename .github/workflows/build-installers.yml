@@ -186,3 +186,44 @@ jobs:
             bluej/package/Greenfoot*.dmg
   
        
+  Build-UbuntuARM64-Installers:
+    runs-on: LinuxARM64
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Load .env file
+        uses: xom9ikk/dotenv@v2
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.java_version }}
+          java-package: jdk
+          architecture: aarch64
+      - name: Install packages
+        run: |
+          sudo apt install fakeroot
+      - name: Check install locations
+        run: |
+          ls $JAVA_HOME
+      - name: Adjust JavaFX version on Linux
+        run: |
+          find . -name 'build.gradle' -exec sed -i '/javafx_version_setting/c\version = '\''20.0.2'\''' {} +
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+      - name: Gradle Build and Test
+        uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
+        with:
+          arguments: :bluej:packageBlueJLinux :greenfoot:packageGreenfootLinux --info --stacktrace --no-daemon
+      - name: Archive BlueJ Ubuntu installers
+        uses: actions/upload-artifact@v3
+        with:
+          name: bluej-installers-arm64
+          path: |
+            bluej/package/BlueJ-linux*.deb
+      - name: Archive Greenfoot Ubuntu installers
+        uses: actions/upload-artifact@v3
+        with:
+          name: greenfoot-installers-arm64
+          path: |
+            bluej/package/Greenfoot-linux*.deb
