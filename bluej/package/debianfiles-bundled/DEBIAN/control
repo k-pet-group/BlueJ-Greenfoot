@@ -4,7 +4,6 @@ Section: Programming
 Installed-Size: 420000
 Maintainer: BlueJ Team <bluej-support@bluej.org>
 Architecture: amd64
-# The above line will be replaced when building for ARM64
 Version: VERSION
 Description: A simple but powerful Java IDE.
   Go to <bluej.org> for more details.
