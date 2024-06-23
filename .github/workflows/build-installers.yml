@@ -123,7 +123,7 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ env.java_version }}
           java-package: jdk
-          architecture: x64
+          architecture: aarch64
       - name: Check install locations
         run: |
           ls $JAVA_HOME
