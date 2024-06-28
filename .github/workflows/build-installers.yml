@@ -171,7 +171,7 @@ jobs:
           mkdir tmpsign
           cd tmpsign
           bash ../sign-mac.sh ${{ secrets.DEVELOPER_NAME }} ../BlueJ-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }} `basename ../BlueJ-mac*.zip .zip`.dmg bluej_appdmg.json bluej-installer-icon
-          bash ../sign-mac.sh ${{ secrets.DEVELOPER_NAME }} ../Greenfoot-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }} `basename ../Greenfoot-mac*.zip .zip`.dmg greenfoot_appdmg.json greenfoot-installer-icon com.apple.security.device.audio-input
+          bash ../sign-mac.sh ${{ secrets.DEVELOPER_NAME }} ../Greenfoot-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }} `basename ../Greenfoot-mac*.zip .zip`.dmg greenfoot_appdmg.json greenfoot-installer-icon com.apple.security.device.audio-input com.apple.security.device.microphone
       - name: Archive BlueJ Mac installers
         uses: actions/upload-artifact@v3
         with:
