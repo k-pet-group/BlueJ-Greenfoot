@@ -24,12 +24,12 @@ done
 perm_file="entitlements.plist"
 
 # Header:
-echo '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict>' > "$perm_file"
+echo -n '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict>' > "$perm_file"
 # Loop through each item and write to the file with <begin> and <end> tags
 for item in "${permissions[@]}"; do
-    echo '<key>' >> "$perm_file"
-    echo "$item" >> "$perm_file"
-    echo '</key><true/>' >> "$perm_file"
+    echo -n '<key>' >> "$perm_file"
+    echo -n "$item" >> "$perm_file"
+    echo -n '</key><true/>' >> "$perm_file"
 done
 # Tail:
 echo '</dict></plist>' >> "$perm_file"
