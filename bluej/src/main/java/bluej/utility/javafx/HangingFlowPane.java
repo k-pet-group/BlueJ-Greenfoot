@@ -32,6 +32,8 @@ package bluej.utility.javafx;
  * Modified: 2015, 2018.
  */
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import javafx.css.SimpleStyleableDoubleProperty;
 import javafx.scene.layout.*;
 import java.util.ArrayList;
@@ -396,93 +398,104 @@ public class HangingFlowPane extends Pane {
 
     @Override public void requestLayout() {
         if (!computingRuns) {
-            runs = null;
+            runs.invalidateAll();
         }
         super.requestLayout();
     }
 
-    private List<Run> runs = null;
+    private final Cache<Double, List<Run>> runs = CacheBuilder.newBuilder().maximumSize(5).build();
     private double lastMaxRunLength = -1;
     boolean computingRuns = false;
 
     private List<Run> getRuns(double maxRunLength) {
-        if (runs == null || maxRunLength != lastMaxRunLength) {
-            computingRuns = true;
-            lastMaxRunLength = maxRunLength;
-            runs = new ArrayList();
-            double runLength = 0;
-            double runOffset = 0;
-            Run run = new Run();
-            double vgap = rowSpacingProperty.get();
-            double hgap = 0;
+        try
+        {
+            return runs.get(maxRunLength, () ->
+            {
+                computingRuns = true;
+                lastMaxRunLength = maxRunLength;
+                ArrayList<Run> runs = new ArrayList();
+                double runLength = 0;
+                double runOffset = 0;
+                Run run = new Run();
+                double vgap = rowSpacingProperty.get();
+                double hgap = 0;
 
-            final List<Node> children = getChildren();
-            boolean goingBackwards = false;
-            int furthestReached = 0;
-            for (int i=0, size=children.size(); i<size; i++) {
-                Node child = children.get(i);
-                if (child.isManaged()) {
-                    LayoutRect nodeRect = new LayoutRect();
-                    nodeRect.node = child;
-                    Insets margin = getMargin(child);
-                    nodeRect.width = computeChildPrefAreaWidth(child, margin);
-                    nodeRect.height = computeChildPrefAreaHeight(child, margin);
-                    nodeRect.alignment = getAlignment(child);
-                    double nodeLength = nodeRect.width;
-                    // We only need to do something special if either:
-                    //  - our run is too long (thus needs breaking), and the run has multiple items (this one, plus at least one already)
-                    //  - we are going backwards removing items to find a suitable break point
-                    if (goingBackwards || (runLength + nodeLength > maxRunLength && run.rects.size() >= 1))
+                final List<Node> children = getChildren();
+                boolean goingBackwards = false;
+                int furthestReached = 0;
+                for (int i = 0, size = children.size(); i < size; i++)
+                {
+                    Node child = children.get(i);
+                    if (child.isManaged())
                     {
-                        // If we are already going backwards, remove from current run:
-                        if (goingBackwards)
+                        LayoutRect nodeRect = new LayoutRect();
+                        nodeRect.node = child;
+                        Insets margin = getMargin(child);
+                        nodeRect.width = computeChildPrefAreaWidth(child, margin);
+                        nodeRect.height = computeChildPrefAreaHeight(child, margin);
+                        nodeRect.alignment = getAlignment(child);
+                        double nodeLength = nodeRect.width;
+                        // We only need to do something special if either:
+                        //  - our run is too long (thus needs breaking), and the run has multiple items (this one, plus at least one already)
+                        //  - we are going backwards removing items to find a suitable break point
+                        if (goingBackwards || (runLength + nodeLength > maxRunLength && run.rects.size() >= 1))
                         {
-                            runLength -= run.rects.get(run.rects.size() - 1).width + hgap;
-                            run.rects.remove(run.rects.size() - 1);
-                        }
-                        
-                        // Make sure we can break here.  If not, and the run is not empty,
-                        // go backwards (or keep going backwards)
-                        // until we find a suitable break point.  However, if we have been
-                        // here before (i <= furthestReached), we're not going to manage to find a
-                        // good break point
-                        // so we need to not try, to avoid going into an infinite loop.
-                        if (!canBreakBefore(child) && run.rects.size() > 0 && (goingBackwards || i > furthestReached))
-                        {
-                            furthestReached = Math.max(i, furthestReached);
-                            goingBackwards = true;
-                            i -= 2; // We only really want to subtract one, but continue
-                                    // still executes the i++ at the end of the loop.
-                            continue;
-                        }
-                        // If we reach here, we will perform a break, even if it is not allowed here.
-                        // It may be that the break is redundant (the run is now empty), because
-                        // we were going backwards, removed whole run, and are now going to start forwards again.
-                        if (run.rects.size() > 0)
-                        {
-                            normalizeRun(run, runOffset);
-                            // horizontal
-                            runOffset += run.height + vgap;
-                            runs.add(run);
-                            runLength = hangingIndentProperty.get();
-                            run = new Run();
-                        }
-                    }
-                    // If we reach here, we're no longer going backwards:
-                    goingBackwards = false;
-                    // horizontal
-                    nodeRect.x = runLength;
-                    runLength += nodeRect.width + hgap;
-                    run.rects.add(nodeRect);
-                }
+                            // If we are already going backwards, remove from current run:
+                            if (goingBackwards)
+                            {
+                                runLength -= run.rects.get(run.rects.size() - 1).width + hgap;
+                                run.rects.remove(run.rects.size() - 1);
+                            }
 
-            }
-            // insert last run
-            normalizeRun(run, runOffset);
-            runs.add(run);
-            computingRuns = false;
+                            // Make sure we can break here.  If not, and the run is not empty,
+                            // go backwards (or keep going backwards)
+                            // until we find a suitable break point.  However, if we have been
+                            // here before (i <= furthestReached), we're not going to manage to find a
+                            // good break point
+                            // so we need to not try, to avoid going into an infinite loop.
+                            if (!canBreakBefore(child) && run.rects.size() > 0 && (goingBackwards || i > furthestReached))
+                            {
+                                furthestReached = Math.max(i, furthestReached);
+                                goingBackwards = true;
+                                i -= 2; // We only really want to subtract one, but continue
+                                // still executes the i++ at the end of the loop.
+                                continue;
+                            }
+                            // If we reach here, we will perform a break, even if it is not allowed here.
+                            // It may be that the break is redundant (the run is now empty), because
+                            // we were going backwards, removed whole run, and are now going to start forwards again.
+                            if (run.rects.size() > 0)
+                            {
+                                normalizeRun(run, runOffset);
+                                // horizontal
+                                runOffset += run.height + vgap;
+                                runs.add(run);
+                                runLength = hangingIndentProperty.get();
+                                run = new Run();
+                            }
+                        }
+                        // If we reach here, we're no longer going backwards:
+                        goingBackwards = false;
+                        // horizontal
+                        nodeRect.x = runLength;
+                        runLength += nodeRect.width + hgap;
+                        run.rects.add(nodeRect);
+                    }
+
+                }
+                // insert last run
+                normalizeRun(run, runOffset);
+                runs.add(run);
+                computingRuns = false;
+                return runs;
+            });
         }
-        return runs;
+        catch (Throwable t)
+        {
+            // Shouldn't ever happen, but just in case:
+            return new ArrayList<>();
+        }
     }
 
     private void normalizeRun(final Run run, double runOffset) {

@@ -434,7 +434,34 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
     @Override
     public void bindMinHeight(DoubleBinding prop)
     {
-        getRegion().minHeightProperty().bind(prop);
+        // The original code here was this:
+        //   getRegion().minHeightProperty().bind(prop);
+        // This caused an infinite layout loop; the Stride editor would
+        // forever relayout, with each new layout triggering another
+        // queued layout forever.  As far as I can tell, the problem
+        // was that we bound the min height of the top-level frame
+        // to the height of the viewpoint of the scroll pane that contained it.
+        // This should be a constant (unless the window is resized) so
+        // it shouldn't cause an infinite layout.  But the binding above
+        // updates whenever the property is "invalidated".  In JavaFX
+        // the scrollpane bounds is an object, and setting the bounds sets
+        // it to a new Bounds object.  Even though all the values in the Bounds
+        // object are the same, because it's a new object, it invalidates
+        // the property.  This ends up invalidating the frame's min height
+        // and triggers a layout of the frame and its parents, which includes
+        // the scroll pane.  This involves recalculating the bounds and setting
+        // a new Bounds object, which invalidates the frame's min height
+        // and triggers a layout... forever.  Stride was burning the CPU
+        // (and generating a bunch of garbage too because each new layout generated
+        // some new objects).  The solution is to use a change listener
+        // and only set a new value if it's different to the previous value,
+        // which prevents this infinite loop behaviour:
+        JavaFXUtil.addChangeListenerAndCallNow(prop, h ->
+        {
+            if (h.doubleValue() != getRegion().getMinHeight())
+                getRegion().setMinHeight(h.doubleValue());
+
+        });
     }
 
     @Override
