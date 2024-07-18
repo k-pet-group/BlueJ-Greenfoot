@@ -5,7 +5,7 @@
              classpath="appbundler-20230419.jar"
              classname="com.oracle.appbundler.AppBundlerTask"/>
     <import file="../shared.xml"/>
-    <property name="dist.mac" value="Greenfoot-mac-${greenfoot.version}${greenfoot.rcsuffix}.zip"/>
+    <property name="dist.mac" value="Greenfoot-mac-${mac_bundler_arch_dir}-${greenfoot.version}${greenfoot.rcsuffix}.zip"/>
     <property name="installer.jar" value="Greenfoot-generic-${greenfoot.version}${greenfoot.rcsuffix}.jar"/>
     
     <!-- Most of the targets in this build file are designed to be called from the
@@ -258,8 +258,8 @@
                             name="Greenfoot archive"
                             role="Editor"/>
             <runtime dir="${mac_bundled_jdk_path}"/>
-            <arch name="x86_64"/>
-            <environment name="JAVA_HOME" value="$APP_ROOT/Contents/PlugIns/x64/Contents/Home"/>
+            <arch name="${mac_arch}"/>
+            <environment name="JAVA_HOME" value="$APP_ROOT/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home"/>
             <option value="-Dapple.laf.useScreenMenuBar"/>
             <option value="-Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2"/>
             <option value="-Xmx512M" name="Xmx"/>

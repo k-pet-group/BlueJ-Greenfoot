@@ -129,7 +129,7 @@ test.dependsOn copyLibToTestBuild
 group = 'org.bluej'
 description = 'bluej'
 
-task packageBlueJMac(type: Exec) {
+task packageBlueJMacIntel(type: Exec) {
     workingDir "package"
     environment JAVA_HOME: System.getProperty('java.home')
     commandLine toolProps["ant_exe"], "mac-dist",
@@ -137,9 +137,25 @@ task packageBlueJMac(type: Exec) {
         "-Dmac_bundled_jdk_path=" + System.getProperty('java.home'),
         "-Dbluej.version=" + bluejVersion,
         "-Dbluej.rcsuffix=" + bluejRCSuffix,
-        "-Dbluej_home=" + projectDir.getAbsoluteFile()
+        "-Dbluej_home=" + projectDir.getAbsoluteFile(),
+        "-Dmac_arch=x86_64",
+        "-Dmac_bundler_arch_dir=x64"
+
 }
-packageBlueJMac.dependsOn assemble
+task packageBlueJMacAarch(type: Exec) {
+    workingDir "package"
+    environment JAVA_HOME: System.getProperty('java.home')
+    commandLine toolProps["ant_exe"], "mac-dist",
+            "-Dbuild_java_home=" + System.getProperty('java.home'),
+            "-Dmac_bundled_jdk_path=" + System.getProperty('java.home'),
+            "-Dbluej.version=" + bluejVersion,
+            "-Dbluej.rcsuffix=" + bluejRCSuffix,
+            "-Dbluej_home=" + projectDir.getAbsoluteFile(),
+            "-Dmac_arch=arm64",
+            "-Dmac_bundler_arch_dir=aarch64"
+}
+packageBlueJMacIntel.dependsOn assemble
+packageBlueJMacAarch.dependsOn assemble
 
 task packageBlueJWindows(type: Exec) {
     workingDir "package"
