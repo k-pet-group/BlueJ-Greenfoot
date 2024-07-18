@@ -26,11 +26,11 @@ jobs:
           DISPLAY=:42.0 icewm &
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
-      - name: Gradle Build and Test
+      - name: Gradle Setup
         uses: gradle/actions/setup-gradle@v3
+      - name: Build and Test
         env:
           DISPLAY: ":42.0"
-        with:
-          arguments: build test -Pheadless=false --info --stacktrace --no-daemon
+        run: ./gradlew build test -Pheadless=false --info --stacktrace --no-daemon
       - name: Check copyright
         run: bash check-copyright.sh
