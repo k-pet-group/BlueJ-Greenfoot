@@ -52,11 +52,13 @@ The installers are built automatically on Github.  If you want to build them man
 ```
 ./gradlew packageBlueJWindows
 ./gradlew packageBlueJLinux
-./gradlew packageBlueJMac
+./gradlew packageBlueJMacIntel
+./gradlew packageBlueJMacAarch
 ./gradlew packageGreenfootWindows
 ./gradlew packageGreenfootLinux
-./gradlew packageGreenfootMac
+./gradlew packageGreenfootMacIntel
+./gradlew packageGreenfootMacAarch
 ```
 
-None of the installers can be cross-built, so you must build Windows on Windows, Mac on Mac and Linux on Debian/Ubuntu.  Windows requires an installation of WiX 3.10 and MinGW64 to build the installer.
+None of the installers can be cross-built, so you must build Windows on Windows, Mac on Mac and Linux on Debian/Ubuntu.  Windows requires an installation of WiX 3.10 and MinGW64 to build the installer.  On Mac, JAVA_HOME must point to an Intel JDK for the Intel build, and an Aarch/ARM JDK for the Aarch build, so you cannot run them in the same command.
 
