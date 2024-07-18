@@ -48,10 +48,10 @@ jobs:
           (Get-Content $propfile) -replace 'wix_bin=.*', "wix_bin=C:/Program Files (x86)/WiX Toolset v3.14/bin" | Set-Content $propfile
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
-      - name: Gradle Build and Test
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: :bluej:packageBlueJWindows :greenfoot:packageGreenfootWindows --info --stacktrace --no-daemon          
+      - name: Build
+        run: ./gradlew :bluej:packageBlueJWindows :greenfoot:packageGreenfootWindows --info --stacktrace --no-daemon
       - name: Archive BlueJ Windows installers
         uses: actions/upload-artifact@v4
         with:
@@ -91,10 +91,10 @@ jobs:
           find . -name 'build.gradle' -exec sed -i '/javafx_version_setting/c\version = '\''20.0.2'\''' {} +
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
-      - name: Gradle Build and Test
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: :bluej:packageBlueJLinux :greenfoot:packageGreenfootLinux --info --stacktrace --no-daemon
+      - name: Build
+        run: ./gradlew :bluej:packageBlueJLinux :greenfoot:packageGreenfootLinux --info --stacktrace --no-daemon
       - name: Archive BlueJ Ubuntu installers
         uses: actions/upload-artifact@v4
         with:
@@ -160,10 +160,10 @@ jobs:
           security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
-      - name: Gradle Build and Test
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: :bluej:packageBlueJMacIntel :greenfoot:packageGreenfootMacIntel --info --stacktrace --no-daemon
+      - name: Build
+        run: ./gradlew :bluej:packageBlueJMacIntel :greenfoot:packageGreenfootMacIntel --info --stacktrace --no-daemon
       - name: Sign and package
         run: |
           cd ${{ github.workspace }}
@@ -234,10 +234,10 @@ jobs:
           security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
-      - name: Gradle Build and Test
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: :bluej:packageBlueJMacAarch :greenfoot:packageGreenfootMacAarch --info --stacktrace --no-daemon
+      - name: Build
+        run: ./gradlew :bluej:packageBlueJMacAarch :greenfoot:packageGreenfootMacAarch --info --stacktrace --no-daemon
       - name: Sign and package
         run: |
           cd ${{ github.workspace }}
@@ -288,10 +288,10 @@ jobs:
           find . -name 'control' -exec sed -i '/Architecture:/c\Architecture: arm64' {} +
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
-      - name: Gradle Build and Test
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: :bluej:packageBlueJLinux :greenfoot:packageGreenfootLinux --info --stacktrace --no-daemon
+      - name: Build
+        run: ./gradlew :bluej:packageBlueJLinux :greenfoot:packageGreenfootLinux --info --stacktrace --no-daemon
       - name: Archive BlueJ Ubuntu installers
         uses: actions/upload-artifact@v4
         with:
