@@ -14,11 +14,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Load .env file
-        uses: xom9ikk/dotenv@v2
+        uses: xom9ikk/dotenv@v2.3.0
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ env.java_version }}
@@ -47,20 +47,20 @@ jobs:
           (Get-Content $propfile) -replace 'mingw_root=.*', "mingw_root=C:/ProgramData/mingw64/mingw64" | Set-Content $propfile
           (Get-Content $propfile) -replace 'wix_bin=.*', "wix_bin=C:/Program Files (x86)/WiX Toolset v3.14/bin" | Set-Content $propfile
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+        uses: gradle/actions/wrapper-validation@v3
       - name: Gradle Build and Test
-        uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: :bluej:packageBlueJWindows :greenfoot:packageGreenfootWindows --info --stacktrace --no-daemon          
       - name: Archive BlueJ Windows installers
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bluej-installers-windows
           path: |
             bluej/package/BlueJ-windows*.msi
             bluej/package/BlueJ-windows*.zip
       - name: Archive Greenfoot Windows installers
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: greenfoot-installers-windows
           path: |
@@ -70,11 +70,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Load .env file
-        uses: xom9ikk/dotenv@v2
+        uses: xom9ikk/dotenv@v2.3.0
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ env.java_version }}
@@ -90,20 +90,20 @@ jobs:
         run: |
           find . -name 'build.gradle' -exec sed -i '/javafx_version_setting/c\version = '\''20.0.2'\''' {} +
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+        uses: gradle/actions/wrapper-validation@v3
       - name: Gradle Build and Test
-        uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: :bluej:packageBlueJLinux :greenfoot:packageGreenfootLinux --info --stacktrace --no-daemon
       - name: Archive BlueJ Ubuntu installers
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bluej-installers-other
           path: |
             bluej/package/BlueJ-linux*.deb
             bluej/package/BlueJ-generic*.jar
       - name: Archive Greenfoot Ubuntu installers
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: greenfoot-installers-other
           path: |
@@ -114,11 +114,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Load .env file
-        uses: xom9ikk/dotenv@v2
+        uses: xom9ikk/dotenv@v2.3.0
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ env.java_version }}
@@ -159,9 +159,9 @@ jobs:
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+        uses: gradle/actions/wrapper-validation@v3
       - name: Gradle Build and Test
-        uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: :bluej:packageBlueJMacIntel :greenfoot:packageGreenfootMacIntel --info --stacktrace --no-daemon
       - name: Sign and package
@@ -173,13 +173,13 @@ jobs:
           bash ../sign-mac.sh ${{ secrets.DEVELOPER_NAME }} ../BlueJ-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }} `basename ../BlueJ-mac*.zip .zip`.dmg bluej_appdmg.json bluej-installer-icon
           bash ../sign-mac.sh ${{ secrets.DEVELOPER_NAME }} ../Greenfoot-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }} `basename ../Greenfoot-mac*.zip .zip`.dmg greenfoot_appdmg.json greenfoot-installer-icon
       - name: Archive BlueJ Mac installers
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bluej-installers-mac-intel
           path: |
             bluej/package/BlueJ*.dmg
       - name: Archive Greenfoot Mac installers
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: greenfoot-installers-mac-intel
           path: |
@@ -188,11 +188,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Load .env file
-        uses: xom9ikk/dotenv@v2
+        uses: xom9ikk/dotenv@v2.3.0
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ env.java_version }}
@@ -233,9 +233,9 @@ jobs:
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+        uses: gradle/actions/wrapper-validation@v3
       - name: Gradle Build and Test
-        uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: :bluej:packageBlueJMacAarch :greenfoot:packageGreenfootMacAarch --info --stacktrace --no-daemon
       - name: Sign and package
@@ -247,13 +247,13 @@ jobs:
           bash ../sign-mac.sh ${{ secrets.DEVELOPER_NAME }} ../BlueJ-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }} `basename ../BlueJ-mac*.zip .zip`.dmg bluej_appdmg.json bluej-installer-icon
           bash ../sign-mac.sh ${{ secrets.DEVELOPER_NAME }} ../Greenfoot-mac*.zip ${{ secrets.APPLEID_EMAIL }} ${{ secrets.APPLEID_PASSWORD }} ${{ secrets.APPLEID_TEAMID }} `basename ../Greenfoot-mac*.zip .zip`.dmg greenfoot_appdmg.json greenfoot-installer-icon
       - name: Archive BlueJ Mac installers
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bluej-installers-mac-aarch
           path: |
             bluej/package/BlueJ*.dmg
       - name: Archive Greenfoot Mac installers
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: greenfoot-installers-mac-aarch
           path: |
@@ -264,11 +264,11 @@ jobs:
     runs-on: LinuxARM64
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Load .env file
-        uses: xom9ikk/dotenv@v2
+        uses: xom9ikk/dotenv@v2.3.0
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ env.java_version }}
@@ -287,19 +287,19 @@ jobs:
         run: |
           find . -name 'control' -exec sed -i '/Architecture:/c\Architecture: arm64' {} +
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+        uses: gradle/actions/wrapper-validation@v3
       - name: Gradle Build and Test
-        uses: gradle/gradle-build-action@0842a550d10f5211be8c8295f6888889e1fca291
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: :bluej:packageBlueJLinux :greenfoot:packageGreenfootLinux --info --stacktrace --no-daemon
       - name: Archive BlueJ Ubuntu installers
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bluej-installers-arm64
           path: |
             bluej/package/BlueJ-linux*.deb
       - name: Archive Greenfoot Ubuntu installers
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: greenfoot-installers-arm64
           path: |
