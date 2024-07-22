@@ -8,6 +8,7 @@ on:
       - 'greenfoot/build.gradle'
       - 'bluej/package/build.xml'
       - 'bluej/package/greenfoot-build.xml'
+      - '.env'
   workflow_dispatch:
 jobs:
   Build-Windows-Installers:
