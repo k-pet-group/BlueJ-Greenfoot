@@ -258,12 +258,12 @@
         </move>
         <!-- We also have to copy the java executable in ourselves, as by default
              appbundler doesn't do so -->
-        <mkdir dir="BlueJ.app/Contents/PlugIns/x64/Contents/Home/bin"/>
-        <copy todir="BlueJ.app/Contents/PlugIns/x64/Contents/Home/bin">
+        <mkdir dir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin"/>
+        <copy todir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin">
             <file basedir="${mac_bundled_jdk_path}/bin" name="java/"/>
         </copy>
         <chmod perm="a+x">
-            <fileset dir="BlueJ.app/Contents/PlugIns/x64/Contents/Home/bin" includes="java" />
+            <fileset dir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin" includes="java" />
         </chmod>
 
         <!-- codesign needs Internet connection to verify current time -->
