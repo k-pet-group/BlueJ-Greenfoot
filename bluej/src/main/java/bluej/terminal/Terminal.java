@@ -462,7 +462,11 @@ public final class Terminal
         //     WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @18be7add'
         //     WARNUNG: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @28f3d2a1'
         if (paneType == PaneType.STDERR && lines.removeIf(l -> l.trim().endsWith("com.sun.javafx.application.PlatformImpl startup") ||
-            l.contains("Unsupported JavaFX configuration: classes were loaded from")))
+            l.contains("Unsupported JavaFX configuration: classes were loaded from") ||
+            // These are to cover a stack trace which occurs on Mac when switching between windows:
+            l.contains("com.sun.glass.ui.Application.staticScreen_getScreens(") ||
+            l.contains("com.sun.glass.ui.Screen.initScreens(") ||
+            l.contains("com.sun.glass.ui.Screen.notifySettingsChanged(")))
         {
             // No need to continue (and thus show the terminal window) if there's no new output to add:
             if (lines.isEmpty())
