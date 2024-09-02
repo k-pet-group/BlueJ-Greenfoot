@@ -44,6 +44,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 
@@ -88,8 +89,11 @@ public class MarginAndTextLine extends Region
             this(null);
         }
     }
-    
-    private final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
+
+    // When we added/removed these dynamically we had issues with mouse handling, so if showing left margin now we put them all in permanently but just change visibility:
+    private final Label lineNumber;
+    private final Node breakpointIcon;
+    private final Node stepMarkIcon;
     public final TextLine textLine;
 
     /**
@@ -124,9 +128,19 @@ public class MarginAndTextLine extends Region
         backgroundNode.getStyleClass().add("flow-margin-background");
         this.textLine = textLine;
         if (showLeftMargin)
-            getChildren().setAll(backgroundNode, textLine, dividerLine);
+        {
+            this.lineNumber = makeLineNumber();
+            this.breakpointIcon = makeBreakpointIcon();
+            this.stepMarkIcon = makeStepMarkIcon();
+            getChildren().setAll(backgroundNode, textLine, dividerLine, lineNumber, breakpointIcon, stepMarkIcon);
+        }
         else
+        {
             getChildren().setAll(backgroundNode, textLine);
+            this.lineNumber = null;
+            this.breakpointIcon = null;
+            this.stepMarkIcon = null;
+        }
         getStyleClass().add("margin-and-text-line");
         String breakpointHoverUsualText = Config.getString("editor.set.breakpoint.hint");
         String breakpointHoverFailText = Config.getString("editor.set.breakpoint.fail");
@@ -297,68 +311,44 @@ public class MarginAndTextLine extends Region
         
         this.displayItems.clear();
         this.displayItems.addAll(displayItems);
-        EnumSet<MarginDisplay> toAdd = EnumSet.copyOf(displayItems);
-        if (hoveringMargin && !toAdd.contains(MarginDisplay.BREAKPOINT))
+        EnumSet<MarginDisplay> toShow = EnumSet.copyOf(displayItems);
+        // Don't show line number if we are showing the breakpoint hover:
+        if (hoveringMargin && !toShow.contains(MarginDisplay.BREAKPOINT))
         {
-            toAdd.add(MarginDisplay.BREAKPOINT_HOVER);
-            toAdd.remove(MarginDisplay.LINE_NUMBER);
+            toShow.add(MarginDisplay.BREAKPOINT_HOVER);
+            toShow.remove(MarginDisplay.LINE_NUMBER);
         }
-        ArrayList<Node> content = new ArrayList<>();
-        content.add(backgroundNode);
-        content.add(textLine);
-        content.add(dividerLine);
-
-        for (MarginDisplay display : toAdd)
+        lineNumber.setVisible(toShow.contains(MarginDisplay.LINE_NUMBER));
+        stepMarkIcon.setVisible(toShow.contains(MarginDisplay.STEP_MARK));
+        // We don't add remove as that can cause issues with mouse handling for context menu, so we just change opacity:
+        if (toShow.contains(MarginDisplay.BREAKPOINT_HOVER))
         {
-            Node item = cachedIcons.computeIfAbsent(display, d -> {
-                switch (d)
-                {
-                    case LINE_NUMBER:
-                        Label label = new Label(Integer.toString(lineNumberToDisplay));
-                        label.setEllipsisString("\u2026");
-                        label.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
-                        JavaFXUtil.addStyleClass(label, "flow-line-label");
-                        label.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.LINE_NUMBER_SIZE_ONLY));
-                        label.setMouseTransparent(true);
-                        return label;
-                    case STEP_MARK:
-                        return makeStepMarkIcon();
-                    case BREAKPOINT:
-                        return makeBreakpointIcon();
-                    case BREAKPOINT_HOVER:
-                        Node icon = makeBreakpointIcon();
-                        icon.setOpacity(0.3);
-                        Tooltip.install(icon, breakpointHoverTooltip);
-                        return icon;
-                    case ERROR:
-                        return null; // Only sets pseudo-class
-                    case UNCOMPILED:
-                        return null; // Only sets pseudo-class
-                    default: // Shouldn't happen:
-                        return null;
-                }
-            });
-            if (item != null)
-            {
-                content.add(item);
-            }
+            breakpointIcon.setOpacity(0.3);
         }
-        // Don't set content if it's the same; this would cause listeners to fire
-        // and an unnecessary layout pass to occur
-        if (!content.equals(getChildren()))
+        else if (toShow.contains(MarginDisplay.BREAKPOINT))
         {
-            getChildren().setAll(content);
+            breakpointIcon.setOpacity(1);
+        }
+        else
+        {
+            breakpointIcon.setOpacity(0);
         }
 
-        for (MarginDisplay marginDisplay : MarginDisplay.values())
-        {
-            if (marginDisplay.pseudoClass != null)
-            {
-                JavaFXUtil.setPseudoclass(marginDisplay.pseudoClass, displayItems.contains(marginDisplay), this);
-            }
-        }
+        Arrays.stream(MarginDisplay.values())
+                .filter(marginDisplay -> marginDisplay.pseudoClass != null)
+                .forEach(marginDisplay -> JavaFXUtil.setPseudoclass(marginDisplay.pseudoClass, displayItems.contains(marginDisplay), this));
     }
 
+    private Label makeLineNumber()
+    {
+        Label label = new Label(Integer.toString(lineNumberToDisplay));
+        label.setEllipsisString("\u2026");
+        label.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
+        JavaFXUtil.addStyleClass(label, "flow-line-label");
+        label.styleProperty().bind(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.LINE_NUMBER_SIZE_ONLY));
+        label.setMouseTransparent(true);
+        return label;
+    }
 
     // Red octagon with white STOP on it.  By doing it as a shape rather than
     // image file, we get it looking good on all HiDPI displays.
