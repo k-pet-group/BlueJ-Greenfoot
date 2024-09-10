@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2019,2020,2021,2024  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -136,7 +136,16 @@ public class ImportScanner
                         }
                         else
                         {
-                            f.complete(new AssistContentThreadSafe(new ImportedTypeCompletion(c, javadocResolver)));
+                            AssistContentThreadSafe ac = null;
+                            try
+                            {
+                                ac = new AssistContentThreadSafe(new ImportedTypeCompletion(c, javadocResolver));
+                            }
+                            catch (Throwable t)
+                            {
+                                Debug.reportError(t);
+                            }
+                            f.complete(ac);
                         }
                     });
                     return f.get();
