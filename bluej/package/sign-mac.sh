@@ -28,6 +28,14 @@ rm "$TOP_LEVEL"/Contents/PlugIns/*/Contents/MacOS/libjli.dylib
 # We should restore this once the files are put back
 #chmod u+w $TOP_LEVEL/Contents/PlugIns/*/Contents/Home/lib/server/*.jsa
 
+# There is a jnilib inside JNA (which is pulled in by NSMenuFX) so we have to sign that:
+echo "Signing JNI lib..."
+jar xf "$TOP_LEVEL/Contents/Java/jna-*-jpms.jar" com/sun/jna/darwin/libjnidispatch.jnilib
+codesign --verbose=4 --timestamp --options=runtime -s "Developer ID Application: $1" --entitlements entitlements.plist ./com/sun/jna/darwin/libjnidispatch.jnilib
+jar uf "$TOP_LEVEL/Contents/Java/jna-*-jpms.jar" com/sun/jna/darwin/libjnidispatch.jnilib
+rm com/sun/jna/darwin/libjnidispatch.jnilib
+echo "Signing JNI lib - done"
+
 # Sign the executable:
 echo "Signing BlueJ executable..."
 codesign --verbose=4 --timestamp --options=runtime --deep -s "Developer ID Application: $1" --entitlements entitlements.plist "$TOP_LEVEL"/Contents/MacOS/*
