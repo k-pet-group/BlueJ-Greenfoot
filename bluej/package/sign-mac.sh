@@ -49,7 +49,9 @@ echo "Signing package - done"
 # Notarize the file, waiting for completion (usually around 5 minutes)
 echo ""
 echo "Notarizing..."
-id=$(xcrun notarytool submit --apple-id "$3" --password "$4" --team-id "$5" --wait notarize.zip 2>&1 | tee /dev/tty | grep -m 1 -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}') || xcrun notarytool log --apple-id "$3" --password "$4" --team-id "$5" "$id"
+xcrun notarytool submit --apple-id "$3" --password "$4" --team-id "$5" --wait notarize.zip 2>&1 | tee notarylog.txt
+# Only meaningful if the above fails but I think no harm running it always:
+xcrun notarytool log --apple-id "$3" --password "$4" --team-id "$5" `grep -m 1 -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' notarylog.txt`
 echo "Notarization complete"
 
 echo ""
