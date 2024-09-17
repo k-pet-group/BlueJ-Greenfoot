@@ -138,6 +138,9 @@ task updateVersionNumber {
     ant.replaceregexp(match:'(\\s*<Property\\s+Id=\"SOFTWAREVERSION\"\\s+Value=).*', replace:"\\1\"${bluejVersionNoSuffix}\"/>", byline:true) {
         fileset(dir: '../bluej/package/winsetup', includes: 'bluej.wxs')
     }
+    ant.replaceregexp(match:'(\\s+Maximum=)\".*\"', replace:"\\1\"${bluejVersionNoSuffix}\"", byline:true) {
+        fileset(dir: '../bluej/package/winsetup', includes: 'bluej.wxs')
+    }
 
     //////////////////////////////////////
     // Greenfoot:

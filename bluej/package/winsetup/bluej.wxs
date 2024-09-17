@@ -20,6 +20,21 @@
     <!-- Be fairly permissive, don't want to get in the way of the user: -->
     <MajorUpgrade AllowDowngrades="yes" />
 
+    <Upgrade Id="f4b4357e-6101-4cb1-8e38-3d4f3afb4be2">
+        <!-- Identify older versions to be upgraded -->
+        <!-- The "Maximum=" line is matched by a regex in the build file, so it is important that it be kept as-is. -->
+        <UpgradeVersion
+            Minimum="4.0.0"
+            Maximum="5.4.1"
+            IncludeMaximum="no"
+            Property="OLD_VERSION_DETECTED"
+            />
+    </Upgrade>
+    <!-- Add a condition to check if an older version is detected -->
+    <InstallExecuteSequence>
+        <RemoveExistingProducts After="InstallInitialize" />
+    </InstallExecuteSequence>
+
     <Property Id="ALLUSERS" Secure="yes" />
     
     <Property Id="SOFTWARE" Value="BlueJ"/>
