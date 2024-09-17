@@ -30,10 +30,6 @@
             Property="OLD_VERSION_DETECTED"
             />
     </Upgrade>
-    <!-- Add a condition to check if an older version is detected -->
-    <InstallExecuteSequence>
-        <RemoveExistingProducts After="InstallInitialize" />
-    </InstallExecuteSequence>
 
     <Property Id="ALLUSERS" Secure="yes" />
     
