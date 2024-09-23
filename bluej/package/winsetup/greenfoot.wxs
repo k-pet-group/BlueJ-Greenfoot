@@ -20,6 +20,17 @@
     <!-- Be fairly permissive, don't want to get in the way of the user: -->
     <MajorUpgrade AllowDowngrades="yes" />
 
+    <Upgrade Id="3ec7b829-9e53-4132-b2bf-fb7d4c08aebc">
+        <!-- Identify older versions to be upgraded -->
+        <!-- The "Maximum=" line is matched by a regex in the build file, so it is important that it be kept as-is. -->
+        <UpgradeVersion
+            Minimum="3.0.2"
+            Maximum="3.9.0"
+            IncludeMaximum="no"
+            Property="OLD_VERSION_DETECTED"
+            />
+    </Upgrade>
+
     <Property Id="ALLUSERS" Secure="yes" />
     
     <Property Id="SOFTWARE" Value="Greenfoot"/>
