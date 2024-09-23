@@ -175,6 +175,10 @@ task updateVersionNumber {
     ant.replaceregexp(match:'(\\s*<Property\\s+Id=\"SOFTWAREVERSION\"\\s+Value=).*', replace:"\\1\"${greenfootVersionNoSuffix}\"/>", byline:true) {
         fileset(dir: '../bluej/package/winsetup', includes: 'greenfoot.wxs')
     }
+
+    ant.replaceregexp(match:'(\\s+Maximum=)\".*\"', replace:"\\1\"${greenfootVersionNoSuffix}\"", byline:true) {
+        fileset(dir: '../bluej/package/winsetup', includes: 'greenfoot.wxs')
+    }
 }
 
 updateVersionNumber.dependsOn drawBlueJSplashVersion

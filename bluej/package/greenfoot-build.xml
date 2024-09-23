@@ -206,8 +206,8 @@
                includeantruntime="false"
                debug="true"
         >
-            <compilerarg line="-source 8" />
-            <compilerarg line="-target 8" />
+            <compilerarg line="-source 8"/>
+            <compilerarg line="-target 8"/>
         </javac>
 
         <!-- bundle the resulting class into the final distribution jar file -->
@@ -575,26 +575,26 @@
         <!-- you must do this as root, sigh -->
         <!-- (but we can also do it using fakeroot -->
         <chown owner="root">
-            <fileset dir="gfdeb">
+            <fileset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="gfdeb">
+            <dirset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>
         </chown>
         <chgrp group="root">
-            <fileset dir="gfdeb">
+            <fileset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="gfdeb">
+            <dirset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>
         </chgrp>
         <chmod perm="g-w">
-            <fileset dir="gfdeb">
+            <fileset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="gfdeb">
+            <dirset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>
         </chmod>
@@ -728,26 +728,26 @@
         <!-- you must do this as root, sigh -->
         <!-- (but we can also do it using fakeroot -->
         <chown owner="root">
-            <fileset dir="gfdeb">
+            <fileset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="gfdeb">
+            <dirset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>
         </chown>
         <chgrp group="root">
-            <fileset dir="gfdeb">
+            <fileset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="gfdeb">
+            <dirset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>
         </chgrp>
         <chmod perm="g-w">
-            <fileset dir="gfdeb">
+            <fileset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="gfdeb">
+            <dirset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>
         </chmod>
