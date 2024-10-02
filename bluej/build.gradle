@@ -10,7 +10,8 @@ dependencies {
     implementation project(':boot')
     implementation project(':lang-stride')
 
-    implementation 'com.google.guava:guava:33.0.0-jre'
+    implementation 'com.google.guava:guava:33.3.1-jre'
+    implementation 'com.google.guava:failureaccess:1.0.2'
     implementation 'com.googlecode.java-diff-utils:diffutils:1.2.1'
     implementation 'de.jangassen:nsmenufx:3.1.0'
     implementation 'io.github.classgraph:classgraph:4.8.90'
