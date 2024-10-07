@@ -71,7 +71,7 @@ public class Boot
     private static final String JLAYER_MP3_JAR = "jl1.0.1.jar";
     // Jars that should be included with exported scenarios
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};
-    private static final String[] greenfootUserJars = { "greenfoot.jar", 
+    private static final String[] greenfootRuntimeAndUserJars = { "greenfoot.jar",
         "bluejcore.jar",
         "javafx-*.jar",
         "junit-*.jar", "hamcrest-*.jar", "opentest4j-*.jar", "bluej.jar",
@@ -81,6 +81,7 @@ public class Boot
         "lang-stride.jar",
         "nsmenufx-*.jar", "wellbehavedfx-*.jar",
         "guava-*.jar",
+        "failureaccess-*.jar",
         "simple-png*.jar",
         "http*.jar"};
     private static final int greenfootUserBuildJars = 4;
@@ -290,8 +291,8 @@ public class Boot
             }
         };
         if(isGreenfoot) {
-            runtimeJars = greenfootUserJars;
-            userJars = greenfootUserJars;
+            runtimeJars = greenfootRuntimeAndUserJars;
+            userJars = greenfootRuntimeAndUserJars;
         }
         
         try {
