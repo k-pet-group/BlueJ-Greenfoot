@@ -84,7 +84,6 @@ public class Boot
         "failureaccess-*.jar",
         "simple-png*.jar",
         "http*.jar"};
-    private static final int greenfootUserBuildJars = 4;
     
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
