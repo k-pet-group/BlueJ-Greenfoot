@@ -266,6 +266,12 @@
             <fileset dir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin" includes="java" />
         </chmod>
 
+        <!-- We want to augment the error that appears when loading Apple build on Intel -->
+        <replaceregexp file="BlueJ.app/Contents/Resources/en.lproj/Localizable.strings"
+                       match='(\"JRELoadError\".*?)\";'
+                       replace='\1 You may need to download the Mac Intel version from bluej.org\";'
+                       byline="true"/>
+
         <!-- codesign needs Internet connection to verify current time -->
         <echo message="Signing and verifying bundle (NOTE: Internet connection is required to sign)"/>
         <chmod perm="+x" file="bundle-mac.sh" />
