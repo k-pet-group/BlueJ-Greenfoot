@@ -8,7 +8,7 @@
     <!-- Names of the the distributables created by the dist-target -->
     <property name="dist.jarinstaller" value="BlueJ-generic-${bluej.version}${bluej.rcsuffix}.jar"/>
     <property name="dist.jarinstaller.final" value="BlueJ-generic-${bluej.version}.jar"/>
-    <property name="dist.mac" value="BlueJ-mac-${bluej.version}${bluej.rcsuffix}"/>
+    <property name="dist.mac" value="BlueJ-mac-${mac_bundler_arch_dir}-${bluej.version}${bluej.rcsuffix}"/>
     <property name="dist.mac.final" value="BlueJ-mac-${bluej.version}"/>
 
     <property name="dist.linux" value="BlueJ-linux-${bluej.version}${bluej.rcsuffix}"/>
@@ -233,8 +233,8 @@
                             name="BlueJ archive"
                             role="Editor"/>
             <runtime dir="${mac_bundled_jdk_path}"/>
-            <arch name="x86_64"/>
-            <environment name="JAVA_HOME" value="$APP_ROOT/Contents/PlugIns/x64/Contents/Home"/>
+            <arch name="${mac_arch}"/>
+            <environment name="JAVA_HOME" value="$APP_ROOT/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home"/>
             <option value="-Dapple.laf.useScreenMenuBar"/>
             <option value="-Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2"/>
             <option value="-Xmx512M" name="Xmx"/>
@@ -258,13 +258,19 @@
         </move>
         <!-- We also have to copy the java executable in ourselves, as by default
              appbundler doesn't do so -->
-        <mkdir dir="BlueJ.app/Contents/PlugIns/x64/Contents/Home/bin"/>
-        <copy todir="BlueJ.app/Contents/PlugIns/x64/Contents/Home/bin">
+        <mkdir dir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin"/>
+        <copy todir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin">
             <file basedir="${mac_bundled_jdk_path}/bin" name="java/"/>
         </copy>
         <chmod perm="a+x">
-            <fileset dir="BlueJ.app/Contents/PlugIns/x64/Contents/Home/bin" includes="java" />
+            <fileset dir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin" includes="java" />
         </chmod>
+
+        <!-- We want to augment the error that appears when loading Apple build on Intel -->
+        <replaceregexp file="BlueJ.app/Contents/Resources/en.lproj/Localizable.strings"
+                       match='(\"JRELoadError\".*?)\";'
+                       replace='\1 You may need to download the Mac Intel version from bluej.org\";'
+                       byline="true"/>
 
         <!-- codesign needs Internet connection to verify current time -->
         <echo message="Signing and verifying bundle (NOTE: Internet connection is required to sign)"/>

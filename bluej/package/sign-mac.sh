@@ -42,11 +42,19 @@ unzip -q "$2"
 echo "Unzip download - done"
 
 # JLI causes problems but is not needed:
-rm "$TOP_LEVEL"/Contents/PlugIns/x64/Contents/MacOS/libjli.dylib
+rm "$TOP_LEVEL"/Contents/PlugIns/*/Contents/MacOS/libjli.dylib
 # Fix permissions on JSA files, which are read-only by default:
 # These files are currently missing due to https://github.com/adoptium/adoptium-support/issues/937
 # We should restore this once the files are put back
-#chmod u+w $TOP_LEVEL/Contents/PlugIns/x64/Contents/Home/lib/server/*.jsa
+#chmod u+w $TOP_LEVEL/Contents/PlugIns/*/Contents/Home/lib/server/*.jsa
+
+# There is a jnilib inside JNA (which is pulled in by NSMenuFX) so we have to sign that:
+echo "Signing JNI lib..."
+jar xf "$TOP_LEVEL"/Contents/Java/jna-*-jpms.jar com/sun/jna/darwin/libjnidispatch.jnilib
+codesign --verbose=4 --timestamp --options=runtime -s "Developer ID Application: $1" --entitlements entitlements.plist ./com/sun/jna/darwin/libjnidispatch.jnilib
+jar uf "$TOP_LEVEL"/Contents/Java/jna-*-jpms.jar com/sun/jna/darwin/libjnidispatch.jnilib
+rm com/sun/jna/darwin/libjnidispatch.jnilib
+echo "Signing JNI lib - done"
 
 # Sign the executable:
 echo "Signing BlueJ executable..."
@@ -69,7 +77,9 @@ echo "Signing package - done"
 # Notarize the file, waiting for completion (usually around 5 minutes)
 echo ""
 echo "Notarizing..."
-xcrun notarytool submit --apple-id $3 --password $4 --team-id $5 --wait notarize.zip
+xcrun notarytool submit --apple-id "$3" --password "$4" --team-id "$5" --wait notarize.zip 2>&1 | tee notarylog.txt
+# Only meaningful if the above fails but I think no harm running it always:
+xcrun notarytool log --apple-id "$3" --password "$4" --team-id "$5" `grep -m 1 -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' notarylog.txt`
 echo "Notarization complete"
 
 echo ""

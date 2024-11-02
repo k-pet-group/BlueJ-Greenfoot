@@ -44,6 +44,7 @@ import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.*;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.pkgmgr.target.role.Kind;
+import bluej.utility.BackgroundSupplier;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
@@ -96,16 +97,10 @@ public class FlowErrorManager implements ErrorQuery
 
         EditorFixesManager efm = editor.getEditorFixesManager();
 
-        // prepare for the next compilation (if imports not ready)
-        // or retrieve them (imports are ready)
-        Utility.runBackground(() -> {
-            Stream<AssistContentThreadSafe> imports = efm.getImportSuggestions().values().stream().
-                flatMap(Collection::stream);
-            Platform.runLater(() -> showErrors(editor, sourcePane, startPos, endPos, message, identifier, imports));
-        });
+        showErrors(editor, sourcePane, startPos, endPos, message, identifier, () -> efm.getImportSuggestions().values().stream().flatMap(Collection::stream));
     }
 
-    private void showErrors(FlowEditor editor, FlowEditorPane sourcePane, int startPos, int endPos, String message, int identifier, Stream<AssistContentThreadSafe> imports)
+    private void showErrors(FlowEditor editor, FlowEditorPane sourcePane, int startPos, int endPos, String message, int identifier, BackgroundSupplier<Stream<AssistContentThreadSafe>> imports)
     {
         errorInfos.add(new FlowErrorManager.ErrorDetails(editor, startPos, endPos, message, identifier, imports));
         editor.updateHeaderHasErrors(true);
@@ -207,21 +202,34 @@ public class FlowErrorManager implements ErrorQuery
 
     public static class ErrorDetails
     {
+        // Several of these fields can be updated later while suggesting corrections, but all the
+        // access (both read and write) happens on the FX thread:
         public final int startPos;
         public final int endPos;
-        public final String message;
+        public String message;
         private int italicMessageStartIndex;
         private int italicMessageEndIndex;
         public final int identifier;
         public final List<FixSuggestion> corrections = new ArrayList<>();
 
-        private ErrorDetails(FlowEditor editor, int startPos, int endPos, String message, int identifier, Stream<AssistContentThreadSafe> possibleImports)
+        private ErrorDetails(FlowEditor editor, int startPos, int endPos, String message, int identifier, BackgroundSupplier<Stream<AssistContentThreadSafe>> possibleImports)
         {
+            this.message = message;
             this.startPos = startPos;
             this.endPos = endPos;
             this.identifier = identifier;
-            int italicMessageStartIndex = -1, italicMessageEndIndex = -1;
+            this.italicMessageStartIndex = -1;
+            this.italicMessageEndIndex = -1;
+            Utility.runBackground(() -> {
+                Stream<AssistContentThreadSafe> imports = possibleImports.get();
+                Platform.runLater(() -> calculateCorrections(editor, imports));
+            });
+            ;
+        }
 
+        @OnThread(Tag.FXPlatform)
+        private void calculateCorrections(FlowEditor editor, Stream<AssistContentThreadSafe> possibleImports)
+        {
             try
             {
                 int errorLine = editor.getLineColumnFromOffset(startPos).getLine();

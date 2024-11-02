@@ -5,7 +5,7 @@
              classpath="appbundler-20230419.jar"
              classname="com.oracle.appbundler.AppBundlerTask"/>
     <import file="../shared.xml"/>
-    <property name="dist.mac" value="Greenfoot-mac-${greenfoot.version}${greenfoot.rcsuffix}.zip"/>
+    <property name="dist.mac" value="Greenfoot-mac-${mac_bundler_arch_dir}-${greenfoot.version}${greenfoot.rcsuffix}.zip"/>
     <property name="installer.jar" value="Greenfoot-generic-${greenfoot.version}${greenfoot.rcsuffix}.jar"/>
     
     <!-- Most of the targets in this build file are designed to be called from the
@@ -206,8 +206,8 @@
                includeantruntime="false"
                debug="true"
         >
-            <compilerarg line="-source 8" />
-            <compilerarg line="-target 8" />
+            <compilerarg line="-source 8"/>
+            <compilerarg line="-target 8"/>
         </javac>
 
         <!-- bundle the resulting class into the final distribution jar file -->
@@ -258,8 +258,8 @@
                             name="Greenfoot archive"
                             role="Editor"/>
             <runtime dir="${mac_bundled_jdk_path}"/>
-            <arch name="x86_64"/>
-            <environment name="JAVA_HOME" value="$APP_ROOT/Contents/PlugIns/x64/Contents/Home"/>
+            <arch name="${mac_arch}"/>
+            <environment name="JAVA_HOME" value="$APP_ROOT/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home"/>
             <option value="-Dapple.laf.useScreenMenuBar"/>
             <option value="-Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2"/>
             <option value="-Xmx512M" name="Xmx"/>
@@ -296,13 +296,19 @@
         </move>
         <!-- We also have to copy the java executable in ourselves, as by default
              appbundler doesn't do so -->
-        <mkdir dir="Greenfoot.app/Contents/PlugIns/x64/Contents/Home/bin"/>
-        <copy todir="Greenfoot.app/Contents/PlugIns/x64/Contents/Home/bin">
+        <mkdir dir="Greenfoot.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin"/>
+        <copy todir="Greenfoot.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin">
             <file basedir="${mac_bundled_jdk_path}/bin" name="java/"/>
         </copy>
         <chmod perm="a+x">
-            <fileset dir="Greenfoot.app/Contents/PlugIns/x64/Contents/Home/bin" includes="java" />
+            <fileset dir="Greenfoot.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin" includes="java" />
         </chmod>
+
+        <!-- We want to augment the error that appears when loading Apple build on Intel -->
+        <replaceregexp file="Greenfoot.app/Contents/Resources/en.lproj/Localizable.strings"
+                       match='(\"JRELoadError\".*?)\";'
+                       replace='\1 You may need to download the Mac Intel version from greenfoot.org\";'
+                       byline="true"/>
 
         <!-- codesign needs Internet connection to verify current time -->
         <echo message="Signing and verifying bundle (NOTE: Internet connection is required to sign)"/>
@@ -575,26 +581,26 @@
         <!-- you must do this as root, sigh -->
         <!-- (but we can also do it using fakeroot -->
         <chown owner="root">
-            <fileset dir="gfdeb">
+            <fileset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="gfdeb">
+            <dirset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>
         </chown>
         <chgrp group="root">
-            <fileset dir="gfdeb">
+            <fileset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="gfdeb">
+            <dirset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>
         </chgrp>
         <chmod perm="g-w">
-            <fileset dir="gfdeb">
+            <fileset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="gfdeb">
+            <dirset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>
         </chmod>
@@ -728,26 +734,26 @@
         <!-- you must do this as root, sigh -->
         <!-- (but we can also do it using fakeroot -->
         <chown owner="root">
-            <fileset dir="gfdeb">
+            <fileset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="gfdeb">
+            <dirset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>
         </chown>
         <chgrp group="root">
-            <fileset dir="gfdeb">
+            <fileset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="gfdeb">
+            <dirset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>
         </chgrp>
         <chmod perm="g-w">
-            <fileset dir="gfdeb">
+            <fileset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </fileset>
-            <dirset dir="gfdeb">
+            <dirset dir="gfdeb" followsymlinks="false">
                 <patternset includes="**" />
             </dirset>
         </chmod>
