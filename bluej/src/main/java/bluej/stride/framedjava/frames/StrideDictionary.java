@@ -73,7 +73,7 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
 //            new Entry<>('e', IfFrame.getFactory(), false, StrideCategory.CONDITIONAL, "stride.dictionary.else.name", "stride.dictionary.else.description"),
             new Entry<>('i', ImportFrame.getFactory(), false, StrideCategory.IMPORT, "stride.dictionary.import.name", "stride.dictionary.import.description"),
             new Entry<>('m', NormalMethodFrame.getFactory(), false, StrideCategory.CLASS_METHOD, "stride.dictionary.method.name", "stride.dictionary.method.description"),
-            new Entry<>('m', MethodProtoFrame.getFactory(), false, StrideCategory.INTERFACE_METHOD, "stride.dictionary.abstarct.name", "stride.dictionary.abstract.method.interface.description"),
+            new Entry<>('m', MethodProtoFrame.getFactory(), false, StrideCategory.INTERFACE_METHOD, "stride.dictionary.abstract.method.name", "stride.dictionary.abstract.method.interface.description"),
             //case 'o': return new ObjectBlock(editor);
             new Entry<>('r', ReturnFrame.getFactory(), false, StrideCategory.RETURN, "stride.dictionary.return.name", "stride.dictionary.return.description"),
             new Entry<>('s', SwitchFrame.getFactory(), false, StrideCategory.SWITCH, "stride.dictionary.switch.name", "stride.dictionary.switch.description"),

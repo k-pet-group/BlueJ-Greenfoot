@@ -50,6 +50,7 @@
 
            <Publish Dialog="CheckboxExtrasDlg" Control="Back" Event="NewDialog" Value="InstallScopeDlg">1</Publish>
            <Publish Dialog="CheckboxExtrasDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg">1</Publish>
+           <Publish Dialog="CheckboxExtrasDlg" Control="Next" Event="DoAction" Value="FindRelatedProducts">1</Publish>
 
            <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="CheckboxExtrasDlg">1</Publish>
            <Publish Dialog="InstallDirDlg" Control="Next" Event="SetTargetPath" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>

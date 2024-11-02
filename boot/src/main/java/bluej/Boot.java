@@ -59,8 +59,8 @@ public class Boot
     // The version numbers for BlueJ and Greenfoot are changed in the top-level
     // version.properties file and then the :boot:updateVersionNumber task should be
     // executed to change them here and elsewhere where needed.
-    public static final String BLUEJ_VERSION = "5.4.0";
-    public static final String GREENFOOT_VERSION = "3.8.2";
+    public static final String BLUEJ_VERSION = "5.4.1";
+    public static final String GREENFOOT_VERSION = "3.9.0";
     public static final String GREENFOOT_API_VERSION = "3.1.0";
 
     public static final String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
@@ -71,7 +71,7 @@ public class Boot
     private static final String JLAYER_MP3_JAR = "jl1.0.1.jar";
     // Jars that should be included with exported scenarios
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};
-    private static final String[] greenfootUserJars = { "greenfoot.jar", 
+    private static final String[] greenfootRuntimeAndUserJars = { "greenfoot.jar",
         "bluejcore.jar",
         "javafx-*.jar",
         "junit-*.jar", "hamcrest-*.jar", "opentest4j-*.jar", "bluej.jar",
@@ -81,9 +81,9 @@ public class Boot
         "lang-stride.jar",
         "nsmenufx-*.jar", "wellbehavedfx-*.jar",
         "guava-*.jar",
+        "failureaccess-*.jar",
         "simple-png*.jar",
         "http*.jar"};
-    private static final int greenfootUserBuildJars = 4;
     
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
@@ -290,8 +290,8 @@ public class Boot
             }
         };
         if(isGreenfoot) {
-            runtimeJars = greenfootUserJars;
-            userJars = greenfootUserJars;
+            runtimeJars = greenfootRuntimeAndUserJars;
+            userJars = greenfootRuntimeAndUserJars;
         }
         
         try {

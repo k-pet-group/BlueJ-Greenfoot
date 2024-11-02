@@ -1933,6 +1933,7 @@ public final class Config
             JavaFXUtil.scalePolygonPoints(octagon, 0.5, false);
         }
         JavaFXUtil.addStyleClass(octagon, "octagon");
+        octagon.setMouseTransparent(true);
         Label stop = new Label("STOP");
         stop.setMouseTransparent(true);
         StackPane stackPane = new StackPane(octagon, stop);

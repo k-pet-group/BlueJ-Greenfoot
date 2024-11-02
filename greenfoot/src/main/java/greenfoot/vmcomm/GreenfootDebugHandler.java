@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011,2012,2013,2015,2018,2019,2020,2021 Poul Henriksen and Michael Kolling
+ Copyright (C) 2010,2011,2012,2013,2015,2018,2019,2020,2021,2024 Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -799,6 +799,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * Set the simulation thread going if it's suspended: The user has clicked reset (or a reset
      * has otherwise been issued, eg after successful compile).
      */
+    @OnThread(Tag.FXPlatform)
     public void simulationThreadResumeOnResetClick()
     {
         project.getDebugger().runOnEventHandler(() -> {
@@ -807,6 +808,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
                 simulationThread.cont();
             }
         });
+        project.removeStepMarks();
         objectBench.clear();
     }
 }

@@ -159,7 +159,10 @@ public class InterfacePanel extends VBox
 
         PrefMgr.setFlag(PrefMgr.SHOW_TERMINAL_SCOPES, terminalScopes.isSelected());
         // Re-render the terminal in case things changed:
-        project.getTerminal().rerenderStdout();
+        if (project != null)
+        {
+            project.getTerminal().rerenderStdout();
+        }
 
         PrefMgr.setFlag(PrefMgr.ACCESSIBILITY_SUPPORT, accessibility.isSelected());
 
