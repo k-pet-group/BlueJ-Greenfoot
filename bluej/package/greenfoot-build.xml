@@ -266,7 +266,7 @@
             <!-- <option value="- -add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED"/> -->
             <argument value="-greenfoot=true"/>
             <argument value="-bluej.compiler.showunchecked=false"/>
-            <plistentry key="NSMicrophoneUsageDescription" value="Need microphone access for recording audio"/>
+            <plistentry key="NSMicrophoneUsageDescription" value="Greenfoot needs microphone access for the sound recorder"/>
         </bundleapp>
         <!-- We have to manually copy the lib directory ourselves because appbundler
                     flattens the directory structure -->
