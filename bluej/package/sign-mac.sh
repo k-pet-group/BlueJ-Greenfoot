@@ -12,7 +12,27 @@ set -e
 #   $7 - appdmg.json name
 #   $8 - installer icon name (minus png extension)
 
-echo '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict>    <key>com.apple.security.cs.allow-jit</key>    <true/>    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>    <true/>    <key>com.apple.security.cs.disable-executable-page-protection</key>    <true/>     <key>com.apple.security.cs.disable-library-validation</key><true/><key>com.apple.security.cs.allow-dyld-environment-variables</key>    <true/></dict></plist>' > entitlements.plist
+# Define the permissions we always need:
+permissions=("com.apple.security.cs.allow-jit" "com.apple.security.cs.allow-unsigned-executable-memory" "com.apple.security.cs.disable-executable-page-protection" "com.apple.security.cs.disable-library-validation" "com.apple.security.cs.allow-dyld-environment-variables")
+
+# Add the arguments starting from $9 onwards to the permissions:
+for arg in "${@:9}"; do
+    permissions+=("$arg")
+done
+
+# Output file
+perm_file="entitlements.plist"
+
+# Header:
+echo -n '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict>' > "$perm_file"
+# Loop through each item and write to the file with <begin> and <end> tags
+for item in "${permissions[@]}"; do
+    echo -n '<key>' >> "$perm_file"
+    echo -n "$item" >> "$perm_file"
+    echo -n '</key><true/>' >> "$perm_file"
+done
+# Tail:
+echo '</dict></plist>' >> "$perm_file"
 
 echo "Unzip download..."
 TOP_LEVEL=`zipinfo -1 "$2"  | head -n 1 | tr -d '\n/'`
