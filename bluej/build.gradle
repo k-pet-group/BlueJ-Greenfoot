@@ -82,7 +82,13 @@ javafx {
 }
 
 task recordCommitID(type: Exec) {
+    // Make a default file in case Git fails:
+    doFirst {
+        new File("${projectDir}/lib/buildid.txt").text = "Unknown"
+    }
     commandLine "git", "rev-parse", "--short=8", "HEAD"
+    // Don't fail if we don't have a Git repository (e.g. building from source zip):
+    ignoreExitValue true
     standardOutput new FileOutputStream("${projectDir}/lib/buildid.txt")
 }
 
