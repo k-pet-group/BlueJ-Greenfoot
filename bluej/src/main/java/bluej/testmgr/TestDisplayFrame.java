@@ -55,7 +55,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
+import java.util.Comparator;
 /**
  * A JavaFX based user interface to run tests.
  *
@@ -405,6 +405,11 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
         totalTimeMs.set(totalTimeMs.get() + dtr.getRunTimeMs());
         testEntries.add(dtr);
+
+        // Sort the results alphabetically. First by class name, then by method.
+        testEntries.sort(Comparator
+            .comparing(DebuggerTestResult::getQualifiedClassName)
+            .thenComparing(DebuggerTestResult::getMethodName));
 
         // Update the list of the test methods for this test if the method isn't already listed.
         if (!testEntriesMethodName.contains(dtr.getQualifiedMethodName()))
