@@ -18,6 +18,7 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     implementation 'org.apache.httpcomponents:httpmime:4.1.1'
     implementation 'org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r'
+    implementation 'org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:6.8.0.202311291450-r'
     implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'    
     implementation 'org.junit.jupiter:junit-jupiter:5.5.2'
     implementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
