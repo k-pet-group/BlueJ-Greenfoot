@@ -375,6 +375,7 @@ public class Main
         String systemID = getOperatingSystem();
 
         String editorStats = "";
+        // TODO BlueJ/Kotlin: send Kotlin editor stats
         int javaEditors = Config.getEditorCount(Config.SourceType.Java);
         int strideEditors = Config.getEditorCount(Config.SourceType.Stride);
         try

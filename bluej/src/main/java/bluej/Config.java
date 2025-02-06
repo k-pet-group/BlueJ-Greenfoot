@@ -25,7 +25,6 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -35,7 +34,6 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.*;
 
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
@@ -45,7 +43,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCharacterCombination;
@@ -55,7 +52,6 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Window;
 
@@ -66,7 +62,6 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import java.lang.reflect.Field;
 
 /**
  * Class to handle application configuration for BlueJ.
@@ -140,8 +135,11 @@ public final class Config
     private static List<String> debugVMArgs = new ArrayList<>();
     /** whether this is the debug vm or not. */
     private static boolean isDebugVm = true; // Default to true, will be corrected on main VM
-    public static final String EDITOR_COUNT_JAVA = "session.numeditors.java";
-    public static final String EDITOR_COUNT_STRIDE = "session.numeditors.stride";
+    /** Associates source types with their corresponding editor counter properties. */
+    public static final Map<SourceType, String> EDITORS = Map.of(
+            SourceType.Java, "session.numeditors.java",
+            SourceType.Stride, "session.numeditors.stride",
+            SourceType.Kotlin, "session.numeditors.kotlin");
     public static final String MESSAGE_LATEST_SEEN = "bluej.latest.msg";
     private static long MAX_DEBUG_LOG_SIZE = 1048576;
 
@@ -726,26 +724,17 @@ public final class Config
      */
     public static void recordEditorOpen(SourceType sourceType)
     {
-        switch (sourceType)
-        {
-            case Java:
-            {
-                int javaEditors = getPropInteger(EDITOR_COUNT_JAVA, 0, userProps);
-                javaEditors += 1;
-                userProps.setProperty(EDITOR_COUNT_JAVA, Integer.toString(javaEditors));
-                saveAppProperties();
-            }
-            break;
-            case Stride:
-            {
-                int strideEditors = getPropInteger(EDITOR_COUNT_STRIDE, 0, userProps);
-                strideEditors += 1;
-                userProps.setProperty(EDITOR_COUNT_STRIDE, Integer.toString(strideEditors));
-                saveAppProperties();
-            }
-            break;
-            default: break;
+        final String editorProperty = EDITORS.get(sourceType);
+        if (editorProperty != null) {
+            incrementPropInteger(editorProperty);
         }
+    }
+
+    private static void incrementPropInteger(String integerProperty) {
+        int propInteger = getPropInteger(integerProperty, 0, userProps);
+        propInteger += 1;
+        userProps.setProperty(integerProperty, Integer.toString(propInteger));
+        saveAppProperties();
     }
 
     /**
@@ -758,11 +747,11 @@ public final class Config
      */
     public static int getEditorCount(SourceType sourceType)
     {
-        switch (sourceType)
-        {
-            case Java: return getPropInteger(EDITOR_COUNT_JAVA, -1, userProps);
-            case Stride: return getPropInteger(EDITOR_COUNT_STRIDE, -1, userProps);
-            default: return -1;
+        final String editorProperty = EDITORS.get(sourceType);
+        if (editorProperty != null) {
+            return getPropInteger(editorProperty, -1, userProps);
+        } else {
+            return -1;
         }
     }
 
@@ -772,8 +761,9 @@ public final class Config
      */
     public static void resetEditorsCount()
     {
-        userProps.setProperty(EDITOR_COUNT_JAVA, "0");
-        userProps.setProperty(EDITOR_COUNT_STRIDE, "0");
+        for (String prop: EDITORS.values()) {
+            userProps.setProperty(prop, "0");
+        }
         saveAppProperties();
     }
 
@@ -1963,6 +1953,7 @@ public final class Config
     public enum SourceType
     {
         Java,
-        Stride
+        Stride,
+        Kotlin
     }
 }
