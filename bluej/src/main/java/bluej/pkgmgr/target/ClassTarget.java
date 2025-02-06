@@ -1093,7 +1093,7 @@ public class ClassTarget extends DependentTarget
         }
         else
         {
-            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Java.toString().toLowerCase());
+            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Java.getExtension());
         }
     }
 
@@ -1108,7 +1108,7 @@ public class ClassTarget extends DependentTarget
         }
         else
         {
-            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Stride.toString().toLowerCase());
+            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Stride.getExtension());
         }
     }
 
@@ -1228,7 +1228,7 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Helper method to create a file in the package directory with the given name.
-     * 
+     *
      * @param fileName The name of the file (including extension)
      * @return File object pointing to the file in the package directory
      */
@@ -1588,7 +1588,7 @@ public class ClassTarget extends DependentTarget
         determineRole(cl);
         analyseDependencies(cl);
         analyseTypeParams(cl);
-        
+
         // Invalidate compilation context as .ctxt file may have been updated
         invalidateCompilationContext();
     }
@@ -2004,7 +2004,7 @@ public class ClassTarget extends DependentTarget
         }
 
         File oldJavaSourceFile  = getJavaSourceFile();
-        File newJavaSourceFile = getPackageFile(newName + "." + SourceType.Java.toString().toLowerCase());
+        File newJavaSourceFile = getPackageFile(newName + "." + SourceType.Java.getExtension());
 
         try {
             String filename;
@@ -2013,7 +2013,7 @@ public class ClassTarget extends DependentTarget
             getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
 
             if (getSourceType().equals(SourceType.Stride)) {
-                newFrameSourceFile = getPackageFile(newName + "." + SourceType.Stride.toString().toLowerCase());
+                newFrameSourceFile = getPackageFile(newName + "." + SourceType.Stride.getExtension());
                 oldFrameSourceFile = getFrameSourceFile();
                 FileUtility.copyFile(oldFrameSourceFile, newFrameSourceFile);
                 filename = newFrameSourceFile.getAbsolutePath();

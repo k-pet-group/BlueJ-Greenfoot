@@ -161,7 +161,7 @@ public class Import
                 }
             }
             else {
-                if (files[i].getName().endsWith("." + SourceType.Java.toString().toLowerCase()))
+                if (files[i].getName().endsWith("." + SourceType.Java.getExtension()))
                     imInteresting = true;
             }
         }
@@ -195,7 +195,7 @@ public class Import
             }
 
             for (int i=0; i<files.length; i++) {
-                if (files[i].isFile() && files[i].getName().endsWith("." + SourceType.Java.toString().toLowerCase())) {
+                if (files[i].isFile() && files[i].getName().endsWith("." + SourceType.Java.getExtension())) {
                     interesting.add(files[i]);
                 }
             }

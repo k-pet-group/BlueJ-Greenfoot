@@ -45,6 +45,6 @@ public class FrameSourceFilter implements FileFilter
     @Override
     public boolean accept(File pathname)
     {
-        return pathname.getName().endsWith("." + SourceType.Stride.toString().toLowerCase());
+        return pathname.getName().endsWith("." + SourceType.Stride.getExtension());
     }
 }

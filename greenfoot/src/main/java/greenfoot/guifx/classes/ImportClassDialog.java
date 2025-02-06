@@ -169,8 +169,8 @@ public class ImportClassDialog extends Dialog<File>
         public boolean accept(File pathname)
         {
             return pathname.getAbsolutePath().endsWith(".class")
-                    || pathname.getAbsolutePath().endsWith("." + SourceType.Java.toString().toLowerCase())
-                    || pathname.getAbsolutePath().endsWith("." + SourceType.Stride.toString().toLowerCase());
+                    || pathname.getAbsolutePath().endsWith("." + SourceType.Java.getExtension())
+                    || pathname.getAbsolutePath().endsWith("." + SourceType.Stride.getExtension());
         }
     }
 
