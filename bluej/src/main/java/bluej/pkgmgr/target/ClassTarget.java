@@ -53,7 +53,6 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.*;
-import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.PermitsDependency;
@@ -315,23 +314,21 @@ public class ClassTarget extends DependentTarget
      */
     private void calcSourceAvailable()
     {
-        if (getFrameSourceFile().canRead())
-        {
-            sourceAvailable = SourceType.Stride;
-            noSourceLabel.setText("");
+        sourceAvailable = SourceType.NONE;
+        // It's important to check for Stride source first!
+        final SourceType[] languageTypes = { SourceType.Stride, SourceType.Java, SourceType.Kotlin };
+        for (SourceType languageType : languageTypes) {
+            final File file = getSourceFileByType(languageType);
+            if (file != null && file.canRead()) {
+                sourceAvailable = languageType;
+                noSourceLabel.setText("");
+                return;
+            }
         }
-        else if (getJavaSourceFile().canRead())
-        {
-            sourceAvailable = SourceType.Java;
-            noSourceLabel.setText("");
-        }
-        else
-        {
-            sourceAvailable = SourceType.NONE;
-            // Can't have been modified since compile since there's no source to modify:
-            setState(State.COMPILED);
-            noSourceLabel.setText("(" + Config.getString("classTarget.noSource") + ")");
-        }
+        // No sources found
+        // Can't have been modified since compile since there's no source to modify:
+        setState(State.COMPILED);
+        noSourceLabel.setText("(" + Config.getString("classTarget.noSource") + ")");
     }
 
     private BClass singleBClass;  // Every Target has none or one BClass
@@ -1079,19 +1076,25 @@ public class ClassTarget extends DependentTarget
         return sourceAvailable;
     }
 
-    /**
-     * @return the name of the Java file this target corresponds to. In the case of a Stride target this is
-     *          the file generated during compilation.
-     */
-    public File getJavaSourceFile() {
+    private File getSourceFileByType(SourceType sourceType)
+    {
         if (null == getPackage())
         {
             return null;
         }
         else
         {
-            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Java.getExtension());
+            return new File(getPackage().getPath(), getBaseName() + "." + sourceType.getExtension());
         }
+    }
+
+    /**
+     * @return the name of the Java file this target corresponds to. In the case of a Stride target this is
+     *          the file generated during compilation.
+     */
+    public File getJavaSourceFile()
+    {
+        return getSourceFileByType(SourceType.Java);
     }
     
     /**
@@ -1099,26 +1102,18 @@ public class ClassTarget extends DependentTarget
      */
     public File getFrameSourceFile()
     {
-        if (null == getPackage())
-        {
-            return null;
-        }
-        else
-        {
-            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Stride.getExtension());
-        }
+        return getSourceFileByType(SourceType.Stride);
     }
-    
-    @SuppressWarnings("incomplete-switch")
+
     @Override
     public File getSourceFile()
     {
-        switch (sourceAvailable)
-        {
-            case Java: return getJavaSourceFile();
-            case Stride: return getFrameSourceFile();
-        }
-        return null;
+        return switch (sourceAvailable) {
+            case Java -> getJavaSourceFile();
+            case Stride -> getFrameSourceFile();
+            case Kotlin -> getSourceFileByType(SourceType.Kotlin);
+            default -> null;
+        };
     }
 
     public boolean isVisible()
@@ -1181,17 +1176,21 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * If this is a Java class, returns the .java source file only.
+     * If this is a Java or Kotlin class, returns the source file only.
      * If this is a Stride class, returns the .stride and .java source files, *in that order*.
      * This is a strict requirement in the call in DataCollectorImpl, do not change the order.
      */
     public Collection<SourceFileInfo> getAllSourceFilesJavaLast()
     {
         List<SourceFileInfo> list = new ArrayList<>();
-        if (sourceAvailable.equals(SourceType.Stride)) {
+        if (!hasSourceCode())
+            return list;
+        if (sourceAvailable == SourceType.Stride) {
             list.add(new SourceFileInfo(getFrameSourceFile(), SourceType.Stride));
+            list.add(new SourceFileInfo(getJavaSourceFile(), SourceType.Java));
+        } else {
+            list.add(new SourceFileInfo(getJavaSourceFile(), sourceAvailable));
         }
-        list.add(new SourceFileInfo(getJavaSourceFile(), SourceType.Java));
         return list;
     }
 
@@ -1312,20 +1311,22 @@ public class ClassTarget extends DependentTarget
                     stateListener.editorOpened();
                 }
             };
-            if (sourceAvailable == SourceType.Java || sourceAvailable == SourceType.NONE) {
-                editor = new FlowEditor(newWindow -> {
-                    if (newWindow)
-                    {
+            if (sourceAvailable != SourceType.Stride) {
+                final FlowEditor.FetchTabbedEditor fetchTabbedEditor = newWindow -> {
+                    if (newWindow) {
                         return project.createNewFXTabbedEditor();
-                    }
-                    else
-                    {
+                    } else {
                         return project.getDefaultFXTabbedEditor();
                     }
-                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true);
+                };
+                final boolean isJava = sourceAvailable == SourceType.Java;
+                editor = new FlowEditor(fetchTabbedEditor, getBaseName(), this,
+                        resolver, project.getJavadocResolver(), openCallback,
+                        PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING),
+                        isJava);
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
             }
-            else if (sourceAvailable == SourceType.Stride) {
+            else /* sourceAvailable == SourceType.Stride */ {
                 File frameSourceFile = getFrameSourceFile();
                 File javaSourceFile = getJavaSourceFile();
                 JavadocResolver javadocResolver = project.getJavadocResolver();
@@ -1352,17 +1353,9 @@ public class ClassTarget extends DependentTarget
         if (!hasBeenOpened)
         {
             hasBeenOpened = true;
-            switch (sourceAvailable)
-            {
-                case Java:
-                    Config.recordEditorOpen(Config.SourceType.Java);
-                    break;
-                case Stride:
-                    Config.recordEditorOpen(Config.SourceType.Stride);
-                    break;
-                default:
-                    break;
-            }
+            final Config.SourceType configSourceType = sourceAvailable.getConfigSourceType();
+            if (configSourceType != null)
+                Config.recordEditorOpen(configSourceType);
         }
     }
 
@@ -1574,7 +1567,9 @@ public class ClassTarget extends DependentTarget
             boolean success;
             switch (sourceType) {
                 case Java:
-                    success = role.generateSkeleton(template, getPackage(), getBaseName(), getJavaSourceFile().getPath());
+                case Kotlin:
+                    success = role.generateSkeleton(template, getPackage(), getBaseName(),
+                            getSourceFileByType(sourceType).getPath());
                     break;
                 case Stride:
                     addStride(Loader.buildTopLevelElement(template, getPackage().getProject().getEntityResolver(),
@@ -1598,7 +1593,7 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Inserts a package deceleration in the source file of this class, only if it
-     * is not correct or if it does't exist. Also, the default package will be ignored.
+     * is not correct or if it doesn't exist. Also, the default package will be ignored.
      * 
      * @param packageName the package's name
      * @exception IllegalArgumentException if the package name is not a valid java identifier

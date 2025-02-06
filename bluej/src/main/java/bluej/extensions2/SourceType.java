@@ -24,6 +24,7 @@ package bluej.extensions2;
 // Note: this is not part of the extensions API as such, but because they need to be able
 // to see it, it lives in the extensions package.
 
+import bluej.Config;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -71,6 +72,16 @@ public enum SourceType
             case Stride -> "stride";
             case Kotlin -> "kt";
             default -> "";
+        };
+    }
+
+    public Config.SourceType getConfigSourceType()
+    {
+        return switch (this) {
+            case Java -> Config.SourceType.Java;
+            case Stride -> Config.SourceType.Stride;
+            case Kotlin -> Config.SourceType.Kotlin;
+            default -> null;
         };
     }
 }

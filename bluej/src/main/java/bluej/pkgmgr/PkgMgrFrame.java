@@ -1859,7 +1859,7 @@ public class PkgMgrFrame
     public void doAddFromFile()
     {
         // multi selection file dialog that shows .java and .class files
-        List<File> classes = FileUtility.getMultipleFilesFX(getWindow(), Config.getString("pkgmgr.addClass.title"), FileUtility.getJavaStrideSourceFilterFX());
+        List<File> classes = FileUtility.getMultipleFilesFX(getWindow(), Config.getString("pkgmgr.addClass.title"), FileUtility.getSourceCodeFilterFX());
 
         if (classes == null || classes.isEmpty())
             return;
