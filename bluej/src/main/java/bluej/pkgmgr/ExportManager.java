@@ -64,7 +64,7 @@ final class ExportManager
 {
     private static final String specifyJar = Config.getString("pkgmgr.export.specifyJar");
     
-    private static final String sourceSuffix = "." + SourceType.Java.toString().toLowerCase();
+    private static final String sourceSuffix = "." + SourceType.Java.getExtension();
     private static final String contextSuffix = ".ctxt";
     private static final String packageFilePrefix = "bluej.pk";
     private static final String packageFileSuffix = ".bluej";

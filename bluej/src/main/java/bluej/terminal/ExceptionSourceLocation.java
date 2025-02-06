@@ -67,7 +67,7 @@ public class ExceptionSourceLocation
     
     public void showInEditor()
     {
-        String fileName = className.replace('.', '/') + "." + SourceType.Java.toString().toLowerCase();
+        String fileName = className.replace('.', '/') + "." + SourceType.Java.getExtension();
         
         pkg.exceptionMessage(new File(pkg.getPath(), fileName).getAbsolutePath(), lineNumber);
         

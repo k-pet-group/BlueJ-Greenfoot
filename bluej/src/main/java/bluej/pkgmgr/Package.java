@@ -653,7 +653,7 @@ public final class Package
                 javaSrcFiles[i].delete();
                 continue;
             }
-            String javaFileName = JavaNames.stripSuffix(javaSrcFiles[i].getName(), "." + SourceType.Java.toString().toLowerCase());
+            String javaFileName = JavaNames.stripSuffix(javaSrcFiles[i].getName(), "." + SourceType.Java.getExtension());
 
             // check if the name would be a valid java name
             if (!JavaNames.isIdentifier(javaFileName))
@@ -666,7 +666,7 @@ public final class Package
         }
 
         for (int i = 0; i < frameSrcFiles.length; i++) {
-            String frameFileName = JavaNames.stripSuffix(frameSrcFiles[i].getName(), "." + SourceType.Stride.toString().toLowerCase());
+            String frameFileName = JavaNames.stripSuffix(frameSrcFiles[i].getName(), "." + SourceType.Stride.getExtension());
 
             // check if the name would be a valid java name
             if (!JavaNames.isIdentifier(frameFileName))

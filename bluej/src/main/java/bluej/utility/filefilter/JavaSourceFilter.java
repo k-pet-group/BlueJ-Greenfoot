@@ -45,6 +45,6 @@ public class JavaSourceFilter implements FileFilter
     @Override
     public boolean accept(File pathname)
     {
-        return pathname.getName().endsWith("." + SourceType.Java.toString().toLowerCase());
+        return pathname.getName().endsWith("." + SourceType.Java.getExtension());
     }
 }

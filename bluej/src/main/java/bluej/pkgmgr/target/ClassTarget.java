@@ -1090,7 +1090,7 @@ public class ClassTarget extends DependentTarget
         }
         else
         {
-            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Java.toString().toLowerCase());
+            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Java.getExtension());
         }
     }
     
@@ -1105,7 +1105,7 @@ public class ClassTarget extends DependentTarget
         }
         else
         {
-            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Stride.toString().toLowerCase());
+            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Stride.getExtension());
         }
     }
     
@@ -1971,7 +1971,7 @@ public class ClassTarget extends DependentTarget
         }
 
         File oldJavaSourceFile  = getJavaSourceFile();
-        File newJavaSourceFile = new File(getPackage().getPath(), newName + "." + SourceType.Java.toString().toLowerCase());
+        File newJavaSourceFile = new File(getPackage().getPath(), newName + "." + SourceType.Java.getExtension());
 
         try {
             String filename;
@@ -1980,7 +1980,7 @@ public class ClassTarget extends DependentTarget
             getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
 
             if (getSourceType().equals(SourceType.Stride)) {
-                newFrameSourceFile = new File(getPackage().getPath(), newName + "." + SourceType.Stride.toString().toLowerCase());
+                newFrameSourceFile = new File(getPackage().getPath(), newName + "." + SourceType.Stride.getExtension());
                 oldFrameSourceFile = getFrameSourceFile();
                 FileUtility.copyFile(oldFrameSourceFile, newFrameSourceFile);
                 filename = newFrameSourceFile.getAbsolutePath();
