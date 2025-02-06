@@ -33,7 +33,7 @@ import threadchecker.Tag;
 @OnThread(Tag.Any)
 public enum SourceType
 {
-    NONE, Java, Stride;
+    NONE, Java, Stride, Kotlin;
 
     /**
      * Returns a <code>SourceType</code> based on a literal value.
@@ -52,6 +52,9 @@ public enum SourceType
         if(lowerCase.equals("java")){
             return Java;
         }
+        if(lowerCase.equals("kotlin")){
+            return Kotlin;
+        }
         throw new IllegalArgumentException("No Enum specified for this string");
     }
 
@@ -63,11 +66,11 @@ public enum SourceType
      */
     public String getExtension()
     {
-        switch (this)
-        {
-            case Java: return "java";
-            case Stride: return "stride";
-            default: return "";
-        }
+        return switch (this) {
+            case Java -> "java";
+            case Stride -> "stride";
+            case Kotlin -> "kt";
+            default -> "";
+        };
     }
 }
