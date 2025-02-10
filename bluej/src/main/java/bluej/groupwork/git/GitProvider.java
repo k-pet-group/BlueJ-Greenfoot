@@ -93,7 +93,7 @@ public class GitProvider implements TeamworkProvider
             gitUrlString = makeGitUrl(settings);
             //perform a lsRemote on the remote git repo.
             LsRemoteCommand lsRemoteCommand = Git.lsRemoteRepository();
-            UsernamePasswordCredentialsProvider cp = new UsernamePasswordCredentialsProvider(settings.getUserName(), settings.getPassword()); // set a configuration with username and password.
+            UsernamePasswordCredentialsProvider cp = GitRepository.getCredentialsProvider(settings.getUserName(), settings.getPassword()); // set a configuration with username and password.
             lsRemoteCommand.setRemote(gitUrlString); //configure remote repository address.
             lsRemoteCommand.setCredentialsProvider(cp); //associate the repository to the username and password.
             lsRemoteCommand.setTags(false); //disable refs/tags in reference results
