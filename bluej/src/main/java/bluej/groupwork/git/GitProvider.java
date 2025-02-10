@@ -131,6 +131,10 @@ public class GitProvider implements TeamworkProvider
                         String message = DialogManager.getMessage("team-noRepository-uri", ex.getLocalizedMessage());
                         return new TeamworkCommandError(message, message);
                     }
+
+                    // Something must be wrong because we got an exception, so report it:
+                    String message = DialogManager.getMessage("team-unrecognised-error", ex.getLocalizedMessage());
+                    return new TeamworkCommandError(message, message);
                 }
                 return diagnosis;
             }

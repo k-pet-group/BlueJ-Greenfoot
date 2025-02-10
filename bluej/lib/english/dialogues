@@ -489,6 +489,9 @@ Access was denied. Check user name, password, and connection URI.
 team-noRepository-uri
 Repository not found: $
 
+team-unrecognised-error
+An unrecognised error was encountered: $
+
 team-project-exists
 The project already exists on the server. Maybe you 
 want to use Checkout, to check out the existing project
