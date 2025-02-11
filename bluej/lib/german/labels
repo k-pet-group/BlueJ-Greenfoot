@@ -126,7 +126,7 @@ prefmgr.edit.highlightLighter=Heller
 prefmgr.edit.highlightDarker=Dunkler
 
 # Interface preferences panel
-prefmgr.interface.title=Benutzeroberfl\u00f6che
+prefmgr.interface.title=Benutzeroberfl\u00e4che
 prefmgr.interface.language.title=Sprachauswahl
 prefmgr.interface.language=Sprache
 prefmgr.interface.language.restart=$APPNAME muss neu gestarted werden um die \u00c4nderung zu aktivieren.
