@@ -82,6 +82,8 @@ public class TeamSettingsPanel extends VBox
     private final HBox savePasswordHBox = new HBox();
     private final CheckBox savePasswordCheckBox = new CheckBox();
 
+    private final Label accessTokenHint = new Label(Config.getString("team.settings.accessTokenHint"));
+
     /** identifies which field is the primary server information field */
     private TextField locationPrimaryField;
     /** identifiers which field is the primary personal information field */
@@ -135,13 +137,26 @@ public class TeamSettingsPanel extends VBox
         Button validateButton = new Button();
         validateConnectionAction.useButton(teamSettingsController.getProject(), validateButton);
 
+        StackPane hintContainer = new StackPane(accessTokenHint);
+        StackPane.setAlignment(accessTokenHint, Pos.CENTER_LEFT);
         getChildren().addAll(createPropertiesContainer(Config.getString("team.settings.location"), locationPane),
                              createPropertiesContainer(Config.getString("team.settings.personal"), personalPane),
+                             hintContainer,
                              savePasswordHBox,
                              validateButton);
 
         setupContent();
         updateOKButtonBinding();
+
+        accessTokenHint.setWrapText(true);
+        accessTokenHint.setPrefWidth(450);
+
+        hintContainer.setMinHeight(Region.USE_PREF_SIZE);
+        JavaFXUtil.addChangeListenerAndCallNow(uriField.textProperty(), uri -> {
+            boolean needsToken = uri.toLowerCase().contains("github.com") || uri.toLowerCase().contains("gitlab");
+            accessTokenHint.setVisible(needsToken);
+            passwordLabel.setText(Config.getString(needsToken ? "team.settings.accessToken" : "team.settings.password"));
+        });
     }
     
     /**
