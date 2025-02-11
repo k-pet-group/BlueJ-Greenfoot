@@ -28,6 +28,8 @@ import java.net.URISyntaxException;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -59,9 +61,6 @@ public class TeamSettingsPanel extends VBox
     private GridPane personalPane;
     private GridPane locationPane;
 
-    private Label serverLabel    = new Label(Config.getString("team.settings.server"));
-    private Label prefixLabel    = new Label(Config.getString("team.settings.prefix"));
-    private Label protocolLabel  = new Label(Config.getString("team.settings.protocol"));
     private Label uriLabel       = new Label(Config.getString("team.settings.uri"));
     private Label branchLabel    = new Label(Config.getString("team.settings.branch"));
 
@@ -70,10 +69,9 @@ public class TeamSettingsPanel extends VBox
     private Label userLabel      = new Label(Config.getString("team.settings.user"));
     private Label passwordLabel  = new Label(Config.getString("team.settings.password"));
 
-    private final TextField serverField = new TextField();
-    private final TextField portField = new TextField();
-    private final TextField prefixField = new TextField();
-    private final ComboBox<String> protocolComboBox = new ComboBox<>();
+    private final SimpleStringProperty serverField = new SimpleStringProperty();
+    private final SimpleIntegerProperty portField = new SimpleIntegerProperty();
+    private final SimpleStringProperty prefixField = new SimpleStringProperty();
     private final TextField uriField = new TextField();
     private final TextField branchField = new TextField();
 
@@ -83,6 +81,8 @@ public class TeamSettingsPanel extends VBox
     private final PasswordField passwordField = new PasswordField();
     private final HBox savePasswordHBox = new HBox();
     private final CheckBox savePasswordCheckBox = new CheckBox();
+
+    private final Label accessTokenHint = new Label(Config.getString("team.settings.accessTokenHint"));
 
     /** identifies which field is the primary server information field */
     private TextField locationPrimaryField;
@@ -137,13 +137,26 @@ public class TeamSettingsPanel extends VBox
         Button validateButton = new Button();
         validateConnectionAction.useButton(teamSettingsController.getProject(), validateButton);
 
+        StackPane hintContainer = new StackPane(accessTokenHint);
+        StackPane.setAlignment(accessTokenHint, Pos.CENTER_LEFT);
         getChildren().addAll(createPropertiesContainer(Config.getString("team.settings.location"), locationPane),
                              createPropertiesContainer(Config.getString("team.settings.personal"), personalPane),
+                             hintContainer,
                              savePasswordHBox,
                              validateButton);
 
         setupContent();
         updateOKButtonBinding();
+
+        accessTokenHint.setWrapText(true);
+        accessTokenHint.setPrefWidth(450);
+
+        hintContainer.setMinHeight(Region.USE_PREF_SIZE);
+        JavaFXUtil.addChangeListenerAndCallNow(uriField.textProperty(), uri -> {
+            boolean needsToken = uri.toLowerCase().contains("github.com") || uri.toLowerCase().contains("gitlab");
+            accessTokenHint.setVisible(needsToken);
+            passwordLabel.setText(Config.getString(needsToken ? "team.settings.accessToken" : "team.settings.password"));
+        });
     }
     
     /**
@@ -213,7 +226,6 @@ public class TeamSettingsPanel extends VBox
     private void prepareLocationPane()
     {
         locationPane.getChildren().clear();
-        protocolComboBox.setEditable(false);
         locationPane.addRow(0, uriLabel, uriField);
         locationPrimaryField = uriField;
         if(!this.isShareAction)
@@ -279,7 +291,7 @@ public class TeamSettingsPanel extends VBox
     {
         String keyBase = "bluej.teamsettings."
             +  teamworkProvider.getProviderName().toLowerCase() + ".";
-        
+
         String prefix = teamSettingsController.getPropString(keyBase + "repositoryPrefix");
         if (prefix != null) {
             setPrefix(prefix);
@@ -294,25 +306,12 @@ public class TeamSettingsPanel extends VBox
             setPort(port);
         }
 
-        fillProtocolSelections();
-        
-        String protocol = readProtocolString();
-        if (protocol != null){
-            setProtocol(protocol);
-        }
-
         String branch = teamSettingsController.getPropString(keyBase + "branch");
         if (branch != null) {
             setBranch(branch);
         }
     }
 
-
-    private void fillProtocolSelections()
-    {
-        protocolComboBox.getItems().addAll(Arrays.asList(teamworkProvider.getProtocols()));
-    }
-    
     private String readProtocolString()
     {
         String keyBase = "bluej.teamsettings."
@@ -351,25 +350,16 @@ public class TeamSettingsPanel extends VBox
     
     private void setPrefix(String prefix)
     {
-        prefixField.setText(prefix);
+        prefixField.setValue(prefix);
     }
     
     private void setServer(String server)
     {
-        serverField.setText(server);
+        serverField.setValue(server);
     }
 
-    private void setPort(int port) { portField.setText("" + port); }
-    
-    /**
-     * Set the protocol to that identified by the given protocol key.
-     */
-    private void setProtocol(String protocolKey)
-    {
-        String protocolLabel = teamworkProvider.getProtocolLabel(protocolKey);
-        protocolComboBox.getSelectionModel().select(protocolLabel);
-    }
-    
+    private void setPort(int port) { portField.setValue(port); }
+
     public TeamworkProvider getProvider()
     {
         return teamworkProvider;
@@ -478,28 +468,15 @@ public class TeamSettingsPanel extends VBox
      */
     public void disableRepositorySettings()
     {
-        prefixField.setDisable(true);
         branchField.setDisable(true);
-        serverField.setDisable(true);
-        portField.setDisable(true);
-        protocolComboBox.setDisable(true);
         uriField.setDisable(true);
 
         if (uriField.isVisible() && uriField.getText().isEmpty()){
             //update uri.
-            int port  = -1;
-            try{
-                port = Integer.parseInt(portField.getText());
-            }
-            catch(NumberFormatException nex){
-            }
-
-            uriField.setText(TeamSettings.getURI(readProtocolString(), serverField.getText(), port, prefixField.getText()));
+            int port  = portField.get();
+            uriField.setText(TeamSettings.getURI(readProtocolString(), serverField.getValue(), port, prefixField.getValue()));
         }
 
-        prefixLabel.setDisable(true);
         branchLabel.setDisable(true);
-        serverLabel.setDisable(true);
-        protocolLabel.setDisable(true);
     }
 }

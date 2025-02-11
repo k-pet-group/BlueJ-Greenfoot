@@ -204,8 +204,13 @@ public class GitRepository implements Repository
     {
         return protocol;
     }
-    
-    public UsernamePasswordCredentialsProvider getCredentialsProvider() 
+
+    public UsernamePasswordCredentialsProvider getCredentialsProvider()
+    {
+        return getCredentialsProvider(userName, password);
+    }
+
+    public static UsernamePasswordCredentialsProvider getCredentialsProvider(String userName, String password)
     {
         // set a configuration with username and password.
         UsernamePasswordCredentialsProvider cp = new UsernamePasswordCredentialsProvider(userName,
