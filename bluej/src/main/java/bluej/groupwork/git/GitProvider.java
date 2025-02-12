@@ -36,7 +36,9 @@ import org.eclipse.jgit.api.LsRemoteCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.transport.sshd.SshdSessionFactory;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -57,8 +59,13 @@ import java.util.Arrays;
 @OnThread(Tag.Any)
 public class GitProvider implements TeamworkProvider 
 {
+    public GitProvider()
+    {
+        // It seems that this factory initialisation doesn't work automatically in the bundled
+        // version (classloader issues?) so we do it manually:
+        SshSessionFactory.setInstance(new SshdSessionFactory());
+    }
 
-    private String gitUrlString;
     
     @Override
     public String getProviderName() 
@@ -88,6 +95,7 @@ public class GitProvider implements TeamworkProvider
     @Override
     public TeamworkCommandResult checkConnection(TeamSettings settings) 
     {
+        String gitUrlString = "";
         try
         {
             gitUrlString = makeGitUrl(settings);
