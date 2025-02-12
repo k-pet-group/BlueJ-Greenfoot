@@ -239,7 +239,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                     ccommand.addPath(GitUtilities.getRelativeFileName(basePath, f));
                 }
                 ccommand.setStage(Stage.THEIRS);
-                ccommand.setForce(true);
+                ccommand.setForced(true);
                 ccommand.call();
             }
             catch (IOException | GitAPIException exc)
