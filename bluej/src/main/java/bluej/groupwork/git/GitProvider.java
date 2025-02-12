@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020,2024,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -103,6 +103,9 @@ public class GitProvider implements TeamworkProvider
         }
         catch (GitAPIException ex)
         {
+            // Log it in case it needs further investigation:
+            Debug.reportError(ex);
+
             if (ex instanceof TransportException)
             {
                 // There was a problem in the connection. Proceed to diagnosis.
