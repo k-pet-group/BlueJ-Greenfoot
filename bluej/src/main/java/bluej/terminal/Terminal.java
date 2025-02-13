@@ -461,8 +461,14 @@ public final class Terminal
         //     Jan 23, 2023 12:09:30 PM com.sun.javafx.application.PlatformImpl startup
         //     WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @18be7add'
         //     WARNUNG: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @28f3d2a1'
+        // But also lines like these (macOS logging spam):
+        //     2025-02-13 14:48:51.163 java[83289:5492299] +[IMKClient subclass]: chose IMKClient_Modern
+        //     2025-02-13 14:48:51.163 java[83289:5492299] +[IMKInputSession subclass]: chose IMKInputSession_Modern
+        //     2024-09-16 16:46:01.694 java[2023:63977] +[IMKClient subclass]: chose IMKClient_Legacy
+        //     2024-09-16 16:46:01.694 java[2023:63977] +[IMKInputSession subclass]: chose IMKInputSession_Legacy
         if (paneType == PaneType.STDERR && lines.removeIf(l -> l.trim().endsWith("com.sun.javafx.application.PlatformImpl startup") ||
-            l.contains("Unsupported JavaFX configuration: classes were loaded from")))
+            l.contains("Unsupported JavaFX configuration: classes were loaded from") ||
+            l.contains("+[IMKClient subclass]") || l.contains("+[IMKInputSession subclass]")))
         {
             // No need to continue (and thus show the terminal window) if there's no new output to add:
             if (lines.isEmpty())
