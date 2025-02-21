@@ -239,6 +239,13 @@ public class GitRepository implements Repository
                     return super.get(uri, remainder.toArray(new CredentialItem[remainder.size()]));
                 }
             }
+
+            @Override
+            public boolean isInteractive() {
+                // We have to pretend to be interactive to fit with JGit's model, but really we just
+                // supply the password that the user already gave us:
+                return true;
+            }
         };
         return cp;
     }
