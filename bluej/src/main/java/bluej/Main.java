@@ -43,6 +43,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCharacterCombination;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
@@ -285,7 +289,17 @@ public class Main
             // It has been added without a separator due to a bug in the library used
             MenuItem preferences = new MenuItem(Config.getString("menu.tools.preferences"));
             if (Config.hasAcceleratorKey("menu.tools.preferences")) {
-                preferences.setAccelerator(Config.getAcceleratorKeyFX("menu.tools.preferences"));
+                KeyCombination acceleratorKeyFX = Config.getAcceleratorKeyFX("menu.tools.preferences");
+                // It seems that NSMenuFX only works with META rather than SHORTCUT, and with KeyCodeCombination
+                // not KeyCharacterCombination.  So we try to map to that if possible, using the fact that the
+                // usual shortcut for preferences is Cmd-Comma.
+                acceleratorKeyFX = switch (acceleratorKeyFX) {
+                    case KeyCodeCombination kcc -> new KeyCodeCombination(kcc.getCode(), KeyCombination.META_DOWN);
+                    case KeyCharacterCombination kcc when kcc.getCharacter().equals(",") -> new KeyCodeCombination(KeyCode.COMMA, KeyCombination.META_DOWN);
+                    case null -> null;
+                    default -> acceleratorKeyFX;
+                };
+                preferences.setAccelerator(acceleratorKeyFX);
             }
             preferences.setOnAction(event -> guiHandler.handlePreferences());
             defaultApplicationMenu.getItems().add(1, preferences);
