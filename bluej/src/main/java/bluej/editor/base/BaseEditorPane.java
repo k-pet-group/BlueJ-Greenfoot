@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 2021,2022,2023,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -203,7 +203,7 @@ public abstract class BaseEditorPane extends Region
         Point2D scenePt = new Point2D(sceneBounds.getMaxX(), sceneBounds.getMaxY());
         Scene scene = getScene();
         Point2D screenPt = scenePt.add(scene.getWindow().getX() + scene.getX(), scene.getWindow().getY() + scene.getY());
-        editorPaneListener.getContextMenuToShow(this).show(this, screenPt.getX(), screenPt.getY());
+        editorPaneListener.getContextMenuToShow(this, null).show(this, screenPt.getX(), screenPt.getY());
     }
 
     // The handler for the KeyEvent.KEY_TYPED event:
@@ -655,8 +655,10 @@ public abstract class BaseEditorPane extends Region
         /**
          * Gets the context menu to show.  If necessary, should be hidden before being returned
          * by this method.
+         *
+         * The screenCoords point can be null.  If it is present, it can be used to position the caret before showing the menu.
          */
-        ContextMenu getContextMenuToShow(BaseEditorPane editorPane);
+        ContextMenu getContextMenuToShow(BaseEditorPane editorPane, Point2D screenCoords);
 
         /**
          * Called when a scroll event has occurred on one of the text lines in the editor

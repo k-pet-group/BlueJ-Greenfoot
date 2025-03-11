@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -255,10 +255,21 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @Override
-    public ContextMenu getContextMenuToShow(BaseEditorPane editorPane)
+    public ContextMenu getContextMenuToShow(BaseEditorPane editorPane, Point2D screenCoords)
     {
         // It may already be showing; if so, hide and re-show at new click position:
         editorContextMenu.hide();
+        if (screenCoords != null)
+        {
+            // If the given coords are a caret position outside the current selection, position the caret
+            // before calculating and showing the menu:
+            flowEditorPane.getCaretPositionForLocalPoint(flowEditorPane.screenToLocal(screenCoords))
+                    .ifPresent(p ->
+                    {
+                        if (p.getPosition() < flowEditorPane.getSelectionStart() || p.getPosition() > flowEditorPane.getSelectionEnd())
+                            flowEditorPane.positionCaret(p.getPosition());
+                    });
+        }
         return editorContextMenu;
     }
 
@@ -346,7 +357,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
 
         @Override
-        public ContextMenu getContextMenuToShow(BaseEditorPane editorPane)
+        public ContextMenu getContextMenuToShow(BaseEditorPane editorPane, Point2D screenCoords)
         {
             return null;
         }

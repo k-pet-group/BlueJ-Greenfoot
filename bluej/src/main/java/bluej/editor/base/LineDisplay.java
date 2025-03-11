@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2024,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -192,7 +192,7 @@ public class LineDisplay
             int lineIndex = firstVisibleLineIndex;
             while (lines.hasNext())
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), showLeftMargin, () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(editorPane), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), showLeftMargin, () -> editorPaneListener.marginClickedForLine(k), (e) -> editorPaneListener.getContextMenuToShow(editorPane, new Point2D(e.getScreenX(), e.getScreenY())), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
                 line.textLine.setText(lines.next(), xTranslate, false, fontCSS);
                 lineIndex += 1;
             }
@@ -208,7 +208,7 @@ public class LineDisplay
             int lineIndex;
             for (lineIndex = firstVisibleLineIndex; lineIndex < allLines.size() && totalHeightSoFar < height; lineIndex += 1)
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), showLeftMargin, () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(editorPane), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), showLeftMargin, () -> editorPaneListener.marginClickedForLine(k), (e) -> editorPaneListener.getContextMenuToShow(editorPane, new Point2D(e.getScreenX(), e.getScreenY())), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
                 line.textLine.setText(allLines.get(lineIndex), xTranslate, true, fontCSS);
                 double lineHeight = calculateLineHeight(allLines.get(lineIndex), width);
                 totalHeightSoFar += snapHeight.apply(lineHeight);
