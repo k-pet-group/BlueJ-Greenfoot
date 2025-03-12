@@ -301,6 +301,7 @@ public abstract class Inspector extends Stage
      * values.
      * 
      */
+    @OnThread(Tag.FXPlatform)
     public void update()
     {
         final List<FieldInfo> listData = getListData();
