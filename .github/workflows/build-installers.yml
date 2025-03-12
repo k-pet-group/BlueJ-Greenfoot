@@ -281,9 +281,6 @@ jobs:
       - name: Check install locations
         run: |
           ls $JAVA_HOME
-      - name: Adjust JavaFX version on Linux
-        run: |
-          find . -name 'build.gradle' -exec sed -i '/javafx_version_setting/c\version = '\''22.0.1'\''' {} +
       - name: Adjust architecture target on ARM64
         run: |
           find . -name 'control' -exec sed -i '/Architecture:/c\Architecture: arm64' {} +
