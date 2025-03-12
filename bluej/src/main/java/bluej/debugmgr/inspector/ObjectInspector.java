@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2013,2014,2016,2017,2018,2019,2021,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2013,2014,2016,2017,2018,2019,2021,2023,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,15 +22,19 @@
 package bluej.debugmgr.inspector;
 
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import com.sun.jdi.StringReference;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -38,6 +42,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
@@ -107,6 +112,7 @@ public class ObjectInspector extends Inspector
      */
     protected List<Integer> indexToSlotList = null;
     private StackPane stackPane;
+    private final Text stringContentDisplay = new Text();
 
     /**
      *  Note: 'pkg' may be null if 'ir' is null.
@@ -190,14 +196,40 @@ public class ObjectInspector extends Inspector
         Button classButton = new Button(showClassLabel);
         classButton.setOnAction(e -> showClass());
         buttonPanel.setLeft(classButton);
+
+        Button copyButton = new Button(Config.getString("debugger.inspector.copyToClipboard"));
+        copyButton.setOnAction(e -> {
+            if (obj.getObjectReference() instanceof StringReference sr)
+            {
+                Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.PLAIN_TEXT, sr.toString()));
+            }
+        });
+        buttonPanel.setCenter(copyButton);
         
         bottomPanel.getChildren().add(buttonPanel);
-        
+
+        BorderPane additionalPanel = new BorderPane();
+        additionalPanel.getStyleClass().add("inspector-string-panel");
+        Label stringHeaderLabel = new Label(Config.getString("debugger.inspector.stringContent"));
+        additionalPanel.setTop(stringHeaderLabel);
+        BorderPane.setAlignment(stringHeaderLabel, Pos.TOP_CENTER);
+        BorderPane.setMargin(stringHeaderLabel, new Insets(0, 0, 5, 0));
+        ScrollPane stringContentScroll = new ScrollPane(stringContentDisplay);
+        stringContentScroll.getStyleClass().add("inspector-string-scroll");
+        stringContentScroll.setMaxHeight(200);
+        additionalPanel.setCenter(stringContentScroll);
+        additionalPanel.visibleProperty().bind(stringContentDisplay.visibleProperty());
+        additionalPanel.managedProperty().bind(additionalPanel.visibleProperty());
+        copyButton.visibleProperty().bind(stringContentDisplay.visibleProperty());
+        copyButton.managedProperty().bind(copyButton.visibleProperty());
+        stringContentDisplay.setWrappingWidth(400);
+
+
         // add the components
         Pane contentPane = new VBox();
         contentPane.setBackground(null);
 
-        contentPane.getChildren().addAll(header, mainPanel, bottomPanel);
+        contentPane.getChildren().addAll(header, mainPanel, additionalPanel, bottomPanel);
         VBox.setVgrow(mainPanel, Priority.ALWAYS);
 
         JavaFXUtil.addStyleClass(contentPane, "inspector", "inspector-object");
@@ -232,6 +264,22 @@ public class ObjectInspector extends Inspector
     protected boolean shouldAutoUpdate()
     {
         return Config.isGreenfoot();
+    }
+
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public void update()
+    {
+        super.update();
+        if (Objects.equals(obj.getClassName(), "java.lang.String") && obj.getObjectReference() instanceof StringReference sr)
+        {
+            stringContentDisplay.setText(sr.value());
+            stringContentDisplay.setVisible(true);
+        }
+        else
+        {
+            stringContentDisplay.setVisible(false);
+        }
     }
 
     /**

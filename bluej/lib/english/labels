@@ -34,6 +34,8 @@ debugger.inspector.class.nameLabel=Class
 debugger.inspector.enum.nameLabel=Enum
 debugger.inspector.interface.nameLabel=Interface
 debugger.inspector.numFields=Number of fields
+debugger.inspector.stringContent=String Content
+debugger.inspector.copyToClipboard=Copy to clipboard
 
 debugger.objectwrapper.methodException=Exception accessing methods:
 debugger.objectwrapper.invocationException=Exception during invocation:
