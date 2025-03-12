@@ -225,6 +225,8 @@ editor.gotoline.label = Enter line number
 editor.gotoline.prompt=Line number
 editor.gotoline.notNumericMessage = Input must be numeric
 
+editor.screenshotLines=Screenshot line(s)
+
 editor.implementationLabel = Source Code
 editor.interfaceLabel = Documentation
 

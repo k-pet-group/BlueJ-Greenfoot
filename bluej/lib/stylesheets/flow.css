@@ -64,6 +64,13 @@
     -fx-stroke: null;
 }
 
+.margin-and-text-line:bj-screenshotting > .text-line .flow-selection, .margin-and-text-line:bj-screenshotting > .text-line .flow-find-result, .margin-and-text-line:bj-screenshotting > .text-line .flow-bracket-match {
+    -fx-fill: null;
+}
+.line-container:bj-screenshotting .flow-caret {
+    -fx-stroke: null;
+}
+
 
 .line-container {
     -fx-background-color: white;

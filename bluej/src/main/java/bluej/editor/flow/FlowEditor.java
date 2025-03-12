@@ -119,9 +119,14 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
@@ -137,6 +142,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.TextFlow;
+import javafx.scene.transform.Transform;
 import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow.AnchorLocation;
 import javafx.stage.Stage;
@@ -651,7 +657,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.editorContextMenu = new ContextMenu(
             getActions().getActionByName("cut-to-clipboard").makeContextMenuItem(Config.getString("editor.cutLabel")),
             getActions().getActionByName("copy-to-clipboard").makeContextMenuItem(Config.getString("editor.copyLabel")),
-            getActions().getActionByName("paste-from-clipboard").makeContextMenuItem(Config.getString("editor.pasteLabel"))
+            getActions().getActionByName("paste-from-clipboard").makeContextMenuItem(Config.getString("editor.pasteLabel")),
+            new SeparatorMenuItem(),
+            JavaFXUtil.makeMenuItem(Config.getString("editor.screenshotLines"), () -> screenshotLines(), null)
         );
         // watcher is null for plain text files, and during testing:
         if (watcher != null)
@@ -3869,6 +3877,42 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             }.start();
             printProgressDialog.showAndWait();
         }
+    }
+
+    /**
+     * Take a screenshot of all the lines currently involved in the text selection
+     * (or just the current line, if there is no selection)
+     */
+    public void screenshotLines()
+    {
+        int selStartLine = document.getLineFromPosition(flowEditorPane.getSelectionStart());
+        int selEndLine = document.getLineFromPosition(flowEditorPane.getSelectionEnd());
+        // Only include margin if line numbers are on:
+        boolean inclMargin = PrefMgr.getFlag(PrefMgr.LINENUMBERS);
+        // Get the bounds that will include all selected lines:
+        Bounds sceneBounds = flowEditorPane.getLineBoundsInScene(selStartLine, inclMargin);
+        for (int i = selStartLine + 1; i <= selEndLine; i++)
+        {
+            sceneBounds = JavaFXUtil.unionBounds(sceneBounds, flowEditorPane.getLineBoundsInScene(i, inclMargin));
+        }
+        if (sceneBounds == null)
+        {
+            // Some lines are off-screen, we can't take the screenshot:
+            return;
+        }
+        // Put it into screenshotting state to hide the selection and caret:
+        flowEditorPane.setLineDisplayPseudoclass("bj-screenshotting", true);
+        Parent root = fxTabbedEditor.getStage().getScene().getRoot();
+        SnapshotParameters sp = new SnapshotParameters();
+        // Take double resolution screenshot:
+        final int SCALE = 2;
+        // We add one extra pixel above and below because it looks a bit better:
+        sp.setViewport(new Rectangle2D(sceneBounds.getMinX() * SCALE, (sceneBounds.getMinY() - 1) * SCALE, sceneBounds.getWidth() * SCALE, (sceneBounds.getHeight() + 2) * SCALE));
+        sp.setTransform(Transform.scale(SCALE, SCALE));
+        WritableImage img = root.snapshot(sp, null);
+        Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.IMAGE, img));
+        // Important -- restore normal state:
+        flowEditorPane.setLineDisplayPseudoclass("bj-screenshotting", false);
     }
 
     private static class ErrorDisplay extends FixDisplayManager

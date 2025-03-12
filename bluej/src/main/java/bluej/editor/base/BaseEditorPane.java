@@ -296,6 +296,16 @@ public abstract class BaseEditorPane extends Region
     }
 
     /**
+     * Set/remove a given pseudoclass on the lineContainer.
+     * @param pseudoclass The pseudoclass name
+     * @param on Whether to set it (true) or remove it (false)
+     */
+    protected void setLineDisplayPseudoclass(String pseudoclass, boolean on)
+    {
+        JavaFXUtil.setPseudoclass(pseudoclass, on, lineContainer);
+    }
+
+    /**
      * Get the caret position that corresponds to the XY point featured in the given mouse event.
      */
     public Optional<EditorPosition> getCaretPositionForMouseEvent(MouseEvent e)

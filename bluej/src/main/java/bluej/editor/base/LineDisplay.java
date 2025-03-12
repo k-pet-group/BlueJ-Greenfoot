@@ -27,6 +27,7 @@ import bluej.editor.flow.Document;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXFunction;
+import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import javafx.beans.binding.DoubleExpression;
@@ -399,6 +400,11 @@ public class LineDisplay
     public double textLeftEdge()
     {
         return MarginAndTextLine.textLeftEdge(showLeftMargin);
+    }
+
+    public void setPseudoclassOnAllVisibleLines(String pseudoclass, boolean on)
+    {
+        visibleLines.values().forEach(l -> JavaFXUtil.setPseudoclass(pseudoclass, on, l));
     }
 
     public static interface LineDisplayListener
