@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2023,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,8 +23,8 @@ package bluej.editor.base;
 
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformFunction;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.StringExpression;
@@ -33,6 +33,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -43,9 +44,7 @@ import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.EnumSet;
 
 /**
@@ -104,7 +103,7 @@ public class MarginAndTextLine extends Region
         return showLeftMargin ? 27 : 2;
     }
     
-    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, boolean showLeftMargin, FXPlatformSupplier<Boolean> onClick, FXPlatformSupplier<ContextMenu> getContextMenuToShow, FXPlatformConsumer<ScrollEvent> onScroll)
+    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, boolean showLeftMargin, FXPlatformSupplier<Boolean> onClick, FXPlatformFunction<ContextMenuEvent, ContextMenu> getContextMenuToShow, FXPlatformConsumer<ScrollEvent> onScroll)
     {
         this.showLeftMargin = showLeftMargin;
         if (showLeftMargin)
@@ -220,7 +219,7 @@ public class MarginAndTextLine extends Region
 
         // Right-clicks/control-clicks anywhere else in the line show the menu passed to us:
         this.setOnContextMenuRequested(e -> {
-            getContextMenuToShow.get().show(this, e.getScreenX(), e.getScreenY());
+            getContextMenuToShow.apply(e).show(this, e.getScreenX(), e.getScreenY());
             e.consume();
         });
     }

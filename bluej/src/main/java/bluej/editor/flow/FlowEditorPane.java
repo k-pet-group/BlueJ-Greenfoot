@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2022,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022,2024,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -366,6 +366,24 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
                     moveCaret(p, true);
             });
             updateRender(true);
+        }
+    }
+
+    @Override
+    protected void mouseReleased(MouseEvent e)
+    {
+        super.mouseReleased(e);
+        if (e.isStillSincePress() && e.getButton() == MouseButton.MIDDLE)
+        {
+            getCaretPositionForMouseEvent(e).ifPresent(p -> {
+                // If the clicked position is not in the current selection,
+                // move the caret to that position first:
+                if (p.getPosition() < getSelectionStart() || p.getPosition() > getSelectionEnd())
+                {
+                    positionCaret(p.getPosition());
+                }
+                listener.middleClickedAtPosition(e.getScreenX(), e.getScreenY());
+            });
         }
     }
 
@@ -804,6 +822,52 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         replaceText(getSelectionStart(), getSelectionEnd(), text);
     }
 
+    // Looks at the current selection,
+    // or otherwise the text around the given caret pos
+    // If it is a valid Java identifier, returns it.
+    // Returns null if the cursor is not in a valid Java identifier
+    String getCurrentJavaIdentifier()
+    {
+        String sel = getSelectedText();
+        if (sel.isEmpty())
+        {
+            // Need to find limits from where we are.
+            int curPos = getCaretPosition();
+            // Get line as a String, as that will help us with unicode:
+            int lineNo = document.getLineFromPosition(curPos);
+            int lineStart = document.getLineStart(lineNo);
+            String line = document.getContent(lineStart, document.getLineEnd(lineNo)).toString();
+            // Make pos relative to line:
+            curPos -= lineStart;
+            int left = curPos;
+            // Keep going left to find identifier start:
+            while (left > 0 && Character.isJavaIdentifierPart(line.codePointBefore(left)))
+                left -= 1;
+            // Check that the very first one can start:
+            if (left < line.length() && !Character.isJavaIdentifierStart(line.codePointAt(left)))
+                left = curPos;
+
+            // Go right to find end:
+            int right = curPos;
+            while (right < line.length() && Character.isJavaIdentifierPart(line.codePointAt(right)))
+                right += 1;
+            return left == right ? null : line.substring(left, right);
+        }
+        else if (sel.length() < 255){
+            // Only bother checking if the selection is small enough
+            int[] codepoints = sel.codePoints().toArray();
+            if (!Character.isJavaIdentifierStart(codepoints[0]))
+                return null;
+            for (int i = 1; i < codepoints.length; i++)
+            {
+                if (!Character.isJavaIdentifierPart(codepoints[i]))
+                    return null;
+            }
+            return sel;
+        }
+        return null;
+    }
+
     private enum EditType { IME_EDIT, NON_IME_EDIT}
 
     private void replaceText(int start, int end, String text)
@@ -902,6 +966,8 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition);
 
         public String getErrorAtPosition(int caretPos);
+
+        public void middleClickedAtPosition(double screenX, double screenY);
     }
 
     // Use an AbstractList rather than pre-calculate, as that means we don't bother

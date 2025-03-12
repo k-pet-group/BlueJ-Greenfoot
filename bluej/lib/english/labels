@@ -262,6 +262,9 @@ editor.quickfix.unreportedException.errorMsg.part2=\u0020needs to be handled
 editor.quickfix.unreportedException.fixMsg.trycatch=Surround this line with try/catch
 editor.quickfix.unreportedException.fixMsg.throws=Add throws statement for this exception in the containing method
 
+editor.goto.class=Go to class ${name}
+editor.goto.documentation=Show documentation for ${name}
+
 # Dialog titles and texts
 editor.functions.title = Editor Functions
 editor.functions.editFunctions = Edit Functions

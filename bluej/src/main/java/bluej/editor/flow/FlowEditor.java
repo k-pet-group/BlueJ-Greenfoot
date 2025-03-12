@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,6 +60,8 @@ import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ImportsCollection.LocatableImport;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageEntity;
+import bluej.parser.entity.PackageOrClass;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
@@ -73,6 +75,8 @@ import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.print.PrintProgressDialog;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.stride.framedjava.elements.CallElement;
@@ -236,6 +240,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private FXPlatformRunnable callbackOnOpen;
 
     private final ContextMenu editorContextMenu;
+    private int numGoToItemsInContextMenu = 0;
 
     public boolean containsSourceCode()
     {
@@ -255,11 +260,104 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @Override
-    public ContextMenu getContextMenuToShow(BaseEditorPane editorPane)
+    public ContextMenu getContextMenuToShow(BaseEditorPane editorPane, Point2D screenCoords)
     {
         // It may already be showing; if so, hide and re-show at new click position:
         editorContextMenu.hide();
+        if (screenCoords != null)
+        {
+            // If the given coords are a caret position outside the current selection, position the caret
+            // before calculating and showing the menu:
+            flowEditorPane.getCaretPositionForLocalPoint(flowEditorPane.screenToLocal(screenCoords))
+                    .ifPresent(p ->
+                    {
+                        if (p.getPosition() < flowEditorPane.getSelectionStart() || p.getPosition() > flowEditorPane.getSelectionEnd())
+                            flowEditorPane.positionCaret(p.getPosition());
+                    });
+        }
+
+        if (numGoToItemsInContextMenu > 0)
+        {
+            editorContextMenu.getItems().remove(0, numGoToItemsInContextMenu);
+            numGoToItemsInContextMenu = 0;
+        }
+        String identifierAtCaret = flowEditorPane.getCurrentJavaIdentifier();
+        if (identifierAtCaret != null)
+        {
+            for (IdentifierDefinition id : findIdentifierDefinitions(identifierAtCaret))
+            {
+                editorContextMenu.getItems().add(numGoToItemsInContextMenu, JavaFXUtil.makeMenuItem(id.name(), id.goToDef(), null));
+                numGoToItemsInContextMenu += 1;
+            }
+            // If we have some go-to items, add a separator after them:
+            if (numGoToItemsInContextMenu > 0)
+            {
+                editorContextMenu.getItems().add(numGoToItemsInContextMenu, new SeparatorMenuItem());
+                numGoToItemsInContextMenu += 1;
+            }
+        }
         return editorContextMenu;
+    }
+
+    record IdentifierDefinition(String name, FXPlatformRunnable goToDef) {}
+
+    private ArrayList<IdentifierDefinition> findIdentifierDefinitions(String name)
+    {
+        // Any given identifier is assumed to potentially be anything.
+        ArrayList<IdentifierDefinition> r = new ArrayList<>();
+
+        // First, check for classes in our package:
+        bluej.pkgmgr.Package pkg = watcher.getPackage();
+        // Don't look if it's our name, no point navigating to ourselves:
+        if (!name.equals(windowTitle) && pkg.getAllClassnamesWithSource().contains(name))
+        {
+            Target t = pkg.getTarget(name);
+            if (t instanceof ClassTarget ct)
+            {
+                Properties p = new Properties();
+                p.put("name", ct.getQualifiedName());
+                r.add(new IdentifierDefinition(Config.getString("editor.goto.class", null, p, false), () -> ct.open()));
+            }
+        }
+        // Also look for classes in standard library or Greenfoot library:
+        PackageOrClass resolved = getParsedNode().resolvePackageOrClass(name, null, flowEditorPane.getCaretPosition());
+        String resolvedName = resolved == null || resolved instanceof PackageEntity ? null : resolved.getName();
+        if (resolvedName != null)
+        {
+            Properties p = new Properties();
+            p.put("name", resolvedName);
+            // Slightly hacky way of deciding if it's in the standard API:
+            if (resolvedName.startsWith("java.") || resolvedName.startsWith("javax."))
+            {
+                r.add(new IdentifierDefinition(Config.getString("editor.goto.documentation", null, p, false), () -> fxTabbedEditor.openJavaCoreDocTab(resolvedName)));
+            }
+            else if (resolvedName.startsWith("greenfoot."))
+            {
+                r.add(new IdentifierDefinition(Config.getString("editor.goto.documentation", null, p, false), () -> fxTabbedEditor.openGreenfootDocTab(resolvedName)));
+            }
+        }
+
+        return r;
+    }
+
+    @Override
+    public void middleClickedAtPosition(double screenX, double screenY)
+    {
+        String identifierAtCaret = flowEditorPane.getCurrentJavaIdentifier();
+        if (identifierAtCaret != null)
+        {
+            ArrayList<IdentifierDefinition> defs = findIdentifierDefinitions(identifierAtCaret);
+            if (defs.size() == 1)
+            {
+                // Exactly one possibility: go!
+                JavaFXUtil.runAfterCurrent(defs.get(0).goToDef());
+            }
+            else if (defs.size() > 1)
+            {
+                // Multiple options; show context menu:
+                getContextMenuToShow(flowEditorPane, new Point2D(screenX, screenY)).show(getWindow(), screenX, screenY);
+            }
+        }
     }
 
     // Returns state of breakpoint afterwards: true if present, false if not
@@ -346,13 +444,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
 
         @Override
-        public ContextMenu getContextMenuToShow(BaseEditorPane editorPane)
+        public ContextMenu getContextMenuToShow(BaseEditorPane editorPane, Point2D screenCoords)
         {
             return null;
         }
 
         @Override
         public void scrollEventOnTextLine(ScrollEvent e, BaseEditorPane editorPane)
+        {
+        }
+
+        @Override
+        public void middleClickedAtPosition(double screenX, double screenY)
         {
         }
     }
