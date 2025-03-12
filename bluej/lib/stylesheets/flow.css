@@ -32,6 +32,10 @@
     -fx-cursor: default;
 }
 
+.flow-caret {
+    -fx-stroke: red;
+}
+
 .flow-line-label {
     -fx-alignment: center-right;
     -fx-graphic-text-gap: 0;

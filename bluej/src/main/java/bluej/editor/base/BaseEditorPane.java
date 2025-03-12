@@ -110,7 +110,6 @@ public abstract class BaseEditorPane extends Region
         this.editorPaneListener = listener;
         caretShape = new Path();
         caretShape.getStyleClass().add("flow-caret");
-        caretShape.setStroke(Color.RED);
         caretShape.setMouseTransparent(true);
         caretShape.setManaged(false);
 
