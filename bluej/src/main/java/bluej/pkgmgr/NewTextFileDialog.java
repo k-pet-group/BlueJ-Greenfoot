@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2017,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package bluej.pkgmgr;
 
 import bluej.prefmgr.PrefMgr;
+import javafx.scene.control.ComboBox;
 import javafx.stage.Window;
 
 import bluej.Config;
@@ -40,17 +41,25 @@ import java.util.stream.Collectors;
 @OnThread(Tag.FXPlatform)
 class NewTextFileDialog extends InputDialog<String>
 {
+    private final ComboBox<String> extension;
+
     public NewTextFileDialog(Window parent)
     {
-        super(Config.getString("pkgmgr.newText.title"), Config.getString("pkgmgr.newText.label"), Config.getString("pkgmgr.newText.prompt"), "new-textfile-dialog", null);
+        super(Config.getString("pkgmgr.newText.title"), Config.getString("pkgmgr.newText.label"), Config.getString("pkgmgr.newText.prompt"), "new-textfile-dialog");
         initOwner(parent);
         setOKEnabled(false);
         setResizable(true);
+
+        extension = new ComboBox<>();
+        extension.getItems().add(".css");
+        extension.getItems().addAll(PrefMgr.getEditorFormattedTextFileExtensionsList());
+        extension.getSelectionModel().select(0);
+        addContentAfterField(extension);
     }
     
     public String convert(String fieldText)
     {
-        return fieldText.trim(); // Validation is done in convert
+        return fieldText.trim() + extension.getSelectionModel().getSelectedItem(); // Validation is done in convert
     }
     
     public boolean validate(String oldInput, String newInputUntrimmed)
@@ -59,23 +68,9 @@ class NewTextFileDialog extends InputDialog<String>
         
         if (!newInput.isEmpty() && !newInput.contains("/") && !newInput.contains("\\"))
         {
-            ArrayList<String> extensions = new ArrayList<>(PrefMgr.getEditorFormattedTextFileExtensionsList());
-            extensions.add(0, ".css");
-
-            if (extensions.stream().anyMatch(ext -> newInput.toLowerCase().endsWith(ext) && newInput.length() > ext.length()))
-            {
-                setOKEnabled(true);
-                setErrorText("");
-                return true;
-            }
-            else
-            {
-                Properties p = new Properties();
-                p.setProperty("allowed", extensions.stream().collect(Collectors.joining(", ")));
-                setErrorText(Config.getString("pkgmgr.newText.invalidExtension", "", p, true));
-                setOKEnabled(false);
-                return true; // Let it be invalid, but show error
-            }
+            setOKEnabled(true);
+            setErrorText("");
+            return true;
         }
         else
         {
