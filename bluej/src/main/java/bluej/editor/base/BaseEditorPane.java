@@ -110,7 +110,6 @@ public abstract class BaseEditorPane extends Region
         this.editorPaneListener = listener;
         caretShape = new Path();
         caretShape.getStyleClass().add("flow-caret");
-        caretShape.setStroke(Color.RED);
         caretShape.setMouseTransparent(true);
         caretShape.setManaged(false);
 
@@ -294,6 +293,16 @@ public abstract class BaseEditorPane extends Region
             JavaFXUtil.runAfter(SCROLL_DELAY, this::doDragScroll);
             isDragScrollScheduled = true;
         }
+    }
+
+    /**
+     * Set/remove a given pseudoclass on the lineContainer.
+     * @param pseudoclass The pseudoclass name
+     * @param on Whether to set it (true) or remove it (false)
+     */
+    protected void setLineDisplayPseudoclass(String pseudoclass, boolean on)
+    {
+        JavaFXUtil.setPseudoclass(pseudoclass, on, lineContainer);
     }
 
     /**

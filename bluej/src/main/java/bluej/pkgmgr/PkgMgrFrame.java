@@ -53,6 +53,7 @@ import bluej.pkgmgr.target.CSSTarget;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.pkgmgr.target.TextFileTarget;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
@@ -66,13 +67,11 @@ import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.animation.*;
-import javafx.application.Platform;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
-import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.*;
@@ -180,7 +179,7 @@ public class PkgMgrFrame
     @OnThread(Tag.Any)
     private final PkgMgrAction newClassAction = new NewClassAction(this);
     private final PkgMgrAction newPackageAction = new NewPackageAction(this);
-    private final PkgMgrAction newCSSAction = new NewCSSAction(this);
+    private final PkgMgrAction newCSSAction = new NewTextFileAction(this);
     private final PkgMgrAction addClassAction = new AddClassAction(this);
     private final PkgMgrAction removeAction = new RemoveAction(this);
     @OnThread(Tag.Any)
@@ -2229,12 +2228,12 @@ public class PkgMgrFrame
      * @param x The X coordinate in the class diagram, or -1 for auto-place
      * @param y The Y coordinate in the class diagram, or -1 for auto-place
      */
-    public void doCreateNewCSS(double x, double y)
+    public void doCreateNewTextFile(double x, double y)
     {
-        NewCSSDialog dlg = new NewCSSDialog(stageProperty.getValue());
+        NewTextFileDialog dlg = new NewTextFileDialog(stageProperty.getValue());
         Optional<String> fileName = dlg.showAndWait();
 
-        fileName.ifPresent(name -> createNewCSS(name, x, y));
+        fileName.ifPresent(name -> createNewTextFile(name, x, y));
     }
 
     /**
@@ -2326,23 +2325,28 @@ public class PkgMgrFrame
         return true;
     }
     
-    private void createNewCSS(String fileName, double x, double y)
+    private void createNewTextFile(String fileName, double x, double y)
     {
         if (getProject().getTarget(fileName) != null)
         {
             DialogManager.showErrorFX(getWindow(), "duplicate-name");
             return;
         }
-        File cssFile = new File(getPackage().getPath(), fileName);
+        File textFile = new File(getPackage().getPath(), fileName);
         try
         {
-            cssFile.createNewFile();
+            if (!textFile.createNewFile())
+            {
+                DialogManager.showErrorFX(getWindow(), "duplicate-name");
+                return;
+            }
         }
         catch (IOException e)
         {
             Debug.reportError(e);
+            return;
         }
-        Target target = new CSSTarget(getPackage(), cssFile);
+        Target target = textFile.getName().toLowerCase().endsWith(".css") ? new CSSTarget(getPackage(), textFile) : new TextFileTarget(getPackage(), textFile);
         target.setPos((int)x, (int)y);
         if (editor != null && x == -1)
         {

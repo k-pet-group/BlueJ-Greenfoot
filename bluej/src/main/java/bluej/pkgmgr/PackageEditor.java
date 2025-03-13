@@ -290,10 +290,10 @@ public final class PackageEditor extends StackPane
         });
         JavaFXUtil.addStyleClass(newPackage, "class-action-inbuilt");
         
-        MenuItem newCSS = new MenuItem(Config.getString("menu.edit.newCSS"));
+        MenuItem newCSS = new MenuItem(Config.getString("menu.edit.newText"));
         newCSS.setOnAction(e -> {
             pmf.menuCall();
-            pmf.doCreateNewCSS(graphLoc.getX(), graphLoc.getY());
+            pmf.doCreateNewTextFile(graphLoc.getX(), graphLoc.getY());
         });
         JavaFXUtil.addStyleClass(newCSS, "class-action-inbuilt");
 

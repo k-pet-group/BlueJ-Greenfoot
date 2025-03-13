@@ -225,6 +225,8 @@ editor.gotoline.label = Enter line number
 editor.gotoline.prompt=Line number
 editor.gotoline.notNumericMessage = Input must be numeric
 
+editor.screenshotLines=Screenshot line(s)
+
 editor.implementationLabel = Source Code
 editor.interfaceLabel = Documentation
 
@@ -482,12 +484,13 @@ pkgmgr.newPackage.prompt=Package name
 pkgmgr.newPackage.newPackage=Package
 pkgmgr.newPackage.error=Invalid package name
 
-# "new CSS" dialog
-pkgmgr.newCSS.title=BlueJ:  Create New CSS File
-pkgmgr.newCSS.label=CSS File:
-pkgmgr.newCSS.prompt=Filename
-pkgmgr.newCSS.newCSS=CSS
-pkgmgr.newCSS.error=Invalid filename
+# "new text file" dialog
+pkgmgr.newText.title=BlueJ:  Create New Text File
+pkgmgr.newText.label=Text file name:
+pkgmgr.newText.prompt=Filename
+pkgmgr.newText.newText=Text file
+pkgmgr.newText.error=Invalid filename
+pkgmgr.newText.invalidExtension=Supported file extensions: ${allowed}
 
 # "duplicate class" dialog
 pkgmgr.duplicate.title=BlueJ: Duplicate a Class
@@ -653,7 +656,7 @@ menu.package.quit=_Quit@Q
 menu.edit=_Edit
 menu.edit.newClass=New _Class...@N
 menu.edit.newPackage=New _Package...@R
-menu.edit.newCSS=New C_SS File...
+menu.edit.newText=New _Text File...
 menu.edit.addClass=_Add Class from File...
 menu.edit.remove=_Delete@BACK_SPACE
 menu.edit.newUses=New _Uses Arrow...

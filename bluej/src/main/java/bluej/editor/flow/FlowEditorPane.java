@@ -39,6 +39,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.AccessibleAttribute;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.InputMethodEvent;
@@ -697,6 +698,20 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         }
         return Optional.empty();
     }
+
+    protected Bounds getLineBoundsInScene(int line, boolean inclMargin)
+    {
+        if (lineDisplay.isLineVisible(line))
+        {
+            MarginAndTextLine marginAndTextLine = lineDisplay.getVisibleLine(line);
+            Node node = inclMargin ? marginAndTextLine : marginAndTextLine.textLine;
+            return node.localToScene(node.getBoundsInLocal());
+        }
+        else
+        {
+            return null;
+        }
+    }
     
     public Rectangle2D getLineBoundsOnScreen(int line, Point2D windowPos, double renderScaleX, double renderScaleY)
     {
@@ -866,6 +881,13 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
             return sel;
         }
         return null;
+    }
+
+    @Override
+    protected void setLineDisplayPseudoclass(String pseudoclass, boolean on)
+    {
+        super.setLineDisplayPseudoclass(pseudoclass, on);
+        lineDisplay.setPseudoclassOnAllVisibleLines(pseudoclass, on);
     }
 
     private enum EditType { IME_EDIT, NON_IME_EDIT}

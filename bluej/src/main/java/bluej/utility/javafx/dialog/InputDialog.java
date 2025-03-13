@@ -87,6 +87,7 @@ public abstract class InputDialog<R>
             }
         });
         error = new Label();
+        error.setWrapText(true);
         if (labelAfterField == null)
         {
             // By default, error label is shown
@@ -184,6 +185,14 @@ public abstract class InputDialog<R>
     protected void setPrompt(String s)
     {
         prompt.setText(s);
+    }
+
+    /**
+     * Sets whether the dialog is resizable.
+     */
+    protected void setResizable(boolean resizable)
+    {
+        dialog.setResizable(resizable);
     }
 
     /**
