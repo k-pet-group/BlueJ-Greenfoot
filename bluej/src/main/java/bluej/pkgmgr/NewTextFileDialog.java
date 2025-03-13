@@ -21,46 +21,65 @@
  */
 package bluej.pkgmgr;
 
+import bluej.prefmgr.PrefMgr;
 import javafx.stage.Window;
 
 import bluej.Config;
-import bluej.utility.JavaNames;
 import bluej.utility.javafx.dialog.InputDialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.ArrayList;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
 
 /**
- * Dialog for creating a new CSS file
+ * Dialog for creating a new plain text file (.css, .txt, etc)
  */
 @OnThread(Tag.FXPlatform)
-class NewCSSDialog extends InputDialog<String>
+class NewTextFileDialog extends InputDialog<String>
 {
-    public NewCSSDialog(Window parent)
+    public NewTextFileDialog(Window parent)
     {
-        super(Config.getString("pkgmgr.newCSS.title"), Config.getString("pkgmgr.newCSS.label"), Config.getString("pkgmgr.newCSS.prompt"), "new-css-dialog", ".css");
+        super(Config.getString("pkgmgr.newText.title"), Config.getString("pkgmgr.newText.label"), Config.getString("pkgmgr.newText.prompt"), "new-textfile-dialog", null);
         initOwner(parent);
         setOKEnabled(false);
+        setResizable(true);
     }
     
     public String convert(String fieldText)
     {
-        return fieldText.trim() + ".css"; // Validation is done in convert
+        return fieldText.trim(); // Validation is done in convert
     }
     
-    public boolean validate(String oldInput, String newInput)
+    public boolean validate(String oldInput, String newInputUntrimmed)
     {
-        newInput = newInput.trim();
+        final String newInput = newInputUntrimmed.trim();
         
         if (!newInput.isEmpty() && !newInput.contains("/") && !newInput.contains("\\"))
         {
-            setOKEnabled(true);
-            setErrorText("");
-            return true;
+            ArrayList<String> extensions = new ArrayList<>(PrefMgr.getEditorFormattedTextFileExtensionsList());
+            extensions.add(0, ".css");
+
+            if (extensions.stream().anyMatch(ext -> newInput.toLowerCase().endsWith(ext) && newInput.length() > ext.length()))
+            {
+                setOKEnabled(true);
+                setErrorText("");
+                return true;
+            }
+            else
+            {
+                Properties p = new Properties();
+                p.setProperty("allowed", extensions.stream().collect(Collectors.joining(", ")));
+                setErrorText(Config.getString("pkgmgr.newText.invalidExtension", "", p, true));
+                setOKEnabled(false);
+                return true; // Let it be invalid, but show error
+            }
         }
         else
         {
-            setErrorText(Config.getString("pkgmgr.newCSS.error"));
+            setErrorText(Config.getString("pkgmgr.newText.error"));
             setOKEnabled(false);
             return true; // Let it be invalid, but show error
         }

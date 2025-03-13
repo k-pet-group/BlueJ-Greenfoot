@@ -466,12 +466,6 @@ pkgmgr.newPackage.prompt=Nome do pacote
 pkgmgr.newPackage.newPackage=Pacote
 pkgmgr.newPackage.error=Nome de pacote inv\u00E1lido
 
-# "new CSS" dialog
-pkgmgr.newCSS.title=BlueJ:  Criar novo arquivo com Folha de Estilos (CSS)
-pkgmgr.newCSS.label=Arquivo CSS:
-pkgmgr.newCSS.prompt=Nome do arquivo CSS
-pkgmgr.newCSS.newCSS=CSS
-pkgmgr.newCSS.error=Nome inv\u00E1lido
 
 # "duplicate class" dialog
 pkgmgr.duplicate.title=BlueJ: Duplicar uma Classe
@@ -635,7 +629,6 @@ menu.package.quit=_Sair@S
 menu.edit=_Editar
 menu.edit.newClass=Nova Classe...@N
 menu.edit.newPackage=Novo Pacote...@R
-menu.edit.newCSS=Novo Arquivo CSS...
 menu.edit.addClass=_Adicionar Classe de um Arquivo...
 menu.edit.remove=Remover@BACK_SPACE
 menu.edit.newUses=Nova Seta de _Uso...
