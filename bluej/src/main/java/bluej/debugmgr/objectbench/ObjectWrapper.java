@@ -732,7 +732,8 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
 
         if (pmf.checkDebuggerState()) {
             Invoker invoker = new Invoker(pmf, method, instanceName, obj, watcher);
-            invoker.invokeInteractive();
+            pmf.clearRerun();
+            invoker.invokeInteractive(null);
         }
     }
 
