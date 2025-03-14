@@ -623,3 +623,6 @@
 .new-textfile-dialog {
     -fx-pref-width: 25em;
 }
+.new-textfile-dialog .input-dialog-field-wrapper {
+    -fx-alignment: center-right;
+}

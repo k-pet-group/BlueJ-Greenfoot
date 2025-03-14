@@ -485,17 +485,18 @@ pkgmgr.newPackage.newPackage=Package
 pkgmgr.newPackage.error=Invalid package name
 
 # "new text file" dialog
-pkgmgr.newText.title=BlueJ:  Create New Text File
-pkgmgr.newText.label=Text file name:
+pkgmgr.newText.title=BlueJ: Create New CSS/Text File
+pkgmgr.newText.label=File name:
 pkgmgr.newText.prompt=Filename
 pkgmgr.newText.newText=Text file
 pkgmgr.newText.error=Invalid filename
-pkgmgr.newText.invalidExtension=Supported file extensions: ${allowed}
 
 # "duplicate class" dialog
 pkgmgr.duplicate.title=BlueJ: Duplicate a Class
 pkgmgr.duplicate.error.notValidClassName=Not a valid class name
 
+pkgmgr.rerun=Re-run
+pkgmgr.rerun.errorInvoking=Error invoking $$
 
 # "Use Library Class" dialog
 callLibraryDialog.title=BlueJ:  Call Library Class
@@ -656,7 +657,7 @@ menu.package.quit=_Quit@Q
 menu.edit=_Edit
 menu.edit.newClass=New _Class...@N
 menu.edit.newPackage=New _Package...@R
-menu.edit.newText=New _Text File...
+menu.edit.newText=New _CSS/Text File...
 menu.edit.addClass=_Add Class from File...
 menu.edit.remove=_Delete@BACK_SPACE
 menu.edit.newUses=New _Uses Arrow...
