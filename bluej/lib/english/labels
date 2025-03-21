@@ -599,6 +599,7 @@ terminal.close = Close
 terminal.clearScreen = Clear screen at method call
 terminal.recordCalls = Record method calls
 terminal.buffering = Unlimited buffering
+terminal.alwaysOnTop = Always on top
 terminal.save.title = Save terminal text
 terminal.save.buttonText = Save
 terminal.notRunning=Can only enter input while your program is running
