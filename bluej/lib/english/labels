@@ -144,6 +144,8 @@ prefmgr.accessibility.title=Accessibility
 prefmgr.accessibility.support=Accessibility Mode [only for use with screen readers]
 prefmgr.terminal.title=Terminal
 prefmgr.terminal.scopes=Show Terminal execution scopes
+prefmgr.interface.general.reopen=Re-open last projects when BlueJ starts
+prefmgr.interface.general.title=General
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Installed Extensions
@@ -461,8 +463,11 @@ pkgmgr.codepad.redefinedVar=$ is already defined
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Create New Class
 pkgmgr.newClass.label=Class Name:
-pkgmgr.newClass.prompt=Enter a name for the new class
+pkgmgr.newClass.prompt=New class name
 pkgmgr.newClass.lang=Class Language:
+pkgmgr.newClass.content=Class Content:
+pkgmgr.newClass.content.full=Full
+pkgmgr.newClass.content.empty=Empty
 pkgmgr.newClass.classType=Class Type
 pkgmgr.newClass.stdclass=Class
 pkgmgr.newClass.interface=Interface
@@ -597,6 +602,7 @@ terminal.close = Close
 terminal.clearScreen = Clear screen at method call
 terminal.recordCalls = Record method calls
 terminal.buffering = Unlimited buffering
+terminal.alwaysOnTop = Always on top
 terminal.save.title = Save terminal text
 terminal.save.buttonText = Save
 terminal.notRunning=Can only enter input while your program is running
