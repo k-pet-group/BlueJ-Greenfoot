@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2018,2019,2023  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2018,2019,2023,2025  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -712,7 +712,7 @@ public class JarCreator
         
         try {
             Charset utf8 = Charset.forName("UTF-8");
-            BlueJFileReader.translateFile(template, outputFile, translations, utf8, utf8);
+            BlueJFileReader.translateFile(template, outputFile, translations, utf8, utf8, true);
         }
         catch (IOException e) {
             Debug.reportError("Exception during file translation from " + template + " to " + outputFile);
