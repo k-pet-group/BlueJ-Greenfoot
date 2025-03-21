@@ -81,6 +81,7 @@ public class PrefMgr
     // (if we called it 0,1,2, tiny would be -1 which seems like a bad idea)
     public static final String PRINT_FONT_SIZE = "bluej.print.fontSize";
     public static final String AUTO_OPEN_LAST_PROJECTS = "bluej.autoOpenLastProject";
+    public static final String NEW_CLASS_FULL_CONTENT = "bluej.new.class.content.full";
     
     public static final String GREENFOOT_SOUND_INPUT_DEVICE = "greenfoot.sound.device.input";
     public static final String GREENFOOT_SOUND_OUTPUT_DEVICE = "greenfoot.sound.device.output";
@@ -449,6 +450,7 @@ public class PrefMgr
         flags.put(SHOW_TERMINAL_SCOPES, Config.getPropString(SHOW_TERMINAL_SCOPES, "true"));
         flags.put(ACCESSIBILITY_SUPPORT, Config.getPropString(ACCESSIBILITY_SUPPORT, "false"));
         flags.put(AUTO_OPEN_LAST_PROJECTS, Config.getPropString(AUTO_OPEN_LAST_PROJECTS, "true"));
+        flags.put(NEW_CLASS_FULL_CONTENT, Config.getPropString(NEW_CLASS_FULL_CONTENT, "true"));
         flags.put(START_WITH_SUDO, Config.getPropString(START_WITH_SUDO, "true"));
         flags.put(STRIDE_SIDEBAR_SHOWING, Config.getPropString(STRIDE_SIDEBAR_SHOWING, "true"));
         flags.put(NEWS_TESTING, Config.getPropString(NEWS_TESTING, "false"));
