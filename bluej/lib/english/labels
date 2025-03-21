@@ -144,6 +144,8 @@ prefmgr.accessibility.title=Accessibility
 prefmgr.accessibility.support=Accessibility Mode [only for use with screen readers]
 prefmgr.terminal.title=Terminal
 prefmgr.terminal.scopes=Show Terminal execution scopes
+prefmgr.interface.general.reopen=Re-open last projects when BlueJ starts
+prefmgr.interface.general.title=General
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Installed Extensions
