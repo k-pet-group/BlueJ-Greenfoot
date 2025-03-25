@@ -67,6 +67,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.RandomAccess;
 import java.util.Optional;
 import java.util.Set;
 
@@ -995,7 +996,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     // Use an AbstractList rather than pre-calculate, as that means we don't bother
     // styling lines which will not be displayed:
     @OnThread(value = Tag.FXPlatform ,ignoreParent = true)
-    static class StyledLines extends AbstractList<List<StyledSegment>>
+    static class StyledLines extends AbstractList<List<StyledSegment>> implements RandomAccess
     {
         private final LineStyler lineStyler;
         private final List<CharSequence> documentLines;
