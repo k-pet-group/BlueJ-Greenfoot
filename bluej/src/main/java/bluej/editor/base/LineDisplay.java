@@ -282,6 +282,19 @@ public class LineDisplay
      */
     public void ensureLineVisible(int line, double containerHeight, int linesInDocument)
     {
+        if (containerHeight == 0)
+        {
+            // It's possible for the stderr pane in the terminal that we get called to scroll even
+            // while the container height is zero, because the splitter pane is in the process of being adjusted
+            // to show the content.  In that case we don't want to run this code because we can end up
+            // getting confused and scrolling beyond the end of the content to a line that doesn't exist,
+            // and this doesn't get fixed when the container is laid out again.  So the simplest fix
+            // is just to bail out when the height is zero.  This code will end up being re-run once the
+            // height changes to something sensible.
+            return;
+        }
+
+
         // Note: if the line is the first/last visible, it may be only partially visible, so we still 
         // scroll because we may need to move slightly to bring the whole line into view.
         

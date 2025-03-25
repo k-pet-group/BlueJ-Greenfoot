@@ -100,7 +100,7 @@ public class MarginAndTextLine extends Region
      */
     public static int textLeftEdge(boolean showLeftMargin)
     {
-        return showLeftMargin ? 27 : 2;
+        return showLeftMargin ? 32 : 2;
     }
     
     public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, boolean showLeftMargin, FXPlatformSupplier<Boolean> onClick, FXPlatformFunction<ContextMenuEvent, ContextMenu> getContextMenuToShow, FXPlatformConsumer<ScrollEvent> onScroll)
@@ -108,10 +108,10 @@ public class MarginAndTextLine extends Region
         this.showLeftMargin = showLeftMargin;
         if (showLeftMargin)
         {
-            MARGIN_BACKGROUND_WIDTH = 24;
-            LINE_X = 24.5;
             TEXT_LEFT_EDGE = textLeftEdge(true);
-            MARGIN_RIGHT = 23;
+            MARGIN_BACKGROUND_WIDTH = TEXT_LEFT_EDGE - 3;
+            LINE_X = TEXT_LEFT_EDGE - 2.5;
+            MARGIN_RIGHT = TEXT_LEFT_EDGE - 4;
         }
         else
         {
