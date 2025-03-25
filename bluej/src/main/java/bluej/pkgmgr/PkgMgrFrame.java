@@ -1452,7 +1452,7 @@ public class PkgMgrFrame
      * @param y The Y coordinate in the class diagram, or -1 for auto-place
      * @return  true if successful, false is the named class already exists
      */
-    public boolean createNewClass(String name, String template, SourceType sourceType, boolean showErr, double x, double y)
+    public boolean createNewClass(String name, String template, SourceType sourceType, ClassContent classContent, double x, double y)
     {
         Package thePkg = getPackage();
         // check whether name is already used
@@ -1477,7 +1477,7 @@ public class PkgMgrFrame
         ClassTarget target = new ClassTarget(thePkg, name, template);
 
         if ( template != null ) { 
-            boolean success = target.generateSkeleton(template, sourceType);
+            boolean success = target.generateSkeleton(template, sourceType, classContent == ClassContent.FULL);
             if (! success)
                 return false;
         }
@@ -2227,7 +2227,7 @@ public class PkgMgrFrame
         Optional<NewClassDialog.NewClassInfo> result = dlg.showAndWait();
 
         result.ifPresent(info ->
-            createNewClass(info.className, info.templateName, info.sourceType, true, x, y)
+            createNewClass(info.className(), info.templateName(), info.sourceType(), info.classContent(), x, y)
         );
     }
 

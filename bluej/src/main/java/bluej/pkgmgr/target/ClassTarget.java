@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1563,7 +1563,7 @@ public class ClassTarget extends DependentTarget
     /**
      * generates a source code skeleton for this class
      */
-    public boolean generateSkeleton(String template, SourceType sourceType)
+    public boolean generateSkeleton(String template, SourceType sourceType, boolean includeFullContent)
     {
         // delegate to role object
         if (template == null) {
@@ -1574,11 +1574,11 @@ public class ClassTarget extends DependentTarget
             boolean success;
             switch (sourceType) {
                 case Java:
-                    success = role.generateSkeleton(template, getPackage(), getBaseName(), getJavaSourceFile().getPath());
+                    success = role.generateSkeleton(template, getPackage(), getBaseName(), getJavaSourceFile().getPath(), includeFullContent);
                     break;
                 case Stride:
                     addStride(Loader.buildTopLevelElement(template, getPackage().getProject().getEntityResolver(),
-                            getBaseName(), getPackage().getBaseName()));
+                            getBaseName(), getPackage().getBaseName(), includeFullContent));
                     success = true;
                     break;
                 default:

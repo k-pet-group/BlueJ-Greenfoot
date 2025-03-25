@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -214,7 +214,7 @@ public class Main
         // if we have orphaned packages, these are re-opened
         if (!oneOpened.get()) {
             // check for orphans...
-            boolean openOrphans = "true".equals(Config.getPropString("bluej.autoOpenLastProject"));
+            boolean openOrphans = "true".equals(Config.getPropString(PrefMgr.AUTO_OPEN_LAST_PROJECTS));
             if (openOrphans && hadOrphanPackages()) {
                 String exists = "";
                 // iterate through unknown number of orphans

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2018,2019,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 2018,2019,2023,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -148,7 +148,7 @@ public class ProjectUtils
         {
             template = Config.getDefaultLanguageFile(baseName);
         }
-        BlueJFileReader.translateFile(template, file, translations, StandardCharsets.UTF_8, selectCharset(projCharsetName));
+        BlueJFileReader.translateFile(template, file, translations, StandardCharsets.UTF_8, selectCharset(projCharsetName), true);
     }
 
     /**

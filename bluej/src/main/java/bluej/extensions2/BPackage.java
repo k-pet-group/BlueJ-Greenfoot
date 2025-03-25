@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 1999-2010,2012,2014,2016,2019,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2012,2014,2016,2019,2023,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -26,6 +26,7 @@ import bluej.compiler.CompileType;
 import bluej.compiler.JobQueue;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.pkgmgr.ClassContent;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -155,7 +156,7 @@ public class BPackage
         if ( ! classJavaFile.canWrite() )
             throw new MissingJavaFileException(classJavaFile.toString());
 
-        bluejFrame.createNewClass(className,null,sourceType,true,-1,-1);
+        bluejFrame.createNewClass(className,null,sourceType, ClassContent.FULL,-1,-1);
         return getBClass ( className );
     }
 

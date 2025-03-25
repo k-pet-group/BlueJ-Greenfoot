@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -863,7 +863,14 @@ public final class Terminal
         CheckMenuItem unlimitedBuffering = new CheckMenuItem(Config.getString("terminal.buffering"));
         unlimitedBuffering.selectedProperty().bindBidirectional(unlimitedBufferingCall);
 
-        menu.getItems().addAll(autoClear, recordCalls, unlimitedBuffering);
+        CheckMenuItem alwaysOnTop = new CheckMenuItem(Config.getString("terminal.alwaysOnTop"));
+        alwaysOnTop.setSelected(false);
+        // We don't save this, it's just within the session, and it always starts as false:
+        JavaFXUtil.addChangeListenerPlatform(alwaysOnTop.selectedProperty(), sel -> {
+            window.setAlwaysOnTop(sel);
+        });
+
+        menu.getItems().addAll(autoClear, recordCalls, unlimitedBuffering, alwaysOnTop);
 
         MenuItem closeItem = new MenuItem(Config.getString("terminal.close"));
         closeItem.setOnAction(e -> showHide(false));
