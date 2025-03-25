@@ -23,6 +23,9 @@ package bluej.pkgmgr;
 
 /**
  * The content of a newly created class: everything from the template (FULL) or nothing in the body (EMPTY)
+ *
+ * This is a standalone class for visibility reasons; it was a member of NewClassDialog but that is not
+ * public so couldn't be seen outside the package.  So even though it's super-simple, it's top-level for ease of access.
  */
 public enum ClassContent {
     EMPTY, FULL;
