@@ -554,6 +554,7 @@ public class HoleDocument implements Document
     }
 
     // Anonymous inner classes can't extend and implements so we introduce this helper:
+    // Important to implement empty RandomAccess interface for use of Collections.binarySearch()
     private static abstract class AbstractListRandomAccess<T> extends AbstractList<T> implements RandomAccess
     {
     }
