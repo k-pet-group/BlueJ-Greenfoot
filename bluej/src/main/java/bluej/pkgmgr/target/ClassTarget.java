@@ -1189,7 +1189,7 @@ public class ClassTarget extends DependentTarget
             list.add(new SourceFileInfo(getFrameSourceFile(), SourceType.Stride));
             list.add(new SourceFileInfo(getJavaSourceFile(), SourceType.Java));
         } else {
-            list.add(new SourceFileInfo(getJavaSourceFile(), sourceAvailable));
+            list.add(new SourceFileInfo(getSourceFile(), sourceAvailable));
         }
         return list;
     }
@@ -1569,7 +1569,7 @@ public class ClassTarget extends DependentTarget
                 case Java:
                 case Kotlin:
                     success = role.generateSkeleton(template, getPackage(), getBaseName(),
-                            getSourceFileByType(sourceType).getPath());
+                            getSourceFileByType(sourceType).getPath(), sourceType);
                     break;
                 case Stride:
                     addStride(Loader.buildTopLevelElement(template, getPackage().getProject().getEntityResolver(),

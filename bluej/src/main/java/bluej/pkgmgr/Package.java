@@ -70,6 +70,7 @@ import bluej.utility.*;
 import bluej.utility.filefilter.FrameSourceFilter;
 import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
+import bluej.utility.filefilter.KotlinSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -642,6 +643,7 @@ public final class Package
     {
         File javaSrcFiles[] = path.listFiles(new JavaSourceFilter());
         File frameSrcFiles[] = path.listFiles(new FrameSourceFilter());
+        File kotlinSrcFiles[] = path.listFiles(new KotlinSourceFilter());
         File classFiles[] = path.listFiles(new JavaClassFilter());
 
         Set<String> interestingSet = new HashSet<String>();
@@ -673,6 +675,17 @@ public final class Package
                 continue;
 
             interestingSet.add(frameFileName);
+        }
+
+        // process all *.kt files
+        for (int i = 0; i < kotlinSrcFiles.length; i++) {
+            String kotlinFileName = JavaNames.stripSuffix(kotlinSrcFiles[i].getName(), "." + SourceType.Kotlin.getExtension());
+
+            // check if the name would be a valid java name
+            if (!JavaNames.isIdentifier(kotlinFileName))
+                continue;
+
+            interestingSet.add(kotlinFileName);
         }
 
 
@@ -1336,6 +1349,8 @@ public final class Package
             className = fileName.substring(0, fileName.length() - SourceType.Java.getExtension().length() - 1);
         else if (fileName.endsWith("." + SourceType.Stride.getExtension())) // it's a Stride source file
             className = fileName.substring(0, fileName.length() - SourceType.Stride.getExtension().length() - 1);
+        else if (fileName.endsWith("." + SourceType.Kotlin.getExtension())) // it's a Kotlin source file
+            className = fileName.substring(0, fileName.length() - SourceType.Kotlin.getExtension().length() - 1);
         else
             return ILLEGAL_FORMAT;
 
@@ -2944,9 +2959,12 @@ public final class Package
     public SourceType getDefaultSourceType()
     {
         // Our heuristic is: if the package contains any Stride files, the default is Stride,
+        // if it contains any Kotlin files, the default is Kotlin,
         // otherwise it's Java
         if (getClassTargets().stream().anyMatch(c -> c.getSourceType() == SourceType.Stride))
             return SourceType.Stride;
+        else if (getClassTargets().stream().anyMatch(c -> c.getSourceType() == SourceType.Kotlin))
+            return SourceType.Kotlin;
         else
             return SourceType.Java;
     }

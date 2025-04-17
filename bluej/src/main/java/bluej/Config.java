@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.*;
@@ -45,6 +46,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -52,6 +54,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
+import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Window;
 
@@ -1264,14 +1267,14 @@ public final class Config
      * If you don't want this resolution, use getFixedImageAsFXImage
      */
     @OnThread(Tag.FX)
-    public static javafx.scene.image.Image getImageAsFXImage(String propname)
+    public static Image getImageAsFXImage(String propname)
     {
         try
         {
-            java.net.URL u = getImageFile(propname).toURI().toURL();
-            return new javafx.scene.image.Image(u.toString());
+            URL u = getImageFile(propname).toURI().toURL();
+            return new Image(u.toString());
         }
-        catch (java.net.MalformedURLException mue) { }
+        catch (MalformedURLException mue) { }
         catch (NullPointerException npe) { }
         return null;
     }
@@ -1282,16 +1285,16 @@ public final class Config
      * @return
      */
     @OnThread(Tag.FX)
-    public static javafx.scene.image.Image getFixedImageAsFXImage(String filename)
+    public static Image getFixedImageAsFXImage(String filename)
     {
         if (filename == null)
             throw new IllegalArgumentException("Cannot load null image");
         
         File image = new File(bluejLibDir, "images" + File.separator + filename);
         try {
-            return new javafx.scene.image.Image(image.toURI().toURL().toString());
+            return new Image(image.toURI().toURL().toString());
         }
-        catch (java.net.MalformedURLException mue) { }
+        catch (MalformedURLException mue) { }
         return null;
     }
 
@@ -1398,18 +1401,22 @@ public final class Config
     /**
      * Return the template directory.
      */
-    public static File getClassTemplateDir()
+    public static File getClassTemplateDir(SourceType sourceType)
     {
-        return new File(getTemplateDir(), "newclass");
+        String pathname = switch (sourceType) {
+            case Java -> "newclass";
+            default -> "newclass_" + sourceType.name().toLowerCase();
+        };
+        return new File(getTemplateDir(), pathname.toString());
     }
 
     /**
      * Find and return the file name for a class template file
      * Format: <template-dir>/<base>.tmpl
      */
-    public static File getClassTemplateFile(String base)
+    public static File getClassTemplateFile(String base, SourceType sourceType)
     {
-        return new File(getClassTemplateDir(), base + ".tmpl");
+        return new File(getClassTemplateDir(sourceType), base + ".tmpl");
     }
     
     /**
@@ -1788,7 +1795,7 @@ public final class Config
                 {
                     //Debug.message("Loading font: " + file);
                     FileInputStream fis = new FileInputStream(file);
-                    final javafx.scene.text.Font font = javafx.scene.text.Font.loadFont(fis, 10);
+                    final Font font = Font.loadFont(fis, 10);
                     fis.close();
                     if (font == null) {
                         Debug.reportError("Unknown problem loading TTF JavaFX font: " + file.getAbsolutePath());
