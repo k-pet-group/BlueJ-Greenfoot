@@ -23,6 +23,7 @@ package bluej.pkgmgr.target.role;
 
 import bluej.Config;
 import bluej.debugmgr.objectbench.InvokeListener;
+import bluej.extensions2.SourceType;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.target.ClassTarget;
@@ -126,7 +127,7 @@ public abstract class ClassRole
      * @param includeFullContent
      *            whether to include the full template content (true) or omit the body content (false)
      */
-    public boolean generateSkeleton(String template, Package pkg, String name, String sourceFile, boolean includeFullContent)
+    public boolean generateSkeleton(String template, Package pkg, String name, String sourceFile, SourceType sourceType, boolean includeFullContent)
     {
         Hashtable<String,String> translations = new Hashtable<>();
         translations.put("CLASSNAME", name);
@@ -148,7 +149,7 @@ public abstract class ClassRole
                 pkg.showError("duplicate-name");
                 return false;
             }
-            BlueJFileReader.translateFile(Config.getClassTemplateFile(template),
+            BlueJFileReader.translateFile(Config.getClassTemplateFile( template, sourceType.getConfigSourceType()),
                     new File(sourceFile), translations,
                     StandardCharsets.UTF_8, pkg.getProject().getProjectCharset(), includeFullContent);
             return true;
