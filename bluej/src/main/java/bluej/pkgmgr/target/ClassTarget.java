@@ -36,6 +36,7 @@ import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.TextEditor;
 import bluej.editor.flow.FlowEditor;
+import bluej.editor.flow.FlowSource;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions2.*;
@@ -1319,11 +1320,10 @@ public class ClassTarget extends DependentTarget
                         return project.getDefaultFXTabbedEditor();
                     }
                 };
-                final boolean isJava = sourceAvailable == SourceType.Java;
                 editor = new FlowEditor(fetchTabbedEditor, getBaseName(), this,
                         resolver, project.getJavadocResolver(), openCallback,
                         PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING),
-                        isJava);
+                        FlowSource.fromSourceType(sourceAvailable));
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
             }
             else /* sourceAvailable == SourceType.Stride */ {
