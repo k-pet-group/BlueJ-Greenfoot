@@ -23,6 +23,7 @@ package bluej.pkgmgr.target;
 
 import bluej.editor.Editor;
 import bluej.editor.flow.FlowEditor;
+import bluej.editor.flow.FlowSource;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.actions.EditAction;
 import bluej.pkgmgr.target.actions.RemoveEditableTargetAction;
@@ -105,7 +106,7 @@ public class TextFileTarget extends NonCodeEditableTarget
                 {
                     return getPackage().getProject().getDefaultFXTabbedEditor();
                 }
-            }, getSourceFile().getName(), this, null, null, () -> {}, new ReadOnlyBooleanWrapper(false), false);
+            }, getSourceFile().getName(), this, null, null, () -> {}, new ReadOnlyBooleanWrapper(false), FlowSource.PlainText);
             flowEditor.showFile(file.getAbsolutePath(), StandardCharsets.UTF_8, false, null);
             this.editor = flowEditor;
         }
