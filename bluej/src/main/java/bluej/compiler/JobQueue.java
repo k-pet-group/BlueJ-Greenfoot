@@ -51,14 +51,16 @@ public class JobQueue
     // ---- instance ----
 
     private CompilerThread thread = null;
-    private Compiler compiler = null;
+    private Compiler javaCompiler = null;
+    private Compiler kotlinCompiler = null;
 
     /**
      * Construct the JobQueue. This is private; use getJobQueue() to get the job queue instance.
      */
     private JobQueue()
     {
-        compiler = new CompilerAPICompiler();
+        javaCompiler = new CompilerAPICompiler();
+        kotlinCompiler = new KotlinCompiler();
         thread = new CompilerThread();
 
         // Lower priority to improve GUI response time during compilation
@@ -85,8 +87,20 @@ public class JobQueue
         List<String> options = new ArrayList<String>();
         String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, "");
         options.addAll(Utility.dequoteCommandLine(optionString));
-        
-        thread.addJob(new Job(sources, compiler, observer, bpClassLoader,
+
+        // Determine which compiler to use based on the source file type
+        boolean hasKotlinFiles = false;
+        for (CompileInputFile source : sources) {
+            File userSourceFile = source.getUserSourceFile();
+            if (userSourceFile != null && userSourceFile.getName().endsWith(".kt")) {
+                hasKotlinFiles = true;
+                break;
+            }
+        }
+
+        Compiler compilerToUse = hasKotlinFiles ? kotlinCompiler : javaCompiler;
+
+        thread.addJob(new Job(sources, compilerToUse, observer, bpClassLoader,
                 destDir, suppressUnchecked, options, fileCharset, type, reason));
     }
 
