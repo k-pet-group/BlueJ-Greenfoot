@@ -2620,7 +2620,14 @@ public class ClassTarget extends DependentTarget
 
     public CompileInputFile getCompileInputFile()
     {
-        return new CompileInputFile(getJavaSourceFile(), getSourceFile());
+        if (sourceAvailable == SourceType.Kotlin) {
+            // For Kotlin files, we use the Kotlin source file directly
+            File kotlinSourceFile = getSourceFile();
+            return new CompileInputFile(kotlinSourceFile, kotlinSourceFile);
+        } else {
+            // For Java and Stride files, we use the Java source file
+            return new CompileInputFile(getJavaSourceFile(), getSourceFile());
+        }
     }
 
     /**
