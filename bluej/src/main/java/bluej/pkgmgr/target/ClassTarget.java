@@ -1109,12 +1109,8 @@ public class ClassTarget extends DependentTarget
     @Override
     public File getSourceFile()
     {
-        return switch (sourceAvailable) {
-            case Java -> getJavaSourceFile();
-            case Stride -> getFrameSourceFile();
-            case Kotlin -> getSourceFileByType(SourceType.Kotlin);
-            default -> null;
-        };
+        SourceType sourceType = sourceAvailable == SourceType.Stride ? SourceType.Java : sourceAvailable;
+        return getSourceFileByType(sourceType);
     }
 
     public boolean isVisible()
@@ -1712,7 +1708,7 @@ public class ClassTarget extends DependentTarget
 
         analysing = true;
 
-        ClassInfo info = sourceInfo.getInfo(getJavaSourceFile(), getPackage());
+        ClassInfo info = sourceInfo.getInfo(getSourceFile(), getPackage());
 
         // info will be null if the source was unparseable
         if (info != null) {
