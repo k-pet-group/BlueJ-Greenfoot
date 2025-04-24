@@ -74,7 +74,7 @@ public class CompilerAPICompiler extends Compiler
      */
     @Override
     public boolean compile(final File[] sources, final CompileObserver observer,
-            final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type)
+            final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type, File outputDir)
     {
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
@@ -193,21 +193,17 @@ public class CompilerAPICompiler extends Compiler
             // In BlueJ, the destination directory and the source path are
             // always the same
             sjfm.setLocation(StandardLocation.SOURCE_PATH, outputList);
-            sjfm.setLocation(StandardLocation.CLASS_PATH, pathList);
-            File tempDir = null;
-            if (type.keepClasses())
+            if (outputDir != null)
             {
-                sjfm.setLocation(StandardLocation.CLASS_OUTPUT, outputList);
+                pathList.add(outputDir);
+                sjfm.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(outputDir));
             }
             else
             {
-                // We could make a new file manager that memory-mapped the output files
-                // and discarded them... but creating a temporary dir is much more
-                // straightforward:
-                tempDir = Files.createTempDirectory("bluej").toFile();
-                sjfm.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(tempDir));
+                sjfm.setLocation(StandardLocation.CLASS_OUTPUT, outputList);
             }
-            
+            sjfm.setLocation(StandardLocation.CLASS_PATH, pathList);
+
             //get the source files for compilation  
             Iterable<? extends JavaFileObject> compilationUnits1 =
                 sjfm.getJavaFileObjectsFromFiles(Arrays.asList(sources));
@@ -229,8 +225,6 @@ public class CompilerAPICompiler extends Compiler
             //compile
             result = jc.getTask(null, sjfm, diagListener, optionsList, null, compilationUnits1).call();
             sjfm.close();
-            if (tempDir != null)
-                tempDir.delete();
         }
         catch(IOException e)
         {
