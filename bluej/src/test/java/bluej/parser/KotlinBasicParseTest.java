@@ -28,10 +28,8 @@ import java.io.StringReader;
 import java.net.URL;
 import java.util.List;
 
-import bluej.JavaFXThreadingRule;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.symtab.ClassInfo;
-import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -49,9 +47,6 @@ import static org.junit.Assert.*;
  */
 public class KotlinBasicParseTest
 {
-    @Rule
-    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
-
     /**
      * Get a data or result file from our hidden stash.
      * NOTE: the stash of data files is in the ast/data directory.

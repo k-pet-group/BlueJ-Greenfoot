@@ -60,7 +60,6 @@ public class JobQueue
     private JobQueue()
     {
         javaCompiler = new CompilerAPICompiler();
-        kotlinCompiler = new KotlinCompiler();
         thread = new CompilerThread();
 
         // Lower priority to improve GUI response time during compilation
@@ -77,30 +76,30 @@ public class JobQueue
      * @param sources   The files to compile
      * @param observer  Observer to be notified when compilation begins,
      *                  errors/warnings, completes
-     * @param classPath The classpath to use to locate objects/source code
      * @param destDir   Destination for class files?
      * @param suppressUnchecked    Suppress "unchecked" warning in java 1.5
      */
-    public void addJob(CompileInputFile[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
+    public void addJob(List<CompileInputFile> sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
             boolean suppressUnchecked, Charset fileCharset, CompileReason reason, CompileType type)
     {
         List<String> options = new ArrayList<String>();
         String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, "");
         options.addAll(Utility.dequoteCommandLine(optionString));
 
-        // Determine which compiler to use based on the source file type
+        // Determine whether we need the Kotlin compiler for this job
         boolean hasKotlinFiles = false;
         for (CompileInputFile source : sources) {
-            File userSourceFile = source.getUserSourceFile();
-            if (userSourceFile != null && userSourceFile.getName().endsWith(".kt")) {
+            if (source.getCompileFileExtension().equals("kt")) {
                 hasKotlinFiles = true;
                 break;
             }
         }
 
-        Compiler compilerToUse = hasKotlinFiles ? kotlinCompiler : javaCompiler;
+        if (hasKotlinFiles && kotlinCompiler == null) {
+            kotlinCompiler = new KotlinCompiler();
+        }
 
-        thread.addJob(new Job(sources, compilerToUse, observer, bpClassLoader,
+        thread.addJob(new Job(sources, javaCompiler, hasKotlinFiles ? kotlinCompiler : null, observer, bpClassLoader,
                 destDir, suppressUnchecked, options, fileCharset, type, reason));
     }
 

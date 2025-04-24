@@ -30,7 +30,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Before;
@@ -68,6 +67,7 @@ public class TestKotlinCompiler
         // Set up classpath
         List<File> classPath = new ArrayList<>();
         classPath.add(tempDir.toFile());
+        classPath.add(new File(getKotlinStdLibJarPath()));
         compiler.setClasspath(classPath);
     }
 
@@ -98,8 +98,7 @@ public class TestKotlinCompiler
             observer, 
             false, // not internal
             null,  // no user options
-            StandardCharsets.UTF_8,
-            CompileType.EXPLICIT_USER_COMPILE
+            StandardCharsets.UTF_8, CompileType.EXPLICIT_USER_COMPILE, null
         );
 
         // Verify compilation was successful
@@ -143,5 +142,16 @@ public class TestKotlinCompiler
         {
             return hasErrors;
         }
+    }
+
+    private static String getKotlinStdLibJarPath() {
+        Class<?> stdlibClass = kotlin.collections.CollectionsKt.class;
+        String resourcePath = stdlibClass.getName().replace('.', '/') + ".class";
+        var url = stdlibClass.getClassLoader().getResource(resourcePath);
+        if (url != null && "jar".equals(url.getProtocol())) {
+            String path = url.getPath();
+            return path.substring("file:".length(), path.indexOf("!"));
+        }
+        return null;
     }
 }

@@ -21,6 +21,8 @@
  */
 package bluej.compiler;
 
+import com.google.common.io.Files;
+
 import java.io.File;
 import java.io.Serializable;
 
@@ -29,26 +31,26 @@ import java.io.Serializable;
  */
 public class CompileInputFile implements Serializable
 {
-    private final File actualJavaFileForCompiler;
+    private final File actualSourceFileForCompiler;
     private final File sourceFileToRecord;
 
     /**
      *
-     * @param actualJavaFileForCompiler The .java file that the compiler will see, even if the original was Stride
+     * @param actualSourceFileForCompiler The .java file that the compiler will see, even if the original was Stride
      * @param sourceFileToRecord The Stride file for Stride (or Java for Java; in this case, both parameters will be identical).
      */
-    public CompileInputFile(File actualJavaFileForCompiler, File sourceFileToRecord)
+    public CompileInputFile(File actualSourceFileForCompiler, File sourceFileToRecord)
     {
-        this.actualJavaFileForCompiler = actualJavaFileForCompiler;
+        this.actualSourceFileForCompiler = actualSourceFileForCompiler;
         this.sourceFileToRecord = sourceFileToRecord;
     }
 
     /**
-     * The .java source file that gets fed to the compiler (even for Stride classes)
+     * The .java or .kt source file that gets fed to the compiler (even for Stride classes)
      */
-    public File getJavaCompileInputFile()
+    public File getCompileInputFile()
     {
-        return actualJavaFileForCompiler;
+        return actualSourceFileForCompiler;
     }
 
     /**
@@ -61,6 +63,11 @@ public class CompileInputFile implements Serializable
 
     public boolean isValid()
     {
-        return (actualJavaFileForCompiler !=null && sourceFileToRecord != null);
+        return (actualSourceFileForCompiler !=null && sourceFileToRecord != null);
+    }
+
+    public String getCompileFileExtension()
+    {
+        return Files.getFileExtension(actualSourceFileForCompiler.getName());
     }
 }

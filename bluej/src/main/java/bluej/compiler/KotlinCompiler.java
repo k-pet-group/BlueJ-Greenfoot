@@ -22,11 +22,8 @@
 package bluej.compiler;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,7 +35,6 @@ import org.jetbrains.kotlin.cli.common.messages.MessageCollector;
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler;
 import org.jetbrains.kotlin.config.Services;
 
-import bluej.Config;
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
 
 /**
@@ -69,7 +65,7 @@ public class KotlinCompiler extends Compiler
      */
     @Override
     public boolean compile(final File[] sources, final CompileObserver observer,
-            final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type)
+            final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type, File outputDir)
     {
         K2JVMCompiler compiler = new K2JVMCompiler();
         K2JVMCompilerArguments arguments = new K2JVMCompilerArguments();
@@ -80,19 +76,17 @@ public class KotlinCompiler extends Compiler
         arguments.setNoReflect(true);
 
         // Set the destination directory for class files
-        arguments.setDestination(getDestDir().getAbsolutePath());
+        if (outputDir != null) {
+            arguments.setDestination(outputDir.getAbsolutePath());
+        } else {
+            arguments.setDestination(getDestDir().getAbsolutePath());
+        }
 
         // Set the classpath
         List<File> classPath = getClassPath();
-
-        String stdlibJarPath = getKotlinStdLibJatPath();
-        if (stdlibJarPath != null) {
-            File kotlinStdLibJar = new File(stdlibJarPath);
-            classPath.add(kotlinStdLibJar);
-            String classPathString = String.join(File.pathSeparator,
-                    classPath.stream().map(File::getAbsolutePath).toArray(String[]::new));
-            arguments.setClasspath(classPathString);
-        }
+        String classPathString = String.join(File.pathSeparator,
+                classPath.stream().map(File::getAbsolutePath).toArray(String[]::new));
+        arguments.setClasspath(classPathString);
 
         // Set the source files
         arguments.setFreeArgs(Arrays.stream(sources).map(File::getAbsolutePath).toList());
@@ -142,16 +136,5 @@ public class KotlinCompiler extends Compiler
     private int getNewErrorIdentifier()
     {
         return nextDiagnosticIdentifier.getAndIncrement();
-    }
-
-    private String getKotlinStdLibJatPath() {
-        Class<?> stdlibClass = kotlin.collections.CollectionsKt.class;
-        String resourcePath = stdlibClass.getName().replace('.', '/') + ".class";
-        var url = stdlibClass.getClassLoader().getResource(resourcePath);
-        if (url != null && "jar".equals(url.getProtocol())) {
-            String path = url.getPath();
-            return path.substring("file:".length(), path.indexOf("!"));
-        }
-        return null;
     }
 }

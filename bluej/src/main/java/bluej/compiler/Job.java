@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
+import bluej.utility.Utility;
 
 /**
  * A compiler "job". A list of filenames to compile + parameters.
@@ -37,7 +38,7 @@ import bluej.classmgr.BPClassLoader;
  *
  * @author  Michael Cahill
  */
-record Job(CompileInputFile[] sources, Compiler compiler, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
+record Job(List<CompileInputFile> sources, Compiler javaCompiler, Compiler kotlinCompiler, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
            boolean internal, // true for compiling shell files,
                              // or user files if we want to suppress
                              // "unchecked" warnings, false otherwise
@@ -50,6 +51,15 @@ record Job(CompileInputFile[] sources, Compiler compiler, CompileObserver observ
      */
     private static final AtomicInteger nextCompilationSequence = new AtomicInteger(1);
 
+    private void configureCompiler(Compiler compiler, File destDir, BPClassLoader bpClassLoader)
+    {
+        if(destDir != null) {
+            compiler.setDestDir(destDir);
+        }
+        compiler.setClasspath(bpClassLoader.getClassPathAsFiles());
+        compiler.setBootClassPath(null);
+    }
+
     /**
      * Compile this job
      */
@@ -57,35 +67,54 @@ record Job(CompileInputFile[] sources, Compiler compiler, CompileObserver observ
     {
         int compilationSequence = nextCompilationSequence.getAndIncrement();
 
+        configureCompiler(javaCompiler, destDir, bpClassLoader);
+
+        CompileInputFile[] sourcesArray = sources.toArray(new CompileInputFile[0]);
         try {
             if(observer != null) {
-                observer.startCompile(sources, reason, type, compilationSequence);
+                observer.startCompile(sourcesArray, reason, type, compilationSequence);
             }
 
-            if(destDir != null) {
-                compiler.setDestDir(destDir);
-            }
+            // We could make a new file manager that memory-mapped the output files
+            // and discarded them... but creating a temporary dir is much more
+            // straightforward:
+            File outputDir = type.keepClasses() ? destDir : Files.createTempDirectory("bluej").toFile();
 
-            compiler.setClasspath(bpClassLoader.getClassPathAsFiles());
+            List<File> srcFiles = Utility.mapList(sources, CompileInputFile::getCompileInputFile);
+            List<File> javaSourceFiles = Utility.mapList(
+                    Utility.filterList(sources, cif -> cif.getCompileFileExtension().equals("java")),
+                    CompileInputFile::getCompileInputFile);
 
-            compiler.setBootClassPath(null);
-
-            File[] actualSourceFiles = new File[sources.length];
-            for (int i = 0; i < sources.length; i++)
+            boolean successful = true;
+            // We compile Kotlin files first to make sure that class files are later available for Java compilation.
+            if (kotlinCompiler != null)
             {
-                actualSourceFiles[i] = sources[i].getJavaCompileInputFile();
+                configureCompiler(kotlinCompiler, outputDir, bpClassLoader);
+                // Kotlin compiler needs all the source files (Kotlin and Java) to be passed to it at once.
+                successful &= kotlinCompiler.compile(srcFiles.toArray(new File[0]),
+                        observer, internal, userCompileOptions, fileCharset, type, outputDir);
             }
 
-            boolean successful = compiler.compile(actualSourceFiles, observer, internal, userCompileOptions, fileCharset, type);
+            if (!javaSourceFiles.isEmpty())
+            {
+                successful &= javaCompiler.compile(javaSourceFiles.toArray(new File[0]),
+                        observer, internal, userCompileOptions, fileCharset, type, outputDir);
+            }
 
-            if(observer != null) {
-                observer.endCompile(sources, successful, type, compilationSequence);
+            if (!type.keepClasses() && outputDir != null)
+            {
+                outputDir.delete();
+            }
+
+            if(observer != null)
+            {
+                observer.endCompile(sourcesArray, successful, type, compilationSequence);
             }
         } catch(Exception e) {
             System.err.println(Config.getString("compileException") + ": " + e);
             e.printStackTrace();
             if (observer != null) {
-                observer.endCompile(sources, false, type, compilationSequence);
+                observer.endCompile(sourcesArray, false, type, compilationSequence);
             }
         }
     }
