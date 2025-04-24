@@ -89,7 +89,7 @@ public class PrefMgr
     public static final int MIN_EDITOR_FONT_SIZE = 6;
     public static final int MAX_EDITOR_FONT_SIZE = 160;
     public static final int DEFAULT_STRIDE_FONT_SIZE = 11;
-    public static final int DEFAULT_JAVA_FONT_SIZE = 10;
+    public static final int DEFAULT_JAVA_FONT_SIZE = 12;
     public static final String DEFAULT_TEXTFILE_EXTENSIONS = ".txt, .md";
 
 
