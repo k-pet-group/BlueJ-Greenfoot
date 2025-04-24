@@ -175,7 +175,8 @@ public class AssertPanel extends HBox
         getChildren().add(standardPanel);
 
         assertCheckbox.setSelected(true);
-        
+
+        JavaFXUtil.addChangeListenerPlatform(assertCombo.getSelectionModel().selectedItemProperty(), ai -> update());
         assertCombo.setItems(asserts.filtered(a -> {
             if (isFloat)
                 return a.supportsFloatingPoint;
