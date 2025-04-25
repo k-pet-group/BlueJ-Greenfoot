@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022,2024 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022,2024,2025 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
+import bluej.compiler.DiagnosticMessage;
 import bluej.debugger.DebuggerThread;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
@@ -183,21 +184,8 @@ public class FrameEditor implements Editor
      * A javac compile error.
      */
     @OnThread(Tag.Any)
-    private static class QueuedError
+    private static record QueuedError(long startLine, long startColumn, long endLine, long endColumn, DiagnosticMessage message, int identifier)
     {
-        private final long startLine, startColumn, endLine, endColumn;
-        private final String message;
-        private final int identifier;
-
-        private QueuedError(long startLine, long startColumn, long endLine, long endColumn, String message, int identifier)
-        {
-            this.startLine = startLine;
-            this.startColumn = startColumn;
-            this.endLine = endLine;
-            this.endColumn = endColumn;
-            this.message = message;
-            this.identifier = identifier;
-        }
     }
 
     @OnThread(Tag.FX)
@@ -842,7 +830,7 @@ public class FrameEditor implements Editor
     {
         if (lastSavedJava != null && lastSavedJava.javaSource != null && lastSavedJava.xpathLocations != null)
         {
-            JavaFragment fragment = lastSavedJava.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage());
+            JavaFragment fragment = lastSavedJava.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage().localisedMessage());
             if (fragment != null)
             {
                 String xpath = lastSavedJava.xpathLocations.locationFor(fragment);
@@ -859,7 +847,7 @@ public class FrameEditor implements Editor
         {
             JavaFXUtil.onceNotNull(javaSource, js ->
                     js.handleError((int) diagnostic.getStartLine(), (int) diagnostic.getStartColumn(),
-                        (int) diagnostic.getEndLine(), (int) diagnostic.getEndColumn(), diagnostic.getMessage(), diagnostic.getIdentifier())
+                        (int) diagnostic.getEndLine(), (int) diagnostic.getEndColumn(), diagnostic.getMessage().localisedMessage(), diagnostic.getIdentifier())
             );
         }
         else
@@ -1137,7 +1125,7 @@ public class FrameEditor implements Editor
                             // Use runlater because we might be mid-save, so need to wait for current code to finish:
                             JavaFXUtil.runPlatformLater(() -> {
                                 js.handleError((int) e.startLine, (int) e.startColumn,
-                                        (int) e.endLine, (int) e.endColumn, e.message, e.identifier);
+                                        (int) e.endLine, (int) e.endColumn, e.message.localisedMessage(), e.identifier);
                             });
                         }
                         // We need to use runLater to account for the fact that adding errors uses a runLater:
