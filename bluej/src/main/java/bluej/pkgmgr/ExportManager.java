@@ -63,8 +63,10 @@ import threadchecker.Tag;
 final class ExportManager
 {
     private static final String specifyJar = Config.getString("pkgmgr.export.specifyJar");
-    
-    private static final String sourceSuffix = "." + SourceType.Java.getExtension();
+    @OnThread(Tag.Any)
+    private static final List<String> sourceSuffixes =
+            List.of("." + SourceType.Java.getExtension(), "." + SourceType.Java.getExtension() + "~",
+                    "." + SourceType.Kotlin.getExtension(), "." + SourceType.Kotlin.getExtension() + "~" );
     private static final String contextSuffix = ".ctxt";
     private static final String packageFilePrefix = "bluej.pk";
     private static final String packageFileSuffix = ".bluej";
@@ -279,7 +281,7 @@ final class ExportManager
         if(fileName.equals(packageFileBackup))
             return true;
         
-        if(fileName.endsWith(sourceSuffix) || fileName.endsWith(sourceSuffix + "~"))
+        if(sourceSuffixes.stream().anyMatch(fileName::endsWith))
             return skipSource;
         if(fileName.startsWith(packageFilePrefix) || fileName.endsWith(packageFileSuffix) ||
                 fileName.endsWith(contextSuffix))
