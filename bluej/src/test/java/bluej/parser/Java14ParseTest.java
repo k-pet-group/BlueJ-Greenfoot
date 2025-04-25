@@ -21,9 +21,9 @@
  */
 package bluej.parser;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URL;
+
+import static bluej.utility.ResourceFileReader.getResourceFile;
 
 import org.junit.After;
 import org.junit.Before;
@@ -38,22 +38,6 @@ import static org.junit.Assert.*;
  */
 public class Java14ParseTest
 {
-    /**
-     * Get a data or result file from our hidden stash..
-     *
-     * @param name
-     * @return
-     */
-    private File getFile(String name)
-    {
-        URL url = getClass().getResource("/bluej/parser/" + name);
-
-        if (url == null || url.getFile().equals(""))
-            return null;
-        else
-            return new File(url.getFile());
-    }
-
     /**
      * Sets up the test fixture.
      *
@@ -81,6 +65,6 @@ public class Java14ParseTest
     public void testStandardAssertion()
         throws FileNotFoundException
     {
-        assertNotNull(InfoParser.parse(getFile("14_assertion.dat")));
+        assertNotNull(InfoParser.parse(getResourceFile(this.getClass(), "/bluej/parser/14_assertion.dat")));
     }
 }

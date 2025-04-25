@@ -23,11 +23,12 @@ package bluej.parser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URL;
 
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
+
+import static bluej.utility.ResourceFileReader.getResourceFile;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,22 +44,6 @@ import static org.junit.Assert.*;
 public class InternationalParseTest
 {
     /**
-     * Get a data or result file from our hidden stash..
-     *
-     * @param name
-     * @return
-     */
-    private File getFile(String name)
-    {
-        URL url = getClass().getResource("/bluej/parser/" + name);
-
-        if (url == null || url.getFile().equals(""))
-            return null;
-        else
-            return new File(url.getFile());
-    }
-
-    /**
      * Sets up the test fixture.
      *
      * Called before every test case method.
@@ -67,7 +52,7 @@ public class InternationalParseTest
     public void setUp()
     {
         //i18n1data = ;
-        //i18n1result = getFile("i18n3.res");
+        //i18n1result = getResourceFile(getClass(), "/bluej/parser/i18n3.res");
     }
 
     /**
@@ -87,9 +72,9 @@ public class InternationalParseTest
     public void testInternationalization()
         throws FileNotFoundException
     {
-        assertNotNull(InfoParser.parse(getFile("escaped_unicode_string.dat")));
+        assertNotNull(InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/escaped_unicode_string.dat")));
 
-        ClassInfo info = InfoParser.parse(getFile("escaped_unicode_method.dat"),
+        ClassInfo info = InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/escaped_unicode_method.dat"),
                 new ClassLoaderResolver(this.getClass().getClassLoader()));
 
         // Superclass name is Error (encoded)
