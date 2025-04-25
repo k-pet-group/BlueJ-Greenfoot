@@ -16,11 +16,11 @@ h1, h2, h3 {
 
 code, code > pre {
     display: block;
-    font-family: 'Roboto Mono';
+    font-family: 'Source Code Pro';
     margin: 20px 0px 20px 40px;
 }
 tt {
-    font-family: 'Roboto Mono';
+    font-family: 'Source Code Pro';
 }
 
 .bluej-icon {

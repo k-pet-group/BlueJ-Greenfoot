@@ -1068,6 +1068,7 @@ public final class FlowActions
 
         // cursor block
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.EQUALS, SHORTCUT_MASK), "increase-font");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.PLUS, SHORTCUT_MASK), "increase-font");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.MINUS, SHORTCUT_MASK), "decrease-font");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SUBTRACT, KeyCombination.SHORTCUT_DOWN), "decrease-font"); //support for the numpad - (which is the only "minus" symbol supported on the French keyboard)
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.DIGIT0, SHORTCUT_MASK), "reset-font");

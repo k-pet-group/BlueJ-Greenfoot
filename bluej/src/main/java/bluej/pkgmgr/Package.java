@@ -2233,21 +2233,6 @@ public final class Package
     }
 
     /**
-     * An interface for message "calculators" which can produce enhanced diagnostic messages when
-     * given a reference to the editor in which a compilation error occurred.
-     */
-    public static interface MessageCalculator
-    {
-        /**
-         * Produce a diagnostic message for the given editor.
-         * This should produce something half-way helpful if null is passed.
-         *
-         * @param e  The editor where the original error occurred (null if it cannot be determined).
-         */
-        public String calculateMessage(Editor e);
-    }
-
-    /**
      * Attempt to display (in the corresponding editor) an error message associated with a
      * specific line in a class. This is done by opening the class's source, highlighting the line
      * and showing the message in the editor's information area. If the filename specified does
@@ -2360,7 +2345,7 @@ public final class Package
      * @param errorIndex The index of the error (first is 0, second is 1, etc)
      * @param compileType The type of the compilation which caused the error.
      */
-    private ErrorShown showEditorDiagnostic(Diagnostic diagnostic, MessageCalculator messageCalc, int errorIndex, CompileType compileType)
+    private ErrorShown showEditorDiagnostic(Diagnostic diagnostic, int errorIndex, CompileType compileType)
     {
         String fileName = diagnostic.getFileName();
         if (fileName == null) {
@@ -2376,9 +2361,6 @@ public final class Package
 
         Editor targetEditor = t.getEditor();
         if (targetEditor != null) {
-            if (messageCalc != null) {
-                diagnostic.setMessage(messageCalc.calculateMessage(targetEditor));
-            }
 
             if (project.isClosing()) {
                 return ErrorShown.ERROR_NOT_SHOWN;
@@ -2865,7 +2847,7 @@ public final class Package
             }
 
             String message = diagnostic.getMessage().localisedMessage();
-            messageShown = showEditorDiagnostic(diagnostic, null, numErrors - 1, type);
+            messageShown = showEditorDiagnostic(diagnostic, numErrors - 1, type);
 
             // Display the error message in the source editor
             switch (messageShown)

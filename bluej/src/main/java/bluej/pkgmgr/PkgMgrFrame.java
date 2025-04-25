@@ -2130,6 +2130,11 @@ public class PkgMgrFrame
         }
     }
 
+    void setReRun(ClassTarget classTarget, FXPlatformRunnable run)
+    {
+        this.reRun.set(new RerunDetails(classTarget.getQualifiedName(), err -> run.run()));
+    }
+
     /**
      * Open a package target.
      */

@@ -2809,6 +2809,8 @@ public class ClassTarget extends DependentTarget
                     target.getPackage().getProject().setRunOnThread(RunOnThread.DEFAULT);
             }
 
+            target.getPackage().getEditor().setReRun(target, () -> this.execute(target));
+
             CompletableFuture<FXPlatformSupplier<DebuggerResult>> result = target.getPackage().getDebugger().launchFXApp(cl.getName());
             target.putFXLaunchResult(ed, fxWindow, result);
         }
