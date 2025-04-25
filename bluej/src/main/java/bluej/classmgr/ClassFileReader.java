@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class ClassFileReader {
-    public static String readSourceFile(File classFile) {
+    public static String readSourceFileField(File classFile) {
         try (InputStream in = new FileInputStream(classFile)) {
             ClassReader reader = new ClassReader(in);
             ClassNode node = new ClassNode();

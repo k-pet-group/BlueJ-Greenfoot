@@ -23,6 +23,7 @@ package bluej.pkgmgr.target;
 
 
 import bluej.Config;
+import bluej.classmgr.ClassFileReader;
 import bluej.collect.DataCollector;
 import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
@@ -175,6 +176,7 @@ public class ClassTarget extends DependentTarget
     private boolean compilationInvalid = false;
 
     private SourceType sourceAvailable;
+    private Optional<String> ktSourceFileName = Optional.empty();
     // Part of keeping track of number of editors opened, for Greenfoot phone home:
     private boolean hasBeenOpened = false;
 
@@ -310,6 +312,16 @@ public class ClassTarget extends DependentTarget
         });
     }
 
+    private boolean sourceFileFound(SourceType sourceType)
+    {
+        final File file = getSourceFileByType(sourceType);
+        if (file != null && file.canRead()) {
+            sourceAvailable = sourceType;
+            noSourceLabel.setText("");
+            return true;
+        }
+        return false;
+    }
     /**
      * Check whether the class has source, and of what type.
      */
@@ -319,13 +331,22 @@ public class ClassTarget extends DependentTarget
         // It's important to check for Stride source first!
         final SourceType[] languageTypes = { SourceType.Stride, SourceType.Java, SourceType.Kotlin };
         for (SourceType languageType : languageTypes) {
-            final File file = getSourceFileByType(languageType);
-            if (file != null && file.canRead()) {
-                sourceAvailable = languageType;
-                noSourceLabel.setText("");
+            if(sourceFileFound(languageType)) {
                 return;
             }
         }
+
+        // Second attempt: a Kotlin source file might be compiled to class files with different names
+        if (ktSourceFileName.isEmpty()) {
+            ktSourceFileName = Optional.ofNullable(ClassFileReader.readSourceFileField(getClassFile()));
+
+            if (ktSourceFileName.isPresent()) {
+                if(sourceFileFound(SourceType.Kotlin)) {
+                    return;
+                }
+            }
+        }
+
         // No sources found
         // Can't have been modified since compile since there's no source to modify:
         setState(State.COMPILED);
@@ -1083,10 +1104,8 @@ public class ClassTarget extends DependentTarget
         {
             return null;
         }
-        else
-        {
-            return new File(getPackage().getPath(), getBaseName() + "." + sourceType.getExtension());
-        }
+        String sourceFileName = ktSourceFileName.orElse(getBaseName() + "." + sourceType.getExtension());
+        return new File(getPackage().getPath(), sourceFileName);
     }
 
     /**
