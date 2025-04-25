@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2011,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2011,2016,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -139,16 +139,6 @@ public class Diagnostic implements Serializable
     public long getEndLine()
     {
         return endLine;
-    }
-    
-    /**
-     * Set the diagnostic message (the message to be presented to the end user).
-     * This can change because we try to make the message more helpful to the user,
-     * e.g. by suggesting likely mis-spellings.
-     */
-    public void setMessage(String message)
-    {
-        this.message = message;
     }
     
     /**

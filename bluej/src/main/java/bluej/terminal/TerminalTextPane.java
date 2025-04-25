@@ -211,6 +211,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
         // Add shortcuts to allow changing font size:
         Nodes.addInputMap(this, InputMap.sequence(
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.increaseFontSize(PrefMgr.getEditorFontSize())),
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.PLUS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.increaseFontSize(PrefMgr.getEditorFontSize())),
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.decreaseFontSize(PrefMgr.getEditorFontSize())),
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN)), e -> PrefMgr.getEditorFontSize().set(PrefMgr.DEFAULT_JAVA_FONT_SIZE))
         ));

@@ -187,6 +187,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
 
         tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
+        tabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
         menuBar = new MenuBar();
         JavaFXUtil.addStyleClass(menuBar, "editor-menubar");
         menuBar.setUseSystemMenuBar(true);

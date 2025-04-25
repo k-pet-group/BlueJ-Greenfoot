@@ -191,6 +191,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final List<Menu> fxMenus;
     private final ListView<ErrorDetails> errorList;
     private final BorderPane errorListPane;
+    private final MenuItem screenshotLinesMenuItem;
     private boolean compilationStarted;
     private boolean requeueForCompilation;
     private boolean compilationQueued;
@@ -281,6 +282,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                             flowEditorPane.positionCaret(p.getPosition());
                     });
         }
+
+        screenshotLinesMenuItem.setDisable(getScreenshotLineBounds() == null);
 
         if (numGoToItemsInContextMenu > 0)
         {
@@ -654,12 +657,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         bottomArea.setTop(finder);
         setBottom(bottomArea);
 
+        screenshotLinesMenuItem = JavaFXUtil.makeMenuItem(Config.getString("editor.screenshotLines"), this::screenshotLines, null);
         this.editorContextMenu = new ContextMenu(
             getActions().getActionByName("cut-to-clipboard").makeContextMenuItem(Config.getString("editor.cutLabel")),
             getActions().getActionByName("copy-to-clipboard").makeContextMenuItem(Config.getString("editor.copyLabel")),
             getActions().getActionByName("paste-from-clipboard").makeContextMenuItem(Config.getString("editor.pasteLabel")),
             new SeparatorMenuItem(),
-            JavaFXUtil.makeMenuItem(Config.getString("editor.screenshotLines"), () -> screenshotLines(), null)
+            screenshotLinesMenuItem
         );
         // watcher is null for plain text files, and during testing:
         if (watcher != null)
@@ -3885,21 +3889,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     public void screenshotLines()
     {
-        int selStartLine = document.getLineFromPosition(flowEditorPane.getSelectionStart());
-        int selEndLine = document.getLineFromPosition(flowEditorPane.getSelectionEnd());
-        // Only include margin if line numbers are on:
-        boolean inclMargin = PrefMgr.getFlag(PrefMgr.LINENUMBERS);
-        // Get the bounds that will include all selected lines:
-        Bounds sceneBounds = flowEditorPane.getLineBoundsInScene(selStartLine, inclMargin);
-        for (int i = selStartLine + 1; i <= selEndLine; i++)
-        {
-            sceneBounds = JavaFXUtil.unionBounds(sceneBounds, flowEditorPane.getLineBoundsInScene(i, inclMargin));
-        }
+        Bounds sceneBounds = getScreenshotLineBounds();
+        // Some lines are off-screen, we can't take the screenshot:
         if (sceneBounds == null)
-        {
-            // Some lines are off-screen, we can't take the screenshot:
             return;
-        }
         // Put it into screenshotting state to hide the selection and caret:
         flowEditorPane.setLineDisplayPseudoclass("bj-screenshotting", true);
         Parent root = fxTabbedEditor.getStage().getScene().getRoot();
@@ -3913,6 +3906,25 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.IMAGE, img));
         // Important -- restore normal state:
         flowEditorPane.setLineDisplayPseudoclass("bj-screenshotting", false);
+    }
+
+    /**
+     * Gets the bounds for the screenshot-lines function, or null if some
+     * selected lines are off-screen.
+     */
+    private Bounds getScreenshotLineBounds()
+    {
+        int selStartLine = document.getLineFromPosition(flowEditorPane.getSelectionStart());
+        int selEndLine = document.getLineFromPosition(flowEditorPane.getSelectionEnd());
+        // Only include margin if line numbers are on:
+        boolean inclMargin = PrefMgr.getFlag(PrefMgr.LINENUMBERS);
+        // Get the bounds that will include all selected lines:
+        Bounds sceneBounds = flowEditorPane.getLineBoundsInScene(selStartLine, inclMargin);
+        for (int i = selStartLine + 1; i <= selEndLine; i++)
+        {
+            sceneBounds = JavaFXUtil.unionBounds(sceneBounds, flowEditorPane.getLineBoundsInScene(i, inclMargin));
+        }
+        return sceneBounds;
     }
 
     private static class ErrorDisplay extends FixDisplayManager

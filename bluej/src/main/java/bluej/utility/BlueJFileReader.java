@@ -230,6 +230,17 @@ public class BlueJFileReader
                     {
                         // Remove all lines after i (exclusive) and before j (exclusive)
                         templateLines.subList(i, j).clear();
+                        if (template.getName().toLowerCase().startsWith("javafx"))
+                        {
+                            templateLines.addAll(i,
+                            """
+                                @Override
+                                public void start(Stage stage)
+                                {
+                                    
+                                }
+                            """.lines().toList());
+                        }
                     }
                     break;
                 }

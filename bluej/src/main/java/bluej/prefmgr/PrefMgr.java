@@ -89,7 +89,7 @@ public class PrefMgr
     public static final int MIN_EDITOR_FONT_SIZE = 6;
     public static final int MAX_EDITOR_FONT_SIZE = 160;
     public static final int DEFAULT_STRIDE_FONT_SIZE = 11;
-    public static final int DEFAULT_JAVA_FONT_SIZE = 10;
+    public static final int DEFAULT_JAVA_FONT_SIZE = 12;
     public static final String DEFAULT_TEXTFILE_EXTENSIONS = ".txt, .md";
 
 
@@ -106,7 +106,7 @@ public class PrefMgr
     @OnThread(Tag.FX)
     private static final NumberBinding editorLineNumberFontSize = Bindings.multiply(editorFontSize, 0.75);
     @OnThread(Tag.FX)
-    private static final StringProperty editorStandardFont = new SimpleStringProperty("Roboto Mono");
+    private static final StringProperty editorStandardFont = new SimpleStringProperty("Source Code Pro");
     private static final StringProperty editorFallbackFont = new SimpleStringProperty("monospace");
     @OnThread(Tag.FX)
     private static IntegerProperty strideFontSize = null; // Setup in call to strideFontSizeProperty
@@ -298,10 +298,10 @@ public class PrefMgr
 
             String font;
             if(Config.isMacOS()) {
-                font = Config.getPropString(editorMacFontPropertyName, "Roboto Mono");
+                font = Config.getPropString(editorMacFontPropertyName, "Source Code Pro");
             }
             else {
-                font = Config.getPropString(editorFontPropertyName, "Roboto Mono");
+                font = Config.getPropString(editorFontPropertyName, "Source Code Pro");
             }
             editorStandardFont.set(font);
         }
