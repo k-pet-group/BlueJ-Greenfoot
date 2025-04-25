@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2020,2025 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import bluej.collect.DiagnosticWithShown;
 import bluej.compiler.CompilerAPICompiler;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
+import bluej.compiler.DiagnosticMessage;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.StringSlotFragment;
 import bluej.stride.slots.EditableSlot;
@@ -60,7 +61,8 @@ public abstract class DirectSlotError extends CodeError
     @OnThread(Tag.FXPlatform)
     public synchronized DiagnosticWithShown toDiagnostic(String javaFileName, File strideFileName)
     {
-        final Diagnostic diagnostic = new Diagnostic(Diagnostic.ERROR, getMessage(), javaFileName, -1, -1, -1, -1, origin, getIdentifier());
+        String msg = getMessage();
+        final Diagnostic diagnostic = new Diagnostic(Diagnostic.ERROR, DiagnosticMessage.fromEnglish(msg), javaFileName, -1, -1, -1, -1, origin, getIdentifier());
         diagnostic.setXPath(path, -1, -1);
         return new DiagnosticWithShown(diagnostic, false, strideFileName);
     }

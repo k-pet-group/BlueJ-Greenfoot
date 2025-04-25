@@ -1088,7 +1088,7 @@ public class Invoker
         if (diagnostic.getType() == Diagnostic.ERROR) {
             if (! gotError) {
                 gotError = true;
-                errorMessage(diagnostic.getMessage());
+                errorMessage(diagnostic.getMessage().localisedMessage());
                 return true;
             }
         }

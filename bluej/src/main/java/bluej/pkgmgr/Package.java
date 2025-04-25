@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024 Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024,2025 Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -2657,10 +2657,10 @@ public final class Package
             errorPosition[2] = (int) diagnostic.getEndLine();
             errorPosition[3] = (int) diagnostic.getEndColumn();
             if (diagnostic.getType() == Diagnostic.ERROR) {
-                errorMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage(), type);
+                errorMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage().localisedMessage(), type);
             }
             else {
-                warningMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage(), type);
+                warningMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage().localisedMessage(), type);
             }
 
             boolean shown = false;
@@ -2826,7 +2826,7 @@ public final class Package
             }
             else {
                 return warningMessage(diagnostic.getFileName(), (int) diagnostic.getStartLine(),
-                    diagnostic.getMessage());
+                    diagnostic.getMessage().localisedMessage());
             }
         }
 
@@ -2842,11 +2842,11 @@ public final class Package
 
             if (diagnostic.getFileName() == null)
             {
-                showMessageWithText("compiler-error", diagnostic.getMessage());
+                showMessageWithText("compiler-error", diagnostic.getMessage().localisedMessage());
                 return true;
             }
 
-            String message = diagnostic.getMessage();
+            String message = diagnostic.getMessage().localisedMessage();
             messageShown = showEditorDiagnostic(diagnostic, numErrors - 1, type);
 
             // Display the error message in the source editor

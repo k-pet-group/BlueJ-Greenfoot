@@ -49,7 +49,7 @@ public class Diagnostic implements Serializable
     // The type: ERROR, WARNING or NOTE as above
     private final int type;
     // The diagnostic message
-    private String message;
+    private DiagnosticMessage message;
     // The file name (may be null), without path.
     private final String fileName;
     // Start line (begins at 1, but may be 0 or negative if N/A)
@@ -76,7 +76,7 @@ public class Diagnostic implements Serializable
     /**
      * Constructor for Diagnostic objects representing notes. 
      */
-    public Diagnostic(int type, String message)
+    public Diagnostic(int type, DiagnosticMessage message)
     {
         this(type, message, null, -1, -1, -1, -1, DiagnosticOrigin.UNKNOWN, -1);
     }
@@ -99,7 +99,7 @@ public class Diagnostic implements Serializable
      * @param identifier The identifier of the diagnostic.  Used to match up with later events
      *                   about the same diagnostic, such as shown_error_message events.
      */
-    public Diagnostic(int type, String message, String fileName,
+    public Diagnostic(int type, DiagnosticMessage message, String fileName,
             long startLine, long startColumn, long endLine, long endColumn, DiagnosticOrigin origin, int identifier)
     {
         this.type = type;
@@ -144,7 +144,7 @@ public class Diagnostic implements Serializable
     /**
      * Get the diagnostic message which can be presented to the end user.
      */
-    public String getMessage()
+    public DiagnosticMessage getMessage()
     {
         return message;
     }

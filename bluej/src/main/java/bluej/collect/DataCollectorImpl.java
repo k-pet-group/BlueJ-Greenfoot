@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2014,2015,2016,2017,2019,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2014,2015,2016,2017,2019,2022,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -219,7 +219,7 @@ public class DataCollectorImpl
             final Diagnostic d = dws.getDiagnostic();
 
             mpe.addPart("event[compile_output][][is_error]", CollectUtility.toBody(d.getType() == Diagnostic.ERROR));
-            mpe.addPart("event[compile_output][][message]", CollectUtility.toBody(d.getMessage()));
+            mpe.addPart("event[compile_output][][message]", CollectUtility.toBody(d.getMessage().localisedMessage()));
             mpe.addPart("event[compile_output][][session_sequence]", CollectUtility.toBody(d.getIdentifier()));
             mpe.addPart("event[compile_output][][origin]", CollectUtility.toBody(d.getOrigin()));
             if (d.getFileName() != null)

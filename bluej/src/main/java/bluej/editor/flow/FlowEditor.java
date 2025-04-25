@@ -578,7 +578,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 if (empty || item == null)
                     setText(null);
                 else
-                    setText("Line " + document.getLineFromPosition(item.startPos) + ": " + item.message);
+                    setText("Line " + document.getLineFromPosition(item.startPos) + ": " + item.message.localisedMessage());
             }
         });
         errorList.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
@@ -883,7 +883,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public String getErrorAtPosition(int caretPos)
     {
         String errorMessage = (errorManager.getErrorAtPosition(caretPos) != null)
-            ? errorManager.getErrorAtPosition(caretPos).message
+            ? errorManager.getErrorAtPosition(caretPos).message.localisedMessage()
             : null;
         return errorMessage;
     }
@@ -3936,7 +3936,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
         public ErrorDisplay(FlowEditor flowEditor, Supplier<EditorWatcher> editorWatcherSupplier, ErrorDetails details)
         {
-            super(details.identifier, details.message);
+            super(details.identifier, details.message.localisedMessage());
             this.details = details;
             this.editorWatcherSupplier = editorWatcherSupplier;
             this.flowEditor = flowEditor;
@@ -3973,7 +3973,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             this.popup = new PopupControl();
             VBox errorVBox = new VBox();
 
-            String errorMessage = ParserMessageHandler.getMessageForCode(details.message);
+            String errorMessage = ParserMessageHandler.getMessageForCode(details.message.localisedMessage());
             TextFlow tf = null;
             if (details.getItalicMessageStartIndex() == -1 || details.getItalicMessageEndIndex() == -1)
             {
