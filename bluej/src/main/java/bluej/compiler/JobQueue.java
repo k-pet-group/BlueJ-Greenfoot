@@ -28,7 +28,6 @@ import java.util.List;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
-import bluej.utility.Debug;
 import bluej.utility.Utility;
 
 /**
@@ -87,14 +86,9 @@ public class JobQueue
         options.addAll(Utility.dequoteCommandLine(optionString));
 
         // Determine whether we need the Kotlin compiler for this job
-        boolean hasKotlinFiles = false;
-        for (CompileInputFile source : sources) {
-            if (source.getCompileFileExtension().equals("kt")) {
-                hasKotlinFiles = true;
-                break;
-            }
-        }
+        boolean hasKotlinFiles = sources.stream().anyMatch(cif -> cif.getCompileFileExtension().equals("kt"));
 
+        // We don't instantiate the Kotlin compiler until we really need it
         if (hasKotlinFiles && kotlinCompiler == null) {
             kotlinCompiler = new KotlinCompiler();
         }

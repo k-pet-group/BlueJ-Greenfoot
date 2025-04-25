@@ -62,42 +62,44 @@ record Job(List<CompileInputFile> sources, Compiler javaCompiler, Compiler kotli
 
     /**
      * Compile this job
+     *
+     * <p>The job might have Java and/or Kotlin sources, so we might need to run both compilers.
+     * To handle dependencies correctly, if there are any Kotlin files,
+     * we run the Kotlin compiler first and feed all the source files to it (both Kotlin and Java).
+     * Kotlin compiler will figure out what it needs if some Kotlin files depend on Java sources.</p>
+     *
+     * <p>The results of Kotlin compilation (class files) need to be saved to the output directory
+     * (whether it's a destination directory or a temporary one) so that Java compiler can find them.
+     * This is needed even for CompileType.ERROR_CHECK_ONLY.
+     * That's why we bring a temporary directory handling logic here.
+     * Once we're done with Java compilation, we can delete the temporary directory if needed.</p>
+     *
      */
     public void compile()
     {
         int compilationSequence = nextCompilationSequence.getAndIncrement();
-
-        configureCompiler(javaCompiler, destDir, bpClassLoader);
-
         CompileInputFile[] sourcesArray = sources.toArray(new CompileInputFile[0]);
         try {
             if(observer != null) {
                 observer.startCompile(sourcesArray, reason, type, compilationSequence);
             }
 
-            // We could make a new file manager that memory-mapped the output files
-            // and discarded them... but creating a temporary dir is much more
-            // straightforward:
             File outputDir = type.keepClasses() ? destDir : Files.createTempDirectory("bluej").toFile();
-
             List<File> srcFiles = Utility.mapList(sources, CompileInputFile::getCompileInputFile);
-            List<File> javaSourceFiles = Utility.mapList(
-                    Utility.filterList(sources, cif -> cif.getCompileFileExtension().equals("java")),
-                    CompileInputFile::getCompileInputFile);
-
             boolean successful = true;
-            // We compile Kotlin files first to make sure that class files are later available for Java compilation.
             if (kotlinCompiler != null)
             {
-                configureCompiler(kotlinCompiler, outputDir, bpClassLoader);
-                // Kotlin compiler needs all the source files (Kotlin and Java) to be passed to it at once.
-                successful &= kotlinCompiler.compile(srcFiles.toArray(new File[0]),
+                configureCompiler(kotlinCompiler, destDir, bpClassLoader);
+                successful &= kotlinCompiler.compile(srcFiles,
                         observer, internal, userCompileOptions, fileCharset, type, outputDir);
             }
 
+            List<File> javaSourceFiles =  Utility.filterList(srcFiles,
+                    file -> file.getName().endsWith(".java"));
             if (!javaSourceFiles.isEmpty())
             {
-                successful &= javaCompiler.compile(javaSourceFiles.toArray(new File[0]),
+                configureCompiler(javaCompiler, destDir, bpClassLoader);
+                successful &= javaCompiler.compile(javaSourceFiles,
                         observer, internal, userCompileOptions, fileCharset, type, outputDir);
             }
 

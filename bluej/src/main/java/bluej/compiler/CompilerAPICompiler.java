@@ -25,10 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -73,7 +71,7 @@ public class CompilerAPICompiler extends Compiler
      * @return  true if successful
      */
     @Override
-    public boolean compile(final File[] sources, final CompileObserver observer,
+    public boolean compile(final List<File> sources, final CompileObserver observer,
             final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type, File outputDir)
     {
         boolean result = true;
@@ -107,7 +105,7 @@ public class CompilerAPICompiler extends Compiler
                         // See bug: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6419926
                         // JDK6 returns URIs without a scheme in some cases, so always resolve against a
                         // known "file:/" URI:
-                        URI srcUri = sources[0].toURI().resolve(diag.getSource().toUri());
+                        URI srcUri = sources.getFirst().toURI().resolve(diag.getSource().toUri());
                         src = new File(srcUri).getPath();
                     }
                 }
@@ -206,7 +204,7 @@ public class CompilerAPICompiler extends Compiler
 
             //get the source files for compilation  
             Iterable<? extends JavaFileObject> compilationUnits1 =
-                sjfm.getJavaFileObjectsFromFiles(Arrays.asList(sources));
+                sjfm.getJavaFileObjectsFromFiles(sources);
             //add any options
             if(isDebug()) {
                 optionsList.add("-g");

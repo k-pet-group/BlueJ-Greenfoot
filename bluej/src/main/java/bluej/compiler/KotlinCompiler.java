@@ -64,7 +64,7 @@ public class KotlinCompiler extends Compiler
      * @return  true if successful
      */
     @Override
-    public boolean compile(final File[] sources, final CompileObserver observer,
+    public boolean compile(final List<File> sources, final CompileObserver observer,
             final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type, File outputDir)
     {
         K2JVMCompiler compiler = new K2JVMCompiler();
@@ -89,7 +89,7 @@ public class KotlinCompiler extends Compiler
         arguments.setClasspath(classPathString);
 
         // Set the source files
-        arguments.setFreeArgs(Arrays.stream(sources).map(File::getAbsolutePath).toList());
+        arguments.setFreeArgs(sources.stream().map(File::getAbsolutePath).toList());
 
         // Create a message collector to handle compiler messages
         MessageCollector messageCollector = new MessageCollector() {
