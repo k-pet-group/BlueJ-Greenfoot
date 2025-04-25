@@ -94,7 +94,7 @@ public class TestKotlinCompiler
 
         // Compile the Kotlin file
         boolean success = compiler.compile(
-            new File[] { kotlinFile }, 
+            List.of(kotlinFile),
             observer, 
             false, // not internal
             null,  // no user options
