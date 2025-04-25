@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.net.URL;
 import java.util.List;
 
 import bluej.JavaFXThreadingRule;
@@ -35,6 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static bluej.utility.ResourceFileReader.getResourceFile;
 
 /**
  * Test the Kotlin parser functionality by parsing various Kotlin source files and strings.
@@ -52,19 +52,6 @@ public class KotlinBasicParseTest
     @Rule
     public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
 
-    /**
-     * Get a data or result file from our hidden stash.
-     * NOTE: the stash of data files is in the ast/data directory.
-     */
-    private File getFile(String name)
-    {
-        URL url = getClass().getResource("/bluej/parser/kotlin/" + name);
-
-        if (url == null || url.getFile().equals(""))
-            return null;
-        else
-            return new File(url.getFile());
-    }
 
     /**
      * Test that the KotlinInfoParser class exists and can be instantiated.
@@ -94,7 +81,7 @@ public class KotlinBasicParseTest
     public void testParseKotlinBasicFile() throws Exception
     {
         // Get the kotlin_basic.dat file
-        File file = getFile("kotlin_basic.dat");
+        File file = getResourceFile(getClass(), "/bluej/parser/kotlin/kotlin_basic.dat");
         assertNotNull("kotlin_basic.dat file should exist", file);
 
         // Create a reader for the file
@@ -154,7 +141,7 @@ public class KotlinBasicParseTest
     public void testParseKotlinSimpleFile() throws Exception
     {
         // Get the kotlin_simple.dat file
-        File file = getFile("kotlin_simple.dat");
+        File file = getResourceFile(getClass(), "/bluej/parser/kotlin/kotlin_simple.dat");
         assertNotNull("kotlin_simple.dat file should exist", file);
 
         // Create a reader for the file
@@ -217,7 +204,7 @@ public class KotlinBasicParseTest
     public void testParseHelloKotlin() throws Exception
     {
         // Get the kotlin_simple.dat file
-        File file = getFile("hello_kotlin.dat");
+        File file = getResourceFile(getClass(), "/bluej/parser/kotlin/hello_kotlin.dat");
         assertNotNull("hello_kotlin.dat file should exist", file);
 
         // Create a reader for the file

@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +41,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static bluej.utility.ResourceFileReader.getResourceFile;
 
 /**
  * Run a whole directory of sample source files through our parser.
@@ -52,20 +52,7 @@ public class BasicParseTest
 {
     @Rule
     public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
-    
-    /**
-     * Get a data or result file from our hidden stash..
-     * NOTE: the stash of data files is in the ast/data directory.
-     */
-    private File getFile(String name)
-    {
-        URL url = getClass().getResource("/bluej/parser/" + name);
-        
-        if (url == null || url.getFile().equals(""))
-            return null;
-        else
-            return new File(url.getFile());
-    }
+
 
     /**
      * Find a target method/class in the comments and return its index (or -1 if not found).
@@ -95,18 +82,18 @@ public class BasicParseTest
     {
         // this file came from some guys web page.. it just includes lots of
         // Java constructs
-        assertNotNull(InfoParser.parse(getFile("java_basic.dat")));
+        assertNotNull(InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/java_basic.dat")));
 
         // these files came from the test suite accompanying antlr
-        assertNotNull(InfoParser.parse(getFile("A.dat")));
-        assertNotNull(InfoParser.parse(getFile("B.dat")));
-        assertNotNull(InfoParser.parse(getFile("C.dat")));
-        assertNotNull(InfoParser.parse(getFile("D.dat")));
-        assertNotNull(InfoParser.parse(getFile("E.dat")));
-        
+        assertNotNull(InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/A.dat")));
+        assertNotNull(InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/B.dat")));
+        assertNotNull(InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/C.dat")));
+        assertNotNull(InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/D.dat")));
+        assertNotNull(InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/E.dat")));
+
         // these files were added later
-        assertNotNull(InfoParser.parse(getFile("F.dat")));
-        assertNotNull(InfoParser.parse(getFile("G.dat")));
+        assertNotNull(InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/F.dat")));
+        assertNotNull(InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/G.dat")));
     }
 
     @Test
@@ -114,7 +101,7 @@ public class BasicParseTest
         throws Exception
     {
         // Parse generics
-        assertNotNull(InfoParser.parse(getFile("15_generic.dat")));
+        assertNotNull(InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/15_generic.dat")));
     }
 
     @Test
@@ -148,8 +135,8 @@ public class BasicParseTest
         references.add("Exception");
         references.add("Dummy1");
         references.add("Dummy2");
-        
-        File file = getFile("AffinedTransformer.dat");
+
+        File file = getResourceFile(getClass(), "/bluej/parser/AffinedTransformer.dat");
         ClassInfo info = InfoParser.parse(file, new ClassLoaderResolver(this.getClass().getClassLoader()));
 
         assertEquals("AffinedTransformer",info.getName());
@@ -213,8 +200,8 @@ public class BasicParseTest
         /*
          * Second file - no superclass, multiple interfaces 
          */
-        
-        file = getFile("multi_interface.dat");
+
+        file = getResourceFile(getClass(), "/bluej/parser/multi_interface.dat");
         info = InfoParser.parse(file);
         
         extendsInsert = info.getExtendsInsertSelection();
@@ -347,7 +334,7 @@ public class BasicParseTest
     @Test
     public void testMultiDimensionalArrayParam() throws Exception
     {
-        File file = getFile("I.dat");
+        File file = getResourceFile(getClass(), "/bluej/parser/I.dat");
         ClassInfo info = InfoParser.parse(file);
         
         // Check that comment is created with parameter names
@@ -495,8 +482,8 @@ public class BasicParseTest
         ter.addCompilationUnit("", cuForSource("class K {}", pkgr));
         ter.addCompilationUnit("", cuForSource("class L {}", pkgr));
         ter.addCompilationUnit("", cuForSource("class M {}", pkgr));
-        
-        FileInputStream fis = new FileInputStream(getFile("H.dat"));
+
+        FileInputStream fis = new FileInputStream(getResourceFile(getClass(), "/bluej/parser/H.dat"));
         ClassInfo info = InfoParser.parse(new InputStreamReader(fis), pkgr, "");
         
         List<String> used = info.getUsed();
