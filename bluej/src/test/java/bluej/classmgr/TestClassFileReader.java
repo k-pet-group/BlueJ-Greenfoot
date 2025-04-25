@@ -32,6 +32,6 @@ public class TestClassFileReader
     @Test
     public void testCompileSimpleKotlinClass() {
         File testFile = ResourceFileReader.getResourceFile(this.getClass(), "MyUtils.class");
-        assertEquals("SomeFun.kt", ClassFileReader.readSourceFile(testFile));
+        assertEquals("SomeFun.kt", ClassFileReader.readSourceFileField(testFile));
     }
 }
