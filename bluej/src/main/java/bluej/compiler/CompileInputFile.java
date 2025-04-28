@@ -36,8 +36,10 @@ public class CompileInputFile implements Serializable
 
     /**
      *
-     * @param actualSourceFileForCompiler The .java file that the compiler will see, even if the original was Stride
-     * @param sourceFileToRecord The Stride file for Stride (or Java for Java; in this case, both parameters will be identical).
+     * @param actualSourceFileForCompiler The .java or .kt file that the compiler will see
+     *                                    (should be .java, if the original was Stride).
+     * @param sourceFileToRecord The Stride file for Stride (or Java for Java, Kotlin for Kotlin;
+     *                           in this case, both parameters will be identical).
      */
     public CompileInputFile(File actualSourceFileForCompiler, File sourceFileToRecord)
     {

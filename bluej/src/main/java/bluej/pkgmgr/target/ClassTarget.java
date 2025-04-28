@@ -1098,6 +1098,13 @@ public class ClassTarget extends DependentTarget
         return sourceAvailable;
     }
 
+    /**
+     * Returns the {@code File} object based on the specified source type,
+     * but doesn't check if the file exists.
+     *
+     * @param sourceType the type of the source file, which determines the file extension
+     * @return the file object representing the source file, or null if the package is not specified
+     */
     private File getSourceFileByType(SourceType sourceType)
     {
         if (null == getPackage())
@@ -1125,6 +1132,14 @@ public class ClassTarget extends DependentTarget
         return getSourceFileByType(SourceType.Stride);
     }
 
+    /**
+     * Retrieves the source file based on the current source type.
+     *
+     * <p>If the source type is set to "Stride", it will return the corresponding "Java" source file.
+     * Otherwise, it will return the source file for the currently available source type (Java or Kotlin respectively).</p>
+     *
+     * @return the source file corresponding to the determined source type
+     */
     @Override
     public File getSourceFile()
     {
