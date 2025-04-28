@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
 import bluej.utility.Utility;
+import com.google.common.io.MoreFiles;
 
 /**
  * A compiler "job". A list of filenames to compile + parameters.
@@ -109,7 +110,7 @@ record Job(List<CompileInputFile> sources, Compiler javaCompiler, Compiler kotli
 
             if (!type.keepClasses() && outputDir != null)
             {
-                outputDir.delete();
+                MoreFiles.deleteRecursively(outputDir.toPath());
             }
 
             if(observer != null)
