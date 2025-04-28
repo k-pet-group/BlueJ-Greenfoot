@@ -36,6 +36,10 @@ import bluej.utility.Utility;
  * Jobs are held in a queue by the CompilerThread, which compiles them
  * by running the job's "compile" method.
  *
+ * <p>The job takes two compilers: one for Java, and one for Kotlin.
+ * The {@code kotlinCompiler} parameter is not null if and only if
+ * we have Kotlin files to compile.</p>
+ *
  * @author  Michael Cahill
  */
 record Job(List<CompileInputFile> sources, Compiler javaCompiler, Compiler kotlinCompiler, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
