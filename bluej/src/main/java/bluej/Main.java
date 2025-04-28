@@ -375,15 +375,16 @@ public class Main
         String systemID = getOperatingSystem();
 
         String editorStats = "";
-        // TODO BlueJ/Kotlin: send Kotlin editor stats
         int javaEditors = Config.getEditorCount(Config.SourceType.Java);
         int strideEditors = Config.getEditorCount(Config.SourceType.Stride);
+        int kotlinEditors = Config.getEditorCount(Config.SourceType.Kotlin);
         try
         {
             if (javaEditors != -1 && strideEditors != -1)
             {
                 editorStats = "&javaeditors=" + URLEncoder.encode(Integer.toString(javaEditors), "UTF-8")
-                    + "&strideeditors=" + URLEncoder.encode(Integer.toString(strideEditors), "UTF-8");
+                    + "&strideeditors=" + URLEncoder.encode(Integer.toString(strideEditors), "UTF-8")
+                    + "&kotlineditors=" + URLEncoder.encode(Integer.toString(kotlinEditors), "UTF-8");
             }
         }
         catch (UnsupportedEncodingException ex)
