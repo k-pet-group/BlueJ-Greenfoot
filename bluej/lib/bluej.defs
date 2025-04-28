@@ -334,6 +334,7 @@ bluej.macos.screenmenubar=true
 
 bluej.classTemplates.java = stdclass interface unittest enum record
 bluej.classTemplates.stride = stdclass interface
+bluej.classTemplates.kotlin = stdclass interface
 #bluej.templatePath = /home/mik/bluej/lib/english/templates
 #bluej.templatePath = F:\\shared\\bluej\\templates
 

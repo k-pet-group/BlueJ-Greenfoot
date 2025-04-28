@@ -124,7 +124,6 @@ abstract class Compiler
      * 
      * @return  true if the compilation was successful
      */
-    public abstract boolean compile(File[] sources, CompileObserver observer,
-            boolean internal, List<String> options, Charset fileCharset, CompileType type);
-
+    public abstract boolean compile(List<File> sources, CompileObserver observer,
+            boolean internal, List<String> options, Charset fileCharset, CompileType type, File outputDir);
 }

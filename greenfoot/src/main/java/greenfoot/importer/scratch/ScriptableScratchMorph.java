@@ -179,7 +179,7 @@ public abstract class ScriptableScratchMorph extends Morph
         codeForScripts(getBlocks(), acc, new LoopVarIterator());
         acc.append("}\n");
         
-        javaFile = new File(destDir, className + "." + SourceType.Java.toString().toLowerCase());
+        javaFile = new File(destDir, className + "." + SourceType.Java.getExtension());
         FileWriter javaFileWriter = new FileWriter(javaFile);
         javaFileWriter.write(acc.toString());
         javaFileWriter.close();

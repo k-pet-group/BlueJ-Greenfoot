@@ -24,7 +24,9 @@ package bluej.pkgmgr;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import bluej.extensions2.SourceType;
 import bluej.parser.InfoParser;
+import bluej.parser.KotlinInfoParser;
 import bluej.parser.symtab.ClassInfo;
 
 /**
@@ -55,7 +57,14 @@ public final class SourceInfo
         {
             try
             {
-                info = InfoParser.parseWithPkg(sourceFile, pkg);
+                String fileName = sourceFile.getName();
+                if (fileName.endsWith("." + SourceType.Kotlin.getExtension())) {
+                    // Use KotlinInfoParser for Kotlin files
+                    info = KotlinInfoParser.parseWithPkg(sourceFile, pkg);
+                } else {
+                    // Use InfoParser for Java files (default)
+                    info = InfoParser.parseWithPkg(sourceFile, pkg);
+                }
             }
             catch (FileNotFoundException fnfe)
             {

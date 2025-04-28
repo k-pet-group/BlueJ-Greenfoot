@@ -272,8 +272,8 @@ public class ProjectJavadocResolver implements JavadocResolver
     {
         List<DocPathEntry> sourcePath = project.getSourcePath();
         String pkg = JavaNames.getPrefix(target);
-        String entName = target.replace('.', '/') + "." + SourceType.Java.toString().toLowerCase();
-        String entNameFs = target.replace('.', File.separatorChar) + "." + SourceType.Java.toString().toLowerCase();
+        String entName = target.replace('.', '/') + "." + SourceType.Java.getExtension();
+        String entNameFs = target.replace('.', File.separatorChar) + "." + SourceType.Java.getExtension();
         EntityResolver resolver = new PackageResolver(project.getEntityResolver(), pkg);
         
         for (DocPathEntry pathEntry : sourcePath) {
@@ -352,7 +352,7 @@ public class ProjectJavadocResolver implements JavadocResolver
         
         // Try and load the source from the class path. This allows source to be bundled in
         // with the classes.
-        String targetName = target.replace('.', '/') + "." + SourceType.Java.toString().toLowerCase();
+        String targetName = target.replace('.', '/') + "." + SourceType.Java.getExtension();
         URL srcUrl = project.getClassLoader().findResource(targetName);
         if (srcUrl != null) {
             try {

@@ -362,7 +362,7 @@ public class DocuGenerator
             // as javadoc doesn't like packages with no java-files, we have to
             // pass only names of packages that really contain java files.
             Package pack = project.getPackage(packageName);
-            if (FileUtility.containsFile(pack.getPath(), "." + SourceType.Java.toString().toLowerCase()))
+            if (FileUtility.containsFile(pack.getPath(), "." + SourceType.Java.getExtension()))
             {
                 if (packageName.length() > 0)
                 {
@@ -376,7 +376,7 @@ public class DocuGenerator
         String dirName = project.getProjectDir().getAbsolutePath();
         for (Iterator<String> names = classNames.iterator(); names.hasNext(); )
         {
-            call.add(dirName + "/" + names.next() + "." + SourceType.Java.toString().toLowerCase());
+            call.add(dirName + "/" + names.next() + "." + SourceType.Java.getExtension());
         }
         String[] javadocCall = call.toArray(new String[0]);
 
@@ -464,8 +464,8 @@ public class DocuGenerator
     {
         if(filename.startsWith(projectDirPath))
             filename = filename.substring(projectDirPath.length());
-        if (filename.endsWith("." + SourceType.Java.toString().toLowerCase()))
-            filename = filename.substring(0, filename.indexOf("." + SourceType.Java.toString().toLowerCase()));
+        if (filename.endsWith("." + SourceType.Java.getExtension()))
+            filename = filename.substring(0, filename.indexOf("." + SourceType.Java.getExtension()));
         return docDirPath + filename + ".html";
     }
 

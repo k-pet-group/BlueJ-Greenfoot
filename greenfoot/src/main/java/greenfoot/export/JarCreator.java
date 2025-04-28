@@ -62,7 +62,7 @@ import bluej.utility.FileUtility;
  */
 public class JarCreator
 {
-    private static final String SOURCE_SUFFIX = "." + SourceType.Java.toString().toLowerCase();    
+    private static final String SOURCE_SUFFIX = "." + SourceType.Java.getExtension();    
 
     /** Should source files be included in the jar? */
     private boolean includeSource;

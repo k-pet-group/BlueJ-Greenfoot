@@ -30,6 +30,8 @@ import java.util.List;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 
+import static bluej.utility.ResourceFileReader.getResourceFile;
+
 /**
  * Run sample source file(s) containing Java 1.5 specific features
  * eg. generics, enums, static imports, foreach, varargs etc.
@@ -38,26 +40,7 @@ import bluej.parser.symtab.Selection;
  */
 public class Parse15Test extends junit.framework.TestCase
 {
-    /**
-     * Get a data or result file from our hidden stash..
-     * NOTE: the stash of data files is in the ast/data directory.
-     * This is because eventually, we want all parsing in bluej to
-     * be done by the AST routines, and we can get rid of this
-     * parser. So we share the data file until then.
-     * 
-     * @param name
-     * @return
-     */
-    private File getFile(String name)
-    {
-        URL url = getClass().getResource("/bluej/parser/" + name);
-        
-        if (url == null || url.getFile().equals(""))
-            return null;
-        else
-            return new File(url.getFile());
-    }
-    
+
     /**
      * Sets up the test fixture.
      *
@@ -85,14 +68,14 @@ public class Parse15Test extends junit.framework.TestCase
     public void testNoParseExceptions()
         throws Exception
     {
-        InfoParser.parse(getFile("15_generic.dat"));
+        InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/15_generic.dat"));
     }
     
     public void testSelections()
         throws Exception
     {
-        ClassInfo info = InfoParser.parse(getFile("generic_selections.dat"));
-        
+        ClassInfo info = InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/generic_selections.dat"));
+
 //        Selection testSel = info.getTypeParametersSelection();
 //        assertEquals(3, testSel.getLine());
 //        assertEquals(19, testSel.getColumn());

@@ -70,6 +70,7 @@ import bluej.utility.*;
 import bluej.utility.filefilter.FrameSourceFilter;
 import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
+import bluej.utility.filefilter.KotlinSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -642,6 +643,7 @@ public final class Package
     {
         File javaSrcFiles[] = path.listFiles(new JavaSourceFilter());
         File frameSrcFiles[] = path.listFiles(new FrameSourceFilter());
+        File kotlinSrcFiles[] = path.listFiles(new KotlinSourceFilter());
         File classFiles[] = path.listFiles(new JavaClassFilter());
 
         Set<String> interestingSet = new HashSet<String>();
@@ -653,7 +655,7 @@ public final class Package
                 javaSrcFiles[i].delete();
                 continue;
             }
-            String javaFileName = JavaNames.stripSuffix(javaSrcFiles[i].getName(), "." + SourceType.Java.toString().toLowerCase());
+            String javaFileName = JavaNames.stripSuffix(javaSrcFiles[i].getName(), "." + SourceType.Java.getExtension());
 
             // check if the name would be a valid java name
             if (!JavaNames.isIdentifier(javaFileName))
@@ -666,13 +668,24 @@ public final class Package
         }
 
         for (int i = 0; i < frameSrcFiles.length; i++) {
-            String frameFileName = JavaNames.stripSuffix(frameSrcFiles[i].getName(), "." + SourceType.Stride.toString().toLowerCase());
+            String frameFileName = JavaNames.stripSuffix(frameSrcFiles[i].getName(), "." + SourceType.Stride.getExtension());
 
             // check if the name would be a valid java name
             if (!JavaNames.isIdentifier(frameFileName))
                 continue;
 
             interestingSet.add(frameFileName);
+        }
+
+        // process all *.kt files
+        for (int i = 0; i < kotlinSrcFiles.length; i++) {
+            String kotlinFileName = JavaNames.stripSuffix(kotlinSrcFiles[i].getName(), "." + SourceType.Kotlin.getExtension());
+
+            // check if the name would be a valid java name
+            if (!JavaNames.isIdentifier(kotlinFileName))
+                continue;
+
+            interestingSet.add(kotlinFileName);
         }
 
 
@@ -1336,6 +1349,8 @@ public final class Package
             className = fileName.substring(0, fileName.length() - SourceType.Java.getExtension().length() - 1);
         else if (fileName.endsWith("." + SourceType.Stride.getExtension())) // it's a Stride source file
             className = fileName.substring(0, fileName.length() - SourceType.Stride.getExtension().length() - 1);
+        else if (fileName.endsWith("." + SourceType.Kotlin.getExtension())) // it's a Kotlin source file
+            className = fileName.substring(0, fileName.length() - SourceType.Kotlin.getExtension().length() - 1);
         else
             return ILLEGAL_FORMAT;
 
@@ -1762,7 +1777,7 @@ public final class Package
         List<CompileInputFile> srcFiles = Utility.mapList(targetList, ClassTarget::getCompileInputFile);
         if (srcFiles.size() > 0 && srcFiles.stream().allMatch(CompileInputFile::isValid))
         {
-            JobQueue.getJobQueue().addJob(srcFiles.toArray(new CompileInputFile[0]), observer, project.getClassLoader(), project.getProjectDir(),
+            JobQueue.getJobQueue().addJob(srcFiles, observer, project.getClassLoader(), project.getProjectDir(),
                 ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset(), reason, type);
         }
     }
@@ -2610,7 +2625,7 @@ public final class Package
         private void markAsCompiling(CompileInputFile[] sources, int compilationSequence)
         {
             for (int i = 0; i < sources.length; i++) {
-                String fileName = sources[i].getJavaCompileInputFile().getPath();
+                String fileName = sources[i].getCompileInputFile().getPath();
                 String fullName = getProject().convertPathToPackageName(fileName);
 
                 if (fullName != null) {
@@ -2648,7 +2663,7 @@ public final class Package
         public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
         {
             // Send a compilation starting event to extensions.
-            CompileEvent aCompileEvent = new CompileEvent(CompileEvent.EventType.COMPILE_START_EVENT, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
+            CompileEvent aCompileEvent = new CompileEvent(CompileEvent.EventType.COMPILE_START_EVENT, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getCompileInputFile).toArray(new File[0]));
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
 
             // Set BlueJ status bar message
@@ -2715,7 +2730,7 @@ public final class Package
             List<ClassTarget> targetsToAnalyse = new ArrayList<>();
             List<ClassTarget> readyToCompileList = new ArrayList<>();
             for (int i = 0; i < sources.length; i++) {
-                String filename = sources[i].getJavaCompileInputFile().getPath();
+                String filename = sources[i].getCompileInputFile().getPath();
 
                 String fullName = getProject().convertPathToPackageName(filename);
                 if (fullName == null) {
@@ -2802,7 +2817,7 @@ public final class Package
 
             // Send a compilation done event to extensions.
             EventType eventType = successful ? CompileEvent.EventType.COMPILE_DONE_EVENT : CompileEvent.EventType.COMPILE_FAILED_EVENT;
-            CompileEvent aCompileEvent = new CompileEvent(eventType, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
+            CompileEvent aCompileEvent = new CompileEvent(eventType, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getCompileInputFile).toArray(new File[0]));
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
 
             for (FXCompileObserver chainedObserver : chainedObservers)
@@ -2944,9 +2959,12 @@ public final class Package
     public SourceType getDefaultSourceType()
     {
         // Our heuristic is: if the package contains any Stride files, the default is Stride,
+        // if it contains any Kotlin files, the default is Kotlin,
         // otherwise it's Java
         if (getClassTargets().stream().anyMatch(c -> c.getSourceType() == SourceType.Stride))
             return SourceType.Stride;
+        else if (getClassTargets().stream().anyMatch(c -> c.getSourceType() == SourceType.Kotlin))
+            return SourceType.Kotlin;
         else
             return SourceType.Java;
     }

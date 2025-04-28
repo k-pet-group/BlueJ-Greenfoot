@@ -139,7 +139,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
         mainPanel.getChildren().add(nameBox);
 
-        language = new HorizontalRadio(Arrays.asList(SourceType.Java, SourceType.Stride));
+        language = new HorizontalRadio(Arrays.asList(SourceType.Java, SourceType.Stride, SourceType.Kotlin));
         language.select(defaultSourceType);
         
         HBox langBox = new HBox();
@@ -238,9 +238,11 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         // (we do this rather than using the directory only to be able to force an order on the templates.)
         addDEFsTemplates(templates, SourceType.Java);
         addDEFsTemplates(templates, SourceType.Stride);
+        addDEFsTemplates(templates, SourceType.Kotlin);
 
         // next, get templates from files in template directory and merge them in
         addDirectoryTemplates(templates, SourceType.Java, parent);
+        addDirectoryTemplates(templates, SourceType.Kotlin, parent);
 
         // Create a radio button for each template found
         boolean first = true;
@@ -269,7 +271,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
     private void addDirectoryTemplates(TemplatesList templates, SourceType sourceType, Window parent)
     {
-        File templateDir = Config.getClassTemplateDir();
+        File templateDir = Config.getClassTemplateDir(sourceType.getConfigSourceType());
         if ( !templateDir.exists() ) {
             DialogManager.showErrorFX(parent, "error-no-templates");
         }

@@ -36,7 +36,8 @@ public class Diagnostic implements Serializable
 
     public static enum DiagnosticOrigin
     {
-        JAVAC("javac"), STRIDE_EARLY("stride_early"), STRIDE_LATE("stride_late"), UNKNOWN("unknown");
+        JAVAC("javac"), STRIDE_EARLY("stride_early"), STRIDE_LATE("stride_late"),
+        KOTLIN("kotlinc"), UNKNOWN("unknown");
 
         private String serverOrigin;
 
