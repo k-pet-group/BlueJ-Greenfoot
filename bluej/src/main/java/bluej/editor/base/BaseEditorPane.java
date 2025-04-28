@@ -597,7 +597,7 @@ public abstract class BaseEditorPane extends Region
     {
         if ((Config.isWinOS() || Config.isLinux()) && scrollEvent.isControlDown())
         {
-            if (scrollEvent.getDeltaY() < 0)
+            if (scrollEvent.getDeltaY() > 0)
                 Utility.increaseFontSize(PrefMgr.getEditorFontSize());
             else
                 Utility.decreaseFontSize(PrefMgr.getEditorFontSize());
