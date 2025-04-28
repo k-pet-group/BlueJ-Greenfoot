@@ -176,6 +176,7 @@ public class ClassTarget extends DependentTarget
     private boolean compilationInvalid = false;
 
     private SourceType sourceAvailable;
+    // value of .class-file's SourceFile attribute (used for Kotlin sources)
     private Optional<String> ktSourceFileName = Optional.empty();
     // Part of keeping track of number of editors opened, for Greenfoot phone home:
     private boolean hasBeenOpened = false;
@@ -314,7 +315,7 @@ public class ClassTarget extends DependentTarget
 
     private boolean sourceFileFound(SourceType sourceType)
     {
-        final File file = getSourceFileByType(sourceType);
+        final File file = guessSourceFile(sourceType);
         if (file != null && file.canRead()) {
             sourceAvailable = sourceType;
             noSourceLabel.setText("");
@@ -1099,29 +1100,34 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Returns the {@code File} object based on the specified source type,
-     * but doesn't check if the file exists.
+     * Attempts to determine the source file based on the provided source type.
+     * If no package is associated, this method will return null.
+     * The returned {@code File} object may point to a non-existent file.
      *
-     * @param sourceType the type of the source file, which determines the file extension
-     * @return the file object representing the source file, or null if the package is not specified
+     * @param sourceType the type of the source file (e.g., Kotlin, Java, Stride) used to determine the file extension.
+     * @return the determined source file as a {@code File} object, or null if no package is associated.
      */
-    private File getSourceFileByType(SourceType sourceType)
+    private File guessSourceFile(SourceType sourceType)
     {
         if (null == getPackage())
         {
             return null;
         }
-        String sourceFileName = ktSourceFileName.orElse(getBaseName() + "." + sourceType.getExtension());
+        String defaultNameBySourceType = getBaseName() + "." + sourceType.getExtension();
+        String sourceFileName = sourceType == SourceType.Kotlin
+                ?  ktSourceFileName.orElse(defaultNameBySourceType)
+                : defaultNameBySourceType;
         return new File(getPackage().getPath(), sourceFileName);
     }
 
     /**
-     * @return the name of the Java file this target corresponds to. In the case of a Stride target this is
-     *          the file generated during compilation.
+     * @return the name of the Java file this target corresponds to.
+     * In the case of a Stride target, this is
+     * the file generated during compilation.
      */
     public File getJavaSourceFile()
     {
-        return getSourceFileByType(SourceType.Java);
+        return guessSourceFile(SourceType.Java);
     }
     
     /**
@@ -1129,7 +1135,7 @@ public class ClassTarget extends DependentTarget
      */
     public File getFrameSourceFile()
     {
-        return getSourceFileByType(SourceType.Stride);
+        return guessSourceFile(SourceType.Stride);
     }
 
     /**
@@ -1143,8 +1149,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public File getSourceFile()
     {
-        SourceType sourceType = sourceAvailable == SourceType.Stride ? SourceType.Java : sourceAvailable;
-        return getSourceFileByType(sourceType);
+        return guessSourceFile(sourceAvailable);
     }
 
     public boolean isVisible()
@@ -1599,7 +1604,7 @@ public class ClassTarget extends DependentTarget
                 case Java:
                 case Kotlin:
                     success = role.generateSkeleton(template, getPackage(), getBaseName(),
-                            getSourceFileByType(sourceType).getPath(), sourceType);
+                            guessSourceFile(sourceType).getPath(), sourceType);
                     break;
                 case Stride:
                     addStride(Loader.buildTopLevelElement(template, getPackage().getProject().getEntityResolver(),
