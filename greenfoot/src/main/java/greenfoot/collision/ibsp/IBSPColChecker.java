@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2012,2013,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2012,2013,2015,2025  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -755,8 +755,8 @@ public class IBSPColChecker implements CollisionChecker
     {
         int x = ActorVisitor.getX(actor);
         int y = ActorVisitor.getY(actor);
-        int xPixel = x * cellSize;
-        int yPixel = y * cellSize;
+        int xPixel = x * cellSize + cellSize / 2;
+        int yPixel = y * cellSize + cellSize / 2;
         int dPixel = distance * cellSize;
         
         Rect r = new Rect(xPixel - dPixel, yPixel - dPixel, dPixel * 2 + 1, dPixel * 2 + 1);
