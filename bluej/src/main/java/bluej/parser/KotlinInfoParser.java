@@ -84,6 +84,9 @@ public class KotlinInfoParser extends KotlinParser
     private List<LocatableToken> lastTypespecToks;
     private boolean modPublic = false;
     private boolean modAbstract = false;
+    private boolean modPrivate = false;
+    private boolean modProtected = false;
+    private boolean modInternal = false;
     private List<MethodDesc> methodDescs = new LinkedList<MethodDesc>();
     private MethodDesc currentMethod;
 
@@ -111,6 +114,10 @@ public class KotlinInfoParser extends KotlinParser
     private Stack<JavaParentNode> scopeStack = new Stack<JavaParentNode>();
 
     protected boolean hadError;
+    private boolean hasTopLevelFunctions = false;
+
+    // List to store names of all public classes in the file
+    private List<String> publicClassNames = new ArrayList<String>();
 
     private LocatableToken pkgLiteralToken;
     private List<LocatableToken> packageTokens;
@@ -179,6 +186,8 @@ public class KotlinInfoParser extends KotlinParser
     {
         KotlinInfoParser infoParser = new KotlinInfoParser(r, resolver);
         infoParser.targetPkg = targetPkg;
+        // Clear the list of public class names before parsing
+        infoParser.publicClassNames.clear();
         infoParser.parseCU();
 
         if (infoParser.info != null) {
@@ -187,6 +196,40 @@ public class KotlinInfoParser extends KotlinParser
             return infoParser.info;
         }
         return null;
+    }
+
+    /**
+     * Get the list of public class names found in the parsed file.
+     * This should be called after parsing the file.
+     * 
+     * @return a list of public class names
+     */
+    public List<String> getPublicClassNames()
+    {
+        return new ArrayList<>(publicClassNames);
+    }
+
+    /**
+     * Static method to get the public class names from a Kotlin file.
+     * 
+     * @param f the Kotlin source file
+     * @param resolver the entity resolver
+     * @return a list of public class names
+     * @throws FileNotFoundException if the file cannot be found
+     */
+    public static List<String> getPublicClassNames(File f, EntityResolver resolver) throws FileNotFoundException
+    {
+        FileInputStream fis = new FileInputStream(f);
+        KotlinInfoParser infoParser = new KotlinInfoParser(new BufferedReader(new InputStreamReader(fis)), resolver);
+        infoParser.publicClassNames.clear();
+        infoParser.parseCU();
+
+        try {
+            fis.close();
+        }
+        catch (IOException ioe) {}
+
+        return infoParser.getPublicClassNames();
     }
 
     /**
@@ -403,13 +446,22 @@ public class KotlinInfoParser extends KotlinParser
         else if (token.getType() == KotlinTokenTypes.ABSTRACT) {
             modAbstract = true;
         }
+        else if (token.getType() == KotlinTokenTypes.LITERAL_private) {
+            modPrivate = true;
+        }
+        else if (token.getType() == KotlinTokenTypes.LITERAL_protected) {
+            modProtected = true;
+        }
+        else if (token.getType() == KotlinTokenTypes.LITERAL_internal) {
+            modInternal = true;
+        }
     }
 
     @Override
     public void modifiersConsumed()
     {
-        modPublic = false;
-        modAbstract = false;
+        // Don't reset modifiers here, as they're needed by gotTypeDef
+        // They will be reset after gotTypeDefName is called
     }
 
     @Override
@@ -459,7 +511,8 @@ public class KotlinInfoParser extends KotlinParser
     @Override
     public void gotTypeDef(LocatableToken firstToken, int tdType)
     {
-        isPublic = modPublic;
+        // In Kotlin, classes are public by default unless explicitly marked as private, protected, or internal
+        isPublic = modPublic || (!modPrivate && !modProtected && !modInternal);
         isAbstract = modAbstract;
         lastTdType = tdType;
         comment = firstToken.getHiddenBefore() == null ? "" : firstToken.getHiddenBefore().getText();
@@ -470,6 +523,11 @@ public class KotlinInfoParser extends KotlinParser
     {
         gotExtends = false; // haven't seen "extends ..." yet
         gotImplements = false;
+
+        // In Kotlin, classes are public by default unless explicitly marked as private
+        if (isPublic) {
+            publicClassNames.add(nameToken.getText());
+        }
 
         // Process any class, not just top-level ones
         if (info == null || isPublic && !info.foundPublicClass()) {
@@ -485,11 +543,24 @@ public class KotlinInfoParser extends KotlinParser
                 info.setPackageSelections(getSelection(pkgLiteralToken), getSelection(packageTokens),
                         joinTokens(packageTokens), getSelection(pkgSemiToken));
             }
+
+            // Set the hasTopLevelFunctions flag based on what we've seen so far
+            if (hasTopLevelFunctions) {
+                info.setHasTopLevelFunctions(true);
+            }
+
             storeCurrentClassInfo = true;
         }
         else {
             storeCurrentClassInfo = false;
         }
+
+        // Reset modifiers after processing the class
+        modPublic = false;
+        modAbstract = false;
+        modPrivate = false;
+        modProtected = false;
+        modInternal = false;
     }
 
     @Override
@@ -587,5 +658,20 @@ public class KotlinInfoParser extends KotlinParser
             r.append(token.getText());
         }
         return r.toString();
+    }
+
+    @Override
+    public void beginFunctionDeclaration(LocatableToken token)
+    {
+        // If we're at the top level (not inside a class), this is a top-level function
+        if (classLevel == 0) {
+            // Set the flag in our parser to remember we've seen a top-level function
+            hasTopLevelFunctions = true;
+
+            // Also set it on the ClassInfo if it exists
+            if (info != null) {
+                info.setHasTopLevelFunctions(true);
+            }
+        }
     }
 }

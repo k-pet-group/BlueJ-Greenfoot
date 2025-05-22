@@ -23,6 +23,8 @@ package bluej.parser;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.List;
@@ -222,4 +224,116 @@ public class KotlinBasicParseTest
             assertTrue("JInitializer should be in the list of used classes", usedClasses.contains("JInitializer"));
         }
     }
+
+    /**
+     * Test that the KotlinInfoParser correctly identifies files with top-level functions.
+     * This test verifies that the hasTopLevelFunctions property is set correctly.
+     */
+    @Test
+    public void testTopLevelFunctionDetection()
+    {
+        // Create a StringReader with a Kotlin file that has top-level functions
+        StringReader sr = new StringReader(
+                "fun topLevelFunction() {\n" +
+                "  println(\"This is a top-level function\")\n" +
+                "}\n" +
+                "\n" +
+                "class SomeClass {\n" +
+                "  fun classMethod() {\n" +
+                "    println(\"This is a class method\")\n" +
+                "  }\n" +
+                "}\n"
+        );
+
+        ClassInfo info = KotlinInfoParser.parse(sr, new ClassLoaderResolver(this.getClass().getClassLoader()), "testpkg");
+
+        assertNotNull("Parsed ClassInfo should not be null", info);
+        assertEquals("SomeClass", info.getName());
+        assertTrue("File should be identified as having top-level functions", info.hasTopLevelFunctions());
+
+        // Create a StringReader with a Kotlin file that has no top-level functions
+        sr = new StringReader(
+                "class SomeClass {\n" +
+                "  fun classMethod() {\n" +
+                "    println(\"This is a class method\")\n" +
+                "  }\n" +
+                "}\n"
+        );
+
+        info = KotlinInfoParser.parse(sr, new ClassLoaderResolver(this.getClass().getClassLoader()), "testpkg");
+
+        assertNotNull("Parsed ClassInfo should not be null", info);
+        assertEquals("SomeClass", info.getName());
+        assertFalse("File should not be identified as having top-level functions", info.hasTopLevelFunctions());
+    }
+
+    /**
+     * Test that the KotlinInfoParser correctly identifies all public classes in a Kotlin file.
+     * This test verifies that the getPublicClassNames method returns the correct list of class names.
+     */
+    @Test
+    public void testPublicClassDetection() throws IOException
+    {
+        // Create a temporary file with multiple public classes
+        File tempFile = File.createTempFile("KotlinTest", ".kt");
+        tempFile.deleteOnExit();
+
+        try (FileWriter writer = new FileWriter(tempFile)) {
+            writer.write(
+                "fun topLevelFunction() {\n" +
+                "  println(\"This is a top-level function\")\n" +
+                "}\n" +
+                "\n" +
+                "public class FirstClass {\n" +
+                "  fun classMethod() {\n" +
+                "    println(\"This is a class method\")\n" +
+                "  }\n" +
+                "}\n" +
+                "\n" +
+                "public class SecondClass {\n" +
+                "  fun anotherMethod() {\n" +
+                "    println(\"This is another method\")\n" +
+                "  }\n" +
+                "}\n" +
+                "\n" +
+                "class NonPublicClass {\n" +
+                "  fun hiddenMethod() {\n" +
+                "    println(\"This is a hidden method\")\n" +
+                "  }\n" +
+                "}\n" +
+                "\n" +
+                "private class PrivateClass {\n" +
+                "  fun privateMethod() {\n" +
+                "    println(\"This is a private method\")\n" +
+                "  }\n" +
+                "}\n" +
+                "\n" +
+                "protected class ProtectedClass {\n" +
+                "  fun protectedMethod() {\n" +
+                "    println(\"This is a protected method\")\n" +
+                "  }\n" +
+                "}\n" +
+                "\n" +
+                "internal class InternalClass {\n" +
+                "  fun internalMethod() {\n" +
+                "    println(\"This is an internal method\")\n" +
+                "  }\n" +
+                "}\n"
+            );
+        }
+
+        // Get the list of public classes
+        List<String> publicClasses = KotlinInfoParser.getPublicClassNames(tempFile, 
+            new ClassLoaderResolver(this.getClass().getClassLoader()));
+
+        // Verify that the list contains the expected classes
+        assertEquals("Should find 3 public classes", 3, publicClasses.size());
+        assertTrue("Should contain FirstClass", publicClasses.contains("FirstClass"));
+        assertTrue("Should contain SecondClass", publicClasses.contains("SecondClass"));
+        assertTrue("Should contain NonPublicClass", publicClasses.contains("NonPublicClass"));
+        assertFalse("Should not contain PrivateClass", publicClasses.contains("PrivateClass"));
+        assertFalse("Should not contain ProtectedClass", publicClasses.contains("ProtectedClass"));
+        assertFalse("Should not contain InternalClass", publicClasses.contains("InternalClass"));
+    }
+
 }

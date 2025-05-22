@@ -82,6 +82,7 @@ public class KotlinLexer implements TokenStream
         keywords.put("public", KotlinTokenTypes.LITERAL_public);
         keywords.put("private", KotlinTokenTypes.LITERAL_private);
         keywords.put("protected", KotlinTokenTypes.LITERAL_protected);
+        keywords.put("internal", KotlinTokenTypes.LITERAL_internal);
         keywords.put("final", KotlinTokenTypes.FINAL);
         keywords.put("abstract", KotlinTokenTypes.ABSTRACT);
     }

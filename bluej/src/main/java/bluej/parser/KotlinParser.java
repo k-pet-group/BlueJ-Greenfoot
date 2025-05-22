@@ -99,20 +99,36 @@ public class KotlinParser extends KotlinParserCallbacks
     {
         try {
             LocatableToken token;
+            boolean sawPublicModifier = false;
+
             while ((token = tokenStream.nextToken()).getType() != KotlinTokenTypes.EOF) {
                 // Process tokens and call appropriate callbacks
-                if (token.getType() == KotlinTokenTypes.LITERAL_package) {
+                if (token.getType() == KotlinTokenTypes.LITERAL_public) {
+                    sawPublicModifier = true;
+                    gotModifier(token);
+                } else if (token.getType() == KotlinTokenTypes.LITERAL_private) {
+                    gotModifier(token);
+                } else if (token.getType() == KotlinTokenTypes.LITERAL_protected) {
+                    gotModifier(token);
+                } else if (token.getType() == KotlinTokenTypes.LITERAL_internal) {
+                    gotModifier(token);
+                } else if (token.getType() == KotlinTokenTypes.LITERAL_package) {
                     beginPackageStatement(token);
                     processPackage();
+                    sawPublicModifier = false; // Reset after processing package
                 } else if (token.getType() == KotlinTokenTypes.LITERAL_class) {
                     processClass(token);
+                    sawPublicModifier = false; // Reset after processing class
                 } else if (token.getType() == KotlinTokenTypes.LITERAL_interface) {
                     processInterface(token);
+                    sawPublicModifier = false; // Reset after processing interface
                 } else if (token.getType() == KotlinTokenTypes.LITERAL_fun) {
                     processFunction(token);
+                    sawPublicModifier = false; // Reset after processing function
                 } else if (token.getType() == KotlinTokenTypes.LITERAL_val || 
                            token.getType() == KotlinTokenTypes.LITERAL_var) {
                     processProperty(token);
+                    sawPublicModifier = false; // Reset after processing property
                 }
                 // Store the last token seen
                 lastToken = token;
