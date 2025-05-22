@@ -176,11 +176,33 @@ public class ClassTarget extends DependentTarget
     // Whether the current compilation is invalid due to edits since compilation began
     private boolean compilationInvalid = false;
 
-    private SourceType sourceAvailable;
+    private SourceType sourceAvailable = SourceType.NONE;
     // value of .class-file's SourceFile attribute (used for Kotlin sources)
     private Optional<String> ktSourceFileName = Optional.empty();
     // Part of keeping track of number of editors opened, for Greenfoot phone home:
     private boolean hasBeenOpened = false;
+
+    /**
+     * Sets the Kotlin source file name for this class target.
+     * This is used when multiple class targets are created from a single Kotlin file.
+     * 
+     * @param sourceFileName the name of the Kotlin source file
+     */
+    public void setKotlinSourceFileName(String sourceFileName)
+    {
+        this.ktSourceFileName = Optional.of(sourceFileName);
+
+        // If we don't know the source type yet, set it to Kotlin
+        if (sourceAvailable == SourceType.NONE) {
+            sourceAvailable = SourceType.Kotlin;
+            // Check if the file exists and is readable
+            File file = guessSourceFile(SourceType.Kotlin);
+            if (file != null && file.canRead()) {
+                getPackage().getProject().setHasKotlinSources(true);
+                noSourceLabel.setText("");
+            }
+        }
+    }
 
     private String typeParameters = "";
 
@@ -332,7 +354,10 @@ public class ClassTarget extends DependentTarget
      */
     private void calcSourceAvailable()
     {
-        sourceAvailable = SourceType.NONE;
+
+        if (sourceAvailable != SourceType.NONE) {
+            return;
+        }
         // It's important to check for Stride source first!
         final SourceType[] languageTypes = { SourceType.Stride, SourceType.Java, SourceType.Kotlin };
         for (SourceType languageType : languageTypes) {
@@ -432,7 +457,6 @@ public class ClassTarget extends DependentTarget
         }
 
         if (sourceAvailable == SourceType.Kotlin) {
-            System.out.println("Creating DummyReflective for Kotlin source file: " + getQualifiedName());
             return new DummyReflective(getQualifiedName());
         }
 
@@ -834,6 +858,12 @@ public class ClassTarget extends DependentTarget
         String intf = props.getProperty(prefix + ".showInterface");
         openWithInterface = Boolean.valueOf(intf).booleanValue();
 
+        // Load the Kotlin source file name if it exists
+        String ktSourceFileNameValue = props.getProperty(prefix + ".ktSourceFileName");
+        if (ktSourceFileNameValue != null) {
+            ktSourceFileName = Optional.of(ktSourceFileNameValue);
+        }
+
         if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type)) {
             setRole(new UnitTestClassRole(UnitTestFramework.JUnit3));
         }
@@ -913,7 +943,11 @@ public class ClassTarget extends DependentTarget
         {
             props.put(prefix + ".naviview.expanded", String.valueOf(isNaviviewExpanded()));
         }
-        
+        // Save the Kotlin source file name if it's present
+        if (ktSourceFileName.isPresent()) {
+            props.put(prefix + ".ktSourceFileName", ktSourceFileName.get());
+        }
+
         props.put(prefix + ".showInterface", Boolean.valueOf(intf).toString());
 
         List<Integer> breakpoints;
@@ -2666,7 +2700,7 @@ public class ClassTarget extends DependentTarget
     {
         File sourceFile = getSourceFile();
         File fileForCompiler = sourceAvailable == SourceType.Stride ? getJavaSourceFile() : sourceFile;
-        return new CompileInputFile(fileForCompiler, sourceFile);
+        return new CompileInputFile(fileForCompiler, sourceFile, this);
     }
 
     /**

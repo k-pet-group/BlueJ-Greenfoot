@@ -72,6 +72,8 @@ import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.utility.filefilter.KotlinSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
+import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.PackageResolver;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -632,14 +634,28 @@ public final class Package
     }
 
     /**
+     * A class to hold the results of finding targets in a directory.
+     * This includes the set of target names and a map of target names to Kotlin source files.
+     */
+    private static class TargetFinderResult {
+        public final Set<String> targetNames;
+        public final Map<String, String> kotlinSourceFileMap;
+
+        public TargetFinderResult(Set<String> targetNames, Map<String, String> kotlinSourceFileMap) {
+            this.targetNames = targetNames;
+            this.kotlinSourceFileMap = kotlinSourceFileMap;
+        }
+    }
+
+    /**
      * Search a directory for Java source and class files and add their names to
      * a set which is returned. Will delete any __SHELL files which are found in
      * the directory and will ignore any single .class files which do not
      * contain public classes.
      *
-     * The returned set is guaranteed to be only valid Java identifiers.
+     * The returned result contains a set of valid Java identifiers and a map of target names to Kotlin source files.
      */
-    private Set<String> findTargets(File path)
+    private TargetFinderResult findTargets(File path)
     {
         File javaSrcFiles[] = path.listFiles(new JavaSourceFilter());
         File frameSrcFiles[] = path.listFiles(new FrameSourceFilter());
@@ -647,6 +663,9 @@ public final class Package
         File classFiles[] = path.listFiles(new JavaClassFilter());
 
         Set<String> interestingSet = new HashSet<String>();
+
+        // Map to keep track of which class targets come from which Kotlin file
+        Map<String, String> kotlinSourceFileMap = new HashMap<String, String>();
 
         // process all *.java files
         for (int i = 0; i < javaSrcFiles.length; i++) {
@@ -685,7 +704,34 @@ public final class Package
             if (!JavaNames.isIdentifier(kotlinFileName))
                 continue;
 
-            interestingSet.add(kotlinFileName);
+            try {
+                // Parse the Kotlin file to get information about all public classes and top-level functions
+                EntityResolver resolver = new PackageResolver(project.getEntityResolver(), getQualifiedName());
+
+                // Get all public class names from the file
+                List<String> publicClassNames = bluej.parser.KotlinInfoParser.getPublicClassNames(kotlinSrcFiles[i], resolver);
+
+                // Add all public class names to the set of targets and map them to the source file
+                for (String className : publicClassNames) {
+                    interestingSet.add(className);
+                    kotlinSourceFileMap.put(className, kotlinSrcFiles[i].getName());
+                }
+
+                // Check if the file has top-level functions
+                ClassInfo info = bluej.parser.KotlinInfoParser.parseWithPkg(kotlinSrcFiles[i], this);
+                if (info != null && info.hasTopLevelFunctions()) {
+                    // Add a file facade target with the name as file name + "Kt" suffix
+                    String facadeName = kotlinFileName + "Kt";
+                    interestingSet.add(facadeName);
+                    kotlinSourceFileMap.put(facadeName, kotlinSrcFiles[i].getName());
+                }
+            } catch (Exception e) {
+                // If parsing fails, fall back to just using the file name + "Kt" suffix
+                String facadeName = kotlinFileName + "Kt";
+                interestingSet.add(facadeName);
+                kotlinSourceFileMap.put(facadeName, kotlinSrcFiles[i].getName());
+                Debug.message("Error parsing Kotlin file " + kotlinSrcFiles[i] + ": " + e);
+            }
         }
 
 
@@ -723,7 +769,7 @@ public final class Package
             }
         }
 
-        return interestingSet;
+        return new TargetFinderResult(interestingSet, kotlinSourceFileMap);
     }
 
     /**
@@ -931,7 +977,9 @@ public final class Package
 
             // now look for Java source files that may have been
             // added to the directory
-            Set<String> interestingSet = findTargets(getPath());
+            TargetFinderResult result = findTargets(getPath());
+            Set<String> interestingSet = result.targetNames;
+            Map<String, String> kotlinSourceFileMap = result.kotlinSourceFileMap;
 
             // also we migrate targets from propTargets across
             // to our real list of targets in this loop.
@@ -947,6 +995,16 @@ public final class Package
                         targetsToPlace.add(target);
                     }
                 }
+
+                // If this is a ClassTarget and it has a Kotlin source file, set it
+                if (target instanceof ClassTarget) {
+                    ClassTarget classTarget = (ClassTarget) target;
+                    String kotlinSourceFileName = kotlinSourceFileMap.get(targetName);
+                    if (kotlinSourceFileName != null) {
+                        classTarget.setKotlinSourceFileName(kotlinSourceFileName);
+                    }
+                }
+
                 addTarget(target);
             }
 
@@ -1162,7 +1220,9 @@ public final class Package
             }
         }
 
-        Set<String> interestingSet = findTargets(getPath());
+        TargetFinderResult result = findTargets(getPath());
+        Set<String> interestingSet = result.targetNames;
+        Map<String, String> kotlinSourceFileMap = result.kotlinSourceFileMap;
 
         for (Iterator<String> it = interestingSet.iterator(); it.hasNext();) {
             String targetName = it.next();
@@ -1175,6 +1235,16 @@ public final class Package
 
             if (target == null) {
                 Target newtarget = addClass(targetName);
+
+                // If this is a ClassTarget and it has a Kotlin source file, set it
+                if (newtarget instanceof ClassTarget) {
+                    ClassTarget classTarget = (ClassTarget) newtarget;
+                    String kotlinSourceFileName = kotlinSourceFileMap.get(targetName);
+                    if (kotlinSourceFileName != null) {
+                        classTarget.setKotlinSourceFileName(kotlinSourceFileName);
+                    }
+                }
+
                 if (getEditor() != null)
                 {
                     getEditor().findSpaceForVertex(newtarget);
@@ -2730,17 +2800,19 @@ public final class Package
             List<ClassTarget> targetsToAnalyse = new ArrayList<>();
             List<ClassTarget> readyToCompileList = new ArrayList<>();
             for (int i = 0; i < sources.length; i++) {
-                String filename = sources[i].getCompileInputFile().getPath();
-
-                String fullName = getProject().convertPathToPackageName(filename);
-                if (fullName == null) {
-                    continue;
-                }
-
-                ClassTarget t = (ClassTarget) targets.get(JavaNames.getBase(fullName));
+                ClassTarget t = sources[i].getClassTarget();
 
                 if (t == null) {
-                    continue;
+                    // Fall back to the old method if the ClassTarget is not available
+                    String filename = sources[i].getCompileInputFile().getPath();
+                    String fullName = getProject().convertPathToPackageName(filename);
+                    if (fullName == null) {
+                        continue;
+                    }
+                    t = (ClassTarget) targets.get(JavaNames.getBase(fullName));
+                    if (t == null) {
+                        continue;
+                    }
                 }
 
                 t.markCompiled(successful, type);
