@@ -31,6 +31,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +64,7 @@ public class TestKotlinCompiler
 
         // Initialize the compiler
         compiler = new KotlinCompiler();
-        compiler.setDestDir(tempDir.toFile());
+        compiler.setSourcePath(tempDir.toFile());
 
         // Set up classpath
         List<File> classPath = new ArrayList<>();
@@ -75,15 +77,7 @@ public class TestKotlinCompiler
     public void tearDown() throws IOException
     {
         // Clean up temporary files
-        Files.walk(tempDir)
-            .sorted((a, b) -> b.compareTo(a)) // Reverse order to delete files before directories
-            .forEach(path -> {
-                try {
-                    Files.deleteIfExists(path);
-                } catch (IOException e) {
-                    System.err.println("Failed to delete: " + path);
-                }
-            });
+        MoreFiles.deleteRecursively(tempDir, RecursiveDeleteOption.ALLOW_INSECURE);
     }
 
     @Test
@@ -98,7 +92,7 @@ public class TestKotlinCompiler
             observer, 
             false, // not internal
             null,  // no user options
-            StandardCharsets.UTF_8, CompileType.EXPLICIT_USER_COMPILE, null
+            StandardCharsets.UTF_8, CompileType.EXPLICIT_USER_COMPILE, compiler.getSourcePath()
         );
 
         // Verify compilation was successful

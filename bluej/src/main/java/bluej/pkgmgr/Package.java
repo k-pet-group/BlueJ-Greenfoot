@@ -1777,7 +1777,7 @@ public final class Package
         List<CompileInputFile> srcFiles = Utility.mapList(targetList, ClassTarget::getCompileInputFile);
         if (srcFiles.size() > 0 && srcFiles.stream().allMatch(CompileInputFile::isValid))
         {
-            JobQueue.getJobQueue().addJob(srcFiles, observer, project.getClassLoader(), project.getProjectDir(),
+            JobQueue.getJobQueue().addJob(srcFiles, project.hasKotlinSources(), observer, project.getClassLoader(), project.getProjectDir(),
                 ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset(), reason, type);
         }
     }
