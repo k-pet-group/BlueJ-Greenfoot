@@ -45,6 +45,7 @@ import bluej.extensions2.event.ClassEvent;
 import bluej.extmgr.ExtensionMenu;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionsMenuManager;
+import bluej.parser.DummyReflective;
 import bluej.parser.ParseFailure;
 import bluej.parser.context.CompilationUnitContext;
 import bluej.parser.context.CompilationUnitContextLoader;
@@ -431,6 +432,11 @@ public class ClassTarget extends DependentTarget
             {
                 return null;
             }
+        }
+
+        if (sourceAvailable == SourceType.Kotlin) {
+            System.out.println("Creating DummyReflective for Kotlin source file: " + getQualifiedName());
+            return new DummyReflective(getQualifiedName());
         }
 
         // Not compiled; try to get a reflective from the parser
