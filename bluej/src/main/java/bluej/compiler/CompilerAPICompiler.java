@@ -42,6 +42,8 @@ import javax.tools.ToolProvider;
 import bluej.Config;
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
 
+import static java.util.Collections.singletonList;
+
 /**
  * A compiler implementation using the Compiler API introduced in Java 6.
  * 
@@ -184,25 +186,12 @@ public class CompilerAPICompiler extends Compiler
         {  
             //setup the filemanager
             StandardJavaFileManager sjfm = jc.getStandardFileManager(diagListener, null, fileCharset);
+            sjfm.setLocation(StandardLocation.SOURCE_PATH, singletonList(getSourcePath()));
             List<File> pathList = new ArrayList<File>();
-            List<File> outputList = new ArrayList<File>();
-            outputList.add(getDestDir());
             pathList.addAll(getClassPath());
-
-            // In BlueJ, the destination directory and the source path are
-            // always the same
-            sjfm.setLocation(StandardLocation.SOURCE_PATH, outputList);
-            if (outputDir != null)
-            {
-                pathList.add(outputDir);
-                pathList.add(outputDir);
-                sjfm.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(outputDir));
-            }
-            else
-            {
-                sjfm.setLocation(StandardLocation.CLASS_OUTPUT, outputList);
-            }
-            sjfm.setLocation(StandardLocation.CLASS_PATH, pathList);
+            pathList.add(outputDir);
+            sjfm.setLocation(StandardLocation.CLASS_PATH,pathList);
+            sjfm.setLocation(StandardLocation.CLASS_OUTPUT, singletonList(outputDir));
 
             //get the source files for compilation  
             Iterable<? extends JavaFileObject> compilationUnits1 =

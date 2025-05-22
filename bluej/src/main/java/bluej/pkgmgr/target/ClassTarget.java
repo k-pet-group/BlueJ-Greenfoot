@@ -321,6 +321,9 @@ public class ClassTarget extends DependentTarget
         final File file = guessSourceFile(sourceType);
         if (file != null && file.canRead()) {
             sourceAvailable = sourceType;
+            if (sourceType == SourceType.Kotlin) {
+                getPackage().getProject().setHasKotlinSources(true);
+            }
             noSourceLabel.setText("");
             return true;
         }

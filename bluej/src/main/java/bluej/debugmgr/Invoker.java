@@ -181,7 +181,7 @@ public class Invoker
             {
                 Project project = pkg.getProject();
                 List<CompileInputFile> wrapped = Utility.mapList(Arrays.asList(files), f -> new CompileInputFile(f, f));
-                JobQueue.getJobQueue().addJob(wrapped, observer, project.getClassLoader(),
+                JobQueue.getJobQueue().addJob(wrapped, project.hasKotlinSources(), observer, project.getClassLoader(),
                         project.getProjectDir(), true, project.getProjectCharset(), CompileReason.INVOKE, CompileType.INTERNAL_COMPILE);
             }
         };
@@ -296,7 +296,7 @@ public class Invoker
             {
                 Project project = pkg.getProject();
                 List<CompileInputFile> wrapped = Utility.mapList(Arrays.asList(files), f -> new CompileInputFile(f, f));
-                JobQueue.getJobQueue().addJob(wrapped, observer, project.getClassLoader(),
+                JobQueue.getJobQueue().addJob(wrapped,  project.hasKotlinSources(), observer, project.getClassLoader(),
                         project.getProjectDir(), true, project.getProjectCharset(), CompileReason.INVOKE, CompileType.INTERNAL_COMPILE);
             }
         };

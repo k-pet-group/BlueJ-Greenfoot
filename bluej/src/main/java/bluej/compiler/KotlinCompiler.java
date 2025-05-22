@@ -23,7 +23,6 @@ package bluej.compiler;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -74,13 +73,7 @@ public class KotlinCompiler extends Compiler
         arguments.setJvmTarget("1.8");
         arguments.setNoStdlib(false);
         arguments.setNoReflect(true);
-
-        // Set the destination directory for class files
-        if (outputDir != null) {
-            arguments.setDestination(outputDir.getAbsolutePath());
-        } else {
-            arguments.setDestination(getDestDir().getAbsolutePath());
-        }
+        arguments.setDestination(outputDir.getAbsolutePath());
 
         // Set the classpath
         List<File> classPath = getClassPath();
@@ -89,7 +82,10 @@ public class KotlinCompiler extends Compiler
         arguments.setClasspath(classPathString);
 
         // Set the source files
-        arguments.setFreeArgs(sources.stream().map(File::getAbsolutePath).toList());
+
+        List<String> freeArgs = sources.stream().map(File::getAbsolutePath).toList();
+        arguments.setFreeArgs(freeArgs);
+        arguments.setAllowNoSourceFiles(true);
 
         // Create a message collector to handle compiler messages
         MessageCollector messageCollector = new MessageCollector() {

@@ -75,26 +75,24 @@ public class JobQueue
      * @param sources   The files to compile
      * @param observer  Observer to be notified when compilation begins,
      *                  errors/warnings, completes
-     * @param destDir   Destination for class files?
+     * @param sourcePath   Path to the source files (might be used also as an output folder
+     *                     for the compiled classes depending on the compilation type)
      * @param suppressUnchecked    Suppress "unchecked" warning in java 1.5
      */
-    public void addJob(List<CompileInputFile> sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
+    public void addJob(List<CompileInputFile> sources, boolean needsKotlinCompiler, CompileObserver observer, BPClassLoader bpClassLoader, File sourcePath,
             boolean suppressUnchecked, Charset fileCharset, CompileReason reason, CompileType type)
     {
         List<String> options = new ArrayList<String>();
         String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, "");
         options.addAll(Utility.dequoteCommandLine(optionString));
 
-        // Determine whether we need the Kotlin compiler for this job
-        boolean hasKotlinFiles = sources.stream().anyMatch(cif -> cif.getCompileFileExtension().equals("kt"));
-
         // We don't instantiate the Kotlin compiler until we really need it
-        if (hasKotlinFiles && kotlinCompiler == null) {
+        if (needsKotlinCompiler && kotlinCompiler == null) {
             kotlinCompiler = new KotlinCompiler();
         }
 
-        thread.addJob(new Job(sources, javaCompiler, hasKotlinFiles ? kotlinCompiler : null, observer, bpClassLoader,
-                destDir, suppressUnchecked, options, fileCharset, type, reason));
+        thread.addJob(new Job(sources, javaCompiler, needsKotlinCompiler ? kotlinCompiler : null, observer, bpClassLoader,
+                sourcePath, suppressUnchecked, options, fileCharset, type, reason));
     }
 
     /**

@@ -31,6 +31,7 @@ import bluej.Config;
 import bluej.classmgr.BPClassLoader;
 import bluej.utility.Utility;
 import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 
 /**
  * A compiler "job". A list of filenames to compile + parameters.
@@ -43,7 +44,8 @@ import com.google.common.io.MoreFiles;
  *
  * @author  Michael Cahill
  */
-record Job(List<CompileInputFile> sources, Compiler javaCompiler, Compiler kotlinCompiler, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
+record Job(List<CompileInputFile> sources, Compiler javaCompiler, Compiler kotlinCompiler,
+           CompileObserver observer, BPClassLoader bpClassLoader, File sourcePath,
            boolean internal, // true for compiling shell files,
                              // or user files if we want to suppress
                              // "unchecked" warnings, false otherwise
@@ -56,10 +58,10 @@ record Job(List<CompileInputFile> sources, Compiler javaCompiler, Compiler kotli
      */
     private static final AtomicInteger nextCompilationSequence = new AtomicInteger(1);
 
-    private void configureCompiler(Compiler compiler, File destDir, BPClassLoader bpClassLoader)
+    private void configureCompiler(Compiler compiler, File sourcePath, BPClassLoader bpClassLoader)
     {
-        if(destDir != null) {
-            compiler.setDestDir(destDir);
+        if(sourcePath != null) {
+            compiler.setSourcePath(sourcePath);
         }
         compiler.setClasspath(bpClassLoader.getClassPathAsFiles());
         compiler.setBootClassPath(null);
@@ -89,12 +91,12 @@ record Job(List<CompileInputFile> sources, Compiler javaCompiler, Compiler kotli
                 observer.startCompile(sourcesArray, reason, type, compilationSequence);
             }
 
-            File outputDir = type.keepClasses() ? destDir : Files.createTempDirectory("bluej").toFile();
+            File outputDir = type.keepClasses() ? sourcePath : Files.createTempDirectory("bluej").toFile();
             List<File> srcFiles = Utility.mapList(sources, CompileInputFile::getCompileInputFile);
             boolean successful = true;
             if (kotlinCompiler != null)
             {
-                configureCompiler(kotlinCompiler, destDir, bpClassLoader);
+                configureCompiler(kotlinCompiler, sourcePath, bpClassLoader);
                 successful &= kotlinCompiler.compile(srcFiles,
                         observer, internal, userCompileOptions, fileCharset, type, outputDir);
             }
@@ -103,14 +105,15 @@ record Job(List<CompileInputFile> sources, Compiler javaCompiler, Compiler kotli
                     file -> file.getName().endsWith(".java"));
             if (!javaSourceFiles.isEmpty())
             {
-                configureCompiler(javaCompiler, destDir, bpClassLoader);
+                configureCompiler(javaCompiler, sourcePath, bpClassLoader);
                 successful &= javaCompiler.compile(javaSourceFiles,
                         observer, internal, userCompileOptions, fileCharset, type, outputDir);
             }
 
             if (!type.keepClasses() && outputDir != null)
             {
-                MoreFiles.deleteRecursively(outputDir.toPath());
+                // This is a temporary directory without symbolic links, so we can safely delete it now.
+                MoreFiles.deleteRecursively(outputDir.toPath(), RecursiveDeleteOption.ALLOW_INSECURE);
             }
 
             if(observer != null)
