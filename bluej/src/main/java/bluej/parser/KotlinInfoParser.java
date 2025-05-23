@@ -190,6 +190,11 @@ public class KotlinInfoParser extends KotlinParser
         infoParser.publicClassNames.clear();
         infoParser.parseCU();
 
+        // If no class was found but we have top-level functions, create a ClassInfo object
+        if (infoParser.info == null && infoParser.hasTopLevelFunctions) {
+            infoParser.info = new ClassInfo();
+            infoParser.info.setHasTopLevelFunctions(true);
+        }
         if (infoParser.info != null) {
             infoParser.info.setParseError(infoParser.hadError);
             infoParser.resolveComments();
@@ -668,8 +673,9 @@ public class KotlinInfoParser extends KotlinParser
             // Set the flag in our parser to remember we've seen a top-level function
             hasTopLevelFunctions = true;
 
-            // Also set it on the ClassInfo if it exists
-            if (info != null) {
+            // Also set it on the ClassInfo if it exists and has a public class
+            // Only set hasTopLevelFunctions to true if the file contains both classes and top-level functions
+            if (info != null && info.foundPublicClass()) {
                 info.setHasTopLevelFunctions(true);
             }
         }

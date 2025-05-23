@@ -61,12 +61,7 @@ import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.PermitsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.actions.*;
-import bluej.pkgmgr.target.role.AbstractClassRole;
-import bluej.pkgmgr.target.role.ClassRole;
-import bluej.pkgmgr.target.role.EnumClassRole;
-import bluej.pkgmgr.target.role.InterfaceClassRole;
-import bluej.pkgmgr.target.role.StdClassRole;
-import bluej.pkgmgr.target.role.UnitTestClassRole;
+import bluej.pkgmgr.target.role.*;
 import bluej.pkgmgr.target.role.UnitTestClassRole.UnitTestFramework;
 import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.ast.Loader;
@@ -95,6 +90,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.stage.Window;
+import kotlin.Metadata;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -321,6 +317,10 @@ public class ClassTarget extends DependentTarget
             else if (template.startsWith("enum"))
             {
                 setRole(new EnumClassRole());
+            }
+            else if (template.startsWith("facade"))
+            {
+                setRole(new KotlinFileFacadeRole());
             }
             else
             {
@@ -799,6 +799,9 @@ public class ClassTarget extends DependentTarget
             else if (isJunit5TestClass(cl)) {
                 setRole(new UnitTestClassRole(UnitTestFramework.JUnit5));
             }
+            else if (isKotlinFileFacadeClass(cl)) {
+                setRole(new KotlinFileFacadeRole());
+            }
             else {
                 setRole(new StdClassRole());
             }
@@ -821,12 +824,14 @@ public class ClassTarget extends DependentTarget
                 }
                 else if (classInfo.isAbstract()) {
                     setRole(new AbstractClassRole());
+                } else if (classInfo.hasTopLevelFunctions()) {
+                    setRole(new KotlinFileFacadeRole());
                 }
                 else {
                     // We shouldn't override applet/unit test class roles based only
                     // on source analysis: if they inherit only indirectly from Applet
                     // or UnitTest, source analysis won't give the correct role
-                    if (!(role instanceof UnitTestClassRole))
+                    if (!(role instanceof UnitTestClassRole) && !(role instanceof KotlinFileFacadeRole))
                     {
                         setRole(new StdClassRole());
                     }
@@ -837,6 +842,11 @@ public class ClassTarget extends DependentTarget
         }
     }
 
+    private static  boolean isKotlinFileFacadeClass(Class<?> cl) {
+        Metadata metadata = cl.getAnnotation(Metadata.class);
+        if (metadata == null) return false;
+        return metadata.k() == 2 && cl.getSimpleName().endsWith("Kt");
+    }
     /**
      * Load existing information about this class target
      * 
@@ -1156,7 +1166,9 @@ public class ClassTarget extends DependentTarget
         {
             return null;
         }
-        String defaultNameBySourceType = getBaseName() + "." + sourceType.getExtension();
+        String defaultNameBySourceType = (role instanceof KotlinFileFacadeRole
+                ? getBaseName().substring(0, getBaseName().length() - 2)
+                : getBaseName()) + "." + sourceType.getExtension();
         String sourceFileName = sourceType == SourceType.Kotlin
                 ?  ktSourceFileName.orElse(defaultNameBySourceType)
                 : defaultNameBySourceType;
@@ -1861,6 +1873,10 @@ public class ClassTarget extends DependentTarget
      */
     public boolean analyseClassName(ClassInfo info)
     {
+        if (role instanceof KotlinFileFacadeRole) {
+            return false;
+        }
+
         String newName = info.getName();
 
         if ((newName == null) || (newName.length() == 0)) {

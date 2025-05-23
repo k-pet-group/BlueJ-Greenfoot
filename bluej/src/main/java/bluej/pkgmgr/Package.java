@@ -2135,6 +2135,10 @@ public final class Package
         if (identifierName == null)
             return null;
         Target t = targets.get(identifierName);
+        // Second attempt: the target might be Kotlin file facade
+        if (t == null) {
+            t = targets.get(identifierName + "Kt");
+        }
         return t;
     }
 
@@ -2694,18 +2698,9 @@ public final class Package
 
         private void markAsCompiling(CompileInputFile[] sources, int compilationSequence)
         {
-            for (int i = 0; i < sources.length; i++) {
-                String fileName = sources[i].getCompileInputFile().getPath();
-                String fullName = getProject().convertPathToPackageName(fileName);
-
-                if (fullName != null) {
-                    Target t = getTarget(JavaNames.getBase(fullName));
-
-                    if (t instanceof ClassTarget) {
-                        ClassTarget ct = (ClassTarget) t;
-                        ct.markCompiling(compilationSequence);
-                    }
-                }
+            for (CompileInputFile source : sources) {
+                ClassTarget ct = source.getClassTarget();
+                ct.markCompiling(compilationSequence);
             }
         }
 

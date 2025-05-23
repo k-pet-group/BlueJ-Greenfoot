@@ -64,9 +64,11 @@ public class KotlinBasicParseTest
     {
         // Create a StringReader with a simple Kotlin class
         StringReader sr = new StringReader(
-                "class SimpleKotlin {\n" +
-                "  val name: String = \"Test\"\n" +
-                "}\n"
+                """
+                        class SimpleKotlin {
+                          val name: String = "Test"
+                        }
+                        """
         );
 
         // Verify that KotlinInfoParser can be instantiated
@@ -113,9 +115,11 @@ public class KotlinBasicParseTest
     {
         // Create a StringReader with a simple Kotlin class
         StringReader sr = new StringReader(
-                "class SimpleKotlin {\n" +
-                "  val name: String = \"Test\"\n" +
-                "}\n"
+                """
+                        class SimpleKotlin {
+                          val name: String = "Test"
+                        }
+                        """
         );
 
         // Parse the Kotlin string
@@ -174,17 +178,19 @@ public class KotlinBasicParseTest
     {
         // Create a StringReader with two Kotlin classes where one uses a field of type from the other class
         StringReader sr = new StringReader(
-                "class ClassUsingField {\n" +
-                "  // Explicitly use ClassWithField as a type for a field\n" +
-                "  private val classWithField: ClassWithField = ClassWithField()\n" +
-                "  var x: Int = 0\n" +
-                "  \n" +
-                "  fun useField() {\n" +
-                "    // Access the field from the other class\n" +
-                "    val value = classWithField.field\n" +
-                "    println(value)\n" +
-                "  }\n" +
-                "}\n"
+                """
+                        class ClassUsingField {
+                          // Explicitly use ClassWithField as a type for a field
+                          private val classWithField: ClassWithField = ClassWithField()
+                          var x: Int = 0
+                         \s
+                          fun useField() {
+                            // Access the field from the other class
+                            val value = classWithField.field
+                            println(value)
+                          }
+                        }
+                        """
         );
 
         ClassInfo info = KotlinInfoParser.parse(sr, new ClassLoaderResolver(this.getClass().getClassLoader()), "testpkg");
@@ -234,15 +240,17 @@ public class KotlinBasicParseTest
     {
         // Create a StringReader with a Kotlin file that has top-level functions
         StringReader sr = new StringReader(
-                "fun topLevelFunction() {\n" +
-                "  println(\"This is a top-level function\")\n" +
-                "}\n" +
-                "\n" +
-                "class SomeClass {\n" +
-                "  fun classMethod() {\n" +
-                "    println(\"This is a class method\")\n" +
-                "  }\n" +
-                "}\n"
+                """
+                        fun topLevelFunction() {
+                          println("This is a top-level function")
+                        }
+                        
+                        class SomeClass {
+                          fun classMethod() {
+                            println("This is a class method")
+                          }
+                        }
+                        """
         );
 
         ClassInfo info = KotlinInfoParser.parse(sr, new ClassLoaderResolver(this.getClass().getClassLoader()), "testpkg");
@@ -253,11 +261,13 @@ public class KotlinBasicParseTest
 
         // Create a StringReader with a Kotlin file that has no top-level functions
         sr = new StringReader(
-                "class SomeClass {\n" +
-                "  fun classMethod() {\n" +
-                "    println(\"This is a class method\")\n" +
-                "  }\n" +
-                "}\n"
+                """
+                        class SomeClass {
+                          fun classMethod() {
+                            println("This is a class method")
+                          }
+                        }
+                        """
         );
 
         info = KotlinInfoParser.parse(sr, new ClassLoaderResolver(this.getClass().getClassLoader()), "testpkg");
@@ -265,6 +275,20 @@ public class KotlinBasicParseTest
         assertNotNull("Parsed ClassInfo should not be null", info);
         assertEquals("SomeClass", info.getName());
         assertFalse("File should not be identified as having top-level functions", info.hasTopLevelFunctions());
+
+        // Create a StringReader with a Kotlin file with top-level functions but no classes
+        sr = new StringReader(
+                """
+                        fun topLevelFunction() {
+                          println("This is a top-level function")
+                        }
+                        """
+        );
+
+        info = KotlinInfoParser.parse(sr, new ClassLoaderResolver(this.getClass().getClassLoader()), "testpkg");
+        assertNotNull("Parsed ClassInfo should not be null", info);
+        assertTrue("File should be identified as having top-level functions", info.hasTopLevelFunctions());
+        assertFalse("File should be identified as not having any public classes", info.foundPublicClass());
     }
 
     /**
@@ -280,45 +304,47 @@ public class KotlinBasicParseTest
 
         try (FileWriter writer = new FileWriter(tempFile)) {
             writer.write(
-                "fun topLevelFunction() {\n" +
-                "  println(\"This is a top-level function\")\n" +
-                "}\n" +
-                "\n" +
-                "public class FirstClass {\n" +
-                "  fun classMethod() {\n" +
-                "    println(\"This is a class method\")\n" +
-                "  }\n" +
-                "}\n" +
-                "\n" +
-                "public class SecondClass {\n" +
-                "  fun anotherMethod() {\n" +
-                "    println(\"This is another method\")\n" +
-                "  }\n" +
-                "}\n" +
-                "\n" +
-                "class NonPublicClass {\n" +
-                "  fun hiddenMethod() {\n" +
-                "    println(\"This is a hidden method\")\n" +
-                "  }\n" +
-                "}\n" +
-                "\n" +
-                "private class PrivateClass {\n" +
-                "  fun privateMethod() {\n" +
-                "    println(\"This is a private method\")\n" +
-                "  }\n" +
-                "}\n" +
-                "\n" +
-                "protected class ProtectedClass {\n" +
-                "  fun protectedMethod() {\n" +
-                "    println(\"This is a protected method\")\n" +
-                "  }\n" +
-                "}\n" +
-                "\n" +
-                "internal class InternalClass {\n" +
-                "  fun internalMethod() {\n" +
-                "    println(\"This is an internal method\")\n" +
-                "  }\n" +
-                "}\n"
+                    """
+                            fun topLevelFunction() {
+                              println("This is a top-level function")
+                            }
+                            
+                            public class FirstClass {
+                              fun classMethod() {
+                                println("This is a class method")
+                              }
+                            }
+                            
+                            public class SecondClass {
+                              fun anotherMethod() {
+                                println("This is another method")
+                              }
+                            }
+                            
+                            class NonPublicClass {
+                              fun hiddenMethod() {
+                                println("This is a hidden method")
+                              }
+                            }
+                            
+                            private class PrivateClass {
+                              fun privateMethod() {
+                                println("This is a private method")
+                              }
+                            }
+                            
+                            protected class ProtectedClass {
+                              fun protectedMethod() {
+                                println("This is a protected method")
+                              }
+                            }
+                            
+                            internal class InternalClass {
+                              fun internalMethod() {
+                                println("This is an internal method")
+                              }
+                            }
+                            """
             );
         }
 
