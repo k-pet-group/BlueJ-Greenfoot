@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2012,2014,2016,2017,2019,2021,2022,2023,2024  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -70,10 +70,10 @@ public abstract class JavaParentNode extends ParentParsedNode
         new GeneralCache<String,PackageOrClass>(10);
 
     protected JavaParentNode parentNode;
-    
+
     protected Map<String,ParsedNode> classNodes = new HashMap<>();
     protected Map<String,Set<VariableDeclaration>> variables = new HashMap<>();
-    
+
     // This flag is specifically used for handling the indentation of switches statements:
     // the scope in switch statements are for the whole switch, so we cannot
     // add a new node in the scope stack when a statement label (case/default) is found. 
@@ -86,13 +86,13 @@ public abstract class JavaParentNode extends ParentParsedNode
         super(parent);
         parentNode = parent;
     }
-    
+
     @Override
     public JavaParentNode getParentNode()
     {
         return parentNode;
     }
-    
+
     @Override
     public void insertNode(ParsedNode child, int position, int size, NodeStructureListener nodeStructureListener)
     {
@@ -105,7 +105,7 @@ public abstract class JavaParentNode extends ParentParsedNode
             }
         }
     }
-    
+
     /**
      * Insert a FieldNode representing a variable/field declaration into this node.
      */
@@ -130,7 +130,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     {
         variables.computeIfAbsent(variableDeclaration.getName(), s -> new HashSet<>(1)).add(variableDeclaration);
     }
-    
+
     @Override
     public void childChangedName(ParsedNode child, String oldName)
     {
@@ -178,7 +178,7 @@ public abstract class JavaParentNode extends ParentParsedNode
             }
         }
     }
-    
+
     /**
      * Find a type node for a type definition with the given name.
      */
@@ -186,7 +186,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     {
         return classNodes.get(name);
     }
-    
+
     // Sets the flag indicating that the node is a Switch Block to true.
     public void  markAsSwitchBlockNode()
     {
@@ -200,7 +200,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     }    
 
     // =================== EntityResolver interface ====================
-    
+
     /*
      * @see bluej.parser.entity.EntityResolver#resolveQualifiedClass(java.lang.String)
      */
@@ -211,7 +211,7 @@ public abstract class JavaParentNode extends ParentParsedNode
         }
         return null;
     }
-    
+
     /*
      * @see bluej.parser.entity.EntityResolver#resolvePackageOrClass(java.lang.String, java.lang.String)
      */
@@ -221,20 +221,20 @@ public abstract class JavaParentNode extends ParentParsedNode
         if (cnode != null) {
             return new TypeEntity(new ParsedReflective((ParsedTypeNode) cnode));
         }
-        
+
         String accessp = name + ":" + (querySource != null ? querySource.getName() : ""); 
         PackageOrClass rval = pocEntityCache.get(accessp);
         if (rval != null || pocEntityCache.containsKey(accessp)) {
             return rval;
         }
-        
+
         if (parentNode != null) {
             rval = parentNode.resolvePackageOrClass(name, querySource);
             pocEntityCache.put(accessp, rval);
         }
         return rval;
     }
-    
+
     /**
      * Resolve a package or type, based on what is visible from the given position in the node.
      * This allows for forward declarations not being visible.
@@ -244,7 +244,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     {
         return resolvePackageOrClass(name, querySource);
     }
-    
+
     /*
      * @see bluej.parser.entity.EntityResolver#getValueEntity(java.lang.String, java.lang.String)
      */
@@ -258,25 +258,25 @@ public abstract class JavaParentNode extends ParentParsedNode
                 return new ValueEntity(fieldType.getType());
             }
         }
-        
+
         String accessp = name + ":" + (querySource != null ? querySource.getName() : ""); 
         JavaEntity rval = valueEntityCache.get(accessp);
         if (rval != null || valueEntityCache.containsKey(accessp)) {
             return rval;
         }
-        
+
         if (parentNode != null) {
             rval = parentNode.getValueEntity(name, querySource, getOffsetFromParent());
         }
-        
+
         if (rval == null) {
             rval = resolvePackageOrClass(name, querySource, getOffsetFromParent());
         }
-        
+
         valueEntityCache.put(accessp, rval);
         return rval;
     }
-    
+
     /**
      * Resolve a value, based on what is visible from a given position within the node.
      * This allows for forward declarations not being visible.
@@ -286,7 +286,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     {
         return getValueEntity(name, querySource);
     }
-    
+
     /**
      * Resolve a value, based on what is visible from a given position within the node,
      * not allowing for forward declarations.
@@ -316,19 +316,19 @@ public abstract class JavaParentNode extends ParentParsedNode
                 }
             }
         }
-        
+
         JavaEntity rval = null;
         if (parentNode != null) {
             rval = parentNode.getValueEntity(name, querySource, getOffsetFromParent());
         }
-        
+
         if (rval == null) {
             rval = resolvePackageOrClass(name, querySource, fromPosition);
         }
-        
+
         return rval;
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document, ExpressionNode largestPlainExpressionNode)
@@ -337,26 +337,26 @@ public abstract class JavaParentNode extends ParentParsedNode
         // to editing.
         valueEntityCache.clear();
         pocEntityCache.clear();
-        
+
         NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrBefore(pos, nodePos);
         if (child != null && child.getEnd() >= pos) {
             return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document, null);
         }
-        
+
         int startpos = nodePos;
         if (child != null) {
             startpos = child.getEnd();
         }
-        
+
         // We want to find the relevant suggestion token.
-        
+
         Element map = document.getDefaultRootElement();
         int line = map.getElementIndex(pos) + 1;
         Element lineEl = map.getElement(line - 1);
         startpos = Math.max(startpos, lineEl.getStartOffset());
         int col = startpos - map.getElement(line - 1).getStartOffset() + 1;
         Reader r = document.makeReader(startpos, pos);
-        
+
         JavaLexer lexer = new JavaLexer(r, line, col, startpos);
         JavaTokenFilter filter = new JavaTokenFilter(lexer);
         LocatableToken token = filter.nextToken();
@@ -365,14 +365,14 @@ public abstract class JavaParentNode extends ParentParsedNode
             prevToken = token;
             token = filter.nextToken();
         }
-        
+
         if (prevToken != null && prevToken.getEndLine() != token.getEndLine()) {
             if (prevToken.getEndColumn() != token.getEndColumn()) {
                 // If the token doesn't end right at the completion point, it's not used.
                 prevToken = null;
             }
         }
-        
+
         if (prevToken != null && startpos == nodePos) {
             // The completion position is at the end of some token.
             // The parent might have a prior expression sibling which might end in a dot.
@@ -390,9 +390,9 @@ public abstract class JavaParentNode extends ParentParsedNode
                 }
             }
         }
-        
+
         // No identifiable expression. The suggestion type is the enclosing type.
-        
+
         GenTypeClass atype = (defaultType != null) ? defaultType.getType().asClass() : null;
         if (atype == null) {
             return null;
@@ -413,26 +413,26 @@ public abstract class JavaParentNode extends ParentParsedNode
             return new TokenAndScope(tok, pos);
         }
         Token dummyTok = tok;
-        
+
         NodeAndPosition<ParsedNode> np = getNodeTree().findNodeAtOrAfter(pos, nodePos);
         while (np != null && np.getEnd() == pos) np = np.nextSibling(); 
-        
+
         int startLatestNode = 0;
         int cp = pos;
         while (np != null && np.getPosition() < (pos + length)) {
             if (np.getPosition() <= pos)
                 startLatestNode = Math.max(startLatestNode, np.getPosition());
-            
+
             if (cp < np.getPosition()) {
                 int nextTokLen = np.getPosition() - cp;
                 tok.next = tokenizeText(document, cp, nextTokLen);
                 while (tok.next.id != TokenType.END) tok = tok.next;
                 cp = np.getPosition();
             }
-            
+
             int remaining = pos + length - cp;
             remaining = Math.min(remaining, np.getEnd() - cp);
-            
+
             if (remaining != 0) {
                 TokenAndScope tas = np.getNode().getMarkTokensFor(cp, remaining, np.getPosition(), document);
                 if (tas.startLatestScope() <= pos)
@@ -445,7 +445,7 @@ public abstract class JavaParentNode extends ParentParsedNode
             }
             np = np.nextSibling();
         }
-        
+
         // There may be a section left
         if (cp < pos + length) {
             int nextTokLen = pos + length - cp;
@@ -456,7 +456,7 @@ public abstract class JavaParentNode extends ParentParsedNode
         tok.next = new Token(0, TokenType.END);
         return new TokenAndScope(dummyTok.next, startLatestNode);
     }
-    
+
     protected static Token tokenizeText(ReparseableDocument document, int pos, int length)
     {
         Reader dr = document.makeReader(pos, pos+length);
@@ -547,7 +547,7 @@ public abstract class JavaParentNode extends ParentParsedNode
                 case JavaTokenTypes.LITERAL_false:
                     tokType = TokenType.KEYWORD3;
                     break;
-                
+
                 default:
                 }
             }
@@ -561,7 +561,7 @@ public abstract class JavaParentNode extends ParentParsedNode
             length -= toklen;
             curcol += toklen;
         }
-        
+
         token.next = new Token(0, TokenType.END);
         return dummyTok.next;
     }
@@ -573,5 +573,5 @@ public abstract class JavaParentNode extends ParentParsedNode
     {
         return Map.copyOf(variables);
     }
-    
+
 }

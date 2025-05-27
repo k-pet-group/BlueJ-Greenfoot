@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2016,2019,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -62,7 +62,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
     {
         return method;
     }
-    
+
     /**
      * Returns a string describing this Method.
      */
@@ -81,7 +81,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
     {
         return (method.getParameterTypes().length > 0);
     }
-    
+
     public boolean isConstructor()
     {
         return false;
@@ -96,7 +96,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
     {
         return JavaUtils.getSignature(method);
     }
-    
+
     /**
      * Get the "call signature", ie. the signature without the return type.
      * This should not be made user visible, it is for internal purposes only.
@@ -119,7 +119,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
         name.append(')');
         return name.toString();
     }
-    
+
     /**
      * Get a short String describing this member. A description is similar
      * to the signature, but it has parameter names in it instead of types.
@@ -150,7 +150,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
             return ""; // TODO handle properly.
         }
     }
-    
+
     /**
      * Get a long String describing this member, with type parameters from the
      * class mapped to the corresponding instantiation type. Type parameters
@@ -183,7 +183,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
     {
         return method.getParameterTypes();
     }
-    
+
     @Override
     public JavaType[] getParamTypes(boolean raw)
     {
@@ -196,7 +196,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
             return new JavaType[0]; // TODO handle better
         }
     }
-    
+
     @Override
     public GenTypeDeclTpar[] getTypeParams() throws ClassNotFoundException
     {
@@ -204,7 +204,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
         List<GenTypeDeclTpar> tparams = jutils.getTypeParams(method);
         return tparams.toArray(new GenTypeDeclTpar[0]);
     }
-    
+
     @Override
     public String[] getParamTypeStrings()
     {
@@ -255,7 +255,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
         }
         return false;
     }
-    
+
     /**
      * Whether this method has a var arg.
      */
@@ -264,7 +264,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
     {
         return JavaUtils.getJavaUtils().isVarArgs(method);
     }
-    
+
     /**
      * Test whether the method is generic.
      */
@@ -285,7 +285,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
         }
         return returnType;
     }
-    
+
     /**
      * Get the return type of this method.
      */
@@ -310,12 +310,12 @@ public class MethodView extends CallableView implements Comparable<MethodView>
         for(int i=0; i<indents; i++) {
             out.indentLine();
         }
-        
+
         out.println(getLongDesc(typeParams));
     }
 
     // ==== Comparable interface ====
-    
+
     /**
      * Compare operation to provide alphabetical sorting by method name.
      */

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2012,2013,2014,2016,2018,2019,2021,2023  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -190,7 +190,7 @@ public final class BlueJ
 
         return openProj.getBProject();
     }
-    
+
     /**
      * Returns all currently open projects.
      *
@@ -370,7 +370,7 @@ public final class BlueJ
 
         return Config.getUserConfigDir();
     }
-    
+
     /**
      * Returns the data-collection user ID.
      * Used by extensions that aim to augment the BlueJ data collection project.
@@ -649,7 +649,7 @@ public final class BlueJ
             }
         }
     }
-    
+
     /**
      * Removes the specified class listener so no that it no longer receives
      * class events.
@@ -674,11 +674,11 @@ public final class BlueJ
     private void delegateExtensionEvent(ExtensionEvent event)
     {
         ExtensionEventListener[] listeners;
-        
+
         synchronized (eventListeners) {
             listeners = eventListeners.toArray(new ExtensionEventListener[eventListeners.size()]);
         }
-        
+
         for (int i = 0; i < listeners.length; i++) {
             ExtensionEventListener eventListener = listeners[i];
             eventListener.eventOccurred(event);
@@ -694,11 +694,11 @@ public final class BlueJ
     private void delegateApplicationEvent(ApplicationEvent event)
     {
         ApplicationListener[] listeners;
-        
+
         synchronized (applicationListeners) {
             listeners = (ApplicationListener[]) applicationListeners.toArray(new ApplicationListener[applicationListeners.size()]);
         }
-        
+
         for (int i = 0; i < listeners.length; i++) {
             ApplicationListener eventListener = listeners[i];
             if (event.getEventType() == ApplicationEvent.EventType.APP_READY_EVENT)
@@ -717,11 +717,11 @@ public final class BlueJ
     private void delegatePackageEvent(PackageEvent event)
     {
         PackageListener[] listeners;
-        
+
         synchronized (packageListeners) {
             listeners = packageListeners.toArray(new PackageListener[packageListeners.size()]);
         }
-        
+
         PackageEvent.EventType thisEvent = event.getEventType();
 
         for (int i = 0; i < listeners.length; i++) {
@@ -747,11 +747,11 @@ public final class BlueJ
     private void delegateCompileEvent(CompileEvent event)
     {
         CompileListener[] listeners;
-        
+
         synchronized (compileListeners) {
             listeners = (CompileListener[]) compileListeners.toArray(new CompileListener[compileListeners.size()]);
         }
-        
+
         EventType thisEvent = event.getEventType();
 
         for (int i = 0; i < listeners.length; i++) {
@@ -785,11 +785,11 @@ public final class BlueJ
     private void delegateInvocationEvent(InvocationFinishedEvent event)
     {
         InvocationFinishedListener[] listeners;
-        
+
         synchronized (invocationFinishedListeners) {
             listeners = (InvocationFinishedListener[]) invocationFinishedListeners.toArray(new InvocationFinishedListener[invocationFinishedListeners.size()]);
         }
-        
+
         for (int i = 0; i < listeners.length; i++) {
             listeners[i].invocationFinished(event);
         }
@@ -805,7 +805,7 @@ public final class BlueJ
         // We'll make a copy of the current list to prevent
         // ConcurrentModification problems.
         ClassListener[] listeners;
-        
+
         synchronized (classListeners) {
             listeners = (ClassListener[]) classListeners.toArray(new ClassListener[classListeners.size()]);
         }

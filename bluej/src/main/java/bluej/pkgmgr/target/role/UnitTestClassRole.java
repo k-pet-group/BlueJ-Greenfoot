@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2019,2020,2021,2023  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -99,7 +99,7 @@ public class UnitTestClassRole extends ClassRole
     private static final String createTest = Config.getString("pkgmgr.test.popup.createTest");
     private static final String benchToFixture = Config.getString("pkgmgr.test.popup.benchToFixture");
     private static final String fixtureToBench = Config.getString("pkgmgr.test.popup.fixtureToBench");
-    
+
     /** Unit test framework:
      *  JUnit 5, 4 or 3
      */
@@ -111,7 +111,7 @@ public class UnitTestClassRole extends ClassRole
 
     @OnThread(Tag.Any)
     private UnitTestFramework unitTestFramework;
-    
+
     /**
      * Create the unit test class role.
      */
@@ -239,7 +239,7 @@ public class UnitTestClassRole extends ClassRole
 
         return false;
     }
-    
+
     /**
      * Generate a popup menu for this TestClassRole.
      * @param menu the menu
@@ -262,10 +262,10 @@ public class UnitTestClassRole extends ClassRole
         // add run all tests option
         if (enableTestAll)
             return List.of(new TestAction(testAll, AbstractOperation.MenuItemOrder.TEST_ALL, ct.getPackage().getEditor(), null));
-        
+
         return List.of();
     }
-    
+
     /**
      * creates a class menu containing any constructors and static methods etc.
      *
@@ -280,9 +280,9 @@ public class UnitTestClassRole extends ClassRole
         Stream<Method> allMethods = Arrays.stream(cl.getMethods())
                 .filter(this::isJUnitTestMethod)
                 .sorted(Comparator.comparing(Method::getName));
-        
+
         ArrayList<ClassTargetOperation> ops = new ArrayList<>();
-        
+
         if (! ct.isAbstract()) {
             // If we have a lot of items, we should create a submenu to fold some items in
             // 28 is a wild guess for now.
@@ -359,7 +359,7 @@ public class UnitTestClassRole extends ClassRole
 
         new TestRunnerThread(pmf, ct, param).start();
     }
-    
+
     /**
      * Set up a test run. This just involves going through the methods in the class
      * and creating a list of those which are test methods.
@@ -480,7 +480,7 @@ public class UnitTestClassRole extends ClassRole
     private UnitTestAnalyzer analyzeUnitTest(ClassTarget ct, Charset fileEncoding) throws IOException
     {
         ct.ensureSaved();
-        
+
         UnitTestAnalyzer uta = null;
         FileInputStream fis = null;
         try {
@@ -502,10 +502,10 @@ public class UnitTestClassRole extends ClassRole
                 }
             }
         }
-        
+
         return uta;
     }
-    
+
     /**
      * Run the test setup.
      * @param pmf  The package manager frame to run the setup in
@@ -522,7 +522,7 @@ public class UnitTestClassRole extends ClassRole
             public void run() {
 
                 final FXPlatformSupplier<Map<String, DebuggerObject>> dobs = project.getDebugger().runTestSetUp(ct.getQualifiedName());
-                
+
                 Platform.runLater(() -> {
                     List<DataCollector.NamedTyped> recordObjects = new ArrayList<DataCollector.NamedTyped>();
                     Iterator<Map.Entry<String,DebuggerObject>> it = dobs.get().entrySet().iterator();
@@ -547,7 +547,7 @@ public class UnitTestClassRole extends ClassRole
     }
 
     private static final String spaces = "                                 ";
-    
+
     /**
      * Get a string of whitespace corresponding to an indentation.
      */
@@ -556,7 +556,7 @@ public class UnitTestClassRole extends ClassRole
         int ts = Math.min(Config.getPropInteger("bluej.editor.tabsize", 4), spaces.length());
         return spaces.substring(0, ts);
     }
-    
+
     /**
      * End the construction of a test method.
      * <p>
@@ -605,14 +605,14 @@ public class UnitTestClassRole extends ClassRole
                     }
                 }
             }
-            
+
             ed.save();
         }
         catch (IOException ioe) {
             PkgMgrFrame.showMessageWithText(pmf.getPackage(), "generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
-    
+
     /**
      * Turn the fixture declared in a unit test class into a set of
      * objects on the object bench.
@@ -629,7 +629,7 @@ public class UnitTestClassRole extends ClassRole
         // this can then be used to recreate this fixture from the object
         // bench if needed
         ExistingFixtureInvokerRecord existing = new ExistingFixtureInvokerRecord();
-        
+
         try {
             Charset charset = pmf.getProject().getProjectCharset();
             UnitTestAnalyzer uta = analyzeUnitTest(ct, charset);
@@ -637,7 +637,7 @@ public class UnitTestClassRole extends ClassRole
             // iterate through all the declarations of fields (fixture items) in the class
             List<SourceSpan> fixtureSpans = uta.getFieldSpans();
             ListIterator<SourceSpan> it = fixtureSpans.listIterator();
-                
+
             while(it.hasNext()) {
                 SourceSpan variableSpan = it.next();
                 String fieldDecl = ed.getText(variableSpan.getStartLocation(), variableSpan.getEndLocation()); 
@@ -655,17 +655,17 @@ public class UnitTestClassRole extends ClassRole
                                                     setUpWithBrackets.lastIndexOf('}')).trim();
                 existing.setSetupMethod(setUpWithoutBrackets);
             }
-            
+
         }
         catch (IOException ioe) {
             PkgMgrFrame.showMessageWithText(pmf.getPackage(), "generic-file-save-error", ioe.getLocalizedMessage());
         }
-        
+
         runTestSetup(pmf, ct, true);
-        
+
         pmf.getObjectBench().addInteraction(existing);
     }   
-    
+
     /**
      * Convert the objects on the object bench into a test fixture.
      */
@@ -674,7 +674,7 @@ public class UnitTestClassRole extends ClassRole
         if(pmf.getObjectBench().getObjectCount() == 0) {
             return;
         }
-                
+
         TextEditor ed = ct.getEditor().assumeText();
         try {
             Charset charset = pmf.getProject().getProjectCharset();
@@ -682,7 +682,7 @@ public class UnitTestClassRole extends ClassRole
 
             // find all the fields declared in this unit test class
             List<SourceSpan> variables = uta.getFieldSpans();
-            
+
             // if we already have fields, ask if we are sure we want to get rid of them
             if (variables != null && variables.size() > 0) {
                 boolean shouldContinue = DialogManager.askQuestionFX(null, "unittest-fixture-present") != 1;
@@ -698,28 +698,28 @@ public class UnitTestClassRole extends ClassRole
             if (variables != null) {
                 // start iterating from the last element
                 ListIterator<SourceSpan> it = variables.listIterator(variables.size());
-                
+
                 while(it.hasPrevious()) {
                     SourceSpan variableSpan = (SourceSpan) it.previous();
-                    
+
                     ed.setSelection(new SourceLocation(variableSpan.getStartLine(), variableSpan.getStartColumn()),
                                      new SourceLocation(variableSpan.getEndLine(), variableSpan.getEndColumn()));
                     ed.insertText("", false);
                 }
-                
+
                 // to get correct locations for rewriting setUp(), we need to reparse
                 uta = analyzeUnitTest(ct, charset);
             }
 
             // find a location to insert new methods
             SourceLocation fixtureInsertLocation = uta.getFixtureInsertLocation();
-            
+
             // sanity check.. this shouldn't ever be null but if it is, lets not
             // make it worse by trying to edit the source
             if (fixtureInsertLocation == null) {
                 return;
             }
-            
+
             {
                 List<String> names = new ArrayList<String>();
                 for (ObjectWrapper obj : pmf.getObjectBench().getObjects())
@@ -728,12 +728,12 @@ public class UnitTestClassRole extends ClassRole
                 }
                 DataCollector.objectBenchToFixture(pmf.getPackage(), ct.getSourceFile(), names);
             }
-            
+
             // find the curly brackets for the setUp() method
             SourceSpan setupSpan = uta.getMethodBlockSpan("setUp");
 
             String ts = getIndentString();
-            
+
             // rewrite the setUp() method of the unit test (if it exists)
             if (setupSpan != null) {
                 ed.setSelection(new SourceLocation(setupSpan.getStartLine(), setupSpan.getStartColumn()),
@@ -756,7 +756,7 @@ public class UnitTestClassRole extends ClassRole
                         break;
                 }
             }
-            
+
             // insert the code for our setUp() method
             ed.insertText("{\n" + pmf.getObjectBench().getFixtureSetup(ts + ts)
                                 + ts + "}", false);
@@ -765,7 +765,7 @@ public class UnitTestClassRole extends ClassRole
             ed.setSelection(
                 new SourceLocation(fixtureInsertLocation.getLine(), fixtureInsertLocation.getColumn()),
                 new SourceLocation(fixtureInsertLocation.getLine(), fixtureInsertLocation.getColumn() + 1));
-                
+
             ed.insertText("{\n" + pmf.getObjectBench().getFixtureDeclaration(ts), false);
             ed.save();
         }
@@ -773,13 +773,13 @@ public class UnitTestClassRole extends ClassRole
             PkgMgrFrame.showMessageWithText(pmf.getPackage(),
                     "generic-file-save-error", ioe.getLocalizedMessage());
         }
-        
+
         pmf.getPackage().compileQuiet(ct, CompileReason.MODIFIED, CompileType.INTERNAL_COMPILE);
-        
+
         pmf.getProject().removeClassLoader();
         pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();
     }
-    
+
     /**
      * A base class for all our actions that run on targets.
      */
@@ -805,7 +805,7 @@ public class UnitTestClassRole extends ClassRole
     private class TestAction extends TargetAbstractAction
     {
         private String testName;
-                    
+
         public TestAction(String label, MenuItemOrder menuItemOrder, PackageEditor ped, String testName)
         {
             super("test_" + testName, label, menuItemOrder, ped);

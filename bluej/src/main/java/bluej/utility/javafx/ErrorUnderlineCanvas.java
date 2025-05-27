@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -176,7 +176,7 @@ public class ErrorUnderlineCanvas
             prop.removeListener(this);
         }
     }
-    
+
     /** All the hyper links in the canvas (may not actually be drawn, but are being tracked) */
     private final List<HyperlinkInfo> hyperlinks = new ArrayList<>();
     /** All the errors in the canvas (all will be drawn) */
@@ -258,7 +258,7 @@ public class ErrorUnderlineCanvas
         gc.setLineWidth(0.75);
         gc.setStroke(Color.RED);
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        
+
         for (ErrorInfo error : errors)
         {
             for (Line line : error.positionInfo.getAllLines(error.start, error.end, error.javaPos))
@@ -282,11 +282,11 @@ public class ErrorUnderlineCanvas
                 gc.strokePolyline(xPoints, yPoints, n + 1);
             }
         }
-        
+
         // Underline in front of error marker, so you see them even when there's an error        
         gc.setLineWidth(0.75);
         gc.setStroke(Color.BLACK);
-        
+
         for (HyperlinkInfo link : hyperlinks)
         {
             if (link.showing)
@@ -330,9 +330,9 @@ public class ErrorUnderlineCanvas
         pending.clear();
         redraw();
     }
-    
-    
-    
+
+
+
     /**
      * Draws a red underline between the two given caret positions.  Will remain
      * until clearErrorMarkers() is called with the same origin parameter.
@@ -357,7 +357,7 @@ public class ErrorUnderlineCanvas
             errors.add(err);
             redraw();
         }
-            
+
     }
 
     /**
@@ -448,7 +448,7 @@ public class ErrorUnderlineCanvas
             double right = error.positionInfo.getOverlayLocation(error.end, error.javaPos).getSceneX();
             double top = error.positionInfo.getOverlayLocation(error.start, error.javaPos).getSceneTopY();
             double bottom = error.positionInfo.getOverlayLocation(error.end, error.javaPos).getSceneBottomY();
-                        
+
             if (top <= sceneY && sceneY <= bottom && left <= sceneX && sceneX <= right)
             {
                 error.onHover.accept(true);
@@ -471,7 +471,7 @@ public class ErrorUnderlineCanvas
     {
         return canvas.sceneToLocal(x, y);
     }
-    
+
     public Point2D sceneToLocal(Point2D p)
     {
         return canvas.sceneToLocal(p);
@@ -481,5 +481,5 @@ public class ErrorUnderlineCanvas
     {
         return canvas.getHeight();
     }
-    
+
 }

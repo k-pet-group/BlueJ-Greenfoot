@@ -34,7 +34,7 @@ import java.util.HashMap;
 public class GenTypeArrayClass extends GenTypeClass
 {
     private JavaType componentType;
-    
+
     public GenTypeArrayClass(Reflective r, JavaType componentType)
     {
         super(r);
@@ -46,13 +46,13 @@ public class GenTypeArrayClass extends GenTypeClass
     {
         return componentType;
     }
-    
+
     @Override
     public String toString(NameTransform nt)
     {
         return componentType.toString(nt) + "[]";
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public GenTypeClass getErasedType()

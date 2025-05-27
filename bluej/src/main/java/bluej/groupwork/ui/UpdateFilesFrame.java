@@ -114,14 +114,14 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         // Note that we can't connect the button and action yet as we are called by the
         // superclass constructor, and project is not set yet.
         updateButton.requestFocus();
-        
+
         progressBar = new ActivityIndicator();
         progressBar.setRunning(false);
-        
+
         HBox updateButtonPane = new HBox();
         JavaFXUtil.addStyleClass(updateButtonPane, "button-hbox");
         updateButtonPane.getChildren().addAll(progressBar, updateButton, original);
-        
+
         return updateButtonPane;
     }
 
@@ -161,7 +161,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
 
         mainPane.getChildren().addAll(updateFilesLabel, updateFileScrollPane, includeLayoutCheckbox);
         getDialogPane().setContent(mainPane);
-        
+
         prepareButtonPane();
     }
 
@@ -257,7 +257,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         updateListModel.remove(noFilesToUpdate);
         updateListModel.remove(needUpdate);
         updateAction.setEnabled(true);
-        
+
         for (TeamStatusInfo statusInfo : changedLayoutFiles)
         {
             updateListModel.add(new UpdateStatus(statusInfo));
@@ -403,7 +403,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
                 }
             }
         }
-        
+
         /**
          * Go through the status list, and figure out which files to update, and
          * which to force update.
@@ -422,7 +422,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
                 includeLayoutCheckbox.setSelected(includeLayout);
             }
         }
-        
+
         /**
         * Go through file statuses and determine which files will be updated (distributed version control).
         */

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -32,19 +32,19 @@ public class SlotTraversalChars implements SlotValueListener
 {
     private final char[] endings;
     private FXRunnable callback;
-    
+
     public SlotTraversalChars(char... endings)
     {
         this.endings = endings;
         callback = null;
     }
-    
+
     public SlotTraversalChars(FXRunnable callback, char... endings)
     {
         this.endings = endings;
         this.callback = callback;
     }
-    
+
     @Override
     public boolean valueChanged(HeaderItem slot, String oldValue, String newValue, FocusParent<HeaderItem> parent)
     {
@@ -73,7 +73,7 @@ public class SlotTraversalChars implements SlotValueListener
         }
         return true;
     }
-    
+
     public static final SlotTraversalChars ASSIGN_LHS = new SlotTraversalChars('=');
     public static final SlotTraversalChars METHOD_NAME = new SlotTraversalChars(' ', '(');
     public static final SlotTraversalChars IDENTIFIER = new SlotTraversalChars(' ');
@@ -82,7 +82,7 @@ public class SlotTraversalChars implements SlotValueListener
     {
         return endings;
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public void backSpacePressedAtStart(HeaderItem slot) { }

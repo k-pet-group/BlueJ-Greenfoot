@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2012,2013,2014,2019  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -63,11 +63,11 @@ public abstract class IncrementalParsingNode extends JavaParentNode
      * marks the beginning of the next state (false).
      */
     protected boolean [] marksEnd = new boolean[0];
-    
-    
+
+
     /** The final token in the last partial parse. Should be set by doPartialParse if possible. */
     protected LocatableToken last;
-    
+
     // Partial parse status values
     protected final static int PP_OK = 0;
     /** Node ends, due to a parser error */
@@ -91,8 +91,8 @@ public abstract class IncrementalParsingNode extends JavaParentNode
      * appropriate re-parse has been scheduled. params.abortPos must be set.
      */
     protected final static int PP_ABORT = 9;
-    
-    
+
+
     /**
      * Construct an incremental parsing node with the given parent node.
      */
@@ -100,7 +100,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     {
         super(parent);
     }
-    
+
     /**
      * Check whether the given node represents a complete parsed piece. If
      * it does, we can safely resume incremental parsing just beyond its
@@ -108,7 +108,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
      * at the boundary with this node, we don't need to continue parsing.
      */
     protected abstract boolean isDelimitingNode(NodeAndPosition<ParsedNode> nap);
-    
+
     /**
      * Actually perform a partial parse. If possible, this method should set
      * "last" to the last token forming part of the parsed piece or null if there was a
@@ -120,26 +120,26 @@ public abstract class IncrementalParsingNode extends JavaParentNode
      */
     @OnThread(Tag.FXPlatform)
     protected abstract int doPartialParse(ParseParams params, int state);
-    
+
     protected boolean isNodeEndMarker(int tokenType)
     {
         return tokenType == JavaTokenTypes.RCURLY;
     }
-    
+
     @Override
     protected int reparseNode(ReparseableDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         int parseEnd = Math.min(offset + maxParse, nodePos + getSize());
         int state = getCurrentState(offset - nodePos);
         int originalOffset = offset;
-        
+
         // Find the nearest container node or state boundary prior to the reparse point.
         int stateBoundary = (state != 0) ? stateMarkers[state - 1] + nodePos : nodePos;
         NodeAndPosition<ParsedNode> nap = null;
         if (offset > stateBoundary) {
             nap = getNodeTree().findNodeAtOrBefore(offset - 1, nodePos);
         }
-        
+
         while (nap != null && !isDelimitingNode(nap)) {
             if (nap.getPosition() >= stateBoundary) {
                 nap = getNodeTree().findNodeAtOrBefore(nap.getPosition() - 1, nodePos);
@@ -148,7 +148,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                 nap = null;
             }
         }
-        
+
         NodeAndPosition<ParsedNode> nextNap = null;
         if (nap != null) {
             nextNap = nap.nextSibling();
@@ -157,7 +157,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         else {
             offset = stateBoundary; // reparse from previous state marker
         }
-                        
+
         // Pull out the current child nodes into a queue. We re-insert them if we get the opportunity;
         // otherwise we'll have to dispose of them properly later.
         NodeAndPosition<ParsedNode> boundaryNap = nap;
@@ -177,18 +177,18 @@ public abstract class IncrementalParsingNode extends JavaParentNode
 
         // Find the next child node, which we may bump into when we are parsing.
         NodeAndPosition<ParsedNode> nextChild = childQueue.peek();
-        
+
         // Make a reader and parser
         int pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
         int pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
         Reader r = document.makeReader(offset, parseEnd);
         EditorParser parser = new EditorParser(document, r, pline, pcol, offset, buildScopeStack(), listener);
-                
+
         LocatableToken laToken = parser.getTokenStream().LA(1);
         int ttype = laToken.getType();
         int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
         nap = boundaryNap;
-        
+
         boolean extendPrev = false;
         if (nap != null) {
             if (! nap.getNode().complete) {
@@ -207,7 +207,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                 extendPrev = true;
             }
         }
-        
+
         if (extendPrev) {
             int tokend = lineColToPos(document, laToken.getEndLine(), laToken.getEndColumn());
             if (ttype == JavaTokenTypes.EOF) {
@@ -217,7 +217,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                     document.markSectionParsed(offset, tokend - offset + 1);
                     return ALL_OK;
                 }
-                
+
                 if (weCanGrow) {
                     boolean grew = getParentNode().growChild(document,
                             new NodeAndPosition<ParsedNode>(this, nodePos, getSize()),
@@ -262,10 +262,10 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                 }
             }
         }
-                        
+
         int nextStatePos = (state < stateMarkers.length) ? stateMarkers[state] : -1;
         nextStatePos += (nextStatePos == -1) ? 0 : nodePos;
-        
+
         ParseParams pparams = new ParseParams();
         pparams.listener = listener;
         pparams.parser = parser;
@@ -273,9 +273,9 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         pparams.document = document;
         pparams.nodePos = nodePos;
         pparams.childQueue = childQueue;
-        
+
         while (! isNodeEndMarker(ttype)) {
-            
+
             // Do a partial parse and check the result
             int ppr = doPartialParse(pparams, state);
             nextChild = childQueue.peek();
@@ -358,7 +358,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                 int ncpos = nextChild.getPosition();
                 if (ncpos != pparams.abortPos) {
                     int slideAmount = nextChild.getPosition() - pparams.abortPos;
-                    
+
                     nextChild.slide(-slideAmount); // move, and insert text next
                     // There is some parsing to do in the child:
                     int rr = nextChild.getNode().textInserted(document,
@@ -372,7 +372,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                         nextChild.setNapSize(nextChild.getNode().getSize());
                         childResized(pparams.document, nodePos, nextChild);
                     }
-                    
+
                     listener.nodeChangedLength(nextChild, ncpos, nextChild.getSize() - slideAmount);
                     // Note we do not process any more comments into the child node: these will be
                     // picked up by the child automatically, in textInserted() or as a result of it.
@@ -389,14 +389,14 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                 pparams.document.markSectionParsed(offset, pparams.abortPos - offset);
                 return ALL_OK;
             }
-            
+
             LocatableToken nlaToken = parser.getTokenStream().LA(1);
             if (nlaToken == laToken) {
                 // We didn't manage to parse anything?
                 parser.getTokenStream().nextToken();
                 nlaToken = parser.getTokenStream().LA(1);
             }
-            
+
             // If we've overwritten state markers / old children, invalidate them.
             int nlaPos = lineColToPos(document, nlaToken.getLine(), nlaToken.getColumn());
             for (int i = state; i < stateMarkers.length; i++) {
@@ -404,7 +404,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                     stateMarkers[i] = -1;
                 }
             }
-                        
+
             if (nlaToken.getType() == JavaTokenTypes.EOF) {
                 endNodeCleanup(pparams, state, parseEnd, parseEnd);
                 processChildQueue(nodePos, childQueue, childQueue.peek(), listener);
@@ -433,7 +433,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                 pparams.document.markSectionParsed(offset, parseEnd - offset);
                 return checkEnd(document, nodePos, listener);
             }
-            
+
             laToken = nlaToken;
             ttype = laToken.getType();
             tokpos = nlaPos;
@@ -456,10 +456,10 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             listener.nodeChangedLength(nap, nodePos, oldSize);
             return NODE_SHRUNK;
         }
-        
+
         return ALL_OK;
     }
-    
+
     /**
      * Check whether the next token is the boundary (beginning) of a delimiting node, in which
      * case we may be able to finish re-parsing. Returns true if a boundary has been reached;
@@ -475,7 +475,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         if (hidden != null) {
             hpos = lineColToPos(params.document, hidden.getLine(), hidden.getColumn());
         }
-        
+
         NodeAndPosition<ParsedNode> nextChild = params.childQueue.peek();
         while (nextChild != null) {
             if (isDelimitingNode(nextChild)) {
@@ -493,7 +493,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                     return true;
                 }
             }
-            
+
             if (nextChild.getPosition() > lpos) {
                 break;
             }
@@ -503,7 +503,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         }
         return false;
     }
-    
+
     /**
      * Perform some general cleanup after a parse operation. Overwritten children are removed,
      * Overwritten state markers are invalidated; comments seen by the parser are added as
@@ -525,7 +525,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         removeOverwrittenChildren(params.childQueue, rpos, params.listener);
         params.parser.completedNode(this, params.nodePos, epos - params.nodePos);
     }
-    
+
     private Stack<JavaParentNode> buildScopeStack()
     {
         Stack<JavaParentNode> r = new Stack<JavaParentNode>();
@@ -534,10 +534,10 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             r.add(0, pn);
             pn = pn.getParentNode();
         } while (pn != null);
-        
+
         return r;
     }
-    
+
     /**
      * If during parsing we reach some point (epos) then we have overwritten any old child nodes
      * which overlap or occur before epos and so we need to remove them properly.
@@ -552,10 +552,10 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             childQueue.removeFirst();
             nextChild = childQueue.peek();
         }
-        
+
         return nextChild;
     }
-    
+
     /**
      * Restore children in the child queue which were removed temporarily, but not actually overwritten during parsing.
      */
@@ -568,7 +568,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             nextChild = childQueue.peek();
         }
     }
-    
+
     /**
      * Convert a line and column number to an absolute position.
      */
@@ -576,7 +576,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     {
         return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;
     }
-    
+
     private int getCurrentState(int pos)
     {
         for (int i = stateMarkers.length - 1; i >= 0; i--) {
@@ -586,7 +586,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         }
         return 0;
     }
-    
+
     @Override
     public int textInserted(ReparseableDocument document, int nodePos, int insPos,
                             int length, NodeStructureListener listener)
@@ -606,7 +606,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         int result = super.textInserted(document, nodePos, insPos, length, listener);
         return result;
     }
-    
+
     @Override
     public int textRemoved(ReparseableDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
@@ -641,7 +641,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         }
         return super.textRemoved(document, nodePos, delPos, length, listener);
     }
-    
+
     /**
      * Check if a single line comment exists at the end of this node, which is not properly
      * terminated - that is, it ends before the end of the line. This can happen if such a
@@ -664,7 +664,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             // The final child node isn't a comment, or it ends before the end of this node.
             return ALL_OK;
         }
-        
+
         Reader r = document.makeReader(offset, nodePos + getSize());
         EscapedUnicodeReader eur = new EscapedUnicodeReader(r);
         try {
@@ -688,18 +688,18 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         catch (IOException ioe) {}
         return ALL_OK;
     }
-    
+
     @Override
     protected int handleDeletion(ReparseableDocument document, int nodePos, int dpos,
             NodeStructureListener listener)
     {
         int offset = dpos;
         int state = getCurrentState(offset - nodePos);
-        
+
         // Find the nearest container node or state boundary prior to the reparse point.
         int stateBoundary = (state != 0) ? stateMarkers[state - 1] + nodePos : nodePos;
         NodeAndPosition<ParsedNode> nap = null;
-        
+
         if (offset > stateBoundary) {
             nap = getNodeTree().findNodeAtOrBefore(offset, nodePos);
             while (nap != null && nap.getSize() == 0) {
@@ -708,18 +708,18 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                 removeChild(nap, listener);
                 nap = pnap;
             }
-            
+
             while (nap != null && nap.getEnd() > dpos) {
                 nap = nap.prevSibling();
             }
-            
+
             while (nap != null && !isDelimitingNode(nap)) {
                 boolean isLeadingComment = nap != null && nap.getNode().getNodeType() == ParsedNode.NODETYPE_COMMENT
                         && nap.getPosition() == stateBoundary;
                 if (isLeadingComment) {
                     break;
                 }
-                
+
                 if (nap.getPosition() >= stateBoundary) {
                     NodeAndPosition<ParsedNode> pnap = nap.prevSibling();
                     if (pnap != null && isDelimitingNode(pnap) && pnap.getEnd() == dpos && nap.getPosition() == dpos) {
@@ -734,11 +734,11 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                 }
             }
         }
-        
+
         int adjustedPos = (nap != null) ? nap.getEnd() : stateBoundary;
         return super.handleDeletion(document, nodePos, adjustedPos, listener);
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     protected boolean growChild(ReparseableDocument document, NodeAndPosition<ParsedNode> child,
@@ -746,7 +746,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     {
         int mypos = child.getPosition() - child.getNode().getOffsetFromParent();
         int oldSize = child.getSize();
-        
+
         NodeAndPosition<ParsedNode> nap = child.nextSibling();
         if (nap != null && nap.getPosition() > child.getEnd()) {
             int newSize = nap.getPosition() - child.getPosition();
@@ -755,7 +755,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             listener.nodeChangedLength(child, child.getPosition(), oldSize);
             return true;
         }
-        
+
         int myEnd = mypos + getSize();
         if (nap != null) {
             // Next child is pushing up against the one which wants to grow - so we'll
@@ -769,7 +769,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             listener.nodeChangedLength(child, child.getPosition(), oldSize);
             return true;
         }
-        
+
         // The child can soak up anything remaining at the end of this node.
         if (myEnd > child.getEnd()) {
             int newsize = myEnd - child.getPosition();
@@ -781,7 +781,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             listener.nodeChangedLength(child, child.getPosition(), oldSize);
             return true;
         }
-        
+
         // Maybe this node can grow, and then its child can also grow.
         ParsedNode parentNode = getParentNode();
         if (parentNode != null && parentNode.growChild(document,
@@ -795,7 +795,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             listener.nodeChangedLength(child, child.getPosition(), oldSize);
             return true;
         }
-        
+
         return false;
     }
 }

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2013,2016,2017,2019,2020,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -59,7 +59,7 @@ public class FieldList extends ScrollPane
 {
     private final static Image objectrefIcon = Config.getImageAsFXImage("image.inspector.objectref");
     private static final double ROW_HEIGHT = 30;
-    
+
     // The actual list of fields, inside our ScrollPane:
     private final ContentPane content = new ContentPane();
     // The latest data:
@@ -107,7 +107,7 @@ public class FieldList extends ScrollPane
     {
         if (listData.equals(curData))
             return;
-        
+
         List<Node> children = new ArrayList<>();
         for (int i = 0; i < listData.size(); i++)
         {
@@ -142,7 +142,7 @@ public class FieldList extends ScrollPane
         select(sel);
         requestLayout();
     }
-    
+
     /**
      * Sets the text to show when the list is empty
      */
@@ -166,7 +166,7 @@ public class FieldList extends ScrollPane
     {
         if (index == selectedRow.get())
             return;
-        
+
         selectedRow.set(index);
         ObservableList<Node> children = content.getChildren();
         for (int i = 0; i < children.size(); i += 2)
@@ -195,7 +195,7 @@ public class FieldList extends ScrollPane
         {
             getStyleClass().add("field-list-content");
         }
-        
+
         @Override
         protected void layoutChildren()
         {
@@ -205,7 +205,7 @@ public class FieldList extends ScrollPane
             // - Then the space is allocated to the label until the label fully fits
             // - Then the space is allocated to the value until it fully fits
             // - After that, any remaining space is allocated 25% to the label and 75% to the value
-            
+
             Insets outerPadding = getInsets();
             double widthMinusPadding = getWidth() - (outerPadding.getLeft() + outerPadding.getRight());
             List<Node> children = getChildren();
@@ -214,14 +214,14 @@ public class FieldList extends ScrollPane
             double largestMinLeft = MIN_LEFT;
             double largestPrefLeft = largestMinLeft;
             double largestRight = 0;
-            
+
             for (int i = 0; i < children.size(); i += 2)
             {
                 largestMinLeft = Math.max(largestMinLeft, children.get(i).minWidth(ROW_HEIGHT));
                 largestPrefLeft = Math.max(largestPrefLeft, children.get(i).prefWidth(ROW_HEIGHT));
                 largestRight = Math.max(largestRight, children.get(i + 1).prefWidth(ROW_HEIGHT));
             }
-            
+
             double leftWidth;
             if (largestPrefLeft + largestRight <= widthMinusPadding)
             {
@@ -240,13 +240,13 @@ public class FieldList extends ScrollPane
                 // So we restrict its asked for space to 500 pixels
                 // (Don't forget this is only if there isn't room for everything; if there is we won't reach here)
                 largestRight = Math.min(Math.max(widthMinusPadding - largestPrefLeft, LARGEST_SENSIBLE_RIGHT), largestRight);
-                
+
                 // Then we set the left-width to be what's left-over from the largestRight, but no smaller than its minimum space:
                 leftWidth = Math.max(widthMinusPadding - largestRight, largestMinLeft);
             }
-            
+
             double rightWidth = widthMinusPadding - leftWidth;
-            
+
             double y = outerPadding.getTop();
             for (int i = 0; i < children.size(); i += 2)
             {

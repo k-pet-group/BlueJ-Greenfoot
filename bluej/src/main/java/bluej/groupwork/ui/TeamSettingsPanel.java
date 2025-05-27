@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -88,7 +88,7 @@ public class TeamSettingsPanel extends VBox
     private TextField locationPrimaryField;
     /** identifiers which field is the primary personal information field */
     private TextField personalPrimaryField;
-    
+
     private boolean isShareAction = false;
 
     public TeamSettingsPanel(TeamSettingsController teamSettingsController, TeamSettingsDialog dialog, boolean isShareAction)
@@ -101,12 +101,12 @@ public class TeamSettingsPanel extends VBox
         this.isShareAction = isShareAction;
 
         JavaFXUtil.addStyleClass(this, "panel");
-        
+
         // The part for "save password". Because of some weird behaviour of JavaFX rendering the checkbox's label,
         // the checkbox has no label of its own, but a separate label component is used instead.
         Label checkboxLabel = new Label(Config.getString("team.settings.savepwd"));
         checkboxLabel.setLabelFor(savePasswordCheckBox);
-        
+
         ImageView infoIcon = new ImageView(Config.getFixedImageAsFXImage("info.png"));
         savePasswordHBox.getChildren().addAll(savePasswordCheckBox, checkboxLabel, infoIcon);
         savePasswordHBox.setAlignment(Pos.CENTER_LEFT);
@@ -128,7 +128,7 @@ public class TeamSettingsPanel extends VBox
             }
         );
         // end of the part for "save password"
-        
+
         locationPane = createGridPane();
         personalPane = createGridPane();
         preparePanes();
@@ -158,7 +158,7 @@ public class TeamSettingsPanel extends VBox
             passwordLabel.setText(Config.getString(needsToken ? "team.settings.accessToken" : "team.settings.password"));
         });
     }
-    
+
     /**
      * Request focus to whatever field seems the most likely to be filled out next.
      */
@@ -232,7 +232,7 @@ public class TeamSettingsPanel extends VBox
             locationPane.addRow(1, branchLabel, branchField);
         branchField.setPromptText(Config.getString("team.settings.defaultBranch"));
     }
-    
+
     /**
      * Set a text field's text property, adjusting null to the empty string.
      * 
@@ -250,17 +250,17 @@ public class TeamSettingsPanel extends VBox
         if (user != null) {
             setUser(user);
         }
-        
+
         String yourName = teamSettingsController.getPropString("bluej.teamsettings.yourName");
         if (yourName != null){
             setYourName(yourName);
         }
-        
+
         String yourEmail = teamSettingsController.getPropString("bluej.teamsettings.yourEmail");
         if (yourEmail != null){
             setYourEmail(yourEmail);
         }
-        
+
         String password = teamSettingsController.getPasswordString();
         if (password != null) {
             setPassword(password);
@@ -269,7 +269,7 @@ public class TeamSettingsPanel extends VBox
         // There is no need for an additional property: if the password was saved, then the checkbox was checked
         String savePassword = teamSettingsController.getPropString("bluej.teamsettings.savedpwd");
         setSavePassword(savePassword != null);
-                
+
         String providerName = teamSettingsController.getPropString("bluej.teamsettings.vcs");
         if ((teamworkProvider.getProviderName().equalsIgnoreCase(providerName)
             || (providerName == null)) && teamSettingsController.getProject() != null)
@@ -281,7 +281,7 @@ public class TeamSettingsPanel extends VBox
 
         setProviderSettings();
     }
-    
+
     /**
      * Set settings to provider-specific values (repository prefix, server, protocol).
      * The values are remembered on a per-provider basis; this sets the fields to show
@@ -327,32 +327,32 @@ public class TeamSettingsPanel extends VBox
     {
         userField.setText(user);
     }
-    
+
     private void setYourName(String yourName)
     {
         yourNameField.setText(yourName);
     }
-    
+
     private void setYourEmail(String yourEmail)
     {
         yourEmailField.setText(yourEmail);
     }
-    
+
     private void setPassword(String password)
     {
         passwordField.setText(password);
     }
-    
+
     private void setSavePassword(boolean savePassword)
     {
         savePasswordCheckBox.setSelected(savePassword);
     }
-    
+
     private void setPrefix(String prefix)
     {
         prefixField.setValue(prefix);
     }
-    
+
     private void setServer(String server)
     {
         serverField.setValue(server);
@@ -374,12 +374,12 @@ public class TeamSettingsPanel extends VBox
     {
         return passwordField.getText();
     }
-    
+
     private Boolean getSavePassword()
     {
         return savePasswordCheckBox.isSelected();
     }
-    
+
     private String getPrefix()
     {
         try {
@@ -395,7 +395,7 @@ public class TeamSettingsPanel extends VBox
         return branchField.getText();
     }
 
-    
+
     private String getServer()
     {
         try {
@@ -425,17 +425,17 @@ public class TeamSettingsPanel extends VBox
             return null;
         }
     }
-    
+
     private String getYourName()
     {
         return yourNameField.getText();
     }
-    
+
     private String getYourEmail()
     {
         return yourEmailField.getText();
     }
-    
+
     public TeamSettings getSettings()
     {
         TeamSettings result = new TeamSettings(getProtocolKey(),

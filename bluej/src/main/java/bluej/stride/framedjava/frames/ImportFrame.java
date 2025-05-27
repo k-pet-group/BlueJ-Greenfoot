@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2015,2016,2018,2019,2020,2021,2022 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -71,17 +71,17 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
     );
     private TextSlot<ImportFragment> importField;
     private ImportElement element;
-    
+
     /**
      * Default constructor.
      */
     private ImportFrame(InteractionManager editor)
     {
         super(editor, "import ", IMPORT_STYLE_PREFIX);
-        
+
         CompletionCalculator calc = new CompletionCalculator() {
             private List<Pair<SuggestionList.SuggestionShown, String>> imports;
-            
+
             @Override
             @OnThread(Tag.FXPlatform)
             public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl,
@@ -106,7 +106,7 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
                     });
                 });
             }
-            
+
             @Override
             @OnThread(Tag.FXPlatform)
             public boolean execute(TextField field, int highlighted, int startOfCurWord)
@@ -119,7 +119,7 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
                 return false;
             }
         };
-        
+
         importField = new TextSlot<ImportFragment>(editor, this, this, getHeaderRow(), calc, IMPORT_STYLE_PREFIX + "slot-", HINTS) {
 
             @Override
@@ -183,7 +183,7 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         //cherry
         frameName = "import statement";
     }
-    
+
     /**
      * Creates an import statement with a specific class/package.
      */
@@ -194,7 +194,7 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         this.importField.setText(element.getImport());
         frameEnabledProperty.set(enabled);
     }
-    
+
     // Constructor for adding new imports in response to an error-fix:
     public ImportFrame(InteractionManager editor, String src)
     {
@@ -202,17 +202,17 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         importField.setText(src);
         this.element = new ImportElement(src, importField, frameEnabledProperty.get());
     }
-    
+
     public static FrameFactory<ImportFrame> getFactory()
     {
         return new FrameFactory<ImportFrame>() {
-            
+
             @Override
             public ImportFrame createBlock(InteractionManager editor)
             {
                 return new ImportFrame(editor);
             }
-            
+
             @Override 
             public Class<ImportFrame> getBlockClass()
             { 
@@ -270,7 +270,7 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
     {
         return importField;
     }
-    
+
     public StringExpression importProperty()
     {
         return importField.textProperty();

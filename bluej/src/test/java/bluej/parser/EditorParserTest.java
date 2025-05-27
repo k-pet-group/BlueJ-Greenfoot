@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2013,2014,2019,2022  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -55,15 +55,15 @@ public class EditorParserTest
     {
         InitConfig.init();
     }
-    
+
     private TestEntityResolver resolver;
-    
+
     @Before
     public void setUp() throws Exception
     {
         resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
     }
-    
+
     /**
      * Generate a compilation unit node based on some source code.
      */
@@ -86,14 +86,14 @@ public class EditorParserTest
             + "    {\n"         // position 21 
             + "    }\n"
             + "}\n";
-            
+
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         NodeAndPosition<ParsedNode> classNP = pcuNode.findNodeAtOrAfter(0, 0);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNP.getNode().getNodeType());
         assertEquals(0, classNP.getPosition());
-        
+
         NodeAndPosition<ParsedNode> innerNP = classNP.getNode().findNodeAtOrAfter(9, 0);
-        
+
         NodeAndPosition<ParsedNode> classBNP = innerNP.getNode().findNodeAtOrAfter(innerNP.getPosition(),
                 innerNP.getPosition());
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classBNP.getNode().getNodeType());
@@ -110,17 +110,17 @@ public class EditorParserTest
                 + "    {\n"         // position 21 
                 + "    }\n"
                 + "}\n";
-                
+
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
-        
+
         resolver.addCompilationUnit("", pcuNode);
-        
+
         TypeEntity aEntity = pcuNode.resolvePackageOrClass("A", null).resolveAsType();
         assertNotNull(aEntity);
         TypeEntity bEntity = aEntity.getPackageOrClassMember("B");
         assertNotNull(bEntity);
     }
-    
+
     /**
      * Test that a method defined inside a class is recognized properly.
      */
@@ -135,14 +135,14 @@ public class EditorParserTest
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
-        
+
         EntityResolver resolver = new PackageResolver(this.resolver, "");
         TypeEntity aClassEnt = resolver.resolvePackageOrClass("A", null).resolveAsType();
         GenTypeClass aClass = aClassEnt.getType().asClass();
         Map<String,Set<MethodReflective>> methods = aClass.getReflective().getDeclaredMethods();
         Set<MethodReflective> mset = methods.get("someMethod");
         assertEquals(1, mset.size());
-        
+
         MethodReflective method = mset.iterator().next();
         assertEquals("java.lang.String", method.getReturnType().toString(false));
     }
@@ -163,16 +163,16 @@ public class EditorParserTest
         NodeAndPosition<ParsedNode> classNP = aNode.findNodeAtOrAfter(0, 0);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNP.getNode().getNodeType());
         assertEquals(0, classNP.getPosition());
-        
+
         NodeAndPosition<ParsedNode> innerNP = classNP.getNode().findNodeAtOrAfter(9, 0);
-        
+
         NodeAndPosition<ParsedNode> methodNP = innerNP.getNode().findNodeAtOrAfter(
                 innerNP.getPosition(), innerNP.getPosition());
-        
+
         assertEquals(12, methodNP.getPosition());
         assertEquals(58, methodNP.getPosition() + methodNP.getSize());
     }
-    
+
     /**
      * Test parsing a broken source doesn't break the parser...
      */
@@ -186,7 +186,7 @@ public class EditorParserTest
             + "    int\n"
             + "  }"
             + "}\n";
-            
+
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         assertNotNull(pcuNode);
     }
@@ -207,7 +207,7 @@ public class EditorParserTest
         assertEquals(1, supers.size());
         assertEquals("java.lang.Object", supers.get(0).toString());
         resolver.addCompilationUnit("", aNode);
-        
+
         sourceCode = "class B extends A {}\n";
         ParsedCUNode bNode = cuForSource(sourceCode, "");
         PackageOrClass bpoc = bNode.resolvePackageOrClass("B", null);
@@ -227,18 +227,18 @@ public class EditorParserTest
         String abcSrc = "package xyz; public class abc { public static class def { }}";
         ParsedCUNode abcNode = cuForSource(abcSrc, "xyz");
         resolver.addCompilationUnit("xyz", abcNode);
-        
+
         String defSrc = "package abc; public class def { }";
         ParsedCUNode defNode = cuForSource(defSrc, "abc");
         resolver.addCompilationUnit("abc", defNode);
-        
+
         String tSrc = "package xyz; import abc.def; class T { public static def field; }";
         ParsedCUNode tNode = cuForSource(tSrc, "xyz");
         resolver.addCompilationUnit("xyz", tNode);
-        
+
         TypeEntity tent = resolver.resolveQualifiedClass("xyz.T");
         assertNotNull(tent);
-        
+
         JavaEntity fEnt = tent.getSubentity("field", null);
         assertNotNull(fEnt);
         JavaEntity fVal = fEnt.resolveAsValue();
@@ -256,17 +256,17 @@ public class EditorParserTest
             + "    int a; // comment\n"  // comment starts at 11 + 18 = 29 
             + "  }"
             + "}\n";
-            
+
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         assertNotNull(pcuNode);
-        
+
         NodeAndPosition<ParsedNode> top = new NodeAndPosition<ParsedNode>(pcuNode, 0, pcuNode.getSize());
         NodeAndPosition<ParsedNode> nap = top.getNode().findNodeAt(29, top.getPosition());
         while (nap != null) {
             top = nap;
             nap = top.getNode().findNodeAt(29, top.getPosition());
         }
-        
+
         assertEquals(29, top.getPosition());
         assertEquals(39, top.getEnd());
     }
@@ -278,13 +278,13 @@ public class EditorParserTest
 
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         assertNotNull(pcuNode);
-        
+
         // ParsedNode sortNode = pcuNode.getTypeNode("Sort");
         PackageOrClass poc = pcuNode.resolvePackageOrClass("Sort", null);
         assertNotNull(poc);
         TypeEntity tent = poc.resolveAsType();
         assertNotNull(tent);
-        
+
         InfoParser.parse(new StringReader(sourceCode), resolver, "");
     }
 
@@ -295,28 +295,28 @@ public class EditorParserTest
             + "interface A\n"
             + "{\n"
             + "}\n";
-            
+
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         resolver.addCompilationUnit("", pcuNode);
-        
+
         TypeEntity aTent = resolver.resolveQualifiedClass("A");
         GenTypeClass aClass = aTent.getClassType();
-        
+
         assertFalse(aClass.getReflective().isPublic());
         assertFalse(aClass.getReflective().isStatic());
         assertTrue(aClass.isInterface());
-        
+
         sourceCode = ""
             + "public static class B\n"
             + "{\n"
             + "}\n";
-        
+
         pcuNode = cuForSource(sourceCode, "");
         this.resolver.addCompilationUnit("", pcuNode);
 
         TypeEntity bTent = resolver.resolveQualifiedClass("B");
         GenTypeClass bClass = bTent.getClassType();
-        
+
         assertTrue(bClass.getReflective().isPublic());
         assertTrue(bClass.getReflective().isStatic());
         assertFalse(bClass.isInterface());
@@ -338,10 +338,10 @@ public class EditorParserTest
                 + "      hashCode();\n"     // 118 - 136
                 + "  }\n"                   // 126 - 130 
                 + "}\n";                    // 130 - 132
-                
+
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         resolver.addCompilationUnit("", pcuNode);
-            
+
         NodeAndPosition<ParsedNode> nap = pcuNode.findNodeAt(0, 0);  // class
         nap = nap.getNode().findNodeAt(9, nap.getPosition());        // class inner
         nap = nap.getNode().findNodeAt(12, nap.getPosition());       // method
@@ -350,7 +350,7 @@ public class EditorParserTest
         nap = nap.getNode().findNodeAt(32, nap.getPosition());       // outer if
         assertEquals(32, nap.getPosition());
         assertEquals(135, nap.getEnd());
-        
+
         nap = nap.getNode().findNodeAt(48, nap.getPosition());       // inner if
         assertEquals(48, nap.getPosition());
         assertEquals(108, nap.getEnd());
@@ -368,10 +368,10 @@ public class EditorParserTest
                 + "      }\n"               // 63 - 71
                 + "  }\n"                   // 71 - 75 
                 + "}\n";                    // 75 - 77
-                
+
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         resolver.addCompilationUnit("", pcuNode);
-            
+
         NodeAndPosition<ParsedNode> nap = pcuNode.findNodeAt(0, 0);  // class
         nap = nap.getNode().findNodeAt(9, nap.getPosition());        // class inner
         nap = nap.getNode().findNodeAt(12, nap.getPosition());       // method
@@ -380,7 +380,7 @@ public class EditorParserTest
         nap = nap.getNode().findNodeAt(32, nap.getPosition());       // outer while
         assertEquals(32, nap.getPosition());
         assertEquals(70, nap.getEnd());
-        
+
         nap = nap.getNode().findNodeAt(51, nap.getPosition());       // inner if
         assertEquals(51, nap.getPosition());
         assertEquals(70, nap.getEnd());
@@ -398,10 +398,10 @@ public class EditorParserTest
                 + "    catch(E e) {  }\n"  // 44 - 64 
                 + "  }\n"                  // 64 - 68
                 + "}\n";                   // 68 - 70
-                
+
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         resolver.addCompilationUnit("", pcuNode);
-            
+
         NodeAndPosition<ParsedNode> nap = pcuNode.findNodeAt(0, 0);  // class
         nap = nap.getNode().findNodeAt(9, nap.getPosition());        // class inner
         nap = nap.getNode().findNodeAt(12, nap.getPosition());       // method
@@ -410,11 +410,11 @@ public class EditorParserTest
         NodeAndPosition<ParsedNode> tryCatch = nap.getNode().findNodeAt(32, nap.getPosition());       // try-catch
         assertEquals(32, tryCatch.getPosition());
         assertEquals(63, tryCatch.getEnd());
-        
+
         nap = tryCatch.getNode().findNodeAt(37, tryCatch.getPosition());       // try inner
         assertEquals(37, nap.getPosition());
         assertEquals(42, nap.getEnd());
-        
+
         nap = tryCatch.getNode().findNodeAt(60, tryCatch.getPosition());       // catch inner
         assertEquals(60, nap.getPosition());
         assertEquals(62, nap.getEnd());
@@ -432,10 +432,10 @@ public class EditorParserTest
                 + "    }\n"              // 63 - 69 
                 + "  }\n"                //
                 + "}\n";                 //
-                
+
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         resolver.addCompilationUnit("", pcuNode);
-            
+
         NodeAndPosition<ParsedNode> nap = pcuNode.findNodeAt(0, 0);  // class
         nap = nap.getNode().findNodeAt(9, nap.getPosition());        // class inner
         nap = nap.getNode().findNodeAt(12, nap.getPosition());       // method
@@ -444,7 +444,7 @@ public class EditorParserTest
         nap = nap.getNode().findNodeAt(32, nap.getPosition());     // while outer
         assertEquals(32, nap.getPosition());
         assertEquals(68, nap.getEnd());
-        
+
         nap = nap.getNode().findNodeAt(45, nap.getPosition());     // while inner
         assertEquals(45, nap.getPosition());
         assertEquals(67, nap.getEnd());

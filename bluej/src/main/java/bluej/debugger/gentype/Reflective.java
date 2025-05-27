@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2012,2014,2015,2018,2019,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -46,7 +46,7 @@ public abstract class Reflective
      * @return The fully qualified class/interface name.
      */
     public abstract String getName();
-    
+
     /**
      * Get the name of the class or interface represented by the reflective.
      * The name is in a form that can be presented nicely to the user.
@@ -55,7 +55,7 @@ public abstract class Reflective
     {
         return getName();
     }
-    
+
     /**
      * Get the formal type parameters of the class/interface this reflective
      * represents. Note that this does not give the type parameters from
@@ -65,7 +65,7 @@ public abstract class Reflective
      */
     @OnThread(Tag.FXPlatform)
     public abstract List<GenTypeDeclTpar> getTypeParams();
-    
+
     /**
      * Get the (direct) supertypes of this reflective, as a list of reflectives.
      * Supertypes of an array include the "Object" class as well as arrays whose
@@ -74,7 +74,7 @@ public abstract class Reflective
      */
     @OnThread(Tag.FXPlatform)
     public abstract List<Reflective> getSuperTypesR();
-    
+
     /**
      * Get the supertypes of this reflective, as a list of GenTypes. The type
      * parameter names will refer to the type parameters in the parent type.
@@ -82,7 +82,7 @@ public abstract class Reflective
      */
     @OnThread(Tag.FXPlatform)
     public abstract List<GenTypeClass> getSuperTypes();
-    
+
     /**
      * Get a reflective which represents an array, whose element type is
      * represented by this reflective.
@@ -91,7 +91,7 @@ public abstract class Reflective
      */
     @OnThread(Tag.FXPlatform)
     public abstract Reflective getArrayOf();
-    
+
     /**
      * Return true if a variable of the reference type reflected by this
      * reflective can be assigned a value of the type represented by the given
@@ -102,7 +102,7 @@ public abstract class Reflective
      */
     @OnThread(Tag.FXPlatform)
     public abstract boolean isAssignableFrom(Reflective r);
-    
+
     /**
      * Return true if this reflective represents an interface type rather than
      * a class type.
@@ -110,7 +110,7 @@ public abstract class Reflective
      */
     @OnThread(Tag.FXPlatform)
     public abstract boolean isInterface();
-    
+
     /**
      * Get a supertype (as a GenTypeClass) by name. The default implementation
      * uses getSuperTypes() and searches the resulting list.
@@ -130,7 +130,7 @@ public abstract class Reflective
         }
         return null;
     }
-    
+
     /**
      * Find another class as if it were to be loaded by this one. Ie. use this
      * class's classloader.
@@ -139,7 +139,7 @@ public abstract class Reflective
      */
     @OnThread(Tag.FXPlatform)
     abstract public Reflective getRelativeClass(String name);
-    
+
     /**
      * Get the outer class of this one, if there is one.
      */
@@ -171,19 +171,19 @@ public abstract class Reflective
      */
     @OnThread(Tag.FXPlatform)
     abstract public boolean isStatic();
-    
+
     /**
      * Determine whether this class is declared public.
      */
     @OnThread(Tag.FXPlatform)
     abstract public boolean isPublic();
-    
+
     /**
      * Determine whether this class is declared final.
      */
     @OnThread(Tag.FXPlatform)
     abstract public boolean isFinal();
-    
+
     /**
      * Get the methods declared in the type represented by this Reflective.
      * This does not include methods declared in the superclass(es), nor does

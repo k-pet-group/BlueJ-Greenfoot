@@ -49,7 +49,7 @@ public class MethodCompletion extends AssistContent
     @OnThread(Tag.Any) private final MethodReflective method;
     private JavadocResolver javadocResolver;
     private Map<String,GenTypeParameter> typeArgs;
-    
+
     /**
      * Construct a new method completion
      * @param method    The method to represent
@@ -79,26 +79,26 @@ public class MethodCompletion extends AssistContent
         }
         this.javadocResolver = javadocResolver;
     }
-    
+
     @Override
     public String getDeclaringClass()
     {
         return method.getDeclaringType().getSimpleName();
     }
-    
+
     @Override
     @OnThread(Tag.Any)
     public String getName()
     {
         return method.getName();
     }
-        
+
     @Override
     public String getType()
     {
         return convertToSolid(method.getReturnType()).toString(true);
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public String getJavadoc()
@@ -138,12 +138,12 @@ public class MethodCompletion extends AssistContent
             return "_" + paramType.toString(true) + "_";
         }
     }
-    
+
     public CompletionKind getKind()
     {
         return CompletionKind.METHOD;
     }
-    
+
     /**
      * Gets a String that is the method's unique signature
      */

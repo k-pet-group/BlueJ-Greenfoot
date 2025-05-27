@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
   Copyright (C) 2014,2015,2016,2020,2021 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -92,7 +92,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     private ObjectBinding<Effect> dropShadowEffectBinding;
     protected FormalParameters paramsPane;
     private FXRunnable headerCleanup;
-    
+
     /**
      * Default constructor.
      */
@@ -109,16 +109,16 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
             s.setSimplePromptText("thrown type");
             return s;
         }, () -> getCanvas().getFirstCursor().requestFocus(), editor);
-        
+
         dropShadowDummy = new Rectangle(0, 0, 0, 0);
         //dropShadowDummy.setManaged(false);
         //addUnmanagedToBlockContainer(dropShadowDummy);
-        
+
         final Region headerRow = getHeaderRow().getNode();
         headerRow.getStyleClass().add("method-header");
         JavaFXUtil.addChangeListenerAndCallNow(headerRow.widthProperty(), newVal -> dropShadowDummy.setWidth(newVal.doubleValue()));
         JavaFXUtil.addChangeListenerAndCallNow(headerRow.heightProperty(), newVal -> dropShadowDummy.setHeight(newVal.doubleValue()));
-    
+
         Rectangle small = new Rectangle();
         // Old style; bind size of shadow rectangle to width of *method frame*:
         //small.xProperty().bind(dropShadowDummy.xProperty());
@@ -133,7 +133,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         small.widthProperty().bind(canvasDerivedWidthSubProperty);
         small.yProperty().bind(dropShadowDummyDerivedHeightProperty);
         small.heightProperty().set(15.0);
-        
+
         dropShadowDummy.clipProperty().set(small);
 
         if (editor != null && editor.getWindowOverlayPane() != null) {
@@ -155,7 +155,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
                     final double headerTopSceneY = getHeaderRow().getNode().localToScene(0, 0).getY();
 
                     final double headerHeight = getHeaderRow().getNode().getHeight();
-                    
+
                     // This is the coordinates, relative to the overlay (i.e. effectively, the window) of the top
                     // of the header row
                     final double overlayY = editor.getWindowOverlayPane().sceneYToWindowOverlayY(headerTopSceneY);
@@ -229,7 +229,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
                 }
             };
             dropShadowDummy.effectProperty().bind(dropShadowEffectBinding);
-            
+
             offset.addListener(new ChangeListener<Number>()
             {
                 private Pane imageView;
@@ -276,7 +276,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
                         {
                             addingImageView = true;
 
-                            
+
                             imageView = getHeaderRow().makeDisplayClone(editor);
                             imageView.getStyleClass().addAll("method-header", "method-header-row-pinned-clone");
                             double sceneX = getHeaderRow().getSceneBounds().getMinX();
@@ -303,7 +303,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
                         }
 
                     }
-                    
+
                     /*
                     // Play a fade if it was zero and now isn't, or vice versa:
                     if ((oldVal.doubleValue() == 0 && newVal.doubleValue() != 0) || (oldVal.doubleValue() != 0 && newVal.doubleValue() == 0)) {
@@ -337,7 +337,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         }
         // Bit of a hacky way of removing gap between header and block:
         AnchorPane.setTopAnchor(canvas.getNode(), 0.0);
-                
+
         // Method blocks don't show anything in the sidebar
         //setSidebar(param2.textProperty());
     }
@@ -362,14 +362,14 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     {
         return new JavaCanvas(editor, this, stylePrefix, true);
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public HighlightedBreakpoint showDebugBefore(DebugInfo debug)
     {
         return ((JavaCanvas)getCanvas()).showDebugBefore(null, debug);        
     }
-    
+
     @SuppressWarnings("unchecked")
     protected List<CodeElement> getContents()
     {
@@ -385,7 +385,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     {
         return canvas.getBlocksSubtype(CodeFrame.class);
     }
-        
+
     @Override
     public void checkForEmptySlot()
     {
@@ -401,13 +401,13 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     {
         return paramsPane;
     }
-    
+
     @Override
     public List<String> getDeclaredVariablesWithin(FrameCanvas c)
     {
         if (c != getCanvas())
             throw new IllegalArgumentException("Canvas does not exist in this frame");
-        
+
         return paramsPane.getVars().filter(s -> s != null && !s.isEmpty()).collect(Collectors.toList());
     }
 
@@ -494,16 +494,16 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     {
         return 2;
     }
-    
+
     protected abstract class MethodHeaderRow extends FrameContentRow
     {
         public MethodHeaderRow(Frame parentFrame, String stylePrefix)
         {
             super(parentFrame, stylePrefix);
         }
-        
+
         protected abstract EditableSlot getSlotBeforeParams();
-        
+
         // Returns null if and only if the params are the last focusable slot
         protected abstract EditableSlot getSlotAfterParams();
 

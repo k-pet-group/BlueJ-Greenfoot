@@ -63,7 +63,7 @@ public class DocumentUndoStack implements DocumentListener
     // Are we currently in the middle of a compound edit?
     private boolean inCompoundEdit = false;
     private FXPlatformRunnable stateListener = null;
-    
+
     public DocumentUndoStack(Document document)
     {
         this.document = document;
@@ -166,7 +166,7 @@ public class DocumentUndoStack implements DocumentListener
         }
         return -1;
     }
-    
+
     /**
      * Sets a listener to be called whenever the undo/redo potential of this undo stack changes.
      */
@@ -189,7 +189,7 @@ public class DocumentUndoStack implements DocumentListener
     }
 
 
-    
+
     public void compoundEdit(FXPlatformRunnable editAction)
     {
         if (changeIndex != rememberedChanges.size())
@@ -197,7 +197,7 @@ public class DocumentUndoStack implements DocumentListener
             // We have to chop off the later changes as we're making new ones from here:
             rememberedChanges.subList(changeIndex, rememberedChanges.size()).clear();
         }
-        
+
         inCompoundEdit = true;
         ArrayList<Change> compoundChanges = new ArrayList<>();
         rememberedChanges.add(compoundChanges);

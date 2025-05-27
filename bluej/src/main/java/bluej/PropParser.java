@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2013  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -52,7 +52,7 @@ public class PropParser
 {
     /** The maximum depth of recursion when substituting variables */
     private final static int MAX_DEPTH = 10;
-    
+
     /**
      * Process variable/function substitution on a property value.
      * @param value  The property value to process
@@ -65,16 +65,16 @@ public class PropParser
         parsePropString(value, outBuffer, subvars, 0);
         return outBuffer.toString();
     }
-    
+
     private static void parsePropString(String value, StringBuffer outBuffer, Properties subvars, int depth)
     {
         if (depth > MAX_DEPTH) {
             outBuffer.append(value);
             return;
         }
-        
+
         StringIter iter = new StringIter(value);
-        
+
         while (iter.hasNext()) {
             char cc = iter.next();
             if (cc == '$') {
@@ -113,7 +113,7 @@ public class PropParser
             }
         }
     }
-    
+
     /**
      * Check whether the given character is likely to be part of a property
      * name. (Most punctuation marks are excluded).
@@ -132,7 +132,7 @@ public class PropParser
         }
         return true;
     }
-    
+
     private static void processVar(StringIter iter, StringBuffer outBuffer, Properties subvars, int depth)
     {
         // Get the variable or function name
@@ -153,7 +153,7 @@ public class PropParser
                 break;
             }
         }
-        
+
         String varName = varNameBuf.toString();
         if (varName.equals("filePath")) {
             // File path function - concatenates directory names/paths to yield a path
@@ -190,7 +190,7 @@ public class PropParser
             }
         }
     }
-    
+
     /**
      * Process a string argument to a substitution function. Any initial leading whitespace
      * is skipped. 
@@ -217,7 +217,7 @@ public class PropParser
         if (cc == '}') {
             return null;
         }
-        
+
         if (cc == '\"') {
             // string literal, quote-enclosed
             StringBuffer result = new StringBuffer();
@@ -235,7 +235,7 @@ public class PropParser
             // Terminated by any unquoted whitespace character or '}'.
             StringBuffer outBuffer = new StringBuffer();
             iter.backup();
-            
+
             do {
                 cc = iter.next();
                 if (cc == '$' && iter.hasNext()) {
@@ -280,11 +280,11 @@ public class PropParser
                 }
             }
             while (iter.hasNext());
-            
+
             return outBuffer.toString();
         }
     }
-    
+
     /**
      * A class for iterating through a string
      * 
@@ -295,23 +295,23 @@ public class PropParser
         private String string;
         private int curpos;
         private int limit;
-        
+
         StringIter(String string)
         {
             this.string = string;
             limit = string.length();
         }
-        
+
         public boolean hasNext()
         {
             return curpos < limit;
         }
-        
+
         public char next()
         {
             return string.charAt(curpos++);
         }
-        
+
         public void backup()
         {
             curpos--;

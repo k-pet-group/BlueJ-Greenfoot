@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2021,2022 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -59,7 +59,7 @@ import threadchecker.Tag;
 public class CaseFrame extends SingleCanvasFrame
   implements CodeFrame<CaseElement>, DebuggableParentFrame
 {
-    
+
     private final ExpressionSlot<FilledExpressionSlotFragment> paramCondition;
     private CaseElement element;
     private final SlotLabel opening;
@@ -116,7 +116,7 @@ public class CaseFrame extends SingleCanvasFrame
         frameName = "case " + paramCondition.getScreenreaderText();
         paramCondition.setSlotName("case statement parameter");
     }
-    
+
     public CaseFrame(InteractionManager editor, FilledExpressionSlotFragment condition, boolean enabled)
     {
         this(editor);
@@ -203,7 +203,7 @@ public class CaseFrame extends SingleCanvasFrame
             }
         };
     }
-    
+
     @Override
     public FrameCanvas createCanvas(InteractionManager editor, String stylePrefix)
     {
@@ -227,7 +227,7 @@ public class CaseFrame extends SingleCanvasFrame
             contents.add(f.getCode());
         }
         element = new CaseElement(this, paramCondition.getSlotElement(), contents, frameEnabledProperty.get());
-        
+
     }
 
     @Override
@@ -235,7 +235,7 @@ public class CaseFrame extends SingleCanvasFrame
     {
         return element;
     }
-    
+
     @Override
     public List<ExtensionDescription> getAvailableExtensions(FrameCanvas canvas, FrameCursor cursorInCanvas)
     {

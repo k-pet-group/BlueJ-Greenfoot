@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -38,7 +38,7 @@ public class ExistingFixtureInvokerRecord extends InvokerRecord
 {
     private List<String> fieldsSrc;
     private String setUpSrc;
-    
+
     /**
      * Records a method call that returns a result to the user.
      * 
@@ -49,7 +49,7 @@ public class ExistingFixtureInvokerRecord extends InvokerRecord
     {
         fieldsSrc = new ArrayList<String>();
     }
-    
+
     @Override
     public boolean hasVoidResult()
     {
@@ -60,12 +60,12 @@ public class ExistingFixtureInvokerRecord extends InvokerRecord
     {
         fieldsSrc.add(fieldDecl);
     }
-    
+
     public void setSetupMethod(String setupMethodSrc)
     {
         setUpSrc = setupMethodSrc;
     }
-    
+
     /**
      * Construct a declaration for any objects constructed
      * by this invoker record.
@@ -79,10 +79,10 @@ public class ExistingFixtureInvokerRecord extends InvokerRecord
         StringBuffer sb = new StringBuffer();
 
         ListIterator<String> it = fieldsSrc.listIterator();
-                
+
         while(it.hasNext()) {
             String fieldDecl = (String) it.next();
-                    
+
             sb.append(firstIndent);
             sb.append(fieldDecl);
             sb.append('\n');
@@ -90,7 +90,7 @@ public class ExistingFixtureInvokerRecord extends InvokerRecord
 
         return sb.toString();
     }
-    
+
     /**
      * Construct a portion of an initialisation method for
      * this invoker record.

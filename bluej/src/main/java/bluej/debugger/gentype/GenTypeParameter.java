@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2014,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -42,13 +42,13 @@ public abstract class GenTypeParameter
             return JavaNames.stripPrefix(x);
         }
     };
-    
+
     private static NameTransform nullTransform = new NameTransform() {
         public String transform(String x) {
             return x;
         }
     };
-    
+
     /**
      * Return an equivalent type where all the type parameters have been mapped
      * to the corresponding types using the given map.
@@ -92,7 +92,7 @@ public abstract class GenTypeParameter
             return this;
         }
         GenTypeSolid lowerBound = getLowerBound();
-        
+
         // Calculate new upper bounds
         GenTypeSolid newUpper = null;
         GenTypeSolid otherUpper = other.getUpperBound().asSolid();
@@ -102,7 +102,7 @@ public abstract class GenTypeParameter
         else {
             newUpper = IntersectionType.getIntersection(new GenTypeSolid [] {otherUpper, upperBound});
         }
-        
+
         // Calculate new lower bounds
         GenTypeSolid newLower = null;
         GenTypeSolid otherLower = other.getLowerBound();
@@ -115,7 +115,7 @@ public abstract class GenTypeParameter
         else {
             newLower = GenTypeSolid.lub(new GenTypeSolid [] {otherLower, lowerBound});
         }
-        
+
         // If the upper bounds now equals the lower bounds, we have a solid
         if (newUpper != null && newUpper.equals(newLower)) {
             return newUpper;
@@ -135,7 +135,7 @@ public abstract class GenTypeParameter
      * type itself.
      */
     abstract public GenTypeSolid getLowerBound();
-    
+
     /**
      * Return true if this type "contains" the other type. That is, if this type as a
      * type argument imposes less or equal constraints than the other type in the same
@@ -149,10 +149,10 @@ public abstract class GenTypeParameter
     {
         GenTypeSolid myLower = getLowerBound();
         JavaType myUpper = getUpperBound();
-        
+
         GenTypeSolid otherLower = other.getLowerBound();
         JavaType otherUpper = other.getUpperBound();
-        
+
         if (myUpper != null) {
             if (otherUpper == null) {
                 if (myUpper.asClass() == null) {
@@ -170,7 +170,7 @@ public abstract class GenTypeParameter
                 }
             }
         }
-        
+
         if (myLower != null) {
             if (otherLower == null) {
                 return false;
@@ -179,10 +179,10 @@ public abstract class GenTypeParameter
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Get a string representation of the type, optionally stripping package prefixes
      */
@@ -196,7 +196,7 @@ public abstract class GenTypeParameter
             return toString(nullTransform);
         }
     }
-    
+
     /**
      * Returns a string which is a java-source valid type argument,
      * compatible with this actual type. For an intersection type this
@@ -223,7 +223,7 @@ public abstract class GenTypeParameter
     {
         return toString();
     }
-    
+
     /**
      * Returns a string which is a java-source valid type argument
      * compatible with this actual type, modified using the given name
@@ -235,18 +235,18 @@ public abstract class GenTypeParameter
      * @return
      */
     abstract public String toTypeArgString(NameTransform nt);
-    
+
     /**
      * Get the erased type of this type.
      */
     @OnThread(Tag.FXPlatform)
     abstract public JavaType getErasedType();
-    
+
     /**
      * Capture this type parameter and return the result.
      */
     abstract public JavaType getTparCapture();
-    
+
     /**
      * Check whether this represents a primitive type.
      */
@@ -256,12 +256,12 @@ public abstract class GenTypeParameter
     }
 
     public abstract boolean isWildcard();
-    
+
     public GenTypeParameter getArrayComponent()
     {
         return null;
     }
-    
+
     /**
      * If this type parameter represents a "solid" (reference) type, get it. Otherwise return null.
      */
@@ -269,7 +269,7 @@ public abstract class GenTypeParameter
     {
         return null;
     }
-    
+
     /**
      * If this type parameter is a type, get it. Otherwise return null.
      */

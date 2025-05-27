@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2012,2013,2016,2018,2022,2023  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -104,25 +104,25 @@ public class MiscPrefPanel extends VBox
             optButton.setMinWidth(Control.USE_PREF_SIZE);
             dataCollectionPanel.add(PrefMgrDialog.labelledItem(statusLabel, optButton));
         }
-        
-        
+
+
         {
             Label identifierLabel = new Label(Config.getString("prefmgr.collection.identifier.explanation") + ":");
             dataCollectionPanel.add(identifierLabel);
-            
+
             GridPane experimentParticipantPanel = new GridPane();
             JavaFXUtil.addStyleClass(experimentParticipantPanel, "prefmgr-experiment-participant");
-            
+
             Label experimentLabel = new Label(Config.getString("prefmgr.collection.identifier.experiment"));
             experimentParticipantPanel.add(experimentLabel, 0, 0);
             experimentIdentifierField = new TextField();
             experimentParticipantPanel.add(experimentIdentifierField, 1, 0);
-            
+
             Label participantLabel = new Label(Config.getString("prefmgr.collection.identifier.participant"));
             experimentParticipantPanel.add(participantLabel, 0, 1);
             participantIdentifierField = new TextField();
             experimentParticipantPanel.add(participantIdentifierField, 1, 1);
-            
+
             dataCollectionPanel.add(experimentParticipantPanel);
         }
         return PrefMgrDialog.headedVBox("prefmgr.collection.title", dataCollectionPanel);
@@ -141,7 +141,7 @@ public class MiscPrefPanel extends VBox
     private Node makePlayerNamePanel()
     {
         List<Node> contents = new ArrayList<>();
-        
+
         // get Accelerator text
         KeyCodeCombination accelerator = Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT;
         String shortcutText = " " + accelerator.getDisplayText();
@@ -149,9 +149,9 @@ public class MiscPrefPanel extends VBox
         playerNameField = new TextField(PrefMgr.getPlayerName().get());
         playerNameField.setPrefColumnCount(20);
         contents.add(PrefMgrDialog.labelledItem("playername.dialog.help", playerNameField));
-        
+
         contents.add(PrefMgrDialog.wrappedLabel(Config.getString("prefmgr.misc.playerNameNote") + shortcutText));
-        
+
         return PrefMgrDialog.headedVBox("prefmgr.misc.playername.title", contents);
     }
 
@@ -201,7 +201,7 @@ public class MiscPrefPanel extends VBox
             DataCollector.setExperimentIdentifier(expId);
             DataCollector.setParticipantIdentifier(partId);
         }
-        
+
         if (Config.isGreenfoot())
         {
             PrefMgr.getPlayerName().set(playerNameField.getText());

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2010,2016  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -33,7 +33,7 @@ import java.util.*;
 public class JavaNames
 {
     private static Set<String> javaKeywords;
-    
+
     static {
         javaKeywords = new HashSet<String>();
         String[] keywords = new String[] {"abstract", "assert", "boolean", "break", "byte",
@@ -45,11 +45,11 @@ public class JavaNames
                 "this", "throw", "throws", "transient", "try", "void", "volatile", "while",
                 "false", "null", "true"
         };
-        
-        
+
+
         Collections.addAll(javaKeywords, keywords);
     }
-    
+
     /**
      * Check whether a string is a valid Java identifier
      */
@@ -58,17 +58,17 @@ public class JavaNames
         if (str.length() == 0) {
             return false;
         }
-        
+
         if (!Character.isJavaIdentifierStart(str.charAt(0))) {
             return false;
         }
-        
+
         for (int i=1; i < str.length(); i++) {
             if (! Character.isJavaIdentifierPart(str.charAt(i))) {
                 return false;
             }
         }
-        
+
         if (isJavaKeyword(str)) {
             return false;
         }
@@ -222,7 +222,7 @@ public class JavaNames
 
         return null;
     }
-    
+
     /**
      * Convert a qualifed name to a file. This is mostly only useful for
      * packages, as other files have a filename extension with a dot in it.
@@ -231,9 +231,9 @@ public class JavaNames
     {
         int n = 0;
         int i;
-        
+
         File f = root;
-        
+
         i = name.indexOf('.', n);
         while (i != -1) {
             String namePart = name.substring(n, i);
@@ -241,7 +241,7 @@ public class JavaNames
             n = i + 1;
             i = name.indexOf('.', n);
         }
-        
+
         return new File(f, name.substring(n));
     }
 
@@ -287,7 +287,7 @@ public class JavaNames
         }
         return name;
     }
-    
+
     /**
      * Combine two identifiers, such as a package and a class name, to produce a
      * qualified name. This works correctly even if either of the identifiers is
@@ -317,7 +317,7 @@ public class JavaNames
     {
         return JavaNames.stripSuffix(arrayType, "[]");
     }
-    
+
     /**
      * Check whether the given string is a Java keyword / reserved word.
      */

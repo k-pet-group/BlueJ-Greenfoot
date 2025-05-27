@@ -79,7 +79,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
     static final String keyLabel = Config.getString("editor.functions.keys");
     static final String addKeyLabel = Config.getString("editor.functions.addkey");
     static final String delKeyLabel = Config.getString("editor.functions.delkey");
-    
+
     // -------- INSTANCE VARIABLES --------
 
     private final FXPlatformSupplier<Window> parent;
@@ -205,7 +205,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
 
     @OnThread(Tag.FXPlatform)
     public void beginEditing(Project project) {
-       
+
     }
 
     @OnThread(Tag.FXPlatform)
@@ -215,7 +215,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
 
     @OnThread(Tag.FXPlatform)
     public void revertEditing(Project project) {
-        
+
     }
 
     /**

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2013,2014,2015,2016,2017,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -80,10 +80,10 @@ public class TextAnalyzer
     private List<DeclaredVar> declVars; // variables declared in the parsed statement block
     private String amendedCommand;  // command string amended with initializations for
                                     // all variables
-    
+
     private ImportsCollection imports;
     private String importCandidate; // any import candidates.
-    
+
     /**
      * TextParser constructor. Defines the class loader and package scope
      * for evaluation.
@@ -95,7 +95,7 @@ public class TextAnalyzer
         this.objectBench = ob;
         imports = new ImportsCollection();
     }
-    
+
     /**
      * Set a new class loader, and clear the imports list.
      */
@@ -103,7 +103,7 @@ public class TextAnalyzer
     {
         imports.clear();
     }
-    
+
     /**
      * Parse a string entered into the code pad. Return is null if the string
      * is a statement; otherwise the string is an expression and the returned
@@ -121,13 +121,13 @@ public class TextAnalyzer
         importCandidate = "";
         amendedCommand = command;
         declVars = Collections.emptyList();
-        
+
         EntityResolver resolver = getResolver(); 
-        
+
         Reflective accessRef = new DummyReflective(JavaNames.combineNames(packageScope, "$SHELL"));
         TypeEntity accessType = new TypeEntity(accessRef);
         TextParser parser = new TextParser(resolver, command, accessType, true);
-        
+
         try {
 
             // check if it's an import statement
@@ -220,7 +220,7 @@ public class TextAnalyzer
             {
                 return parentResolver.resolveQualifiedClass(name);
             }
-            
+
             @Override
             public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
             {
@@ -235,29 +235,29 @@ public class TextAnalyzer
                 {
                     return entity;
                 }
-                
+
                 // Might be a class in the current package
                 TypeEntity rval = parentResolver.resolveQualifiedClass(pkgScopePrefix + name);
                 if (rval != null) {
                     return rval;
                 }
-                
+
                 // Try in java.lang (see JLS 7.5.5)
                 rval = parentResolver.resolveQualifiedClass("java.lang." + name);
                 if (rval != null) {
                     return rval;
                 }
-                
+
                 // Try in wildcard imports
                 entity = imports.getTypeImportWC(name);
                 if (entity != null) {
                     return entity;
                 }
-                
+
                 // Have to assume it's a package
                 return new PackageEntity(name, this);
             }
-            
+
             @Override
             @OnThread(value = Tag.FXPlatform, ignoreParent = true)
             public JavaEntity getValueEntity(String name, Reflective querySource)
@@ -283,13 +283,13 @@ public class TextAnalyzer
                         }
                     }
                 }
-                
+
                 return resolvePackageOrClass(name, querySource);
             }
         };
         return resolver;
     }
-    
+
     /**
      * Called to confirm that the recently parsed command has successfully
      * executed. This allows TextParser to update internal state to reflect
@@ -325,7 +325,7 @@ public class TextAnalyzer
             }
         }
     }
-    
+
     /**
      * Get a list of the variables declared in the recently parsed statement
      * block. The return is a List of TextParser.DeclaredVar
@@ -334,7 +334,7 @@ public class TextAnalyzer
     {
         return declVars;
     }
-    
+
     /**
      * Get the amended command string, which has initializers inserted for variable
      * declarations which were missing initializers.
@@ -343,7 +343,7 @@ public class TextAnalyzer
     {
         return amendedCommand;
     }
-    
+
     /**
      * Return the imports collection as a sequence of java import statements.
      */
@@ -351,7 +351,7 @@ public class TextAnalyzer
     {
         return imports.toString() + importCandidate;
     }
-    
+
     /**
      * Java 1.4 & prior version of trinary "? :" operator. See JLS 2nd ed. 
      * section 15.25.
@@ -405,7 +405,7 @@ public class TextAnalyzer
 //        
 //        throw new SemanticException();
 //    }
-    
+
     /**
      * Test if a given type is one of the "minor" integral types: byte, char
      * or short.
@@ -414,7 +414,7 @@ public class TextAnalyzer
 //    {
 //        return a.typeIs(JavaType.JT_BYTE) || a.typeIs(JavaType.JT_CHAR) || a.typeIs(JavaType.JT_SHORT); 
 //    }
-    
+
     /**
      * Test whether the given value fits in the range representable by byte, short or char
      */
@@ -429,10 +429,10 @@ public class TextAnalyzer
         else if (type.typeIs(JavaType.JT_SHORT)) {
             return value <= Short.MAX_VALUE && value >= Short.MIN_VALUE;
         }
-        
+
         return false;
     }
-    
+
     /**
      * Java 1.5 version of the trinary "? :" operator.
      * See JLS section 15.25. Note that JLS 3rd ed. differs extensively
@@ -443,23 +443,23 @@ public class TextAnalyzer
         JavaType trueAltType = trueAlt.getType();
         JavaType falseAltType = falseAlt.getType();
         JavaType conditionType = condition.getType();
-        
+
         // The condition must be boolean:
         if (conditionType == null || ! conditionType.typeIs(JavaType.JT_BOOLEAN)) {
             return null;
         }
-        
+
         // if we don't know the type of both alternatives, we don't
         // know the result type:
         if (trueAltType == null || falseAltType == null) {
             return null;
         }
-        
+
         // Neither argument can be a void type.
         if (trueAltType.isVoid() || falseAltType.isVoid()) {
             return null;
         }
-        
+
         // if the second & third arguments have the same type, then
         // that is the result type:
         if (trueAltType.equals(falseAltType)) {
@@ -475,16 +475,16 @@ public class TextAnalyzer
             // The result cannot be a compile-time constant as expression contains a null
             return new ValueEntity(falseAltType);
         }
-        
+
         // Otherwise:
         String trueAltStr = trueAltType.toString();
         String falseAltStr = falseAltType.toString();
-        
+
         boolean trueIsByte = trueAltStr.equals("byte") || trueAltStr.equals("java.lang.Byte");
         boolean falseIsShort = falseAltStr.equals("short") || falseAltStr.equals("java.lang.Short");
         boolean falseIsByte = falseAltStr.equals("byte") || falseAltStr.equals("java.lang.Byte");
         boolean trueIsShort = trueAltStr.equals("short") || trueAltStr.equals("java.lang.Short");
-        
+
         if (trueIsByte && falseIsShort || falseIsByte && trueIsShort) {
             if (condition.hasConstantBooleanValue() && trueAlt.hasConstantIntValue() && falseAlt.hasConstantIntValue()) {
                 long intVal = condition.getConstantBooleanValue() ? trueAlt.getConstantIntValue()
@@ -496,11 +496,11 @@ public class TextAnalyzer
 
         // If one of the types is byte/short/char (possibly boxed) and the other is of type int, and is a constant
         // whose value fits in the first type, then the result is of the first type (unboxed).
-        
+
         JavaType trueUnboxed = unBox(trueAltType);
         boolean trueIsSmallInt = trueUnboxed.typeIs(JavaType.JT_BYTE) || trueUnboxed.typeIs(JavaType.JT_SHORT)
                 || trueUnboxed.typeIs(JavaType.JT_CHAR);
-        
+
         if (trueIsSmallInt && falseAltType.typeIs(JavaType.JT_INT) && falseAlt.hasConstantIntValue()) {
             long fval = falseAlt.getConstantIntValue();
             if (doesValueFitIntType(fval, trueAltType)) {
@@ -512,7 +512,7 @@ public class TextAnalyzer
                 return new ValueEntity(trueUnboxed);
             }
         }
-        
+
         JavaType falseUnboxed = unBox(falseAltType);
         boolean falseIsSmallInt = falseUnboxed.typeIs(JavaType.JT_BYTE) || falseUnboxed.typeIs(JavaType.JT_SHORT)
                 || falseUnboxed.typeIs(JavaType.JT_CHAR);
@@ -528,9 +528,9 @@ public class TextAnalyzer
                 return new ValueEntity(falseUnboxed);
             }
         }
-        
+
         // Binary numeric promotion?
-        
+
         if (trueUnboxed.isNumeric() && falseUnboxed.isNumeric()) {
             JavaType rtype = binaryNumericPromotion(trueUnboxed, falseUnboxed);
             if (condition.hasConstantBooleanValue() && ValueEntity.isConstant(trueAlt) && ValueEntity.isConstant(falseAlt)) {
@@ -552,15 +552,15 @@ public class TextAnalyzer
             }
             return new ValueEntity(rtype);
         }
-        
+
         // No - reference types.
-        
+
         GenTypeSolid trueBoxed = boxType(trueAltType);
         GenTypeSolid falseBoxed = boxType(falseAltType);
         GenTypeSolid rtype = GenTypeSolid.lub(new GenTypeSolid[] {trueBoxed, falseBoxed});
         return new ValueEntity(rtype.getCapture());
     }
-    
+
     /**
      * binary numeric promotion, as defined by JLS section 5.6.2. Both
      * operands must be (possibly boxed) numeric types.
@@ -584,7 +584,7 @@ public class TextAnalyzer
         }
         return null;
     }
-    
+
     /**
      * Unary numeric promotion, as defined by JLS 3rd ed. section 5.6.1
      * Return is null if argument type is not convertible to a numeric type.
@@ -592,7 +592,7 @@ public class TextAnalyzer
     public static JavaType unaryNumericPromotion(JavaType a)
     {
         JavaType ua = unBox(a);
-        
+
         // long float and double are merely unboxed; everything else is unboxed and widened to int:
         if (ua.typeIs(JavaType.JT_DOUBLE))
             return JavaPrimitiveType.getDouble();
@@ -602,13 +602,13 @@ public class TextAnalyzer
 
         if (ua.typeIs(JavaType.JT_LONG))
             return JavaPrimitiveType.getLong();
-        
+
         if (ua.isNumeric()) {
             return JavaPrimitiveType.getInt();
         }
         return null;
     }
-        
+
     /**
      * Check whether a particular method is callable with particular
      * parameters. If so return information about how specific the call is.
@@ -627,7 +627,7 @@ public class TextAnalyzer
     {
         boolean methodIsVarargs = m.isVarArgs();
         MethodCallDesc rdesc = null;
-        
+
         // First try without varargs expansion. If that fails, try with expansion.
         rdesc = isMethodApplicable(targetType, targs, m, args, false);
         if (rdesc == null && methodIsVarargs) {
@@ -659,7 +659,7 @@ public class TextAnalyzer
     {
         boolean rawTarget = targetType.isRaw();
         boolean boxingRequired = false;
-        
+
         // Check that the number of parameters supplied is allowable. Expand varargs
         // arguments if necessary.
         List<JavaType> mparams = m.getParamTypes();
@@ -684,21 +684,21 @@ public class TextAnalyzer
             if (mparams.size() != args.length)
                 return null;
         }
-        
+
         // Get type parameters of the method
         List<GenTypeDeclTpar> tparams = Collections.emptyList();
         if ((! rawTarget) || m.isStatic()) {
             tparams = m.getTparTypes();
             tparams = (tparams != null) ? tparams : Collections.<GenTypeDeclTpar>emptyList(); 
         }
-        
+
         // Number of type parameters supplied must match number declared, unless either
         // is zero. Section 15.12.2 of the JLS, "a non generic method may be applicable
         // to an invocation which supplies type arguments" (in which case the type args
         // are ignored).
         if (! targs.isEmpty() && ! tparams.isEmpty() && targs.size() != tparams.size())
             return null;
-        
+
         // Set up a map we can use to put actual/inferred type arguments. Initialise it
         // with the target type's arguments.
         Map<String,GenTypeParameter> tparMap;
@@ -722,23 +722,23 @@ public class TextAnalyzer
                 GenTypeDeclTpar tpar = i.next();
                 tparMap.put(tpar.getTparName(), tpar);
             }
-            
+
             // lower bound, equality, and upper bound constraints on type parameters:
             Map<String,Set<GenTypeSolid>> tlbConstraints = new HashMap<String,Set<GenTypeSolid>>();
             Map<String,GenTypeSolid> teqConstraints = new HashMap<String,GenTypeSolid>();
             Map<String,GenTypeSolid> tubConstraints = new HashMap<String,GenTypeSolid>();
-            
+
             // Time for some type inference
             for (int i = 0; i < mparams.size(); i++) {
                 if (mparams.get(i).isPrimitive()) {
                     continue;
                 }
-                
+
                 GenTypeSolid mparam = (GenTypeSolid) mparams.get(i);
                 mparam = mparam.mapTparsToTypes(tparMap).asType().asSolid();
                 processAtoFConstraint(args[i], mparam, tlbConstraints, teqConstraints, tubConstraints);
             }
-            
+
             // what we have now is a map with tpar constraints.
             // Some tpars may not have been constrained: these are inferred to be the
             // intersection of their upper bounds.
@@ -776,7 +776,7 @@ public class TextAnalyzer
             while (formalI.hasNext()) {
                 GenTypeDeclTpar formalTpar = formalI.next();
                 GenTypeSolid argTpar = (GenTypeSolid) actualI.next();
-                
+
                 // first we check that the argument type is a subtype of the
                 // declared type.
                 GenTypeSolid [] formalUbounds = formalTpar.upperBounds();
@@ -787,23 +787,23 @@ public class TextAnalyzer
                     if (i == formalUbounds.length - 1)
                         return null;
                 }
-                
+
                 tparMap.put(formalTpar.getTparName(), argTpar);
             }
         }
-        
+
         // For each argument, must check the compatibility of the supplied
         // parameter type with the argument type; and if neither the formal
         // parameter or supplied argument are raw, then must check generic
         // contract as well.
-        
+
         for (int i = 0; i < args.length; i++) {
             JavaType formalArg = mparams.get(i);
             JavaType givenParam = args[i];
-            
+
             // Substitute type arguments.
             formalArg = formalArg.mapTparsToTypes(tparMap).getUpperBound();
-            
+
             // check if the given parameter doesn't match the formal argument
             if (! formalArg.isAssignableFrom(givenParam)) {
                 // a boxing conversion followed by a widening reference conversion
@@ -816,13 +816,13 @@ public class TextAnalyzer
                 boxingRequired = true;
             }
         }
-        
+
         JavaType rType = m.getReturnType().mapTparsToTypes(tparMap).asType().getCapture();
         return new MethodCallDesc(m, mparams, varargs, boxingRequired, rType);
     }
 
-    
-    
+
+
     /**
      * Process a type inference constraint of the form "A is convertible to F".
      * Note F must be a valid formal parameter: it can't be a wildcard with multiple
@@ -842,7 +842,7 @@ public class TextAnalyzer
         if (a == null) {
             return; // no constraint
         }
-        
+
         if (f instanceof GenTypeTpar) {
             // The constraint T :> A is implied
             GenTypeTpar t = (GenTypeTpar) f;
@@ -851,10 +851,10 @@ public class TextAnalyzer
                 constraintsSet = new HashSet<GenTypeSolid>();
                 tlbConstraints.put(t.getTparName(), constraintsSet);
             }
-            
+
             constraintsSet.add(a.asSolid());
         }
-        
+
         // If F is an array of the form U[], and a is an array of the form V[]...
         else if (f.getArrayComponent() != null) {
             if (a.getArrayComponent() != null) {
@@ -865,7 +865,7 @@ public class TextAnalyzer
                 }
             }
         }
-        
+
         // If F is of the form G<...> and A is convertible to the same form...
         else {
             GenTypeClass cf = f.asClass();
@@ -892,7 +892,7 @@ public class TextAnalyzer
         }
         return;
     }
-    
+
     /**
      * Process type parameters from a type inference constraint A convertible-to F.
      */
@@ -927,7 +927,7 @@ public class TextAnalyzer
             }
         }
     }
-    
+
     /**
      * Process a type inference constraint of the form "A is equal to F".
      */
@@ -939,7 +939,7 @@ public class TextAnalyzer
             GenTypeTpar t = (GenTypeTpar) f;
             teqConstraints.put(t.getTparName(), a);
         }
-        
+
         else if (f.getArrayComponent() instanceof GenTypeSolid) {
             // "If F = U[] ... if A is an array type V[], or a type variable with an
             // upper bound that is an array type V[]..."
@@ -948,7 +948,7 @@ public class TextAnalyzer
                 asts = ((GenTypeDeclTpar) a).upperBounds();
             else
                 asts = new GenTypeSolid[] {a};
-            
+
             for (int i = 0; i < asts.length; i++) {
                 JavaType act = asts[i].getArrayComponent();
                 if (act instanceof GenTypeSolid) {
@@ -956,7 +956,7 @@ public class TextAnalyzer
                 }
             }
         }
-        
+
         else {
             GenTypeClass cf = f.asClass();
             GenTypeClass af = a.asClass();
@@ -986,7 +986,7 @@ public class TextAnalyzer
         }
         return null;
     }
-    
+
     /**
      * Process type parameters from a type inference constraint A equal-to F.
      */
@@ -1034,7 +1034,7 @@ public class TextAnalyzer
             }
             tubConstraints.put(ftpar.getTparName(), ubcons);
         }
-        
+
         // If F = U[] ...
         else if (f.getArrayComponent() instanceof GenTypeSolid) {
             // "If F = U[] ... if A is an array type V[], or a type variable with an
@@ -1046,7 +1046,7 @@ public class TextAnalyzer
             else {
                 asts = new GenTypeSolid[] {a};
             }
-            
+
             for (int i = 0; i < asts.length; i++) {
                 JavaType act = asts[i].getArrayComponent().asSolid();
                 if (act != null) {
@@ -1055,7 +1055,7 @@ public class TextAnalyzer
                 }
             }
         }
-        
+
         // If F has form G<..,..>
         else if (f.asClass() != null && a.asClass() != null) {
             GenTypeClass cf = f.asClass();
@@ -1103,7 +1103,7 @@ public class TextAnalyzer
                 }
             }
         }
-        
+
         else {
             // fPar must be a wildcard
             GenTypeSolid flBound = fPar.getLowerBound();
@@ -1128,7 +1128,7 @@ public class TextAnalyzer
             }
         }
     }
-        
+
     /**
      * Get the candidate list of methods with the given name and argument types. The returned
      * list will be the maximally specific methods (as defined by the JLS 15.12.2.5). The
@@ -1147,16 +1147,16 @@ public class TextAnalyzer
             Reflective accessType)
     {
         ArrayList<MethodCallDesc> suitableMethods = new ArrayList<MethodCallDesc>();
-        
+
         Stack<GenTypeSolid> targetTypes = new Stack<GenTypeSolid>();
         targetTypes.push(targetType);
         Set<GenTypeSolid> doneTypes = new HashSet<GenTypeSolid>();
-        
+
         // JLS 4.5.2 specifies members of parameterized types
         // JLS 4.4, the members of a type variable are the members of the intersection type of the
         //          bounds
         // Mostly straightforward.
-        
+
         while (! targetTypes.isEmpty()) {
             GenTypeSolid topType = targetTypes.pop();
             GenTypeClass targetClass = topType.asClass();
@@ -1169,7 +1169,7 @@ public class TextAnalyzer
                 }
                 continue;
             }
-            
+
             // Check members of supertypes
             Reflective ref = targetClass.getReflective();
             List<GenTypeClass> supers = ref.getSuperTypes();
@@ -1181,7 +1181,7 @@ public class TextAnalyzer
                     targetTypes.push(mapped);
                 }
             }
-            
+
             Map<String,Set<MethodReflective>> methodMap = targetClass.getReflective()
                     .getDeclaredMethods();
             Set<MethodReflective> methods = methodMap.get(methodName);
@@ -1189,7 +1189,7 @@ public class TextAnalyzer
             if (methods == null) {
                 continue;
             }
-            
+
             // Find methods that are applicable, and
             // accessible. See JLS 15.12.2.1.
             for (MethodReflective method : methods) {
@@ -1199,7 +1199,7 @@ public class TextAnalyzer
                         method.getModifiers(), false)) {
                     continue;
                 }
-                
+
                 // check that the method is applicable (and under
                 // what constraints)
                 MethodCallDesc mcd = isMethodApplicable(targetClass, typeArgs, method, argumentTypes);
@@ -1238,7 +1238,7 @@ public class TextAnalyzer
         }
         return suitableMethods;
     }
-    
+
     /**
      * Unbox a type, if it is a class type which represents a primitive type
      * in object form (eg. java.lang.Integer).<p>
@@ -1284,7 +1284,7 @@ public class TextAnalyzer
         }
         return b;
     }
-    
+
     /**
      * Box a type, if it is a primitive type such as "int".<p>
      * 
@@ -1321,10 +1321,10 @@ public class TextAnalyzer
                 return new GenTypeClass(new JavaReflective(Boolean.class));
             }
         }
-        
+
         return u.asSolid();
     }
-        
+
     /**
      * Conditionally box a type. The type is only boxed if the boolean flag
      * passed in the second parameter is true.<p>
@@ -1344,7 +1344,7 @@ public class TextAnalyzer
 //        else
 //            return u;
 //    }
-    
+
     /**
      * A simple structure to hold various information about a method call.
      * 
@@ -1357,7 +1357,7 @@ public class TextAnalyzer
         public boolean vararg;   // is a vararg call
         public boolean autoboxing; // requires autoboxing
         public JavaType retType; // effective return type (before capture conversion)
-        
+
         /**
          * Constructor for MethodCallDesc.
          * 
@@ -1377,7 +1377,7 @@ public class TextAnalyzer
             this.autoboxing = autoboxing;
             this.retType = retType;
         }
-        
+
         /**
          * Find out which (if any) method call is strictly more specific than the
          * other. Both calls must be valid calls to the same method with the same
@@ -1401,7 +1401,7 @@ public class TextAnalyzer
             if (! other.vararg && vararg) {
                 return -1; // we are less specific
             }
-            
+
             // I am reasonably sure this gives the same result as the algorithm
             // described in the JLS section 15.12.2.5, and it has the advantage
             // of being a great deal simpler.
@@ -1409,11 +1409,11 @@ public class TextAnalyzer
             Iterator<JavaType> j = other.argTypes.iterator();
             int upCount = 0;
             int downCount = 0;
-            
+
             while (i.hasNext()) {
                 JavaType myArg = i.next();
                 JavaType otherArg = j.next();
-                
+
                 if (myArg.isAssignableFrom(otherArg)) {
                     if (! otherArg.isAssignableFrom(myArg))
                         upCount++;
@@ -1422,14 +1422,14 @@ public class TextAnalyzer
                     downCount++;
                 }
             }
-            
+
             if (upCount > 0 && downCount == 0) {
                 return -1; // other is more specific
             }
             else if (downCount > 0 && upCount == 0) {
                 return 1;  // other is less specific
             }
-            
+
             return 0;
         }
     }

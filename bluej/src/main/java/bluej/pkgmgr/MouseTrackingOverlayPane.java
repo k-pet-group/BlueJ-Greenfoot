@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2016,2018,2021  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -56,7 +56,7 @@ public class MouseTrackingOverlayPane extends Pane
     // Is the mouse currently inside the pane:
     private final BooleanProperty mouseInsideProperty = new SimpleBooleanProperty(false);
     private final List<MousePositionListener> listeners = new ArrayList<>();
-    
+
     public MouseTrackingOverlayPane()
     {
         // Ideally, we'd track mouse movement on our own pane, but we need to
@@ -97,7 +97,7 @@ public class MouseTrackingOverlayPane extends Pane
         if (!showWhenMouseLeft)
             info.visibleProperty().bind(mouseInsideProperty);
     }
-    
+
     public void addMouseListener(MousePositionListener mouseListener)
     {
         listeners.add(mouseListener);
@@ -110,13 +110,13 @@ public class MouseTrackingOverlayPane extends Pane
     {
         getChildren().remove(node);
     }
-    
+
     public void removeMouseListener(MousePositionListener mousePositionListener)
     {
         listeners.add(mousePositionListener);
     }
-    
-    
+
+
     @OnThread(Tag.FXPlatform)
     @FunctionalInterface
     public static interface MousePositionListener

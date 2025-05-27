@@ -145,7 +145,7 @@ public class JavaToStrideTest
                 _var(null, false, false, "int", "i", filled("0")),
                 _while("i < 10", _return(), _assign("i", "i - 1"))
         );
-        
+
         assertEquals("for (int i = 0, j, k = (double)7, l; i < 10; i = i + 1) {return 0; return 1;}",
                 _var(null, false, false, "int", "i", filled("0")),
                 _var(null, false, false, "int", "j", null),
@@ -182,7 +182,7 @@ public class JavaToStrideTest
         assertWarning("x = 0 + i++;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "0 + i ++"));
         assertWarning("while (++i <= 10) ;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _while("++ i <= 10"));
     }
-    
+
     @Test
     public void testAssign()
     {
@@ -201,13 +201,13 @@ public class JavaToStrideTest
         assertEquals("x = c -> 3;", _assign("x", "c -> 3"));
         // Block lambdas should give warning:
         assertWarning("x = c -> {return 3;};", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "c ->"));
-        
+
         // We don't currently support types or modifiers on params:
         assertWarning("x = (final c) -> 3;", UnsupportedModifier.class, _commentWarn(UnsupportedModifier.class), _assign("x", "( c ) -> 3"));
         assertWarning("x = (int c) -> 3;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "( c ) -> 3"));
-        
+
         assertWarning("x = a ? b : c;", UnsupportedFeature.class, _commentWarn(UnsupportedFeature.class), _assign("x", "a b c"));
-        
+
         // Method references should work fine:
         assertEquals("ref = a::b;", _assign("ref", "a :: b"));
     }
@@ -262,17 +262,17 @@ public class JavaToStrideTest
                 Arrays.asList("2", "4"), Arrays.asList(Arrays.asList(_return("3")), Arrays.asList(_return("5"))),
                 null));
     }
-    
+
     @Test
     public void testCall()
     {
         assertEquals("go();", _call("go ( )"));
         assertEquals("move(6 + 7);", _call("move ( 6 + 7 )"));
         assertEquals("getFoo().move(6 + 7);", _call("getFoo ( ) . move ( 6 + 7 )"));
-        
+
         assertEquals("x = getX();", _assign("x", "getX ( )"));
     }
-    
+
     @Test
     public void testExpression()
     {
@@ -297,12 +297,12 @@ public class JavaToStrideTest
         assertExpression("0 || 1", "0 ||1");
         assertExpression("0 && 1", "0&& 1");
         assertExpression("a :: b", "a::b");
-        
+
         // Example found while pasting from BlueJ (double escaped here):
         assertEquals("if (c == '\\\\' || c == '\"' || c == '\\'') buf.append('\\\\');",
             _if("c == '\\\\' || c == '\"' || c == '\\''", _call("buf . append ( '\\\\' )")));
     }
-    
+
     @Test
     public void testInstanceof()
     {
@@ -312,7 +312,7 @@ public class JavaToStrideTest
         assertEquals("return (a instanceof b);", _return(new OptionalExpressionSlotFragment("( a <: b )", "( a instanceof b )")));
         assertEqualsMember("C() {super(a instanceof b);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, new SuperThisParamsExpressionFragment("a <: b", "a instanceof b"), l()));
     }
-    
+
     @Test
     public void testMethod()
     {
@@ -327,7 +327,7 @@ public class JavaToStrideTest
         assertEqualsMember("Foo(int x, String y) throws IOException { }",
             _constructor(null, AccessPermission.PROTECTED, Arrays.asList(_param("int", "x"), _param("String", "y")),
                 Arrays.asList("IOException"), Arrays.asList()));
-     
+
         assertEqualsMember("/** Comment */ private void foo() {}", _method("Comment", AccessPermission.PRIVATE, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
         assertEqualsMember("// Comment\nprivate void foo() {}", _comment("Comment"), _method(null, AccessPermission.PRIVATE, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
         assertEqualsMember("/** Multi\n * line \n * comment.\n*/ private static final java.lang.String foo() throws IOException, NullPointerException {}",
@@ -336,18 +336,18 @@ public class JavaToStrideTest
         assertEqualsMember("/** First\nPara.\n\nSecond\nPara.\n\n\nThird Para.*/\nprotected Foo(){}",
             _constructor("First Para.\nSecond Para.\n\nThird Para.",
                 AccessPermission.PROTECTED, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
-        
+
         assertEqualsMember("/** X*/\npublic Bar() { this(0); }", _constructorDelegate("X", AccessPermission.PUBLIC, Collections.emptyList(), Collections.emptyList(), SuperThis.THIS, "0", Collections.emptyList()));
         assertEqualsMember("C() {this2(0);}", _constructor(null, AccessPermission.PROTECTED, l(), l(), l(_call("this2 ( 0 )"))));
         assertEqualsMember("C() {super(2, 3);}", _constructorDelegate(null, AccessPermission.PROTECTED, l(), l(), SuperThis.SUPER, "2 , 3", l()));
         //TODO test: abstract methods, interface methods (incl default -- should fail)
 
         assertEqualsMember("//Normal\n/** Javadoc */ private void foo() {}", _comment("Normal"), _method("Javadoc", AccessPermission.PRIVATE, false, false, "void", "foo", Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
-        
+
         assertWarningMember("private <T extends A> List<T> foo(T t) {}", UnsupportedFeature.class,
             _commentWarn(UnsupportedFeature.class),
             _method(null, AccessPermission.PRIVATE, false, false, "List<T>", "foo", l(_param("T", "t")), l(), l()));
-        
+
         // @Override should flag in Constructor
         assertWarningMember("@Override Foo() {}", UnsupportedModifier.class, _commentWarn(UnsupportedModifier.class),
             _constructor(null, AccessPermission.PROTECTED, l(), l(), l()));
@@ -355,7 +355,7 @@ public class JavaToStrideTest
             _constructor("Javadoc", AccessPermission.PROTECTED, l(), l(), l()));
 
     }
-    
+
     @Test
     public void testFieldAndVar()
     {
@@ -398,7 +398,7 @@ public class JavaToStrideTest
         assertEquals("//Declares x\nint x /* empty */;", _comment("Declares x empty"), _var(null, false, false, "int", "x", null));
         assertEquals("//Declares x\nint x /* empty */;int y;", _comment("Declares x empty"), _var(null, false, false, "int", "x", null), _var(null, false, false, "int", "y", null));
         assertEquals("//Declares x\nint x;int y/* empty */;", _comment("Declares x"), _var(null, false, false, "int", "x", null), _comment("empty"), _var(null, false, false, "int", "y", null));
-        
+
         assertEquals("break; // Post-comment", new BreakElement(null, true), _comment("Post-comment"));
         assertEquals("while(true) {/*Just-comment*/}", _while("true", _comment("Just-comment")));
         assertEquals("while(true) {/*Pre-comment*/ break;}", _while("true", _comment("Pre-comment"), new BreakElement(null, true)));
@@ -408,7 +408,7 @@ public class JavaToStrideTest
         assertEquals("while(true) break;/*After-comment*/", _while("true", new BreakElement(null, true)), _comment("After-comment"));
         assertEquals("return 0; /*XXX*/ while(true) {}", _return("0"), _comment("XXX"), _while("true"));
     }
-    
+
     @Test
     public void testWhole()
     {
@@ -443,7 +443,7 @@ public class JavaToStrideTest
         // One warning about default modifier, one about the method body:
         assertWarningFile("/**Hi*/interface Foo extends A, B { default public void foo() {} }", UnsupportedFeature.class,
             _interface("Hi", "Foo", l("A", "B"), l(_commentWarn(UnsupportedModifier.class), _commentWarn(UnsupportedFeature.class)), l()));
-        
+
         // TODO test interfaces more (incl package, imports)
         //TODO test non-Javadoc mid-class comments
     }
@@ -476,7 +476,7 @@ public class JavaToStrideTest
             roundTrip(l(genTopLevel()), Parser.JavaContext.TOP_LEVEL);
         }
     }
-    
+
     private static CodeElement genTopLevel()
     {
         return genOneOf(
@@ -626,7 +626,7 @@ public class JavaToStrideTest
     {
         return genExpression(2);
     }
-    
+
     private static FilledExpressionSlotFragment concat(FilledExpressionSlotFragment a, FilledExpressionSlotFragment b)
     {
         return new FilledExpressionSlotFragment(a.getContent() + " " + b.getContent(), a.getJavaCode() + " " + b.getJavaCode());
@@ -694,7 +694,7 @@ public class JavaToStrideTest
     {
         return items[rand(0, items.length - 1)].get();
     }
-    
+
     private static <T> List<T> collapseComments(List<T> items)
     {
         ArrayList<T> r = new ArrayList<>(items);
@@ -709,7 +709,7 @@ public class JavaToStrideTest
         }
         return r;
     }
-    
+
     private static <T> List<T> some(Supplier<T> item)
     {
         return collapseComments(Stream.generate(item).limit(rand(0, 4)).collect(Collectors.toList()));
@@ -724,12 +724,12 @@ public class JavaToStrideTest
     {
         return collapseComments(Stream.generate(item).limit(rand(1, 5)).collect(Collectors.toList()));
     }
-    
+
     private static int rand(int min, int max)
     {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
-    
+
     private static void roundTrip(List<CodeElement> original, Parser.JavaContext context)
     {
         String java = collapseComments(original).stream().map(el -> el.toJavaSource().toTemporaryJavaCodeString()).collect(Collectors.joining("\n"));
@@ -760,7 +760,7 @@ public class JavaToStrideTest
     {
         return new VarElement(null, access == null ? null : new AccessPermissionFragment(access), _static, _final, type(type), name(name), init, true);
     }
-    
+
     private ParamFragment _param(String type, String name)
     {
         return new ParamFragment(type(type), name(name));
@@ -847,7 +847,7 @@ public class JavaToStrideTest
     {
         return new IfElement(null, expression, body, expressions, elseIfBodies, elseBody, true);
     }
-    
+
     private static FilledExpressionSlotFragment filled(String e)
     {
         return new FilledExpressionSlotFragment(e, e);
@@ -882,7 +882,7 @@ public class JavaToStrideTest
     {
         test(javaSource, expectedStride, Parser.JavaContext.TOP_LEVEL, true);
     }
-    
+
     private static String serialise(Element el)
     {
         try

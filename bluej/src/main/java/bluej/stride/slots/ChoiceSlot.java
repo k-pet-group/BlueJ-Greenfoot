@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2018,2019,2020,2021 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -134,15 +134,15 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
         //curDisplay must be exactly on top of futureDisplay to get right visual effect: 
         StackPane.setAlignment(curDisplay.getNode(), Pos.CENTER_LEFT);
         StackPane.setAlignment(futureDisplay, Pos.CENTER_LEFT);
-                
+
         editor.setupFocusableSlotComponent(this, dummyField, false, row::getExtensions, hints.entrySet().stream().map(e -> new FrameCatalogue.Hint(e.getKey().toString(), e.getValue())).collect(Collectors.toList()));
-        
+
         pane.getStyleClass().addAll("choice-slot", stylePrefix + "choice-slot");
-        
+
         JavaFXUtil.addStyleClass(curDisplay, "choice-current", stylePrefix + "choice-current");
         JavaFXUtil.addStyleClass(futureDisplay, "choice-future", stylePrefix + "choice-future");
         JavaFXUtil.addStyleClass(dummyField, "choice-dummy", stylePrefix + "choice-dummy");
-        
+
         pane.setOnMouseClicked(e -> {
             if (!dummyField.isDisabled()) {
                 dummyField.requestFocus();
@@ -170,7 +170,7 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
                 });
             }
         });
-        
+
         DoubleBinding calcWidth = new DoubleBinding() {
             { super.bind(curDisplay.fontProperty());
               super.bind(curDisplay.textProperty());
@@ -244,7 +244,7 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
                 return Response.CONTINUE;
             }
         }
-        
+
 
         @Override
         public Response suggestionListKeyPressed(SuggestionList suggestionList, KeyEvent event, int highlighted)
@@ -286,7 +286,7 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
             editor.endRecordingState(ChoiceSlot.this);
             dropdown.set(null);
         }
-        
+
         private Optional<T> getCompletion(int highlighted)
         {
             // Pick a value if one was available to complete:
@@ -316,7 +316,7 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
             }
         }
     }
-    
+
     /**
      * Shows the suggestions dropdown, and highlights the given item (null means no highlight)
      */
@@ -331,9 +331,9 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
                 },
                 new ChoiceSuggestionListener())
             );
-                
+
         dropdown.get().show(pane, new BoundingBox(0, 0, 0, pane.heightProperty().get()));
-        
+
         dropdown.get().calculateEligible(curDisplay.getText(), false, false);
         dropdown.get().setHighlighted(curHighlight == null ? -1 : choices.indexOf(curHighlight), true);
         // Must come after we've set highlight:
@@ -361,7 +361,7 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
         else
             return selection;
     }
-    
+
     public void setValue(T value)
     {
         selection = value;
@@ -390,7 +390,7 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
             errorMarker.clearErrorMarkers(this);
         }
     }
-    
+
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private class DummyTextField extends TextField
     {
@@ -399,7 +399,7 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
         {
             // Nothing to do.
         }
-        
+
         @Override
         public void appendText(String s)
         {
@@ -453,13 +453,13 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
             if (clip != null && !clip.equals(""))
                 update(clip);
         }
-        
+
         @Override
         public void replaceSelection(String s)
         {
             appendText(s);
         }
-        
+
         @Override
         public void replaceText(IndexRange arg0, String s)
         {
@@ -499,7 +499,7 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
     {
         // The on parameter makes no difference in a choice field
         dummyField.requestFocus();
-        
+
         // TODO if decided the place of the caret is important, replace the previous line with the next.
         /*
         if (on == Focus.LEFT)
@@ -510,13 +510,13 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
             dummyField.selectAll();
          */
     }
-    
+
     public void requestFocus()
     {
         // The on parameter makes no difference in a choice field
         requestFocus(null);
     }
-    
+
     @Override
     public boolean isFocused()
     {
@@ -527,7 +527,7 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
     {
         // TODO 
     }
-    
+
     public void removeOldErrors()
     {
         // TODO
@@ -575,7 +575,7 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
     {
         //TODO
     }
-    
+
     @Override
     public void focusAndPositionAtError(CodeError err)
     {
@@ -606,16 +606,16 @@ public abstract class ChoiceSlot<T extends Enum<T>> implements EditableSlot, Cop
         // No links in a choice slot        
         return Collections.emptyList();
     }
-    
+
     public void lostFocus()
     {        
     }
-    
+
     public Frame getParentFrame()
     {
         return parentFrame;
     }
-    
+
     public void setView(View oldView, View newView, SharedTransition animate)
     {
         dummyField.setDisable(newView != View.NORMAL);

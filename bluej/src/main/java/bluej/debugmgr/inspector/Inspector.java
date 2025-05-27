@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2010,2011,2012,2014,2015,2016,2017,2018,2019,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -80,9 +80,9 @@ public abstract class Inspector extends Stage
     protected final static String inspectLabel = Config.getString("debugger.inspector.inspect");
     protected final static String getLabel = Config.getString("debugger.inspector.get");
     protected final static String close = Config.getString("close");
-    
+
     // === instance variables ===
-    
+
     protected FieldList fieldList = null;
 
     protected Button inspectButton;
@@ -101,7 +101,7 @@ public abstract class Inspector extends Stage
     protected final InvokerRecord ir;
     private double initialClickX;
     private double initialClickY;
-    
+
     // Each inspector is uniquely numbered in a session, for the purposes
     // of data collection:
     private static AtomicInteger nextUniqueId = new AtomicInteger(1);
@@ -129,16 +129,16 @@ public abstract class Inspector extends Stage
         else if (Modifier.isProtected(mods)) {
             result = "protected ";
         }
-        
+
         if (field.isHidden()) {
             result += "(hidden) ";
         }
-        
+
         result += field.getType().toString(true);
         result += " " + field.getName();
         return result;
     }
-    
+
     /**
      * Constructor.
      * 
@@ -184,7 +184,7 @@ public abstract class Inspector extends Stage
         addEventHandler(WindowEvent.ANY, e -> {
             boolean shown = e.getEventType() == WindowEvent.WINDOW_SHOWN;
             boolean hidden = e.getEventType() == WindowEvent.WINDOW_HIDDEN;
-            
+
             if (hidden)
             {
                 autoUpdate.stop();
@@ -195,10 +195,10 @@ public abstract class Inspector extends Stage
                 autoUpdate.playFromStart();
             }
         });
-        
+
         initFieldList();
-        
-        
+
+
     }
 
     /**
@@ -215,7 +215,7 @@ public abstract class Inspector extends Stage
     {
         fieldList = new FieldList();
         JavaFXUtil.addChangeListenerPlatform(fieldList.selectedIndexProperty(), index -> listElementSelected(index.intValue()));
-        
+
         // add mouse listener to monitor for double clicks to inspect list
         // objects. assumption is made that valueChanged will have selected
         // object on first click
@@ -225,7 +225,7 @@ public abstract class Inspector extends Stage
                 doInspect();
             }
         });
-        
+
         // To make it possible to close dialogs with the keyboard (ENTER), we
         // grab the key event from the fieldlist which otherwise consumes it
         // as part of the edit action (even though it's not editable)
@@ -307,7 +307,7 @@ public abstract class Inspector extends Stage
         final List<FieldInfo> listData = getListData();
 
         int prevSelection = fieldList.selectedIndexProperty().get();
-        
+
         fieldList.setData(listData);
         //fieldList.setTableHeader(null);
 
@@ -354,7 +354,7 @@ public abstract class Inspector extends Stage
     {
         if (selectedField != null) {
             boolean isPublic = !getButton.isDisable();
-            
+
             InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, ir);
             inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this, null);
         }
@@ -444,7 +444,7 @@ public abstract class Inspector extends Stage
 
 
     }
-    
+
     @OnThread(Tag.Any)
     public int getUniqueId()
     {

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2016,2017,2021,2022 Michael Kölling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -514,7 +514,7 @@ public class JavaStrideParser extends JavaParser
         {
             comments.add(token);
         }
-        
+
         // Joins together all comments we have seen into one comment element.
         // Pass eof=true to force collection of all comments, even those
         // beyond the point of our current parse.
@@ -572,7 +572,7 @@ public class JavaStrideParser extends JavaParser
         private final ArrayList<List<CodeElement>> blocks = new ArrayList<>();
         // Size is always >= 1, and either equal to blocks.size, or one less than blocks.size (if last one is else)
         private final ArrayList<FilledExpressionSlotFragment> conditions = new ArrayList<>();
-        
+
         // Constructs a builder, given the initial if-condition
         public IfBuilder(Expression condition)
         {
@@ -647,7 +647,7 @@ public class JavaStrideParser extends JavaParser
         super.gotElseIf(token);
         ifHandlers.peek().addElseIf();
     }
-    
+
     @Override
     protected void endIfStmt(LocatableToken token, boolean included)
     {
@@ -1624,7 +1624,7 @@ public class JavaStrideParser extends JavaParser
     {
         expressionHandlers.push(new ExpressionBuilder(handler, this::getText, warnings::add));
     }
-    
+
     // A delegate for our TypeDefHandler implementation
     private static interface TypeDefDelegate
     {
@@ -1638,7 +1638,7 @@ public class JavaStrideParser extends JavaParser
 
         void gotExtends(String type);
     }
-    
+
     private class InterfaceDelegate implements TypeDefDelegate
     {
         private final List<Modifier> modifiers;
@@ -1670,7 +1670,7 @@ public class JavaStrideParser extends JavaParser
         @Override
         public void gotImplements(String type)
         {
-            
+
         }
 
         @Override
@@ -1715,7 +1715,7 @@ public class JavaStrideParser extends JavaParser
                 new JavadocUnit(doc), pkg == null ? null : pkg, importsForCU(), true);
         }
     }
-    
+
     private class ClassDelegate implements TypeDefDelegate
     {
         private final List<Modifier> modifiers;

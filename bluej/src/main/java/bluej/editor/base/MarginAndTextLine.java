@@ -60,7 +60,7 @@ public class MarginAndTextLine extends Region
     private final double MARGIN_RIGHT;
 
     private final boolean showLeftMargin;
-    
+
     private final Line dividerLine;
     private final int lineNumberToDisplay;
     private boolean hoveringMargin = false;
@@ -82,7 +82,7 @@ public class MarginAndTextLine extends Region
         {
             this.pseudoClass = pseudoClass;
         }
-        
+
         MarginDisplay()
         {
             this(null);
@@ -102,7 +102,7 @@ public class MarginAndTextLine extends Region
     {
         return showLeftMargin ? 32 : 2;
     }
-    
+
     public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, boolean showLeftMargin, FXPlatformSupplier<Boolean> onClick, FXPlatformFunction<ContextMenuEvent, ContextMenu> getContextMenuToShow, FXPlatformConsumer<ScrollEvent> onScroll)
     {
         this.showLeftMargin = showLeftMargin;
@@ -174,7 +174,7 @@ public class MarginAndTextLine extends Region
             breakpointHoverTooltip.setShowDelay(Duration.seconds(1));
             setMarginGraphics(EnumSet.copyOf(displayItems));
         });
-        
+
         // It would be neater to handle the scroll events in FlowEditorPane.  However
         // there is an issue on Mac because the scroll gesture on the track pad uses
         // the lowest node in the tree as a target, which is this MarginAndTextLine
@@ -307,7 +307,7 @@ public class MarginAndTextLine extends Region
     {
         if (!showLeftMargin)
             return;
-        
+
         this.displayItems.clear();
         this.displayItems.addAll(displayItems);
         EnumSet<MarginDisplay> toShow = EnumSet.copyOf(displayItems);

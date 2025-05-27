@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2019,2020,2021 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -77,7 +77,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
         // Suffix will be abbreviated if we run out of space:
         suffix.setMinWidth(0.0);
         fixedPostSuffix.setMinWidth(0.0);
-        
+
         special.setMaxWidth(9999.0);
         special.setText("Related:");
         JavaFXUtil.addStyleClass(special, "suggestion-similar-heading");
@@ -85,7 +85,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
         hbox = new HBox();
         hbox.getChildren().addAll(this.type, prefix, matching, next, suffix, fixedPostSuffix);
         hbox.setSpacing(0);
-        
+
         // By using a BorderPane, buttonHint will always appear,
         // and hbox will shrink if needed (shrinking suffix)
         pane = new BorderPane();
@@ -172,7 +172,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
         JavaFXUtil.setPseudoclass("bj-suggestion-similar", !direct, pane);
 
         JavaFXUtil.setPseudoclass("bj-suggestion-highlight", highlighted, pane);
-        
+
         prefix.setText(text.substring(0, at));
         int end = Math.min(at + len, text.length());
         matching.setText(text.substring(at, end));

@@ -85,7 +85,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
     // will be swapped out as a whole if it changes.
     private Pos caretPos = new Pos(0, 0, 0);
     private Pos anchorPos = new Pos(0, 0, 0);
-    
+
     // A record holding a location in the terminal window.
     // The line may be negative in some circumstances (see Section, below).
     // In this case, column should be ignored.  If the column is Integer.MAX_VALUE
@@ -98,12 +98,12 @@ public abstract class TerminalTextPane extends BaseEditorPane
             return new TerminalPos(line - linesToSubtract, column);
         }
     } 
-    
+
     // endLine is negative if ongoing.  startLine is negative if the start has scrolled off the top
     // It is possible for them to both be negative if the section is very long and ongoing.
     // All values of the pos are inclusive.  The columns should be ignored if the line is negative.
     record Section(TerminalPos start, TerminalPos end) {}
-    
+
     private final ArrayList<Section> currentSections = new ArrayList<>();
 
     // Get the current end position of the content as a start position
@@ -120,7 +120,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
             return new TerminalPos(content.size() - 1, content.get(content.size() - 1).getText().length());
         }
     }
-    
+
     // Get the current end position of the content as an end position
     // This is different to getCurStart() because if the content ends in a newline
     // (the last content is a blank line), we take the end position as being the end
@@ -145,7 +145,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
             }
         }
     }
-    
+
     public void markNewSection(String sectionTitle)
     {
         if (!currentSections.isEmpty())
@@ -180,8 +180,8 @@ public abstract class TerminalTextPane extends BaseEditorPane
             }
         }
     }    
-    
-    
+
+
     public TerminalTextPane(Stage terminalWindow)
     {
         super(false, new BaseEditorPaneListener()
@@ -262,7 +262,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
                 event.consume();
                 return;
             }
-            
+
             case UP:
             {
                 int destLine = Math.max(0, caretLine - 1);
@@ -329,14 +329,14 @@ public abstract class TerminalTextPane extends BaseEditorPane
                 return;
         }
         // We'll only get here if we actually handled a key above, and didn't hit the default case:
-        
+
         // Move the anchor if they're not holding shift:
         if (!event.isShiftDown())
             anchorPos = new Pos(caretPos.getPosition(), caretPos.getLine(), caretPos.getColumn());
         updateRender(true);
         event.consume();
     }
-    
+
     public abstract void focusPrevious();
     public abstract void focusNext();
 
@@ -692,7 +692,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
             if (charsToConsume > 0 && charsToSkip < segmentLength)
             {
                 // We need to split up this segment.
-                
+
                 // If there's a start bit unaffected, copy that over:
                 if (charsToSkip > 0)
                 {
@@ -707,7 +707,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
                 {
                     result.add(new StyledSegment(segment.getStyleClasses(), segment.getText().substring(charsToSkip + consumable), segment.getCustomData()));
                 }
-                
+
                 // No more to skip:
                 charsToSkip = 0;
             }

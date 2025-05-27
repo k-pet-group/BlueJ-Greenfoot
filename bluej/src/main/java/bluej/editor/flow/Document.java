@@ -81,14 +81,14 @@ public interface Document
      * @return The column number within that position's line (first position in column is 0)
      */
     int getColumnFromPosition(int position);
-    
+
     default int getPosition(SourceLocation sourceLocation)
     {
         int lineStart = getLineStart(sourceLocation.getLine() - 1);
         int lineEnd = getLineEnd(sourceLocation.getLine() - 1);
         return Math.max(lineStart, Math.min(lineEnd, lineStart + sourceLocation.getColumn() - 1));
     }
-    
+
     default SourceLocation makeSourceLocation(int position)
     {
         return new SourceLocation(getLineFromPosition(position) + 1, getColumnFromPosition(position) + 1);
@@ -113,7 +113,7 @@ public interface Document
      * @return The offset within the document of that line's end (the newline which terminates the line, or the end of the document)
      */
     int getLineEnd(int lineNumber);
-    
+
     /**
      * Gets the lines in the document.  Undefined behaviour if the document
      * is modified while references are still held to the return value.
@@ -149,7 +149,7 @@ public interface Document
      * @return The content between those two positions.
      */
     CharSequence getContent(int startCharIncl, int endCharExcl);
-    
+
     /**
      * Gets the number of lines in the document.
      */

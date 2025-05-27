@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2018,2021,2022 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -69,7 +69,7 @@ public class AssignFrame extends SingleLineFrame
         slotLHS.setSimplePromptText("variable");
         assignLabel = new SlotLabel(ASSIGN_SYMBOL);
         setHeaderRow(slotLHS, assignLabel, slotRHS, previewSemi);
-        
+
         slotLHS.addClosingChar('=');
         slotLHS.addClosingChar(' ');
 
@@ -78,7 +78,7 @@ public class AssignFrame extends SingleLineFrame
         slotLHS.setSlotName("assigned variable name");
         slotRHS.setSlotName("assigned value expression");
     }
-    
+
     // For replacement of a method call frame:
     AssignFrame(InteractionManager editor, String lhs, String rhs)
     {
@@ -90,7 +90,7 @@ public class AssignFrame extends SingleLineFrame
             JavaFXUtil.runPlatformLater(() -> slotRHS.requestFocus(Focus.LEFT));
         }
     }
-    
+
     public AssignFrame(InteractionManager editor, FilledExpressionSlotFragment lhs, FilledExpressionSlotFragment rhs, boolean enabled)
     {
         this(editor);
@@ -105,13 +105,13 @@ public class AssignFrame extends SingleLineFrame
         element = new AssignElement(this, slotLHS.getSlotElement(), slotRHS.getSlotElement(), 
                 frameEnabledProperty.get());
     }
-    
+
     @Override
     public AssignElement getCode()
     {
         return element;
     }
-    
+
     public static FrameFactory<AssignFrame> getFactory()
     {
         return new FrameFactory<AssignFrame>() {
@@ -120,7 +120,7 @@ public class AssignFrame extends SingleLineFrame
             {
                 return new AssignFrame(editor);
             }
-                        
+
             @Override 
             public Class<AssignFrame> getBlockClass()
             { 
@@ -152,7 +152,7 @@ public class AssignFrame extends SingleLineFrame
     {
         return slotLHS;
     }
-    
+
     public ExpressionSlot<? extends ExpressionSlotFragment> getRHS()
     {
         return slotRHS;

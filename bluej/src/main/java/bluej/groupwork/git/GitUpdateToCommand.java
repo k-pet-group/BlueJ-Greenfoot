@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2016,2017,2018,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -126,7 +126,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                         }
                     });
                 }
-                
+
                 for (String deleted : e.getDeleted())
                 {
                     Platform.runLater(() -> {
@@ -138,7 +138,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             merge.include(repo.getRepository().resolve("origin/"+repo.getRepository().getBranch())); // merge with remote repository.
             MergeResult mergeResult = merge.call();
             Map<String, int[][]> allConflicts;
-            
+
             switch (mergeResult.getMergeStatus()) {
                 case FAST_FORWARD:
                     // No conflicts; this was a fast-forward.
@@ -175,7 +175,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                 case ALREADY_UP_TO_DATE:
                     // Changes merged and committed as a merge, or nothing changed.
                     break;
-                    
+
                 default:
                     Debug.reportError("Unknown/unhandled Git merge status: " + mergeResult.getMergeStatus());
             }
@@ -209,7 +209,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
         // a merge commit is certainly needed.
         return true;
     }
-    
+
     @Override
     @OnThread(Tag.Any)
     public List<File> getConflicts()

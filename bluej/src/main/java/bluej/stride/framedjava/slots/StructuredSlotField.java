@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2018,2020,2021 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -89,7 +89,7 @@ class StructuredSlotField implements StructuredSlotComponent
         JavaFXUtil.addStyleClass(field, "expression-slot-field");
         if (stringLiteral)
             JavaFXUtil.addStyleClass(field, "expression-string-literal");
-        
+
         FXPlatformRunnable shrinkGrow = () -> {
             boolean suggesting = parent.suggestingFor(StructuredSlotField.this);
             if (field.isFocused() == false && !suggesting)
@@ -102,7 +102,7 @@ class StructuredSlotField implements StructuredSlotComponent
                 JavaFXUtil.setPseudoclass("bj-transparent", false, field);
             }
         };
-        
+
         field.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             @OnThread(value = Tag.FXPlatform, ignoreParent = true)
@@ -120,7 +120,7 @@ class StructuredSlotField implements StructuredSlotComponent
                 }
             }
         });
-        
+
         field.textProperty().addListener(new ChangeListener<String>() {
             @Override
             @OnThread(value = Tag.FXPlatform, ignoreParent = true)            
@@ -148,7 +148,7 @@ class StructuredSlotField implements StructuredSlotComponent
                 }
             }
         });
-        
+
         JavaFXUtil.initializeCustomHelp(parent.getEditor(), field, this::calculateTooltip, true);
 
         // Also run it to determine initial size, but must run later after parent has
@@ -191,7 +191,7 @@ class StructuredSlotField implements StructuredSlotComponent
     {
         return field.localToScene(new Point2D(0, y)).getY();
     }
-    
+
     @Override
     public TextOverlayPosition calculateOverlayPos(CaretPos pos)
     {
@@ -261,12 +261,12 @@ class StructuredSlotField implements StructuredSlotComponent
     {
         return field.getText().equals("");
     }
-    
+
     public void requestFocus()
     {
         field.requestFocus();        
     }
-    
+
     @Override
     public PosAndDist getNearest(double sceneX, double sceneY, boolean allowDescend, boolean anchorInItem)
     {
@@ -283,7 +283,7 @@ class StructuredSlotField implements StructuredSlotComponent
             double dist = Math.hypot(xDist, Math.min(topYDist, bottomYDist));
             nearest = PosAndDist.nearest(nearest, new PosAndDist(pos, dist));
         }
-        
+
         // We also check the extremities of the field for their position.
         // In the case where the text field is blank but has prompt text, the right-hand side
         // of the field can be quite different to the final caret position (which is position 0,
@@ -291,7 +291,7 @@ class StructuredSlotField implements StructuredSlotComponent
         Bounds b = field.localToScene(field.getBoundsInLocal());
         nearest = PosAndDist.nearest(nearest, new PosAndDist(new CaretPos(0, null), Math.hypot(b.getMinX() - sceneX, Math.min(topYDist, bottomYDist))));
         nearest = PosAndDist.nearest(nearest, new PosAndDist(new CaretPos(field.getLength(), null), Math.hypot(b.getMaxX() - sceneX, Math.min(topYDist, bottomYDist))));
-                
+
         return nearest;
     }
 
@@ -301,18 +301,18 @@ class StructuredSlotField implements StructuredSlotComponent
     {
         return new CaretPos(atEnd ? field.getLength() : 0, null);
     }
-    
+
     public String getText()
     {
         return field.getText();
     }
-    
+
     public void setText(String s, StructuredSlot.ModificationToken token)
     {
         token.check();
         field.setText(s);
     }
-    
+
     @Override
     public String getCopyText(CaretPos from, CaretPos to)
     {
@@ -331,7 +331,7 @@ class StructuredSlotField implements StructuredSlotComponent
     {
         return field.getText();
     }
-    
+
     @Override
     public CaretPos getCurrentPos()
     {
@@ -341,12 +341,12 @@ class StructuredSlotField implements StructuredSlotComponent
         }
         return null;
     }
-    
+
     public void setPromptText(String s)
     {
         field.setPromptText(s);        
     }
-    
+
     @Override
     public ObservableList<Region> getComponents()
     {
@@ -380,22 +380,22 @@ class StructuredSlotField implements StructuredSlotComponent
             return "{" + field.getText().substring(0, pos.index) + "$" + field.getText().substring(pos.index) + "}";
         }
     }
-    
+
     @Override
     public boolean isFocused()
     {
         return field.isFocused();
     }
-    
+
     @Override
     public boolean isFieldAndEmpty() {
         return field.getText().isEmpty();
     }
-    
+
     public ObjectProperty<EventHandler<? super KeyEvent>> onKeyPressedProperty() {
         return field.onKeyPressedProperty();
     }
-    
+
     public DoubleExpression heightProperty()
     {
         return field.heightProperty();
@@ -450,7 +450,7 @@ class StructuredSlotField implements StructuredSlotComponent
     {
         JavaFXUtil.setPseudoclass(name, on, field);
     }
-    
+
     @Override
     public void setView(View oldView, View newView, SharedTransition animate)
     {
@@ -468,19 +468,19 @@ class StructuredSlotField implements StructuredSlotComponent
             JavaFXUtil.setPseudoclass("bj-java-preview", newView == Frame.View.JAVA_PREVIEW, field);
         }
     }
-    
+
     @OnThread(Tag.FXPlatform)
     public void cut()
     {
         field.cut();
     }
-    
+
     @OnThread(Tag.FXPlatform)
     public void copy()
     {
         field.copy();
     }
-    
+
     @OnThread(Tag.FXPlatform)
     public void paste()
     {

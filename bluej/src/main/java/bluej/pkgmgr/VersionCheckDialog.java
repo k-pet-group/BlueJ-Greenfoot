@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2014,2016,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -89,7 +89,7 @@ final public class VersionCheckDialog extends Dialog<Void>
         getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         makeDialog();
     }
-    
+
     /**
      * Perform a version check. 
      */
@@ -100,7 +100,7 @@ final public class VersionCheckDialog extends Dialog<Void>
         //versionThread.setPriority(Thread.MIN_PRIORITY);
         versionThread.start();
     }
-    
+
     /**
      * Create the dialog interface.
      */
@@ -113,7 +113,7 @@ final public class VersionCheckDialog extends Dialog<Void>
             helpLabel.setWrapText(true);
             helpLabel.setMaxWidth(400.0);
             mainPanel.getChildren().add(helpLabel);
-            
+
             textArea = new TextArea();
             textArea.setEditable(false);
             textArea.setWrapText(true);
@@ -143,7 +143,7 @@ final public class VersionCheckDialog extends Dialog<Void>
         {
             super("Version Checker");
         }
-        
+
         /**
          * Do a version check. That is: open a URL connection to the remote 
          * version file and read it. Display version info as appropriate.
@@ -154,7 +154,7 @@ final public class VersionCheckDialog extends Dialog<Void>
             try {
                 InputStream is = new URL(versionURL).openStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                
+
                 if(isOutOfDate(reader)) {
                     if(!isClosed)
                         displayNewVersionInfo(reader);

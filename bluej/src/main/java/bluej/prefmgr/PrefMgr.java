@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024,2025  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -82,10 +82,10 @@ public class PrefMgr
     public static final String PRINT_FONT_SIZE = "bluej.print.fontSize";
     public static final String AUTO_OPEN_LAST_PROJECTS = "bluej.autoOpenLastProject";
     public static final String NEW_CLASS_FULL_CONTENT = "bluej.new.class.content.full";
-    
+
     public static final String GREENFOOT_SOUND_INPUT_DEVICE = "greenfoot.sound.device.input";
     public static final String GREENFOOT_SOUND_OUTPUT_DEVICE = "greenfoot.sound.device.output";
-    
+
     public static final int MIN_EDITOR_FONT_SIZE = 6;
     public static final int MAX_EDITOR_FONT_SIZE = 160;
     public static final int DEFAULT_STRIDE_FONT_SIZE = 11;
@@ -118,14 +118,14 @@ public class PrefMgr
     // initialised by a call to setEditorTextFileExtensions()
     @OnThread(Tag.FX)
     private static String editorTextFileExtensions = DEFAULT_TEXTFILE_EXTENSIONS;
-    
+
     /** transparency of the scope highlighting */
     @OnThread(Tag.FXPlatform)
     private static final IntegerProperty highlightStrength = new SimpleIntegerProperty(0);
-    
+
     // last value of naviviewExpanded
     private static boolean isNaviviewExpanded=true;
-    
+
     // the current project directory
     @OnThread(Tag.Any)
     private static String projectDirectory;
@@ -133,7 +133,7 @@ public class PrefMgr
     // list of recently used projects
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private static List<String> recentProjects;
-    
+
     // flags are all boolean preferences
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private static HashMap<String,String> flags = new HashMap<String,String>();
@@ -163,7 +163,7 @@ public class PrefMgr
      */
     private PrefMgr()
     {
-        
+
     }
 
     @OnThread(Tag.Any)
@@ -175,7 +175,7 @@ public class PrefMgr
         else
             return new File(System.getProperty("user.home"));
     }
-    
+
     // ----- system interface to read or set prefences: -----
 
     @OnThread(Tag.Any)
@@ -200,12 +200,12 @@ public class PrefMgr
         String projectName = projectDir.getAbsolutePath();
 
         recentProjects.remove(projectName);
-        
+
         if(recentProjects.size() == NUM_RECENT_PROJECTS)
             recentProjects.remove(NUM_RECENT_PROJECTS-1);
-        
+
         recentProjects.add(0, projectName);
-        
+
         for(int i = 0; i < recentProjects.size(); i++) {
             Config.putPropString("bluej.recentProject" + i, recentProjects.get(i));
         }
@@ -264,7 +264,7 @@ public class PrefMgr
     private static List<String> readRecentProjects()
     {
         List<String> projects = new ArrayList<String>(NUM_RECENT_PROJECTS);
-        
+
         for(int i = 0; i < NUM_RECENT_PROJECTS; i++) {
             String projectName = Config.getPropString("bluej.recentProject" + i, "");
             if(projectName.length() > 0)
@@ -284,7 +284,7 @@ public class PrefMgr
             initEditorFontSize(size);
         }
     }
-    
+
     /**
      * Set up the editor font size, without informing various dependent components
      * of a size change.
@@ -306,7 +306,7 @@ public class PrefMgr
             editorStandardFont.set(font);
         }
     }
-    
+
     /**
      * Return the editor font size as an integer size
      * (use getStandardEditorFont() if access to the actual font is required)
@@ -360,7 +360,7 @@ public class PrefMgr
     {
         return highlightStrength;
     }
-    
+
     /**
      * Sets the highlight strength in the configs
      * @param strength representing light<->dark
@@ -379,7 +379,7 @@ public class PrefMgr
     {   
         return isNaviviewExpanded;            
     }
-    
+
     /**
      * Sets the value of the naviview to expanded/collapsed 
      * to the local variable and to the configs
@@ -390,7 +390,7 @@ public class PrefMgr
         isNaviviewExpanded=expanded;
         Config.putPropString(NAVIVIEW_EXPANDED, String.valueOf(expanded));
     }
-    
+
     @OnThread(Tag.FX)
     public static IntegerProperty strideFontSizeProperty()
     {
@@ -400,15 +400,15 @@ public class PrefMgr
             int sizeFromConfig = Config.getPropInteger(fontSizePropName,DEFAULT_STRIDE_FONT_SIZE);
             int clampedSize = Math.max(MIN_EDITOR_FONT_SIZE, Math.min(MAX_EDITOR_FONT_SIZE, sizeFromConfig));
             strideFontSize = new SimpleIntegerProperty(clampedSize);
-            
+
             strideFontSize.addListener((a, b, newVal) -> {
                 Config.putPropInteger(fontSizePropName, newVal.intValue());
             });
         }
-        
+
         return strideFontSize;
     }
-    
+
     /**
      * Get the property holding the player name, used for Greenfoot (set to determine what UserInfo
      * "current user" name will return).
@@ -432,10 +432,10 @@ public class PrefMgr
 
         // preferences other than fonts:
         highlightStrength.set(Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20));
-        
+
         projectDirectory = Config.getPropString("bluej.projectPath", System.getProperty("user.home"));
         recentProjects = readRecentProjects();
-        
+
         flags.put(HIGHLIGHTING, Config.getPropString(HIGHLIGHTING, "true"));
         flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
         flags.put(CLOSE_CURLY, Config.getPropString(CLOSE_CURLY, "true"));

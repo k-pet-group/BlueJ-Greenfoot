@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2012,2013,2016,2019,2021,2023  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -179,7 +179,7 @@ public class ExtensionsManager
             else
                 continue;
         }
-        
+
         // The last extension may have added a preference panel, but due to the way that is
         // implemented the panel won't be visible as the extension wasn't in the list of
         // valid extensions at that stage.
@@ -200,7 +200,7 @@ public class ExtensionsManager
                 if (aClassName == null) {
                     continue;
                 }
-    
+
                 // Found it, this wrapper is already loaded...
                 if (thisClassName.equals(aClassName)) {
                     Debug.message("Extension is already loaded: " + thisClassName + " jarName=" + thisJarName);
@@ -297,12 +297,12 @@ public class ExtensionsManager
             // right extensions
             for (Iterator<ExtensionWrapper> iter = extensions.iterator(); iter.hasNext();) {
                 ExtensionWrapper aWrapper = iter.next();
-    
+
                 // If the extension did not got loaded with this project skip it...
                 if (thisProject != aWrapper.getProject()) {
                     continue;
                 }
-    
+
                 // The following terminated the Extension
                 aWrapper.terminate();
                 iter.remove();
@@ -354,11 +354,11 @@ public class ExtensionsManager
                 if (!aWrapper.isValid()) {
                     continue;
                 }
-    
+
                 if (skipThisMenu(onThisProject, aWrapper.getProject())) {
                     continue;
                 }
-    
+
                 List<MenuItem> items = aWrapper.safeGetMenuItems(attachedObject);
                 if (items == null || items.isEmpty()) {
                     continue;
@@ -408,7 +408,7 @@ public class ExtensionsManager
             return;
         }
     }
-    
+
     /**
      * Gets the loaded extensions, for data collection purposes.
      * 
@@ -418,7 +418,7 @@ public class ExtensionsManager
     public List<ExtensionWrapper> getLoadedExtensions(Project proj)
     {
         ArrayList<ExtensionWrapper> r = new ArrayList<ExtensionWrapper>();
-        
+
         for (ExtensionWrapper ext : extensions)
         {
             if (ext.getProject() == proj)
@@ -426,7 +426,7 @@ public class ExtensionsManager
                 r.add(ext);
             }
         }
-        
+
         return r;
     }
 
@@ -444,7 +444,7 @@ public class ExtensionsManager
         {
             if (skipThisMenu(onThisProject, extension.getProject()))
                 continue;
-            
+
             for(ExternalFileLauncher extFileLauncher : extension.safeGetExternalFileLaunchers())
             {
                 // We use the dot prefix in the file extension mapping.

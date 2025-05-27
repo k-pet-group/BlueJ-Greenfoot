@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2020,2021,2022 Michael Kölling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -99,7 +99,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
             subMenu.textProperty().bind(subMenuName.getLabel());
             r.add(new SortedMenuItem(subMenu, subMenuName.getOrder()));
         });
-        
+
         List<AbstractOperation<ITEM>> opsAtRightLevel = ops.stream().filter(op -> op.getLabels().size() == depth + 1).collect(Collectors.toList());
 
         Map<AbstractOperation<ITEM>, SortedMenuItem> opsAtRightLevelItems = new IdentityHashMap<>();
@@ -110,7 +110,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
             r.add(item);
             opsAtRightLevelItems.put(op, item);
         }
-        
+
         return new MenuItems(FXCollections.observableArrayList(r)) {
 
             @Override
@@ -136,7 +136,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
                         op.onMenuHidden((CustomMenuItem) item);
                 });
             }
-            
+
         };
     }
 
@@ -196,7 +196,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
                 item = customItem;
             }
         }
-        
+
         if (item == null)
         {
             item = initializeNormalItem();
@@ -238,7 +238,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         @OnThread(Tag.FXPlatform)
         public void disablePreview();
     }
-    
+
     /**
      * If a preview display is available, returns an instance of the Preview interface
      * that can be used to enable/disable the preview.  If no preview is available,
@@ -290,7 +290,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         INSERT_FRAME(60),
         TRANSFORM(70), TOGGLE_BOOLEAN(70), TOGGLE_ABSTRACT(70), TOGGLE_EXTENDS(70), TOGGLE_IMPLEMENTS(70), OVERRIDE(70),
         GOTO_DEFINITION(80), GOTO_OVERRIDE(80), SHOW_HIDE_USES(80),
-        
+
         TEST_ALL(100),
         RUN_FX(100),
         RUN_CONSTRUCTOR(103),
@@ -308,8 +308,8 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         FIXTURE_TO_BENCH(130),
         NEW_SUBCLASS(140),
         CREATE_TEST(140),
-        
-        
+
+
         CODEPAD_COPY (200),
         CODEPAD_INSPECT(210),
         CODEPAD_ADD_TO_BENCH(210),
@@ -334,13 +334,13 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
             return block;
         }
     }
-    
+
     protected final String identifier;
     protected final Combine combine;
     protected boolean enabled = true;
     @OnThread(Tag.FX)
     private boolean wideCustomItem = false;
-    
+
     public AbstractOperation(String identifier, Combine combine, KeyCombination shortcut)
     {
         this.identifier = identifier;
@@ -400,7 +400,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
      * .. and so on, but you surely don't want more than two levels!
      */
     public abstract List<ItemLabel> getLabels();
-    
+
     // Helper function:
     @OnThread(Tag.FX)
     protected ItemLabel l(String s, MenuItemOrder order)
@@ -414,7 +414,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
                 }
                 return getValue().equals(((ObservableValue) obj).getValue());
             }
-            
+
             @Override
             public int hashCode()
             {
@@ -433,7 +433,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         // If a preview is not available then we don't need a custom menu item:
         if (getPreview() == null)
             return null;
-        
+
         Label d = new Label();
         d.textProperty().bind(getLabels().get(getLabels().size() - 1).label);
         if (!wideCustomItem)
@@ -557,7 +557,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
     public static class MenuItems
     {
         protected final ObservableList<SortedMenuItem> items;
-        
+
         public MenuItems(ObservableList<SortedMenuItem> items) { this.items = items; }
 
         @OnThread(Tag.FXPlatform)
@@ -565,7 +565,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
 
         @OnThread(Tag.FXPlatform)
         public void onHidden() {}
-        
+
         public static MenuItems concat(MenuItems... src)
         {
             List<MenuItems> nonNull = Arrays.stream(src).filter(m -> m != null).collect(Collectors.toList());
@@ -578,7 +578,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
                 public void onHidden() {nonNull.forEach(MenuItems::onHidden);}
             };
         }
-        
+
         public Menu makeSubMenu()
         {
             Menu menu = new Menu();
@@ -592,12 +592,12 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         {
             return makeContextMenu(List.of(this));
         }
-        
+
         public static <T extends Comparable<T>> ContextMenu makeContextMenu(Map<T, MenuItems> allItems)
         {
             return makeContextMenu(allItems.entrySet().stream().sorted((a, b) -> a.getKey().compareTo(b.getKey())).map(e -> e.getValue()).collect(Collectors.toList()));
         }
-        
+
         private static ContextMenu makeContextMenu(List<MenuItems> allItems)
         {
             ContextMenu menu = new ContextMenu();
@@ -605,7 +605,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
             ObservableList<SortedMenuItem> sorted = FXCollections.observableArrayList();
             ConcatListBinding.bind(sorted, FXCollections.observableArrayList(Utility.mapList(allItems, MenuItems::getItems)));
             JavaFXUtil.bindList(menu.getItems(), SortedMenuItem.sortAndAddDividers(sorted, Collections.emptyList()));
-            
+
             menu.onShowingProperty().set(e -> allItems.forEach(MenuItems::onShowing));
             menu.onHiddenProperty().set(e -> allItems.forEach(MenuItems::onHidden));
 

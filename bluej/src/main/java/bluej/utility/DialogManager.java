@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2010,2012,2014,2016,2017,2018  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -243,7 +243,7 @@ public class DialogManager
             {
                 buttons.add(new ButtonType(messageAndButtons.getOptions().get(i), i == messageAndButtons.getOptions().size() - 1 ? ButtonBar.ButtonData.NO : ButtonBar.ButtonData.YES));
             }
-            
+
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, messageAndButtons.getMessage(), buttons.toArray(new ButtonType[0]));
             alert.setHeaderText("");
             alert.initOwner(parent);
@@ -339,7 +339,7 @@ public class DialogManager
             alert.setHeaderText("");
             alert.setTitle(Config.getApplicationName() + ":  " +
                     Config.getString("dialogmgr.question"));
-            
+
             return alert.showAndWait().map(buttons::indexOf).orElse(buttons.size() - 1);
         }
         return 0;
@@ -416,7 +416,7 @@ public class DialogManager
     public static String getMessage(String msgID, String... subs)
     {
         String message = null;
-        
+
         if (Config.isGreenfoot()) {
             File filename = Config.getLanguageFile(GREENFOOT_DLG_FILE_NAME);
             message = BlueJFileReader.readHelpText(filename, msgID, true);
@@ -426,12 +426,12 @@ public class DialogManager
                 message = BlueJFileReader.readHelpText(filename, msgID, true);
             }
         }
-        
+
         if (message == null) {
             File filename = Config.getLanguageFile(DLG_FILE_NAME);
             message = BlueJFileReader.readHelpText(filename, msgID, true);
         }
-        
+
         // check that message has been found, some messages may be missing
         // in non-default language resource files.  If not found and not using
         // English, then use the default English message
@@ -449,7 +449,7 @@ public class DialogManager
             // Replace single ':' with a blank line; this allows messages to include blank lines:
             message = message.replace("\n:\n", "\n\n");
             message = message.replace("\r\n:\r\n", "\r\n\r\n");
-            
+
             for (String sub : subs) {
                 message = message.replace("$", sub);
             }
@@ -493,7 +493,7 @@ public class DialogManager
                 this.options = null;
                 return;
             }
-            
+
             int button3Index = message.lastIndexOf("\n");
             int button2Index = message.lastIndexOf("\n", button3Index-1);
             int button1Index = message.lastIndexOf("\n", button2Index-1);

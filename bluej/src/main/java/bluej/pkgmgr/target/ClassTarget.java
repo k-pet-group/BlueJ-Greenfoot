@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -473,7 +473,7 @@ public class ClassTarget extends DependentTarget
             String qualifiedName = getQualifiedName();
             Project proj = getPackage().getProject();
             proj.removeInspectorInstance(qualifiedName);
-            
+
             super.setState(newState);
 
             // Notify extensions if necessary.
@@ -499,7 +499,7 @@ public class ClassTarget extends DependentTarget
     {
         // The results of compilation will be invalid if the editor contents have not been saved:
         compilationInvalid = (editor != null) ? editor.isModified() : false; 
-        
+
         if (getState() == State.HAS_ERROR)
         {
             setState(State.NEEDS_COMPILE);
@@ -704,7 +704,7 @@ public class ClassTarget extends DependentTarget
     {
         if (cl != null) {
             isAbstract = Modifier.isAbstract(cl.getModifiers());
-            
+
             ClassLoader clLoader = cl.getClassLoader();
             Class<?> junitClass = null;
             // It shouldn't ever be the case that the class is on the bootstrap
@@ -719,7 +719,7 @@ public class ClassTarget extends DependentTarget
                 catch (ClassNotFoundException cnfe) { Debug.reportError(cnfe); }
                 catch (LinkageError le) { Debug.reportError(le); }
             }
-            
+
             if (junitClass == null) {
                 junitClass = junit.framework.TestCase.class;
             }
@@ -752,7 +752,7 @@ public class ClassTarget extends DependentTarget
         }
         else {
             isAbstract = false;
-            
+
             // try the parsed source code
             ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
 
@@ -830,7 +830,7 @@ public class ClassTarget extends DependentTarget
             setNaviviewExpanded(Boolean.parseBoolean(value));
             setProperty(NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(value));
         }
-        
+
         typeParameters = "";
         // parameters will be corrected when class is analysed
 
@@ -884,7 +884,7 @@ public class ClassTarget extends DependentTarget
         {
             props.put(prefix + ".naviview.expanded", String.valueOf(isNaviviewExpanded()));
         }
-        
+
         props.put(prefix + ".showInterface", Boolean.valueOf(intf).toString());
 
         List<Integer> breakpoints;
@@ -900,7 +900,7 @@ public class ClassTarget extends DependentTarget
         {
             props.put(prefix + ".breakpoint." + i, breakpoints.get(i).toString());
         }
-        
+
         getRole().save(props, 0, prefix);
     }
 
@@ -920,7 +920,7 @@ public class ClassTarget extends DependentTarget
             }
         }
     }
-    
+
     /**
      * Check if the compiled class and the source are up to date.
      * (Specifically, check if recompilation is not needed. This will
@@ -994,7 +994,7 @@ public class ClassTarget extends DependentTarget
     {
         // Mark any current compilation as stale:
         compilationInvalid = true;
-        
+
         if (hasSourceCode())
         {
             setState(State.NEEDS_COMPILE);
@@ -1004,13 +1004,13 @@ public class ClassTarget extends DependentTarget
                 JavaFXUtil.runAfterCurrent(() -> editor.removeErrorHighlights());
             }
         }
-        
+
         alreadyInvalidated.add(this);
-        
+
         for (DependentTarget d : dependents())
         {
             ClassTarget dependent = (ClassTarget) d;
-            
+
             if (dependent.hasSourceCode() && !alreadyInvalidated.contains(dependent))
             {
                 // Invalidate the dependent only if it is not already invalidated. 
@@ -1039,7 +1039,7 @@ public class ClassTarget extends DependentTarget
     {
         return (getRole() instanceof UnitTestClassRole);
     }
-    
+
     /**
      * Verify whether this class target represents an Enum
      * 
@@ -1073,7 +1073,7 @@ public class ClassTarget extends DependentTarget
     {
         return sourceAvailable != SourceType.NONE;
     }
-    
+
     public SourceType getSourceType()
     {
         return sourceAvailable;
@@ -1093,7 +1093,7 @@ public class ClassTarget extends DependentTarget
             return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Java.toString().toLowerCase());
         }
     }
-    
+
     /**
      * @return the name of the Stride file this target corresponds to. This is only valid for Stride targets.
      */
@@ -1108,7 +1108,7 @@ public class ClassTarget extends DependentTarget
             return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Stride.toString().toLowerCase());
         }
     }
-    
+
     @SuppressWarnings("incomplete-switch")
     @Override
     public File getSourceFile()
@@ -1138,13 +1138,13 @@ public class ClassTarget extends DependentTarget
                 editor.compileFinished(successful, false);
             return;
         }
-        
+
         if (successful && compileType.keepClasses())
         {
             // If the src file has last-modified date in the future, fix the date.
             // this will remove "uncompiled" stripes on the class
             fixSourceModificationDate();
-            
+
             // Empty class files should not be marked compiled,
             // even though compilation is "successful".
             boolean newCompiledState = upToDate();
@@ -1163,7 +1163,7 @@ public class ClassTarget extends DependentTarget
                 editor.setCompiled(true);
             }
         }
-        
+
         // Note: we assume that errors have already been marked, so there's no need to mark
         // an error state now for an unsuccessful compilation.
     }
@@ -1222,7 +1222,7 @@ public class ClassTarget extends DependentTarget
         String docFilename = getPackage().getProject().getDocumentationFile(filename);
         return new File(docFilename);
     }
-    
+
     /**
      * Get a list of .class files for inner classes.
      */
@@ -1332,7 +1332,7 @@ public class ClassTarget extends DependentTarget
                 Package pkg = getPackage();
                 editor = new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, openCallback);
             }
-            
+
             // editor may be null if source has been deleted
             // for example.
             if (editor != null) {
@@ -1420,7 +1420,7 @@ public class ClassTarget extends DependentTarget
     public void modificationEvent(Editor editor)
     {
         invalidate();
-                
+
         removeBreakpoints();
         if (getPackage().getProject().getDebugger() != null)
         {
@@ -1453,14 +1453,14 @@ public class ClassTarget extends DependentTarget
             {
                 DataCollector.debuggerBreakpointToggle(getPackage(), getSourceFile(), lineNo, set);
             }
-            
+
             return nowSet;
         }
         else {
             return false;
         }
     }
-    
+
     @Override
     public void clearAllBreakpoints()
     {
@@ -1480,7 +1480,7 @@ public class ClassTarget extends DependentTarget
             editor.removeBreakpoints();
         }
     }
-    
+
     /**
      * Re-initialize the breakpoints which have been set in this
      * class.
@@ -1504,7 +1504,7 @@ public class ClassTarget extends DependentTarget
             }
         }
     }
-    
+
     /**
      * Remove the step mark in this case
      * (the mark in the editor that shows where execution is)
@@ -1626,7 +1626,7 @@ public class ClassTarget extends DependentTarget
         String semiReplacement = null;
         String nameReplacement = null;
         String pkgStatementReplacement = null;
-        
+
         // Figure out if we need to change anything, and if so, what:
         if (packageName.length() == 0) {
             if (info.hasPackageStatement()) {
@@ -1666,7 +1666,7 @@ public class ClassTarget extends DependentTarget
             Selection selSemi = info.getPackageSemiSelection();
             replaceSelection(src, selSemi, semiReplacement);
         }
-        
+
         if (nameReplacement != null) {
             Selection selName = info.getPackageNameSelection();
             replaceSelection(src, selName, nameReplacement);
@@ -1680,7 +1680,7 @@ public class ClassTarget extends DependentTarget
         // save changes back to disk
         Files.write(getSourceFile().toPath(), src, projectCharset);
     }
-    
+
     public static void replaceSelection(List<String> src, Selection toReplace, String replaceWith)
     {
         if (toReplace.getLine() == toReplace.getEndLine())
@@ -1695,7 +1695,7 @@ public class ClassTarget extends DependentTarget
                 src.remove(toReplace.getLine());
         }
     }
-        
+
 
     /**
      * Analyse the source code, and save retrieved information.
@@ -1733,7 +1733,7 @@ public class ClassTarget extends DependentTarget
         analysing = false;
         return info;
     }
-    
+
     /**
      * Change file name and package to match that found in the source file.
      * @param info  The information from source analysis
@@ -1765,7 +1765,7 @@ public class ClassTarget extends DependentTarget
         if (info.hasTypeParameter()) {
             Iterator<String> i = info.getTypeParameterTexts().iterator();
             newTypeParameters = "<" + i.next();
-           
+
             while (i.hasNext()) {
                 newTypeParameters += "," + i.next();
             }
@@ -1821,7 +1821,7 @@ public class ClassTarget extends DependentTarget
 
         String pkgPrefix = getPackage().getQualifiedName();
         pkgPrefix = (pkgPrefix.length() == 0) ? pkgPrefix : pkgPrefix + ".";
-        
+
         // handle superclass dependency
         if (info.getSuperclass() != null) {
             setSuperClass(info.getSuperclass());
@@ -1878,7 +1878,7 @@ public class ClassTarget extends DependentTarget
             }
         }
     }
-    
+
     /**
      * Analyse the type parameters from the compiled class and update the display name.
      */
@@ -1903,13 +1903,13 @@ public class ClassTarget extends DependentTarget
                 }
                 typeParameters += ">";
             }
-            
+
             if (! typeParameters.equals(oldTypeParams)) {
                 updateDisplayName();
             }
         }
     }
-    
+
     /**
      * Set the superclass. This adds an extends dependency to the appropriate class.
      * The old extends dependency (if any) must be removed separately.
@@ -1924,7 +1924,7 @@ public class ClassTarget extends DependentTarget
             // not the default package:
             int prefixLen = pkgPrefix.length();
             prefixLen = prefixLen == 0 ? 0 : prefixLen + 1;
-            
+
             superName = superName.substring(prefixLen);
             DependentTarget superclass = getPackage().getDependentTarget(superName);
             if (superclass != null) {
@@ -1935,7 +1935,7 @@ public class ClassTarget extends DependentTarget
             }
         }
     }
-    
+
     /**
      * Add an interface. This adds an implements dependency to the appropriate interface.
      */
@@ -1957,7 +1957,7 @@ public class ClassTarget extends DependentTarget
             }
         }
     }
-    
+
     /**
      * Notification that the class represented by this class target has changed name.
      */
@@ -2002,7 +2002,7 @@ public class ClassTarget extends DependentTarget
             {
                 innerClassFile.delete();
             }
-            
+
             getContextFile().delete();
             getDocumentationFile().delete();
 
@@ -2012,7 +2012,7 @@ public class ClassTarget extends DependentTarget
             String oldName = getIdentifierName();
             setIdentifierName(newName);
             updateDisplayName();
-            
+
             // Update the BClass object
             BClass bClass = getBClass();
             ExtensionBridge.ChangeBClassName(bClass, getQualifiedName());
@@ -2047,7 +2047,7 @@ public class ClassTarget extends DependentTarget
         setDisplayName(newDisplayName);
         updateAccessibleName();
     }
-    
+
     /**
      * Delete all the source files (edited and generated) for this target.
      */
@@ -2162,7 +2162,7 @@ public class ClassTarget extends DependentTarget
         // check that the class loading hasn't changed out state
         if (getState() != State.COMPILED)
             cl = null;
-        
+
         ArrayList<AbstractOperation<Target>> ops = new ArrayList<>();
 
         // call on role object to add any options needed at top
@@ -2294,7 +2294,7 @@ public class ClassTarget extends DependentTarget
         if(assoc != null)
             assoc.setSize(w, h);
     }
-    
+
     public void setVisible(boolean vis)
     {
         if (vis != this.visible) {
@@ -2427,7 +2427,7 @@ public class ClassTarget extends DependentTarget
         // Inform all listeners about the class removed
         ClassEvent event = new ClassEvent(getPackage(), getBClass());
         ExtensionsManager.getInstance().delegateEvent(event);
-        
+
         // We must remove after the above, because it might involve saving, 
         // and thus recording edits to the file
         DataCollector.removeClass(pkg, frameSourceFile, javaSourceFile);
@@ -2524,7 +2524,7 @@ public class ClassTarget extends DependentTarget
     {
         getPackage().callStaticMethodOrConstructor(mv);
     }
-    
+
     /**
      * interactive constructor call
      */
@@ -2533,7 +2533,7 @@ public class ClassTarget extends DependentTarget
     {
         getPackage().callStaticMethodOrConstructor(cv);
     }
-    
+
     /**
      * Method to check state of debug VM (currently running may cause problems)
      * and then give options accordingly. 
@@ -2581,7 +2581,7 @@ public class ClassTarget extends DependentTarget
     {
         properties.put(key, value);
     }
-    
+
     @Override
     public void recordJavaEdit(String latest, boolean includeOneLineEdits)
     {
@@ -2647,17 +2647,17 @@ public class ClassTarget extends DependentTarget
         {
             return false;
         }
-        
+
         Editor ed = getEditor();
         if (ed == null)
         {
             return false;
         }
-        
+
         setState(State.HAS_ERROR);
         return ed.displayDiagnostic(diagnostic, errorIndex, compileType);
     }
-    
+
     /**
      * Check whether there was a compilation error for this target, last time
      * compilation was attempted.

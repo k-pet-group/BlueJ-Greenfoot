@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2013,2016,2017,2018,2020,2021,2023  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -379,7 +379,7 @@ public abstract class Target
             {
                 pkg.getEditor().selectOnly(Target.this);
             }
-            
+
             AbstractOperation.MenuItems menuItems = AbstractOperation.getMenuItems(pkg.getEditor().getSelection(), true);
             ContextMenu contextMenu = AbstractOperation.MenuItems.makeContextMenu(Map.of("", menuItems));
             if (pkg.getEditor().getSelection().size() == 1 && pkg.getEditor().getSelection().get(0) instanceof ClassTarget)
@@ -449,7 +449,7 @@ public abstract class Target
             // e.g. GRID_SIZE=10, width = 17, snap to 40 (17 + 20 -> next snap).
             return ((width + 20 + (PackageEditor.GRID_SIZE - 1)) / PackageEditor.GRID_SIZE) * PackageEditor.GRID_SIZE;
     }
-    
+
     /**
      * This target has been removed from its package.
      */
@@ -472,7 +472,7 @@ public abstract class Target
         int ypos = 0;
         int width = 20; // arbitrary fallback values
         int height = 10;
-        
+
         // Try to get the positional properties in a robust manner.
         try {
             xpos = Math.max(Integer.parseInt(props.getProperty(prefix + ".x")), 0);

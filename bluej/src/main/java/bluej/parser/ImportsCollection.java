@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2013,2014,2017  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -70,7 +70,7 @@ public class ImportsCollection
             return end - start;
         }
     }
-    
+
     /** non-wildcard non-static type imports. the entities should resolve to types. */
     private Map<String, LocatableImport> normalImports;
     /** non-static wildcard imports. The entities should resolve to PackageOrClass */
@@ -80,7 +80,7 @@ public class ImportsCollection
     private Map<String,List<LocatableImport>> staticImports; // The String gives
                                 // the name of the imported static member(s) from the given
                                 // class(es).
-    
+
     public ImportsCollection()
     {
         normalImports = new HashMap<>();
@@ -88,7 +88,7 @@ public class ImportsCollection
         staticWildcardImports = new ArrayList<>(); 
         staticImports = new HashMap<>();
     }
-    
+
     /**
      * Remove all imports from the collection.
      */
@@ -97,7 +97,7 @@ public class ImportsCollection
         normalImports.clear();
         wildcardImports.clear();
     }
-    
+
     /**
      * Add a (non-wildcard) import to the collection.
      * @param name          The short name of the import
@@ -129,7 +129,7 @@ public class ImportsCollection
     {
         wildcardImports.add(getLocatableImport(importEntity, firstToken, lastToken));
     }
-    
+
     /**
      * Add a static (non-wildcard) import to the collection.
      * @param name           The name of the imported member(s)
@@ -145,7 +145,7 @@ public class ImportsCollection
         }
         l.add(getLocatableImport(importEntity, firstToken, lastToken));
     }
-    
+
     /**
      * Add a static wildcard import to the collection.
      * @param importEntity  The class from which members are imported
@@ -177,7 +177,7 @@ public class ImportsCollection
         }
         return null;
     }
-    
+
     /**
      * Try to find an imported type. Does not check wildcard imports (see 
      * getTypeImportWC). Returns null if no imported type with the given
@@ -192,7 +192,7 @@ public class ImportsCollection
         LocatableImport r = normalImports.get(name);
         if (r != null)
             return r.javaEntity.resolveAsType();
-        
+
         // There might be a suitable static import
         List<LocatableImport> l = staticImports.get(name);
         if (l != null) {
@@ -210,10 +210,10 @@ public class ImportsCollection
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Retrieve all the static import classes for a given import name. The
      * returned list must not be modified.
@@ -228,7 +228,7 @@ public class ImportsCollection
         }
         return Utility.mapList(l, li -> li.javaEntity);
     }
-    
+
     /**
      * Retrieve a list of all the static wildcard imports.
      * @return  A List of TypeEntity
@@ -237,7 +237,7 @@ public class ImportsCollection
     {
         return Utility.mapList(staticWildcardImports, li -> li.javaEntity);
     }
-    
+
     /**
      * Try to find a type accessible via a wildcard import.
      * Return null if no such type can be found.
@@ -267,7 +267,7 @@ public class ImportsCollection
                 return clMember;
             }
         }
-        
+
         // Now try static wildcard imports
         for (LocatableImport staticWildcardImport : staticWildcardImports)
         {
@@ -298,10 +298,10 @@ public class ImportsCollection
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     /*
      * Convert the imports collection to a series of java "import" statements.
      * @see java.lang.Object#toString()
@@ -310,7 +310,7 @@ public class ImportsCollection
     public String toString()
     {
         String rr = "";
-        
+
         // First process the normal (non-wildcard non-static) imports
         for (LocatableImport locatableImport : normalImports.values())
         {
@@ -321,7 +321,7 @@ public class ImportsCollection
             rr += "import ";
             rr += importEntity.getName() + ";" + Config.nl;
         }
-        
+
         // Now do the (non-static) wildcard imports
         for (LocatableImport wildcardImport : wildcardImports)
         {
@@ -329,7 +329,7 @@ public class ImportsCollection
             rr += "import ";
             rr += importEntity.getName() + ".*;" + Config.nl;
         }
-        
+
         // Now the static imports (non-wildcard)
         for (String importName : staticImports.keySet())
         {
@@ -344,7 +344,7 @@ public class ImportsCollection
                 }
             }
         }
-        
+
         // Finally the wildcard static imports
         for (LocatableImport staticWildcardImport : staticWildcardImports)
         {
@@ -352,7 +352,7 @@ public class ImportsCollection
             rr += "import static " + importEntity.getName();
             rr += ".*;" + Config.nl;
         }
-        
+
         return rr;
     }
 }

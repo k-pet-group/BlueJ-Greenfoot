@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2012,2016,2019  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -88,7 +88,7 @@ public class AssertPanel extends HBox
         {
             return fieldsNeeded >= 1;
         }
-        
+
         public boolean needsSecondField()
         {
             return fieldsNeeded >= 2;
@@ -102,7 +102,7 @@ public class AssertPanel extends HBox
             return label;
         }
     }
-    
+
     private final ObservableList<AssertInfo> asserts = FXCollections.observableArrayList(
         new AssertInfo(equalToLabel, "assertEquals", 1, false, true, true),
         new AssertInfo(sameAsLabel, "assertSame", 1, false, true, false),
@@ -111,7 +111,7 @@ public class AssertPanel extends HBox
         new AssertInfo(assertNullLabel, "assertNull", 0, false, true, false),
         new AssertInfo(equalToFloatingPointLabel, "assertEquals", 2, true, false, false)
     );
-    
+
     /**
      * A panel which presents an interface for making a single
      * assertion about a result. 
@@ -122,7 +122,7 @@ public class AssertPanel extends HBox
         this.updateCaller = updateCaller;
 
         boolean isFloat = type.typeIs(JavaType.JT_FLOAT) || type.typeIs(JavaType.JT_DOUBLE);
-        
+
         // a checkbox which enables/disables all the assertion UI
         assertCheckbox = new CheckBox(Config.getString("debugger.assert.assertThatResIs"));
         JavaFXUtil.addStyleClass(assertCheckbox, "assert-checkbox");
@@ -275,7 +275,7 @@ public class AssertPanel extends HBox
     {
         // which type of assertion is selected
         AssertInfo info = assertCombo.getSelectionModel().getSelectedItem();
-        
+
         // for double/float assertEquals() assertions, we need a delta value
         if (info.needsSecondField()) {
             return InvokerRecord.makeAssertionStatement(info.assertMethodName,
@@ -290,7 +290,7 @@ public class AssertPanel extends HBox
             return InvokerRecord.makeAssertionStatement(info.assertMethodName);
         }
     }
-    
+
     public void recordAssertion(Package pkg, FXPlatformSupplier<Optional<Integer>> testIdentifier, int invocationIdentifier)
     {
         AssertInfo info = assertCombo.getSelectionModel().getSelectedItem();
@@ -307,5 +307,5 @@ public class AssertPanel extends HBox
                 param2)
         );
     }
-    
+
 }

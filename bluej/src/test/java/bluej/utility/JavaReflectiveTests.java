@@ -21,13 +21,13 @@ public class JavaReflectiveTests extends TestCase
      */
     @SuppressWarnings("unused")
     private int testIntField;
-    
+
     @Override
     protected void setUp()
     {
         // nothing to do
     }
-    
+
     @Override
     protected void tearDown()
     {
@@ -38,7 +38,7 @@ public class JavaReflectiveTests extends TestCase
     {
         JavaReflective reflective = new JavaReflective(java.util.Arrays.class);
         Map<String, Set<MethodReflective>> methods = reflective.getDeclaredMethods();
-        
+
         Set<MethodReflective> methodRs = methods.get("asList");
         MethodReflective asListR = null;
         for (MethodReflective method : methodRs) {
@@ -50,34 +50,34 @@ public class JavaReflectiveTests extends TestCase
                 }
             }
         }
-        
+
         assertNotNull(asListR);
         JavaType ptype = asListR.getParamTypes().get(0);
         JavaType pctype = ptype.getArrayComponent();
         assertNotNull(pctype);
         assertEquals("java.lang.Object", pctype.getErasedType().toString());
     }
-    
+
     public void testPrimitiveFieldAccess()
     {
         JavaReflective jref = new JavaReflective(JavaReflectiveTests.class);
         Map<String,FieldReflective> fields = jref.getDeclaredFields();
-        
+
         FieldReflective intField = fields.get("testIntField");
         assertNotNull(intField);
         assertTrue(intField.getType().isPrimitive());
         assertEquals("int", intField.getType().toString());
     }
-    
+
     class Inner { }
-    
+
     static class StaticInner { }
-    
+
     public void testNestedClass()
     {
         JavaReflective innerR = new JavaReflective(Inner.class);
         assertEquals(this.getClass().getName(), innerR.getOuterClass().getName());
-        
+
         JavaReflective sinnerR = new JavaReflective(StaticInner.class);
         assertEquals(this.getClass().getName(), sinnerR.getOuterClass().getName());
     }

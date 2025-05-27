@@ -31,12 +31,12 @@ import javafx.beans.property.ReadOnlyBooleanWrapper;
 public class TestableDocument extends JavaSyntaxView implements ReparseableDocument
 {
     boolean parsingSuspended = false;
-    
+
     public TestableDocument(EntityResolver entityResolver)
     {
         super(new HoleDocument(), null, ScopeColors.dummy(), entityResolver, new ReadOnlyBooleanWrapper(true));
     }
-    
+
     public TestableDocument()
     {
         this(null);
@@ -46,7 +46,7 @@ public class TestableDocument extends JavaSyntaxView implements ReparseableDocum
     {
         document.replaceText(pos, pos, content);
     }
-    
+
     public void remove(int start, int length)
     {
         document.replaceText(start, start + length, "");

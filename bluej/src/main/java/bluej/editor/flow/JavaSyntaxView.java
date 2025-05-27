@@ -81,7 +81,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 {
     /** Maximum amount of document to reparse in one hit (advisory) */
     private final static int MAX_PARSE_PIECE = 8000;
-    
+
     /** (NaviView) Paint method inner scope? if false, whole method will be highlighted as a single block */
     private static final boolean PAINT_METHOD_INNER = false;
 
@@ -90,7 +90,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private static final int RIGHT_SCOPE_MARGIN = 4;
     private static final int CURVED_CORNER_SIZE = 4;
     private static final int PARAGRAPH_MARGIN = 0; //24;
-    
+
     // See comments in getImageFor for more info.
     // 1 means draw edge, 2 means draw filling
     @OnThread(Tag.FX)
@@ -181,9 +181,9 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * method)
      */
     private final Map<Integer, List<SingleNestedScope>> pendingScopeBackgrounds = new HashMap<>();
-    
+
     private final Map<Integer, List<StyledSegment>> styledLines = new HashMap<>();
-    
+
     private final LiveScopeBackgrounds scopeBackgrounds; 
 
     /**
@@ -246,7 +246,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             scopeBackgrounds.remove(line);
             sourceInfo.remove(line);
         }
-        
+
         @Override
         @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public void onChanged(Change<? extends ParsedNode, ? extends Integer> change)
@@ -409,7 +409,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 }                
                 scheduleReparseRunner();
             });
-            
+
             scheduleReparseRunner();
         }
     }
@@ -502,12 +502,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         return new CharSequence()
         {
             // Speed up sequential access with a cache:
-            
+
             // Which segment was the last character in?
             int lastSegmentIndex = 0;
             // What is the start of that segment relative to the start of the whole content?
             int lastSegmentStart = 0;
-            
+
             @Override
             public int length()
             {
@@ -559,7 +559,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         // display is null during testing or when used from Stride -- just skip updating the scopes in that case:
         if (display == null)
             return;
-        
+
         recalcScopeMarkers((int) display.getTextDisplayWidth(),
                 //(widthProperty == null || widthProperty.get() == 0) ? 200 :
                         //((int)widthProperty.get() - PARAGRAPH_MARGIN),
@@ -610,12 +610,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         {
             return document.getLineStart(lineIndex);
         }
-        
+
         public int getEndOffset()
         {
             return lineIndex == document.getLineCount() - 1 ? document.getLength() : document.getLineStart(lineIndex + 1);
         }
-        
+
         public CharSequence getText()
         {
             if (cachedContent == null)
@@ -649,7 +649,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         int aboveLine = firstLine - 1;
         List<NodeAndPosition<ParsedNode>> prevScopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
         int curLine = firstLine;
-        
+
         ThreeLines lines = new ThreeLines();
 
         lines.aboveLineEl = null;
@@ -679,7 +679,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             {
                 pendingScopeBackgrounds.put(curLine, scope.scopes);
             }
-            
+
             // Next line
             curLine++;
             if (curLine <= lastLine) {
@@ -735,7 +735,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         boolean ends;    // the node ends on the current line
         Color color1;    // Edge colour
         Color color2;    // Fill colour
-        
+
         boolean someMissing = false;
 
         // Note -- list will be held by reference and will be added to.
@@ -848,7 +848,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 li.previous(); li.next();  // so remove works
                 napPos = nextNap.getPosition();
                 napEnd = napPos + nextNap.getSize();
-                
+
                 if (napPos < lines.thisLineEl.getEndOffset() && ! nodeSkipsStart(nextNap, lines.thisLineEl)) {
                     if (drawNode(drawInfo, nextNap)) {
                         // Draw it
@@ -872,7 +872,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                         }
                     }
                 }
-                
+
                 nap = nextNap;
                 nextNap = nextNap.getNode().findNodeAtOrAfter(napPos, napPos);
             }
@@ -893,7 +893,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         {
             return OptionalInt.empty();
         }
-        
+
         while (cachedSpaceSizes.size() < 8)
         {
             // Must be at least eight:
@@ -903,8 +903,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             if (indent >= cachedSpaceSizes.size() * 2)
                 cachedSpaceSizes.add(indent);
         }
-        
-        
+
+
         int column = document.getColumnFromPosition(startOffset);
         // If it's the left edge no need to calculate further, must be zero:
         if (column == 0)
@@ -1035,7 +1035,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     {
         int napPos = nap.getPosition();
         int napEnd = napPos + nap.getSize();
-        
+
         if (napPos == napEnd)
         {
             // Empty scope, e.g. because of "{}" in code, don't bother painting
@@ -1106,7 +1106,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         if (napEnd < lineEl.getStartOffset()) {
             return rbound;
         }
-        
+
         // If there is some text between the node end and the end of the line, we want to clip the
         // node short so that the text does not appear to be part of the node.
         int nwsb = findNonWhitespaceComment(nap, lineEl, napEnd - lineEl.getStartOffset());
@@ -1130,7 +1130,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         if (lineEl == null) {
             return true;
         }
-        
+
         int napPos = nap.getPosition();
         int napEnd = nap.getEnd();
         if (napPos > lineEl.getStartOffset() && napEnd > lineEl.getEndOffset()) {
@@ -1191,7 +1191,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
         int napPos = nap.getPosition();
         int napEnd = nap.getEnd();
-        
+
         if (napPos >= lineEl.getEndOffset()) {
             return OptionalInt.of(Integer.MAX_VALUE);
         }
@@ -1278,7 +1278,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     scopeStack.remove(scopeStack.size() - 1);
                     top = scopeStack.get(scopeStack.size() - 1);
                 }
-                
+
                 // Re-build the scope stack and skip inner nodes.
                 // Note, we find nodes at curpos + 1 to avoid nodes which *end* here, but we filter
                 // out nodes which do not span curpos within the loop:
@@ -1293,7 +1293,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     top = nextChild;
                     nextChild = top.getNode().findNodeAt(curpos + 1, top.getPosition());
                 }
-                
+
                 // Ok, we've skipped inner nodes
                 int line = document.getLineFromPosition(curpos);
                 Element lineEl = new Element(line);
@@ -1337,17 +1337,17 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             return OptionalInt.empty();
         }
     }
-    
+
     private int[] reassessIndentsAdd(int dmgStart, int dmgEnd)
     {
         ParsedCUNode pcuNode = rootNode;
         if (pcuNode == null) {
             return new int[] {dmgStart, dmgEnd};
         }
-        
+
         int ls = document.getLineFromPosition(dmgStart);
         int le = document.getLineFromPosition(dmgEnd);
-        
+
         try {
             int [] dmgRange = new int[2];
             dmgRange[0] = dmgStart;
@@ -1362,7 +1362,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             while (top != null && top.getEnd() == lineEl.getStartOffset()) {
                 top = top.nextSibling();
             }
-            
+
             if (top == null) {
                 // No nodes at all.
                 return dmgRange;
@@ -1374,7 +1374,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     return dmgRange;
                 }
             }
-            
+
             scopeStack.add(top);
             NodeAndPosition<ParsedNode> nap = top.getNode().findNodeAtOrAfter(lineEl.getStartOffset() + 1,
                     top.getPosition());
@@ -1382,7 +1382,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 scopeStack.add(nap);
                 nap = nap.getNode().findNodeAtOrAfter(lineEl.getStartOffset() + 1, nap.getPosition());                
             }
-            
+
             outer:
             while (true) {
                 // Skip to the next line which has text on it
@@ -1418,11 +1418,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                         topNap = topNap.getNode().findNodeAtOrAfter(curpos + 1, topNap.getPosition());
                     }
                 }
-                
+
                 if (scopeStack.isEmpty()) {
                     break;
                 }
-                
+
                 // At this point:
                 // - curpos is the position of the first non-whitespace on the current line (it may be
                 //   prior to damageStart, but in that case it will be on the same line)
@@ -1455,7 +1455,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                         // Node isn't on this line.
                         continue;
                     }
-                    
+
                     // Inner nodes are skipped during indent calculation
                     if (next.getNode().isInner()) {
                         break;
@@ -1498,7 +1498,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 }
                 lineEl = new Element(i);
             }
-            
+
             return dmgRange;
         } finally {}
         //catch (BadLocationException ble) {
@@ -1509,15 +1509,15 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private int[] reassessIndentsRemove(int dmgPoint, boolean multiLine)
     {
         ParsedCUNode pcuNode = rootNode;
-        
+
         int [] dmgRange = new int[2];
         dmgRange[0] = dmgPoint;
         dmgRange[1] = dmgPoint;
-        
+
         if (pcuNode == null) {
             return dmgRange;
         }
-        
+
         int ls = document.getLineFromPosition(dmgPoint);
         Element lineEl = new Element(ls);
 
@@ -1526,7 +1526,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         while (top != null && top.getEnd() == lineEl.getStartOffset()) {
             top = top.nextSibling();
         }
-        
+
         if (top == null) {
             // No nodes at all.
             return dmgRange;
@@ -1536,11 +1536,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             // The first node we found is on the next line.
             return dmgRange;
         }
-        
+
         try {
             // At this point lineEl/segment are the line containing the deletion point. Some lines beyond
             // this point may have been removed (if multiLine true).
-            
+
             // All nodes for this line with a cached indent greater than or equal to the damage point
             // indent should have their indents re-assessed: If the indent of the node on this line is
             // lower than (or the same as) the cached indent, it becomes the new cached indent; otherwise
@@ -1622,14 +1622,14 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     rtop = rtop.nextSibling();
                 }
             }
-            
+
             return dmgRange;
         } finally {}
         //catch (BadLocationException ble) {
         //    throw new RuntimeException(ble);
         //}
     }
-    
+
     /**
      * Update an existing indent, in the case where we have found a line where the indent
      * may now be smaller due to an edit.
@@ -1643,7 +1643,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     {
         int dmgStart = dmgRange[0];
         int dmgEnd = dmgRange[1];
-        
+
         if (oindent != null) {
             int noindent = oindent;
             if (indent < noindent) {
@@ -1660,7 +1660,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             }
         }
     }
-    
+
     /**
      * Get a stack of ParsedNodes which overlap or follow a particular document position. The stack shall
      * contain the outermost node (at the bottom of the stack) through to the innermost node which overlaps
@@ -1711,7 +1711,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         int nws = findNonWhitespace(lineEl, startPos);
         if (nws != -1) {
             int pos = nws + lineEl.getStartOffset();
-            
+
             if (nap.getEnd() > pos) {
                 NodeAndPosition<ParsedNode> inNap = nap.getNode().findNodeAt(pos, nap.getPosition());
                 if (inNap != null && inNap.getNode().getNodeType() == ParsedNode.NODETYPE_COMMENT
@@ -1729,7 +1729,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
         return nws;
     }
-    
+
     /**
      * Search backwards for a non-whitespace character. If no such character
      * is found, returns (endPos - 1).
@@ -1777,7 +1777,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             damageStart = r[0];
             damageEnd = r[1];
         }
-        
+
         for (NodeAndPosition<ParsedNode> node : mse.getRemovedNodes()) {
             ParsedNode parent = node.getNode().getParentNode();
             while (parent != null)
@@ -1813,7 +1813,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             damageEnd = r[1];
         }
 
-        
+
         if (changes.isInsert()) {
             damageStart = Math.min(damageStart, changes.getOffset());
             damageEnd = Math.max(damageEnd, changes.getOffset() + changes.getLength());
@@ -1827,7 +1827,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             damageStart = r[0];
             damageEnd = r[1];
         }
-        
+
         if (damageStart < damageEnd) {
             int line = document.getLineFromPosition(damageStart);
             int lastline = document.getLineFromPosition(damageEnd - 1);
@@ -1862,10 +1862,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 nodeIndents.remove(cnap.getNode());
             }
         }
-        
+
         return new int[] {damageStart, damageEnd};
     }
-    
+
     private void nodeRemoved(ParsedNode node)
     {
         nodeIndents.remove(node);
@@ -1883,7 +1883,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         {
             return null;
         }
-        
+
         // RichTextFX numbers from 0, but javac numbers from 1:
         lineNumber += 1;
         Label label = new Label("" + lineNumber);
@@ -1935,7 +1935,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         {
             label.setContentDisplay(ContentDisplay.TEXT_ONLY);
         }
-        
+
         AnchorPane.setLeftAnchor(label, 0.0);
         AnchorPane.setRightAnchor(label, 3.0);
         AnchorPane.setTopAnchor(label, 0.0);
@@ -2159,7 +2159,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             return false;
         }
         catch (RuntimeException e) {
-            
+
             Debug.message("Exception during incremental parsing. Recent edits:");
             for (EditEvent event : recentEdits) {
                 String eventStr = event.type == EDIT_INSERT ? "insert " : "delete ";
@@ -2188,7 +2188,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 {
                     lineStarts[i] = document.getLineStart(i);
                 }
-                
+
                 if (index >= lineStarts.length)
                     return null;
 
@@ -2330,10 +2330,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     {        
         int newBeforeStartIncl = fromLineIndexIncl;
         int newBeforeEndIncl = latestRenderStartIncl - 1;
-        
+
         int newAfterStartIncl = latestRenderEndIncl + 1;
         int newAfterEndIncl = toLineIndexIncl;
-        
+
         if (newBeforeStartIncl <= newBeforeEndIncl || newAfterStartIncl <= newAfterEndIncl)
         {
             if (newBeforeStartIncl <= newBeforeEndIncl)
@@ -2558,12 +2558,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private class FlowReparseRunner implements FXPlatformRunnable
     {
         private int procTime; //the time allowed for the incremental parsing before re-queueing
-        
+
         public FlowReparseRunner()
         {
             this.procTime = 15;
         }
-        
+
         public void run()
         {
             long begin = System.currentTimeMillis();
@@ -2635,15 +2635,15 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     {
         return document.getFullContent();
     }
-    
+
     public static interface Display
     {
         public ReadOnlyObjectProperty<Scene> sceneProperty();
-        
+
         public ReadOnlyDoubleProperty widthProperty();
 
         public ReadOnlyDoubleProperty heightProperty();
-        
+
         public void requestLayout();
 
         public default boolean isPrinting()
@@ -2685,7 +2685,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         private final Map<ParsedNode, NodeChangeRecord> changedNodes = new HashMap<>();
         private final boolean insert;
         private final boolean remove;
-    
+
         public SyntaxEvent(int offset, int length, boolean isInsert, boolean isRemove)
         {
             this.offset = offset;
@@ -2693,12 +2693,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             this.insert = isInsert;
             this.remove = isRemove;
         }
-    
+
         public List<NodeAndPosition<ParsedNode>> getAddedNodes()
         {
             return addedNodes;
         }
-    
+
         /**
          * Get a list of nodes removed as part of this event.
          */
@@ -2706,7 +2706,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         {
             return removedNodes;
         }
-        
+
         /**
          * Get a collection of nodes which changed position as part of this event.
          */
@@ -2714,24 +2714,24 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         {
             return changedNodes.values();
         }
-    
-        
+
+
         // -------------- NodeStructureListener interface ------------------
-    
-    
+
+
         @Override
         public void nodeAdded(NodeAndPosition<ParsedNode> node)
         {
             addedNodes.add(node);
         }
-    
+
         @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public void nodeRemoved(NodeAndPosition<ParsedNode> node)
         {
             removedNodes.add(node);
             changedNodes.remove(node.getNode());
         }
-    
+
         @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public void nodeChangedLength(NodeAndPosition<ParsedNode> nap, int oldPos,
                 int oldSize)
@@ -2758,27 +2758,27 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 }
             }
         }
-    
+
         public int getOffset()
         {
             return offset;
         }
-    
+
         public int getLength()
         {
             return length;
         }
-    
+
         public boolean isInsert()
         {
             return insert;
         }
-    
+
         public boolean isRemove()
         {
             return remove;
         }
-    
+
         /**
          * Node change record. Purely used for passing data around, hence public fields.
          */

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2019,2020,2021,2022,2023,2025  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -88,7 +88,7 @@ public final class PackageEditor extends StackPane
     private static final int WHITESPACE_SIZE = 10;
     /**  The grid resolution for graph layout. */
     public static final int GRID_SIZE = 10;
-    
+
     private final PkgMgrFrame pmf;
     private final Package pkg;
     private final SelectionController selectionController;
@@ -112,7 +112,7 @@ public final class PackageEditor extends StackPane
     // The ContextMenu that is currently being shown on screen (null if not visible)
     @OnThread(Tag.FXPlatform)
     private ContextMenu showingContextMenu;
-    
+
     // For showing info about the arrow-drawing in progress; the overlay pane:
     @OnThread(Tag.FXPlatform)
     private MouseTrackingOverlayPane overlay;
@@ -136,12 +136,12 @@ public final class PackageEditor extends StackPane
     private double newExtendsDestX;
     @OnThread(Tag.FXPlatform)
     private double newExtendsDestY;
-    
+
     // Measured in System.currentTimeMillis():
     private long lastKeypress = 0;
     private String currentSearch = "";
-    
-    
+
+
 
     /**
      * Construct a package editor for the given package.
@@ -188,7 +188,7 @@ public final class PackageEditor extends StackPane
                 stopNewInherits();
             // Don't consume either way
         });
-        
+
         setPrefHeight(400.0);
     }
 
@@ -241,7 +241,7 @@ public final class PackageEditor extends StackPane
     {
         pmf.putObjectOnBench(src, obj, iType, ir, askForName, animateFromScenePoint);
     }
-    
+
     /**
      * Notify of some interaction.
      */
@@ -250,7 +250,7 @@ public final class PackageEditor extends StackPane
     {
         pmf.recordInteraction(ir);
     }
-    
+
     private boolean popupMenu(double screenX, double screenY)
     {
         ContextMenu menu = new ContextMenu();
@@ -290,7 +290,7 @@ public final class PackageEditor extends StackPane
             pmf.doCreateNewPackage(graphLoc.getX(), graphLoc.getY());
         });
         JavaFXUtil.addStyleClass(newPackage, "class-action-inbuilt");
-        
+
         MenuItem newCSS = new MenuItem(Config.getString("menu.edit.newText"));
         newCSS.setOnAction(e -> {
             pmf.menuCall();
@@ -357,7 +357,7 @@ public final class PackageEditor extends StackPane
                 a.add(vr);
             }
         }
-        
+
         double minWidth = 300;
         double minHeight = 200;
 
@@ -426,15 +426,15 @@ public final class PackageEditor extends StackPane
         }
 
         pmf.graphChanged();
-        
+
         //TODO make sure removed items aren't still in the selection
 
         repaint();
     }
-    
+
     public void graphClosed()
     {
-        
+
     }
 
     private static final int ARROW_SIZE = 18; // pixels
@@ -622,8 +622,8 @@ public final class PackageEditor extends StackPane
                 extendsLines.add(new ExtendsDepInfo(extendsSubClass, p.getX(), p.getY()));
             }
         }
-        
-        
+
+
         GraphicsContext g = arrowLayer.getGraphicsContext2D();
         g.clearRect(0, 0, arrowLayer.getWidth(), arrowLayer.getHeight());
 
@@ -666,7 +666,7 @@ public final class PackageEditor extends StackPane
             // Special case - don't draw a dependency line between a Foo class and the FooTest class:
             if (d.to instanceof DependentTarget && ((DependentTarget)d.to).getAssociation() == d.from)
                 continue;
-            
+
             g.setLineWidth(1.0);
             g.setLineDashes(DASHES);
             // These should all be rounded to the nearest integer+0.5 value:
@@ -1053,7 +1053,7 @@ public final class PackageEditor extends StackPane
                         pkg.userAddExtendsClassDependency(subClassFinal, superClass);
                 }
                 pkg.compile(subClassFinal, CompileReason.MODIFIED_EXTENDS, CompileType.INDIRECT_USER_COMPILE);
-                
+
                 stopNewInherits();
             }
         }
@@ -1067,13 +1067,13 @@ public final class PackageEditor extends StackPane
         newExtendsDestY = localY;
         repaint();
     }
-    
+
     @Override
     public Stage getStage()
     {
         return pmf.getWindow();
     }
-    
+
     @Override
     public void callStaticMethodOrConstructor(CallableView view)
     {

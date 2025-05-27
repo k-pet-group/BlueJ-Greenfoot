@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -124,7 +124,7 @@ public class ErrorOverviewBar extends VBox
             return visible.get();
         }
     }
-    
+
     public void update(List<ErrorInfo> errors, ErrorState state)
     {
         bar.clear();
@@ -176,15 +176,15 @@ public class ErrorOverviewBar extends VBox
             getChildren().forEach(x -> ((Error)x).cleanup());
             getChildren().clear();
         }
-        
+
         public void add(ErrorInfo info)
         {
             // Need to calculate position of error (don't need to bind as will be re-added
             // each time code is changed)
-            
+
             double posTop = codeContainer.sceneToLocal(info.node.localToScene(0, 0)).getY() / codeContainer.getHeight();
             //double posBottom = codeContainer.sceneToLocal(ref.localToScene(0, ref.getHeight())).getY() / codeContainer.getHeight();
-            
+
             Error e = new Error(info.message, info.focused, info.visible, info.giveFocus);
             e.visibleProperty().bind(info.visible);
             e.setManaged(false);
@@ -200,7 +200,7 @@ public class ErrorOverviewBar extends VBox
             return (int)getChildren().stream().filter(x -> x.visibleProperty().get()).count();
         }
     }
-    
+
     private class Error extends Rectangle implements ChangeListener<Boolean>
     {
         private final ObservableBooleanValue focused;
@@ -216,7 +216,7 @@ public class ErrorOverviewBar extends VBox
             this.visible.addListener(this);
             Tooltip.install(this, new Tooltip(message));
         }
-        
+
         public void cleanup()
         {
             focused.removeListener(this);

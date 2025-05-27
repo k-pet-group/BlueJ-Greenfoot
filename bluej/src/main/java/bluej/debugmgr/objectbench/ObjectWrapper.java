@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2015,2016,2017,2018,2019,2020,2023,2024  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -139,9 +139,9 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     private String objInstanceName;
     protected String displayClassName;
     protected ContextMenu menu;
-    
+
     protected final Rectangle highlight = new ResizableRectangle();
-            
+
 
     // back references to the containers that we live in
     private final Package pkg;
@@ -149,7 +149,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     private final ObjectBench ob;
 
     private static final String MENU_STYLE_INBUILT = "object-action-inbuilt";
-    
+
     /**
      * Get an object wrapper for a user object. 
      * 
@@ -268,13 +268,13 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     {
         return pmf;
     }
-    
+
     @OnThread(Tag.Any)
     public String getClassName()
     {
         return objClassName;
     }
-    
+
     @OnThread(Tag.Any)
     public String getTypeName()
     {
@@ -292,28 +292,28 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     {
         return iType;
     }
-    
+
     // --------- NamedValue interface --------------
-    
+
     @Override
     @OnThread(Tag.Any)
     public boolean isFinal()
     {
         return true;
     }
-    
+
     @Override
     @OnThread(Tag.Any)
     public boolean isInitialized()
     {
         return true;
     }
-    
+
     // ----------------------------------------------
-    
+
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private BObject singleBObject;  // Every ObjectWrapper has none or one BObject
-    
+
     /**
      * Return the extensions BObject associated with this ObjectWrapper.
      * There should be only one BObject object associated with each Package.
@@ -323,10 +323,10 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     {
         if ( singleBObject == null )
           singleBObject = ExtensionBridge.newBObject(this);
-          
+
         return singleBObject;
     }
-    
+
     /**
      * Perform any necessary cleanup before removal from the object bench.
      */
@@ -350,7 +350,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         return !(Modifier.isProtected(clMods) && !pkg.getQualifiedName().equals(classPackage)
                 || Modifier.isPrivate(clMods));
     }
-    
+
     private Class<?> unwrapArrays(String className)
     {
         String memberType = className.substring(0, className.length() - 2);
@@ -380,7 +380,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         }
         return Array.newInstance(pkg.loadClass(memberType), 0).getClass();
     }
-    
+
     /**
      * Determine an appropriate type to use for this object in shell files.
      * The type must be accessible in the current package.
@@ -422,7 +422,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
 
         return cl;
     }
-    
+
     /**
      * Creates the popup menu structure by parsing the object's
      * class inheritance hierarchy.
@@ -439,7 +439,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         menu.getItems().add(item = new MenuItem(inspect));
         JavaFXUtil.addStyleClass(item, MENU_STYLE_INBUILT);
         item.setOnAction(e -> inspectObject());
-  
+
         menu.getItems().add(item = new MenuItem(remove));
         JavaFXUtil.addStyleClass(item, MENU_STYLE_INBUILT);
         item.setOnAction(e -> removeObject());
@@ -447,7 +447,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         ExtensionsMenuManager menuManager = new ExtensionsMenuManager(menu, extMgr, new ObjectExtensionMenu(this));
         menuManager.addExtensionMenu(pkg.getProject());
     }
-    
+
     /**
      * Creates the menu items for all the methods in the class, which is a raw
      * class type.
@@ -494,33 +494,33 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
 
             // get declared methods for the class
             MethodView[] declaredMethods = view.getDeclaredMethods();
-            
+
             // create method entries for locally declared methods
             GenTypeClass curType = gtype;
             if (curType == null) {
                 curType = new GenTypeClass(new JavaReflective(cl));
             }
-            
+
             // HACK to make it work in greenfoot.
             if(itemsOnScreen <= 0 ) {
                 itemsOnScreen = 30; 
             }
 
             int itemLimit = itemsOnScreen - 8 - classes.size();
-          
+
             createMenuItems(menu, declaredMethods, il, filter, itemLimit, curType.getMap(), methodsUsed);
 
             // create submenus for superclasses
             for(int i = 1; i < classes.size(); i++ ) {
                 Class<?> currentClass = classes.get(i);
                 view = View.getView(currentClass);
-                
+
                 // Determine visibility of package private / protected members
                 filter = new ViewFilter(StaticOrInstance.INSTANCE, currentPackageName);
 
                 // map generic type paramaters to the current superclass
                 curType = curType.mapToSuper(currentClass.getName());
-                
+
                 if (!"java.lang.Object".equals(currentClass.getName()) || showObjectMethods) { 
                     declaredMethods = view.getDeclaredMethods();
                     Menu subMenu = new Menu(inheritedFrom + " "
@@ -604,7 +604,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 e.printStackTrace();
             }
         }
-        
+
         // If there are no accessible methods, insert a message which says so.
         if (menuEmpty) {
             MenuItem mi = new MenuItem(Config.getString("debugger.objectwrapper.noMethods"));
@@ -653,14 +653,14 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 .filter(i -> Arrays.stream(i.getDeclaredMethods()).anyMatch(m -> m.isDefault()))
                 .collect(Collectors.toList());
     }
-    
+
     @Override
     @OnThread(value = Tag.Any, ignoreParent = true)
     public synchronized String getName()
     {
         return objInstanceName;
     }
-    
+
     @OnThread(Tag.Any)
     public synchronized void setName(String newName)
     {
@@ -701,12 +701,12 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         InvokerRecord ir = new ObjectInspectInvokerRecord(getName());
         pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf.getWindow(), this);  // shows the inspector
     }
-    
+
     protected void removeObject()
     {
         ob.removeObject(this, pkg.getId());
     }
-    
+
     /**
      * Execute an interactive method call. If the method has results,
      * create a watcher to watch out for the result coming back, do the
@@ -797,7 +797,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         });
 
     }
-    
+
     public void animateOut(FXPlatformRunnable after)
     {
         ScaleTransition t = new ScaleTransition(Duration.millis(300), this);
@@ -837,7 +837,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 public AccessibleRole getAccessibleRole() {
                     return AccessibleRole.LIST_ITEM;
                 }                
-                
+
             };
         }
         return accessibleContext;

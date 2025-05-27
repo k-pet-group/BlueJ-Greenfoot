@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -97,7 +97,7 @@ public class FormalParameters
     {
         return params.stream().filter(p -> p.getType() == slot || p .getName() == slot).findFirst().orElse(null);
     }
-    
+
     private FormalParameter createFormal(TypeSlotFragment type, NameDefSlotFragment name)
     {
         BooleanProperty freshProperty = new SimpleBooleanProperty(true);
@@ -163,7 +163,7 @@ public class FormalParameters
                 JavaFXUtil.runNowOrLater(() -> paramType.requestFocus(Focus.LEFT));
         });
         TextSlot<NameDefSlotFragment> paramName = initialiseTextSlot("paramName", name, nameSlot);
-        
+
         return new FormalParameter(paramType, paramName);
     }
     private <F extends TextSlotFragment> TextSlot<F> initialiseTextSlot(String promptText, F value, TextSlot<F> textSlot)
@@ -208,7 +208,7 @@ public class FormalParameters
         textSlot.addValueListener(SlotTraversalChars.IDENTIFIER);
         return textSlot;
     }
-    
+
     public void addFormal(TypeSlotFragment type, NameDefSlotFragment name)
     {
         params.add(createFormal(type, name));
@@ -218,7 +218,7 @@ public class FormalParameters
     {
         return insertBefore(before, createFormal(new TypeSlotFragment("", ""), new NameDefSlotFragment("")));
     }
-    
+
     private FormalParameter addNewAfter(FormalParameter after)
     {
         return insertAfter(after, createFormal(new TypeSlotFragment("", ""), new NameDefSlotFragment("")));
@@ -230,7 +230,7 @@ public class FormalParameters
         editor.modifiedFrame(parentFrame, false);
         return slot;
     }
-    
+
     private FormalParameter insertAfter(FormalParameter after, FormalParameter slot)
     {
         params.add(after == null ? 0 : params.indexOf(after) + 1, slot);
@@ -254,13 +254,13 @@ public class FormalParameters
             return false;
         }
     }
-    
+
     /*
     public FormalParameter addSlot(TypeSlotFragment type, NameDefSlotFragment name)
     {
         return insertSlot(null, prepareSlot(type, name));
     }
-    
+
     public FormalParameter addEmptySlot()
     {
        return addSlot(new TypeSlotFragment(""), new NameDefSlotFragment(""));
@@ -271,16 +271,16 @@ public class FormalParameters
         if (types.size() != names.size()) {
             throw new IllegalArgumentException("Types and names must be same length");
         }
-        
+
         while (slotCount() > 0) {
             deleteFirstSlot();
         }
-        
+
         for (int i = 0; i < types.size(); i++) {
             insertSlot(null, prepareSlot(new TypeSlotFragment(types.get(i)), new NameDefSlotFragment(names.get(i))));
         }
     }
-    
+
     public boolean showError(JavaCompileError err)
     {
         for (FormalParameter pairSlot : slots) {
@@ -326,7 +326,7 @@ public class FormalParameters
         if (slots.size() == 0) {
             addEmptySlot();
         }
-        
+
         if (on == Focus.LEFT) {
             slots.get(0).requestFocus(on);
         }
@@ -458,7 +458,7 @@ public class FormalParameters
         }
         return false;
     }
-    
+
     private void deleteFormal(FormalParameter param)
     {
         // Remove the formal:
@@ -466,7 +466,7 @@ public class FormalParameters
         params.remove(param);
         editor.modifiedFrame(parentFrame, false);
     }
-    
+
     public void checkForEmptySlot()
     {
         if ( params.size() == 1 && params.get(0).isEmpty() && !params.get(0).isFocused() ) {
@@ -475,14 +475,14 @@ public class FormalParameters
     }
 
     private ObservableList<HeaderItem> boundSlots;
-    
+
     public ObservableList<HeaderItem> getSlots()
     {
         if (boundSlots == null)
         {
             boundSlots = FXCollections.observableArrayList();
             ConcatMapListBinding.bind(boundSlots, params, FormalParameter::getSlots);
-            
+
             DeepListBinding<HeaderItem> binding = new DeepListBinding<HeaderItem>(boundSlots) {
 
                 {
@@ -507,7 +507,7 @@ public class FormalParameters
                     }
 
                     Stream<HeaderItem> start = (params.size() == 0) ? Stream.of(open, spacer) : Stream.of(open);
-                    
+
                     // Important that we filter the null operators out after interleaving, to preserve ordering:
                     return Utility.concat(start, Utility.interleave(params.stream().map(FormalParameter::getSlots), commas.stream()).flatMap(List::stream), Stream.of(close));
                 }
@@ -551,13 +551,13 @@ public class FormalParameters
         {
             return type.getText() + " " + name.getText();
         }
-        
+
         public void positionCaretName(int position)
         {
             name.positionCaret(position);
         }
         */
-        
+
         public void cleanup()
         {
             type.cleanup();
@@ -568,7 +568,7 @@ public class FormalParameters
         {
             return type;
         }
-        
+
         public TextSlot<NameDefSlotFragment> getName()
         {
             return name;
@@ -603,12 +603,12 @@ public class FormalParameters
         {
             return type.isEmpty() && name.isEmpty();
         }
-        
+
         public boolean isFocused()
         {
             return getType().isFocused() || getName().isFocused();
         }
-        
+
         public void requestFocus(Focus on)
         {
             if (on == Focus.LEFT) {
@@ -643,7 +643,7 @@ public class FormalParameters
     {
         params.setAll(Utility.mapList(src, x -> createFormal(new TypeSlotFragment(getType.apply(x), getType.apply(x)), new NameDefSlotFragment(getName.apply(x)))));
     }
-    
+
     public Stream<String> getVars()
     {
         return params.stream().map(FormalParameter::getName).map(TextSlot::getText);

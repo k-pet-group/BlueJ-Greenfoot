@@ -51,7 +51,7 @@ public class ParsedArrayReflective extends Reflective
 {
     private Reflective component;
     private String className;
-    
+
     /**
      * Construct a new ParsedArrayReflective with the given component type.
      * @param component   The component type
@@ -62,32 +62,32 @@ public class ParsedArrayReflective extends Reflective
         this.component = component;
         className = "[" + componentName;
     }
-    
+
     @Override
     public String getName()
     {
         return className;
     }
-    
+
     @Override
     public String getSimpleName()
     {
         return component.getSimpleName() + "[]";
     }
-    
+
     @Override
     public Reflective getArrayOf()
     {
         return new ParsedArrayReflective(this, className);
     }
-    
+
     // See JLS section 10.7: arrays have a "public final int length" field
     @Override
     public Map<String,FieldReflective> getDeclaredFields()
     {
         return Collections.singletonMap("length", new FieldReflective("length", JavaPrimitiveType.getInt(), Modifier.PUBLIC | Modifier.FINAL, this)); 
     }
-    
+
     // See JLS section 10.7: arrays have a "public Object clone()" method
     @Override
     public Map<String, Set<MethodReflective>> getDeclaredMethods()
@@ -100,14 +100,14 @@ public class ParsedArrayReflective extends Reflective
     {
         return Collections.emptyList();
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public Reflective getRelativeClass(String name)
     {
         return component.getRelativeClass(name);
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public List<GenTypeClass> getSuperTypes()
@@ -119,55 +119,55 @@ public class ParsedArrayReflective extends Reflective
         componentSupers.add(new GenTypeClass(new JavaReflective(Object.class)));
         return componentSupers;
     }
-    
+
     @Override
     public List<Reflective> getSuperTypesR()
     {
         Reflective obj = new JavaReflective(Object.class);
         return Collections.singletonList(obj);
     }
-    
+
     @Override
     public List<GenTypeDeclTpar> getTypeParams()
     {
         return Collections.emptyList();
     }
-    
+
     @Override
     public boolean isAssignableFrom(Reflective r)
     {
         // TODO implement this
         return false;
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public boolean isInterface()
     {
         return false;
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public boolean isPublic()
     {
         return component.isPublic();
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public boolean isStatic()
     {
         return component.isStatic();
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public boolean isFinal()
     {
         return component.isFinal();
     }
-    
+
     @Override
     public Reflective getInnerClass(String name)
     {

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017,2018,2019,2021,2023  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -86,11 +86,11 @@ import javax.swing.SwingUtilities;
 public class ExecServer
 {
     // these fields will be fetched by VMReference
-    
+
     // the initial thread that starts main()
     public static final String MAIN_THREAD_NAME = "mainThread";
     public static Thread mainThread = null;
-    
+
     // a worker thread that we create
     public static final String WORKER_THREAD_NAME = "workerThread";
     public static Thread workerThread = null;
@@ -113,11 +113,11 @@ public class ExecServer
     public static String [] parameterTypes;
     public static Object [] arguments;
     public static int execAction = -1;   // EXEC_SHELL, TEST_SETUP or TEST_RUN
-    
+
     public static Object methodReturn;
     public static Class<?> executedClass;
     public static Throwable exception;
-    
+
     // These constant values must match the variable names declared above
     public static final String RUN_ON_THREAD_NAME = "threadToRunOn";
     public static final String CLASS_TO_RUN_NAME = "classToRun";
@@ -149,9 +149,9 @@ public class ExecServer
     public static String className;
     public static String scopeId;
     public static ClassLoader classLoader = null; // null to use current loader.
-    
+
     public static Object workerReturn;
-    
+
     // These constant values must match the variable names declared above
     public static final String WORKER_ACTION_NAME = "workerAction";
     public static final String OBJECTNAME_NAME = "objectName";
@@ -161,7 +161,7 @@ public class ExecServer
     public static final String WORKER_RETURN_NAME = "workerReturn";
     public static final String SCOPE_ID_NAME = "scopeId";
     public static final String CLASSLOADER_NAME = "classLoader";
-    
+
     // possible actions for worker thread
     public static final int REMOVE_OBJECT = 0;
     public static final int ADD_OBJECT    = 1;
@@ -180,11 +180,11 @@ public class ExecServer
     // GreenfootObject and GreenfootWorld in order to cast newly created objects
     // into these types.
     //private static ClassLoader greenfootLoader;
-    
+
     // a hashmap of names to objects
     // private static Map objects = new HashMap();
     private static Map<String,BJMap<String,Object>> objectMaps = new HashMap<String,BJMap<String,Object>>();
-    
+
     /**
      * We need to keep track of open windows so that we can dispose of them
      * when simulating a System.exit() call
@@ -201,7 +201,7 @@ public class ExecServer
         // Set up an input stream filter to detect "End of file" signals
         // (CTRL-Z or CTRL-D typed in terminal)
         System.setIn(new BJInputStream(System.in));
-        
+
         // Set up encoding for the terminal, the only arg that should be passed in
         // is the encoding eg. "UTF-8", otherwise do nothing
         if(args.length > 0 && !args[0].equals("")) {
@@ -213,7 +213,7 @@ public class ExecServer
                 // Do nothing; don't use the requested encoding
             }
         }
-        
+
         // Set up the worker thread. The worker thread can be used to perform certain actions
         // when the main thread is busy. Actions on the worker thread are guaranteed to execute
         // in a timely manner - for this reason they must not execute user code.
@@ -235,13 +235,13 @@ public class ExecServer
                             try {
                                 if (classLoader == null)
                                     classLoader = currentLoader;
-                                
+
                                 workerReturn = Class.forName(className, false, currentLoader);
                                 // Cause the class to be prepared (ie. its fields and methods
                                 // enumerated). Otherwise we can get ClassNotPreparedException
                                 // when we try and get the fields on the other VM.
                                 ((Class<?>) workerReturn).getFields();
-                                
+
                                 classLoader = null;  // reset for next call
                             }
                             catch(Throwable cnfe) {
@@ -291,11 +291,11 @@ public class ExecServer
         };
 
         toolkit.addAWTEventListener(listener, AWTEvent.WINDOW_EVENT_MASK);
-        
+
         // signal with a breakpoint that we have performed our VM
         // initialization, at the same time, create the initial server thread.
         newThread();
-        
+
         // Set the worker thread in motion also. Give it maximum priority so that it can
         // be guarenteed to execute in a timely manner, and won't get starved by user code
         // executing in other threads.
@@ -399,7 +399,7 @@ public class ExecServer
     {
         String [] splits = urlListAsString.split("\n");
         URL []urls = new URL[splits.length];
-        
+
         for (int index = 0; index < splits.length; index++)
             try {
                 urls[index] = new URL(splits[index]);
@@ -410,11 +410,11 @@ public class ExecServer
         }
 
         currentLoader = new URLClassLoader(urls);
-        
+
         synchronized (objectMaps) {
             objectMaps.clear();
         }
-        
+
         return currentLoader;
     }
 
@@ -437,7 +437,7 @@ public class ExecServer
             // The class was loaded it, but an exception occurred during initialization.
             // As this is an error in user code, we want to report it.
             exception = eiie.getCause();
-            
+
             // Now get the class again, uninitialized this time
             try {
                 cl = Class.forName(className, false, currentLoader);
@@ -452,7 +452,7 @@ public class ExecServer
             // a static initialization block will throw an instance of java.lang.Error, which
             // will not be wrapped in an ExceptionInInitializerError (unfortunately). In either
             // case we probably should let the user know what happened.
-            
+
             exception = err;
 
             // The class may exist, but not be initializable for some reason.
@@ -463,11 +463,11 @@ public class ExecServer
                 cl = null;
             }
         }
-        
+
         // If we have an exception to report, filter and report it.
         if (exception != null) {
             StackTraceElement [] stackTrace = exception.getStackTrace();
-            
+
             // filter bluej.runtime.ExecServer from the stack trace
             int i;
             for (i = stackTrace.length - 1; i > 0; i--) {
@@ -481,23 +481,23 @@ public class ExecServer
             exception.setStackTrace(newStackTrace);
             recordException(exception);
         }
-       
+
         return cl;
     }
-    
+
     /**
      * Load a class, and all its inner classes.
      */
     private static Class<?>[] loadAllClasses(String className)
     {
         List<Class<?>> l = new ArrayList<Class<?>>();
-        
+
         try {
             Class<?> c = currentLoader.loadClass(className);
             c.getFields(); // prepare class
             l.add(c);
             getDeclaredInnerClasses(c, l);
-            
+
             // Now we want the anonymous inner classes:
             int i = 1;
             while(true) {
@@ -508,10 +508,10 @@ public class ExecServer
             }
         }
         catch (Throwable t) {}
-        
+
         return (Class []) l.toArray(new Class[l.size()]);
     }
-    
+
     /**
      * Add the declared inner classes of the given class to the given
      * list, recursively.
@@ -529,7 +529,7 @@ public class ExecServer
         }
         catch (Throwable t) {}
     }
-    
+
     /**
      * Add an object into a package scope (for possible use as parameter
      * later). Used after object creation to add the newly created object
@@ -546,7 +546,7 @@ public class ExecServer
             scope.notify(); // in case Greenfoot is waiting for this object
         }
     }
-    
+
     /**
      * Execute a JUnit test case setUp method.
      * 
@@ -559,7 +559,7 @@ public class ExecServer
     private static Object[] runTestSetUp(String className)
     {
         Class<?> cl = loadAndInitClass(className);
-        
+
         try {
             // construct an instance of the test case (firstly trying the
             // String argument constructor - then the no-arg constructor)
@@ -581,7 +581,7 @@ public class ExecServer
             if (testCase == null) {
                 testCase = cl.getDeclaredConstructor().newInstance();
             }
-                        
+
             // cannot execute setUp directly because it is protected
             // we can however use reflection to call it because this VM
             // has access protection disabled
@@ -621,7 +621,7 @@ public class ExecServer
 
         return new Object[0];
     }
-    
+
     /**
      * Find a method in the class, regardless of visibility. This is
      * essentially the same as Class.getMethod(), except that it also returns
@@ -805,7 +805,7 @@ public class ExecServer
             disposingAllWindows = false;
         }
     }
-    
+
     /**
      * Clear the system input buffer. This is used between method calls to
      * make sure that System.in.read() doesn't read input which was buffered
@@ -827,7 +827,7 @@ public class ExecServer
     {
         public void run() throws Throwable;
     }
-    
+
     /**
      * Bug in the java debug VM means that exception events are unreliable 
      * if we re-use the same thread over and over. So, whenever running user
@@ -846,9 +846,9 @@ public class ExecServer
                     }
                 }
                 catch(InterruptedException ie) { }
-                
+
                 vmStarted();
-                
+
                 // Execute the command
                 methodReturn = null;
                 exception = null;
@@ -861,7 +861,7 @@ public class ExecServer
                             // Execute a shell class.
                             methodReturn = null;
                             executedClass = null;
-                            
+
                             clearInputBuffer();
                             Class<?> c = currentLoader.loadClass(classToRun);
                             executedClass = c;
@@ -907,7 +907,7 @@ public class ExecServer
                             for (int i = 0; i < parameterTypes.length; i++) {
                                 if (classLoader == null)
                                     classLoader = currentLoader;
-                                
+
                                 paramClasses[i] = Class.forName(parameterTypes[i], false, currentLoader);
                             }
                             Constructor<?> cons = c.getDeclaredConstructor(paramClasses);
@@ -1041,7 +1041,7 @@ public class ExecServer
     {
         // record that an exception occurred
         exception = t;
-        
+
         // print a filtered stack trace to System.err
         StackTraceElement [] stackTrace = t.getStackTrace();
         int i;
@@ -1054,7 +1054,7 @@ public class ExecServer
         t.setStackTrace(newStackTrace);
         t.printStackTrace();
     }
-    
+
 
     /**
      * Gets an object in the scope. Used by greenfoot.
@@ -1066,7 +1066,7 @@ public class ExecServer
     {
         BJMap<String,Object> m = getScope(scopeId);
         Object rval = null;
-        
+
         try {
             synchronized (m) {
                 rval = m.get(instanceName);
@@ -1080,10 +1080,10 @@ public class ExecServer
             }
         }
         catch (InterruptedException ie) {}
-        
+
         return rval;
     }
-    
+
     /**
      * Get the name-to-object map for the current package scope.
      * Access to the map must be synchronized.

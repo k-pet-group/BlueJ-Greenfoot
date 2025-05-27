@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2012,2013,2014,2016,2019,2024,2025  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -56,59 +56,59 @@ public class InterfacePanel extends VBox
     private final CheckBox reopenProjects;
 
     private final CheckBox accessibility;
-    
+
     private final CheckBox toggleTestNewsMode;
-    
+
     public InterfacePanel()
     {
         JavaFXUtil.addStyleClass(this, "prefmgr-pref-panel");
 
         List<Node> langPanel = new ArrayList<>();
         {
-            
+
             {
-                
-                
+
+
                 allLangsInternal = new ArrayList<String>();
                 List<String> allLangsReadable = new ArrayList<String>();
-                
+
                 for (int i = 1; ; i++) {
                     String langString = Config.getPropString("bluej.language" + i, null);
                     if (langString == null) {
                         break;
                     }
-                    
+
                     // The format of a language string is:
                     //    internal-name:display-name:iso3cc
                     // The iso3cc (ISO country code) is optional.
-                    
+
                     int colonIndex = langString.indexOf(':');
                     if (colonIndex == -1) {
                         continue; // don't understand this one
                     }
-                    
+
                     int secondColon = langString.indexOf(':', colonIndex + 1);
                     if (secondColon == -1) {
                         secondColon = langString.length();
                     }
-                    
+
                     allLangsInternal.add(langString.substring(0, colonIndex));
                     allLangsReadable.add(langString.substring(colonIndex + 1, secondColon));
                 }
-                
+
                 if (allLangsInternal.isEmpty()) {
                     // Guard against modified or corrupted bluej.defs file
                     allLangsInternal.add(Config.language);
                     allLangsReadable.add(Config.language);
                 }
-                
+
                 String [] langs = new String[allLangsReadable.size()];
                 allLangsReadable.toArray(langs);
 
                 langDropdown = new ComboBox(FXCollections.observableArrayList(langs));
             }
             langPanel.add(PrefMgrDialog.labelledItem("prefmgr.interface.language", langDropdown));
-            
+
             Label t = new Label(Config.getString("prefmgr.interface.language.restart"));
             langPanel.add(t);
         }
@@ -122,7 +122,7 @@ public class InterfacePanel extends VBox
 
         accessibility = new CheckBox(Config.getString("prefmgr.accessibility.support"));
         getChildren().add(PrefMgrDialog.headedVBox("prefmgr.accessibility.title", Arrays.asList(accessibility)));
-        
+
         // Hide this checkbox so that it is only revealed if you mouse-over while holding shift:
         toggleTestNewsMode = new CheckBox("Switch to testing mode for news display (after restart)");
         toggleTestNewsMode.setOpacity(0);
@@ -134,7 +134,7 @@ public class InterfacePanel extends VBox
         });
         getChildren().add(toggleTestNewsMode);
     }
-    
+
     @Override
     public void beginEditing(Project project)
     {
@@ -148,9 +148,9 @@ public class InterfacePanel extends VBox
         terminalScopes.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TERMINAL_SCOPES));
 
         reopenProjects.setSelected(PrefMgr.getFlag(PrefMgr.AUTO_OPEN_LAST_PROJECTS));
-        
+
         accessibility.setSelected(PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT));
-        
+
         toggleTestNewsMode.setSelected(PrefMgr.getFlag(PrefMgr.NEWS_TESTING));
         if (toggleTestNewsMode.isSelected())
         {
@@ -184,7 +184,7 @@ public class InterfacePanel extends VBox
         }
         PrefMgr.setFlag(PrefMgr.NEWS_TESTING, testNewsMode);
     }
-    
+
     @Override
     public void revertEditing(Project project)
     {

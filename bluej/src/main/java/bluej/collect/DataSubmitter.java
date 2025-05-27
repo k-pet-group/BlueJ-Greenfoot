@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2013,2016,2018,2019,2021,2023  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -62,16 +62,16 @@ class DataSubmitter
         //For testing:
         //"http://localhost:3000/master_events";
 
-    
+
     private static AtomicBoolean givenUp = new AtomicBoolean(false);
-    
+
     /**
      * isRunning is only touched while synchonized on queue
      */
     private static boolean isRunning = false;
-    
+
     private static List<Event> queue = new LinkedList<Event>();
-    
+
     private static int sequenceNum;
 
     /**
@@ -81,7 +81,7 @@ class DataSubmitter
      * the event-sending thread
      */
     private static Map<FileKey, List<String> > fileVersions = new HashMap<FileKey, List<String> >();
-    
+
     /**
      * Submit data to be posted to the server. The data is added to a queue which is processed by
      * another thread.
@@ -93,10 +93,10 @@ class DataSubmitter
         //This thread only reads the boolean, and is an optimisation:
         if (givenUp.get())
             return;
-        
+
         synchronized (queue) {
             queue.add(evt);
-            
+
             if (! isRunning) {
                 new Thread("Process Blackbox queue") {
                     @OnThread(value = Tag.Worker, ignoreParent = true)
@@ -109,7 +109,7 @@ class DataSubmitter
             }
         }
     }
-    
+
     /**
      * Process the queue of items to be posted to the server.
      */
@@ -126,7 +126,7 @@ class DataSubmitter
                 }
                 evt = queue.remove(0);
             }
-            
+
 
             if (!givenUp.get())
             {
@@ -148,7 +148,7 @@ class DataSubmitter
             }
         }
     }
-    
+
     /**
      * Actually post the data to the server.
      * 
@@ -161,7 +161,7 @@ class DataSubmitter
         HttpConnectionParams.setConnectionTimeout(params, Boot.isTrialRecording() ? 30000 : 10000);
         HttpConnectionParams.setSoTimeout(params, Boot.isTrialRecording() ? 30000 : 10000);
         HttpClient client = new DefaultHttpClient(params);
-        
+
         try {
             HttpPost post = new HttpPost(submitUrl);
 
@@ -170,12 +170,12 @@ class DataSubmitter
             {
                 return true; // nothing to send, no error
             }
-            
+
             //Only increment sequence number if we actually send data:
             sequenceNum += 1;
             post.setEntity(mpe);
             HttpResponse response = client.execute(post);
-            
+
             for (Header h : response.getAllHeaders())
             {
                 if ("X-Status".equals(h.getName()) && !"Created".equals(h.getValue()))
@@ -183,14 +183,14 @@ class DataSubmitter
                     return false;
                 }
             }
-            
+
             if (response.getStatusLine().getStatusCode() != 200)
             {
                 return false;
             }
-            
+
             evt.success(fileVersions);
-                
+
             EntityUtils.consume(response.getEntity());
         }
         catch (ClientProtocolException cpe) {
@@ -199,13 +199,13 @@ class DataSubmitter
         catch (IOException ioe) {
             //For now:
             ioe.printStackTrace();
-            
+
             return false;
         }
-        
+
         return true;
     }
-    
+
     /**
      * Waits until all pending events have been sent to the server, or the timeout expires.  If events are still being added in parallel
      * to this call, there will be undefined behaviour.
@@ -213,7 +213,7 @@ class DataSubmitter
     public static void waitForQueueFlush(int maxMillis)
     {
         final long endTime = System.currentTimeMillis() + maxMillis; 
-        
+
         try
         {
             synchronized (queue)
@@ -239,7 +239,7 @@ class DataSubmitter
     public static void initSequence()
     {
         sequenceNum = 1; //Server relies on it starting at 1, do not change
-        
+
     }
 
     public static boolean hasGivenUp()

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2010,2012,2014,2016,2017,2018,2019  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -189,7 +189,7 @@ public class UpdateAction extends TeamAction
                         parentPackage.positionNewTarget(t);
                     }
                 }
-                
+
                 Package filePackage = project.getCachedPackage(packageName);
                 if (filePackage != null && includeLayout)
                 {
@@ -217,7 +217,7 @@ public class UpdateAction extends TeamAction
                 {
                     return;
                 }
-                
+
                 Target t = pkg.getTarget(name);
                 if (t == null)
                 {
@@ -227,7 +227,7 @@ public class UpdateAction extends TeamAction
                     DataCollector.addClass(pkg, ct);
                     return;
                 }
-                
+
                 if (t instanceof ClassTarget)
                 {
                     ((ClassTarget) t).reload();
@@ -391,7 +391,7 @@ public class UpdateAction extends TeamAction
             {
                 project.clearAllSelections();
                 project.selectTargetsInGraphs(targets);
-                
+
                 // Show the conflicts dialog as a child of the first appropriate PkgMgr frame. We
                 // can't make it a child of the update frame because that will close.
                 Window stage = targets.isEmpty() ? null : targets.get(0).getPackage().getUI().getStage();

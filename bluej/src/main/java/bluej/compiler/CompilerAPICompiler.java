@@ -57,7 +57,7 @@ public class CompilerAPICompiler extends Compiler
         setDebug(true);
         setDeprecation(true);
     }
-    
+
     /**
      * Compile some source files by using the JavaCompiler API. Allows for the addition of user
      * options
@@ -79,14 +79,14 @@ public class CompilerAPICompiler extends Compiler
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
         List<String> optionsList = new ArrayList<String>();
-        
+
         if (jc == null) {
             // We'd expect that this should never happen, but it's been reported once.
             observer.compilerMessage(new bluej.compiler.Diagnostic(bluej.compiler.Diagnostic.ERROR,
                     DiagnosticMessage.fromEnglish("The compiler does not appear to be available.")), type);
             return false;
         }
-        
+
         DiagnosticListener<JavaFileObject> diagListener = new DiagnosticListener<JavaFileObject>() {
             @Override
             public void report(Diagnostic<? extends JavaFileObject> diag)
@@ -99,7 +99,7 @@ public class CompilerAPICompiler extends Compiler
                     //     However:
                     // With JDK 7, the diag.getSource().toURI() returns an unusable URI if the
                     // path is a UNC path (\\server\sharename\projdir\somefile.java).
-                    
+
                     if (Config.isJava17()) {
                         src = diag.getSource().getName();
                     }
@@ -111,11 +111,11 @@ public class CompilerAPICompiler extends Compiler
                         src = new File(srcUri).getPath();
                     }
                 }
-                
+
                 int diagType;
                 bluej.compiler.Diagnostic bjDiagnostic;
                 DiagnosticMessage message = new DiagnosticMessage(diag.getMessage(Locale.ENGLISH), diag.getMessage(Config.getLocale()));
-                
+
                 if (diag.getKind() == Diagnostic.Kind.ERROR) {
                     diagType = bluej.compiler.Diagnostic.ERROR;
                     message = new DiagnosticMessage(processMessage(src, (int) diag.getLineNumber(), message.englishMessage()), message.localisedMessage());
@@ -133,7 +133,7 @@ public class CompilerAPICompiler extends Compiler
                     // then gives a second error with actual line number and more helpful message
                     // "bad operand types for binary operator '+'".  So I think we can just ignore
                     // the -1 error instead of trying to display it:
-                    
+
                     if (diag.getLineNumber() == -1)
                         bjDiagnostic = null;
                     else
@@ -150,7 +150,7 @@ public class CompilerAPICompiler extends Compiler
                         // Chinese version of above
                         return;
                     }
-                    
+
                     if (message.localisedMessage().startsWith("ブートストラップ・クラスパスが-source") && message.localisedMessage().endsWith("一緒に設定されていません")){
                         // Japanese version of above
                         return;
@@ -175,12 +175,12 @@ public class CompilerAPICompiler extends Compiler
                         return;
                     }
                 }
-                
+
                 if (bjDiagnostic != null)
                     observer.compilerMessage(bjDiagnostic, type);
             }
         };
-        
+
         try
         {  
             //setup the filemanager
@@ -189,7 +189,7 @@ public class CompilerAPICompiler extends Compiler
             List<File> outputList = new ArrayList<File>();
             outputList.add(getDestDir());
             pathList.addAll(getClassPath());
-            
+
             // In BlueJ, the destination directory and the source path are
             // always the same
             sjfm.setLocation(StandardLocation.SOURCE_PATH, outputList);
@@ -207,7 +207,7 @@ public class CompilerAPICompiler extends Compiler
                 tempDir = Files.createTempDirectory("bluej").toFile();
                 sjfm.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(tempDir));
             }
-            
+
             //get the source files for compilation  
             Iterable<? extends JavaFileObject> compilationUnits1 =
                 sjfm.getJavaFileObjectsFromFiles(Arrays.asList(sources));
@@ -218,14 +218,14 @@ public class CompilerAPICompiler extends Compiler
             if(isDeprecation()) {
                 optionsList.add("-deprecation");
             }
-            
+
             File[] bootClassPath = getBootClassPath();
             if (bootClassPath != null && bootClassPath.length != 0) {
                 sjfm.setLocation(StandardLocation.PLATFORM_CLASS_PATH, Arrays.asList(bootClassPath));
             }
-            
+
             optionsList.addAll(userOptions);
-            
+
             //compile
             result = jc.getTask(null, sjfm, diagListener, optionsList, null, compilationUnits1).call();
             sjfm.close();
@@ -259,7 +259,7 @@ public class CompilerAPICompiler extends Compiler
         {
             message = message.substring(expected.length());
         }
-        
+
         if (message.contains("cannot resolve symbol")
                 || message.contains("cannot find symbol")
                 || message.contains("incompatible types")) 

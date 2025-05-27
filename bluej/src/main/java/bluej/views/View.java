@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2016  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -117,7 +117,7 @@ public class View
     {
         return cl.getName();
     }
-    
+
     public String getPackageName()
     {
         String clName = cl.getName();
@@ -163,12 +163,12 @@ public class View
     {
         return cl.isInterface();
     }
-    
+
     public final boolean isGeneric()
     {
         return getTypeParams().length>0;
     }
-    
+
     /**
      * Returns all the formal type parameters.
      * 
@@ -184,7 +184,7 @@ public class View
         }
         return typeParams;
     }
-    
+
 
     /**
      * Return views of all methods of this class (including inherited ones).
@@ -197,7 +197,7 @@ public class View
         if(allMethods == null) {
             HashMap<String,MemberElement> map = new HashMap<String,MemberElement>();
             getAllMethods(map, 0);
-            
+
             List<MemberElement> methods = new ArrayList<MemberElement>(map.values());
             Collections.sort(methods, new ElementComparer());
 
@@ -221,7 +221,7 @@ public class View
         if(allFields == null) {
             HashMap<String,MemberElement> map = new HashMap<String,MemberElement>();
             getAllFields(map, 0);
-            
+
             List<MemberElement> fields = new ArrayList<MemberElement>(map.values());
             Collections.sort(fields, new ElementComparer());
 
@@ -337,14 +337,14 @@ public class View
             int count = 0;
             try {
                 Method[] cl_methods = cl.getDeclaredMethods();
-                
+
                 for(int i = 0; i < cl_methods.length; i++) {
                     if (!cl_methods[i].isSynthetic()) {
                         count++;
                     }
                 }
                 methods = new MethodView[count];
-                
+
                 count = 0;
                 for(int i = 0; i < cl_methods.length; i++) {
                     if (!cl_methods[i].isSynthetic()) {
@@ -382,7 +382,7 @@ public class View
             try {
                 Field[] cl_fields= cl.getDeclaredFields();
                 fields = new FieldView[cl_fields.length];
-            
+
                 for(int i = 0; i < cl_fields.length; i++)
                     fields[i] = new FieldView(this, cl_fields[i]);
             }
@@ -404,7 +404,7 @@ public class View
             try {
                 Constructor<?>[] cl_constrs = cl.getDeclaredConstructors();
                 constructors = new ConstructorView[cl_constrs.length];
-                
+
                 for(int i = 0; i < constructors.length; i++)
                     constructors[i] = new ConstructorView(this, cl_constrs[i]);
             }
@@ -482,7 +482,7 @@ public class View
             // match up the comments read from the file with the members of this view
             for(Iterator<Comment> it = comments.getComments(); it.hasNext(); ) {
                 Comment c = it.next();
-                
+
                 if(c.getTarget().startsWith("class ") ||
                    c.getTarget().startsWith("interface ")) {
                     // we only want to set a class comment on our base class, not for

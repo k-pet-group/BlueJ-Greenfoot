@@ -239,7 +239,7 @@ public class FlowErrorManager implements ErrorQuery
                 SourceLocation startErrorPosSourceLocation = editor.getLineColumnFromOffset(startPos);
                 SourceLocation endErrorLineSourceLocation = new SourceLocation(errorLine, errorLineLength);
                 String errorLineText = editor.getText(startErrorLineSourceLocation, endErrorLineSourceLocation);
-    
+
                 // set the quick fix imports if detected an unknown type error...
                 if (message.englishMessage().contains("cannot find symbol") && message.englishMessage().contains("class"))
                 {
@@ -249,7 +249,7 @@ public class FlowErrorManager implements ErrorQuery
                     {
                         List<AssistContentThreadSafe> possibleCorrectionsList = possibleImports
                             .filter(ac -> ac.getPackage() != null).collect(Collectors.toList());
-    
+
                         // Add the fixes: import single class then import package
                         // We don't show package import when the typeName suggest an inner class
                         corrections.addAll(possibleCorrectionsList.stream()
@@ -266,7 +266,7 @@ public class FlowErrorManager implements ErrorQuery
                                         editor.addImportFromQuickFix(ac.getPackage() + ".*");
                                     })))
                             .collect(Collectors.toList()));
-    
+
                         // Add a quick fix for correcting to an existing closely spelt type
                         Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.TYPE, possibleCorrectionsList, typeName, startPos);
                         if (possibleCorrectionsStream != null)
@@ -301,7 +301,7 @@ public class FlowErrorManager implements ErrorQuery
                     // Change the error message to a more meaningful message
                     String varName = message.englishMessage().substring(message.englishMessage().lastIndexOf(' ') + 1);
                     message = DiagnosticMessage.fromLocalised(Config.getString("editor.quickfix.undeclaredVar.errorMsg") + varName);
-    
+
                     // Add a quick fix for correcting to an existing closely spelt variable
                     Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.FIELD);
                     if (possibleCorrectionsStream != null)
@@ -321,7 +321,7 @@ public class FlowErrorManager implements ErrorQuery
                         int indexOfEqualOp = editor.getText(startErrorLineSourceLocation, endErrorLineSourceLocation).indexOf('=');
                         String declarationRightPart = editor.getText(startErrorLineSourceLocation, endErrorLineSourceLocation).substring(indexOfEqualOp + 1).trim();
                         String typePlaceholder = "_type_";
-    
+
                         // Add suggestion for declaring local variable (not: the error won't be on a assignement made in a class, so we don't need to check where we are)
                         corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.undeclaredVar.fixMsg.local"), () -> {
                             editor.setText(startErrorPosSourceLocation, endErrorLineSourceLocation, (typePlaceholder + " " + varName + "= " + declarationRightPart));
@@ -341,7 +341,7 @@ public class FlowErrorManager implements ErrorQuery
                                 int prevLine = editor.getLineColumnFromOffset(newClassFieldPos - 1).getLine();
                                 editor.setText(editor.getLineColumnFromOffset(newClassFieldPos), editor.getLineColumnFromOffset(newClassFieldPos),
                                     (indentationForNewField + "private " + typePlaceholder + " " + varName + ";\n"));
-    
+
                                 // Select the type placeholder for suggesting the user to fill it...
                                 editor.setSelection(new SourceLocation(prevLine + 1, indentationForNewField.length() + "private ".length() + 1),
                                     new SourceLocation(prevLine + 1, indentationForNewField.length() + "private ".length() + 1 + typePlaceholder.length()));
@@ -360,7 +360,7 @@ public class FlowErrorManager implements ErrorQuery
                     // Change the error message to a more meaningful message
                     String methodName = message.englishMessage().substring("cannot find symbol -   method ".length(), message.englishMessage().lastIndexOf('('));
                     message = DiagnosticMessage.fromLocalised(Config.getString("editor.quickfix.undeclaredMethod.errorMsg") + methodName + message.englishMessage().substring(message.englishMessage().lastIndexOf('(')));
-    
+
                     // Add a quick fix for correcting to an existing closely spelt method
                     Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.METHOD);
                     if (possibleCorrectionsStream != null)
@@ -383,7 +383,7 @@ public class FlowErrorManager implements ErrorQuery
                     String exceptionQualifiedNameType = message.englishMessage().substring("unreported exception ".length(), message.englishMessage().indexOf(';'));
                     message = DiagnosticMessage.fromLocalised(Config.getString("editor.quickfix.unreportedException.errorMsg.part1") + exceptionQualifiedNameType + Config.getString("editor.quickfix.unreportedException.errorMsg.part2"));
                     DiagnosticMessage messageFinal = message;
-    
+
                     // If the exception type is already imported, we don't need to use the qualified name in the corrections:
                     // so we check if imports contains that type, and if so, use a simple type name.
                     // We try to retrieve the AssistContent object for the suggested type in order to make the right checkup 
@@ -397,7 +397,7 @@ public class FlowErrorManager implements ErrorQuery
                                     // The actual correction type String we will use might not be the qualified name if the import is already there for that type (or type in java.lang)
                                     // initial value is set to qualified name
                                     String exceptionTypeForCorrection = exceptionQualifiedNameType;
-    
+
                                     // There shouldn't be more than one type returned here using the fully qualified name.. 
                                     // so we use the first one if at least one is returned.
                                     if (matchTypeACList.size() > 0)
@@ -421,12 +421,12 @@ public class FlowErrorManager implements ErrorQuery
                                             exceptionQualifiedNameType.substring(((exceptionQualifiedNameType.contains(".")) ? (exceptionQualifiedNameType.lastIndexOf(".") + 1) : 0)).replaceAll("[^A-Z]", "").toLowerCase();
                                         if (exceptionVarNameRoot.length() == 0)
                                             exceptionVarNameRoot = "e";
-    
+
                                         boolean foundVarName = false;
                                         String fileContent = editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(editor.getTextLength()));
                                         int posOfClass = getNewClassFieldPos(editor).pos;
                                         int posOfContainingMethod = editor.getParsedNode().getContainingMethodOrClassNode(startPos).getAbsoluteEditorPosition();
-    
+
                                         int varSuffix = 0;
                                         String exceptionVarName = exceptionVarNameRoot;
                                         do
@@ -446,7 +446,7 @@ public class FlowErrorManager implements ErrorQuery
                                                 exceptionVarName = exceptionVarNameRoot + varSuffix;
                                             }
                                         } while (foundVarName);
-    
+
                                         // then we can build up the surrounding try/catch string
                                         // We find where is the beginning of the statement
                                         // IMPORTANT NOTE: the string parts fileContentxxx is a modified version of the source code:
@@ -466,13 +466,13 @@ public class FlowErrorManager implements ErrorQuery
                                             statementStartPos++;
                                         String fileContentAfterErrorPart = blankCodeCommentsAndStringLiterals(fileContent.substring(startPos), '0');
                                         int statementEndPos = 0;
-    
+
                                         boolean needSurroundingBrackets = false;
                                         // First, we check if the error is inside a control statement, for example "if(...)", "for(...)"
                                         // because if that is the case, we do not show the try/catch fix at all
                                         if (!editor.getParsedNode().isCurrentlyInControlStatement(startPos))
                                         {
-    
+
                                             boolean needNewLine = (editor.getLineColumnFromOffset(prevStatementPos).getLine() == errorLine);
                                             boolean foundEnd = false;
                                             int searchIndex = 0;
@@ -526,7 +526,7 @@ public class FlowErrorManager implements ErrorQuery
                                                     searchIndex++;
                                                 }
                                             }
-    
+
                                             // If we couldn't find the end of the erroneous statement, 
                                             // or we are inside a control statement (e.g. if, for ...),
                                             // then we don't propose to add a try/catch statement
@@ -552,7 +552,7 @@ public class FlowErrorManager implements ErrorQuery
                                                 tryCatchString.append(catchStatement + "\n"
                                                     + initIdent + "}" + ((needSurroundingBrackets) ? "\n" : "")
                                                     + ((needSurroundingBrackets) ? unchangedInitIdent + "}" : ""));
-    
+
                                                 // and prepare the quick fix
                                                 int finalStatementEndPos = statementEndPos;
                                                 int finalStatementStartPos = statementStartPos;
@@ -566,7 +566,7 @@ public class FlowErrorManager implements ErrorQuery
                                                 }));
                                             }
                                         }
-    
+
                                         // Add a second quick fix for adding a throws statement, if not in a lambda
                                         if (!needSurroundingBrackets)
                                         {
@@ -590,7 +590,7 @@ public class FlowErrorManager implements ErrorQuery
                                                 ((Character.isWhitespace(fileContentBeforeErrorPart.charAt(posOfNewThrowsAddition - 1))) ? "" : " ")
                                                     + ((methodHasThrows) ? (exceptionTypeForCorrection + ",") : ("throws " + exceptionTypeForCorrection))
                                                     + ((openingMethodBodyBracketOnSameLine) ? " " : "");
-    
+
                                             // and prepare the quick fix
                                             corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.unreportedException.fixMsg.throws"), () -> {
                                                 int currentLocation = editor.getOffsetFromLineColumn(editor.getCaretLocation());
@@ -638,7 +638,7 @@ public class FlowErrorManager implements ErrorQuery
             String fullyQualifiedNameCorrectionOuterType = (isInnerClass) ? correctionPackage + "." + correctionType.substring(0, correctionType.lastIndexOf(".")) : "";
             AtomicBoolean isCorrectionTypeImportedAtomic = new AtomicBoolean(false); //we will check this later
             AtomicBoolean isCorrectionOuterTypeImportedAtomic = new AtomicBoolean(false); //we will check this later as well if required
-            
+
             Future<List<AssistContentThreadSafe>> futureCorrectionTypeImport = editor.getEditorFixesManager().scanImports(fullyQualifiedNameCorrectionType);
             Future<List<AssistContentThreadSafe>> futureCorrectionOuterTypeImport = (isInnerClass) ? editor.getEditorFixesManager().scanImports(fullyQualifiedNameCorrectionOuterType) : null;
             Utility.runBackground(() -> {
@@ -704,7 +704,7 @@ public class FlowErrorManager implements ErrorQuery
                         LocatableToken lastToken = null;
                         int fullTypePrePos = -1;
                         LocatableToken t = null;
-                        
+
                         for (t = l.nextToken(); t.getType() != JavaTokenTypes.EOF; t = l.nextToken())
                         {
                             if (feedPreTokens && t.getType() != JavaTokenTypes.DOT)
@@ -777,12 +777,12 @@ public class FlowErrorManager implements ErrorQuery
         {
             return startPos <= pos && pos <= endPos;
         }
-        
+
         public int getItalicMessageStartIndex()
         {
             return italicMessageStartIndex;
         }
-        
+
         public int getItalicMessageEndIndex()
         {
             return italicMessageEndIndex;
@@ -930,7 +930,7 @@ public class FlowErrorManager implements ErrorQuery
                 {
                     // We manually add java.lang classes as they are not included in the imports
                     commmonTypes.addAll(editor.getEditorFixesManager().getJavaLangImports().stream().filter(ac -> ac.getPackage() != null).collect(Collectors.toList()));
-                    
+
                     // We filter the imports to : commonly used classes and classes imported in the class explicitly
                     commmonTypes.addAll(possibleCorrectionAlImports.stream()
                             .filter(ac -> Correction.isClassInUsualPackagesForCorrections(ac)

@@ -182,7 +182,7 @@ public class TestHangingFlowPane
             this.expectedX = expectedX;
             this.node = new FixedSizeNode(width, height, baseline);
         }
-        
+
         Node getNode()
         {
             return node;
@@ -211,7 +211,7 @@ public class TestHangingFlowPane
         HangingFlowPane.setBreakBefore(tni.getNode(), false);
         return tni;
     }
-    
+
     // Shorthand for Arrays.asList
     private <T> List<T> l(T... xs)
     {
@@ -332,7 +332,7 @@ public class TestHangingFlowPane
         assertLayout(n2, 90, 40 + 10, 80, 50);
         assertLayout(n3, 0, 40 + 60, 70, 70);
     }
-    
+
     @Test
     public void testNoBreak()
     {
@@ -341,7 +341,7 @@ public class TestHangingFlowPane
             // The 100 should fit above, but the trailing no-break forces on to new row:
             l(n(100, 0), nb(200, 100))
         ));
-        
+
         testRows500(20, l(
             l(n(300, 0)),
             // Would fit above, but no break drags it down:
@@ -361,7 +361,7 @@ public class TestHangingFlowPane
             l(nb(400, 0))
         ));
     }
-    
+
     @Test
     public void testHeight()
     {
@@ -379,9 +379,9 @@ public class TestHangingFlowPane
         checkHeight(50, n(300, 0), n(198, 300), n(1, 498));
         checkHeight(50, n(300, 0), n(199, 300), n(1, 499));
         checkHeight(100, n(300, 0), n(200, 300), n(1, 0));
-        
+
     }
-    
+
     // Makes the computePrefHeight method public
     private static class TestBetterVBox extends BetterVBox
     {

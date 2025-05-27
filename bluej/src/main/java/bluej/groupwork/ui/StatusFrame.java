@@ -280,7 +280,7 @@ public class StatusFrame extends FXCustomizedDialog<Void>
                 }
                 statusTable.refresh();
                 statusTable.setItems(resources);
-                
+
                 // Sort by status, descending. The sort above actually does this, but this makes it visible
                 // in the UI by marking the second column header with an indicator:
                 TableColumn<TeamStatusInfo,?> secondColumn = statusTable.getColumns().get(1);

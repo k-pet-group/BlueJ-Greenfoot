@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2015,2016,2017,2019,2020,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -42,7 +42,7 @@ public class TeamSettings
     private boolean savePassword;
     private String yourName;
     private String yourEmail;
-    
+
     public TeamSettings(String protocol, String server, int port,
             String prefix, String branch, String username, String password, boolean savePassword)
     {
@@ -55,12 +55,12 @@ public class TeamSettings
         this.password = password;
         this.savePassword = savePassword;
     }
-    
+
     public String getProtocol()
     {
         return protocol;
     }
-    
+
     public String getServer()
     {
         return server;
@@ -69,7 +69,7 @@ public class TeamSettings
     public int getPort() {
         return port;
     }
-    
+
     public String getPrefix()
     {
         return prefix;
@@ -79,22 +79,22 @@ public class TeamSettings
     {
         return branch;
     }
-    
+
     public String getUserName()
     {
         return username;
     }
-    
+
     public String getPassword()
     {
         return password;
     }
-    
+
     public boolean getSavePassword()
     {
         return savePassword;
     }
-    
+
     public void setSavePassword(boolean savePassword)
     {
         this.savePassword = savePassword;
@@ -131,7 +131,7 @@ public class TeamSettings
     {
         this.yourEmail = yourEmail;
     }
-    
+
     /**
      * produces an URI connection string for display purposes.
      * @param protocol the string containting the protocol
@@ -140,7 +140,7 @@ public class TeamSettings
      * @return the connection string in URI format.
      */
     public static String getURI(String protocol, String server, int port, String prefix){
-        
+
         String gitUrl = protocol + "://";
 
 

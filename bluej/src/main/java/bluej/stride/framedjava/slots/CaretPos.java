@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -38,11 +38,11 @@ class CaretPos
     public final int index; // If this is a field, a caret position.  If this is a compound, it's an index (into fields array)
     // -1 for index is like ".." in paths; remove parent
     public final CaretPos subPos; // Null if and only if this is a field
-    
+
     public CaretPos(int index, CaretPos subPos) { this.index=index;this.subPos = subPos;}
     // For debugging:
     public String toString() { return "" + index + (subPos == null ? "" : "->" + subPos.toString()); }
-    
+
     /**
      * Returns true if this caret position is before (to the left of) the given position.
      * If they are equal, returns false.
@@ -58,7 +58,7 @@ class CaretPos
         else
             return subPos.before(p.subPos);
     }
-    
+
     @Override
     public boolean equals(Object o)
     {
@@ -90,7 +90,7 @@ class CaretPos
             return new CaretPos(index, subPos.append(replacement));
         }
     }
-    
+
     /**
      * Checks if the given CaretPos is a prefix of this list.  If so,
      * returns an integer with the following element from this list.  
@@ -107,7 +107,7 @@ class CaretPos
         else
             return Optional.empty();
     }
-    
+
     /**
      * Returns a normalised copy of this CaretPos.  The value of -1 for index acts as like a ".." in directories,
      * heading up to a parent.  This method normalises a CaretPos where possible, putting those -1
@@ -123,7 +123,7 @@ class CaretPos
         else
             return this;
     }
-    
+
     public static boolean between(CaretPos start, CaretPos end, CaretPos p)
     {
         // If bounds are both empty, must be inbetween
@@ -132,7 +132,7 @@ class CaretPos
         // If at least one bound is present, and target is null, is not inside: 
         else if (p == null)
             return false;
-        
+
         if ((start == null || start.index <= p.index) && (end == null || p.index <= end.index))
         {
             // Matches at this level; dig down.
@@ -145,7 +145,7 @@ class CaretPos
             return false;
         }
     }
-    
+
     // Gets a copy with the last item removed.  So 3->5->7->null becomes 3->5->null
     public CaretPos init()
     {

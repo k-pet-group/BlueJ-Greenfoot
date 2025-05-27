@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2013,2014,2016,2023  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -56,10 +56,10 @@ public final class ClassInfo
 
     private List<String> implemented = new ArrayList<String>();
     private List<String> used = new ArrayList<String>();
-    
+
     private List<String> permits = new ArrayList<>();
     private List<SavedComment> comments = new LinkedList<SavedComment>();
-    
+
     private List<String> typeParameterTexts = new ArrayList<String>();
     private Selection typeParametersSelection;
     private Selection extendsReplaceSelection;
@@ -71,7 +71,7 @@ public final class ClassInfo
     private boolean isAbstract = false;
     private boolean isUnitTest = false;
     private boolean isEnum = false;
-    
+
     private boolean hadParseError = false;
 
     public class SavedComment
@@ -143,7 +143,7 @@ public final class ClassInfo
             }
         }
     }
-    
+
     public void setEnum(boolean isEnum)
     {
         this.isEnum = isEnum;
@@ -170,7 +170,7 @@ public final class ClassInfo
             permits.add(name);
         }
     }
-    
+
     public void addUsed(String name)
     {
         if(name.equals(this.name)) {
@@ -236,7 +236,7 @@ public final class ClassInfo
     {
         hadParseError = err;
     }
-    
+
     /**
      * Where we would insert the string "extends" in a class/interface
      */
@@ -350,12 +350,12 @@ public final class ClassInfo
     {
         interfaceSelections = selections;
     }
-    
+
     public void addTypeParameterText(String typeParameterText)
     {
         typeParameterTexts.add(typeParameterText);
     }
-    
+
     public List<String> getTypeParameterTexts()
     {
         return typeParameterTexts;
@@ -464,12 +464,12 @@ public final class ClassInfo
     {
         typeParametersSelection = s;
     }
-    
+
     public boolean hasTypeParameter()
     {
         return (typeParametersSelection != null);
     }
-    
+
     /**
      * Get the list of referenced classes (a list of String).
      */
@@ -499,7 +499,7 @@ public final class ClassInfo
         }
         return props;
     }
-    
+
     public List<SavedComment> getCommentsAsList()
     {
         return Collections.unmodifiableList(comments);
@@ -514,12 +514,12 @@ public final class ClassInfo
     {
         return this.isAbstract;
     }
-    
+
     public boolean isUnitTest()
     {
         return this.isUnitTest;
     }
-    
+
     public boolean isEnum()
     {
         return this.isEnum;

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2013,2014,2019,2022  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -59,9 +59,9 @@ public class ParsedTypeNode extends IncrementalParsingNode
     private List<JavaEntity> implementedTypes;
     private int modifiers;
     private ParsedTypeNode containingClass;
-    
+
     private int type; // one of JavaParser.TYPEDEF_CLASS, INTERFACE, ENUM, ANNOTATION
-    
+
     /**
      * Construct a new ParsedTypeNode.
      * 
@@ -83,13 +83,13 @@ public class ParsedTypeNode extends IncrementalParsingNode
         this.prefix = prefix;
         this.modifiers = modifiers;
         this.containingClass = containingClass;
-        
+
         // Set defaults for various members
         typeParams = Collections.emptyList();
         extendedTypes = Collections.emptyList();
         implementedTypes = Collections.emptyList();
     }
-    
+
     /**
      * Gets the kind of type which this node represents. Returns one of:
      * JavaParser.TYPEDEF_CLASS, _INTERFACE, _ENUM or _ANNOTATION
@@ -98,7 +98,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         return type;
     }
-    
+
     /**
      * Get the modifiers of the type this node represents (see java.lang.reflect.Modifier).
      */
@@ -106,7 +106,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         return modifiers;
     }
-    
+
     /**
      * Get the node representing the class containing this one.
      */
@@ -114,7 +114,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         return containingClass;
     }
-    
+
     /**
      * Set the type parameters for this type (empty list for none).
      */
@@ -122,7 +122,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         this.typeParams = typeParams;
     }
-    
+
     /**
      * Get the type parameters for this type (empty list if none).
      */
@@ -130,7 +130,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         return typeParams;
     }
-    
+
     /**
      * Set the types that this type is declared to implement (empty list for none).
      */
@@ -138,7 +138,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         this.implementedTypes = implementedTypes;
     }
-    
+
     /**
      * Get the types this type is declared to implement (empty list if none).
      */
@@ -146,7 +146,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         return implementedTypes;
     }
-    
+
     /**
      * Specify which types this type explicitly extends (empty list for none).
      */
@@ -154,7 +154,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         this.extendedTypes = extendedTypes;
     }
-    
+
     /**
      * Return the types which this type explicit extends.
      * For an anonymous inner class, the returned list will contain a single
@@ -164,19 +164,19 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         return extendedTypes;
     }
-    
+
     @Override
     public int getNodeType()
     {
         return NODETYPE_TYPEDEF;
     }
-    
+
     @Override
     public boolean isContainer()
     {
         return true;
     }
-    
+
     /**
      * Set the unqualified name of the type this node represents.
      */
@@ -186,13 +186,13 @@ public class ParsedTypeNode extends IncrementalParsingNode
         this.name = name;
         getParentNode().childChangedName(this, oldName);
     }
-    
+
     @Override
     public String getName()
     {
         return name;
     }
-    
+
     /**
      * Get the package qualification prefix for the type this node represents.
      */
@@ -200,7 +200,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         return prefix;
     }
-    
+
     /**
      * Insert the inner node for the type definition.
      * The inner node will hold the field definitions etc.
@@ -211,7 +211,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
         inner = child;
         stateMarkers[1] = position + size;
     }
-    
+
     /**
      * Get the inner node for the type, if one exists. May return null.
      */
@@ -219,7 +219,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         return inner;
     }
-    
+
     @Override
     protected void childRemoved(NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
@@ -230,7 +230,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
         }
         super.childRemoved(child, listener);
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     protected int doPartialParse(ParseParams params, int state)
@@ -243,17 +243,17 @@ public class ParsedTypeNode extends IncrementalParsingNode
             if (r == JavaParser.TYPEDEF_EPIC_FAIL) {
                 return PP_EPIC_FAIL;
             }
-            
+
             type = r;
             params.parser.initializeTypeExtras();
-            
+
             LocatableToken token = params.tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.IDENT) {
                 last = token;
                 return PP_INCOMPLETE;
             }
             setName(token.getText());
-            
+
             token = params.parser.parseTypeDefPart2(type == JavaParser.TYPEDEF_RECORD);
             if (token == null) {
                 last = params.tokenStream.LA(1);
@@ -271,7 +271,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
             if (last.getType() != JavaTokenTypes.LCURLY) {
                 return PP_REGRESS_STATE;
             }
-            
+
             if (inner == null) {
                 int oldStateMarker = stateMarkers[1];
                 last = params.parser.parseTypeBody(type, last);
@@ -284,7 +284,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
                 stateMarkers[1] = oldStateMarker; // let state transition magic work
                 return PP_BEGINS_NEXT_STATE;
             }
-            
+
             // If we already have an inner we pull it into position.
             NodeAndPosition<ParsedNode> nextChild = params.childQueue.peek();
             while (nextChild != null && nextChild.getNode() != inner) {
@@ -292,7 +292,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
                 params.childQueue.poll();
                 nextChild = params.childQueue.peek();
             }
-            
+
             params.abortPos = lineColToPos(params.document, last.getEndLine(), last.getEndColumn());
             return PP_PULL_UP_CHILD;
         }
@@ -318,7 +318,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
                 complete = false;
                 return PP_ABORT;
             }
-            
+
             // Extend the inner node up to the token we just pulled.
             int lastPos = lineColToPos(params.document, last.getLine(), last.getColumn());
             if ((innerPos + innerSize) != lastPos || ! inner.complete) {
@@ -336,31 +336,31 @@ public class ParsedTypeNode extends IncrementalParsingNode
                 params.abortPos = innerPos + innerSize;
                 return PP_ABORT;
             }
-            
+
             return PP_ENDS_NODE_AFTER;
         }
-        
+
         return PP_EPIC_FAIL;
     }
-    
+
     @Override
     protected boolean isDelimitingNode(NodeAndPosition<ParsedNode> nap)
     {
         return nap.getNode().isInner();
     }
-    
+
     @Override
     protected boolean isNodeEndMarker(int tokenType)
     {
         return false;
     }
-    
+
     @Override
     protected boolean marksOwnEnd()
     {
         return true;
     }
-    
+
     @Override
     public void childResized(ReparseableDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
     {
@@ -368,26 +368,26 @@ public class ParsedTypeNode extends IncrementalParsingNode
             stateMarkers[1] = child.getEnd() - nodePos;
         }
     }
-    
+
     @Override
     public ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document, ExpressionNode largestPlainExpressionNode)
     {
         valueEntityCache.clear();
         pocEntityCache.clear();
-        
+
         // The default type if the expression is not known should be this type
         ValueEntity myType = new ValueEntity(new GenTypeClass(new ParsedReflective(this)));
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {
             return child.getNode().getExpressionType(pos, child.getPosition(), myType, document, null);
         }
-        
+
         // We don't return the specified default type (which must be an outer type). There
         // can be no completions because no completions can occur except in the context
         // of child nodes.
         return null;
     }
-    
+
     @Override
     public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {

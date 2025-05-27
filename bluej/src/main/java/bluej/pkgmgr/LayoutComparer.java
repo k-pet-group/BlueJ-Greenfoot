@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2013,2015,2016  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -117,18 +117,18 @@ public class LayoutComparer implements Comparator<Dependency>
 
         if(a_quad != b_quad) // different quadrants
             return (a_quad > b_quad) ? 1 : -1;
-        
+
         // otherwise, we're in the same quadrant:
         int result = in ? compareInt(ax,bx) : compareInt(ay, by);
-        
+
         // if a_above == a_left, qA and qB are either 0 or 3 (top left
         // or bottom right). Since arrows drawn from/to this quadrant
         // turn the other way to arrows in the adjacent quadrant, we
         // reverse the ordering calculated above.
-        
+
         return (a_above == a_left) ? -result : result;
     }
-    
+
     /**
      * Compare two integers and return a result indicating that the first is less than (-1),
      * equal to (0) or greater than (1) the second.
@@ -138,7 +138,7 @@ public class LayoutComparer implements Comparator<Dependency>
         if (a == b) {
             return 0;
         }
-        
+
         return (a < b) ? -1 : 1;
     }
 }

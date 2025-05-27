@@ -94,7 +94,7 @@ abstract class FXTab extends Tab
                 imageView.setFitHeight(Math.min(image.getHeight(), maxSize));
                 imageView.setFitWidth(Math.min(image.getWidth(), maxSize));
             }
-            
+
             imageView.setImage(image);
         };
         imageView.setPreserveRatio(true);

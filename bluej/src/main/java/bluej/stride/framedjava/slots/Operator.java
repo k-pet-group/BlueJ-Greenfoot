@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -88,14 +88,14 @@ class Operator
         });
         l.setOnMouseClicked(MouseEvent::consume);
         l.setOnDragDetected(MouseEvent::consume);
-        
+
         l.textProperty().bind(
             new When(showingJava)
                 .then(new When(sourceProperty.isEqualTo("<:")).then(" instanceof ")
                     .otherwise(new When(sourceProperty.isEqualTo("..")).then(rangeJavaPreview)
                         .otherwise(sourceProperty)))
                 .otherwise(sourceProperty));
-        
+
         JavaFXUtil.addChangeListener(sourceProperty, s -> updateBreaks());
         updateBreaks();
     }
@@ -165,12 +165,12 @@ class Operator
             return Precedence.LOW;
         }
     }
-    
+
     public String getCopyText()
     {
         return sourceProperty.get();
     }
-    
+
     public Node getNode()
     {
         return l;
@@ -224,7 +224,7 @@ class Operator
             else
                 return " " + get() + " ";
     }
-    
+
     public void setView(View view, SharedTransition animate)
     {
         // When Java turned off, reset override:
@@ -254,7 +254,7 @@ class Operator
         // DOT is like ULTRA; highest priority, but only used for dots
         // Similarly, COMMA and NEW are like ZERO; lowest priority, but only used for new/commas
         DOT, HIGH, MEDIUM, LOW, NEW, COMMA;
-        
+
         public String getPseudoClass()
         {
             switch (this)

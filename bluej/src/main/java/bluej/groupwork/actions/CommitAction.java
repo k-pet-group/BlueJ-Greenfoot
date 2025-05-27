@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2012,2014,2016,2017,2018,2019  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -63,15 +63,15 @@ public class CommitAction extends TeamAction
     private CommitAndPushFrame commitCommentsFrame;
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private StatusHandle statusHandle;
-    
+
     private CommitWorker worker;
-    
+
     public CommitAction(CommitAndPushFrame frame)
     {
         super(Config.getString("team.commitButton"), false);
         commitCommentsFrame = frame;
     }
-    
+
     /**
      * Set the files which are new, that is, which aren't presently under
      * version management and which need to be added. If the version management
@@ -82,7 +82,7 @@ public class CommitAction extends TeamAction
     {
         this.newFiles = newFiles;
     }
-    
+
     /**
      * Set the files which have been deleted locally, and the deletion
      * needs to be propagated to the repository.
@@ -91,7 +91,7 @@ public class CommitAction extends TeamAction
     {
         this.deletedFiles = deletedFiles;
     }
-    
+
     /**
      * Set all files which are to be committed. This should include both
      * the new files and the deleted files, as well as any other files
@@ -101,7 +101,7 @@ public class CommitAction extends TeamAction
     {
         this.files = files;
     }
-    
+
     /**
      * Set the status handle to use in order to perform the commit operation.
      */
@@ -110,7 +110,7 @@ public class CommitAction extends TeamAction
     {
         this.statusHandle = statusHandle;
     }
-    
+
     @Override
     protected void actionPerformed(Project project)
     {
@@ -120,7 +120,7 @@ public class CommitAction extends TeamAction
         worker = new CommitWorker();
         worker.start();
     }
-    
+
     /**
      * Cancel the commit, if it is running.
      */
@@ -148,7 +148,7 @@ public class CommitAction extends TeamAction
         {
             String comment = commitCommentsFrame.getComment();
             Set<TeamStatusInfo> forceFiles = new HashSet<>();
-            
+
             //last step before committing is to add in modified diagram 
             //layouts if selected in commit comments dialog
             if(commitCommentsFrame.includeLayout()) {
@@ -168,17 +168,17 @@ public class CommitAction extends TeamAction
             result = command.getResult();
             return result;
         }
-        
+
         public void abort()
         {
             command.cancel();
             aborted = true;
         }
-        
+
         public void finished()
         {
             final Project project = commitCommentsFrame.getProject();
-            
+
             if (! aborted) {
                 commitCommentsFrame.stopProgress();
                 if (! result.isError() && ! result.wasAborted()) {
@@ -186,9 +186,9 @@ public class CommitAction extends TeamAction
                     commitCommentsFrame.displayMessage(Config.getString("team.commit.statusDone"));
                 }
             }
-            
+
             TeamUtils.handleServerResponseFX(result, commitCommentsFrame.asWindow());
-            
+
             if (! aborted) {
                 commitCommentsFrame.setVisible();
             }

@@ -52,24 +52,24 @@ public class FlowIndent
     {
         private boolean perfect;
         private int newCaretPos;
-        
+
         public AutoIndentInformation(boolean perfect, int newCaretPos)
         {
             this.perfect = perfect;
             this.newCaretPos = newCaretPos;
         }
-        
+
         public boolean isPerfect()
         {
             return perfect;
         }
-        
+
         public int getNewCaretPosition()
         {
             return newCaretPos;
         }
     }
-    
+
     /**
      * Perform an auto-layout - calculate the correct indent for each source line, and apply it. Return
      * information about the applied indentation.
@@ -78,7 +78,7 @@ public class FlowIndent
     {
         return calculateIndentsAndApply(parser, doc, multilineStringTracker, 0, doc.getLength(), caretPos);
     }
-    
+
     /**
      * Perform an auto-layout - calculate the correct indent for each source line between the given
      * start and end positions, and apply it. Return information about the applied indentation.
@@ -89,7 +89,7 @@ public class FlowIndent
         Element rootElement = parser.getDefaultRootElement();
         List<DocumentAction> methodUpdates = new LinkedList<DocumentAction>();
         List<DocumentAction> updates = new ArrayList<DocumentAction>(rootElement.getElementCount());
-        
+
         IndentCalculator ii = new RootIndentCalculator();
 
         boolean lastLineWasBlank = false;
@@ -100,7 +100,7 @@ public class FlowIndent
         TrackedPosition startp, endp;
         startp = doc.trackPosition(startPos, Bias.FORWARD);
         endp = doc.trackPosition(endPos, Bias.BACK);
-        
+
         // examine if there are missing spaces between methods and add them.
         // NB. proper indentation of these changes later in this method.
         checkMethodSpacing(root, rootElement, methodUpdates, startPos, endPos);
@@ -108,7 +108,7 @@ public class FlowIndent
             caretPos = methodUpdate.apply(parser, doc, caretPos);
         }
         methodUpdates = null;
-        
+
         // Remove excessive blank lines:
         for (int i = 0; i < rootElement.getElementCount(); i++) {
             Element el = rootElement.getElement(i);
@@ -118,7 +118,7 @@ public class FlowIndent
                 NodeAndPosition<ParsedNode> nodeAt = root.getNode().findNodeAt(el.getStartOffset(), root.getPosition());
                 if (multilineStringTracker.getTextBlockRelation(el.getStartOffset(), el.getEndOffset(), nodeAt == null ? root.getPosition() : nodeAt.getPosition()) == TextBlockRelation.ENTIRELY_INSIDE)
                     continue;
-                
+
                 boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(doc, el));
                 if (thisLineBlank) {
                     if (caretPos >= el.getStartOffset() && caretPos < el.getEndOffset()) {
@@ -142,10 +142,10 @@ public class FlowIndent
                 lastLineWasBlank = thisLineBlank;
             }
         }
-        
+
         // Line removals may have affected parse node structure. Fix it:
         parser.flushReparseQueue();
-        
+
         // Check indentation of each line, build a list of updates required:
         for (int i = 0; i < rootElement.getElementCount(); i++) {
             Element el = rootElement.getElement(i);
@@ -156,19 +156,19 @@ public class FlowIndent
             TextBlockRelation textBlockRelation = multilineStringTracker.getTextBlockRelation(el.getStartOffset(), el.getEndOffset(), nodeAt == null ? root.getPosition() : nodeAt.getPosition());
             if (textBlockRelation == TextBlockRelation.ENTIRELY_INSIDE || textBlockRelation == TextBlockRelation.CLOSING_LINE_ONLY || textBlockRelation == TextBlockRelation.CLOSING_AND_OPENING_LINE)
                 continue;
-            
+
             // If the element overlaps at all with our area of interest:
             if (el.getEndOffset() > startp.getPosition() && el.getStartOffset() < endp.getPosition()) {
                 boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(doc, el));
                 DocumentAction update = null;
-    
+
                 if (!thisLineBlank) {
                     String indent = calculateIndent(el, root, ii, doc);
                     update = new DocumentIndentAction(i, indent);
                     perfect = perfect && getElementContents(doc, el).toString().startsWith(indent)
                                       && !isWhiteSpaceOnly(getElementContents(doc, el).subSequence(indent.length(),indent.length() + 1));
                 }
-    
+
                 if (update != null) {
                     updates.add(update);
                 }
@@ -205,13 +205,13 @@ public class FlowIndent
         // checked element is in a switch, and if so, we do the slightly wacky (but working):
         // we double up indentation within the switch block, and "remove" one indentation for the "case"
         // and "default" labels - instead of solely relying only on the nodes' hierarchy as we do normally
-        
+
         int pos = el.getStartOffset() + findFirstNonIndentChar(getElementContents(doc, el), true);
         if (pos >= start.getPosition() && pos < start.getEnd()) {
             // The slightly awkward way to loop through the children of "start":
             for (Iterator<NodeAndPosition<ParsedNode>> i = start.getNode().getChildren(start.getPosition()); i.hasNext();) {
                 NodeAndPosition<ParsedNode> nap = i.next();
-               
+
                 boolean isInSwitchBlock = (nap.getNode() instanceof  JavaParentNode) && ((JavaParentNode)nap.getNode()).isSwitchBlockNode();
                 String inner = calculateIndent(el, nap, startIC.getForChild(nap.getNode(), isInSwitchBlock), doc);
                 if (inner != null) 
@@ -219,7 +219,7 @@ public class FlowIndent
                     return inner;
                 }
             }
-            
+
             String inner = startIC.getCurIndent(doc.getContent(pos, pos + 1).charAt(0));
             // For "case" and "default", we make sure that double indentation is changed to a single indentation
             // so that these line are not kept indented the same as their content.
@@ -262,7 +262,7 @@ public class FlowIndent
                     current.getNode().getNodeType() == next.getNode().getNodeType()) {
                 int currentLine = map.getElementIndex(current.getEnd() - 1);
                 int nextLine = map.getElementIndex(next.getPosition());
-                
+
                 if (next.getPosition() >= startPos && next.getPosition() <= endPos) {
                     if ((currentLine + 1) == nextLine) {
                         updates.add(0, new DocumentAddLineAction(next.getPosition()));
@@ -285,10 +285,10 @@ public class FlowIndent
             checkMethodSpacing(current, map, updates, startPos, endPos);
         }
     }
-    
+
     // ---------------------------------------
     // Indent calculation:
-    
+
 
     /**
      * An interface that calculates the indentation level that
@@ -312,7 +312,7 @@ public class FlowIndent
          */
         public String getCurIndent(char beginsWith);
     }
-    
+
     /**
      * An implementation of IndentCalculator for the root node of the document.
      */
@@ -328,7 +328,7 @@ public class FlowIndent
             return "";
         }
     }
-    
+
     /**
      * An implementation of IndentCalculator for a non-root node of the document.
      */
@@ -336,7 +336,7 @@ public class FlowIndent
     {
         private final String existingIndent;
         private final ParsedNode parent;
-        
+
         private static final int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
         private static final String spaces =
             "                                                                                   ";
@@ -360,7 +360,7 @@ public class FlowIndent
         public IndentCalculator getForChild(ParsedNode child, boolean doubleIndentation)
         {
             String newIndent = existingIndent;
-            
+
             if (child.isInner()) {
                 // Double indentation is needed in the specific situation when we find "switch" nodes
                 // cf calculateIndent() for more explanations
@@ -378,7 +378,7 @@ public class FlowIndent
             if (parent.getNodeType() == ParsedNode.NODETYPE_COMMENT && beginsWith == '*') {
                 return existingIndent + COMMENT_ASTERISK_INDENT;
             }
-            
+
             return existingIndent;            
         }
     }
@@ -417,7 +417,7 @@ public class FlowIndent
         public int apply(ReparseableDocument parser, Document doc, int caretPos)
         {
             Element el = parser.getDefaultRootElement().getElement(lineIndex);
-            
+
             CharSequence line = getElementContents(doc, el);
             int lengthPrevWhitespace = findFirstNonIndentChar(line, true);
             boolean anyTabs = line.subSequence(0, lengthPrevWhitespace).toString().indexOf("\t") != -1;
@@ -428,7 +428,7 @@ public class FlowIndent
                     int origStartOffset = el.getStartOffset();
                     doc.replaceText(el.getStartOffset(), el.getStartOffset() + lengthPrevWhitespace,
                             indent);
-                    
+
                     if (caretPos < origStartOffset) {
                         return caretPos; // before us, not moved
                     } else if (caretPos >= origStartOffset + lengthPrevWhitespace) {
@@ -478,7 +478,7 @@ public class FlowIndent
     {
         private int position;
         private boolean twoSeparators;
-        
+
         public DocumentAddLineAction(int position)
         {
             this(position, false);
@@ -512,6 +512,6 @@ public class FlowIndent
                 return prevCaretPos + lineSeparator.length();
             }
         }
-        
+
     }
 }

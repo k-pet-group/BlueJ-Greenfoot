@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -125,7 +125,7 @@ public final class Terminal
     // -- instance --
 
     private final Project project;
-    
+
     private final TerminalTextPane text;
     private TerminalTextPane errorText;
     private final TextField input;
@@ -271,7 +271,7 @@ public final class Terminal
         window.setOnHidden(e -> showingProperty.set(false));
 
         JavaFXUtil.addChangeListenerPlatform(showingProperty, this::showHide);
-                
+
         Config.loadAndTrackPositionAndSize(window, "bluej.terminal");
         BlueJEvent.addListener(this);
     }
@@ -324,7 +324,7 @@ public final class Terminal
             window.hide();
         }
     }
-    
+
     public void dispose()
     {
         showHide(false);
@@ -401,7 +401,7 @@ public final class Terminal
         else if (job.showPrintDialog(window))
         {
             List<List<TextLine.StyledSegment>> lines = text.getStyledLines();
-                        
+
             BorderPane root = new BorderPane();
             Scene scene = new Scene(root);
             Config.addTerminalStylesheets(scene);
@@ -410,7 +410,7 @@ public final class Terminal
             double pixelWidth = job.getJobSettings().getPageLayout().getPrintableWidth();
             double pixelHeight = job.getJobSettings().getPageLayout().getPrintableHeight();
             root.resize(pixelWidth, pixelHeight);
-            
+
             LineDisplay lineDisplay = new LineDisplay(new ReadOnlyDoubleWrapper(0), new ReadOnlyStringWrapper(""), false, new OffScreenFlowEditorPaneListener());
             LineContainer lineContainer = new LineContainer(lineDisplay, true);
             root.setCenter(lineContainer);
@@ -483,7 +483,7 @@ public final class Terminal
 
         TerminalTextPane pane = paneType == PaneType.STDOUT ? text : errorText;
         pane.append(new StyledSegment(cssClasses, s));
-        
+
         prepare();
 
         if (paneType == PaneType.STDOUT)
@@ -554,13 +554,13 @@ public final class Terminal
         }
         newMethodCall = true;
     }
-    
+
     private void methodResult(ExecutionEvent event)
     {
         if (recordMethodCalls.get()) {
             String result = null;
             Result resultType = event.getResult();
-            
+
             if (resultType == ExecutionEvent.Result.NORMAL_EXIT) {
                 DebuggerObject object = event.getResultObject();
                 if (object != null) {
@@ -589,7 +589,7 @@ public final class Terminal
             else if (resultType == ExecutionEvent.Result.TERMINATED_EXIT) {
                 result = "    VM terminated.";
             }
-            
+
             if (result != null) {
                 text.append(new StyledSegment(STDOUT_METHOD_RECORDING, result + "\n"));
             }
@@ -607,7 +607,7 @@ public final class Terminal
 
             Pattern fileAndLine = java.util.regex.Pattern.compile("at (\\S+)\\((\\S+)\\.java:(\\d+)\\)");
             Pattern noSource = java.util.regex.Pattern.compile("at \\S+\\((Native Method|Unknown Source)\\)");
-            
+
             // Matches things like:
             // at greenfoot.localdebugger.LocalDebugger$QueuedExecution.run(LocalDebugger.java:267)
             //    ^--------------------group 1----------------------------^ ^--group 2--^      ^3^
@@ -615,7 +615,7 @@ public final class Terminal
             {
                 String line = allLines.get(i);
                 Matcher m = fileAndLine.matcher(line);
-                
+
                 while (m.find())
                 {
                     String fullyQualifiedMethodName = m.group(1);
@@ -644,7 +644,7 @@ public final class Terminal
 
                 //Also mark up native method lines in stack traces with a marker for font colour:
 
-                
+
                 // Matches things like:
                 //  at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
                 m = noSource.matcher(line);
@@ -808,7 +808,7 @@ public final class Terminal
         Config.rememberDividerPosition(window, splitPane, "bluej.terminal.dividerpos");
         errorShown = true;
     }
-    
+
     /**
      * Hide the pane with the error output.
      */
@@ -827,7 +827,7 @@ public final class Terminal
     {
         return showingProperty;
     }
-    
+
     /**
      * Create the terminal's menubar, all menus and items.
      */
@@ -920,7 +920,7 @@ public final class Terminal
         {
             return ! buffer.isEmpty();
         }
-        
+
         public void close() { }
     }
 
@@ -936,7 +936,7 @@ public final class Terminal
         // The number of pending writes (content that has been received on the
         // IO thread, but not yet displayed in the terminal via the FX thread)
         private AtomicInteger pendingWrites = new AtomicInteger(0);
-        
+
         TerminalWriter(boolean isError)
         {
             super();

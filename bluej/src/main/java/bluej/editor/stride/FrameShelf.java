@@ -91,7 +91,7 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
 {
     private final SimpleStringProperty fakeName = new SimpleStringProperty("...");
     private final ObjectProperty<Frame.View> viewHolder = new ReadOnlyObjectWrapper<>(Frame.View.NORMAL);
-    
+
     private final FXTabbedEditor parent;
     private final BorderPaneWithHighlightColor shelfPane = new BorderPaneWithHighlightColor();
     private final FrameCanvas canvas = new FrameCanvas(this, this, "shelf-");
@@ -579,7 +579,7 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
         boolean shouldDisable = parentFrame != null && !parentFrame.isFrameEnabled();
 
         InteractionManager editor = dragSourceFrames.get(0).getEditor();
-        
+
         // We only record if we are moving from an editor.
         // Copying from editor, or coming from shelf, doesn't change code.
         if (!fromShelf && !copying)

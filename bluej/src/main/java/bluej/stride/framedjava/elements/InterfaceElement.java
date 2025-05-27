@@ -175,7 +175,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
                     "extends", "extendstype", "type"));
         }
         addEnableAttribute(interfaceEl);
-        
+
         if (documentation != null) {
             interfaceEl.appendChild(documentation.toXML());
         }
@@ -224,7 +224,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
 
         if (!packageName.equals(""))
             java.prependLine(Arrays.asList(f(frame, "package " + packageName + ";")), null);
-        
+
         openingCurly.setFrame(frame);
         java.appendLine(Arrays.asList(openingCurly), null);
         fields.stream().filter(f -> f.isEnable()).forEach(f -> java.addIndented(f.toJavaSource()));
@@ -246,7 +246,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         methods.forEach(member -> frame.getMethodsCanvas().insertBlockAfter(member.createFrame(editor), null));
         return frame;
     }
-    
+
     @Override
     public InterfaceFrame createTopLevelFrame(InteractionManager editor)
     {
@@ -288,13 +288,13 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         joined.addAll(methods);
         return joined.subList(0, joined.indexOf(c));
     }
-    
+
     @Override
     public String getStylePrefix()
     {
         return "interface-";
     }
-    
+
     @Override
     public EntityResolver getResolver()
     {
@@ -306,19 +306,19 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     {
         return frame;
     }
-    
+
     @Override
     public InteractionManager getEditor()
     {
         return frame.getEditor();
     }
-    
+
     @Override
     public void show(ShowReason reason)
     {
         frame.show(reason);        
     }
-    
+
     @OnThread(Tag.FXPlatform)
     private ReparseableDocument getSourceDocument(ExpressionSlot completing)
     {
@@ -352,14 +352,14 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         }
         return sourceDocument;
     }
-    
+
     @Override
     public Stream<CodeElement> streamContained()
     {
         Stream<CodeElement> result = streamContained(fields);
         return Stream.concat(result, streamContained(methods));
     }
-    
+
     @Override
     protected Stream<SlotFragment> getDirectSlotFragments()
     {

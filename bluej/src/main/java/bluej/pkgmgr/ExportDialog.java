@@ -67,14 +67,14 @@ class ExportDialog extends Dialog<ExportDialog.ExportInfo>
     private static final String sourceLabel = Config.getString("pkgmgr.export.sourceLabel");
     private static final String pkgFilesLabel = Config.getString("pkgmgr.export.pkgFilesLabel");
     private static final String noClassText = Config.getString("pkgmgr.export.noClassText");
-    
+
     private final ComboBox<String> classSelect;
     private final CheckBox sourceBox;
     private final CheckBox pkgFilesBox;
     private final List<UserLibInfo> userLibs = new ArrayList<>();
 
     private GridPane userLibPanel;
-    
+
     @OnThread(Tag.Any)
     public static class ExportInfo
     {
@@ -100,7 +100,7 @@ class ExportDialog extends Dialog<ExportDialog.ExportInfo>
     {
         public final List<String> classNames;
         public final List<File> jarFiles;
-        
+
         @OnThread(Tag.FXPlatform)
         public ProjectInfo(Project project)
         {
@@ -160,7 +160,7 @@ class ExportDialog extends Dialog<ExportDialog.ExportInfo>
                 mainClassPanel.getChildren().add(classSelect);
                 mainPanel.getChildren().add(mainClassPanel);
             }
-            
+
             {
                 userLibPanel = new GridPane();
                 JavaFXUtil.addStyleClass(userLibPanel, "export-dialog-userlibs");
@@ -237,7 +237,7 @@ class ExportDialog extends Dialog<ExportDialog.ExportInfo>
 
         // collect info about jar files from the project classloader.
         List<UserLibInfo> userlibList = Utility.mapList(projectInfo.jarFiles, file -> new UserLibInfo(file, startChecked.contains(file)));
-        
+
         if ( userlibList.size() < 1 ) { 
             userLibPanel.setVisible(false);
         }

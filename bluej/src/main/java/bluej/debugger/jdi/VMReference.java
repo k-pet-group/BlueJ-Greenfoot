@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -150,7 +150,7 @@ public class VMReference
 
     // A map which can be used to map instances of VirtualMachine to VMReference 
     private static Map<VirtualMachine, VMReference> vmToReferenceMap = new HashMap<VirtualMachine, VMReference>();
-    
+
     // ==== instance data ====
 
     // we have a tight coupling between us and the JdiDebugger
@@ -222,9 +222,9 @@ public class VMReference
         classPath.addAll(filesPath);
         classPath.addAll(libraryPaths);
         String allClassPath = Utility.toClasspathString(classPath);
-        
+
         ArrayList<String> paramList = new ArrayList<String>(11);
-        
+
         /* // Uncomment this if you want to get a command window showing
            // for the debug VM on Windows.  Useful to let you hit Ctrl+Break and see thread dump
            // in case of deadlock
@@ -235,12 +235,12 @@ public class VMReference
         paramList.add("/K");
         */
         paramList.add(Config.getJDKExecutablePath(null, "java"));
-        
+
         //check if any vm args are specified in Config, at the moment these
         //are only Locale options: user.language and user.country
-        
+
         paramList.addAll(Config.getDebugVMArgs());
-        
+
         paramList.add("-classpath");
         paramList.add(allClassPath);
         if (Config.isMacOS()) {
@@ -257,18 +257,18 @@ public class VMReference
             // that mismatching these two causes. See bug #509.
             paramList.add("-Dfile.encoding=" + streamEncoding);
         }
-        
+
         paramList.add(SERVER_CLASSNAME);
-        
+
         // set output encoding if specified, default is to use system default
         // this gets passed to ExecServer's main as an arg which can then be 
         // used to specify encoding
         if(streamEncoding != null) {
             paramList.add(streamEncoding);
         }
-        
+
         String transport = Config.getPropString("bluej.vm.transport", "dt_socket");
-        
+
         List<ListeningConnector> connectors = new ArrayList<ListeningConnector>(mgr.listeningConnectors());
 
         // find the known connectors - order them by preference:
@@ -282,9 +282,9 @@ public class VMReference
                 break;
             }
         }
-        
+
         Throwable [] failureReasons = new Throwable[connectors.size()];
-        
+
         for (int i = 0; i < CONNECT_TRIES; i++) {
             for (int j = 0; j < connectors.size(); j++) {
                 ListeningConnector connector = connectors.get(j);
@@ -298,7 +298,7 @@ public class VMReference
                         String timeOutVal = Config.getPropString("bluej.vm.connect.timeout", "10000");
                         timeoutArg.setValue(timeOutVal);
                     }
-                    
+
                     // Make sure the local address is localhost, not the
                     // machine name, as using the machine name causes problems on some systems
                     // when the network is disconnected (because the machine name binds to
@@ -309,7 +309,7 @@ public class VMReference
                         listenAddress = InetAddress.getByName(null).getHostAddress();
                         arguments.get("localAddress").setValue(listenAddress);
                     }
-                    
+
                     // Listening connectors can only listen on one address at a time -
                     // Synchronize to prevent problems.
                     synchronized (connector) {
@@ -360,7 +360,7 @@ public class VMReference
                             connector.stopListening(arguments);
                         }
                     }
-                    
+
                     Debug.log("Connected to debug VM via " + connector.transport().name() + " transport...");
                     setupEventHandling();
                     if (waitForStartup()) {
@@ -375,7 +375,7 @@ public class VMReference
                     failureReasons[j] = t;
                 }
             }
-            
+
             // Do a small wait between connection attempts
             try {
                 if (i != CONNECT_TRIES - 1) {
@@ -398,10 +398,10 @@ public class VMReference
         }
 
         NetworkTest.doTest();
-        
+
         return null;
     }
-    
+
     /**
      * Read and log anything that the remote VM process output before it died.
      */
@@ -409,14 +409,14 @@ public class VMReference
     {
         InputStreamReader stdout = new InputStreamReader(remoteVMprocess.getInputStream());
         char charBuf[] = new char[2048];
-        
+
         try {
             int numRead = stdout.read(charBuf);
             if (numRead != -1) {
                 String output = new String(charBuf, 0, numRead);
                 Debug.message("Output from remote process stdout: " + output);
             }
-            
+
             InputStreamReader stderr = new InputStreamReader(remoteVMprocess.getErrorStream());
             numRead = stderr.read(charBuf);
             if (numRead != -1) {
@@ -428,18 +428,18 @@ public class VMReference
             Debug.message("IOException while trying to draing stdout/stderr of remote process: " + ioe.getMessage());
         }
     }
-    
+
     private void setupEventHandling()
     {
         // indicate the events we want to receive
         EventRequestManager erm = machine.eventRequestManager();
         erm.createExceptionRequest(null, false, true).enable();
         erm.createClassPrepareRequest().enable();
-        
+
         EventRequest tsr = erm.createThreadStartRequest();
         tsr.setSuspendPolicy(EventRequest.SUSPEND_NONE);
         tsr.enable();
-        
+
         tsr = erm.createThreadDeathRequest();
         tsr.setSuspendPolicy(EventRequest.SUSPEND_NONE);
         tsr.enable();
@@ -461,19 +461,19 @@ public class VMReference
         Process vmProcess = Runtime.getRuntime().exec(params, null, initDir);
         BufferedReader bro = new BufferedReader(new InputStreamReader(vmProcess.getInputStream()));
         BufferedReader bre = new BufferedReader(new InputStreamReader(vmProcess.getErrorStream()));
-        
+
         // grab anything else the VM spits out before we try to connect to it.
         try {
-            
+
             StringBuffer extraOut = new StringBuffer();
             StringBuffer extraErr = new StringBuffer();
             // Two streams to check: standard output and standard error
-                
+
             char [] buf = new char[1024];
             Thread.sleep(200); // A little extra time for initial output
             for (int i = 0; i < 5; i++) {
                 Thread.sleep(200);
-                
+
                 // discontinue if no data available or stream closed
                 boolean keepReading = false;
                 if (bro.ready()) {
@@ -490,7 +490,7 @@ public class VMReference
                     }
                     keepReading = true;
                 }
-                
+
                 if (! keepReading) {
                     break;
                 }
@@ -503,11 +503,11 @@ public class VMReference
             }
         }
         catch (InterruptedException ie) {}
-        
-        
+
+
         return vmProcess;
     }
-    
+
     /**
      * Redirect input, output and error streams of the remote process to the terminal.
      */
@@ -521,7 +521,7 @@ public class VMReference
         Reader outReader = null;
         // input stream System.in
         Writer inputWriter = null;
-        
+
         if(streamEncoding == null) {
             errorReader = new InputStreamReader(vmProcess.getErrorStream());
             outReader = new InputStreamReader(vmProcess.getInputStream());
@@ -533,7 +533,7 @@ public class VMReference
             outReader = new InputStreamReader(vmProcess.getInputStream(), streamEncoding);
             inputWriter = new OutputStreamWriter(vmProcess.getOutputStream(), streamEncoding);
         }
-        
+
         errorStreamRedirector = redirectIOStream(errorReader, term.getErrorWriter());
         outputStreamRedirector = redirectIOStream(outReader, term.getWriter());
         inputStreamRedirector = redirectIOStream(term.getReader(), inputWriter);
@@ -549,13 +549,13 @@ public class VMReference
     {
         this.owner = owner;
         this.term = term;
-        
+
         // machine will be suspended at startup
         machine = localhostSocketLaunch(initialDirectory, libraries, term, Bootstrap.virtualMachineManager());
         if (machine == null) {
             throw new JdiVmCreationException();
         }
-        
+
         // Add our machine into the map
         vmToReferenceMap.put(machine, this);
     }
@@ -566,11 +566,11 @@ public class VMReference
     public synchronized boolean waitForStartup()
     {
         serverThreadStartWait();
-        
+
         if (! setupServerConnection(machine)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -639,7 +639,7 @@ public class VMReference
         // need to be readded)
         serverClassAddBreakpoints();
     }
-    
+
     private Location findMethodLocation(ReferenceType classType, String methodName)
     {
         Method method = findMethodByName(classType, methodName);
@@ -743,27 +743,27 @@ public class VMReference
             workerThreadReadyWait();
             workerThreadReserved = true;
             setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.NEW_LOADER));
-            
+
             StringBuffer newcpath = new StringBuffer(200);
             for (int index = 0; index < urls.length; index++) {
                 newcpath.append ( urls[index].toString());
                 newcpath.append ('\n');
             }
-            
+
             setStaticFieldObject(serverClass, ExecServer.CLASSPATH_NAME, newcpath.toString());
-            
+
             workerThreadReady = false;
             workerThread.resume();
             workerThreadFinishWait();
-            
+
             currentLoader = (ClassLoaderReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
             workerThreadReserved = false;
             workerThread.notify();
-            
+
             return currentLoader;
         }
     }
-    
+
     /**
      * Get an ObjectReference mirroring a String. May throw
      * VMDisconnectedException, VMOutOfMemoryException.
@@ -775,7 +775,7 @@ public class VMReference
     {
         return machine.mirrorOf(value);
     }
-    
+
     /**
      * Load a class in the remote machine and return its reference. Note that
      * this function never returns null.
@@ -793,7 +793,7 @@ public class VMReference
         }
         return rt;
     }
-    
+
     /**
      * Load a class in the remote VM using the given class loader.
      * @param className  The name of the class to load
@@ -810,23 +810,23 @@ public class VMReference
             setStaticFieldValue(serverClass, ExecServer.CLASSLOADER_NAME, clr);
             setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.LOAD_CLASS));
             setStaticFieldObject(serverClass, ExecServer.CLASSNAME_NAME, className);
-            
+
             workerThreadReady = false;
             workerThread.resume();
             workerThreadFinishWait();
-            
+
             ClassObjectReference robject = (ClassObjectReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
             workerThreadReserved = false;
             workerThread.notify();
-            
+
             if (robject == null) {
                 return null;
             }
-            
+
             return robject.reflectedType();
         }
     }
-    
+
     /**
      * Load and initialize a class in the remote machine, and return a reference to it.
      * Initialization causes static initializer assignments and blocks to be executed in
@@ -842,27 +842,27 @@ public class VMReference
     {
         try {
             serverThreadStartWait();
-            
+
             // Store the class and method to call
             setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, className);
             setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.LOAD_INIT_CLASS));
-            
+
             // Resume the thread, wait for it to finish and the new thread to start
             serverThreadStarted = false;
             resumeServerThread();
             serverThreadStartWait();
-            
+
             // Get return value
             ClassObjectReference rval = (ClassObjectReference) getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
             if (rval == null)
                 throw new ClassNotFoundException("Remote class not found: " + className);
-            
+
             // check for and report exceptions which occurred during initialization
             ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
             if (exception != null) {
                 exceptionEvent(new InvocationException(exception));
             }
-            
+
             return rval.reflectedType();
         }
         catch (VMDisconnectedException vde) {
@@ -880,23 +880,23 @@ public class VMReference
     public DebuggerResult runShellClass(String className)
     {
         // Calls to this method are protected by serverThreadLock in JdiDebugger
-        
+
         // Debug.message("[VMRef] starting " + className);
         // ** call Shell.run() **
         try {
             exitStatus = Debugger.NORMAL_EXIT;
 
             serverThreadStartWait();
-            
+
             // Store the class and method to call
             setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, className);
             setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.EXEC_SHELL));
-            
+
             // Resume the thread, wait for it to finish and the new thread to start
             serverThreadStarted = false;
             resumeServerThread();
             serverThreadStartWait();
-            
+
             // Get return value and check for exceptions
             ObjectReference rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
             if (rval == null) {
@@ -906,7 +906,7 @@ public class VMReference
                     return new DebuggerResult(lastException);
                 }
             }
-            
+
             ObjectReference objR = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
             return new DebuggerResult(JdiObject.getDebuggerObject(objR));
         }
@@ -921,7 +921,7 @@ public class VMReference
             exitStatus = Debugger.EXCEPTION;
             lastException = new ExceptionDescription("Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
-        
+
         return new DebuggerResult(lastException);
     }
 
@@ -1001,7 +1001,7 @@ public class VMReference
             return new DebuggerResult(JdiObject.getDebuggerObject(objFinal));
         }
     }
-    
+
     /**
      * Emit a thread halted/resumed event for the given thread.
      */
@@ -1039,7 +1039,7 @@ public class VMReference
             // JdiDebugger. This allows machine loader thread to check the exit
             // status in a meaningful way.
             owner.vmDisconnect();
-            
+
             // If VM disconnect occurs during invocation, the server thread won't
             // restart in this VM; the method waiting for it to start will hang
             // indefinitely unless we kick it here.
@@ -1048,7 +1048,7 @@ public class VMReference
                 notifyAll();
             }
         }
-        
+
         if (workerThread != null) {
             synchronized (workerThread) {
                 if (!workerThreadReady)
@@ -1085,7 +1085,7 @@ public class VMReference
         //if (tr == serverThread && serverThreadStarted || tr == workerThread)
         //    close();
     }
-    
+
     /**
      * A thread has been suspended (due to a breakpoint, step, or
      * call to DebuggerThread.halt()).
@@ -1095,7 +1095,7 @@ public class VMReference
     {
         owner.threadHalted(thread);
     }
-    
+
     /**
      * A thread has been resumed.
      */
@@ -1118,7 +1118,7 @@ public class VMReference
         // get the exception text
         // attention: the following depends on the (undocumented) fact that
         // the internal exception message field is named "detailMessage".
-        
+
         // Field msgField = remoteException.referenceType().fieldByName("detailMessage");
         // StringReference msgVal = (StringReference) remoteException.getValue(msgField);
 
@@ -1154,25 +1154,25 @@ public class VMReference
             return v;
         }
     }
-    
+
     public void exceptionEvent(InvocationException exc)
     {
         List<Value> empty = new LinkedList<Value>();
-        
+
         ObjectReference remoteException = exc.exception();
         Field msgField = remoteException.referenceType().fieldByName("detailMessage");
         StringReference msgVal = (StringReference) remoteException.getValue(msgField);
         String exceptionText = (msgVal == null ? null : msgVal.value());
         String excClass = exc.exception().type().name();
-        
+
         ReferenceType remoteType = exc.exception().referenceType();
         List<Method> getStackTraceMethods = remoteType.methodsByName("getStackTrace");
         Method getStackTrace = (Method)getStackTraceMethods.get(0);
         ArrayReference stackValue = (ArrayReference)safeInvoke(exc.exception(),  getStackTrace, empty);
-        
+
         ObjectReference [] stackt = (ObjectReference [])stackValue.getValues().toArray(new ObjectReference[0]);
         List<SourceLocation> stack = new LinkedList<SourceLocation>();
-        
+
         // "stackt" is now an array of Values. Each Value represents a
         // "StackTraceElement" object.
         if (stackt.length > 0) {
@@ -1181,13 +1181,13 @@ public class VMReference
             Method getFileName = (Method)StackTraceElementType.methodsByName("getFileName").get(0);
             Method getLineNum = (Method)StackTraceElementType.methodsByName("getLineNumber").get(0);
             Method getMethodName = (Method)StackTraceElementType.methodsByName("getMethodName").get(0);
-            
+
             for(int i = 0; i < stackt.length; i++) {
                 Value classNameV = safeInvoke(stackt[i], getClassName, empty);
                 Value fileNameV = safeInvoke(stackt[i], getFileName, empty);
                 Value methodNameV = safeInvoke(stackt[i], getMethodName, empty);
                 Value lineNumV = safeInvoke(stackt[i], getLineNum, empty);
-                
+
                 String className = ((StringReference)classNameV).value();
                 String fileName = null;
                 if (fileNameV != null) {
@@ -1198,14 +1198,14 @@ public class VMReference
                 stack.add(new SourceLocation(className,fileName,methodName,lineNumber));
             }
         }
-        
+
         // stack is a list of SourceLocation (bluej.debugger.SourceLocation)
-        
+
         exitStatus = Debugger.EXCEPTION;
         lastException = new ExceptionDescription(excClass, exceptionText, stack);
     }
 
-    
+
     /**
      * A breakpoint has been hit or step completed in a thread.
      */
@@ -1234,7 +1234,7 @@ public class VMReference
             if (workerThread == null) {
                 workerThread = event.thread();
             }
-            
+
             synchronized (workerThread) {
                 workerThreadReady = true;
                 workerThread.notifyAll();
@@ -1250,7 +1250,7 @@ public class VMReference
             if (serverThread.sameThread(event.thread())) {
                 owner.raiseStateChangeEvent(Debugger.SUSPENDED);
             }
-            
+
             Location location = event.location();
             String className = location.declaringType().name();
             String fileName;
@@ -1356,18 +1356,18 @@ public class VMReference
                 workerThreadReadyWait();
                 workerThreadReserved = true;
                 setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.LOAD_ALL));
-                
+
                 // parameters
                 setStaticFieldObject(serverClass, ExecServer.CLASSNAME_NAME, rootType.name());
-                
+
                 workerThreadReady = false;
                 workerThread.resume();
-                
+
                 workerThreadFinishWait();
                 ObjectReference or = getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
                 workerThreadReserved = false;
                 workerThread.notify();
-                
+
                 ArrayReference inners = (ArrayReference) or;
                 Iterator<Value> i = inners.getValues().iterator();
                 while (i.hasNext()) {
@@ -1429,7 +1429,7 @@ public class VMReference
             return Config.getString("debugger.jdiDebugger.noCodeMsg");
         }
     }
-    
+
     void setBreakpoint(Location location, Map<String,String> properties)
     {
         EventRequestManager erm = machine.eventRequestManager();
@@ -1443,7 +1443,7 @@ public class VMReference
         }
         bpreq.enable();
     }
-    
+
     // As above but sets the breakpoint on the first line of a given method
     @OnThread(Tag.FXPlatform)
     boolean setBreakpoint(String className, String methodName, Map<String, String> properties)
@@ -1457,14 +1457,14 @@ public class VMReference
             return false; 
         }
     }
-    
+
     boolean setBreakpoint(ReferenceType classType, String methodName, Map<String, String> properties)
     {
         Location loc = findMethodLocation(classType, methodName);
         setBreakpoint(loc, properties);
         return true;
     }    
-    
+
 
     /**
      * Clear all the breakpoints at a specified line in a class.
@@ -1485,7 +1485,7 @@ public class VMReference
 
         return clearBreakpoint(location);
     }
-    
+
     // As above but clears the breakpoint in a given method (as set by the corresponding setBreakpoint method that takes a method name)
     boolean clearBreakpoint(String className, String methodName)
     {
@@ -1497,13 +1497,13 @@ public class VMReference
             return false; 
         }
     }
-    
+
     boolean clearBreakpoint(ReferenceType classType, String methodName)
     {
         Location loc = findMethodLocation(classType, methodName);
         return clearBreakpoint(loc);
     }
-    
+
     boolean clearBreakpoint(Location location)
     {
         EventRequestManager erm = machine.eventRequestManager();
@@ -1518,7 +1518,7 @@ public class VMReference
         return false;
     }
 
-    
+
     /**
      * Remove all user breakpoints
      */
@@ -1539,7 +1539,7 @@ public class VMReference
 
         erm.deleteEventRequests(breaks);
     }
-    
+
     /**
      * Remove all breakpoints for the given class.
      */
@@ -1559,7 +1559,7 @@ public class VMReference
                 toDelete.add(bp);
             }
         }
-        
+
         erm.deleteEventRequests(toDelete);
     }
     // -- support methods --
@@ -1581,7 +1581,7 @@ public class VMReference
             catch (InterruptedException ie) {}
         }
     }
-    
+
     /**
      * Resume the server thread to begin executing some function.
      * 
@@ -1599,7 +1599,7 @@ public class VMReference
         // change may throw VMDisconnectedException (in which case we don't
         // want to go into the RUNNING state).
     }
-    
+
     /**
      * Wait until the "worker" thread is ready for use. This method should
      * be called with the workerThread monitor held.
@@ -1618,7 +1618,7 @@ public class VMReference
         }
         catch(InterruptedException ie) {}
     }
-    
+
     /**
      * Wait until the "worker" thread has finished executing. This
      * should be called only if workerThreadReserved has been set to
@@ -1699,18 +1699,18 @@ public class VMReference
     private ObjectReference invokeConstructor(String className)
     {
         // Calls to this method are serialized via serverThreadLock in JdiDebugger
-        
+
         serverThreadStartWait();
 
         // Store the class and method to call
         setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, className);
         setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.INSTANTIATE_CLASS));
-        
+
         // Resume the thread, wait for it to finish and the new thread to start
         serverThreadStarted = false;
         resumeServerThread();
         serverThreadStartWait();
-        
+
         // Get return value and check for exceptions
         Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
         if (rval == null) {
@@ -1721,7 +1721,7 @@ public class VMReference
         }
         return (ObjectReference) rval;
     }
-    
+
     /**
      * Invoke a particular constructor with arguments. The parameter types
      * of the constructor must be supplied (String[]) as well as the
@@ -1737,10 +1737,10 @@ public class VMReference
     private ObjectReference invokeConstructor(String className, String [] paramTypes, ObjectReference [] args)
     {
         // Calls to this method are serialized via serverThreadLock in JdiDebugger
-        
+
         serverThreadStartWait();
         boolean needsMachineResume = false;
-        
+
         try {
             int length = paramTypes.length;
             if (args.length != length) {
@@ -1759,7 +1759,7 @@ public class VMReference
             needsMachineResume = true;
             ArrayReference argsArray = objectArray.newInstance(length);
             ArrayReference typesArray = stringArray.newInstance(length);
-            
+
             // Even with a suspended virtual machine, these arrays have been known to be garbage collected.
             // Force them to remain uncollected:
             while (true) {
@@ -1771,7 +1771,7 @@ public class VMReference
                     argsArray = objectArray.newInstance(length);
                 }
             }
-            
+
             while (true) {
                 try {
                     typesArray.disableCollection();
@@ -1781,14 +1781,14 @@ public class VMReference
                     typesArray = stringArray.newInstance(length);
                 }
             }
-            
+
             // Fill the arrays with the correct values
             for (int i = 0; i < length; i++) {
                 StringReference s = machine.mirrorOf(paramTypes[i]);
                 typesArray.setValue(i, s);
                 argsArray.setValue(i, args[i]);
             }
-            
+
             setStaticFieldValue(serverClass, ExecServer.PARAMETER_TYPES_NAME, typesArray);
             setStaticFieldValue(serverClass, ExecServer.ARGUMENTS_NAME, argsArray);
             typesArray.enableCollection();
@@ -1798,12 +1798,12 @@ public class VMReference
             setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.INSTANTIATE_CLASS_ARGS));
             machine.resume();
             needsMachineResume = false;
-            
+
             // Resume the thread, wait for it to finish and the new thread to start
             serverThreadStarted = false;
             resumeServerThread();
             serverThreadStartWait();
-            
+
             // Get return value and check for exceptions
             Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
             if (rval == null) {
@@ -1823,26 +1823,26 @@ public class VMReference
                 machine.resume();
             }
         }
-        
+
         return null;
     }
-    
+
     // Calls to this method are serialized via serverThreadLock in JdiDebugger
     public Value invokeTestSetup(String cl)
             throws InvocationException
     {
         // Make sure the server thread has started
         serverThreadStartWait();
-        
+
         // Store the class and method to call
         setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, cl);
         setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.TEST_SETUP));
-        
+
         // Resume the thread, wait for it to finish and the new thread to start
         serverThreadStarted = false;
         resumeServerThread();
         serverThreadStartWait();
-        
+
         // Get return value and check for exceptions
         Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
         if (rval == null) {
@@ -1854,7 +1854,7 @@ public class VMReference
         }
         return rval;
     }
-    
+
     /**
      * Run a JUnit test on a single test method or all test methods (including setup/teardown).
      * @param cl     The class containing the test methods
@@ -1877,7 +1877,7 @@ public class VMReference
         // Calls to this method are serialized via serverThreadLock in JdiDebugger
 
         serverThreadStartWait();
-        
+
         // Store the class and method to call
         setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, cl);
         setStaticFieldObject(serverClass, ExecServer.METHOD_TO_RUN_NAME, method);
@@ -1887,7 +1887,7 @@ public class VMReference
         serverThreadStarted = false;
         resumeServerThread();
         serverThreadStartWait();
-        
+
         Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
         if (rval == null) {
             ObjectReference e = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
@@ -1907,16 +1907,16 @@ public class VMReference
         // Calls to this method are serialized via serverThreadLock in JdiDebugger
 
         serverThreadStartWait();
-            
+
         // set the action to "dispose windows"
         setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.DISPOSE_WINDOWS));
-        
+
         // Resume the thread, it then proceeds to remove open windows
         serverThreadStarted = false;
         resumeServerThread();
         // We don't bother waiting for it to finish
     }
-    
+
     /**
      * Add an object to the object map on the debug vm.
      * @param instanceName  the name of the object to add
@@ -1928,12 +1928,12 @@ public class VMReference
             synchronized(workerThread) {
                 workerThreadReadyWait();
                 setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.ADD_OBJECT));
-                
+
                 // parameters
                 setStaticFieldObject(serverClass, ExecServer.OBJECTNAME_NAME, instanceName);
                 setStaticFieldValue(serverClass, ExecServer.OBJECT_NAME, object);
                 setStaticFieldObject(serverClass, ExecServer.SCOPE_ID_NAME, scopeId);
-                
+
                 workerThreadReady = false;
                 workerThread.resume();
             }
@@ -1941,7 +1941,7 @@ public class VMReference
         catch (VMDisconnectedException vmde) {}
         catch (VMMismatchException vmmme) {}
     }
-    
+
     /**
      * Remove an object from the object map on the debug vm.
      * @param instanceName   the name of the object to remove
@@ -1952,11 +1952,11 @@ public class VMReference
             try {
                 workerThreadReadyWait();
                 setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.REMOVE_OBJECT));
-        
+
                 // parameters
                 setStaticFieldObject(serverClass, ExecServer.OBJECTNAME_NAME, instanceName);
                 setStaticFieldObject(serverClass, ExecServer.SCOPE_ID_NAME, scopeId);
-        
+
                 workerThreadReady = false;
                 workerThread.resume();
             }
@@ -1996,7 +1996,7 @@ public class VMReference
 
         return (ObjectReference) cl.getValue(resultField);
     }
-    
+
     /**
      * Set the value of a static field in the debug VM.
      * @param cl         The class containing the field
@@ -2006,7 +2006,7 @@ public class VMReference
     void setStaticFieldValue(ClassType cl, String fieldName, Value value)
     {
         Field field = cl.fieldByName(fieldName);
-        
+
         try {
             cl.setValue(field,value);
         }
@@ -2026,11 +2026,11 @@ public class VMReference
         // to help but there is still a window between object creation and that
         // method being called, so we catch the exception and use a more
         // forceful approach in that case.
-        
+
         try 
         {
             StringReference s = null;
-            
+
             if (value != null)
             {
                 s = machine.mirrorOf(value);
@@ -2199,7 +2199,7 @@ public class VMReference
             try {
                 // An arbitrary buffer size.
                 char [] chbuf = new char[4096];
-                
+
                 while (keepRunning) {
                     int numchars = reader.read(chbuf);
                     if (numchars == -1) {
@@ -2228,7 +2228,7 @@ public class VMReference
             return (VMReference) vmToReferenceMap.get(mc);
         }
     }
-    
+
     /*
     public void dumpConnectorArgs(Map arguments)
     {

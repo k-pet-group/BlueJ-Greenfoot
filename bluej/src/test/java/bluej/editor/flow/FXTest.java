@@ -52,7 +52,7 @@ import java.util.concurrent.TimeoutException;
 public class FXTest extends ApplicationTest
 {
     private Stage originalWindow;
-    
+
     @Rule
     public TestWatcher screenshotOnFail = new TestWatcher()
     {
@@ -110,7 +110,7 @@ public class FXTest extends ApplicationTest
         String base64Image = Base64.getEncoder().encodeToString(baos.toByteArray());
         return "<img src=\"data:image/png;base64, " + base64Image + "\">";
     }
-    
+
     // Switches to FX thread, executes, then brings it back:
     protected <T> T fx(FXPlatformSupplier<T> fxFetcher)
     {
@@ -164,7 +164,7 @@ public class FXTest extends ApplicationTest
                 return true;
             else
                 return false;
-                
+
         }).toArray();
         return new String(valid, 0, valid.length);
     }

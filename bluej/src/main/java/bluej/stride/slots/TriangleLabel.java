@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2015,2016,2021 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -59,18 +59,18 @@ public class TriangleLabel extends HBox implements HeaderItem
 {
     private final SimpleBooleanProperty expanded;
     private final Canvas canvas = new Canvas(8, 10);
-    
+
     private final SimpleStyleableObjectProperty<Color> cssColorProperty = new SimpleStyleableObjectProperty<>(COLOR_META_DATA);
     public final SimpleStyleableObjectProperty<Color> cssColorProperty() { return cssColorProperty; }
-    
+
     private static final CssMetaData<TriangleLabel, Color> COLOR_META_DATA =
             JavaFXUtil.cssColor("-bj-fill-color", TriangleLabel::cssColorProperty);
-    
+
     private static final List <CssMetaData <? extends Styleable, ? > > cssMetaDataList =
             JavaFXUtil.extendCss(HBox.getClassCssMetaData())
               .add(COLOR_META_DATA)
               .build();
-         
+
     public static List <CssMetaData <? extends Styleable, ? > > getClassCssMetaData() { return cssMetaDataList; }
     @Override public List<CssMetaData<? extends Styleable, ?>> getCssMetaData() { return getClassCssMetaData(); }    
 
@@ -83,9 +83,9 @@ public class TriangleLabel extends HBox implements HeaderItem
             g.setFill(c);
             g.fillPolygon(new double[] {1, 7, 1}, new double[] {1, 5, 9}, 3);
         });
-        
+
         JavaFXUtil.addStyleClass(this, "triangle-label");
-        
+
         getChildren().add(this.canvas);
         setAlignment(Pos.BASELINE_LEFT);
         setFillHeight(false);
@@ -140,7 +140,7 @@ public class TriangleLabel extends HBox implements HeaderItem
     {
         return null;
     }
-    
+
     public SimpleBooleanProperty expandedProperty() { return expanded; }
 
     @Override

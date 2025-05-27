@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2014,2016,2017,2019,2020,2023,2025  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -256,7 +256,7 @@ public abstract class ClassRole
         int itemHeight = 28;
         int itemsOnScreen = (int)Config.getScreenBounds().getHeight() / itemHeight;
         int sizeLimit = itemsOnScreen / 2;
-        
+
         ArrayList<ClassTargetOperation> ops = new ArrayList<>();
 
         for (int i = first; i < last; i++) {
@@ -285,7 +285,7 @@ public abstract class ClassRole
 
     public void run(PkgMgrFrame pmf, ClassTarget ct, String param)
     {}
-    
+
     /**
      * Get all the files belonging to a class target - source, class, ctxt, docs
      * @param ct  The class target
@@ -295,15 +295,15 @@ public abstract class ClassRole
     {
         // .frame (if available), .java, .class, .ctxt, and doc (.html)
         List<File> rlist = new ArrayList<>();
-        
+
         rlist.add(ct.getClassFile());
         rlist.addAll(Utility.mapList(ct.getAllSourceFilesJavaLast(), sf -> sf.file));
         rlist.add(ct.getContextFile());
         rlist.add(ct.getDocumentationFile());
-        
+
         File [] innerClasses = ct.getInnerClassFiles();
         Collections.addAll(rlist, innerClasses);
-        
+
         return rlist;
     }
 

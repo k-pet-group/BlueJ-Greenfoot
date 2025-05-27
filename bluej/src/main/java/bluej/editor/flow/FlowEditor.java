@@ -186,7 +186,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final EditorWatcher watcher;
     /** The Editor Quick Fixes manager associated with this Editor */
     private final EditorFixesManager editorFixesMgr;
-    
+
     private final boolean sourceIsCode;           // true if current buffer is code
     private final List<Menu> fxMenus;
     private final ListView<ErrorDetails> errorList;
@@ -1583,7 +1583,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             fxTabbedEditor = tabParent;
         }
-        
+
         // Expression order very important here; we want to always call setWindowVisible,
         // even if becameVisible is already true, and then OR the result with becameVisible
         becameVisible = fxTabbedEditor.setWindowVisible(vis, fxTab) || becameVisible;
@@ -1597,7 +1597,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 {
                     callbackOnOpen.run();
                 }
-                
+
                 checkBracketStatus();
 
                 if (sourceIsCode && !compiledProperty.get())
@@ -2018,7 +2018,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         switchToSourceView();
 
-        
+
         removeStepMark();
         currentStepLineIndex = lineNumber - 1;
         flowEditorPane.setLineMarginGraphics(currentStepLineIndex, calculateMarginDisplay(currentStepLineIndex));
@@ -2533,7 +2533,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         return () -> parent.getNode().getChildren(parent.getPosition());
     }
-    
+
     public MultilineStringTracker getMultilineStringTracker()
     {
         return javaSyntaxView.getMultilineStringTracker();
@@ -2915,10 +2915,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                     break;
             }
         }
-        
+
         return isInImportStatement;
     }
-    
+
     /**
      * For a given type (an AssistContentThreadSafe object), checks if the imports
      * of the current file contains the type or its package 
@@ -3306,7 +3306,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         if (suggests != null)
         {
             List<AssistContent> completionCandidates = new ArrayList<>();
-            
+
             // Get the static classes for completion suggestions, like System.out.
             // They are only available if nothing (like "x." or "this.") precedes the caret),
             // which is captured in the isPlain variable:
@@ -3318,8 +3318,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                     getProject().getPackage(""),
                     javadocResolver);
             }
-        
-         
+
+
             LocatableToken suggestToken = suggests.getSuggestionToken();
             AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getContainingMethodOrClassNode(flowEditorPane.getCaretPosition()) instanceof MethodNode m ? m : null, flowEditorPane.getCaretPosition());
             if (possibleCompletions != null)
@@ -3327,7 +3327,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 Arrays.sort(possibleCompletions, AssistContent.getComparator());
                 completionCandidates.addAll(Arrays.asList(possibleCompletions));
             }
-            
+
             // Create suggestions from all the candidates
             List<SuggestionDetails> suggestionDetails = completionCandidates.stream()
                     .map(AssistContentThreadSafe::new)

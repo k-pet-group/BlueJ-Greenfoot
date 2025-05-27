@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -134,7 +134,7 @@ public class ExecControls
     // A flag to keep track of whether a stack frame selection was performed
     // explicitly via the gui or as a result of a debugger event
     private boolean autoSelectionEvent = false; 
-    
+
     /**
      * Fields from these classes (key from map) are only shown if they are in the corresponding whitelist
      * of fields (corresponding value from map)
@@ -146,7 +146,7 @@ public class ExecControls
     private final BooleanProperty hideSystemThreads = new SimpleBooleanProperty(true);
     private final SimpleBooleanProperty cannotStepOrContinue = new SimpleBooleanProperty(true);
     private final SimpleBooleanProperty cannotHalt = new SimpleBooleanProperty(true);
-    
+
     // The currently selected thread
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private DebuggerThreadDetails selectedThread;
@@ -182,7 +182,7 @@ public class ExecControls
         SplitPane varSplit = new SplitPane(labelled(staticList, staticTitle), labelled(instanceList, instanceTitle), labelled(localList, localTitle));
         varSplit.setOrientation(Orientation.VERTICAL);
         varSplit.setDividerPositions(0.1, 0.6);
-        
+
         // There are two possible pane layouts: with thread list and without.
         BorderPane lhsPane;
         if (debuggerThreads != null)
@@ -195,7 +195,7 @@ public class ExecControls
             lhsPane = new BorderPane(labelled(stackList, stackTitle), null, null, null, null);
         }
         JavaFXUtil.addStyleClass(lhsPane, "debugger-thread-and-stack");
-        
+
         fxContent.setTop(makeMenuBar());
         fxContent.setCenter(new SplitPane(lhsPane, varSplit));
         fxContent.setBottom(buttons);
@@ -250,7 +250,7 @@ public class ExecControls
     {
         this.restrictedClasses = restrictedClasses;
     }
-    
+
     public Map<String, Set<String>> getRestrictedClasses()
     {
         HashMap<String, Set<String>> copy = new HashMap<String, Set<String>>();
@@ -276,7 +276,7 @@ public class ExecControls
             {
                 hideSystemThreads.set(false);
             }
-            
+
             DebuggerThreadDetails details = threadList.getItems().stream()
                     .filter(d -> d.isThread(dt))
                     .findFirst().orElse(null);
@@ -385,7 +385,7 @@ public class ExecControls
             }
         });
     }
-    
+
     @OnThread(Tag.Any)
     public static SourceLocation [] getFilteredStack(List<SourceLocation> stack)
     {
@@ -407,7 +407,7 @@ public class ExecControls
             if (JavaNames.getBase(className).startsWith("__SHELL")) {
                 break;
             }
-            
+
             if (Config.isGreenfoot() && className.startsWith("greenfoot.core.Simulation")) {
                 break;
             }
@@ -422,7 +422,7 @@ public class ExecControls
             }
             else
                 newInstanceCallsBeganAt = -1;
-            
+
             // Topmost stack location shown will have source available!
             if (first == -1 && loc.getFileName() != null) {
                 first = i;
@@ -431,19 +431,19 @@ public class ExecControls
         // If we saw a newInstance call chain just before we stopped, get rid of that too:
         if (newInstanceCallsBeganAt != -1)
             i = newInstanceCallsBeganAt;
-        
+
         if (first == -1 || i == 0) {
             return new SourceLocation[0];
         }
-        
+
         SourceLocation[] filtered = new SourceLocation[i - first];
         for (int j = first; j < i; j++) {
             filtered[j - first] = stack.get(j);
         }
-        
+
         return filtered;
     }
-    
+
     /**
      * Clear the display of thread details (stack and variables).
      */
@@ -466,7 +466,7 @@ public class ExecControls
         if (index >= 0) {
             setStackFrameDetails(thread, index);
             thread.setSelectedFrame(index);
-                
+
             if (showSource) {
                 String aClass = thread.getClass(index);
                 String classSourceName = thread.getClassSourceName(index);
@@ -497,7 +497,7 @@ public class ExecControls
             List<FXPlatformSupplier<VarDisplayInfo>> staticVars = new ArrayList<>();
             if(currentClass != null) {
                 List<DebuggerField> fields = currentClass.getStaticFields();
-                
+
                 for (DebuggerField field : fields) {
                     String declaringClass = field.getDeclaringClassName();
                     Set<String> whiteList = restrictedClasses.get(declaringClass);
@@ -505,14 +505,14 @@ public class ExecControls
                         staticVars.add(() -> new VarDisplayInfo(field));
                     }
                 }
-                
+
             }
 
             List<FXPlatformSupplier<VarDisplayInfo>> instanceVars = new ArrayList<>();
-    
+
             if(currentObject != null && !currentObject.isNullObject()) {
                 List<DebuggerField> fields = currentObject.getFields();
-                
+
                 for (DebuggerField field : fields) {
                     if (! Modifier.isStatic(field.getModifiers())) {
                         String declaringClass = field.getDeclaringClassName();
@@ -522,18 +522,18 @@ public class ExecControls
                         }
                     }
                 }
-                
+
             }
-            
+
             List<FXPlatformSupplier<VarDisplayInfo>> localVariables = thread.getLocalVariables(frameNo);
-            
+
             Platform.runLater(() -> {
                 staticList.getItems().setAll(Utility.mapList(staticVars, v -> v.get()));
                 instanceList.getItems().setAll(Utility.mapList(instanceVars, v -> v.get()));
                 localList.getItems().setAll(Utility.mapList(localVariables, v -> v.get()));
             });
-            
-            
+
+
         }
         catch (VMDisconnectedException vmde)
         {
@@ -637,7 +637,7 @@ public class ExecControls
         menubar.setUseSystemMenuBar(true);
         Menu menu = new Menu(Config.getString("terminal.options"));
 
-        
+
         if (!Config.isGreenfoot()) {
             MenuItem systemThreadItem = JavaFXUtil.makeCheckMenuItem(Config.getString("debugger.hideSystemThreads"), hideSystemThreads, null);
             menu.getItems().add(systemThreadItem);
@@ -680,7 +680,7 @@ public class ExecControls
         {
             super(haltButtonText, Config.makeStopIcon(true));
         }
-        
+
         public void actionPerformed(boolean viaContextMenu)
         {
             DebuggerThreadDetails details = getSelectedThreadDetails();
@@ -692,7 +692,7 @@ public class ExecControls
             }
         }
     }
-        
+
     /**
      * Action to step through the code.
      */
@@ -702,7 +702,7 @@ public class ExecControls
         {
             super(stepButtonText, makeStepIcon());
         }
-        
+
         public void actionPerformed(boolean viaContextMenu)
         {
             DebuggerThreadDetails details = getSelectedThreadDetails();
@@ -762,7 +762,7 @@ public class ExecControls
         {
             super(stepIntoButtonText, makeStepIntoIcon());
         }
-        
+
         public void actionPerformed(boolean viaContextMenu)
         {
             DebuggerThreadDetails details = getSelectedThreadDetails();
@@ -798,7 +798,7 @@ public class ExecControls
         {
             super(continueButtonText, makeContinueIcon());
         }
-        
+
         public void actionPerformed(boolean viaContextMenu)
         {
             DebuggerThreadDetails details = getSelectedThreadDetails();
@@ -822,7 +822,7 @@ public class ExecControls
         {
             super(terminateButtonText, makeTerminateIcon());
         }
-        
+
         public void actionPerformed(boolean viaContextMenu)
         {
             terminate();

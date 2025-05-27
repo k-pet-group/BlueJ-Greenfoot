@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018,2019,2020,2021,2023,2025  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -123,7 +123,7 @@ public class Invoker
     private NameTransform nameTransform;
     private InvokerCompiler compiler;
     private Charset sourceCharset;
-    
+
     /** Name of the target object to which the call is applied */
     private final String instanceName;
 
@@ -137,7 +137,7 @@ public class Invoker
 
     private String commandString;
     private InvokerRecord ir;
-    
+
     /** Whether we've already seen an error from the compiler */
     private boolean gotError;
 
@@ -160,7 +160,7 @@ public class Invoker
         else if (member instanceof MethodView) {
             constructing = false;
         }
-        
+
         this.instanceName = instanceName;
         this.pkgPath = pkg.getPath();
         this.pkgName = pkg.getQualifiedName();
@@ -198,7 +198,7 @@ public class Invoker
     public Invoker(PkgMgrFrame pmf, ValueCollection localVars, String command, ResultWatcher watcher)
     {
         this(pmf, (MethodView)null, (String)null, null);
-        
+
         this.watcher = watcher;
         this.shellName = getShellName();
         this.objName = null;
@@ -208,7 +208,7 @@ public class Invoker
         codepad = true;
         commandString = command;
     }
-    
+
     /**
      * Call a class's constructor OR call a static method and create an
      * ObjectWrapper for the resulting object
@@ -264,7 +264,7 @@ public class Invoker
         // the class in which the method was declared. So we need to map tpars
         // from the object's class to that class.
         this(pmf, member, objName, debuggerObject.getGenType().mapToSuper(member.getClassName()).getMap());
-        
+
         this.watcher = watcher;
         this.shellName = getShellName();
         codepad = false;
@@ -302,7 +302,7 @@ public class Invoker
         };
         this.sourceCharset = pmf.getProject().getProjectCharset();
     }
-    
+
     /**
      * Set the import statements that should be in effect when this invocation
      * is performed.
@@ -313,7 +313,7 @@ public class Invoker
     {
         imports = importStatements;
     }
-    
+
     /**
      * Open a dialog to get further information about the requested invocation, or
      * if no information is needed (ie. no parameters) then just proceed with the
@@ -414,7 +414,7 @@ public class Invoker
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = argTypes[i].mapTparsToTypes(typeMap).getUpperBound();
         }
-        
+
         doInvocation(params, argTypes, null);
     }
 
@@ -445,7 +445,7 @@ public class Invoker
             argTypeStrings = new String[argTypes.length];
         else
             argTypeStrings = null;
-        
+
         if (! member.isGeneric() || member.isConstructor()) {
             for (int i = 0; i < numArgs; i++) {
                 JavaType argType = argTypes[i];
@@ -468,7 +468,7 @@ public class Invoker
 
         // Generic methods currently require special handling
         boolean isGenericMethod = member.isGeneric() && ! member.isConstructor();
-        
+
         // prepare variables (assigned with actual values) for each parameter
         StringBuffer buffer = new StringBuffer();
         if (! isGenericMethod) {
@@ -492,7 +492,7 @@ public class Invoker
         String actualArgString = argBuffer.toString();
         if (isGenericMethod)
             argString = actualArgString; 
-        
+
         // build the invocation string
 
         buffer.setLength(0);
@@ -539,18 +539,18 @@ public class Invoker
         if (constructing && member.getParameterCount() == 0 && (typeParams == null || typeParams.length == 0)) {
             // Special case for construction of a class using the default constructor.
             // We can do this without writing and compiling a shell file.
-            
+
             commandString = command + actualArgString;
             watcher.beginCompile(); // there is no compile step, really
             watcher.beginExecution(ir);
-            
+
             // We must however do so in a seperate thread. Otherwise a constructor which
             // goes into an infinite loop can hang BlueJ.
             new Thread("Invocation result") {
                 @OnThread(Tag.Worker)
                 public void run() {
                     Platform.runLater(Invoker.this::closeCallDialog);
-                    
+
                     DebuggerResult result = debugger.instantiateClass(className);
 
                     Platform.runLater(() -> {
@@ -565,7 +565,7 @@ public class Invoker
         else {
             if (isVoid)
                 argString += ';';
-            
+
             watcher.beginCompile();
             File shell = writeInvocationFile(paramInit, command + argString, isVoid, constype);
             if (shell != null) {
@@ -616,7 +616,7 @@ public class Invoker
     protected void buildArgStrings(StringBuffer buffer, StringBuffer argBuffer, String[] args)
     {
         int numArgs = args == null ? 0 : args.length;
-        
+
         buffer.append("(");
         argBuffer.append("(");
         if (numArgs > 0) {
@@ -631,7 +631,7 @@ public class Invoker
         buffer.append(")");
         argBuffer.append(")");
     }
-    
+
     /**
      * Arrange to execute a free form (text) invocation.
      * 
@@ -729,11 +729,11 @@ public class Invoker
         }
 
         StringBuffer buffer = new StringBuffer();
-        
+
         // Build scope, i.e. add one line for every object on the object
         // bench that gets the object and makes it available for use as
         // a parameter.
-        
+
         // A sample of the code generated
         //  java.util.Map __bluej_runtime_scope = getScope("BJIDC:\\aproject");
         //  JavaType instnameA = (JavaType) __bluej_runtime_scope.get("instnameA");
@@ -743,7 +743,7 @@ public class Invoker
         Iterator<? extends NamedValue> wrappers = objectBenchVars.getValueIterator();
 
         Map<String, String> objBenchVarsMap = new HashMap<String, String>();
-        
+
         if (wrappers.hasNext() || localVars != null) {
             buffer.append("final bluej.runtime.BJMap __bluej_runtime_scope = getScope(\"" + scopeId + "\");" + Config.nl);
             while (wrappers.hasNext()) {
@@ -751,7 +751,7 @@ public class Invoker
                 objBenchVarsMap.put(objBenchVar.getName(), getVarDeclString("", false, objBenchVar, nameTransform));
             }
         }
-        
+
         // put the local variables here if we don't know the result type. If we do know
         // the result type, we put the local variables inside the result wrapper object
         // later on.
@@ -762,17 +762,17 @@ public class Invoker
                 objBenchVarsMap.put(localVar.getName(), getVarDeclString("lv:", false, localVar, nameTransform));
             }
         }
-        
+
         Iterator<String> obVarsIterator = objBenchVarsMap.values().iterator();
         while (obVarsIterator.hasNext()) {
             buffer.append(obVarsIterator.next().toString());
         }
-        
+
         String vardecl = buffer.toString();
         buffer.setLength(0);
 
         // build the invocation string
-        
+
         // A sample of the code generated:
         //
         // Result type not known:
@@ -826,7 +826,7 @@ public class Invoker
         }
 
         String invocation = buffer.toString();
-        
+
         // save altered local variable values
         buffer = new StringBuffer();
         if (localVars != null) {
@@ -834,7 +834,7 @@ public class Invoker
                 NamedValue wrapper = (NamedValue) i.next();
                 if (! wrapper.isFinal() || ! wrapper.isInitialized()) {
                     String instname = wrapper.getName();
-                    
+
                     buffer.append("__bluej_runtime_scope.put(\"lv:" + instname + "\", "); 
                     wrapValue(buffer, instname, wrapper.getGenType());
                     buffer.append(");" + Config.nl);
@@ -896,7 +896,7 @@ public class Invoker
         }
         return shellFile;
     }
-    
+
     /**
      * Write out shell code to retrieve the values of variables or bench objects.
      * 
@@ -913,23 +913,23 @@ public class Invoker
             if (wrapper.isInitialized()) {
                 String type = wrapper.getGenType().toString(nt);
                 String instname = wrapper.getName();
-                
+
                 if (wrapper.isFinal()) {
                     buffer.append("final ");
                 }
                 if (isStatic) {
                     buffer.append("static ");
                 }
-                
+
                 buffer.append(type);
-                
+
                 buffer.append(" " + instname + " = ");
                 extractValue(buffer, scopePx, instname, wrapper.getGenType(), type);
                 buffer.append(Config.nl);
             }
         }
     }
-    
+
     /**
      * Get the string to declare a variable.
      * @param scopePx   The scope prefix for the value map
@@ -945,20 +945,20 @@ public class Invoker
             String type = wrapper.getGenType().toString(nt);
             String instname = wrapper.getName();
             StringBuffer buffer = new StringBuffer();
-            
+
             if (wrapper.isFinal()) {
                 buffer.append("final ");
             }
             if (isStatic) {
                 buffer.append("static ");
             }
-            
+
             buffer.append(type);
-            
+
             buffer.append(" " + instname + " = ");
             extractValue(buffer, scopePx, instname, wrapper.getGenType(), type);
             buffer.append(Config.nl);
-            
+
             return buffer.toString();
         }
         else {
@@ -978,10 +978,10 @@ public class Invoker
         if (type.isPrimitive()) {
             // primitive type. Must pull a wrapped object out, and then
             // unwrap it.
-            
+
             String castType;
             String extractMethod;
-            
+
             if (type.typeIs(JavaType.JT_BOOLEAN)) {
                 castType = "java.lang.Boolean";
                 extractMethod = "booleanValue";
@@ -1017,7 +1017,7 @@ public class Invoker
             else {
                 throw new UnsupportedOperationException("unhandled primitive type");
             }
-            
+
             buffer.append("((" + castType + ")__bluej_runtime_scope.get(\"");
             buffer.append(scopePx + instname + "\"))." + extractMethod + "();");
         }
@@ -1028,7 +1028,7 @@ public class Invoker
             buffer.append(scopePx + instname + "\");" + Config.nl);
         }
     }
-    
+
     /**
      * Wrap a value, if necessary, as an appropriate object type.
      * @param buffer  The resulting expression is written to this buffer
@@ -1095,21 +1095,21 @@ public class Invoker
         // We ignore warnings for shell classes
         return false;
     }
-    
+
     /**
      * An error was detected during compilation of the shell class.
      */
     private void errorMessage(String message)
     {
         DataCollector.invokeCompileError(pkg, commandString, message);
-        
+
         if (errorListener != null)
         {
             errorListener.setErrorMessage(commandString, "Error: " + message);
         }
         watcher.putError(message, ir);
     }
-    
+
     /**
      * The compilation of the shell class has ended. If all went well, execute
      * now. Then clean up.
@@ -1182,7 +1182,7 @@ public class Invoker
 
         File classFile = new File(pkgPath, shellName + ".class");
         classFile.delete();
-        
+
         // Remove any inner class files
         String [] innerClassFiles = pkgPath.list(new FilenameFilter() {
             @Override
@@ -1191,7 +1191,7 @@ public class Invoker
                 return (name.startsWith(shellName + "$"));
             }
         });
-        
+
         for (String innerClassFile : innerClassFiles) {
             new File(pkgPath, innerClassFile).delete();
         }
@@ -1206,22 +1206,22 @@ public class Invoker
     private void startClass()
     {
         final String shellClassName = JavaNames.combineNames(pkgName, shellName);
-        
+
         new Thread("Shell class runner") {
             public void run() {
                 try {
                     DebuggerResult result = debugger.runClassMain(shellClassName);
-                    
+
                     Platform.runLater(new Runnable() {
                         public void run() {
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
-                            
+
                             handleResult(result, constructing);
                             finishCall(true);
                         }
                     });
-                    
+
                 }
                 catch (Throwable e) {
                     e.printStackTrace(System.err);
@@ -1229,7 +1229,7 @@ public class Invoker
             }
         }.start();
     }
-    
+
     /**
      * After an execution has finished, check whether there is a result (such as
      * a freshly created object, a function result or an exception) and make
@@ -1278,12 +1278,12 @@ public class Invoker
                                 resultType = "void";
                             }
                         }
-                        
+
                         PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
-                        
+
                         DataCollector.invokeMethodSuccess(pkg, commandString, benchName, resultType, pmf == null ? -1 : pmf.getTestIdentifier(), ir.getUniqueIdentifier());
                     }
-                    
+
                     ir.setResultObject(resultObj);
                     watcher.putResult(resultObj, objName, ir);
                     break;
@@ -1320,7 +1320,7 @@ public class Invoker
     {
         closeCallDialog();
     }
-    
+
     @Override
     public void graphChanged()
     {

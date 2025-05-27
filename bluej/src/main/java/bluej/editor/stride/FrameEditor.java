@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022,2024,2025 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -105,22 +105,22 @@ public class FrameEditor implements Editor
 {
     /** Whether the code has been successfully compiled since last edit */
     @OnThread(Tag.FXPlatform) private boolean isCompiled;
-    
+
     // If the code has been changed since last save:
     @OnThread(Tag.FXPlatform) private boolean changedSinceLastSave = false;
     // The code at point of last save (only modify on FX thread)
     @OnThread(Tag.FX) private String lastSavedSource = null;
     // The generated Java code at point of last save:
     @OnThread(Tag.FX) private SaveJavaResult lastSavedJava = null;
-    
+
     /** Location of the .stride file */
     private File frameFilename;
     private File javaFilename;
-    
+
     @OnThread(Tag.FX) private final EntityResolver resolver;
     private final EditorWatcher watcher;
     private final JavadocResolver javadocResolver;
-    
+
     /**
      * Set to the latest version of the JavaSource.  null if the editor has not yet been opened;
      * you can observe it to see when it becomes non-null if you want to do something when
@@ -138,7 +138,7 @@ public class FrameEditor implements Editor
 
     /** Stride source at last save. Assigned on FX thread only, readable on any thread. */
     private volatile TopLevelCodeElement lastSource;
-    
+
     /**
      * Errors from compilation to be shown once the editor is opened
      * (and thus we don't have to recompile just because the editor opens)
@@ -151,7 +151,7 @@ public class FrameEditor implements Editor
      * be passed to SwingUtilities.invokeLater
      */
     @OnThread(Tag.Any) private final FXPlatformRunnable callbackOnOpen;
-    
+
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<Integer> latestBreakpoints = Collections.emptyList();
     /**
@@ -274,7 +274,7 @@ public class FrameEditor implements Editor
             {
                 throw new IOException(result.exception);
             }
-            
+
             if (watcher != null)
             {
                 watcher.recordStrideEdit(result.javaResult.javaSourceStringContent,
@@ -287,7 +287,7 @@ public class FrameEditor implements Editor
             lastSavedJava = saveJava(lastSource, true);
         }
     }
-    
+
     /**
      * Set the saved/changed status of this buffer to SAVED.
      */
@@ -338,7 +338,7 @@ public class FrameEditor implements Editor
                 }
                 return new SaveResult(lastSavedSource, lastSavedJava);
             }
-            
+
             // If frame editor is closed, we just need to write the Java code
             if (panel == null || panel.getSource() == null)
             {
@@ -348,7 +348,7 @@ public class FrameEditor implements Editor
 
             panel.regenerateAndReparse();
             TopLevelCodeElement source = panel.getSource();
-            
+
             if (source == null)
                 return new SaveResult(Utility.serialiseCodeToString(lastSource.toXML()), null); // classFrame not initialised yet
 
@@ -361,7 +361,7 @@ public class FrameEditor implements Editor
             lastSavedJava = saveJava(panel.getSource(), true);
             changedSinceLastSave = false;
             lastSavedSource = Utility.serialiseCodeToString(source.toXML());
-        
+
             setSaved();
             panel.saved();
             lastSource = panel.getSource();
@@ -465,7 +465,7 @@ public class FrameEditor implements Editor
             @Override
             @OnThread(Tag.FXPlatform)
             public void setProperty(String propertyKey, Object value) { FrameEditor.this.setProperty(propertyKey, value); }
-            
+
             @Override
             @OnThread(Tag.FXPlatform)
             public void setCompiled(boolean compiled) { FrameEditor.this.setCompiled(compiled); }
@@ -524,7 +524,7 @@ public class FrameEditor implements Editor
             {
                 return FrameEditor.this.displayDiagnostic(diagnostic, errorIndex, compileType);
             }
-            
+
             @Override
             @OnThread(Tag.FXPlatform)
             public boolean setStepMark(int lineNumber, String message,
@@ -540,7 +540,7 @@ public class FrameEditor implements Editor
             @Override
             @OnThread(Tag.FXPlatform)
             public void changeName(String title, String filename, String javaFilename, String docFileName) { FrameEditor.this.changeName(title, filename, javaFilename, docFileName); }
-            
+
             @Override
             @OnThread(Tag.FXPlatform)
             public TextEditor assumeText() { return this; }
@@ -774,7 +774,7 @@ public class FrameEditor implements Editor
             {
                 return FrameEditor.this.getScreenBoundsIfSelectedTab();
             }
-            
+
             @Override
             @OnThread(Tag.FXPlatform)
             public void removeErrorHighlights()
@@ -861,7 +861,7 @@ public class FrameEditor implements Editor
         }
         return false;
     }
-    
+
     @Override
     public boolean setStepMark(int lineNumber, String message, boolean isBreak,
             DebuggerThread thread)
@@ -959,7 +959,7 @@ public class FrameEditor implements Editor
         this.frameFilename = new File(filename);
         this.javaFilename = new File(javaFilename);
     }
-    
+
     @Override
     public void setCompiled(boolean compiled)
     {
@@ -1143,7 +1143,7 @@ public class FrameEditor implements Editor
         watcher.modificationEvent(this);
         watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
     }
-    
+
     @Override
     @OnThread(Tag.FX)
     public FrameEditor assumeFrame()
@@ -1211,7 +1211,7 @@ public class FrameEditor implements Editor
             }
         }.start();
     }
-        
+
     @Override
     public boolean compileStarted(int compilationSequence)
     {
@@ -1243,7 +1243,7 @@ public class FrameEditor implements Editor
     public AssistContent[] getCompletions(TopLevelCodeElement allCode, PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl)
     {
         ExpressionTypeInfo suggests = allCode.getCodeSuggestions(pos, completing);
-        
+
         ArrayList<AssistContent> joined = new ArrayList<>();
         if (suggests != null)
         {
@@ -1251,7 +1251,7 @@ public class FrameEditor implements Editor
             if (assists != null)
                 joined.addAll(Arrays.asList(assists));
         }
-        
+
         // We only want to add Greenfoot. suggestions and local var suggestions
         // when they are completing having written only a simple string prefix,
         // not a compound type (like "this.pre" or "Greenfoot.pre" or "getWorld().pre").
@@ -1262,7 +1262,7 @@ public class FrameEditor implements Editor
                 (containsImport("greenfoot.*") || containsImport("greenfoot.Greenfoot")),
                 pkg,
                 javadocResolver);
-           
+
             for (LocalParamInfo v : ASTUtility.findLocalsAndParamsInScopeAt(codeEl, false, false))
             {
                 AssistContent c = LocalCompletion.getCompletion(v.getType(), v.getName(), v.isParam());
@@ -1272,7 +1272,7 @@ public class FrameEditor implements Editor
         }
         return joined.toArray(new AssistContent[0]);
     }
-    
+
     // Gets the available fields in this class (i.e. those in this class and all superclasses)
     public List<AssistContent> getAvailableMembers(TopLevelCodeElement allCode, PosInSourceDoc pos, Set<CompletionKind> kinds, boolean includeOverridden)
     {
@@ -1461,7 +1461,7 @@ public class FrameEditor implements Editor
         }
         JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.removeExtendsOrImplementsInterface(interfaceName));
     }
-    
+
     /**
      * Get the package of the class being edited by this editor.
      */

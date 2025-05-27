@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -70,7 +70,7 @@ public abstract class Debugger
     // persist through calls to removeBreakpointsForClass, and through the clear-all breakpoint
     // removal that happens, for example, when a new class loader is added to the VM
     public static final String PERSIST_BREAKPOINT_PROPERTY = "VMReference.PERSIST_BREAKPOINT";    
-    
+
     public static final int NORMAL_EXIT = 0;
     public static final int EXCEPTION = 2;
     public static final int TERMINATED_BY_USER_SYSTEM_EXIT = 3;
@@ -108,7 +108,7 @@ public abstract class Debugger
      * or restarted.
      */
     public abstract void setUserLibraries(URL[] libraries);
-    
+
     /**
      * Launch a VM for running user code, which will be controlled by this debugger instance.
      * This should be called only once.
@@ -198,7 +198,7 @@ public abstract class Debugger
      * (IDLE, RUNNING, SUSPENDED, NOTREADY).
      */
     public abstract int getStatus();
-    
+
     /**
      * Run the setUp() method of a test class and return the created
      * objects.
@@ -219,7 +219,7 @@ public abstract class Debugger
      */
     @OnThread(Tag.Any)
     public abstract TestResultsWithRunTime runTestMethod(String className, String methodName);
-    
+
     /**
      * Dispose all top level windows in the remote machine.
      */
@@ -252,7 +252,7 @@ public abstract class Debugger
     @OnThread(Tag.NOTVMEventHandler)
     public abstract DebuggerResult instantiateClass(String className, String [] paramTypes,
             DebuggerObject [] args);
-    
+
     /**
      * Get a class from the virtual machine, using the current classloader.
      * 
@@ -307,7 +307,7 @@ public abstract class Debugger
     @OnThread(Tag.FXPlatform)
     public abstract boolean toggleBreakpoint(String className, String method, boolean set,
                                             Map<String,String> properties);
-    
+
     /**
      * Set/clear a breakpoint at a specified method in a class.
      * It is safe to call this method from a debugger event listener (unlike
@@ -327,13 +327,13 @@ public abstract class Debugger
      * Sets which thread invoked methods/constructors should be run on.
      */
     public abstract void setRunOnThread(RunOnThread runOnThread);
-    
+
     public static interface EventHandlerRunnable
     {
         @OnThread(Tag.VMEventHandler)
         public void run();
     }
-    
+
     @OnThread(Tag.Any)
     public abstract void runOnEventHandler(EventHandlerRunnable runnable);
 }

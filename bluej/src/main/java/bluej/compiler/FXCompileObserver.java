@@ -43,14 +43,14 @@ public interface FXCompileObserver
      * A compilation job has started.
      */
     void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence);
-    
+
     /**
      * An error or warning message occurred during compilation
      * 
      * Returns whether or not the error was shown to the user (for data collection purposes)
      */
     boolean compilerMessage(Diagnostic diagnostic, CompileType type);
-    
+
     /**
      * A Compilation job finished.
      */

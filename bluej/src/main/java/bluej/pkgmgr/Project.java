@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -119,7 +119,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      * directory (as a File object) is used as the key.
      */
     private static Map<File,Project> projects = new HashMap<File,Project>();
-    
+
     /* ------------------- end of static declarations ------------------ */
 
     // instance fields
@@ -229,7 +229,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
     // For this project, the external file mapping (file extension-launcher) found from installed BlueJ extensions
     private final Map<String, ExternalFileLauncher.OpenExternalFileHandler> projectExternalFileOpenMap;
-    
+
     // These fields are used for binding resizing (we do not want to use .bind() with weak references as they could be GCed)
     // cf. animateInspector()
     private Scene inspectorScene;
@@ -298,13 +298,13 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         if (jdkSourcePath != null) {
             sourcePath.add(new DocPathEntry(new File(jdkSourcePath), ""));
         }
-        
+
         File javafxSourceZip = Boot.getInstance().getJavaFXSourcePath();
         if (javafxSourceZip.isFile())
         {
             sourcePath.add(new DocPathEntry(javafxSourceZip, ""));
         }
-        
+
 
         this.projectDir = projectDir;
         libraryUrls = getLibrariesClasspath();
@@ -1995,7 +1995,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         int lineNumber = thr.getLineNumber(0);
         DebuggerObject currentObject = thr.getCurrentObject(0);
         boolean atBreakpoint = thr.isAtBreakpoint();
-        
+
         Platform.runLater(() -> {
             Package pkg = getPackage(packageName);
 
@@ -2014,7 +2014,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                         break;
                 }
             }
-            
+
             switch (event.getID())
             {
                 case DebuggerEvent.THREAD_HALT_UNKNOWN:
@@ -2684,7 +2684,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             this.debuggerThread = dt;
             update();
         }
-        
+
         /**
          * Update details based on the current state of the thread.
          */

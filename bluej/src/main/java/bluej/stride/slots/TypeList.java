@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -104,9 +104,9 @@ public class TypeList
         this.editor = editor;
 
         final SlotLabel prefixLabel = new SlotLabel(label);
-        
+
         new DeepListBinding<HeaderItem>(headerItems) {
-            
+
             @Override
             protected Stream<ObservableList<?>> getListenTargets()
             {
@@ -119,12 +119,12 @@ public class TypeList
                 // If we have a blank list, we don't even display the prefix label:
                 if (typeSlots.isEmpty())
                     return Stream.empty();
-                
+
                 // We should probably cache the commas, but never mind:
                 ArrayList<HeaderItem> commas = new ArrayList<>();
                 for (int i = 0; i < typeSlots.size() - 1; i++)
                     commas.add(new SlotLabel(", "));
-                
+
                 // Prefix, followed by type slots interspersed with commas:
                 return Utility.concat(Stream.of(prefixLabel), Utility.interleave(typeSlots.stream().map(h -> (HeaderItem)h), commas.stream()));
             }
@@ -166,10 +166,10 @@ public class TypeList
     private TypeSlot addTypeSlot(int index)
     {
         final TypeSlot slot = slotGenerator.get();
-        
+
         slot.addBackspaceAtStartListener(() -> backSpacePressedAtStart(slot));
         slot.addDeleteAtEndListener(() -> deletePressedAtEnd(slot));
-        
+
         slot.onTopLevelComma((before, after) -> {
             // If the user has entered a comma, split the type slot at that point
             // and add a new slot with the second half of the content:
@@ -180,7 +180,7 @@ public class TypeList
         });
         slot.addFocusListener(parentFrame);
         slot.addClosingChar(' ');
-        
+
         typeSlots.add(index, slot);
         return slot;
     }
@@ -250,7 +250,7 @@ public class TypeList
         }
         types.forEach(t -> addTypeSlotAtEnd(t, false));
     }
-    
+
     public Stream<TypeSlot> getTypeSlots()
     {
         return typeSlots.stream();

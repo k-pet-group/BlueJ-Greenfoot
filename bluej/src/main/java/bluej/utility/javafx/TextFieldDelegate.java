@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2018,2024 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -59,7 +59,7 @@ public interface TextFieldDelegate<IDENTIFIER>
 
     void backwardAtStart(IDENTIFIER id);
     void forwardAtEnd(IDENTIFIER id);
-    
+
     void deselect();
 
     boolean copy();
@@ -74,7 +74,7 @@ public interface TextFieldDelegate<IDENTIFIER>
     boolean selectForward(IDENTIFIER id, int caretPosition, boolean atEnd);
 
     boolean selectAll(IDENTIFIER id);
-    
+
     boolean selectNextWord(IDENTIFIER id);
 
     boolean selectPreviousWord(IDENTIFIER id);
@@ -93,11 +93,11 @@ public interface TextFieldDelegate<IDENTIFIER>
 
     // Called when escape is pressed
     void escape();
-    
+
     // Called when selection is complete (mouse is released)
     void selected();
 
     void clicked();
-    
+
     void caretMoved();
 }

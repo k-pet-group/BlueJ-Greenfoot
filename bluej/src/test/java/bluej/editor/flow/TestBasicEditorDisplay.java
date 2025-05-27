@@ -93,20 +93,20 @@ public class TestBasicEditorDisplay extends FXTest
     public void start(Stage stage) throws Exception
     {
         super.start(stage);
-        
+
         InitConfig.init();
         Config.loadFXFonts();
         PrefMgr.setScopeHighlightStrength(100);
         PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, true);
         PrefMgr.setEditorFontSize(12);
-        
+
         this.stage = stage;
         flowEditor = new FlowEditor(w -> null, "", new EditorWatcher()
         {
             @Override
             public void modificationEvent(Editor editor)
             {
-                
+
             }
 
             @Override
@@ -302,7 +302,7 @@ public class TestBasicEditorDisplay extends FXTest
             sleep(200);
             checkVisibleLinesAgainst(lines.subList(newTop, lines.size()));
         }
-        
+
         fx_(() -> {
             flowEditorPane.positionCaret(0);
             flowEditorPane.requestFocus();
@@ -326,12 +326,12 @@ public class TestBasicEditorDisplay extends FXTest
             if (caretY < editorSnapshot(false).getHeight())
                 assertThat((int)caretY, between(0, 600));
         }
-        
-        
+
+
         // We pick a bunch of random locations in the file, position the caret there,
         // scroll to make them visible, and then record the X, Y.  Then we scroll back to those locations
         // and click at that point, which should result in the original caret position.
-        
+
         // Each array is <line index to scroll to>, <caret position in file>, <X pixels in screen>, <Y pixels in screen>
         List<SavedPosition> savedPositions = new ArrayList<>();
         for (int i = 0; i < 5; i++)
@@ -364,7 +364,7 @@ public class TestBasicEditorDisplay extends FXTest
             sleep(200);
             assertEquals("Clicked on " + savedPosition.screenX + ", " + savedPosition.screenY, savedPosition.caretPos, (int)fx(() -> flowEditorPane.getCaretPosition()));
         }
-        
+
         // Turn off highlighting so that all text is black:
         PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, false);
 
@@ -406,8 +406,8 @@ public class TestBasicEditorDisplay extends FXTest
                 int y = (int)((lineBounds.get()[0] + lineBounds.get()[1]) / 2.0);
                 if (y <= 0 || y >= editorImage.getHeight())
                     continue;
-                
-                
+
+
                 if (line <= firstLine)
                 {
                     // Look for white region before the selection (if any):
@@ -427,7 +427,7 @@ public class TestBasicEditorDisplay extends FXTest
                     // Similarly, skip if selection is so small we won't pick up the blue:
                     if (endX <= flowX + MarginAndTextLine.textLeftEdge(true) + 5 || startX > endX - 10)
                     {
-                        
+
                     }
                     else
                     {
@@ -452,9 +452,9 @@ public class TestBasicEditorDisplay extends FXTest
             }
         }
         // TODO test clicking, caret and selection display (especially when one or both ends off-screen)
-        
+
     }
-    
+
     private static List<Color> getColoredArea(WritableImage image, int x, int y)
     {
         List<Color> r = new ArrayList<>();
@@ -472,7 +472,7 @@ public class TestBasicEditorDisplay extends FXTest
         }
         return r;
     }
-    
+
     private static class ColorTestArea
     {
         private final String description;
@@ -489,7 +489,7 @@ public class TestBasicEditorDisplay extends FXTest
             this.x = x;
             this.y = y;
         }
-        
+
         public void check(String selectionSnippet)
         {
             Stream<Color> nonBlack = getColoredArea(image, x, y).stream().filter(c -> c.getRed() + c.getGreen() + c.getBlue() > 0.05);
@@ -576,7 +576,7 @@ public class TestBasicEditorDisplay extends FXTest
     {
         return ((TextFlow)node.lookup(".text-line")).getChildren().stream().filter(c -> c instanceof Text).map(c -> ((Text)c).getText()).collect(Collectors.joining());
     }
-    
+
     @Test
     public void testScope()
     {
@@ -589,7 +589,7 @@ public class TestBasicEditorDisplay extends FXTest
         // Find the caret Y:
         Node caret = lookup(".flow-caret").query();
         double y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
-        
+
         // Check initial scopes:
         checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
         checkScopes((int)y, 
@@ -623,7 +623,7 @@ public class TestBasicEditorDisplay extends FXTest
             scope(Color.GREEN, between(0, 2), between(36, 40)),
             scope(Color.YELLOW, between(36, 40), between(75, 80))
         );
-        
+
         // Get back to top:
         push(KeyCode.PAGE_UP);
         push(KeyCode.PAGE_UP);
@@ -647,7 +647,7 @@ public class TestBasicEditorDisplay extends FXTest
             push(KeyCode.DOWN);
             sleep(100);
         }
-        
+
     }
 
     @Test
@@ -686,7 +686,7 @@ public class TestBasicEditorDisplay extends FXTest
                 "        return x + y;\n" +
                 "    }\n" +
                 "}";
-        
+
         setText(beforeEnterPoint + afterEnterPoint);
         fx_(() -> flowEditorPane.requestFocus());
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
@@ -834,7 +834,7 @@ public class TestBasicEditorDisplay extends FXTest
     public void testScope4()
     {
         // Check that adding newlines inside a method does not ruin the scopes later on:
-        
+
         String beforeEnterPoint =
                 "/**\n" +
                 " * Write a description of class Basic here.\n" +
@@ -1001,7 +1001,7 @@ public class TestBasicEditorDisplay extends FXTest
     {
         return new Scope(expectedColor, lhsCheck, rhsCheck);
     }
-    
+
     private static class Scope
     {
         private final Color expectedColor;
@@ -1015,7 +1015,7 @@ public class TestBasicEditorDisplay extends FXTest
             this.rhsCheck = rhsCheck;
         }
     }
-    
+
     @Test
     public void testSyntax()
     {
@@ -1024,7 +1024,7 @@ public class TestBasicEditorDisplay extends FXTest
 
         setText("// public class Commented {}");
         checkTokens("$comment-normal#// public class Commented {}");
-        
+
         setTextLines(
             "class MyClass",
             "{",
@@ -1069,7 +1069,7 @@ public class TestBasicEditorDisplay extends FXTest
                 $string-literal#        public class sealed$
                 $string-literal#        \"\"\"$ $keyword2#class$;
                 }""");
-                
+
         setText("""
                 class MyClass
                 {
@@ -1117,7 +1117,7 @@ public class TestBasicEditorDisplay extends FXTest
     {
         checkTokens(Arrays.stream(expectedLines).collect(Collectors.joining("\n")));
     }
-    
+
     private void checkTokens(String expected)
     {
         // Each outer list is a line, each inner list is a list of expected Text items
@@ -1139,7 +1139,7 @@ public class TestBasicEditorDisplay extends FXTest
                 return t -> assertEquals(seg, t.getText());
             }
         }).collect(Collectors.toList())).collect(Collectors.toList());
-        
+
         List<TextLine> lines = flowEditorPane.lookupAll(".text-line").stream().map(l -> (TextLine)l).sorted(Comparator.comparing(n -> n.getLayoutY())).collect(Collectors.toList());
 
         assertEquals(contentCheckers.size(), lines.size());

@@ -117,7 +117,7 @@ public abstract class TeamAction
             Tooltip.install(button, new Tooltip(shortDescription));
         }
     }
-    
+
     /**
      * Sets the given menu item to activate this action,
      * and use this action's title and disabled state

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020,2024,2025  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -66,7 +66,7 @@ public class GitProvider implements TeamworkProvider
         SshSessionFactory.setInstance(new SshdSessionFactory());
     }
 
-    
+
     @Override
     public String getProviderName() 
     {
@@ -158,7 +158,7 @@ public class GitProvider implements TeamworkProvider
         //if we got here, it means the command was successful.
         return new TeamworkCommandResult();
     }
-    
+
     @Override
     public Repository getRepository(File projectDir, TeamSettings settings) throws UnsupportedSettingException
     {
@@ -190,24 +190,24 @@ public class GitProvider implements TeamworkProvider
             //the protocol is not valid. 
             throw new UnsupportedSettingException(Config.getString("team.error.unknownProtocol"));
         }
-        
+
         String server = settings.getServer();
         if ((server == null || server.isEmpty()) /*&& !protocol.equals("file") // file protocol is unsupported currently*/ ){
             throw new UnsupportedSettingException(Config.getString("team.error.cannotParseServer"));
         }
 
         int port = settings.getPort(); // Port is optional, if not found it's not added to the URL
-        
+
         String prefix = settings.getPrefix();
         if (prefix == null || prefix.isEmpty()){
             throw new UnsupportedSettingException(Config.getString("team.error.cannotParsePath"));
         }
-        
+
         String gitUrl = protocol + "://";
-        
+
         //There is a bug in jGit where the username is ignored in a ssh connection.
         //the workaround is to inject the username in the url string.
-        
+
         if (protocol.contains("ssh")){
             gitUrl += settings.getUserName()+"@";
         }
@@ -223,7 +223,7 @@ public class GitProvider implements TeamworkProvider
 
         return gitUrl;
     }
-    
+
     /**
      * This method creates a connection to the server and then diagnose
      * the possible causes. This method detects the following connection
@@ -294,7 +294,7 @@ public class GitProvider implements TeamworkProvider
     {
         return true;
     }
-    
+
     /**
      * Find the user email as configured for the repository, if any.
      * 
@@ -319,7 +319,7 @@ public class GitProvider implements TeamworkProvider
         }
         return result;
     }
-    
+
     /**
      * Find the user email as configured for the repository, if any.
      * 

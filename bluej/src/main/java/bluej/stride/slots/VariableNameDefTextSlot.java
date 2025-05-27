@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -70,7 +70,7 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
         this.shouldRename = () -> true;
         addValueListener(spaceCharactersListener);
     }
-    
+
     public <T extends Frame & CodeFrame<? extends CodeElement>>
     VariableNameDefTextSlot(InteractionManager editor, T frameParent, FrameContentRow row, FXSupplier<Boolean> shouldRename, String stylePrefix)
     {
@@ -78,7 +78,7 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
         this.shouldRename = shouldRename;
         addValueListener(spaceCharactersListener);
     }
-    
+
     public VariableNameDefTextSlot(InteractionManager editor, Frame frameParent,
             CodeFrame<? extends CodeElement> codeFrameParent, FrameContentRow row, String stylePrefix)
     {
@@ -102,23 +102,23 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
             // Since we will be cancelled if any further modification takes place, it is ok
             // to calculate the actions once and cache them.  This way, we avoid doing the calculation
             // twice (once to decide if there is anything to do, once to actually do it).
-            
+
             VariableRefFinder renamer = findVarReferences(oldVal);
-            
+
             if (!renamer.refs.isEmpty())
             {
                 SuggestedFollowUpDisplay disp = new SuggestedFollowUpDisplay(editor, "Do you want to rename all uses of old variable \"" + oldVal + "\" to use \"" + newVal + "\" instead?", () -> renamer.refs.forEach(r -> r.rename.accept(newVal)));
                 disp.showBefore(getNode());
             }
         }
-        
+
     }
-    
+
     private class VariableRefFinder implements BiConsumer<Map<String, List<Frame>>, Frame>
     {
         private final String name;
         private final ArrayList<PlainVarReference> refs = new ArrayList<>();
-        
+
         VariableRefFinder(String name)
         {
             this.name = name; 
@@ -141,7 +141,7 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
                 }
             }
         }
-        
+
     }
 
     private VariableRefFinder findVarReferences(String name)
@@ -164,7 +164,7 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
                 else
                 {
                     VariableRefFinder refFinder = findVarReferences(getText());
-                    
+
                     if (!refFinder.refs.isEmpty())
                     {
                         items.setAll(AbstractOperation.MenuItemOrder.SHOW_HIDE_USES.item(JavaFXUtil.makeMenuItem("See uses of \"" + getText() + "\"", () -> showUsesOverlay(refFinder.refs), null)));
@@ -182,20 +182,20 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
         hideUsesOverlay();
         CodeOverlayPane overlay = editor.getCodeOverlayPane();
         allUsesCanvas = overlay.addFullSizeCanvas();
-        
+
         GraphicsContext g = allUsesCanvas.getGraphicsContext2D();
         g.setStroke(Color.BLUE);
         g.setLineWidth(2.0);
-        
+
         final double LEFT = 10.0;
-        
+
         List<Bounds> boundsList = Utility.mapList(refs, ref -> ref.refNode.localToScene(ref.refNode.getBoundsInLocal()));
         Bounds ourSceneBounds = getNode().localToScene(getNode().getBoundsInLocal());
         boundsList.add(ourSceneBounds);
-        
+
         // Draw them right to left, so that we overdraw the horizontal connecting lines correctly:
         boundsList.sort((a, b) -> Double.compare(b.getMinX(), a.getMinX()));
-        
+
         List<Double> yCoords = Utility.mapList(boundsList, sceneBounds -> {
             double y = overlay.sceneYToCodeOverlayY(sceneBounds.getMinY());
             g.clearRect(sceneBounds.getMinX(), y, sceneBounds.getWidth(), sceneBounds.getHeight());
@@ -204,10 +204,10 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
             g.strokeLine(LEFT, midY, sceneBounds.getMinX(), midY);
             return midY;
         });
-        
+
         // Vertical line in left margin:
         g.strokeLine(LEFT, yCoords.stream().min(Double::compare).get(), LEFT, yCoords.stream().max(Double::compare).get());
-        
+
         Canvas hide = new Canvas(10, 10);
         GraphicsContext g2 = hide.getGraphicsContext2D();
         g2.setStroke(Color.RED);
@@ -216,7 +216,7 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
         hideAllUsesButton = new Button("", hide);
         JavaFXUtil.addStyleClass(hideAllUsesButton, "hide-all-uses-button");
         hideAllUsesButton.setOnAction(e -> hideUsesOverlay());
-        
+
         overlay.addOverlay(hideAllUsesButton, getNode(), new ReadOnlyDoubleWrapper(- ourSceneBounds.getMinX() + LEFT - hide.getWidth()/2.0), null);
     }
 

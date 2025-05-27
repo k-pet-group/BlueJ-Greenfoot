@@ -47,14 +47,14 @@ public final class EscapedUnicodeReader extends Reader
 
     private boolean charIsBuffered;
     private int bufferedChar;
-    
+
     private LineColPos lineColPos = new LineColPos(1, 1, 0); // position within source stream
-    
+
     public EscapedUnicodeReader(Reader source)
     {
         sourceReader = new PushbackReader(source, 65536);
     }
-    
+
     public void setLineColPos(LineColPos lineColPos)
     {
         this.lineColPos = lineColPos;
@@ -143,14 +143,14 @@ public final class EscapedUnicodeReader extends Reader
             processChar((char)uc);
             uc = sourceReader.read();
         }
-        
+
         int val = Character.digit((char) uc, 16);
         if (val == -1) {
             putBuffer(uc);
             return 0xFFFF;
         }
         processChar((char)uc);
-        
+
         int i = 0;
         do {
             val *= 0x10;
@@ -164,7 +164,7 @@ public final class EscapedUnicodeReader extends Reader
             val += digitVal;
             i++;
         } while (i < 3);
-        
+
         return val;
     }
 
@@ -176,7 +176,7 @@ public final class EscapedUnicodeReader extends Reader
         }
         return rchar;
     }
-    
+
     private void processChar(char ch)
     {
         if (ch == '\n') {
@@ -186,7 +186,7 @@ public final class EscapedUnicodeReader extends Reader
             lineColPos = lineColPos.offsetSameLineBy(1);
         }
     }
-        
+
     public LineColPos getLineColPos()
     {
         return lineColPos;
