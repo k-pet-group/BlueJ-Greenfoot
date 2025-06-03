@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -41,13 +41,13 @@ public class ImportElement extends CodeElement
     public static final String ELEMENT = "import";
     private ImportFrame frame;
     private final ImportFragment importValue;
-    
+
     public ImportElement(Element el)
     {
         importValue = new ImportFragment(el.getAttributeValue("target"), null);
         enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
-    
+
     public ImportElement(String src, TextSlot<ImportFragment> slot, boolean enabled)
     {
         importValue = new ImportFragment(src, slot);
@@ -75,19 +75,19 @@ public class ImportElement extends CodeElement
         frame = new ImportFrame(editor, this, isEnable());
         return frame;
     }
-    
+
     @Override
     public void show(ShowReason reason)
     {
         frame.show(reason);        
     }
-    
+
     @Override
     protected Stream<SlotFragment> getDirectSlotFragments()
     {
         return Stream.of(importValue);
     }
-    
+
     public static class ImportFragment extends TextSlotFragment
     {
         private TextSlot<ImportFragment> slot;

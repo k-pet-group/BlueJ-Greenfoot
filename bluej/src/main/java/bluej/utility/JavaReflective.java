@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2013,2014,2015,2016,2018,2019,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -53,13 +53,13 @@ import threadchecker.Tag;
 public class JavaReflective extends Reflective
 {
     private Class<?> c;
-    
+
     @Override
     public int hashCode()
     {
         return c.hashCode();
     }
-    
+
     @Override
     public boolean equals(Object other)
     {
@@ -69,20 +69,20 @@ public class JavaReflective extends Reflective
         }
         return false;
     }
-    
+
     public JavaReflective(Class<?> c)
     {
         if (c == null)
             throw new NullPointerException();
         this.c = c;
     }
-    
+
     @Override
     public String getName()
     {
         return c.getName();
     }
-    
+
     @Override
     public String getSimpleName()
     {
@@ -99,31 +99,31 @@ public class JavaReflective extends Reflective
     {
         return c.isInterface();
     }
-    
+
     @Override
     public boolean isStatic()
     {
         return Modifier.isStatic(c.getModifiers());
     }
-    
+
     @Override
     public boolean isPublic()
     {
         return Modifier.isPublic(c.getModifiers());
     }
-    
+
     @Override
     public boolean isFinal()
     {
         return Modifier.isFinal(c.getModifiers());
     }
-    
+
     @Override
     public List<GenTypeDeclTpar> getTypeParams()
     {
         return JavaUtils.getJavaUtils().getTypeParams(c);
     }
-    
+
     @Override
     public Reflective getArrayOf()
     {
@@ -132,17 +132,17 @@ public class JavaReflective extends Reflective
             rname = "[" + c.getName();
         else
             rname = "[L" + c.getName() + ";";
-        
+
         try {
             ClassLoader cloader = c.getClassLoader();
             Class<?> arrClass = Class.forName(rname, false, cloader);
             return new JavaReflective(arrClass);
         }
         catch (ClassNotFoundException cnfe) {}
-        
+
         return null;
     }
-    
+
     @Override
     public Reflective getRelativeClass(String name)
     {
@@ -165,7 +165,7 @@ public class JavaReflective extends Reflective
     public List<Reflective> getSuperTypesR()
     {
         List<Reflective> l = new ArrayList<Reflective>();
-        
+
         // Arrays must be specially handled
         if (c.isArray()) {
             Class<?> ct = c.getComponentType();  // could be primitive, but won't matter
@@ -177,7 +177,7 @@ public class JavaReflective extends Reflective
                 l.add(componentSuperType.getArrayOf());
             }
         }
-        
+
         Class<?> superclass = c.getSuperclass();
         if( superclass != null )
             l.add(new JavaReflective(superclass));
@@ -186,11 +186,11 @@ public class JavaReflective extends Reflective
         for( int i = 0; i < interfaces.length; i++ ) {
             l.add(new JavaReflective(interfaces[i]));
         }
-        
+
         // Interfaces with no direct superinterfaces have a supertype of Object
         if (superclass == null && interfaces.length == 0 && c.isInterface())
             l.add(new JavaReflective(Object.class));
-        
+
         return l;
     }
 
@@ -219,7 +219,7 @@ public class JavaReflective extends Reflective
             }
         }
         catch (ClassNotFoundException cnfe) {}
-        
+
         GenTypeClass[] interfaces;
         try {
             interfaces = JavaUtils.getJavaUtils().getInterfaces(c);
@@ -235,10 +235,10 @@ public class JavaReflective extends Reflective
         if (superclass == null && interfaces.length == 0 && c.isInterface()) {
             l.add(new GenTypeClass(new JavaReflective(Object.class)));
         }
-        
+
         return l;
     }
-    
+
     /**
      * Get the underlying class (as a java.lang.Class object) that this
      * reflective represents.
@@ -258,7 +258,7 @@ public class JavaReflective extends Reflective
             return false;
         }
     }
-    
+
     @Override
     public Map<String,FieldReflective> getDeclaredFields()
     {
@@ -290,7 +290,7 @@ public class JavaReflective extends Reflective
             return Collections.emptyMap();
         }
     }
-    
+
     @Override
     public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
@@ -366,17 +366,17 @@ public class JavaReflective extends Reflective
     public List<ConstructorReflective> getDeclaredConstructors()
     {
         List<ConstructorReflective> r = new ArrayList<>();
-        
+
         try {
             for (Constructor<?> con : c.getDeclaredConstructors())
             {
                 List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(con);
-    
+
                 // We need to create a map from each type parameter name to its type
                 // as a GenTypeDeclTpar
                 Map<String, GenTypeDeclTpar> tparMap = new HashMap<String, GenTypeDeclTpar>();
                 storeTparMappings(tpars, tparMap);
-                
+
                 try
                 {
                     JavaType [] paramTypes = JavaUtils.getJavaUtils().getParamGenTypes(con);
@@ -385,7 +385,7 @@ public class JavaReflective extends Reflective
                     {
                         paramTypesList.add(paramType.mapTparsToTypes(tparMap).getUpperBound());
                     }
-    
+
                     r.add(new ConstructorReflective(tpars, paramTypesList, this,
                             JavaUtils.getJavaUtils().isVarArgs(con), con.getModifiers()));
                 }
@@ -398,7 +398,7 @@ public class JavaReflective extends Reflective
         catch (LinkageError | SecurityException exc) {
             // getDelaredConstructors can throw LinkageErrors if classes are missing.
         }
-        
+
         return r;
     }
 
@@ -416,15 +416,15 @@ public class JavaReflective extends Reflective
         JavaUtils ju = JavaUtils.getJavaUtils();
         List<GenTypeDeclTpar> tpars = ju.getTypeParams(c);
         storeTparMappings(tpars, tparMap);
-        
+
         Method m = c.getEnclosingMethod();
         Constructor<?> cc = c.getEnclosingConstructor();
         c = c.getEnclosingClass();
-        
+
         // Simple experimentation agrees with the documentation: the enclosing method/constructor
         // cannot be non-null if the enclosing class is null (because the method/constructor must
         // be enclosed by the enclosing class).
-        
+
         while (c != null) {
             if (m != null) {
                 tpars = ju.getTypeParams(m);
@@ -440,7 +440,7 @@ public class JavaReflective extends Reflective
                 c = cc.getDeclaringClass();
                 cc = null;
             }
-            
+
             if (c != null) {
                 tpars = ju.getTypeParams(c);
                 storeTparMappings(tpars, tparMap);
@@ -452,7 +452,7 @@ public class JavaReflective extends Reflective
             }
         }
     }
-    
+
     /**
      * Store a set of mappings from type parameter names to the type parameter (GenTypeDeclTpar).
      * Existing mappings are not overwritten.
@@ -468,7 +468,7 @@ public class JavaReflective extends Reflective
             }
         }
     }
-    
+
     @Override
     public Reflective getOuterClass()
     {
@@ -478,7 +478,7 @@ public class JavaReflective extends Reflective
         }
         return null;
     }
-    
+
     @Override
     public Reflective getInnerClass(String name)
     {

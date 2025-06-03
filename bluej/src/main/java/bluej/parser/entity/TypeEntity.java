@@ -1,20 +1,20 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2010,2014  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -43,24 +43,24 @@ import threadchecker.Tag;
 public class TypeEntity extends PackageOrClass
 {
     private JavaType thisType;
-    
+
     public TypeEntity(JavaType type)
     {
         thisType = type;
     }
-    
+
     public TypeEntity(Reflective ref)
     {
         //thisRef = ref;
         thisType = new GenTypeClass(ref);
     }
-    
+
     public TypeEntity(Class<?> c)
     {
         Reflective thisRef = new JavaReflective(c);
         thisType = new GenTypeClass(thisRef);
     }
-    
+
     TypeEntity(Reflective r, GenTypeClass outer)
     {
         // thisRef = r;
@@ -71,7 +71,7 @@ public class TypeEntity extends PackageOrClass
     {
         return thisType;
     }
-    
+
     public GenTypeClass getClassType()
     {
         return thisType.asClass();
@@ -89,14 +89,14 @@ public class TypeEntity extends PackageOrClass
             // Arrays have no static fields/subtypes
             return null;
         }
-        
+
         // subentity of a class could be a member type or field
         // Is it a field?
-        
+
         LinkedList<Reflective> stypes = new LinkedList<Reflective>();
         Reflective ctypeRef = thisClass.getReflective();
         stypes.add(ctypeRef);
-        
+
         while (! stypes.isEmpty()) {
             ctypeRef = stypes.poll();
             Map<String,FieldReflective> m = ctypeRef.getDeclaredFields();
@@ -116,7 +116,7 @@ public class TypeEntity extends PackageOrClass
         // Is it a member type?
         return getPackageOrClassMember(name);
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public TypeEntity getPackageOrClassMember(String name)
@@ -125,13 +125,13 @@ public class TypeEntity extends PackageOrClass
         if (thisClass == null || thisClass.getArrayComponent() != null) {
             return null;
         }
-        
+
         // We need to check our own class, but also the superclasses, for
         // the requested member.
 
         LinkedList<Reflective> stypes = new LinkedList<Reflective>();
         stypes.add(thisClass.getReflective());
-        
+
         while (! stypes.isEmpty()) {
             Reflective thisRef = stypes.poll();
             Reflective member = thisRef.getInnerClass(name);
@@ -145,15 +145,15 @@ public class TypeEntity extends PackageOrClass
             }
             stypes.addAll(thisRef.getSuperTypesR());
         }
-        
+
         return null;
     }
-    
+
     public String getName()
     {
         return getType().toString();
     }
-    
+
     /*
      * @see bluej.parser.entity.ClassEntity#setTypeParams(java.util.List)
      */
@@ -172,10 +172,10 @@ public class TypeEntity extends PackageOrClass
             }
             ttparams.add(tparamType);
         }
-        
+
         return new TypeEntity(new GenTypeClass(classType.getReflective(), ttparams, outer));
     }
-    
+
     @Override
     public TypeEntity resolveAsType()
     {

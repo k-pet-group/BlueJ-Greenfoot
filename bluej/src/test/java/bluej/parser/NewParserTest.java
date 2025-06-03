@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2016,2017,2022  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -199,7 +199,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
-    
+
     /**
      * Test multiple field definition in one statement.
      */
@@ -367,7 +367,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
-    
+
     public void test24()
     {
         StringReader sr = new StringReader(
@@ -385,7 +385,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
     }
-    
+
     // Lambda syntax tests
     private void checkLambdaExpression(String s)
     {
@@ -393,19 +393,19 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader("(" + s + ")");
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
-        
+
         // test when used in assigment:
         sr = new StringReader("Runnable r = " + s + ";");
         ip = new JavaParser(sr);
         ip.parseStatement();
-        
+
         // test when used as method parameter:
         sr = new StringReader("doSomething(" + s + ");");
         ip = new JavaParser(sr);
         ip.parseStatement();
     }
-    
-    
+
+
     public void testLambdaNoParameters1()
     {
         checkLambdaExpression("() -> {}");
@@ -442,40 +442,40 @@ public class NewParserTest extends TestCase
                 + "        return result;\n"
                 + "    }\n"
                 + "}\n"; // Complex block body with returns
-        
+
         checkLambdaExpression(s);
     }
-    
+
     public void testLambdaSingleParameter1()
     {
         checkLambdaExpression("(int x) -> x+1"); // Single declared-type parameter
     }
-    
+
     public void testLambdaSingleParameter2()
     {
         checkLambdaExpression("(x) -> x+1"); // Single inferred-type parameter
     }
-    
+
     public void testLambdaSingleParameter3()
     {
         checkLambdaExpression("x -> x+1"); // Parens optional for single inferred-type case
     }
-    
+
     public void testLambdaSingleParameter4()
     {
         checkLambdaExpression("t -> { t.start(); } "); // Single inferred-type parameter
     }
-    
+
     public void testLambdaSingleParameter5()
     {
         checkLambdaExpression("(final int x) -> x+1"); // Modified declared-type parameter
     }
-    
+
     public void testLambdaSingleParameter6()
     {
         checkLambdaExpression("(CustomClass x) -> x+1"); // Modified declared-type parameter
     }
-    
+
     public void testLambdaSingleParameter7()
     {
         checkLambdaExpression("(int... x) -> x+1"); // Modified declared-type parameter
@@ -495,7 +495,7 @@ public class NewParserTest extends TestCase
     {
         checkLambdaExpression("(var x, var y) -> x+1"); // Modified declared-type parameter
     }
-    
+
     public void testLambdaVarParameter4()
     {
         checkLambdaExpression("(x, var y) -> x+1"); // Modified declared-type parameter
@@ -505,12 +505,12 @@ public class NewParserTest extends TestCase
     {
         checkLambdaExpression("(x, var y, int... z) -> x+1"); // Modified declared-type parameter
     }
-    
+
     public void testLambdaMultipleParameters1()
     {
         checkLambdaExpression("(int x, float y) -> x+y"); // Multiple declared-type parameters
     }
-    
+
     public void testLambdaMultipleParameters2()
     {
         checkLambdaExpression("(x,y) -> x+y"); // Multiple inferred-type parameters
@@ -520,17 +520,17 @@ public class NewParserTest extends TestCase
     {
         checkLambdaExpression("SomeClass::someMethod");
     }
-    
+
     public void testMethodRef3()
     {
         checkLambdaExpression("somepkg.someotherpkg.SomeClass::someMethod");
     }
-    
+
     public void testMethodRef4()
     {
         checkLambdaExpression("SomeClass::new");
     }
-    
+
     /** Test generic method call */
     public void testGenericMethodCall()
     {
@@ -542,7 +542,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
     }
-    
+
     public void testPrimitiveCast()
     {
         StringReader sr = new StringReader(
@@ -551,7 +551,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
     }
-    
+
     public void testSynchronizedModifier()
     {
         StringReader sr = new StringReader(
@@ -561,16 +561,16 @@ public class NewParserTest extends TestCase
         );
         JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
-        
+
         sr = new StringReader("synchronized { throw new Exception(); }");
         ip = new JavaParser(sr);
         ip.parseStatement();
-        
+
         sr = new StringReader("synchronized(getSomeValue()) { throw new Exception(); }");
         ip = new JavaParser(sr);
         ip.parseStatement();
     }
-    
+
     public void testVarargsMethod()
     {
         StringReader sr = new StringReader(
@@ -581,7 +581,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
-    
+
     /**
      * Test for loop with double initializer
      */
@@ -594,7 +594,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
-    
+
     /**
      * Test for loop where initializer has modifier(s)
      */
@@ -607,7 +607,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
-    
+
     /**
      * Test for loop where initializer variables are already declared
      */
@@ -655,7 +655,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
-    
+
     public void testMethodParamModifier()
     {
         StringReader sr = new StringReader(
@@ -666,7 +666,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
-    
+
     public void testParenthesizedValue()
     {
         StringReader sr = new StringReader(
@@ -675,7 +675,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
     }
-    
+
     public void testTopLevelExtraSemis()
     {
         StringReader sr = new StringReader(
@@ -686,7 +686,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseCU();
     }
-    
+
     public void testParenthesizedInTrinary()
     {
         StringReader sr = new StringReader(
@@ -695,7 +695,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
-    
+
     public void testDefaultMethodModifier()
     {
         StringReader sr = new StringReader(
@@ -706,7 +706,7 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseCU();
     }
-    
+
     public void testConstructor1()
     {
         new JavaParser(new StringReader("Foo() { return; } }")).parseClassBody();
@@ -843,5 +843,5 @@ public class NewParserTest extends TestCase
             """
         )).parseCU();
     }
-    
+
 }

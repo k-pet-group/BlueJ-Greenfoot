@@ -46,7 +46,7 @@ public class SlowDocument implements Document
         int linesRemoved = getLineFromPosition(endCharExcl) - getLineFromPosition(startCharIncl);
         String prev = content.substring(startCharIncl, endCharExcl);
         content = content.substring(0, startCharIncl) + text + content.substring(endCharExcl);
-        
+
         // Update tracked positions:
         for (TrackedPosition trackedPosition : trackedPositions)
         {
@@ -133,7 +133,7 @@ public class SlowDocument implements Document
     {
         return Arrays.asList(content.split("\n", -1));
     }
-    
+
     @Override
     public TrackedPosition trackPosition(int position, Bias bias)
     {
@@ -156,7 +156,7 @@ public class SlowDocument implements Document
     {
         return content.substring(startCharIncl, endCharExcl);
     }
-    
+
     @Override
     public Reader makeReader(int startPos, int endPos)
     {

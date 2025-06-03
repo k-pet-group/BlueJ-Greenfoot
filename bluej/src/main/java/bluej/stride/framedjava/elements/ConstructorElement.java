@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -49,7 +49,7 @@ public class ConstructorElement extends MethodWithBodyElement
     public static final String ELEMENT = "constructor";
     private final SuperThisFragment delegate;
     private final SuperThisParamsExpressionFragment delegateParams;
-    
+
     public ConstructorElement(ConstructorFrame frame, AccessPermissionFragment access, List<ParamFragment> params,
                               List<ThrowsTypeFragment> throwsTypes, SuperThisFragment delegate,
                               SuperThisParamsExpressionFragment delegateParams, List<CodeElement> contents,
@@ -65,7 +65,7 @@ public class ConstructorElement extends MethodWithBodyElement
         this(null, new AccessPermissionFragment(AccessPermission.PUBLIC), Collections.emptyList(), Collections.emptyList(),
                 null, null, Collections.emptyList(), new JavadocUnit(javaDoc), true);
     }
-    
+
     public ConstructorElement(Element el)
     {
         super(el);
@@ -95,22 +95,22 @@ public class ConstructorElement extends MethodWithBodyElement
     public JavaSource toJavaSource()
     {   
         List<JavaFragment> header = new ArrayList<>();
-        
+
         Collections.addAll(header, access, space(), ((ClassElement)getParent()).getNameElement((ConstructorFrame)frame), f(frame, "("));
-                
+
         ParamFragment.addParamsToHeader(frame, this, params, header);
         header.add(f(frame, ")"));
 
         header.addAll(throwsToJava());
-        
+
         List<JavaSource> effectiveContents = new ArrayList<>();
-        
+
         if (delegate != null) {
             effectiveContents.add(new JavaSource(this, delegate, f(frame, "("), delegateParams, f(frame, ");")));
         }
-        
+
         effectiveContents.addAll(CodeElement.toJavaCodes(contents));
-        
+
         return JavaSource.createMethod(frame, this, this, documentation, header, effectiveContents);
     }
 
@@ -122,10 +122,10 @@ public class ConstructorElement extends MethodWithBodyElement
         addEnableAttribute(methodEl);
 
         methodEl.appendChild(documentation.toXML());
-        
+
         paramsToXML(methodEl);
         throwsToXML(methodEl);
-        
+
         LocatableElement delegateEl;
         if (delegate != null) {
             delegateEl = new LocatableElement(null, "delegate");
@@ -133,7 +133,7 @@ public class ConstructorElement extends MethodWithBodyElement
             delegateEl.addAttributeStructured("params", delegateParams);
             methodEl.appendChild(delegateEl);
         }
-        
+
         bodyToXML(methodEl);
         return methodEl;
     }
@@ -145,20 +145,20 @@ public class ConstructorElement extends MethodWithBodyElement
         setupFrame(editor);
         return frame;
     }
-    
+
     @Override
     public String getType()
     {
         // We have no (return) type:
         return null;
     }
-    
+
     @Override
     public void show(ShowReason reason)
     {
         frame.show(reason);        
     }
-    
+
     @Override
     protected Stream<SlotFragment> getDirectSlotFragments()
     {

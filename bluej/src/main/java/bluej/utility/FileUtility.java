@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2014,2016,2018,2019,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -153,7 +153,7 @@ public class FileUtility
         newChooser.getExtensionFilters().setAll(filters);
         newChooser.setTitle(title);
         newChooser.setInitialDirectory(PrefMgr.getProjectDirectory());
-        
+
         List<File> chosen = newChooser.showOpenMultipleDialog(parent);
 
         if (chosen != null && chosen.size() > 0 && chosen.get(0).getParentFile() != null && rememberDir)
@@ -254,7 +254,7 @@ public class FileUtility
 
         InputStream in = null;
         OutputStream out = null;
-        
+
         try {
             in = new BufferedInputStream(new FileInputStream(srcFile));
             out = new BufferedOutputStream(new FileOutputStream(destFile));
@@ -300,7 +300,7 @@ public class FileUtility
 
         if(destFile.exists() && !destFile.isDirectory())
             return DEST_EXISTS_NOT_DIR;
-        
+
         // It's okay if it exists ,provided it is empty:
         if (destFile.exists())
         {
@@ -517,7 +517,7 @@ public class FileUtility
             }
         }
     }
-    
+
     /**
      * Find the relative path from some parent directory to a file nested within.
      * For instance, for parent "/a/b" and file "/a/b/c/d/somefile.java" returns
@@ -532,12 +532,12 @@ public class FileUtility
     {
         String filePath = file.getAbsolutePath();
         String parentPath = parent.getAbsolutePath();
-        
+
         if (filePath.startsWith(parentPath)) {
             // Strip parent path and path separator
             filePath = filePath.substring(parentPath.length() + 1);
         }
-        
+
         return filePath;
     }
 

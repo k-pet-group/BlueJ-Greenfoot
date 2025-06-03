@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -55,7 +55,7 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
     private final NameDefSlotFragment varName;
     private final FilledExpressionSlotFragment varValue;
     private VarFrame frame;
-    
+
     // varValue is optional and can be null
     public VarElement(VarFrame frame, AccessPermissionFragment varAccess, boolean staticModifier, 
             boolean finalModifier, TypeSlotFragment varType, NameDefSlotFragment varName, 
@@ -70,25 +70,25 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
         this.varValue = varValue;
         this.enable = enabled;
     }
-    
+
     public VarElement(Element el)
     {
         Attribute accessAttribute = el.getAttribute("access");
         varAccess = (accessAttribute == null) ? null : 
             new AccessPermissionFragment(AccessPermission.fromString(accessAttribute.getValue()));
-        
+
         Attribute staticAttribute = el.getAttribute("static");
         staticModifier = (staticAttribute == null) ? false : Boolean.valueOf(staticAttribute.getValue());
-        
+
         Attribute finalAttribute = el.getAttribute("final");
         finalModifier = (finalAttribute == null) ? false : Boolean.valueOf(finalAttribute.getValue());
-        
+
         varType = new TypeSlotFragment(el.getAttributeValue("type"), el.getAttributeValue("type-java"));
         varName = new NameDefSlotFragment(el.getAttributeValue("name"));
-        
+
         Attribute valueAttribute = el.getAttribute("value");
         varValue = (valueAttribute == null) ? null : new FilledExpressionSlotFragment(valueAttribute.getValue(), el.getAttributeValue("value-java"));
-        
+
         enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
@@ -113,7 +113,7 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
         if (finalModifier) {
             fragments.add(f(frame, "final "));
         }
-        
+
         fragments.addAll(Arrays.asList(varType, space(), varName));
         if (varValue != null) {
             fragments.addAll(Arrays.asList(f(null, " = "), varValue));
@@ -143,7 +143,7 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
         addEnableAttribute(varEl);
         return varEl;
     }
-    
+
     @Override
     public Frame createFrame(InteractionManager editor)
     {
@@ -162,7 +162,7 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
     {
         return frame.showDebugBefore(debug);
     }
-    
+
     @Override
     public void show(ShowReason reason)
     {

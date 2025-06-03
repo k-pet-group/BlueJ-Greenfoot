@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -39,10 +39,10 @@ public abstract class MultiCanvasFrame extends Frame implements CanvasParent
     // Each canvas is potentially preceded by a divider.
     // Should always be same size as canvases, but may have null entries:
     protected final List<FrameContentItem> dividers = new ArrayList<>();
-    
+
     // TODO do we want several sidebars, one per canvas?
     protected final Sidebar sidebar;
-        
+
     /**
      * @param caption
      * @param stylePrefix
@@ -59,7 +59,7 @@ public abstract class MultiCanvasFrame extends Frame implements CanvasParent
         //canvas.getChildren().add(0, new CursorBlock());
         //header.getChildren().add(new ParameterSlot(prevRedirect, canvas.getChildren().get(0), b));
     }
-    
+
     /**
      * 
      * @param divider Divider to go above the canvas.  Can be null.
@@ -69,15 +69,15 @@ public abstract class MultiCanvasFrame extends Frame implements CanvasParent
     {
         canvases.add(at, canvas);
         dividers.add(at, divider);
-        
+
         updateDisplay();
     }
-    
+
     protected void addCanvas(FrameContentItem divider, FrameCanvas canvas)
     {
         addCanvas(divider, canvas, canvases.size());
     }
-    
+
     protected void removeCanvas(FrameCanvas canvas)
     {
         int index = canvases.indexOf(canvas);
@@ -121,7 +121,7 @@ public abstract class MultiCanvasFrame extends Frame implements CanvasParent
     {
         return canvases.get(canvases.size() - 1);
     }
-    
+
     @Override
     public double lowestCursorY()
     {

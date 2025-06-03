@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2016,2017,2025  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -99,14 +99,14 @@ public abstract class InputDialog<R>
         // By default, we have an OK and Cancel button:
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
         Config.addDialogStylesheets(dialog.getDialogPane());
-        
+
         if (styleClass != null)
             JavaFXUtil.addStyleClass(content, styleClass);
         JavaFXUtil.addStyleClass(content, "input-dialog-content");
         JavaFXUtil.addStyleClass(this.prompt, "input-dialog-prompt");
         JavaFXUtil.addStyleClass(field, "input-dialog-field");
         JavaFXUtil.addStyleClass(error, "dialog-error-label");
-        
+
         /* Scenic view:
         dialog.initModality(Modality.NONE);
         dialog.setOnShown(e -> org.scenicview.ScenicView.show(dialogPane));
@@ -161,7 +161,7 @@ public abstract class InputDialog<R>
     {
         this(title, label, prompt, styleClass, null);
     }
-    
+
     protected InputDialog(String dialogMsgID, String prompt, String styleClass)
     {
         // Calling same method twice is messy, but no easy way I can see in Java
@@ -221,7 +221,7 @@ public abstract class InputDialog<R>
         error.setText(errorText);
         JavaFXUtil.setPseudoclass("bj-dialog-error", !errorText.equals(""), field);
     }
-    
+
     /**
      * Sets the OK button of the dialog to be enabled (pass true) or not (pass false)
      */

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2019,2020,2022 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -63,19 +63,19 @@ public class ErrorAndFixDisplay extends FixDisplayManager
         @OnThread(Tag.FXPlatform)
         public void fixedError(CodeError err);
     }
-    
+
     public ErrorAndFixDisplay(InteractionManager editor, CodeError err, ErrorFixListener slot)
     {
         this(editor, "", err, slot);
     }
-    
+
     public ErrorAndFixDisplay(InteractionManager editor, String prefix, CodeError err, ErrorFixListener slot)
     {
         super(err.getIdentifier(), err.getMessage());
         this.editor = editor;
         this.error = err;
         this.slot = slot;
-        
+
         // We must consume the mouse pressed event to stop the focus from moving away
         // from the text slot when the mouse is clicked on us:
         vbox.setOnMousePressed(MouseEvent::consume);
@@ -98,7 +98,7 @@ public class ErrorAndFixDisplay extends FixDisplayManager
         prepareFixDisplay(vbox, (List<FixSuggestion>) err.getFixSuggestions(), () -> editor.getFrameEditor().getWatcher());
         CodeOverlayPane.setDropShadow(vbox);
     }
-    
+
     public CodeError getError()
     {
         return error;

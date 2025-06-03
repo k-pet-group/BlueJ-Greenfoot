@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2012,2019,2022  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -57,13 +57,13 @@ public class CommentNode extends ParsedNode
     };
 
     private Type type;
-    
+
     public CommentNode(ParsedNode parentNode, LocatableToken token)
     {
         super(parentNode);
         type = getCommentType(token);
     }
-    
+
     /**
      * Determine the comment type from the token.
      */
@@ -82,27 +82,27 @@ public class CommentNode extends ParsedNode
             }
             return Type.ML_NORMAL;
         }
-        
+
         // Single line
         if (text.startsWith("//#")) {
             return Type.SL_SPECIAL;
         }
-        
+
         return Type.SL_NORMAL;
     }
-    
+
     public boolean isJavadocComment()
     {
         return type == Type.ML_JAVADOC;
     }
-    
-    
+
+
     @Override
     public int getNodeType()
     {
         return NODETYPE_COMMENT;
     }
-    
+
     /* (non-Javadoc)
      * @see bluej.parser.nodes.ParsedNode#getMarkTokensFor(int, int, int, javax.swing.text.Document)
      */
@@ -119,7 +119,7 @@ public class CommentNode extends ParsedNode
     {
         return true;
     }
-    
+
     @Override
     public int textInserted(ReparseableDocument document, int nodePos, int insPos, int length,
             NodeStructureListener listener)
@@ -157,7 +157,7 @@ public class CommentNode extends ParsedNode
                 commentToken.getType() != JavaTokenTypes.ML_COMMENT) {
             return REMOVE_NODE;
         }
-        
+
         Type newType = getCommentType(commentToken);
         if (type.singleLine && !newType.singleLine) {
             // changed from single to multi-line
@@ -169,9 +169,9 @@ public class CommentNode extends ParsedNode
                 return REMOVE_NODE;
             }
         }
-        
+
         type = newType;
-        
+
         int newEnd = lineColToPos(document, commentToken.getEndLine(),
                 commentToken.getEndColumn());
         int newSize = newEnd - nodePos;
@@ -180,18 +180,18 @@ public class CommentNode extends ParsedNode
             setSize(newSize);
             return NODE_SHRUNK;
         }
-        
+
         return ALL_OK;
     }
-    
-    
+
+
     private static int lineColToPos(ReparseableDocument document, int line, int col)
     {
         Element map = document.getDefaultRootElement();
         Element lineEl = map.getElement(line - 1);
         return lineEl.getStartOffset() + col - 1;
     }
-    
+
     @Override
     public ExpressionTypeInfo getExpressionType(int pos, ReparseableDocument document)
     {

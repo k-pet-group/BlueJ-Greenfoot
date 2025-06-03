@@ -38,7 +38,7 @@ public class RBTreeNode<T extends RBTreeNode<T>>
     {
         containingNodeTree = cnode;
     }
-    
+
     /**
      * Get the containing node tree for this node.
      * @return
@@ -47,7 +47,7 @@ public class RBTreeNode<T extends RBTreeNode<T>>
     {
         return containingNodeTree;
     }
-    
+
     /**
      * Move the node. This also has the effect of moving all following nodes.
      * @param offset  The amount by which to move the node
@@ -65,7 +65,7 @@ public class RBTreeNode<T extends RBTreeNode<T>>
     {
         getContainingNodeTree().slideStart(offset);
     }
-    
+
     /**
      * Set the size of this node. Following nodes shift position according to the change in
      * size; this should normally be used when inserting or removing text from the node.
@@ -75,7 +75,7 @@ public class RBTreeNode<T extends RBTreeNode<T>>
     {
         getContainingNodeTree().resize(newSize);
     }
-    
+
     /**
      * Set the size of this node, without moving following nodes. It is the caller's
      * responsibility to ensure that setting the new size does not cause this node
@@ -86,7 +86,7 @@ public class RBTreeNode<T extends RBTreeNode<T>>
     {
         getContainingNodeTree().setSize(newSize);
     }
-    
+
     public void remove()
     {
         getContainingNodeTree().remove();

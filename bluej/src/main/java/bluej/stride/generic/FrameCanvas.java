@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2017,2018,2021 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -97,7 +97,7 @@ public class FrameCanvas implements FrameContentItem
 
     private final SimpleBooleanProperty showingProperty = new SimpleBooleanProperty(true);
     private boolean animateLeftMarginScale;
-    
+
     private final Pane emptyFramePaddingPane = new Pane(); // the padding pane used to fill up empty frames (cf constructor for details)
 
     private int childBlockIndex(int blockIndex)
@@ -107,7 +107,7 @@ public class FrameCanvas implements FrameContentItem
         // etc
         return blockIndex * 3 + 2; 
     }
-    
+
     private int childCursorIndex(int cursorIndex)
     {
         // cursor 0 is child 0
@@ -115,7 +115,7 @@ public class FrameCanvas implements FrameContentItem
         // etc
         return (cursorIndex * 3);
     }
-    
+
     private void validate(FrameCursor cursor, int cursorIndex)
     {
         validate();
@@ -139,13 +139,13 @@ public class FrameCanvas implements FrameContentItem
         {
             if (cursors.get(i) == null)
                 throw new IllegalStateException("Canvas: cursor is null");
-            
+
             if (cursors.indexOf(cursors.get(i)) != i || cursors.lastIndexOf(cursors.get(i)) != i)
                 throw new IllegalStateException("Canvas: cursor is duplicated");
-            
+
             if (canvas.getChildren().get(childCursorIndex(i)) != cursors.get(i).getNode())
                 throw new IllegalStateException("Canvas: cursors out of sync");
-            
+
             if (cursors.get(i).getParentCanvas() != this)
                 throw new IllegalStateException("Canvas: cursor parent out of sync");
         }
@@ -153,13 +153,13 @@ public class FrameCanvas implements FrameContentItem
         {
             if (blockContents.get(i) == null)
                 throw new IllegalStateException("Canvas: block is null");
-            
+
             if (blockContents.indexOf(blockContents.get(i)) != i || blockContents.lastIndexOf(blockContents.get(i)) != i)
                 throw new IllegalStateException("Canvas: block is duplicated");
-            
+
             if (canvas.getChildren().get(childBlockIndex(i)) != blockContents.get(i).getNode())
                 throw new IllegalStateException("Canvas: blocks out of sync");
-            
+
             if (blockContents.get(i).getParentCanvas() != this)
                 throw new IllegalStateException("Canvas: block parent out of sync");
         }
@@ -167,10 +167,10 @@ public class FrameCanvas implements FrameContentItem
         {
             if (specials.get(i) == null)
                 throw new IllegalStateException("Canvas: special is null");
-            
+
             if (specials.indexOf(specials.get(i)) != i || specials.lastIndexOf(specials.get(i)) != i)
                 throw new IllegalStateException("Canvas: special is duplicated");
-            
+
             if (canvas.getChildren().get(childBlockIndex(i) - 1) != specials.get(i))
                 throw new IllegalStateException("Canvas: specials out of sync");
         }
@@ -223,12 +223,12 @@ public class FrameCanvas implements FrameContentItem
             throw new IllegalArgumentException("insertSpecialBefore: canvas does not contain specified cursor");
         return specials.get(index);
     }
-    
+
     public VBox getSpecialBefore(Frame f)
     {
         return getSpecialAfter(getCursorBefore(f));
     }
-    
+
     public VBox getSpecialAfter(FrameCursor cursor)
     {
         int index;
@@ -244,7 +244,7 @@ public class FrameCanvas implements FrameContentItem
             throw new IllegalArgumentException("insertSpecialBefore: canvas does not contain specified cursor");
         return specials.get(index);
     }
-    
+
     /**
      * Inserts block before the given cursor (which is guaranteed to end up after the inserted block)
      */
@@ -256,7 +256,7 @@ public class FrameCanvas implements FrameContentItem
             throw new IllegalArgumentException("Block " + getClass() + " does not accept " + toAdd.getClass());
         if (toAdd.getParentCanvas() != null)
             throw new IllegalArgumentException("Block already has parent");
-        
+
         int index = 0;
         if (cursor == null)
         {
@@ -275,7 +275,7 @@ public class FrameCanvas implements FrameContentItem
         {
             hideEmptyFramePadding();
         }
-        
+
         int childIndex = childCursorIndex(index);
         FrameCursor newCursor = editorFrm.createCursor(this);
         VBox special = new VBox();
@@ -288,7 +288,7 @@ public class FrameCanvas implements FrameContentItem
         toAdd.setParentCanvas(this);
         validate(cursor, index + 1);
     }
-    
+
     /**
      * Inserts block after the given cursor (which is guaranteed to remain in the same place)
      */
@@ -300,7 +300,7 @@ public class FrameCanvas implements FrameContentItem
             throw new IllegalArgumentException("Block " + getClass() + " does not accept " + toAdd.getClass());
         if (toAdd.getParentCanvas() != null)
             throw new IllegalArgumentException("Block already has parent");
-        
+
         int index;
         if (cursor == null)
         {
@@ -313,13 +313,13 @@ public class FrameCanvas implements FrameContentItem
         }
         if (index < 0)
             throw new IllegalArgumentException("insertBlockAfter: canvas does not contain specified cursor");
-        
+
         // Hides the empty frame pane if the frame is currently empty
         if(blockContents.size() == 0)
         {
             hideEmptyFramePadding();    
         }
-        
+
         int childIndex = childCursorIndex(index);
         FrameCursor newCursor = editorFrm.createCursor(this);
         VBox special = new VBox();
@@ -351,14 +351,14 @@ public class FrameCanvas implements FrameContentItem
         specials.remove(index);
         b.cleanup();
         b.setParentCanvas(null);
-        
+
         //if the frame is now empty, we need to show the empty padding pane
         if(blockContents.size() == 0){
             showEmptyFramePadding();
         }
         validate();
     }
-    
+
     /**
      * Replaces the block without altering any cursors
      */
@@ -370,7 +370,7 @@ public class FrameCanvas implements FrameContentItem
             throw new IllegalArgumentException("Block " + getClass() + " does not accept " + replacement.getClass());
         if (replacement.getParentCanvas() != null)
             throw new IllegalArgumentException("Block already has parent");
-        
+
         int index = blockContents.indexOf(old);
         if (index < 0)
             throw new IllegalArgumentException("replaceBlock: canvas does not contain specified block");
@@ -382,7 +382,7 @@ public class FrameCanvas implements FrameContentItem
         validate();
         replacement.focusWhenJustAdded();
     }
-    
+
     /**
      * Gets the block before the cursor.  Returns null if it's the first cursor.
      */
@@ -396,7 +396,7 @@ public class FrameCanvas implements FrameContentItem
         else
             return blockContents.get(index - 1);
     }
-    
+
 
     public Stream<Frame> getFramesBefore(Frame f)
     {
@@ -405,10 +405,10 @@ public class FrameCanvas implements FrameContentItem
         int index = blockContents.indexOf(f);
         if (index == -1)
             throw new IllegalArgumentException("getFramesBefore: canvas does not contain specified frame");
-        
+
         return blockContents.stream().limit(index);
     }
-    
+
     /**
      * Gets the block after the cursor.  Returns null if it's the last cursor.
      */
@@ -422,7 +422,7 @@ public class FrameCanvas implements FrameContentItem
         else
             return blockContents.get(index); //Not +1 -- each cursor index is before its corresponding block index
     }
-    
+
     /**
      * Gets the blocks after the cursor.  Null gets all blocks.
      */
@@ -436,7 +436,7 @@ public class FrameCanvas implements FrameContentItem
         else
             return blockContents.stream().skip(index + 1);
     }
-    
+
     /**
      * Gets the cursor before the block.  Never returns null.
      */
@@ -460,7 +460,7 @@ public class FrameCanvas implements FrameContentItem
         else
             return cursors.get(index + 1);
     }
-    
+
     public boolean acceptsType(Frame blockOfType)
     {
         if (blockOfType != null) {
@@ -468,7 +468,7 @@ public class FrameCanvas implements FrameContentItem
         }
         return false;
     }
-    
+
     // To be used for formatting, not querying children, etc:
     public Node getNode()
     {
@@ -487,7 +487,7 @@ public class FrameCanvas implements FrameContentItem
         }
         return r;
     }
-    
+
     public FrameCursor getPrevCursor(FrameCursor orig, boolean canChangeLevel)
     {
         int index = cursors.indexOf(orig);
@@ -517,7 +517,7 @@ public class FrameCanvas implements FrameContentItem
             return cursors.get(index - 1);
         }
     }
-    
+
     public FrameCursor getNextCursor(FrameCursor orig, boolean canChangeLevel)
     {
         int index = cursors.indexOf(orig);
@@ -531,7 +531,7 @@ public class FrameCanvas implements FrameContentItem
             }
             return null;
         }
-            
+
         if (canChangeLevel) {
             FrameCursor c = blockContents.get(index).getFirstInternalCursor();
             if (c != null) {
@@ -541,7 +541,7 @@ public class FrameCanvas implements FrameContentItem
         // If we can't change level, or there is no internal cursor, go past:
         return cursors.get(index + 1);
     }
-    
+
     /**
      * Finds closest cursor to given point, even if out of bounds of this block
      */
@@ -558,14 +558,14 @@ public class FrameCanvas implements FrameContentItem
                     return c;
                 }
             }
-             
+
             // Then check block (if not on last cursor):
             if (i < blockContents.size())
             {
                 Frame b = blockContents.get(i);
-                
+
                 //Debug.message("Looking for " + sceneY + )
-                
+
                 if (!canDescend || (exclude != null && exclude.contains(b)))
                 {
                     // Find first non-excluded cursors above and below, pick closest:
@@ -574,16 +574,16 @@ public class FrameCanvas implements FrameContentItem
                     {
                         validCursorAbove -= 1;
                     }
-                    
+
                     int validCursorBelow = i + 1;
                     while (validCursorBelow < blockContents.size() && (exclude != null && exclude.contains(blockContents.get(validCursorBelow))))
                     {
                         validCursorBelow += 1;
                     }
-                    
+
                     double distToAbove = sceneY - cursors.get(validCursorAbove).getSceneBounds().getMaxY();
                     double distToBelow = sceneY - cursors.get(validCursorBelow).getSceneBounds().getMinY();
-                    
+
                     if (distToBelow < 0) // If we're above the next valid cursor:
                     {
                         if (distToAbove <= -distToBelow)
@@ -616,18 +616,18 @@ public class FrameCanvas implements FrameContentItem
         //TODO does this allow you to drag off screen?
         return getLastCursor();
     }
-    
-    
+
+
     public FrameCursor getFirstCursor()
     {
         return cursors.get(0);
     }
-    
+
     public FrameCursor getLastCursor()
     {
         return cursors.get(cursors.size() - 1);
     }
-    
+
     public Bounds getSceneBounds()
     {
         return canvas.localToScene(canvas.getBoundsInLocal());
@@ -642,7 +642,7 @@ public class FrameCanvas implements FrameContentItem
     {
         return blockContents.size();
     }
-    
+
     /**
      * Do not modify the returned list! 
      * 
@@ -653,12 +653,12 @@ public class FrameCanvas implements FrameContentItem
     {
         return blockContents; // FXCollections.unmodifiableObservableList(blockContents);
     }
-    
+
     public List<? extends RecallableFocus> getFocusableCursors()
     {
         return cursors;
     }
-    
+
     /**
      * Gets an ordered list of frames that lie between the two given cursors.
      * 
@@ -669,13 +669,13 @@ public class FrameCanvas implements FrameContentItem
     public List<Frame> framesBetween(FrameCursor a, FrameCursor b)
     {
         int early, late;
-        
+
         int ai = cursors.indexOf(a);
         int bi = cursors.indexOf(b);
-        
+
         if (ai == -1 || bi == -1)
             throw new IllegalArgumentException("framesBetween called for a cursor not present in canvas");
-        
+
         if (ai < bi)
         {
             early = ai;
@@ -695,7 +695,7 @@ public class FrameCanvas implements FrameContentItem
         // 0 and 1.  So we just take a sublist from early (incl) to late (excl). 
         return Collections.unmodifiableList(blockContents.subList(early, late));
     }
-    
+
     // Must be later followed by call to growUsing
     public void shrinkUsing(DoubleExpression animate)
     {
@@ -742,7 +742,7 @@ public class FrameCanvas implements FrameContentItem
             canvas.setEffect(pt);
         }
     }
-    
+
     // Must have been preceded by call to shrinkUsing
     public void growUsing(DoubleExpression animate)
     {
@@ -760,7 +760,7 @@ public class FrameCanvas implements FrameContentItem
             JavaFXUtil.addChangeListenerAndCallNow(animate, newVal -> canvas.setMaxHeight(newVal.doubleValue() * finalCalcHeight));
         }
         // We keep on the previous effect and clip until we have reached full height
-        
+
         animate.addListener((a, b, newVal) -> {
             if (newVal.doubleValue() >= 0.99)
             {
@@ -773,19 +773,19 @@ public class FrameCanvas implements FrameContentItem
             }
         });
     }
-    
+
 
     public DoubleExpression widthProperty()
     {
         return canvas.widthProperty();
     }
-    
+
 //    //Top level canvas
 //    private Block embeddedInBlock = null;
 //    //Top-level selection scope
 //    protected SelectionScope selectionScope;
 //    private BlockCursor topCursor;
-    
+
     /**
      * Constructor that specifies that this canvas is part of, for example, an "if" or "for" block's canvas area
      */
@@ -794,7 +794,7 @@ public class FrameCanvas implements FrameContentItem
         this.parentBlock = parent;
         //Default setup
         canvas.getStyleClass().addAll("frame-canvas", stylePrefix + "frame-canvas");
-        
+
         JavaFXUtil.setPseudoclass("bj-empty", true, canvas);
         blockContents.addListener((ListChangeListener<Frame>) c -> {
                 boolean empty = blockContents.size() == 0;
@@ -804,14 +804,14 @@ public class FrameCanvas implements FrameContentItem
                 //Notify parent:
                 parent.modifiedCanvasContent();
         });
-        
+
       //Drag
         canvas.setOnDragOver(new EventHandler <DragEvent>() {
             @Override
             public void handle(DragEvent event) {
                 /* data is dragged over the target */
                 //System.out.println("onDragOver");
-                
+
                 /* accept it only if it is  not dragged from the same node 
                  * and if it has a string data */
                 if (event.getGestureSource() != this &&
@@ -819,11 +819,11 @@ public class FrameCanvas implements FrameContentItem
                     /* allow for both copying and moving, whatever user chooses */
                     event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
                 }
-                
+
                 event.consume();
             }
         });
-        
+
         // If they click on the blank canvas, focus cursor
         // and move it to bottom of panel (since that's where the blank
         // part will be)
@@ -834,16 +834,16 @@ public class FrameCanvas implements FrameContentItem
                 e.consume();
             }
         });
-        
-        
+
+
         FrameCursor topCursor = editor.createCursor(this);
         cursors.add(topCursor);
         canvas.getChildren().add(0, topCursor.getNode());
-        
+
         VBox topSpecial = new VBox();
         specials.add(topSpecial);
         canvas.getChildren().add(1, topSpecial);
-        
+
         // To keep empty frames behaving as any other when the cursor get in/our, 
         // we use a sort of "padding" node that acts as a filler so that the visual effect of only what is
         // before/after the current frame moves, instead of the whole page. This filler is added when a frame
@@ -856,10 +856,10 @@ public class FrameCanvas implements FrameContentItem
         // Must be mouse transparent to avoid capturing clicks.  It's empty, but should probably also be invisible just in case:
         emptyFramePaddingPane.setMouseTransparent(true);
         emptyFramePaddingPane.setVisible(false);
-       
+
         editorFrm = editor;
     }
-    
+
     /**
      * Empty the canvas of block contents, and move them all to the target canvas, starting at the specified index (in that canvas's children)
      * @param targetCanvas canvas to export contents to
@@ -874,7 +874,7 @@ public class FrameCanvas implements FrameContentItem
             targetCanvas.insertBlockAfter(allBlocks.get(i), targetCanvas.getCursorAfter(after));            
         }
     }
-    
+
     public void moveContentsTo(FrameCanvas targetCanvas)
     {
         getBlocksSubtype(Frame.class).forEach(b -> {
@@ -882,7 +882,7 @@ public class FrameCanvas implements FrameContentItem
             targetCanvas.insertBlockAfter(b, targetCanvas.getLastCursor());
         });
     }
-    
+
     public void focusTopCursor()
     {
         FrameCursor firstCursor = getFirstCursor();
@@ -908,7 +908,7 @@ public class FrameCanvas implements FrameContentItem
     {
         getBlockContents().forEach(f -> f.cleanup());        
     }
-    
+
     public void showEmptyFramePadding()
     {
         emptyFramePaddingPane.setManaged(true);
@@ -923,11 +923,11 @@ public class FrameCanvas implements FrameContentItem
     {
         return getBlocksSubtype(Frame.class).stream().flatMap(Frame::getHeaderItems);
     }
-    
+
     // Not static!  One pair per canvas
     private ScalableHeightLabel previewOpeningCurly;
     private ScalableHeightLabel previewClosingCurly;
-    
+
     public void setAnimateLeftMarginScale(boolean animateLeftMarginScale)
     {
         this.animateLeftMarginScale = animateLeftMarginScale;
@@ -998,7 +998,7 @@ public class FrameCanvas implements FrameContentItem
     {
         previewCurly(on, true, true, sceneX, openingYAdjust, animate);
     }
-    
+
     public List<FrameCursor> getCursors()
     {
         return cursors;
@@ -1025,7 +1025,7 @@ public class FrameCanvas implements FrameContentItem
         // Will also return true if there are no frames:
         return blockContents.stream().allMatch(f -> f instanceof BlankFrame);
     }
-    
+
     public double getBottomMargin()
     {
         return canvas.getBottomMargin();
@@ -1124,7 +1124,7 @@ public class FrameCanvas implements FrameContentItem
             }
         }
     }
-    
+
     public void restore(List<? extends CodeElement> elements, InteractionManager editor)
     {
         // First, make a mapping of all existing elements to their source

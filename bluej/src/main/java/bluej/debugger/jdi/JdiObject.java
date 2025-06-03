@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2018,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -95,15 +95,15 @@ public class JdiObject extends DebuggerObject
         if (obj instanceof ArrayReference) {
             return new JdiArray((ArrayReference) obj, expectedType);
         }
-        
+
         if (expectedType.asClass() != null) {
             return new JdiObject(obj, expectedType.asClass());
         }
-        
+
         return new JdiObject(obj);
     }
-    
-    
+
+
     // -- instance methods --
 
     @OnThread(Tag.Any)
@@ -111,7 +111,7 @@ public class JdiObject extends DebuggerObject
     GenTypeClass genType = null; // the generic type, if known
     @OnThread(Tag.Any)
     private final List<Field> fields = new ArrayList<>();
-    
+
     // used by JdiArray.
     protected JdiObject()
     {
@@ -146,7 +146,7 @@ public class JdiObject extends DebuggerObject
             }
         }
     }
-    
+
     @Override
     protected void finalize()
     {
@@ -154,13 +154,13 @@ public class JdiObject extends DebuggerObject
             obj.enableCollection();
         }
     }
-    
+
     @Override
     public String toString()
     {
         return JdiUtils.getJdiUtils().getValueString(obj);
     }
-    
+
     /*
      * Get the (raw) name of the class of this object.
      */
@@ -189,7 +189,7 @@ public class JdiObject extends DebuggerObject
             return new JdiClass(obj.referenceType());
         }
     }
-    
+
     @Override
     public GenTypeClass getGenType()
     {
@@ -204,7 +204,7 @@ public class JdiObject extends DebuggerObject
             return null;
         }
     }
-    
+
     /**
      *  Return true if this object is an array. This is always false, since
      *  arrays are wropped in the subclass "JdiArray".
@@ -234,7 +234,7 @@ public class JdiObject extends DebuggerObject
     {
         return -1;
     }
-    
+
     @Override
     public JavaType getElementType()
     {
@@ -247,20 +247,20 @@ public class JdiObject extends DebuggerObject
     {
         return null;
     }
-    
+
     @Override
     public String getElementValueString(int index)
     {
         return null;
     }
-    
+
     @Override
     @OnThread(Tag.Any)
     public ObjectReference getObjectReference()
     {
         return obj;
     }
-    
+
     @Override
     @OnThread(Tag.Any)
     public List<DebuggerField> getFields()

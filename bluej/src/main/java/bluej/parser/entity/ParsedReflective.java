@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2014,2015,2016,2018,2019,2022  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -59,12 +59,12 @@ import threadchecker.Tag;
 public class ParsedReflective extends Reflective
 {
     private ParsedTypeNode pnode;
-    
+
     public ParsedReflective(ParsedTypeNode pnode)
     {
         this.pnode = pnode;
     }
-    
+
     @Override
     public String getName()
     {
@@ -94,7 +94,7 @@ public class ParsedReflective extends Reflective
     public List<GenTypeClass> getSuperTypes()
     {
         List<GenTypeClass> rval = new LinkedList<GenTypeClass>();
-        
+
         for (JavaEntity etype : pnode.getExtendedTypes()) {
             TypeEntity tent = etype.resolveAsType();
             if (tent != null) {
@@ -104,7 +104,7 @@ public class ParsedReflective extends Reflective
                 }
             }
         }
-        
+
         if (! isInterface()) {
             if (rval.isEmpty()) {
                 // All classes extend Object implicitly
@@ -127,7 +127,7 @@ public class ParsedReflective extends Reflective
                 }
             }
         }
-        
+
         return rval;
     }
 
@@ -147,7 +147,7 @@ public class ParsedReflective extends Reflective
                 }
             }
         }
-        
+
         if (rlist.isEmpty() && ! isInterface()) {
             // Object is always a supertype
             TypeEntity objEntity = pnode.resolveQualifiedClass("java.lang.Object");
@@ -158,7 +158,7 @@ public class ParsedReflective extends Reflective
                 }
             }
         }
-        
+
         extendedTypes = pnode.getImplementedTypes();
         if (extendedTypes != null && ! extendedTypes.isEmpty()) {
             for (JavaEntity etype : extendedTypes) {
@@ -171,7 +171,7 @@ public class ParsedReflective extends Reflective
                 }
             }
         }
-        
+
         return rlist;
     }
 
@@ -182,7 +182,7 @@ public class ParsedReflective extends Reflective
         if (tparEntList == null) {
             return Collections.emptyList();
         }
-        
+
         List<GenTypeDeclTpar> tparList = new ArrayList<GenTypeDeclTpar>(tparEntList.size());
         for (TparEntity tpar : tparEntList) {
             GenTypeDeclTpar tparType = tpar.getType();
@@ -190,7 +190,7 @@ public class ParsedReflective extends Reflective
                 tparList.add(tparType);
             }
         }
-        
+
         return tparList;
     }
 
@@ -199,7 +199,7 @@ public class ParsedReflective extends Reflective
     {
         Set<String> done = new HashSet<String>();
         LinkedList<Reflective> todo = new LinkedList<Reflective>();
-        
+
         while (r != null) {
             String rname = r.getName();
             if (rname.equals(getName())) {
@@ -210,7 +210,7 @@ public class ParsedReflective extends Reflective
             }
             r = todo.poll();
         }
-        
+
         return false;
     }
 
@@ -225,34 +225,34 @@ public class ParsedReflective extends Reflective
     {
         return Modifier.isStatic(pnode.getModifiers());
     }
-    
+
     @Override
     public boolean isPublic()
     {
         return Modifier.isPublic(pnode.getModifiers());
     }
-    
+
     @Override
     public boolean isFinal()
     {
         return Modifier.isFinal(pnode.getModifiers());
     }
-    
+
     @Override
     public Map<String,FieldReflective> getDeclaredFields()
     {
         Map<String,Set<VariableDeclaration>> allfields = pnode.getInner().getFields();
-        
+
         // Record parameters are recorded on the type declaration, rather than the body,
         // so they must be fetched separately:
         allfields.putAll(pnode.getRecordParameters());
-        
+
         // Filter out duplicates:
         Map<String, VariableDeclaration> fields = new HashMap<>();
         for (String name : allfields.keySet()) {
             fields.put(name, allfields.get(name).iterator().next());
         }
-        
+
         Map<String,FieldReflective> rmap = new HashMap<String,FieldReflective>();
         for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
             String fieldName = i.next();
@@ -266,7 +266,7 @@ public class ParsedReflective extends Reflective
         }
         return rmap;
     }
-    
+
     @Override
     public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
@@ -288,19 +288,19 @@ public class ParsedReflective extends Reflective
                 );
             }
         });
-        
+
         TypeInnerNode pnodeInner = pnode.getInner();
         if (pnodeInner == null) {
             return rmap;
         }
-        
+
         Map<String,Set<MethodNode>> methods = pnodeInner.getMethods();
-        
+
         for (Iterator<String> i = methods.keySet().iterator(); i.hasNext(); ) {
             String name = i.next();
             Set<MethodNode> mset = methods.get(name);
             Set<MethodReflective> rset = new HashSet<MethodReflective>();
-            
+
             methodLoop:
             for (Iterator<MethodNode> j = mset.iterator(); j.hasNext(); ) {
                 MethodNode method = j.next();
@@ -336,7 +336,7 @@ public class ParsedReflective extends Reflective
         // TODO actually pick out the constructors:
         return Collections.emptyList();
     }
-    
+
     @Override
     public Reflective getOuterClass()
     {
@@ -346,7 +346,7 @@ public class ParsedReflective extends Reflective
         }
         return null;
     }
-    
+
     @Override
     public ParsedReflective getInnerClass(String name)
     {
@@ -370,15 +370,15 @@ public class ParsedReflective extends Reflective
         if (obj == this) {
             return true;
         }
-        
+
         if (obj instanceof ParsedReflective) {
             ParsedReflective other = (ParsedReflective) obj;
             return pnode == other.pnode;
         }
-        
+
         return false;
     }
-    
+
     @Override
     public int hashCode()
     {

@@ -39,7 +39,7 @@ public class TrackedPosition implements EditorPosition
     int position;
     final Bias bias;
     private final Document document;
-    
+
     // Package-visible constructor
     public TrackedPosition(Document document, int initialPosition, Bias bias)
     {
@@ -97,7 +97,7 @@ public class TrackedPosition implements EditorPosition
     {
         moveBy(target - position);
     }
-    
+
     public void moveToLineColumn(int line, int column)
     {
         moveTo(document.getLineStart(line) + column);

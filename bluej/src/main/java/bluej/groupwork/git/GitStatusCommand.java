@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2015,2016,2017,2018,2020,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -86,7 +86,7 @@ public class GitStatusCommand extends GitCommand
             // A file which has had changes merged as a result of a pull will be in a "unmerged"
             // state, and will appear in "uncommitted changes" as well as "conflicting" (with
             // BOTH_MODIFIED or one of the other "stages").
-            
+
             s.getMissing().stream()
                     .filter(p -> filter.accept(new File(gitPath, p)))
                     .forEach(item -> {
@@ -103,7 +103,7 @@ public class GitStatusCommand extends GitCommand
                         returnInfo.add(new TeamStatusInfo(new File(gitPath, item), "", null,
                                 Status.DELETED));
                     });
-            
+
             s.getUncommittedChanges().stream()
                     .filter(p -> filter.accept(new File(gitPath, p)))
                     .forEach(item -> {
@@ -176,13 +176,13 @@ public class GitStatusCommand extends GitCommand
 
             String defaultBranchName = repo.getRepository().getBranch();
             RevCommit forkPoint = findForkPoint(repo.getRepository(), "origin/"+defaultBranchName, "HEAD");
-            
+
             //find diffs between <default branch>/head and the forkpoint.
             listOfDiffsLocal = getDiffs(repo, "HEAD", forkPoint);
             //check for differences between forkpoint and remote repo head.
             listOfDiffsRemote = getDiffs(repo, "origin/"+defaultBranchName, forkPoint);
             updateRemoteStatus(gitPath, listOfDiffsLocal, listOfDiffsRemote, returnInfo);
-            
+
             if (returnInfo.isEmpty()){
                 didFilesChange = false;
             }
@@ -190,7 +190,7 @@ public class GitStatusCommand extends GitCommand
             if (listener != null) {
                 // Git does not show any add up-to-date file. We need to add them manually to returnInfo.
                 addUpToDateFiles(returnInfo, gitPath);
-                
+
                 while (!returnInfo.isEmpty()) {
                     TeamStatusInfo teamInfo = returnInfo.removeFirst();
                     listener.gotStatus(teamInfo);
@@ -203,7 +203,7 @@ public class GitStatusCommand extends GitCommand
             Debug.reportError("Git status command exception", ex);
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
         }
-        
+
         return new TeamworkCommandResult();
     }
 
@@ -218,7 +218,7 @@ public class GitStatusCommand extends GitCommand
     {
         if(!path.isDirectory())
             return;
-        
+
         for (File item : path.listFiles()) {
             if (filter.accept(item)) {
                 if (item.isDirectory()) {

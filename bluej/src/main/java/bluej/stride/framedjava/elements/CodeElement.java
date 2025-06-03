@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -49,7 +49,7 @@ import bluej.stride.generic.Frame.ShowReason;
 public abstract class CodeElement
 {
     protected boolean enable = true;
-    
+
     public boolean isEnable()
     {
         return enable;
@@ -59,12 +59,12 @@ public abstract class CodeElement
     {
         this.enable = enable;
     }
-    
+
     protected void addEnableAttribute(Element element)
     {
         element.addAttribute(new Attribute("enable", String.valueOf(enable)));
     }
-    
+
     /**
      * Finds any errors in this element, including syntax errors.
      * 
@@ -87,31 +87,31 @@ public abstract class CodeElement
             return Stream.empty();
         return getDirectSlotFragments().map(g -> g.findLateErrors(editor, this, rootPathMap)).filter(x -> x != null);
     }
-    
+
     protected abstract Stream<SlotFragment> getDirectSlotFragments();
-    
+
     // The return should only be compiled if validForCompilation() returns true.
     // However, it might be used for parsing (for code completion) at any point.
     @OnThread(Tag.FXPlatform)
     public abstract JavaSource toJavaSource();
-    
+
     public abstract LocatableElement toXML();
 
     @OnThread(Tag.FX)
     public abstract Frame createFrame(InteractionManager editor);
-    
+
     private ContainerCodeElement parent;
-    
+
     public void setParent(ContainerCodeElement e)
     {
         parent = e;
     }
-    
+
     public ContainerCodeElement getParent()
     {
         return parent;
     }
-    
+
     /**
      * Information about a local variable or parameter variable
      */
@@ -121,7 +121,7 @@ public abstract class CodeElement
         private final String name;
         private final boolean param;
         private final CodeElement declarer;
-        
+
         public LocalParamInfo(String type, String name, boolean param, CodeElement declarer)
         {
             this.type = type;
@@ -129,7 +129,7 @@ public abstract class CodeElement
             this.param = param;
             this.declarer = declarer;
         }
-        
+
         public String getType()
         {
             return type;
@@ -149,8 +149,8 @@ public abstract class CodeElement
             return declarer;
         }
     }
-   
-    
+
+
     //Gets variables declared by this block that are in scope of following blocks
     public List<LocalParamInfo> getDeclaredVariablesAfter()
     {
@@ -162,7 +162,7 @@ public abstract class CodeElement
     {
         return contents.stream().filter(c -> c.isEnable()).map(c -> c.toJavaSource()).collect(Collectors.toList());
     }
-    
+
     // Convenience helper for constructing boilerplate:
     /*
     protected static Boilerplate b(String s)
@@ -175,12 +175,12 @@ public abstract class CodeElement
     {
         return new FrameFragment(frame, this, s);
     }
-    
+
     protected JavaFragment space()
     {
         return new FrameFragment(null, this, " ");
     }
-    
+
     /**
      * Display errors (syntactic or semantic) that have been detected from the CodeElement-based
      * source tree.  Errors provided back by Java are processed elsewhere.
@@ -189,17 +189,17 @@ public abstract class CodeElement
     {
         el.addAttribute(new Attribute("xml:space", "http://www.w3.org/XML/1998/namespace", "preserve"));
     }
-    
+
     // Matches method from SingleLineDebugHandler
     @OnThread(Tag.FX)
     public final void showException()
     {
         show(ShowReason.EXCEPTION);
     }
-    
+
     @OnThread(Tag.FX)
     public abstract void show(ShowReason reason);
-    
+
     // Streams all contained elements, excluding this element.
     public Stream<CodeElement> streamContained() { return Stream.empty(); }
 }

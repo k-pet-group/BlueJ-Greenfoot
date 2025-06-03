@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2014,2015,2017,2019,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -52,7 +52,7 @@ public abstract class AssistContent
     public static enum CompletionKind
     {
         METHOD, CONSTRUCTOR, FIELD, LOCAL_VAR, FORMAL_PARAM, TYPE;
-        
+
         public static Set<CompletionKind> allMembers()
         {
             return new HashSet<>(Arrays.asList(METHOD, FIELD));
@@ -66,7 +66,7 @@ public abstract class AssistContent
         private final String formalName;
         private final String dummyName;
         private final Supplier<String> javadocDescription;
-        
+
         public ParamInfo(String fullType, String formalName, String dummyName, Supplier<String> javadocDescription)
         {
             this.fullType = fullType;
@@ -74,12 +74,12 @@ public abstract class AssistContent
             this.dummyName = dummyName;
             this.javadocDescription = javadocDescription;
         }
-        
+
         public String getQualifiedType()
         {
             return fullType;
         }
-        
+
         public String getUnqualifiedType()
         {
             // Consider java.util.List<? extends greenfoot.Actor>
@@ -97,7 +97,7 @@ public abstract class AssistContent
                 else if (beginCurIdent != -1)
                 {
                     // Found an identifier; does it continue or stop?
-                    
+
                     if (c == '.')
                     {
                         // Qualififer; ignore the whole identifier and dot:
@@ -117,13 +117,13 @@ public abstract class AssistContent
                     r.append(c);
                 }
             }
-            
+
             if (beginCurIdent != -1)
                 r.append(fullType.substring(beginCurIdent, fullType.length()));
-            
+
             return r.toString();
         }
-        
+
         public String getDummyName()
         {
             return dummyName;
@@ -133,7 +133,7 @@ public abstract class AssistContent
         {
             return formalName;
         }
-        
+
         public String getJavadocDescription()
         {
             return javadocDescription.get();
@@ -177,11 +177,11 @@ public abstract class AssistContent
                     '}';
         }
     }
-    
+
     /** The name of the variable or method or type */
     @OnThread(Tag.Any)
     public abstract String getName();
-    
+
     /** Will return empty list if it's a method with no parameters,
      *  but null if it is a variable or type and thus can't have parameters */
     @OnThread(Tag.FXPlatform)
@@ -191,7 +191,7 @@ public abstract class AssistContent
      *  For methods, this is the return type; for variables it is the type of the variable. 
      *  Confusingly, for types this returns null (use getName instead). */
     public abstract String getType();
-    
+
     /**
      *  Get the access for this completion (as a string).
      */
@@ -201,7 +201,7 @@ public abstract class AssistContent
      * Returns null if it is a local variable (i.e. not a member of a class)
      * or a non-inner-class type. */
     public abstract String getDeclaringClass();
-    
+
     public abstract CompletionKind getKind();
 
     /**
@@ -211,7 +211,7 @@ public abstract class AssistContent
      */
     @OnThread(Tag.FXPlatform)
     public abstract String getJavadoc();
-    
+
     /**
      * Gets the package name.  Only valid for class types; returns null otherwise.
      */
@@ -219,7 +219,7 @@ public abstract class AssistContent
     {
         return null;
     }
-    
+
     /**
      * Gets the super types of the type.  Only valid for class types; returns null otherwise.
      */
@@ -227,7 +227,7 @@ public abstract class AssistContent
     {
         return null;
     }
-    
+
     /**
      * Gets the kind of the type (class, interface, etc).  Only valid for types; returns null otherwise.
      */
@@ -247,7 +247,7 @@ public abstract class AssistContent
          */
         void gotJavadoc(AssistContent content);
     }
-    
+
     public static Access fromModifiers(int modifiers)
     {
         if (Modifier.isPrivate(modifiers)) {

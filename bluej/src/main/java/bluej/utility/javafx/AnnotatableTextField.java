@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,201,2021 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -86,7 +86,7 @@ public class AnnotatableTextField
             // When focus changes, adjust bj-empty pseudoclass:
             JavaFXUtil.setPseudoclass("bj-empty", newVal.booleanValue() == false && field.getLength() == 0, field);                
         });
-        
+
         if (overlay != null)
         {
             errorMarker = overlay;
@@ -106,7 +106,7 @@ public class AnnotatableTextField
             // check for click on underlined region
             Utility.ifNotNull(errorMarker.linkFromX(e.getSceneX()), FXPlatformRunnable::run);
         });
-        
+
         errorMarker.addExtraRedraw(g -> {
             if (fakeCaretShowing.get())
             {
@@ -120,12 +120,12 @@ public class AnnotatableTextField
         JavaFXUtil.addChangeListener(fakeCaretShowing, c -> JavaFXUtil.runNowOrLater(() -> errorMarker.redraw()));
         JavaFXUtil.addChangeListener(field.caretPositionProperty(), p -> { if (fakeCaretShowing.get()) JavaFXUtil.runNowOrLater(() -> errorMarker.redraw()); });
     }
-    
+
     public AnnotatableTextField(ErrorUnderlineCanvas overlay)
     {
         this("", overlay);
     }
-    
+
     public AnnotatableTextField(String str, ErrorUnderlineCanvas overlay)
     {
         this(str, overlay, false);
@@ -135,7 +135,7 @@ public class AnnotatableTextField
     {
         return pane;
     }
-    
+
     public Node getFocusableNode()
     {
         return field;
@@ -170,7 +170,7 @@ public class AnnotatableTextField
     {
         return field.promptTextProperty();
     }
-    
+
     public void replaceText(int start, int end, String text)
     {
         field.replaceText(start, end, text);
@@ -230,7 +230,7 @@ public class AnnotatableTextField
     {
         return field.fontProperty();
     }
-    
+
     public double measureString(String str, boolean includeInsets)
     {
         return JavaFXUtil.measureString(field, str, includeInsets, includeInsets);
@@ -265,7 +265,7 @@ public class AnnotatableTextField
     {
         return field.getShrinkToNothingTimeline(dur);
     }
-    
+
     @OnThread(Tag.FXPlatform)
     public boolean executeCompletion(CompletionCalculator cc, int highlighted, int startOfCurWord)
     {
@@ -289,7 +289,7 @@ public class AnnotatableTextField
     {
         if (beforeIndex == Integer.MAX_VALUE)
             return field.getWidth();
-        
+
         double paddingLeft = field.getPadding().getLeft();
         double borderLeft = 0;
         if (field.getBorder() != null && field.getBorder().getInsets() != null)
@@ -325,12 +325,12 @@ public class AnnotatableTextField
     {
         errorMarker.addUnderline(s, startPosition, endPosition, onClick);
     }
-    
+
     protected void addStyleClasses(String... styleClasses)
     {
         JavaFXUtil.addStyleClass(field, styleClasses);
     }
-    
+
     protected void setPseudoclass(String pseudoClass, boolean on)
     {
         JavaFXUtil.setPseudoclass(pseudoClass, on, field);
@@ -351,22 +351,22 @@ public class AnnotatableTextField
     {
         errorMarker.clearErrorMarkers(s);
     }
-    
+
     public void selectAll()
     {
         field.selectAll();
     }
-    
+
     public void cut()
     {
         field.cut();
     }
-    
+
     public void copy()
     {
         field.copy();
     }
-    
+
     public void paste()
     {
         field.paste();
@@ -377,17 +377,17 @@ public class AnnotatableTextField
     {
         field.deletePreviousChar();
     }
-    
+
     public void setContextMenu(ContextMenu menu)
     {
         field.setContextMenu(menu);
     }
-    
+
     public void injectEvent(KeyEvent e)
     {
         field.fireEvent(e.copyFor(null, field));
     }
-    
+
     public void setFakeCaretShowing(boolean showing)
     {
         fakeCaretShowing.set(showing);
@@ -417,7 +417,7 @@ public class AnnotatableTextField
     {
         return field.getPseudoClassStates();
     }
-    
+
     public StringProperty styleProperty()
     {
         return field.styleProperty();

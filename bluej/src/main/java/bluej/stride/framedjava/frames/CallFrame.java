@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2017,2018,2021,2022 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -53,9 +53,9 @@ public class CallFrame extends SingleLineFrame
   implements CodeFrame<CallElement>, DebuggableFrame
 {
     private final ExpressionSlot<CallExpressionSlotFragment> content;
-    
+
     private CallElement element;
-    
+
     /**
      * Default constructor.
      * @param editor 
@@ -66,7 +66,7 @@ public class CallFrame extends SingleLineFrame
         content = new CallExpressionSlot(editor, this, this, getHeaderRow(), "do-method-name-", CallExpressionSlot.CALL_HINTS);
         content.setText("()");
         content.setMethodCallPromptText("method-name");
-        
+
         setHeaderRow(content, previewSemi);
 
         content.onTextPropertyChange(s -> checkForTopLevelEquals());
@@ -76,7 +76,7 @@ public class CallFrame extends SingleLineFrame
         frameName = "method call";
         content.setSlotName("method name");
     }
-    
+
     // For replacement of AssignFrame:
     @OnThread(Tag.FXPlatform)
     public CallFrame(InteractionManager editor, String beforeCursor, String afterCursor)
@@ -84,7 +84,7 @@ public class CallFrame extends SingleLineFrame
         this(editor);
         this.content.setSplitText(beforeCursor, afterCursor);
     }
-    
+
     public CallFrame(InteractionManager editor, ExpressionSlotFragment e, boolean enabled)
     {
         this(editor);
@@ -116,13 +116,13 @@ public class CallFrame extends SingleLineFrame
     {
         element = new CallElement(this, content.getSlotElement(), frameEnabledProperty.get());
     }
-    
+
     @Override
     public CallElement getCode()
     {
         return element;
     }  
-    
+
     public static FrameFactory<CallFrame> getFactory()
     {
         return new FrameFactory<CallFrame>() {
@@ -131,7 +131,7 @@ public class CallFrame extends SingleLineFrame
             {
                 return new CallFrame(editor);
             }
-                        
+
             @Override
             public Class<CallFrame> getBlockClass()
             {

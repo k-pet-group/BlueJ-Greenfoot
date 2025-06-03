@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2015,2016,2019,2021,2022,2023  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -168,23 +168,23 @@ public class DocuGenerator
                     // logfile from being written by two threads at once.
                     OutputStream logStream = new FileOutputStream(logFile);
                     logWriter = new PrintWriter(logStream,true);
-                    
+
                     String[] docuCall2 = new String[docuCall.length-1];
                     logWriter.println(logHeader);
                     logWriter.println("<---- javadoc command: ---->");
-                    
+
                     int i;
                     for(i=0; i < docuCall.length; i++) {
                         logWriter.println(docuCall[i]);
                         if(i != 0)
                             docuCall2[i-1] = docuCall[i];
                     }
-                    
+
                     logWriter.println("<---- end of javadoc command ---->");
                     logWriter.flush();
 
                     DocumentationTool docTool = ToolProvider.getSystemDocumentationTool();
-                    
+
                     if (docTool != null)
                     {
                         exitValue = docTool.run(null, logStream, logStream, docuCall2);
@@ -194,7 +194,7 @@ public class DocuGenerator
                     // execute it as an external process
                     {
                         Process docuRun = Runtime.getRuntime().exec(docuCall);
-                        
+
                         // because we don't know what comes first we have to start
                         // two threads that consume both the standard and the error
                         // output of the external process. The output is appended to
@@ -216,7 +216,7 @@ public class DocuGenerator
                         }
                     }
                 }
-                
+
                 final int finalExitValue = exitValue;
                 Platform.runLater(new Runnable() {
                     public void run() {
@@ -268,7 +268,7 @@ public class DocuGenerator
             readStream = r;
             outStream = out;
         }
-        
+
         @Override
         @OnThread(value = Tag.Worker, ignoreParent = true)
         public void run()

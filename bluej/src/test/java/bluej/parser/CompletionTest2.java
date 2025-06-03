@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2022,2024  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -62,7 +62,7 @@ public class CompletionTest2
         Debug.setDebugStream(new OutputStreamWriter(System.out));
         resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
     }
-    
+
     @Test
     public void testLocations()
     {
@@ -79,7 +79,7 @@ public class CompletionTest2
                 "D", new StartEnd(30, 35)
         ), p.positions());
     }
-    
+
     /**
      * Asserts that the type at position "A" in the source, i.e. where
      * / * A * / (without spaces) occurs in the source is the given one.
@@ -122,7 +122,7 @@ public class CompletionTest2
             }
         });
     }
-    
+
     /**
      * Wraps the given Java in a class with some lambda utility functions
      */
@@ -178,12 +178,12 @@ public class CompletionTest2
             "{return 1 + (2 + (() -> { Integer x; x./*A*/.toString();}).hashCode());}"
         ));
     }
-    
+
     @Test
     public void testLambda()
     {
         // We only support auto complete when type is specified explicitly:
-        
+
         // Inferred type:
         assertTypeAtA(null, withLambdaDefs(
                 "{withInteger(x -> x./*A*/toString());}"
@@ -197,8 +197,8 @@ public class CompletionTest2
         assertTypeAtA("java.lang.Integer", withLambdaDefs(
                 "{withInteger((Integer x) -> x./*A*/toString());}"
         ));
-        
-        
+
+
         // Check scope works inside lambda with a block:
         assertTypeAtA("java.lang.Integer", withLambdaDefs("""
                 {
@@ -246,7 +246,7 @@ public class CompletionTest2
                 }
                 """
         ));
-        
+
         // Check scope doesn't extend outside lambda:
         assertTypeAtA(null, withLambdaDefs(
             """
@@ -263,7 +263,7 @@ public class CompletionTest2
             }
             """
         ));
-        
+
         // Check multiple parameters:
         assertTypeAtA("java.lang.Integer", withLambdaDefs(
             "{withStringAndInteger((String s, Integer x) -> x./*A*/toString());}"
@@ -369,7 +369,7 @@ public class CompletionTest2
         );
 
     }
-    
+
     @Test
     public void testRecord()
     {
@@ -391,14 +391,14 @@ public class CompletionTest2
                 c.x()./*A*/toString();
             }
             """));
-        
+
         // public record PrefixedString(String prefix, String content) {}
         assertTypeAtA("java.lang.String", withRecordDef("""
             public void foo(PrefixedString p) {
                 p.prefix()./*A*/toString();
             }
             """));
-        
+
         // public record PrefixedT<T>(String prefix, T content) {}
         assertTypeAtA("java.lang.String", withRecordDef("""
             public void foo(PrefixedT<Integer> p) {
@@ -438,7 +438,7 @@ public class CompletionTest2
                 x.multiple()./*A*/toString();
             }
             """));
-        
+
         // public record VarargsPrim(int single, int... multiple) {}
         assertTypeAtA("int[]", withRecordDef("""
             public void foo(VarargsPrim x) {
@@ -489,7 +489,7 @@ public class CompletionTest2
             }
             """));
     }
-    
+
     /**
      * We have decided not to support the exact scoping of instanceof pattern matching,
      * as it's quite complex to get right.  Instead we will support a generous interpretation,
@@ -511,7 +511,7 @@ public class CompletionTest2
                 }
             }
         """));
-        
+
         // Should be in scope if then using an &&:
         assertTypeAtA( "java.lang.Integer", withLambdaDefs("""
             public void ifInt(Object orig)
@@ -521,7 +521,7 @@ public class CompletionTest2
                 }
             }
         """));
-        
+
         // More complex example where the declaration is inside a sub-expression, but the scope should extend onwards:
         assertTypeAtA( "java.lang.Integer", withLambdaDefs("""
             public void ifInt(Object orig)
@@ -539,7 +539,7 @@ public class CompletionTest2
                     s./*A*/equalsIgnoreCase(this);
             }
         """));
-        
+
         // Negated patterns can then be in scope!
         assertTypeAtA("java.lang.String", withLambdaDefs("""
             public void onlyForStrings(Object o) throws MyException {
@@ -588,9 +588,9 @@ public class CompletionTest2
                     d./*A*/length() > 0;
             }
         """));
-        
+
     }
-    
+
     @Test
     public void testIfInstanceofApproximate()
     {
@@ -720,7 +720,7 @@ public class CompletionTest2
                     }
                 """));
     }
-    
+
     @Test
     public void testIfInstanceofNestedScopes()
     {
@@ -772,7 +772,7 @@ public class CompletionTest2
                     }
                 """));
     }
-    
+
     @Test
     public void testIfInstanceofLambdas()
     {

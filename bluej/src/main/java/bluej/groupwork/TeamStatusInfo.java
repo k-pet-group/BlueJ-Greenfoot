@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2016,2017,2018,2019 Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -49,7 +49,7 @@ public class TeamStatusInfo
     private final static Color REMOVED_COLOR = Color.rgb(135,150,170);   // grey-blue
     private final static Color NEEDSCOMMIT_COLOR = Color.rgb(10,85,15);  // green
     private final static Color DELETED_COLOR = Color.rgb(122,143,123);   // grey-green
-    
+
     private File file;
     private String localVersion;
     private String remoteVersion;
@@ -63,13 +63,13 @@ public class TeamStatusInfo
     {
         /** The file is up-to-date, the local revision is the same as in the repository */
         UP_TO_DATE("upToDate", "", "", UPTODATE_COLOR),
-        
+
         /** The file doesn't exist locally, but is in the repository */
         NEEDS_CHECKOUT("needsCheckout", "", "dcvs.remote.needs.pull", NEEDSUPDATE_COLOR),
-        
+
         /** The file has been deleted locally, but the deletion hasn't been committed yet */
         DELETED("deleted", "dcvs.local.deleted", "dcvs.remote.deleted", DELETED_COLOR),
-        
+
         /** The repository version is newer */
         NEEDS_UPDATE("needsUpdate", "", "dcvs.remote.needs.pull", NEEDSUPDATE_COLOR),
 
@@ -170,7 +170,7 @@ public class TeamStatusInfo
             return color;
         }
     }
-    
+
     /**
      * Default "blank" status info. Used to pre-populate status table whilst 
      * awaiting repository response.
@@ -194,7 +194,7 @@ public class TeamStatusInfo
         this(file, localVersion, remoteVersion, status);
         this.remoteStatus = remoteStatus;
     }
-    
+
     /**
      * Constructor for TeamStatusInfo.
      */
@@ -217,22 +217,22 @@ public class TeamStatusInfo
     {
         return local ? status : remoteStatus;
     }
-    
+
     public File getFile()
     {
         return file;
     }
-    
+
     public Status getStatus()
     {
         return status;
     }
-    
+
     public void setStatus(Status s)
     {
         status = s;
     }
-    
+
     public Status getRemoteStatus()
     {
         return remoteStatus;
@@ -242,7 +242,7 @@ public class TeamStatusInfo
     {
         this.remoteStatus = remoteStatus;
     }
-    
+
     @Override
     public String toString()
     {

@@ -82,7 +82,7 @@ public class ImportScanner
         // Value can be null if details not loaded yet
         public final HashMap<String, AssistContentThreadSafe> types = new HashMap<>();
         public final HashMap<String, PackageInfo> subPackages = new HashMap<>();
-    
+
         // Records a class with the given name (scoped relative to this package).
         // So first we call addClass({"java","lang"},"String") on the root package, then
         // addClass({"lang"}, "String"} on the java package, then
@@ -174,7 +174,7 @@ public class ImportScanner
         {
             if (!idents.hasNext())
                 return Collections.emptyList();
-            
+
             String s = idents.next();
             if (s.equals("*"))
             {
@@ -247,7 +247,7 @@ public class ImportScanner
             });
         }
     }
-    
+
     // PackageInfo, but for the root type.
     private class RootPackageInfo extends PackageInfo
     {
@@ -258,7 +258,7 @@ public class ImportScanner
             addClass(Arrays.asList(Arrays.copyOf(splitParts, splitParts.length - 1)).iterator(), splitParts[splitParts.length - 1]);
         }
     }
-    
+
     @OnThread(Tag.Any)
     private CompletableFuture<? extends PackageInfo> getRoot()
     {
@@ -330,7 +330,7 @@ public class ImportScanner
         // loads the JDK classes.  So we have one ClassGraph for user code libraries
         // (e.g. JUnit, other configured BlueJ libraries):
         ArrayList<ClassLoader> cl = new ArrayList<>();
-        
+
         try
         {
             CompletableFuture<ClassLoader> projectClassLoader = new CompletableFuture<>();
@@ -350,7 +350,7 @@ public class ImportScanner
         ClassGraph userClassGraph = new ClassGraph()
                 .overrideClassLoaders(cl.toArray(new ClassLoader[0]))
                 .rejectPackages("bluej.*");
-        
+
         // We have a separate class graph for system libraries (java.*, javafx.*), from which
         // we only take public packages, thus avoiding all the com.sun classes and so on:
         // This has to be separate because enableSystemPackages() doesn't work alongside 
@@ -377,7 +377,7 @@ public class ImportScanner
     {
         List<ClassGraph> classGraphs = getClassloaderConfig();
         RootPackageInfo r = new RootPackageInfo();
-        
+
         if (classGraphs != null)
         {
             // Special case -- ClassGraph library (deliberately) doesn't return Object in its list

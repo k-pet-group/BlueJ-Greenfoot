@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2012,2014,2015  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -40,28 +40,28 @@ import bluej.pkgmgr.PkgMgrFrame;
 public abstract class InvokerRecord
 {
     final static String statementEnd = ";\n";
-    
+
     final static String fieldDeclarationStart = "private ";
 
     // -------------- instance fields ----------------
-    
+
     /**
      * A collection of assertion skeletons made about the invoker
      * record.
      */
     private ArrayList<String> assertions = new ArrayList<String>();
     private DebuggerObject resultObject;
-    
+
     private static int nextUniqueIdentifier = 1;
     private final int uniqueIdentifier;
-    
+
     // -------------- instance methods -----------------
-    
+
     public InvokerRecord()
     {
         uniqueIdentifier = nextUniqueIdentifier++;
     }
-    
+
     /**
      * If this invoker record represents a method or constructor call,
      * this method returns the argument values used in the call.
@@ -71,7 +71,7 @@ public abstract class InvokerRecord
     {
         return null;
     }
-    
+
     /**
      * If the result of this invocation is to be consigned to the object bench, get
      * its name (otherwise returns null).
@@ -80,7 +80,7 @@ public abstract class InvokerRecord
     {
         return null;
     }
-    
+
     /**
      * Get the (static, compile time) result type of the invocation, if known. 
      */
@@ -88,12 +88,12 @@ public abstract class InvokerRecord
     {
         return null;
     }
-    
+
     /**
      * Check whether this record represents an invocation that has no result.
      */
     public abstract boolean hasVoidResult();
-    
+
     /**
      * Construct a declaration for any objects constructed
      * by this invoker record.
@@ -132,7 +132,7 @@ public abstract class InvokerRecord
      *         be represented as an expression)
      */
     public abstract String toExpression();
-    
+
     /**
      * Construct a statement. This returns a Java-language string which should be
      * appropriately terminated by a semicolon.
@@ -144,7 +144,7 @@ public abstract class InvokerRecord
     {
         return toExpression() + ";";
     }
-    
+
     /**
      * Set the name of this result as saved on the object bench.
      * @param benchName  The name of the object (on the Object Bench).
@@ -154,7 +154,7 @@ public abstract class InvokerRecord
     {
         // By default do nothing.
     }
-    
+
     /**
      * Add the skeleton of an assertion statement to our list of
      * assertions made about this invoker record.
@@ -165,17 +165,17 @@ public abstract class InvokerRecord
     {
         assertions.add(assertion);  
     }
-    
+
     public int getAssertionCount()
     {
         return assertions.size();
     }
-    
+
     public String getAssertion(int i)
     {
         return (String) assertions.get(i);
     }
-    
+
     /**
      * Returns a statement representing this assertion
      * with an @@ at the point where code needs to be
@@ -275,7 +275,7 @@ public abstract class InvokerRecord
             throw new IllegalArgumentException("the assertion must have an @@");
 
         assertCommand.replace(insertionSpot, insertionSpot + 2, command);
-            
+
         return assertCommand.toString();
     }
 
@@ -290,7 +290,7 @@ public abstract class InvokerRecord
     {
         this.resultObject = resultObject;
     }
-    
+
     /**
      * Get the result object.
      * 
@@ -300,7 +300,7 @@ public abstract class InvokerRecord
     {
         return resultObject;
     }
-    
+
     /**
      * Call when using this invoker record as a parent for another invoker
      * record. This implementation does nothing - overide for subclasses 
@@ -309,7 +309,7 @@ public abstract class InvokerRecord
     public void incUsageCount()
     {
     }
-    
+
     /**
      * Gets the original command.  Used by the Data Collection mechanism.
      */

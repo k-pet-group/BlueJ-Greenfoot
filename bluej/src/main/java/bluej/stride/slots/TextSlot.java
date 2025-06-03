@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2017,2019,2020,2021 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -92,7 +92,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     private final List<SlotValueListener> listeners = new ArrayList<SlotValueListener>();
     // The editor in which this slot ultimately lies.
     protected final InteractionManager editor;
-    
+
     // These two variables always point to the same thing, but due to Java's type
     // system, we can't declare a type for a single variable to hold them both
     protected final Frame frameParent;
@@ -155,7 +155,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         field = new SlotTextField(stylePrefix, row.getOverlay());
 
         editor.setupFocusableSlotComponent(this, field.getFocusableNode(), completionCalculator != null, row::getExtensions, hints);
-        
+
         // Always disallow semi-colons:
         listeners.add((slot, oldValue, newValue, parent) -> {
             if (newValue.contains(";"))
@@ -316,7 +316,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                     setFakeCaretShowing(false);
                 }
             };
-            
+
             //React to up/down arrows, and ENTER in the same way as tabs (move focus on)
             this.onKeyPressedProperty().set(event -> {
                     if (event.isShiftDown() && event.isControlDown() && event.getCharacter().length() > 0 && event.getCode() != KeyCode.CONTROL && event.getCode() != KeyCode.SHIFT)
@@ -406,7 +406,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                             break;
                     }
             });
-            
+
             //When focus leaves, if this is still blank, keep white. If has been filled in, blend in transparent with background.
             JavaFXUtil.addFocusListener(getFocusableNode(), newValue -> {
                     if (newValue)
@@ -441,7 +441,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                         }
                     }
             });
-            
+
             //Text changes
             this.textProperty().addListener((observable, oldValue, newValue) -> {
                 slotElement = null;
@@ -491,7 +491,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                     editor.modifiedFrame(frameParent, false);
                 }
             });
-            
+
             // Autosizing the slot to fit contents:
             minWidthProperty().bind(new DoubleBinding() {
                 { super.bind(textProperty());
@@ -509,13 +509,13 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 }
             });
             prefWidthProperty().bind(minWidthProperty());
-            
+
             caretPositionProperty().addListener( (observable, oldValue, newVal) -> {
                     if (isFocused())
                         JavaFXUtil.runNowOrLater(() -> showErrorAtCaret(newVal.intValue()));
                     // TODO cancel code completion if we've moved away from it
             });
-            
+
             // Need to allow parent's constructor to execute, and
             // need to be in the scene:
             JavaFXUtil.onceInScene(getNode(), () -> setContextMenu(AbstractOperation.MenuItems.makeContextMenu(getMenuItems(true))));
@@ -526,12 +526,12 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         {
             return caretPositionProperty().get();
         }    
-        
+
         protected void setTransparent(boolean transparent)
         {
             field.setPseudoclass("bj-transparent", transparent);
         }
-        
+
         public String getCurWord()
         {
             return getText().substring(getStartOfCurWord(), getCaretPosition());
@@ -596,7 +596,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 caretPos = Math.max(0, Math.min(caretPos, getLength()));
                 x = calculateCaretPosition(caretPos);
             }
-            
+
             return TextOverlayPosition.nodeToOverlay(field.getNode(), x, 0, getBaseline(), field.heightProperty().get());
         }
     }
@@ -653,7 +653,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     {
         field.textProperty().set(arg0);
     }
-    
+
     public void setText(SLOT_FRAGMENT f)
     {
         field.textProperty().set(f.getContent());
@@ -703,7 +703,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     {
         allErrors.forEach(CodeError::flagAsOld);
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public void removeOldErrors()
@@ -716,12 +716,12 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     private void recalculateShownErrors()
     {
         shownErrors.clear();
-        
+
         // We need to find all non-overlapping errors, preferring our own errors
         // to those of javac, and then preferring shorter errors (as probably being more specific)
         List<CodeError> sortedErrors = allErrors.stream()
             .sorted((a, b) -> CodeError.compareErrors(a, b)).collect(Collectors.toList());
-        
+
         for (CodeError e : sortedErrors)
         {
             // Add the error if it doesn't overlap:
@@ -735,10 +735,10 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 e.setShowingIndicator(false);
             }
         }
-        
+
         field.clearErrorMarkers(this);
         shownErrors.forEach(e -> field.drawErrorMarker(this, e.getStartPosition(), e.getEndPosition(), e.isJavaPos(), b -> showErrorHover(b ? e : null), e.visibleProperty()));
-        
+
         if (field.isFocused())
             showErrorAtCaret(field.getCaretPosition());
     }
@@ -765,7 +765,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             errorAndFixDisplay.hide();
             errorAndFixDisplay = null;
         }
-        
+
         if (error != null && error.visibleProperty().get())
         {
             hoverErrorCurrentlyShown = error; //update current error
@@ -783,7 +783,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         Optional<CodeError> errorAtCaret = shownErrors.stream()
                 .filter(e -> e.getStartPosition() <= caretPosition && caretPosition <= e.getEndPosition())
                 .findFirst();
-        
+
         if (errorAtCaret.isPresent() && errorAndFixDisplay != null && errorAndFixDisplay.getError().equals(errorAtCaret.get()))
         {
             // Already displaying that error; fine:
@@ -795,7 +795,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             errorAndFixDisplay.hide();
             errorAndFixDisplay = null;
         }
-        
+
         // If there is now a (new) error to show, do so:
         if (errorAtCaret.isPresent() && errorAtCaret.get().visibleProperty().get())
         {
@@ -818,7 +818,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         }
         return 0;
     }
-    
+
     @Override
     public void cleanup()
     {
@@ -944,7 +944,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     }
 
     public abstract List<? extends PossibleLink> findLinks();
-    
+
     public void lostFocus()
     {
         // No extra work to do; losing focus is enough to deselect
@@ -952,9 +952,9 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         // Need to set transparent state, in case user dismissed code completion by clicking on another field:
         field.setTransparent(!getText().isEmpty());
     }
-    
+
     protected abstract SLOT_FRAGMENT createFragment(String content);
-    
+
     /**
      * Called when the slot has lost focus, and the value has changed since focus was gained.
      * 
@@ -981,7 +981,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             JavaFXUtil.setPseudoclass("bj-java-preview", newView == Frame.View.JAVA_PREVIEW, field.getFocusableNode());
         }
     }
-        
+
     protected Map<TopLevelMenu, AbstractOperation.MenuItems> getExtraContextMenuItems()
     {
         return Collections.emptyMap();

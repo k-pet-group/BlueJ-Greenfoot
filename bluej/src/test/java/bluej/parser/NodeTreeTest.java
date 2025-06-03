@@ -14,8 +14,8 @@ public class NodeTreeTest extends TestCase
     private ParsedNode pn3;
     private ParsedNode pn4;
     private ParsedNode pn5;
-    
-    
+
+
     /**
      * Sets up the test fixture.
      *
@@ -73,26 +73,26 @@ public class NodeTreeTest extends TestCase
         assertTrue(np.getNode() == pn5);
         assertTrue(np.getPosition() == 80);
     }
-    
+
     public void testRemoval()
     {
         NodeAndPosition<ParsedNode> np = nt.findNode(65);
         np.getNode().remove();
-        
+
         np = nt.findNode(5);
         assertNotNull(np);
         assertTrue(np.getNode() == pn1);
         assertTrue(np.getPosition() == 0);
-        
+
         np = nt.findNode(65);
         assertNull(np);
-        
+
         np = nt.findNode(85);
         assertNotNull(np);
         assertTrue(np.getNode() == pn5);
         assertTrue(np.getPosition() == 80);
     }
-    
+
     public void testRemoval2()
     {
         // Remove all nodes
@@ -118,14 +118,14 @@ public class NodeTreeTest extends TestCase
         np = nt.findNode(85);
         assertNull(np);
     }
-    
+
     public void testRemoval3()
     {
         // For delete_case_4, need:
         // - node is black
         // - parent != null (has a parent)
         // parent is red, sibling is black
-        
+
         nt.clear();
         nt.insertNode(pn1, 100, 10);
         nt.insertNode(pn2, 20, 10); // pn2 is red child of pn1
@@ -134,14 +134,14 @@ public class NodeTreeTest extends TestCase
          // pn2 and pn3 become black
         nt.insertNode(pn5, 50, 10);
           // pn5 is red child of pn2
-        
+
         ParsedNode pn6 = new InnerNode(null);
         nt.insertNode(pn6, 30, 10);
           // becomes a red child of pn5, uncle is pn4 (red)
           // pn4 is made black
           // pn5 is made black
           // pn2 is made red (parent = pn1, sibling = pn3)
-        
+
         //So:
         //              pn1(black)
         //            /           \
@@ -155,22 +155,22 @@ public class NodeTreeTest extends TestCase
         // All paths have an equal number of black nodes. (Remember N = null = black).
         //
         // pn4 and pn5 match criteria for delete case 4, however, pn5.left is red.
-        
+
         NodeAndPosition<ParsedNode> nap = nt.findNode(35); // find pn6
         nap.getNode().remove();
         // The tree hasn't changed, except pn6 is gone.
-        
+
         nap = nt.findNode(55); // find pn5
         nap.getNode().remove();
     }
-    
+
     public void testRotation1()
     {
         nt.clear();
         nt.insertNode(pn1, 100, 10);
         nt.insertNode(pn2, 50, 10);
         nt.insertNode(pn3, 70, 10); // causes rotation
-        
+
         NodeAndPosition<ParsedNode> nap = nt.findNode(105);
         assertTrue(nap.getNode() == pn1);
         nap = nt.findNode(55);

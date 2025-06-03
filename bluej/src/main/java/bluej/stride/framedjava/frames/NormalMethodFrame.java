@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2019,2020,2021,2022 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -97,7 +97,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     private final TypeSlot returnType;
     private final TextSlot<NameDefSlotFragment> methodName;
     private NormalMethodElement element;
-    
+
     private NormalMethodFrame(InteractionManager editor)
     {
         super(editor);
@@ -112,13 +112,13 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
                 paramsPane.deleteFirstParam();
             }
         });
-        
+
         returnType = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.RETURN, "method-return-type-");
         returnType.addClosingChar(' ');
         returnType.markReturnType();
-        
+
         paramsPane = new FormalParameters(editor, this, this, getHeaderRow(), "method-param-");
-        
+
         returnType.setSimplePromptText("type");
         methodName.setPromptText("name");
 
@@ -130,7 +130,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
         overrideLabel.addStyleClass("method-override-label");
         overrideLabel.setAlignment(HangingFlowPane.FlowAlignment.RIGHT);
-        
+
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(access),
                 JavaFXUtil.listBool(staticModifier, staticLabel),
@@ -149,7 +149,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         frameName = "method " + methodName.getText();
         returnType.setSlotName("return type");
     }
-    
+
     public NormalMethodFrame(InteractionManager editor, AccessPermissionFragment access, boolean staticModifier,
             boolean finalModifier, String returnType, String name, String documentation, boolean enabled)
     {
@@ -219,7 +219,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         returnType.requestFocus();
         return true;
     }
-    
+
     public static FrameFactory<NormalMethodFrame> getFactory()
     {
         return new FrameFactory<NormalMethodFrame>() {
@@ -228,7 +228,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             {
                 return new NormalMethodFrame(editor);
             }
-                        
+
             @Override 
             public Class<NormalMethodFrame> getBlockClass()
             { 
@@ -241,7 +241,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     public void regenerateCode()
     {
         List<ParamFragment> params = generateParams();
-        
+
         element = new NormalMethodElement(this, new AccessPermissionFragment(this, access), staticModifier.get(),
                 finalModifier.get(), returnType.getSlotElement(), methodName.getSlotElement(), 
                 params, throwsPane.getTypes(), getContents(), new JavadocUnit(getDocumentation()), frameEnabledProperty.get());
@@ -257,7 +257,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     {
         return methodName.getText();
     }
-    
+
     private class MethodOverrideCompletionCalculator implements CompletionCalculator
     {
         private List<AssistContentThreadSafe> inheritedMethods;
@@ -267,17 +267,17 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         @OnThread(Tag.FXPlatform)
         public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl,
                                                  SuggestionListListener listener, FXPlatformConsumer<SuggestionList> handler) {
-            
+
             ClassFrame classFrame = (ClassFrame)ASTUtility.getTopLevelElement(codeEl).getFrame();
-            
+
             classFrame.withInheritedItems(Collections.singleton(CompletionKind.METHOD), inheritedMethodsByDeclarer ->
             {
-                
+
                 inheritedMethods = inheritedMethodsByDeclarer.values().stream().flatMap(List::stream).collect(Collectors.toList());
-                
+
                 // TODO rule out final methods
                 // TODO rule out any methods already implemented in this class
-                
+
                 suggestionDisplay = new SuggestionList(getEditor(),
                         Utility.mapList(inheritedMethods, ac -> new SuggestionDetailsWithHTMLDoc(
                                 ac.getName(), 
@@ -286,7 +286,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
                                 SuggestionList.SuggestionShown.COMMON,
                                 ac.getDocHTML())),
                         null, SuggestionList.SuggestionShown.RARE, null, listener);
-            
+
                 handler.accept(suggestionDisplay);
             });
         }
@@ -297,29 +297,29 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             if (selected == -1) {
                 return false;
             }
-            
+
             AssistContentThreadSafe a = inheritedMethods.get(selected);
             methodName.setText(a.getName());
             returnType.setText(a.getType());
-            
+
             // TODO check that we store access in AssistContent
             // access.setValue(AccessPermission.PUBLIC);
             access.setValue(AccessPermission.fromAccess(a.getAccessPermission()));
-            
+
             paramsPane.setParams(a.getParams(), ParamInfo::getUnqualifiedType, ParamInfo::getFormalName);
-            
+
             return true;
         }
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> operations = new ArrayList<>(super.getContextOperations());
-        
+
         InteractionManager editor = getEditor();
-        
+
         operations.add(new CustomFrameOperation(editor, "method->constructor",
                 Arrays.asList(Config.getString("frame.operation.change"), Config.getString("frame.operation.change.to.constructor")),
                 AbstractOperation.MenuItemOrder.TRANSFORM, this,
@@ -335,7 +335,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
                     }
                 }
         ));
-        
+
         operations.add(new CustomFrameOperation(editor, "concrete->abstract",
                 Arrays.asList(Config.getString("frame.operation.change"), Config.getString("frame.operation.change.to.abstract")),
                 AbstractOperation.MenuItemOrder.TRANSFORM, this,
@@ -383,7 +383,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             return;
 
         final NormalMethodElement cachedElement = element;
-        
+
         // Now need to look through super-types for method with our name and right signature:
 
         List<String> qualParamTypes = cachedElement.getQualifiedParamTypes(topLevel);

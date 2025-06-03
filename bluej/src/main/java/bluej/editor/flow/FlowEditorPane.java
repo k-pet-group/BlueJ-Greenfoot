@@ -83,7 +83,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     private final FlowEditorPaneListener listener;
 
     private final HoleDocument document;
-    
+
     private final TrackedPosition anchor;
     private final TrackedPosition caret;
     // When moving up/down, we keep track of what column we are aiming for so that moving vertically through an empty
@@ -91,15 +91,15 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     // if you want it to persist, you will need to set it again manually afterwards.
     // Note: this is 1-based (first column is 1) to fit in more easily with SourceLocation.
     private int targetColumnForVerticalMovement;
-    
-    
+
+
     // Default is to apply no styles:
     private LineStyler lineStyler = (i, s) -> Collections.singletonList(new StyledSegment(Collections.emptyList(), s.toString()));
-    
+
     private ErrorQuery errorQuery = () -> Collections.emptyList();
 
     private boolean editable = true;
-    
+
     // Tracked for the purposes of smart bracket adding.  We set this to true when
     // the user types an '{'.  We set it to false when they either:
     //   - type anything else
@@ -128,10 +128,10 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         caret = document.trackPosition(0, Bias.FORWARD);
         // Important that the anchor is a different object to the caret, as they will move independently:
         anchor = document.trackPosition(0, Bias.FORWARD);
-        
-        
+
+
         updateRender(false);
-        
+
         document.addListener(false, (origStartIncl, replaced, replacement, linesRemoved, linesAdded) -> {
             notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
         });
@@ -324,7 +324,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     {
         if (!editable)
             return;
-        
+
         /////////////////////////////////////////////////////////
         // This section is adapted from TextInputControlBehavior
         /////////////////////////////////////////////////////////
@@ -350,7 +350,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
             // from cancelling our memory that they added a curly bracket without moving:
             justAddedOpeningCurlyBracket = character.equals("{");
         }
-        
+
     }
 
     @Override
@@ -450,7 +450,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     {
         return lineDisplay.getLineRangeVisible();
     }
-    
+
     double getLineHeight()
     {
         return lineDisplay.getLineHeight();
@@ -528,13 +528,13 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         int startColumn = document.getColumnFromPosition(startPos);
         // Only show error on one line at most:
         int endColumn = Math.min(document.getLineEnd(lineIndex), endPos - document.getLineStart(lineIndex));
-        
+
         if (lineDisplay.isLineVisible(lineIndex))
         {
             lineDisplay.getVisibleLine(lineIndex).textLine.showError(startColumn, endColumn);
         }
     }
-    
+
     // Each item is of size 2, start pos incl and end pos excl, where position is within the whole document
     void showHighlights(HighlightType highlightType, List<int[]> results)
     {
@@ -567,7 +567,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         HashMap<Integer, List<BackgroundItem>> withOverlays = new HashMap<>();
         Set<Integer> breakpointLines = listener.getBreakpointLines();
         int stepLine = listener.getStepLine();
-        
+
         scopeBackgrounds.forEach((line, scopes) -> {
             if (breakpointLines.contains(line) || line == stepLine)
             {
@@ -583,7 +583,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
                 withOverlays.put(line, scopes);
             }
         });
-        
+
         lineDisplay.applyScopeBackgrounds(withOverlays);
     }
 
@@ -688,7 +688,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         }
         return Optional.empty();
     }
-    
+
     public Optional<double[]> getTopAndBottom(int lineIndex)
     {
         if (lineDisplay.isLineVisible(lineIndex))
@@ -713,7 +713,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
             return null;
         }
     }
-    
+
     public Rectangle2D getLineBoundsOnScreen(int line, Point2D windowPos, double renderScaleX, double renderScaleY)
     {
         if (lineDisplay.isLineVisible(line))
@@ -735,7 +735,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         return null;
     }
 
-    
+
     public double getFontSizeInPixels()
     {
         return lineDisplay.getFontSizeInPixels();
@@ -796,13 +796,13 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         updateRender(false);
         callSelectionListeners();
     }
-    
+
     @Override
     public EditorPosition getCaretEditorPosition()
     {
         return caret;
     }
-    
+
     @Override
     public EditorPosition getAnchorEditorPosition()
     {
@@ -909,12 +909,12 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     {
         return Math.min(caret.position, anchor.position);
     }
-    
+
     public String getSelectedText()
     {
         return document.getContent(getSelectionStart(), getSelectionEnd()).toString();
     }
-    
+
     public static interface ErrorQuery
     {
         public List<IndexRange> getErrorUnderlines();
@@ -1001,7 +1001,7 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     {
         private final LineStyler lineStyler;
         private final List<CharSequence> documentLines;
-        
+
         public StyledLines(Document document, LineStyler lineStyler)
         {
             this.documentLines = document.getLines();

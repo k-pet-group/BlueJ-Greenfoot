@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2013,2014,2016,2017,2018,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -52,7 +52,7 @@ public class SelectionController
 {
     private final PackageEditor graphEditor;
     private final Package graph;
-    
+
     private final Marquee marquee;
     private final SelectionSet selection;   // Contains the elements that have been selected
 
@@ -100,7 +100,7 @@ public class SelectionController
     {
         marquee.stop();     // may or may not have had a marquee...
         graphEditor.repaint();
-        
+
         if (moving || resizing) {
             endMove();
             graphEditor.repaint();
@@ -122,7 +122,7 @@ public class SelectionController
             }
         }
     }
-    
+
     /**
      * A mouse-clicked event. This is only interesting if it was a double
      * click. If so, inform every element in the current selection.
@@ -157,7 +157,7 @@ public class SelectionController
                     /*
                     int deltaX = snapToGrid((int)evt.getX() - dragStartX);
                     int deltaY = snapToGrid((int)evt.getY() - dragStartY);
-    
+
                     if(resizing) {
                         selection.resize(deltaX, deltaY);
                     }
@@ -203,7 +203,7 @@ public class SelectionController
         return marquee;
     }
 
-    
+
     private Target findSingleVertex()
     {
         Target vertex = selection.getAnyVertex();
@@ -234,7 +234,7 @@ public class SelectionController
         for (Target t : graph.getVertices())
             selection.add(t);
     }
-    
+
     /**
      * Clear the current selection.
      */
@@ -251,7 +251,7 @@ public class SelectionController
     {
         selection.add(element);
     }
-   
+
     /**
      * Check whether this mouse event was from button one.
      * (Ctrl-button one on MacOS does not count - that posts the menu

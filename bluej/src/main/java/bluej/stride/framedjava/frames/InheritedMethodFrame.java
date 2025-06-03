@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2020,2021,2022 Michael Kölling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -80,12 +80,12 @@ public class InheritedMethodFrame extends SingleLineFrame
             String returnType, String methodName, List<ParamInfo> params)
     {
         super(editor, "", "inherited-method-");
-        
+
         String preName = access + " \t" + returnType + " ";
         String postName = "(" +
                 params.stream().map(p -> p.getUnqualifiedType() + (p.getFormalName() == null ? "" : " " + p.getFormalName())).
                 collect(Collectors.joining(", ")) + ")";
-        
+
         this.editor = editor;
         this.container = container;
         this.originatingClass = originatingClass;
@@ -93,7 +93,7 @@ public class InheritedMethodFrame extends SingleLineFrame
         this.returnType = returnType;
         this.methodName = methodName;
         this.params = params;
-        
+
         slot = new InheritedMethodSlot(preName, methodName, postName);
 
         overrideLabel.addStyleClass("inherited-method-override-label");
@@ -156,13 +156,13 @@ public class InheritedMethodFrame extends SingleLineFrame
         // We cannot be dragged:
         return false;
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> operations = new ArrayList<>();
-        
+
         operations.add(new FrameOperation(getEditor(), "GO TO " + originatingClass + "." + methodName, Combine.ONE) {
             {
                 this.enabled = false;
@@ -170,7 +170,7 @@ public class InheritedMethodFrame extends SingleLineFrame
 
             // Spaces make sure menu is wide enough:
             private StringProperty text = new SimpleStringProperty("Scanning...                   ");
-            
+
             @Override
             public List<ItemLabel> getLabels()
             {
@@ -208,7 +208,7 @@ public class InheritedMethodFrame extends SingleLineFrame
                 return true;
             }
         });
-        
+
 
         if (override == null)
         {
@@ -236,7 +236,7 @@ public class InheritedMethodFrame extends SingleLineFrame
     {
         private final ObservableList<Label> labels = FXCollections.observableArrayList();
         private final int methodNameIndex;
-        
+
         public InheritedMethodSlot(String preName, String methodName, String postName)
         {
             Arrays.stream(preName.split("\\s+")).forEach(s -> labels.add(new Label(s + " ")));
@@ -248,7 +248,7 @@ public class InheritedMethodFrame extends SingleLineFrame
             for (Label label : labels)
             {
                 JavaFXUtil.addStyleClass(label, "inherited-method-slot");
-            
+
                 label.setOnMouseMoved(e -> {
                     JavaFXUtil.setPseudoclass("bj-hyperlink", getHeaderRow().getOverlay().linkFromX(e.getSceneX()) != null, label);
                 });

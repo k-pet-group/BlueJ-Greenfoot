@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2014,2024  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -53,14 +53,14 @@ public class ExecutionEvent
          * The execution has finished because the user has forcefully terminated it
          */
         TERMINATED_EXIT("User terminated");
-        
+
         private final String text;
         private Result(String text)
         {
             this.text = text;
         }
     }
-    
+
     private String className, objectName;
     private String methodName;
     private JavaType[] signature;
@@ -79,7 +79,7 @@ public class ExecutionEvent
     {
         this.pkg = pkg;
     }
-    
+
     /**
      * Constructs an ExecutionEvent given a className and objName.
      * @param pkg        The package this event is bound to.
@@ -97,7 +97,7 @@ public class ExecutionEvent
     {
         this.objectName = objectName;
     }
-    
+
     /**
      * Set the name of the called method. For a constructor call, this should be left null.
      */
@@ -105,7 +105,7 @@ public class ExecutionEvent
     {
         this.methodName = methodName;
     }
-    
+
     /**
      * Set the types and values (Java expressions) of the method/constructor arguments.
      */
@@ -137,7 +137,7 @@ public class ExecutionEvent
     {
         this.resultObject = resultObject;
     }
-    
+
     /**
      * Set the exception which occurred (if one did).
      */
@@ -145,12 +145,12 @@ public class ExecutionEvent
     {
         this.exception = exception;
     }
-    
+
     public void setCommand (String cmd)
     {
         this.command = cmd;
     }
-    
+
     /**
      * Get the name of the class on which the invocation occurred.
      * For an instance method invocation, this returns the class of the object on
@@ -162,7 +162,7 @@ public class ExecutionEvent
     {
         return className;
     }
-    
+
     /**
      * Get the name of the object on which the invocation occurred.
      * For constructor calls, returns the name of the constructed object.
@@ -172,7 +172,7 @@ public class ExecutionEvent
     {
         return objectName;
     }
-    
+
     /**
      * Get the name of the method which was invoked.
      * For a constructor or free-form invocation, this returns null.
@@ -181,7 +181,7 @@ public class ExecutionEvent
     {
         return methodName;
     }
-    
+
     /**
      * Get the method/constructor parameter types.
      * For a free-form invocation this returns null. 
@@ -190,7 +190,7 @@ public class ExecutionEvent
     {
         return signature;
     }
-    
+
     /**
      * Gets the arguments to the method/constructor (as java expressions).
      * For a free-form invocation this returns null.
@@ -199,7 +199,7 @@ public class ExecutionEvent
     {
         return parameters;
     }
-    
+
     /**
      * Get the result of the execution. This will be one of:
      * NORMAL_EXIT - the execution terminated successfully
@@ -230,12 +230,12 @@ public class ExecutionEvent
     {
         return exception;
     }
-    
+
     public Package getPackage()
     {
         return pkg;
     }
-    
+
     public String getCommand()
     {
         return command;

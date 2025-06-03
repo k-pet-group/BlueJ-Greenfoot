@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2016,2017  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -42,19 +42,19 @@ public final class JavaTokenFilter implements TokenStream
     private List<LocatableToken> buffer = new LinkedList<LocatableToken>();
     private LinkedList<LocatableToken> recent = new LinkedList<>();
     private JavaParser parser;
-    
+
     public JavaTokenFilter(TokenStream source)
     {
         sourceStream = source;
         lastComment = null;
     }
-    
+
     public JavaTokenFilter(TokenStream source, JavaParser parser)
     {
         this(source);
         this.parser = parser;
     }
-        
+
     public LocatableToken nextToken()
     {
         LocatableToken rval;
@@ -92,7 +92,7 @@ public final class JavaTokenFilter implements TokenStream
             recent.removeFirst();
         return rval;
     }
-    
+
     /**
      * Push a token on to the stream. The token will be returned by the next call
      * to nextToken().
@@ -112,7 +112,7 @@ public final class JavaTokenFilter implements TokenStream
     {
         return recent.isEmpty() ? null : recent.getLast();
     }
-    
+
     /**
      * Look ahead a certain number of tokens (without actually consuming them).
      * @param distance  The distance to look ahead (1 or greater).
@@ -123,24 +123,24 @@ public final class JavaTokenFilter implements TokenStream
            buffer.add(0, (LocatableToken) cachedToken);
            cachedToken = null;
         }
-        
+
         int numToAdd = distance - buffer.size();
         while (numToAdd > 0) {
            buffer.add(0, nextToken2());
            numToAdd--;
         }
-    
+
         return buffer.get(buffer.size() - distance);
     }
-    
+
     private LocatableToken nextToken2()
     {
         LocatableToken t = null;
-        
+
         // Repeatedly read tokens until we find a non-comment, non-whitespace token.
         while (true) {
             t = (LocatableToken) sourceStream.nextToken();
-            
+
             int ttype = t.getType();
             if (ttype == JavaTokenTypes.ML_COMMENT) {
                 // If we come across a comment, save it.
@@ -163,7 +163,7 @@ public final class JavaTokenFilter implements TokenStream
                 break;
             }
         }
-        
+
         return t;
     }
 }

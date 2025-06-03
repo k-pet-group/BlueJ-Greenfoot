@@ -1,21 +1,21 @@
 /*
  This file is part of the Greenfoot program. 
  Copyright (C) 2013,2014,2015,2016,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -51,7 +51,7 @@ public class CodeOverlayPane
      * The actual Pane
      */
     private final Pane pane = new Pane();
-    
+
     public CodeOverlayPane()
     {
         JavaFXUtil.addStyleClass(pane, "code-overlay-pane");
@@ -80,7 +80,7 @@ public class CodeOverlayPane
         addOverlay(overlay, relativeTo, xOffset, yOffset, WidthLimit.NO_WIDTH_LIMIT);
     }
 
-    
+
     /**
      * Adds the given overlay (first parameter) to the overlay pane so that its position always
      * remains at the top left of relativeTo (second parameter), plus xOffset (or 0 if null) and
@@ -95,7 +95,7 @@ public class CodeOverlayPane
               super.bind(pane.layoutBoundsProperty());
               super.bind(pane.localToSceneTransformProperty());
               if (xOffset != null) super.bind(xOffset);}
-            
+
             @Override
             protected double computeValue()
             {
@@ -110,15 +110,15 @@ public class CodeOverlayPane
                 }
             }
         };
-        
+
         final DoubleBinding yPosition = new DoubleBinding() {
             { super.bind(relativeTo.layoutBoundsProperty());
               super.bind(relativeTo.localToSceneTransformProperty());
               super.bind(pane.layoutBoundsProperty());
               super.bind(pane.localToSceneTransformProperty());
               if (yOffset != null) super.bind(yOffset);}
-            
-            
+
+
             @Override
             protected double computeValue()
             {
@@ -126,7 +126,7 @@ public class CodeOverlayPane
                 return sceneYToCodeOverlayY(endRef + (yOffset == null ? 0 : yOffset.get()));
             }
         };
-       
+
         overlay.layoutXProperty().bind(xPosition);
         overlay.layoutYProperty().bind(yPosition);
 
@@ -149,7 +149,7 @@ public class CodeOverlayPane
     {
         pane.getChildren().remove(node);        
     }
-    
+
     public Node getNode()
     {
         return pane;

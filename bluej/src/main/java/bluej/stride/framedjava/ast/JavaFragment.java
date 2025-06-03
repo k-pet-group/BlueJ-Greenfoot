@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -53,7 +53,7 @@ public abstract class JavaFragment
         SOURCE_DOC_TO_ANALYSE,
         /** Source will be as-is, and no positions recorded */
         TEMPORARY; 
-        
+
         // Should we substitute invalid code (e.g. empty variable name in declaration) for valid code?
         public boolean substitute()
         {
@@ -115,14 +115,14 @@ public abstract class JavaFragment
          */
         CANNOT_SHOW;
     }
-    
+
     public ErrorRelation checkCompileError(int startLine, int startColumn, int endLine, int endColumn)
     {
         if (startLine > lineNumber)
             return ErrorRelation.AFTER_FRAGMENT;
         else if (endLine < lineNumber)
             return ErrorRelation.BEFORE_FRAGMENT;
-        
+
         // Assuming startLine < endLine, now we know that the startLine--endLine range includes lineNumber
         // But we could still be outside the range, if we are before the start column on the start line,
         // or after the end column on the end line, so we need to check those cases.
@@ -130,15 +130,15 @@ public abstract class JavaFragment
         {
             if (startColumn > columnNumber + len)
                 return ErrorRelation.AFTER_FRAGMENT;
-            
+
             // We are after the start; but are we before the end?
-            
+
             if (endLine > lineNumber)
                 return ErrorRelation.OVERLAPS_FRAGMENT;
             // Now we know endLine == lineNumber:
             else if (endColumn < columnNumber)
                 return ErrorRelation.BEFORE_FRAGMENT;
-            
+
             // Otherwise we must be before the end
         }
         // Now we know that startLine < lineNumber
@@ -148,7 +148,7 @@ public abstract class JavaFragment
                 return ErrorRelation.BEFORE_FRAGMENT;
         }
         // Otherwise, startLine < lineNumber and endLine > lineNumber
-                    
+
         return ErrorRelation.OVERLAPS_FRAGMENT;
     }
 

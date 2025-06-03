@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2014,2019  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -36,7 +36,7 @@ public abstract class ParentParsedNode extends ParsedNode
     {
         super(myParent);
     }
-            
+
     @Override
     public int textInserted(ReparseableDocument document, int nodePos, int insPos,
                             int length, NodeStructureListener listener)
@@ -44,7 +44,7 @@ public abstract class ParentParsedNode extends ParsedNode
         // grow ourself:
         int newSize = getSize() + length;
         resize(newSize);
-        
+
         NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrAfter(insPos, nodePos);
         if (child != null && (child.getPosition() < insPos
                 || child.getPosition() == insPos && child.getNode().growsForward())) {
@@ -77,7 +77,7 @@ public abstract class ParentParsedNode extends ParsedNode
             return handleInsertion(document, nodePos, insPos, length, listener);
         }
     }
-    
+
     /**
      * Handle the case of text being inserted directly into this node (not a child).
      */
@@ -88,7 +88,7 @@ public abstract class ParentParsedNode extends ParsedNode
         document.scheduleReparse(insPos, length);
         return ALL_OK;
     }
-    
+
     @Override
     public int textRemoved(ReparseableDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
@@ -96,9 +96,9 @@ public abstract class ParentParsedNode extends ParsedNode
         // shrink ourself:
         int newSize = getSize() - length;
         resize(newSize);
-        
+
         int endPos = delPos + length;
-        
+
         NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrAfter(delPos, nodePos);
         while (child != null && child.getEnd() == delPos) {
             if (! child.getNode().marksOwnEnd()) {
@@ -106,7 +106,7 @@ public abstract class ParentParsedNode extends ParsedNode
             }
             child = child.nextSibling();
         }
-        
+
         if (child != null && child.getPosition() < delPos) {
             // Remove the end portion (or middle) of the child node
             int childEndPos = child.getEnd();
@@ -128,7 +128,7 @@ public abstract class ParentParsedNode extends ParsedNode
                 }
                 return ALL_OK;
             }
-            
+
             // Remove the end portion of the child node
             int rlength = childEndPos - delPos; // how much is removed
 
@@ -157,7 +157,7 @@ public abstract class ParentParsedNode extends ParsedNode
 
             return handleDeletion(document, nodePos, reparseOffset, listener);
         }
-        
+
         // Any child node that has its beginning removed is just removed.
         while (child != null && child.getPosition() < endPos) {
             NodeAndPosition<ParsedNode> nextChild = child.nextSibling();
@@ -175,10 +175,10 @@ public abstract class ParentParsedNode extends ParsedNode
                 removeChild(child, listener);
             }
         }
-        
+
         return handleDeletion(document, nodePos, delPos, listener);
     }
-    
+
     /**
      * Handle the case of text being removed directly from this node (rather than a
      * child node).
@@ -190,11 +190,11 @@ public abstract class ParentParsedNode extends ParsedNode
         if (nodePos + getSize() == dpos && marksOwnEnd()) {
             complete = false;
         }
-        
+
         document.scheduleReparse(dpos, 0);
         return ALL_OK;
     }
-    
+
     /*
      * Default implementation, just causes the parent to re-parse
      */
@@ -204,7 +204,7 @@ public abstract class ParentParsedNode extends ParsedNode
     {
         return REMOVE_NODE;
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     protected boolean growChild(ReparseableDocument document, NodeAndPosition<ParsedNode> child,
@@ -214,5 +214,5 @@ public abstract class ParentParsedNode extends ParsedNode
         // Subclasses should override this to improve performance.
         return false;
     }
-    
+
 }

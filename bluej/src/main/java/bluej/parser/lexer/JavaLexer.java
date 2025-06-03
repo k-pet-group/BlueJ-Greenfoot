@@ -51,9 +51,9 @@ public final class JavaLexer implements TokenStream
     private boolean generateWhitespaceTokens = false;
     private boolean handleComments = true; // When false, doesn't recognise /*..*/ or //..\n as comments (for frames)
     private boolean handleMultilineStrings = true; // When false, treats """ as a single token rather than trying to match start/end
-    
+
     private static Map<String,Integer> keywords = new HashMap<String,Integer>();
-    
+
     static {
         keywords.put("abstract", JavaTokenTypes.ABSTRACT);
         keywords.put("assert", JavaTokenTypes.LITERAL_assert);
@@ -122,7 +122,7 @@ public final class JavaLexer implements TokenStream
     {
         this(in, 1, 1, 0);
     }
-    
+
     /**
      * Construct a lexer which readers from the given Reader.
      */
@@ -151,14 +151,14 @@ public final class JavaLexer implements TokenStream
             rChar = -1;
         }
     }
-    
+
     /**
      * Retrieve the next token.
      */
     public LocatableToken nextToken()
     {  
         textBuffer.setLength(0);
-        
+
         if (generateWhitespaceTokens && Character.isWhitespace((char)rChar))
         {
             StringBuilder whitespaceBuffer = new StringBuilder();
@@ -181,7 +181,7 @@ public final class JavaLexer implements TokenStream
             // EOF
             return makeToken(JavaTokenTypes.EOF, null); 
         }
-        
+
         char nextChar = (char) rChar;
         if (Character.isJavaIdentifierStart(nextChar)) {
             return createWordToken(nextChar); 
@@ -191,7 +191,7 @@ public final class JavaLexer implements TokenStream
         }
         return makeToken(getSymbolType(nextChar), textBuffer.toString());
     }
-    
+
     /**
      * Make a token of the given type, with the given text. The token
      * begins where the previous token ended, and ends at the current
@@ -220,7 +220,7 @@ public final class JavaLexer implements TokenStream
         // parts and minus signs and it doesn't match a known hyphenated keyword, or it
         // begins with a known hyphenated keyword but has more minus signs and identifier bits after, 
         // we have to put everything from the last spare minus onwards back onto the reader.
-        
+
         char thisChar=ch;
         boolean eof = false;
         minusPositions.clear();
@@ -249,7 +249,7 @@ public final class JavaLexer implements TokenStream
             // the String (in case it's exactly a hyphenated keyword like "non-sealed" with no further minuses)
             IntStream.concat(minusPositions.keySet().stream().mapToInt(Integer::intValue).sorted(), IntStream.of(textBuffer.length()))
                 .filter(index -> keywords.containsKey(textBuffer.substring(0, index))).findFirst();
-        
+
         if (!minusPositions.isEmpty() && keywordEnd.orElse(-1) < textBuffer.length())
         {
             // We have found a minus but there either is not a keyword (keywordEnd will be empty)
@@ -348,18 +348,18 @@ public final class JavaLexer implements TokenStream
         if (Character.isDigit(ch)) {
             return true;
         }
-        
+
         if (ch >= 'a' && ch <= 'f') {
             return true;
         }
-        
+
         if (ch >= 'A' && ch <= 'F') {
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * Read a numerical literal token.
      * 
@@ -374,7 +374,7 @@ public final class JavaLexer implements TokenStream
 
         boolean fpValid = true; // whether a subsequent dot would be valid.
                 // (will be set false for a non-decimal literal).
-        
+
         if (ch == '0' && ! dot) {
             rval = readNextChar();
             if (rval == 'x' || rval == 'X') {
@@ -384,7 +384,7 @@ public final class JavaLexer implements TokenStream
                 if (!isHexDigit((char)rval)) {
                     return JavaTokenTypes.INVALID;
                 }
-                
+
                 do {
                     textBuffer.append((char) rval);
                     rval = readNextChar();
@@ -403,7 +403,7 @@ public final class JavaLexer implements TokenStream
                 if (rval != '0' && rval != '1') {
                     return JavaTokenTypes.INVALID;
                 }
-                
+
                 do {
                     textBuffer.append((char) rval);
                     rval = readNextChar();
@@ -426,7 +426,7 @@ public final class JavaLexer implements TokenStream
                 rval = readNextChar();
             }
         }
-        
+
         if (rval == '.' && fpValid) {
             // A decimal.
             textBuffer.append((char) rval);
@@ -444,7 +444,7 @@ public final class JavaLexer implements TokenStream
                     rval = readNextChar();
                 }
             }
-            
+
             // Check for type suffixes
             if (rval == 'f' || rval == 'F') {
                 textBuffer.append((char) rval);
@@ -457,7 +457,7 @@ public final class JavaLexer implements TokenStream
             }
             return JavaTokenTypes.NUM_DOUBLE;
         }
-        
+
         if ((rval == 'e' || rval == 'E') && fpValid) {
             // exponent
             textBuffer.append((char) rval);
@@ -473,7 +473,7 @@ public final class JavaLexer implements TokenStream
             rval = readNextChar();
             return JavaTokenTypes.NUM_LONG;
         }
-        
+
         if (fpValid) {
             if (rval == 'f' || rval == 'F') {
                 textBuffer.append((char) rval);
@@ -486,7 +486,7 @@ public final class JavaLexer implements TokenStream
                 return JavaTokenTypes.NUM_DOUBLE;
             }
         }
-        
+
         return type;
     }
 
@@ -498,7 +498,7 @@ public final class JavaLexer implements TokenStream
         // representation of the *power 2* exponent (may be negative); the 'f' (or 'F')
         // marks as a float rather than the default double ('d' or 'D').
         // So the above represents 0xABC * 2^123, or 0xABC << 12, as a float.
-        
+
         // Up to this point, we've seen the 'p'.
         int rval = readNextChar();
         if (rval == -1) {
@@ -507,28 +507,28 @@ public final class JavaLexer implements TokenStream
         if (! Character.isDigit((char) rval) && rval != '-') {
             return JavaTokenTypes.INVALID;
         }
-        
+
         textBuffer.append((char) rval);
         rval = readNextChar();
         while (Character.isDigit((char) rval)) {
             textBuffer.append((char) rval);
             rval = readNextChar();
         }
-        
+
         if (rval == 'f' || rval == 'F') {
             textBuffer.append((char) rval);
             readNextChar();
             return JavaTokenTypes.NUM_FLOAT;
         }
-        
+
         if (rval == 'd' || rval == 'D') {
             textBuffer.append((char) rval);
             readNextChar();
         }
-        
+
         return JavaTokenTypes.NUM_DOUBLE;
     }
-    
+
     private int getMLCommentType(char ch)
     {
         do{
@@ -555,7 +555,7 @@ public final class JavaLexer implements TokenStream
             }             
         } while (true);
     }
-    
+
     private int getSLCommentType(char ch)
     {
         int rval=ch;     

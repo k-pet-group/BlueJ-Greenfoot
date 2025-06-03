@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -45,15 +45,15 @@ import bluej.utility.JavaNames;
 public class TestEntityResolver implements EntityResolver
 {
     private EntityResolver parent;
-    
+
     /** A map from package name to a list of compilation units in that package */
     private Map<String,List<ParsedCUNode>> pkgMap = new HashMap<String,List<ParsedCUNode>>();
-    
+
     public TestEntityResolver(EntityResolver parent)
     {
         this.parent = parent;
     }
-    
+
     /**
      * Add a compilation unit for the given package.
      */
@@ -69,7 +69,7 @@ public class TestEntityResolver implements EntityResolver
         }
         clist.add(cunit);
     }
-    
+
     private String getPackageFromClassName(String className)
     {
         int lastdot = className.lastIndexOf('.');
@@ -78,13 +78,13 @@ public class TestEntityResolver implements EntityResolver
         }
         return className.substring(0, lastdot);
     }
-    
-    
+
+
     public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {
         return new PackageEntity(name, this);
     }
-    
+
     public TypeEntity resolveQualifiedClass(String name)
     {
         String pkg = getPackageFromClassName(name);
@@ -100,7 +100,7 @@ public class TestEntityResolver implements EntityResolver
         }
         return parent.resolveQualifiedClass(name);
     }
-    
+
     public JavaEntity getValueEntity(String name, Reflective querySource)
     {
         return resolvePackageOrClass(name, querySource);

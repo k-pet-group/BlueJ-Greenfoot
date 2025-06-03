@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2012,2013,2014,2016,2018,2019,2021,2023  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -162,7 +162,7 @@ public class ExtensionWrapper
     static class FirewallLoader extends ClassLoader
     {
         ClassLoader myParent;
-      
+
         /**
          * Constructor. Note that this classloader breaks from the delegation model; the parent
          * is not the actual parent classloader, it is only used by findClass() below. 
@@ -181,7 +181,7 @@ public class ExtensionWrapper
             throw new ClassNotFoundException();
         }
     }
-  
+
     /**
      * Now, assume you have the class and you want to "instantiate" the
      * extension You have to call this. NOTE that the extension wrapper is
@@ -320,7 +320,7 @@ public class ExtensionWrapper
         return extensionsProps;
     }
 
-    
+
     /**
      * Returns the label that are language dependents as a Properties instance
      * 
@@ -333,7 +333,7 @@ public class ExtensionWrapper
         }
 
         String languageFileName = "lib/" + language + "/labels";
-        
+
         InputStream inStream = extensionClass.getClassLoader().getResourceAsStream (languageFileName);
         if ( inStream == null ) return null;
 
@@ -364,7 +364,7 @@ public class ExtensionWrapper
         }
     }
 
-    
+
     /**
      * Gets a String representation of the path to the <CODE>.jar</CODE> file
      * containing the extension.
@@ -424,7 +424,7 @@ public class ExtensionWrapper
         }
     }
 
-    
+
     /**
      * Returns the extension's description.
      */
@@ -444,7 +444,7 @@ public class ExtensionWrapper
         }
     }
 
-    
+
     /**
      * Returns the extension's name.
      */
@@ -463,7 +463,7 @@ public class ExtensionWrapper
         }
     }
 
-    
+
     /**
      * Gets the extension's 'further information' URL
      *
@@ -527,7 +527,7 @@ public class ExtensionWrapper
         }
     }
 
-    
+
     /**
      * Call the startup method in a safe way
      */
@@ -591,7 +591,7 @@ public class ExtensionWrapper
         }
     }
 
-    
+
     /**
      * Calls the EXTENSION preference panel saveValues in a safe way
      */
@@ -614,7 +614,7 @@ public class ExtensionWrapper
         }
     }
 
-    
+
     /**
      *  Calls the EXTENSION preference Pane getWindow in a safe way
      */

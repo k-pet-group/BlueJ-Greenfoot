@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -42,22 +42,22 @@ public class TestDiff extends TestCase
         BufferedReader reader = new BufferedReader( new FileReader (file));
         String         line = null;
         ArrayList<String> lines = new ArrayList<String>();
-        
+
         while( ( line = reader.readLine() ) != null ) {
             lines.add(line);
         }
-        
+
         reader.close();
         return lines.toArray(new String[0]);
     }
-    
+
     private void assertDiffRoundTrip(String[] orig, String[] mod) throws IOException, InterruptedException
     {
         // Get the diff using our library:
         Patch patch = DiffUtils.diff(Arrays.asList(orig), Arrays.asList(mod));
         String diff = DataCollectorImpl.makeDiff(patch);
         // Now send it on a round trip with the system diff.
-        
+
         //   Make temp file and fill it with original:
         File tempFile = File.createTempFile("SRC", ".java");
         FileWriter fileWriter = new FileWriter(tempFile);
@@ -68,7 +68,7 @@ public class TestDiff extends TestCase
         }
         bufferedWriter.close();
         fileWriter.close();
-        
+
         //   Run patch, and feed it the diff:
         Process p = Runtime.getRuntime().exec("patch --force " + tempFile.getAbsolutePath());
         p.getOutputStream().write(diff.getBytes(Charset.forName("UTF-8")));
@@ -76,20 +76,20 @@ public class TestDiff extends TestCase
 
         int returnCode = p.waitFor();        
         assertEquals("Patch exit code", 0, returnCode);
-        
+
         //   Read back the original and check:
         String[] patched = readFile(tempFile);
-        
+
         assertEqualStringArray(orig, diff, mod, patched);
     }
-    
-    
+
+
     private void assertEqualStringArray(String[] orig, String diff, String[] a, String[] b)
     {
         assertEquals("Array length: " + printInfo(orig, diff, a, b), a.length, b.length);
         for (int i = 0; i < a.length; i++)
             assertEquals("Line " + i + " for\n"  + printInfo(orig, diff, a, b), a[i], b[i]);
-        
+
     }
 
     private String printInfo(String[] orig, String diff, String[] a, String[] b)
@@ -116,7 +116,7 @@ public class TestDiff extends TestCase
 "  public int x;",
 "}"});
     }
-    
+
     // This test can take a little while -- 75 seconds on my machine
     /*
     public void testBruteForceDiffs() throws IOException, InterruptedException
@@ -125,10 +125,10 @@ public class TestDiff extends TestCase
         //Forms all files of length 0 to 4 with all possible combinations of those three lines:
         final int LONGEST_FILE = 4;
         Collection<String[]>[] allFiles = new Collection[LONGEST_FILE + 1];
-        
+
         allFiles[0] = new ArrayList<String[]>();
         allFiles[0].add(new String[0]);
-        
+
         for (int length = 1; length <= LONGEST_FILE; length++)
         {
             allFiles[length] = new ArrayList<String[]>();
@@ -143,7 +143,7 @@ public class TestDiff extends TestCase
                 }
             }
         }
-        
+
         // Now flatten:
         ArrayList<String[]> flattened = new ArrayList<String[]>();
         for (Collection<String[]> coll : allFiles)
@@ -154,7 +154,7 @@ public class TestDiff extends TestCase
             }
         }
         allFiles = null;
-        
+
         for (int i = 0; i < flattened.size(); i++)
         {
             for (int j = 0; j < flattened.size(); j++)

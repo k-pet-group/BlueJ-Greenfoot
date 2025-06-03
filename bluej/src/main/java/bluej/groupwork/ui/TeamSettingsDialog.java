@@ -67,12 +67,12 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
         teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this, isShareAction);
         getDialogPane().setContent(teamSettingsPanel);
         DialogManager.centreDialog(this);
-        
+
         setOnShown(e -> {
             // The dialog logic steals focus to one of the buttons, we need a runLater to steal it back:
             JavaFXUtil.runAfterCurrent(() -> teamSettingsPanel.doRequestFocus()); 
         });
-        
+
         setResultConverter(bt -> bt == ButtonType.OK ? getSettings() : null);
     }
 

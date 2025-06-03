@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2018,2024 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -83,7 +83,7 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
     // outside the field or across fields.
     private int imStart = -1;
     private int imLength;
-    
+
     @Override
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void insertText(int index, String text)
@@ -155,7 +155,7 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
             inNextWord = false;
         }
     }
-    
+
     @Override
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void endOfNextWord()
@@ -268,7 +268,7 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
             super.selectBackward();
         }
     }
-    
+
     @Override
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void deselect() {
@@ -387,7 +387,7 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
                 // having overflowed):
                 return Math.max(minWidth, 2 + JavaFXUtil.measureString(DelegableScalableTextField.this, getText()));
             }
-            
+
         });
         setOnMousePressed(e -> { 
             if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1) // Double and triple clicks will be handled by the field.
@@ -419,7 +419,7 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
             if (e.getButton() == MouseButton.PRIMARY)
                 e.consume();
         });
-        
+
         caretPositionProperty().addListener(new ChangeListener<Number>() {
             @Override
             @OnThread(value = Tag.FXPlatform, ignoreParent = true)
@@ -428,9 +428,9 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
                 delegate.caretMoved();
             }
         });
-        
+
         addEventHandler(KeyEvent.KEY_PRESSED, e -> { if (e.getCode() == KeyCode.ESCAPE) delegate.escape(); });
-        
+
     }
 
     @OnThread(Tag.FXPlatform)
@@ -481,7 +481,7 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
             positionCaret(imStart + imLength);
         }
     }
-    
+
     @Override
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void selectNextWord()
@@ -490,7 +490,7 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
         if (!delegate.selectNextWord(delegateId))
             super.selectNextWord();
     }
-    
+
     @Override
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void selectEndOfNextWord()
@@ -517,7 +517,7 @@ public final class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHe
         if (!delegate.selectAll(delegateId))
             super.selectAll();
     }
-    
+
     @Override
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void home()

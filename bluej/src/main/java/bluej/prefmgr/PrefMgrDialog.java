@@ -61,13 +61,13 @@ import java.util.ListIterator;
 public class PrefMgrDialog
 {
     private static PrefMgrDialog dialog = null;
-    
+
     /**
      * Creating the preference panes requires thread-hopping.  This property
      * is set to true (on the FXPlatform thread) once they are ready.
      */
     private BooleanProperty prefPanesCreated = new SimpleBooleanProperty(false);
-    
+
     /** Indicates whether the dialog has been prepared for display. */
     private boolean prepared = false;
     private Project curProject; // can be null
@@ -141,7 +141,7 @@ public class PrefMgrDialog
 
     private Dialog<Void> window;
     private TabPane tabbedPane = null;
-    
+
     /**
      * Setup the UI for the dialog and event handlers for the dialog's buttons.
      */
@@ -179,7 +179,7 @@ public class PrefMgrDialog
         }
         prefPanesCreated.set(true);
     }
-    
+
     /**
      * Register a panel to be shown in the preferences dialog
      *
@@ -200,7 +200,7 @@ public class PrefMgrDialog
     {
         curProject = project;
         miscPrefPanel.setExtraItems(miscPrefPanelItems);
-        
+
         for (Iterator<PrefPanelListener> i = listeners.iterator(); i.hasNext(); ) {
             PrefPanelListener ppl = i.next();
             ppl.beginEditing(project);
@@ -220,7 +220,7 @@ public class PrefMgrDialog
         Config.addDialogStylesheets(window.getDialogPane());
         JavaFXUtil.addStyleClass(window.getDialogPane(), "prefmgr-dialog-pane");
         window.setOnShown(e -> Utility.bringToFrontFX(window.getDialogPane().getScene().getWindow()));
-        
+
         window.setResizable(true);
 
         tabbedPane = new TabPane();
@@ -259,7 +259,7 @@ public class PrefMgrDialog
         window.getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
         window.getDialogPane().setContent(tabbedPane);
     }
-    
+
     public static Node headedVBox(String titleID, List<Node> contents)
     {
         return headedVBoxTranslated(Config.getString(titleID), contents);
@@ -282,7 +282,7 @@ public class PrefMgrDialog
     {
         return JavaFXUtil.withStyleClass(new HBox(label, item), "prefmgr-label-hbox");
     }
-    
+
     public static Node wrappedLabel(String content)
     {
         return new TextFlow(JavaFXUtil.withStyleClass(new Text(content), "prefmgr-text-wrapped"));

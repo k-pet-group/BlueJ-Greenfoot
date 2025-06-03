@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2017,2020,2021,2022,2024 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -81,7 +81,7 @@ public class FrameCursor implements RecallableFocus
     int consecutiveErrors = 0;
     private ContextMenu menu;
     private final FrameCanvas parentCanvas;
-    
+
     private final Button node = new Button(){
         // Babis
         @Override
@@ -247,7 +247,7 @@ public class FrameCursor implements RecallableFocus
     private Canvas redCross;
     private Canvas copyingPlus;
     private ImageView dragTargetOverlayFake;
-    
+
     /**
      * Constructor
      */
@@ -261,9 +261,9 @@ public class FrameCursor implements RecallableFocus
         if (parentCanvas == null) {
             throw new IllegalArgumentException("BlockCursor: parentCanvas cannot be null");
         }
-        
+
         this.editor = editor;
-        
+
         // Bind min and pref size to max size:
         node.minWidthProperty().bind(node.maxWidthProperty());
         node.prefWidthProperty().bind(node.maxWidthProperty());
@@ -308,11 +308,11 @@ public class FrameCursor implements RecallableFocus
 
         });
         JavaFXUtil.addChangeListener(node.localToSceneTransformProperty(), t -> JavaFXUtil.runNowOrLater(() -> adjustDragTargetPosition()));
-        
+
         if (editor != null) {
             editor.setupFrameCursor(this);
         }
-        
+
         // We must use a filter on press because potentially this event might set
         // a selection rather than focusing on us.  If we don't use a filter to consume
         // the press, the event will be handled by focusing on us by default
@@ -327,7 +327,7 @@ public class FrameCursor implements RecallableFocus
                 e.consume();
             }
         });
-        
+
         JavaFXUtil.listenForContextMenu(node, this::showContextMenu);
         getNode().focusedProperty().addListener((observable, oldValue, nowFocused) -> {
         {
@@ -491,14 +491,14 @@ public class FrameCursor implements RecallableFocus
     public void showAsDropTarget(boolean showAsSource, boolean dragPossible, boolean copying)
     {
         int chosen;
-        
+
         if (dragPossible) {
             chosen = showAsSource ? 1 : 0;
         }
         else {
             chosen = 2;
         }
-        
+
         // Must resize before setting drag class:
         showHide(true);
         setDragClass(chosen);
@@ -548,9 +548,9 @@ public class FrameCursor implements RecallableFocus
         {
             Image snapshot = getNode().snapshot(null, null);
             dragTargetOverlayFake = new ImageView(snapshot);
-            
+
             dragTargetCursorPane.getChildren().add(dragTargetOverlayFake);
-            
+
             if (showCross && redCross == null)
             {
                 redCross = new Canvas(FULL_HEIGHT * 3, FULL_HEIGHT * 3);
@@ -561,7 +561,7 @@ public class FrameCursor implements RecallableFocus
                 gc.strokeLine(redCross.getWidth() - 2.0, 1.0, 1.0, redCross.getHeight() - 2.0);
                 dragTargetCursorPane.getChildren().add(redCross);
             }
-            
+
             adjustDragTargetPosition();
         }
         else 
@@ -590,17 +590,17 @@ public class FrameCursor implements RecallableFocus
         showHide(false);
         setDragClass(-1);
     }
-    
+
     public void insertBlockAfter(Frame b)
     {
         getParentCanvas().insertBlockAfter(b, this);
     }
-    
+
     public void insertBlockBefore(Frame b)
     {
         getParentCanvas().insertBlockBefore(b, this);
     }
-    
+
     public FrameTypeCheck check()
     {
         return getParentCanvas().getParent().check(getParentCanvas());
@@ -612,7 +612,7 @@ public class FrameCursor implements RecallableFocus
         Collections.reverse(rev);
         rev.forEach(f -> getParentCanvas().insertBlockAfter(f, this));
     }
-    
+
     /**
      * Gets the next block at the same level (in the same canvas) if possible,
      * or the next valid block cursor after that (by going up a level).
@@ -621,7 +621,7 @@ public class FrameCursor implements RecallableFocus
     {
         return parentCanvas.getNextCursor(this, false);
     }
-    
+
     /**
      * Gets the previous block at the same level (in the same canvas) if possible,
      * or the previous valid block cursor after that (by going up a level).
@@ -630,7 +630,7 @@ public class FrameCursor implements RecallableFocus
     {
         return parentCanvas.getPrevCursor(this, false);
     }
-    
+
     /**
      * Gets the cursor just before the enclosing block for this cursor
      */
@@ -642,7 +642,7 @@ public class FrameCursor implements RecallableFocus
         }
         return parentCanvas.getParent().getCursorBefore(parentCanvas);
     }
-    
+
     /**
      * Gets the cursor just after the enclosing block for this cursor
      */
@@ -659,7 +659,7 @@ public class FrameCursor implements RecallableFocus
     {
         return parentCanvas.getFrameBefore(this);
     }
-    
+
     public Frame getFrameAfter()
     {
         return parentCanvas.getFrameAfter(this);
@@ -669,7 +669,7 @@ public class FrameCursor implements RecallableFocus
     {
         return parentCanvas;
     }
-    
+
     public Frame getEnclosingFrame()
     {
         final FrameCanvas parentCanvas = getParentCanvas();
@@ -679,12 +679,12 @@ public class FrameCursor implements RecallableFocus
         return canvasParent.getFrame();
 
     }
-    
+
     public Region getNode()
     {
         return node;
     }
-    
+
     public void requestFocus()
     {
         node.requestFocus();
@@ -772,7 +772,7 @@ public class FrameCursor implements RecallableFocus
         return item;
     }
 
-    
+
     public boolean isFocused()
     {
         return node.isFocused();
@@ -796,7 +796,7 @@ public class FrameCursor implements RecallableFocus
     {
         if (dragTargetOverlayFake == null)
             return;
-        
+
         Pane dragTargetCursorPane = editor.getDragTargetCursorPane();
         if (copying && copyingPlus == null)
         {
@@ -818,7 +818,7 @@ public class FrameCursor implements RecallableFocus
             dragTargetCursorPane.getChildren().remove(copyingPlus);
             copyingPlus = null;
         }
-        
+
         adjustDragTargetPosition();
     }
 

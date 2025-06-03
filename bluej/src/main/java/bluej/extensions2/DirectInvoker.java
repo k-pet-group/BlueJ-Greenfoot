@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2019,2024  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -133,7 +133,7 @@ class DirectInvoker
             return result;
         };
     }
-    
+
     // An interface for a method call to be done off the FX thread, which may throw an exception
     interface OffThreadWaiter
     {
@@ -198,7 +198,7 @@ class DirectInvoker
         return () -> {
             // this will wait() on the invoke to finish
             DebuggerObject result = watcher.getResult();
-    
+
             Platform.runLater(() -> {
                 Result resultType = watcher.getResultType();
                 if (resultType != null)
@@ -209,11 +209,11 @@ class DirectInvoker
                     raiseEvent(ee, callable, argStrings, watcher, result);
                 }
             });
-    
+
             if (watcher.isFailed()) {
                 throw new InvocationErrorException("invokeMethod: Error=" + watcher.getError());
             }
-    
+
             // The "real" object is the first Field in this object.. BUT it is not always
             // an Object, it may be a primitive one...
             synchronized (this) {
@@ -230,7 +230,7 @@ class DirectInvoker
             DirectResultWatcher watcher, DebuggerObject result)
     {
         Result resultType = watcher.getResultType();
-        
+
         event.setParameters(callable.getParamTypes(false), argStrings);
         event.setResult(resultType);
         if (resultType == ExecutionEvent.Result.NORMAL_EXIT) {
@@ -240,7 +240,7 @@ class DirectInvoker
         else if (resultType == ExecutionEvent.Result.EXCEPTION_EXIT) {
             event.setException(watcher.getException());
         }
-        
+
         BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, event);
     }
 
@@ -436,7 +436,7 @@ class DirectInvoker
         {
             // Nothing needs doing.
         }
-        
+
         /*
          * @see bluej.debugmgr.ResultWatcher#beginExecution()
          */
@@ -444,7 +444,7 @@ class DirectInvoker
         {
             // Nothing needs doing.
         }
-        
+
         /**
          * Used to return a result. We know that it is a good one.
          *
@@ -473,7 +473,7 @@ class DirectInvoker
             resultReady = true;
             notifyAll();
         }
-        
+
 
         /**
          * Treat run-time error the same as compile-time error.
@@ -486,8 +486,8 @@ class DirectInvoker
             resultType = ExecutionEvent.Result.EXCEPTION_EXIT;
             putError(exception.getText(), ir);
         }
-        
-        
+
+
         /**
          * Treat termination as an error
          */
@@ -520,7 +520,7 @@ class DirectInvoker
         {
             return resultName;
         }
-        
+
         /**
          * Returns the result type
          * ExecutionEvent.NORMAL_EXIT if execution completed normally;<br>
@@ -532,7 +532,7 @@ class DirectInvoker
         {
             return resultType;
         }
-        
+
         /**
          * Get the exception which occurred (if result type == EXCEPTION_EXIT).
          */

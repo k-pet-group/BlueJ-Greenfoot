@@ -1,21 +1,21 @@
 /*
  This file is part of the Greenfoot program. 
  Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -279,7 +279,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 }
             }
         });
-        
+
         tabPane.getTabs().addListener((ListChangeListener<? super Tab>) e -> {
             if (tabPane.getTabs().isEmpty())
             {
@@ -347,7 +347,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             // don't want AltGr-6 to move to tab 6 (only Ctrl-6)
             if (!e.isShortcutDown() || e.isAltDown())
                 return;
-            
+
             int tab = tabPane.getSelectionModel().getSelectedIndex();
             switch (e.getCode())
             {
@@ -379,7 +379,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             // For all other keys, return and do not process event:
             default: return;
             }
-            
+
             if (tab < tabPane.getTabs().size())
             {
                 tabPane.getSelectionModel().select(tabPane.getTabs().get(tab));
@@ -490,7 +490,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         Class<?> theClass = project.loadClass(qualifiedClassName);
         // Guess java.base if we don't know the module:
         String moduleName = theClass == null ? "java.base" : theClass.getModule().getName();
-        
+
         String target = Utility.getDocURL(moduleName, qualifiedClassName, suffix);
         openWebViewTab(target);
     }
@@ -587,7 +587,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             return tabPane.getTabs().remove(tab);
         }
     }
-    
+
     /** Returns whether the window is currently shown */
     public boolean isWindowVisible()
     {
@@ -715,7 +715,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         {
             throw new IllegalStateException("Drag begun while drag in progress");
         }
-        
+
         dragSourceFrames.clear();
         dragSourceFrames.addAll(srcFrames);
 
@@ -728,7 +728,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             {
                 src.setDragSourceEffect(true);
             }
-            
+
             double srcSceneX = dragSourceFrames.get(0).getNode().localToScene(0, 0).getX();
             double srcSceneY = dragSourceFrames.get(0).getNode().localToScene(0, 0).getY();
             icon.layoutXProperty().bind(mouseDragXProperty.subtract(mouseSceneX - srcSceneX));
@@ -759,7 +759,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             mouseDragYProperty.set(p.getY());
 
             checkHoverDuringDrag(sceneX, sceneY, dragType);
-            
+
             // We must notify the tab regardless of whether we're in bounds.
             // If we're out of bounds, they will need to turn off drag target:
             if (tabPane.getSelectionModel().getSelectedItem() instanceof FrameEditorTab)
@@ -824,7 +824,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                     hoverTab = t;
                     if (hoverTabTask != null)
                         hoverTabTask.run();
-                    
+
                     hoverTabTask = JavaFXUtil.runAfter(Duration.millis(500), () -> {
                         ((FrameEditorTab)tabPane.getSelectionModel().getSelectedItem()).draggedToAnotherTab();
                         tabPane.getSelectionModel().select(t);
@@ -845,17 +845,17 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         if (hoverTabTask != null)
             hoverTabTask.run();
         hoverTab = null;
-        
+
         if (!dragSourceFrames.isEmpty())
         {
             // Stop showing drag icons:
             getDragPane().getChildren().remove(dragIcon);
             dragIcon = null;
 
-            
+
             // Turn off the highlight:
             dragSourceFrames.forEach(f -> f.setDragSourceEffect(false));
-            
+
             // Must notify both tab and shelf:
             if (tabPane.getSelectionModel().getSelectedItem() instanceof FrameEditorTab)
             {

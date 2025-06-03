@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2012,2014,2015,2016,2018,2025  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -51,7 +51,7 @@ public class BlueJFileReader
     private static final int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
     private static final String spaces = "                                        ";
     private static final char TAB_CHAR = '\t';
-    
+
     /**
      * Read a help text out of a help file.
      * <p>
@@ -136,7 +136,7 @@ public class BlueJFileReader
         if(pattern.length() == 0) {
             return false;
         }
-        
+
         if(pattern.charAt(pattern.length()-1) == '*') {
             if(pattern.charAt(0) == '*') {  // * at both ends
                 pattern = pattern.substring(1, pattern.length()-3);
@@ -250,11 +250,11 @@ public class BlueJFileReader
         InputStreamReader in = null;
         OutputStreamWriter out = null;
         String newline = System.getProperty("line.separator");
-      
+
         try {
             in = new InputStreamReader(new ByteArrayInputStream(templateLines.stream().collect(Collectors.joining("\n")).getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
             out = new OutputStreamWriter(new FileOutputStream(dest), outputCharset);
-            
+
             for(int c; (c = in.read()) != -1; ) {
                 if(c == '$') {
                     StringBuffer buf = new StringBuffer();
@@ -282,7 +282,7 @@ public class BlueJFileReader
                         // let '$$' be an escape for single $
                         out.write('$');
                     }
-                    
+
                     if(c != -1) {
                         out.write(c);
                     }
@@ -321,7 +321,7 @@ public class BlueJFileReader
             throw e;
         }
     }
-    
+
     /**
      * Copy a file while replacing a string with another within the file.
      * <p>
@@ -333,7 +333,7 @@ public class BlueJFileReader
     {
         BufferedReader in = null;
         BufferedWriter out = null;
-      
+
         try {
             in = new BufferedReader(new FileReader(original));
             out = new BufferedWriter(new FileWriter(destination));
@@ -351,7 +351,7 @@ public class BlueJFileReader
                 }
                 out.newLine();
             }
-            
+
             in.close();
             out.close();
         }
@@ -365,7 +365,7 @@ public class BlueJFileReader
             throw e;
         }
     }
-    
+
     /**
      * Convert tab chars to the applicable number of spaces
      */
@@ -373,7 +373,7 @@ public class BlueJFileReader
     {
        return tabString.replaceAll("\t", tabAsSpace());
     }
-    
+
     /**
      * return a String representing the number of spaces to be used in replacing a tab character
      */
@@ -381,7 +381,7 @@ public class BlueJFileReader
     {
         return spaces.substring(0, tabSize);
     }
-    
+
     /**
      * Converts encoded &#92;uxxxx to unicode chars <br> 
      * 
@@ -392,7 +392,7 @@ public class BlueJFileReader
         char aChar;
         int len = theString.length();
         StringBuffer outBuffer = new StringBuffer(len);
-        
+
         for(int x=0; x<len; ) {
             aChar = theString.charAt(x++);
             if (aChar == '\\') {

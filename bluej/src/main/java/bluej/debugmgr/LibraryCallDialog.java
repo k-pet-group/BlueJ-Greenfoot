@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2016,2018,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -95,7 +95,7 @@ public class LibraryCallDialog extends Dialog<CallableView>
         initModality(Modality.WINDOW_MODAL);
         Config.addDialogStylesheets(getDialogPane());
         setResultConverter(this::calculateResult);
-        
+
         this.pkg = pkg;
         this.classLoader = classLoader;
         currentViews = FXCollections.observableArrayList();
@@ -116,11 +116,11 @@ public class LibraryCallDialog extends Dialog<CallableView>
     private void showDocumentation()
     {
         String className = classField.getEditor().getText();
-        
+
         // Assume unqualified classes are in java.lang
         if(className.indexOf('.') == -1)
             className = "java.lang." + className;
-        
+
         pkg.getProject().getDefaultFXTabbedEditor().openJavaCoreDocTab(className, "#constructor_summary");
     }
 
@@ -237,14 +237,14 @@ public class LibraryCallDialog extends Dialog<CallableView>
             classPanel.getChildren().setAll(classLabel, classField, docButton);
         }
 
-    
+
         methodList = new ListView<>();
         JavaFXUtil.addStyleClass(methodList, "library-call-methods");
         methodList.setEditable(false);
         methodList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         methodList.setItems(currentViews);
         JavaFXUtil.addChangeListenerAndCallNow(methodList.getSelectionModel().selectedItemProperty(), newVal -> getDialogPane().lookupButton(ButtonType.OK).setDisable(newVal==null));
-        
+
         textOverlay = new Label();
         methodList.setCellFactory(v -> {
             ListCell<CallableView> cell = new TextFieldListCell<>(new StringConverter<CallableView>()

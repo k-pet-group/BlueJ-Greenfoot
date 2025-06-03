@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2015,2016,2017,2019,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -94,11 +94,11 @@ public abstract class CallDialog extends Dialog<Void>
     protected final ObjectBenchInterface bench;
 
     protected String defaultParamValue = "";
-    
+
     // Text Area
     private Pane descPanel;
     protected TextField focusedTextField;
-    
+
     protected CallHistory history;
     private DialogPaneAnimateError dialogPane;
     private ContextMenu actorPickMenu;
@@ -172,7 +172,7 @@ public abstract class CallDialog extends Dialog<Void>
             actorPickMenu.hide();
             actorPickMenu = null;
         }
-        
+
         NamedValue[] values = obe.getValues();
         if (values.length == 1)
         {
@@ -393,7 +393,7 @@ public abstract class CallDialog extends Dialog<Void>
         }
         return args;
     }
-    
+
     /**
      * Returns false if any of the parameter fields are empty
      */
@@ -411,7 +411,7 @@ public abstract class CallDialog extends Dialog<Void>
         }
         return true;
     }
-    
+
     /**
      * Returns false if some of the typeParameter fields are empty.
      * That is: if one or more type parameters, but not all, are typed in
@@ -441,7 +441,7 @@ public abstract class CallDialog extends Dialog<Void>
         }
         return true;
     }
-    
+
     /**
      * Build the dialog.
      *
@@ -544,7 +544,7 @@ public abstract class CallDialog extends Dialog<Void>
             }
         }
     }
-    
+
     /**
      * For a generic class this will return the type parameters if any has been
      * typed in. Otherwise it will just return an empty array.
@@ -586,7 +586,7 @@ public abstract class CallDialog extends Dialog<Void>
     {
         CallableView method = getCallableView();
         boolean raw = targetIsRaw();
-        
+
         // first construct a type parameter map which includes not only
         // type parameters from the declaring class, but also those from this
         // particular call
@@ -595,7 +595,7 @@ public abstract class CallDialog extends Dialog<Void>
         if (typeParameterMap != null) {
             typeMap.putAll(typeParameterMap);
         }
-        
+
         String [] typeParams = getTypeParams();
         TypeParamView[] formalTypeParamViews = getFormalTypeParams(method);                  
         int len = typeParams.length;
@@ -605,13 +605,13 @@ public abstract class CallDialog extends Dialog<Void>
             JavaType actualType = new TextType(typeParams[i]);
             typeMap.put(formalType.getTparName(), actualType);
         }
-        
+
         // Map type parameter names in arguments to the corresponding types
         JavaType[] params = method.getParamTypes(raw);
         for (int i = 0; i < params.length; i++) {
             params[i] = params[i].mapTparsToTypes(typeMap).getUpperBound();
         }
-        
+
         // handle varargs expansion
         if (hasVarArgs(method, params) && varArgsExpanded) {
             int totalParams = parameterList.actualCount();
@@ -658,17 +658,17 @@ public abstract class CallDialog extends Dialog<Void>
     {
         return null;
     }
-    
+
     protected abstract CallableView getCallableView();
-    
+
     protected boolean targetIsRaw()
     {
         return false;
     }
-    
+
     protected Map<String,GenTypeParameter> getTargetTypeArgs()
     {
         return Collections.emptyMap();
     }
-    
+
 }

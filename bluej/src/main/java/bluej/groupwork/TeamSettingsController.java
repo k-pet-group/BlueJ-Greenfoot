@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -78,13 +78,13 @@ public class TeamSettingsController
         Object instance = c.getDeclaredConstructor().newInstance();
         return (TeamworkProvider) instance;            
     }
-    
+
     private Project project;
     private File projectDir;
     private Properties teamProperties;
     private TeamSettingsDialog teamSettingsDialog;
     private TeamSettings settings;
-    
+
     //general
     private String password;
     private final SecretKey pwdAESKey;
@@ -125,10 +125,10 @@ public class TeamSettingsController
     }
 
     private File teamdefs;
-    
+
     // repository
     private Repository repository;
-    
+
     /**
      * Construct a team settings controller for the given project.
      */
@@ -164,7 +164,7 @@ public class TeamSettingsController
         repository = null;
         disableRepositorySettings();
     }
-    
+
     /**
      * Get the teamwork providers (Git).
      */
@@ -220,7 +220,7 @@ public class TeamSettingsController
                 }
             }
         }
-        
+
         return repository;
     }
 
@@ -240,7 +240,7 @@ public class TeamSettingsController
     {
         return initRepository(true);
     }
-    
+
     /**
      * Initialise the repository, with optional authentication details. This can be used to
      * intialise the repository without opening the team settings dialog.
@@ -249,7 +249,7 @@ public class TeamSettingsController
     {
         return trytoEstablishRepository(auth) != null;
     }
-    
+
     /**
      * Get a list of files (and possibly directories) in the project which should be
      * under version control management. This includes files which have been locally
@@ -261,22 +261,22 @@ public class TeamSettingsController
     public Set<File> getProjectFiles(boolean includeLayout)
     {
         initRepository(); // make sure the repository is constructed
-        
+
         boolean versionsDirs = false;
         if (repository != null) {
             versionsDirs = repository.versionsDirectories();
         }
-        
+
         // Get a list of files to commit
         Set<File> files = project.getFilesInProject(includeLayout, versionsDirs);
-        
+
         if (repository != null) {
             repository.getAllLocallyDeletedFiles(files);
         }
-        
+
         return files;
     }
-    
+
     /**
      * Get a filename filter suitable for filtering out files which we don't want
      * to be under version control.
@@ -290,7 +290,7 @@ public class TeamSettingsController
         }
         return new CodeFileFilter(getIgnoreFiles(), includeDirectories, projectDir, repositoryFilter);
     }
-    
+
     /**
      * Read the team setup file in the top level folder of the project
      */
@@ -300,7 +300,7 @@ public class TeamSettingsController
 
         try {
             teamProperties.load(new FileInputStream(teamdefs));
-            
+
             initSettings();
         }
         catch (FileNotFoundException e) {
@@ -312,7 +312,7 @@ public class TeamSettingsController
             e.printStackTrace();
         }
     }
-    
+
     /**
      * checks if a project has a team.defs if it doesn't, then return false
      * @param projDir File object representing the directory where team.defs is located.
@@ -337,19 +337,19 @@ public class TeamSettingsController
         }
         return false;
     }
-    
+
     private void initSettings()
     {
         String user = getPropString("bluej.teamsettings.user");
         if (user == null) {
             user = "";
         }
-        
+
         String yourName = getPropString("bluej.teamsettings.yourName");
         if (yourName == null){
             yourName = "";
         }
-        
+
         String yourEmail = getPropString("bluej.teamsettings.yourEmail");
         if (yourEmail == null){
             yourEmail = "";
@@ -362,7 +362,7 @@ public class TeamSettingsController
                 provider = teamProvider;
             }
         }        
-        
+
         // Passwords are handled in a specific way: if saving the password was enabled we get it here
         // otherwise we do nothing: the password will be ask on demand when needed and only used for the session
         String savedPassword = getPropString("bluej.teamsettings.savedpwd");
@@ -391,24 +391,24 @@ public class TeamSettingsController
     }
 
     public TeamSettings initProviderSettings(String user, String password) {
-        
+
         String keyBase = "bluej.teamsettings."
             + teamProvider.getProviderName().toLowerCase() + ".";
-        
+
         String prefix = getPropString(keyBase + "repositoryPrefix");
         String server = getPropString(keyBase + "server");
         int port = getPropInt(keyBase + "port");
-        
+
         String protocol = getPropString(keyBase + "protocol");
 
         String branch = getPropString(keyBase + "branch");
-        
+
         // We don't need an extra property for knowing if the password should be saved
         boolean savepassword = getPropString(keyBase + "savedpwd") != null;
 
         return new TeamSettings(protocol, server, port, prefix, branch, user, password, savepassword);
     }
-    
+
     /**
      * Prepare for the deletion of a directory. For CVS, this involves moving
      * the metadata elsewhere. Returns true if the directory should actually
@@ -422,7 +422,7 @@ public class TeamSettingsController
             return false;
         return repository.prepareDeleteDir(dir);
     }
-    
+
     /**
      * Prepare a newly created directory for version control.
      */
@@ -459,7 +459,7 @@ public class TeamSettingsController
 
         return teamSettingsDialog;
     }
-    
+
     /**
      * Disable the repository fields in the team settings dialog if
      * we have a project attached.
@@ -472,7 +472,7 @@ public class TeamSettingsController
             teamSettingsDialog.disableRepositorySettings();
         }
     }
-    
+
     /**
      * Write the settings to team.defs in the project. It no project is known,
      * nothing happens. Note that nothing is written to bluej.properties. That
@@ -577,18 +577,18 @@ public class TeamSettingsController
         if (key != null)
             teamProperties.setProperty(key, ""+ value);
     }
-    
+
     public void updateSettings(TeamSettings newSettings)
     {
         settings = newSettings;
-        
+
         String userKey = "bluej.teamsettings.user";
         String userValue = settings.getUserName();
         setPropString(userKey, userValue);
-        
+
         String yourNameKey = "bluej.teamsettings.yourName";
         String yourNameValue = "";
-        
+
         yourNameValue = settings.getYourName();
         setPropString(yourNameKey, yourNameValue);
 
@@ -598,10 +598,10 @@ public class TeamSettingsController
         setPropString(yourEmailKey, yourEmailValue);
 
         String providerKey = "bluej.teamsettings.vcs";
-        
+
         String providerName = teamProvider.getProviderName().toLowerCase();
         setPropString(providerKey, providerName);
-        
+
         String keyBase = "bluej.teamsettings."
                 + providerName + ".";
         String serverKey = keyBase + "server";
@@ -633,7 +633,7 @@ public class TeamSettingsController
         // if the password is to be saved, we do so here. In case of failure, we cancel the save password option
         if(!setSavedPassword(settings.getSavePassword(), passValue))
             settings.setSavePassword(false);
-        
+
         if (repository != null) {
             TeamSettings settings = getTeamSettingsDialog().getSettings();
             repository.setPassword(settings);
@@ -717,7 +717,7 @@ public class TeamSettingsController
             if (key.startsWith("bluej.teamsettings.cvs.ignore")) {
                 patterns.add(teamProperties.getProperty(key));
             }
-            
+
             // new settings
             if (key.startsWith("bluej.teamsettings.ignore")) {
                 patterns.add(teamProperties.getProperty(key));
@@ -731,7 +731,7 @@ public class TeamSettingsController
     {
         return project != null;
     }
-    
+
     public Project getProject()
     {
         return project;

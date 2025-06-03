@@ -202,7 +202,7 @@ public final class FlowActions
                     })
             ));
         }
-        
+
         //add the actions to "allActions"
         actions.values().forEach(flowAction -> allActions.put(editor, this));
     }
@@ -1075,7 +1075,7 @@ public final class FlowActions
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.NUMPAD0, SHORTCUT_MASK), "reset-font"); //support of the numpad 0
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.SPACE, KeyCombination.CONTROL_DOWN), "code-completion");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.I, SHIFT_SHORTCUT_MASK), "autoindent");
-        
+
         updateKeymap();
     }
 
@@ -1727,7 +1727,7 @@ public final class FlowActions
                     while (Character.isWhitespace(getTextComponent().getDocument().getContent(contentStart, contentStart + 1).charAt(0)) && contentStart < lineEnd)
                         contentStart += 1;
                 }
-                
+
                 if (getTextComponent().getCaretPosition() == contentStart)
                 {
                     moveCaret(lineStart);
@@ -1966,7 +1966,7 @@ public final class FlowActions
     }
 
     // -------------------------------------------------------------------
-    
+
     class NextWordAction extends FlowActionWithOrWithoutSelection
     {
         public NextWordAction(boolean withSelection)
@@ -2123,24 +2123,24 @@ public final class FlowActions
             }
         });
     }
-    
+
     private FlowAbstractAction compileOrNextErrorAction()
     {
         return action("compile", Category.MISC, () -> getClearedEditor().compileOrShowNextError());
     }
-    
+
     private FlowAbstractAction toggleInterfaceAction()
     {
         return action("toggle-interface-view", Category.MISC, () -> {
             getClearedEditor().toggleInterface();
         });
     }
-    
+
     private FlowAbstractAction toggleBreakPointAction()
     {
         return action("toggle-breakpoint", Category.MISC, () -> getClearedEditor().toggleBreakpoint());
     }
-    
+
     private FlowAbstractAction keyBindingsAction()
     {
         return action("key-bindings", Category.MISC, () -> getClearedEditor().showPreferences(1)); // 1 is the index of the key bindings pane in the pref dialog
@@ -2150,7 +2150,7 @@ public final class FlowActions
     {
         return action("preferences", Category.MISC, () -> getClearedEditor().showPreferences(0)); // 0 is the index of the editor pane in the pref dialog
     }
-    
+
     private FlowAbstractAction goToLineAction()
     {
         return action("go-to-line", Category.MISC, () -> getClearedEditor().goToLine());

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2015,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -37,7 +37,7 @@ import threadchecker.Tag;
 public class GenTypeArray extends GenTypeSolid
 {
     JavaType baseType;
-    
+
     /**
      * Construct a new GenTypeArray, with the given component type.
      */
@@ -51,7 +51,7 @@ public class GenTypeArray extends GenTypeSolid
     {
         return baseType.toString(stripPrefix) + "[]";
     }
-    
+
     public String toString(NameTransform nt)
     {
         return baseType.toString(nt) + "[]";
@@ -68,7 +68,7 @@ public class GenTypeArray extends GenTypeSolid
     {
         return "[" + baseType.getUpperBound().arrayComponentName();
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public JavaType getCapture()
@@ -79,12 +79,12 @@ public class GenTypeArray extends GenTypeSolid
         }
         return baseCap.getArray();
     }
-        
+
     public JavaType getArrayComponent()
     {
         return baseType;
     }
-    
+
     public GenTypeSolid getLowerBound()
     {
         return this;
@@ -96,7 +96,7 @@ public class GenTypeArray extends GenTypeSolid
     {
         return baseType.equals(other.getArrayComponent());
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public void erasedSuperTypes(Set<Reflective> s)
@@ -140,13 +140,13 @@ public class GenTypeArray extends GenTypeSolid
             s.add(new JavaReflective(aClass).getArrayOf());
         }
     }
-    
+
     @Override
     public GenTypeArray getArray()
     {
         return new GenTypeArray(this);
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public JavaType getErasedType()
@@ -159,7 +159,7 @@ public class GenTypeArray extends GenTypeSolid
             return baseErased.getArray();
         }
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public void getParamsFromTemplate(Map<String, GenTypeParameter> map,
@@ -170,14 +170,14 @@ public class GenTypeArray extends GenTypeSolid
             baseType.getParamsFromTemplate(map, ntemplate);
         }
     }
-        
+
     @Override
     public GenTypeClass[] getReferenceSupertypes()
     {
         // There's not really much we can do here
         return new GenTypeClass[0];
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public GenTypeParameter mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
@@ -197,7 +197,7 @@ public class GenTypeArray extends GenTypeSolid
         }
         return this;
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public boolean isAssignableFrom(JavaType t)
@@ -208,7 +208,7 @@ public class GenTypeArray extends GenTypeSolid
         }
         return false;
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public boolean isAssignableFromRaw(JavaType t)
@@ -219,11 +219,11 @@ public class GenTypeArray extends GenTypeSolid
         }
         return false;
     }
-    
+
     @Override
     public boolean isInterface()
     {
         return false;
     }
-    
+
 }

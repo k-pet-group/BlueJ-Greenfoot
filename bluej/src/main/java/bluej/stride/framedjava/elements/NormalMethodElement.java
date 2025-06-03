@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -54,7 +54,7 @@ public class NormalMethodElement extends MethodWithBodyElement
     private boolean finalModifier = false;
     private final TypeSlotFragment returnType;
     private final NameDefSlotFragment name;
-    
+
     public NormalMethodElement(NormalMethodFrame frame, AccessPermissionFragment access, boolean staticModifier, 
             boolean finalModifier, TypeSlotFragment returnType, NameDefSlotFragment name, List<ParamFragment> params,
             List<ThrowsTypeFragment> throwsTypes, List<CodeElement> contents, JavadocUnit documentation, boolean enabled)
@@ -65,49 +65,49 @@ public class NormalMethodElement extends MethodWithBodyElement
         this.returnType = returnType;
         this.name = name;
     }
-    
+
     public NormalMethodElement(Element el)
     {
         super(el);
-        
+
         Attribute staticAttribute = el.getAttribute("static");
         staticModifier = (staticAttribute == null) ? false : Boolean.valueOf(staticAttribute.getValue());
-        
+
         Attribute finalAttribute = el.getAttribute("final");
         finalModifier = (finalAttribute == null) ? false : Boolean.valueOf(finalAttribute.getValue());
-        
+
         returnType = new TypeSlotFragment(el.getAttributeValue("type"), el.getAttributeValue("type-java"));
         name = new NameDefSlotFragment(el.getAttributeValue("name"));
     }
-    
+
     public NormalMethodElement(String access, String returnType, String name, List<Entry<String,String>> params, 
             List<CodeElement> contents, String documentation)
     {
         super(access, params, contents, documentation);
-        
+
         this.returnType = new TypeSlotFragment(returnType, returnType);
         this.name = new NameDefSlotFragment(name);
     }
-    
+
     @Override
     public JavaSource toJavaSource()
     {
         List<JavaFragment> header = new ArrayList<>();
-        
+
         if (staticModifier) {
             header.add(f(frame, "static "));
         }
         if (finalModifier) {
             header.add(f(frame, "final "));
         }
-        
+
         Collections.addAll(header, access, space(), returnType, space(),  name, f(frame, "("));
-        
+
         ParamFragment.addParamsToHeader(frame, this, params, header);
         header.add(f(frame, ")"));
-        
+
         header.addAll(throwsToJava());
-        
+
         return JavaSource.createMethod(frame, this, this, documentation, header, CodeElement.toJavaCodes(contents));
     }
 
@@ -116,26 +116,26 @@ public class NormalMethodElement extends MethodWithBodyElement
     {
         LocatableElement methodEl = new LocatableElement(this, ELEMENT);
         accessToXML(methodEl);
-        
+
         if (staticModifier) {
             methodEl.addAttribute(new Attribute("static", "true"));
         }
         if (finalModifier) {
             methodEl.addAttribute(new Attribute("final", "true"));
         }
-        
+
         methodEl.addAttributeStructured("type", returnType);
         methodEl.addAttributeCode("name", name);
-        
+
         addEnableAttribute(methodEl);
-        
+
         methodEl.appendChild(documentation.toXML());
         paramsToXML(methodEl);
         throwsToXML(methodEl);
         bodyToXML(methodEl);
         return methodEl;
     }
-    
+
     @Override
     public Frame createFrame(InteractionManager editor)
     {
@@ -144,7 +144,7 @@ public class NormalMethodElement extends MethodWithBodyElement
         setupFrame(editor);
         return frame;
     }
-    
+
     @Override
     public String getType()
     {
@@ -155,7 +155,7 @@ public class NormalMethodElement extends MethodWithBodyElement
     {
         return name.getContent();
     }
-    
+
     @Override
     public void show(ShowReason reason)
     {
@@ -181,7 +181,7 @@ public class NormalMethodElement extends MethodWithBodyElement
         }
         return true;
     }
-    
+
     @Override
     protected Stream<SlotFragment> getDirectSlotFragments()
     {

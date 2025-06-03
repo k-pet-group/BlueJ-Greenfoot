@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2017  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -216,7 +216,7 @@ public class NodeTree<T extends RBTreeNode<T>>
             nt = nt.parent;
         }
     }
-    
+
     /**
      * Set the size of the contained ParsedNode, without moving nodes to the right of it.
      * See also resize().
@@ -247,7 +247,7 @@ public class NodeTree<T extends RBTreeNode<T>>
             nt = nt.parent;
         }
     }
-    
+
     /**
      * Move the node's beginning, but not its end position. This shrinks or grows
      * the node accordingly. The position of any subsequent node is not affected.
@@ -575,7 +575,7 @@ public class NodeTree<T extends RBTreeNode<T>>
             rotateLeft(grandparent);
         }
     }
-    
+
     /**
      * Swap the data of two nodes. This doesn't correctly adjust the
      * pnode offset in either node.
@@ -616,7 +616,7 @@ public class NodeTree<T extends RBTreeNode<T>>
         n.right.black = nblack;
 
         n.pnodeOffset += n.right.pnodeOffset + n.right.pnodeSize;
-        
+
         if (n.left == null) {
             // A simple case.
             //assert(n.right.left == null);
@@ -628,7 +628,7 @@ public class NodeTree<T extends RBTreeNode<T>>
             n.left.right = null;
             return;
         }
-        
+
         NodeTree<T> oldLeft = n.left;
         n.left = n.right;
         n.right = n.left.right;
@@ -641,7 +641,7 @@ public class NodeTree<T extends RBTreeNode<T>>
             oldLeft.parent = n.left;
         }
     }
-    
+
     private static <T extends RBTreeNode<T>> void rotateRight(NodeTree<T> n)
     {
         // Left child of n becomes n's parent
@@ -663,7 +663,7 @@ public class NodeTree<T extends RBTreeNode<T>>
             n.right.pnodeOffset -= (n.pnodeOffset + n.pnodeSize);
             return;
         }
-                
+
         NodeTree<T> oldRight = n.right;
         n.right = n.left;
         n.left = n.right.left;
@@ -675,10 +675,10 @@ public class NodeTree<T extends RBTreeNode<T>>
         if (oldRight != null) {
             oldRight.parent = n.right;
         }
-        
+
         n.right.pnodeOffset -= (n.pnodeOffset + n.pnodeSize);
     }
-    
+
     private NodeTree<T> getGrandparent()
     {
         if (parent != null) {
@@ -744,12 +744,12 @@ public class NodeTree<T extends RBTreeNode<T>>
         {
             return size;
         }
-        
+
         public int getEnd()
         {
             return position + size;
         }
-        
+
         /**
          * Find the next sibling node - that is, the sibling that occurs closest after this one in
          * terms of position. If the node tree is manipulated only via methods on this object then
@@ -773,7 +773,7 @@ public class NodeTree<T extends RBTreeNode<T>>
                 }
                 return new NodeAndPosition<T>(nt.pnode, offs + nt.pnodeOffset, nt.pnodeSize);
             }
-            
+
             // Otherwise go up until we have gone up to the right
             int offs = position - nt.pnodeOffset;
             while (nt.parent != null) {
@@ -784,10 +784,10 @@ public class NodeTree<T extends RBTreeNode<T>>
                 nt = nt.parent;
                 offs -= (nt.pnodeOffset + nt.pnodeSize); 
             }
-            
+
             return null; // no prior node
         }
-        
+
         /**
          * Find the previous sibling node - that is, the sibling that occurs closest before this one in
          * terms of position. If the node tree is manipulated only via methods on this object then
@@ -808,7 +808,7 @@ public class NodeTree<T extends RBTreeNode<T>>
                 }
                 return new NodeAndPosition<T>(nt.pnode, offs + nt.pnodeOffset, nt.pnodeSize);
             }
-            
+
             // Otherwise go up until we have gone up to the left
             while (nt.parent != null) {
                 int offs = position - nt.pnodeOffset;
@@ -818,10 +818,10 @@ public class NodeTree<T extends RBTreeNode<T>>
                 }
                 nt = nt.parent;
             }
-            
+
             return null; // no prior node
         }
-        
+
         /**
          * Slide the node and all following nodes by the given amount.
          */
@@ -830,7 +830,7 @@ public class NodeTree<T extends RBTreeNode<T>>
             getNode().slide(amount);
             position += amount;
         }
-        
+
         /**
          * Slide the start of the node by the given amount, but leave its end in place.
          */
@@ -840,7 +840,7 @@ public class NodeTree<T extends RBTreeNode<T>>
             position += amount;
             size -= amount;
         }
-        
+
         /**
          * Resize the node. Any following nodes will move accordingly.
          */
@@ -849,7 +849,7 @@ public class NodeTree<T extends RBTreeNode<T>>
             getNode().resize(newSize);
             size = newSize;
         }
-        
+
         /**
          * Set the size of the contained node, without moving following nodes. It is the
          * caller's responsibility to ensure that setting the new size does not cause the
@@ -861,7 +861,7 @@ public class NodeTree<T extends RBTreeNode<T>>
             getNode().setSize(newSize);
             size = newSize;
         }
-        
+
         /**
          * Set the size as recorded in the NodeAndPosition object, without
          * affecting the relative node.
@@ -871,7 +871,7 @@ public class NodeTree<T extends RBTreeNode<T>>
             size = newSize;
         }
     }
-    
+
     /**
      * An iterator through a node tree.
      */
@@ -941,7 +941,7 @@ public class NodeTree<T extends RBTreeNode<T>>
                 pos = (top.left != null) ? 0 : 1;
             }
         }
-        
+
         private void downStackRight()
         {
             NodeTree<T> top = current;

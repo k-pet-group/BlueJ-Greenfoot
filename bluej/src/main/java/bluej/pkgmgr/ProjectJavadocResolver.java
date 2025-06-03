@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2010,2011,2014,2015,2016,2017,2019  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -54,7 +54,7 @@ public class ProjectJavadocResolver implements JavadocResolver
 {
     private Project project;
     private CommentCache commentCache = new CommentCache();
-    
+
     public ProjectJavadocResolver(Project project)
     {
         this.project = project;
@@ -82,7 +82,7 @@ public class ProjectJavadocResolver implements JavadocResolver
                                 m -> m,                                     // ... to value
                                 (a,b) -> a)                                 // merging duplicate keys
                         );
-        
+
         try {
             Class<?> cl = project.getClassLoader().loadClass(declName);
             View clView = View.getView(cl);
@@ -113,7 +113,7 @@ public class ProjectJavadocResolver implements JavadocResolver
         if (methodSigs.isEmpty()) {
             return;
         }
-        
+
         Properties comments = commentCache.get(declName);
         if (comments == null) {
             ClassInfo classInfo = getClassInfoFromSource(declaring.getModuleName(), declName);
@@ -154,19 +154,19 @@ public class ProjectJavadocResolver implements JavadocResolver
             methodReflective.setJavaDoc("");
         }
     }
-        
+
     @Override
     public boolean getJavadocAsync(final ConstructorOrMethodReflective method, final AsyncCallback callback, Executor executor)
     {
         Reflective declaring = method.getDeclaringType();
         final String declName = declaring.getName();
         final String methodSig = buildSig(method);
-        
+
         try {
             Class<?> cl = project.getClassLoader().loadClass(declName);
             View clView = View.getView(cl);
             CallableView[] methods = method instanceof MethodReflective ? clView.getAllMethods() : clView.getConstructors();
-            
+
             for (int i = 0; i < methods.length; i++) {
                 if (methodSig.equals(methods[i].getSignature())) {
                     Comment comment = methods[i].getComment();
@@ -204,7 +204,7 @@ public class ProjectJavadocResolver implements JavadocResolver
                         //});
                         //return;
                     }
-                    
+
                     //Platform.runLater(() -> {
                         commentCache.put(declName, comments);
                         findMethodComment(comments, callback, method, methodSig, true);
@@ -218,7 +218,7 @@ public class ProjectJavadocResolver implements JavadocResolver
             return true;
         }
     }
-    
+
     /**
      * Search a set of comments for different targets to find the target we want.
      * Apply the found comment/parameter names to the method reflective, and
@@ -252,7 +252,7 @@ public class ProjectJavadocResolver implements JavadocResolver
                 break;
             }
         }
-        
+
         // We may or may not find the javadoc, notify the callback that the search has finished.
         if (postOnQueue) {
             callback.gotJavadoc(method);
@@ -275,7 +275,7 @@ public class ProjectJavadocResolver implements JavadocResolver
         String entName = target.replace('.', '/') + "." + SourceType.Java.toString().toLowerCase();
         String entNameFs = target.replace('.', File.separatorChar) + "." + SourceType.Java.toString().toLowerCase();
         EntityResolver resolver = new PackageResolver(project.getEntityResolver(), pkg);
-        
+
         for (DocPathEntry pathEntry : sourcePath) {
             File jarFile = pathEntry.getFile();
             if (jarFile.isFile()) {
@@ -324,7 +324,7 @@ public class ProjectJavadocResolver implements JavadocResolver
                 if (prefix != null && !prefix.isEmpty()) {
                     base = new File(base, prefix);
                 }
-                
+
                 File srcFile = new File(base, entNameFs);
                 FileInputStream fis = null;
                 try {
@@ -349,7 +349,7 @@ public class ProjectJavadocResolver implements JavadocResolver
                 }
             }
         }
-        
+
         // Try and load the source from the class path. This allows source to be bundled in
         // with the classes.
         String targetName = target.replace('.', '/') + "." + SourceType.Java.toString().toLowerCase();
@@ -366,10 +366,10 @@ public class ProjectJavadocResolver implements JavadocResolver
                 Debug.message("I/O exception while trying to retrieve javadoc for " + target);
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Build a method signature from a MethodReflective.
      */
@@ -392,7 +392,7 @@ public class ProjectJavadocResolver implements JavadocResolver
             if (lastDot != -1)
                 sig = sig.substring(lastDot + 1);
         }
-        
+
         sig +=  '(';
         Iterator<JavaType> i = method.getParamTypes().iterator();
         while (i.hasNext()) {
@@ -403,10 +403,10 @@ public class ProjectJavadocResolver implements JavadocResolver
             }
         }
         sig += ')';
-        
+
         return sig;
     }
-    
+
     /**
      * Find the javadoc for a given class (target) by searching the project source path.
      * In particular, this normally includes the JDK source. When source for the required
@@ -419,7 +419,7 @@ public class ProjectJavadocResolver implements JavadocResolver
         String entName = target.replace('.', '/') + ".java";
         String entNameFs = target.replace('.', File.separatorChar) + ".java";
         EntityResolver resolver = new PackageResolver(project.getEntityResolver(), pkg);
-        
+
         for (DocPathEntry pathEntry : sourcePath) {
             File jarFile = pathEntry.getFile();
             if (jarFile.isFile()) {
@@ -457,7 +457,7 @@ public class ProjectJavadocResolver implements JavadocResolver
                 if (prefix != null && !prefix.isEmpty()) {
                     base = new File(base, prefix);
                 }
-                
+
                 File srcFile = new File(base, entNameFs);
                 FileInputStream fis = null;
                 try {
@@ -482,7 +482,7 @@ public class ProjectJavadocResolver implements JavadocResolver
                 }
             }
         }
-        
+
         // Try and load the source from the class path. This allows source to be bundled in
         // with the classes.
         String targetName = target.replace('.', '/') + ".java";
@@ -499,18 +499,18 @@ public class ProjectJavadocResolver implements JavadocResolver
                 Debug.message("I/O exception while trying to retrieve javadoc for " + target);
             }
         }
-        
+
         return null;
     }
-    
+
     @Override
     public String getJavadoc(String moduleName, String className)
     {
         ClassInfo ci = getClassInfoFromSource(moduleName, className);
-        
+
         if (ci == null)
             return null;
-        
+
         return ci.getCommentsAsList().stream()
                     .filter(sc -> ci.getName().equals(sc.target))
                     .map(sc -> sc.comment)

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2018,2019,2020 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -54,7 +54,7 @@ public abstract class CodeError
     private final BooleanProperty focusedProperty = new SimpleBooleanProperty(false);
     /** The slot which this error pertains to.  Cannot be null. */
     protected final JavaFragment relevantSlot;
-    
+
     /**
      * A property to keep track of whether the error is attached to a fresh frame.
      * Errors should not be shown on frames until they become non-fresh.
@@ -64,7 +64,7 @@ public abstract class CodeError
     // To avoid the weak-reference-listener issue with JavaFX, keep a strong reference
     // to the complete of the freshProperty binding:
     private BooleanBinding staleBinding = freshProperty.not(); 
-    
+
     /** A property to keep track of whether the error indicator (i.e. the red underline)
      *  is currently showing for this error, or would be if the frame was non-fresh. */
     private final BooleanProperty showingIndicatorProperty = new SimpleBooleanProperty(false);
@@ -146,7 +146,7 @@ public abstract class CodeError
      * if none available, will not be null.
      */
     public abstract List<? extends FixSuggestion> getFixSuggestions();
-    
+
     /**
      * Gets the start position relative to slot in characters (0 is before first char)
      */
@@ -177,7 +177,7 @@ public abstract class CodeError
     {
         final boolean aIsCompile = a instanceof JavaCompileError;
         final boolean bIsCompile = b instanceof JavaCompileError;
-        
+
         final boolean overlap = a.overlaps(b);
         final boolean aIsSmallerOrEqual = a.getEndPosition() - a.getStartPosition() <= b.getEndPosition() - b.getStartPosition(); 
 

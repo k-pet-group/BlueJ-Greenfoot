@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2010,2011,2014,2019,2020,2021,2022  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -361,7 +361,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
 
     // A record for getting a token linked list but also the start of the latest scope around the line:
     public record TokenAndScope(Token tokenLinkedList, int startLatestScope){}
-    
+
     /**
      * Get a sequence of "tokens" which indicate the colour and position/size of various tokens
      * in a line of source code text.
@@ -485,7 +485,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
         // So we get back to the last named node parent to this leaf.
         if (this.parentNode == null)
             return null;
-        
+
         ParsedNode parentNode = this.parentNode;
         while (parentNode.getName() == null || (parentNode.getNodeType() != NODETYPE_METHODDEF && parentNode.getNodeType() != NODETYPE_TYPEDEF))
         {

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -118,7 +118,7 @@ public interface Editor
      *          only show the first error, for example, or the first N.
      */
     boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex, CompileType compileType);
-    
+
     /**
      * Set a step mark due to execution hitting a break point / completing a step, or selection
      * of a stack frame in the debugger.
@@ -132,7 +132,7 @@ public interface Editor
      *         false if you still want to show the ExecControls window afterwards.
      */
     boolean setStepMark(int lineNumber, String message, boolean isBreak, DebuggerThread thread);
-    
+
     /**
      *  Display a message into the info area.
      *  The message will be cleared when the caret is moved.
@@ -164,7 +164,7 @@ public interface Editor
      * @param compiled    true if the class has been compiled
      */
     void setCompiled(boolean compiled);
-    
+
     /**
      * Tells the editor that a compilation has begun
      *
@@ -174,7 +174,7 @@ public interface Editor
      * @return True if there is a known error
      */
     boolean compileStarted(int compilationSequence);
-    
+
     /**
      * Informs the editor that a compilation requested via the EditorWatcher interface has finished.
      *
@@ -188,7 +188,7 @@ public interface Editor
      * editor display to reflect this.
      */
     void removeBreakpoints();
-    
+
     /**
      * Breakpoints have been reset due to compilation or
      * similar. Re-initialize the breakpoints by re-setting them via the
@@ -228,7 +228,7 @@ public interface Editor
         @OnThread(Tag.Any)
         public boolean printProgress(int curProgress, int totalProgress);
     }
-    
+
     /**
      * Returns an action which will print the contents of the editor
      */
@@ -245,7 +245,7 @@ public interface Editor
      * @return the readOnlyStatus. If true, editor is non-editable.
      */
     boolean isReadOnly();
-    
+
     /**
      * Set the view of this editor to display either the source or the interface
      * of the class.
@@ -275,13 +275,13 @@ public interface Editor
      * TextEditor implementation is available.
      */
     TextEditor assumeText();
-    
+
     /**
      * Obtain the FrameEditor implementation of this editor, if it has one. May return null if no
      * FrameEditor implementation is available.
      */
     FrameEditor assumeFrame();
-    
+
     /**
      * Create a new method, or appending the contents if the method already exists
      *

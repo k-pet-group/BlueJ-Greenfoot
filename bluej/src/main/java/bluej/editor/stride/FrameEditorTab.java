@@ -1,21 +1,21 @@
 /*
  This file is part of the Greenfoot program. 
  Copyright (C) 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -752,8 +752,8 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                     // TODO only redraw once for each scroll
                     execNodesListenedTo.add(b.getNode());
                 }
-                
-                
+
+
                 double targetX = execHistoryCanvas.getWidth()*0.75; //bounds.getMinX() + 100;
                 double targetY = overlay.sceneYToCodeOverlayY(bounds.getMinY()) + b.getYOffset();
                 if (b.showExec(i))
@@ -928,7 +928,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     {
         if (contentRoot.getBottom() != null)
             return; // Already added
-        
+
         HBox buttons = new HBox();
         JavaFXUtil.addStyleClass(buttons, "debugger-buttons");
         ImageView stepIcon = new ImageView(Config.getFixedImageAsFXImage("step.gif"));
@@ -945,11 +945,11 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         ComboBox<ShowVars> showVars = new ComboBox<>(FXCollections.observableArrayList(ShowVars.values()));
         showVars.getSelectionModel().select(0);
         JavaFXUtil.addChangeListenerAndCallNow(showVars.getSelectionModel().selectedItemProperty(), newVal -> debugVarVisibleProperty.set(newVal == ShowVars.FIELDS));
-        
+
         buttons.getChildren().addAll(stepButton, continueButton, haltButton, showVarLabel, showVars);
         contentRoot.setBottom(buttons);
     }
-    
+
     private void hideDebuggerControls()
     {
         contentRoot.setBottom(null);
@@ -1168,7 +1168,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     {
         // Clear the selection when entering bird's eye view:
         selection.clear();
-        
+
         if (viewProperty.get() == View.NORMAL && getTopLevelFrame().canDoBirdseye())
         {
             if (viewChange != null)
@@ -1203,7 +1203,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                 calculateBirdseyeRectangle();
             }));
             JavaFXUtil.addChangeListener(viewChange.getProgress(), t -> calculateBirdseyeRectangle());
-            
+
             View oldView = viewProperty.get();
             View newView = viewProperty.get() == View.BIRDSEYE_DOC ? View.BIRDSEYE_NODOC : View.BIRDSEYE_DOC;
             changeViewMode(newView, Frame.ViewChangeReason.MENU_OR_SHORTCUT);
@@ -1424,7 +1424,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                 dragTarget = newDragTarget;
             }
         }
-        
+
         if (dragTarget != null)
         {
             dragTarget.updateDragCopyState(copying);
@@ -1446,7 +1446,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
             dragTarget = null;
         }
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public void clickNearestCursor(double sceneX, double sceneY, boolean shiftDown)
@@ -1622,7 +1622,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                 }
             }
         });
-        
+
         // Add same focus listeners as slot component:
         setupFocusable(new CursorOrSlot(f), f.getNode());
     }
@@ -1665,10 +1665,10 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                 }
             }
         });
-        
-        
+
+
         // We use "simple press-drag-release" here, so the events are all delivered to the original cursor:
-        
+
         FXTabbedEditor.setupFrameDrag(f, false, this::getParent, () -> {
             if (dragTarget != null)
             {
@@ -1678,7 +1678,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
             // No dragging allowed while showing Java preview:
             return viewProperty.get() != Frame.View.JAVA_PREVIEW;
         }, this::getSelection);
-        
+
     }
 
     @Override
@@ -1696,7 +1696,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         }
         return getTopLevelFrame().getCode();
     }
-    
+
     private void regenerateCode()
     {
         if (getTopLevelFrame() != null)
@@ -1728,7 +1728,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     {
         if (getTopLevelFrame() == null)
             return; // Still loading
-        
+
         List<ErrorInfo> errors = getAllErrors()
                 .filter(e -> e.getRelevantNode() != null)
                 .map(e -> new ErrorInfo(e.getMessage(), e.getRelevantNode(), e.visibleProperty(), e.focusedProperty(),
@@ -1753,7 +1753,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         {
             state = errors.stream().filter(e -> e.isVisible()).count()  == 0 ? ErrorState.NO_ERRORS : ErrorState.ERRORS;
         }
-        
+
         errorOverviewBar.update(errors, state);
     }
 
@@ -1864,7 +1864,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         TopLevelCodeElement codeEl = getSource();
         return codeEl.getThisConstructors();
     }
-    
+
     @Override
     public void beginRecordingState(RecallableFocus f)
     {
@@ -1876,7 +1876,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     {
         undoRedoManager.endFrameState(getCurrentState(f));
     }
-    
+
     private FrameState getCurrentState(RecallableFocus f)
     {
         regenerateCode();
@@ -1943,12 +1943,12 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         // Thus if we want to set the top edge to be at a given Y:
         //   Y = vvalue * (totalHeight - viewportHeight)
         //   vvalue = Y / (totalHeight - viewportHeight)
-        
+
         double totalMinusView = totalBound.getHeight() - scroll.getHeight();
         double targetV = Math.max(0.0, Math.min(1.0, (targetBound.getMinY() + yOffsetFromTop - totalBound.getMinY()) / totalMinusView));
-        
+
         //Debug.message("Scrolling to target: " + targetV + " on the basis of: " + targetBound + " and: " + totalBound + " and: " + scroll.getHeight());
-        
+
         // targetV is a value from 0 to 1.  Technically, the vvalue for a scroll pane
         // can be between vmin and vmax.  Practically, vmin and vmax always seem to be
         // 0 and 1, but in case that changes:
@@ -2117,10 +2117,10 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         birdseyeSelection.setWidth(n.getBoundsInLocal().getWidth());
         birdseyeSelection.setHeight(n.getBoundsInLocal().getHeight() - 1.5);
         birdseyeSelectionPane.getChildren().setAll(birdseyeSelection);
-        
+
         birdseyeSelection.setFocusTraversable(true);
         birdseyeSelection.requestFocus();
-        
+
         ensureNodeVisible(birdseyeManager.getNodeForVisibility());
     }
 
@@ -2146,14 +2146,14 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         for (AssistContentThreadSafe ac : acs)
             r.put(ac.getName(), ac);
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public void withTypes(BackgroundConsumer<Map<String, AssistContentThreadSafe>> handler)
     {
         withTypes(null, true, Kind.all(), handler);
     }
-    
+
     @OnThread(Tag.FXPlatform)
     public void removeImports(List<String> importTargets)
     {
@@ -2166,7 +2166,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                 if (frame instanceof ImportFrame)
                 {
                     ImportFrame importFrame = (ImportFrame)frame;
-                    
+
                     if (importTargets.contains(importFrame.getImport()))
                     {
                         importCanvas.removeBlock(importFrame);
@@ -2175,7 +2175,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
             }
         }));
     }
-    
+
     @OnThread(Tag.FXPlatform)
     public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
     {
@@ -2193,7 +2193,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
             after.accept(true);
         });
     }
-    
+
     @OnThread(Tag.FXPlatform)
     public void insertMethodCallInConstructor(CallElement methodCall, FXPlatformConsumer<Boolean> after)
     {
@@ -2254,7 +2254,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     {
         getTopLevelFrame().addImport(importSrc);
     }
-    
+
     @Override
     public List<FileCompletion> getAvailableFilenames()
     {
@@ -2316,14 +2316,14 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         {
             errors = getAllErrors().iterator();
         }
-        
+
         if (!errors.hasNext())
         {
             // If there are no errors, we perform a real compilation, keeping class files:
             editor.getWatcher().scheduleCompilation(true, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
             return;
         }
-        
+
         while (errors.hasNext())
         {
             CodeError e = errors.next();
@@ -2336,7 +2336,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         // If we still didn't find one, cancel our fresh state:
         cancelFreshState();
     }
-    
+
     // You can pass null.
     @Override
     public void registerStackHighlight(Frame frame)
@@ -2400,7 +2400,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
 
         setupFocusable(new CursorOrSlot(parent), node);
     }
-    
+
     private void setupFocusable(CursorOrSlot parent, Node node)
     {
         FXRunnable checkPositionChange = new FXRunnable() {
@@ -2451,32 +2451,32 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                 {
                     getTopLevelFrame().ensureImportCanvasShowing();
                 }
-                
+
                 if (!animatingScroll && !anyButtonsPressed)
                 {
                     // focusedItem.set above, will have set this to false if it's a new owner.
                     if (!manualScrolledSinceLastFocusChange)
                         ensureNodeVisible(node);
                 }
-                
+
                 if (getTopLevelFrame() != null)
                 {
                     // Have to take it into a list, as some slots vanish when they lose focus, which
                     // causes an exception in the underlying stream iterator:
                     List<EditableSlot> lostFocusSlots = getTopLevelFrame().getEditableSlots().filter(s -> !parent.matchesSlot(s)).collect(Collectors.toList());
                     lostFocusSlots.forEach(EditableSlot::lostFocus);
-                    
+
                     // We need to find the focused frame.  That frame, and its direct slots,
                     // and all its ancestor frames and their direct slots, if fresh, should not show errors.
                     // Every other frame and slot become no longer fresh, and thus will show errors.
-                    
+
                     Frame focusedFrame = parent.getParentFrame();
                     HashSet<Frame> frameAndAncestors = new HashSet<>();
                     for (Frame f = focusedFrame; f != null; f = f.getParentCanvas() == null ? null : f.getParentCanvas().getParent().getFrame())
                     {
                         frameAndAncestors.add(f);
                     }
-                    
+
                     // Now go through all frames, and if they are not in frameAndAncestors set,
                     // mark them as non-fresh.
                     for (Frame f : Utility.iterableStream(getTopLevelFrame().getAllFrames()))
@@ -2490,8 +2490,8 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                         if (f != focusedFrame)
                             f.lostFocus();
                     }
-                    
-                    
+
+
                 }
             }
             else
@@ -2508,7 +2508,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     public void ensureNodeVisible(Node node)
     {
         Bounds boundsInScroll = boundsInScroll(node);
-        
+
         if (boundsInScroll == null)
             return;
 
@@ -2569,7 +2569,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     {
         return loading;
     }
-    
+
     @Override
     public boolean isEditable()
     {
@@ -2888,7 +2888,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                     }
                 }
             });
-                
+
             JavaFXUtil.addStyleClass(bannerText, "banner-undo-delete-text");
             Button undoButton = new Button(Config.getString("frame.undobanner.button"));
             JavaFXUtil.addStyleClass(undoButton, "banner-undo-delete-button");
@@ -2899,7 +2899,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
             bannerText.getChildren().addAll(new Text(Config.getString("frame.undobanner.text") + " "), undoButton);
             Button close = new Button(Config.getString("frame.undobanner.close"));
             JavaFXUtil.addStyleClass(close, "banner-undo-delete-close");
-            
+
             countdown.addOnFinished(() -> {
                 bannerPane.getChildren().remove(banner);
                 undoBannerShowing = false;

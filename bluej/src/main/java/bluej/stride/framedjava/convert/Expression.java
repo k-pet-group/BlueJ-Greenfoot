@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2016,2017 Michael Kölling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -114,7 +114,7 @@ class Expression
         warnIncDec();
         return new FilledExpressionSlotFragment(stride, java);
     }
-    
+
     OptionalExpressionSlotFragment toOptional()
     {
         warnIncDec();
@@ -168,7 +168,7 @@ class Expression
         // If we need to display to the user, display the original Java:
         return java;
     }
-    
+
     public String getJava()
     {
         return java;
@@ -222,7 +222,7 @@ class Expression
         // If it was < 10, we have to subtract one to get inclusive bound of 9:
         return Integer.toString(Integer.decode(token.getText()) + (comparisonToken.getType() == JavaTokenTypes.LT ? -1 : 0)); 
     }
-    
+
     public boolean isIncrementByOne(String varName)
     {
         // Four different possibilities:
@@ -273,7 +273,7 @@ class Expression
             }
             else
                 return false;
-                    
+
         }
         else
             return false;

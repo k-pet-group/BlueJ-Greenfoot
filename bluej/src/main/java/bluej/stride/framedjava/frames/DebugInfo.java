@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -68,9 +68,9 @@ public class DebugInfo
     @OnThread(Tag.Any)
     public DebugInfo()
     {
-        
+
     }
-    
+
     @OnThread(Tag.Any)
     public synchronized void addVarState(Map<String,DebugVarInfo> state, int index)
     {
@@ -78,7 +78,7 @@ public class DebugInfo
         this.state = state;
         this.stateIndex = index;
     }
-    
+
     @OnThread(Tag.FXPlatform)
     public synchronized Display getInfoDisplay(FrameCursor f, Node frameNode, String stylePrefix, boolean isBeforeBreakpointFrame)
     {
@@ -106,7 +106,7 @@ public class DebugInfo
             return d;
         }
     }
-    
+
     public void removeAllDisplays(List<Node> disps)
     {
         Iterator<Entry<FrameCursor, Display>> it = displays.entrySet().iterator();
@@ -169,7 +169,7 @@ public class DebugInfo
             JavaFXUtil.addStyleClass(this, "debug-info-surround");
             if (stylePrefix != null && !stylePrefix.isEmpty())
                 JavaFXUtil.setPseudoclass("bj-" + stylePrefix + "debug", true, this);
-            
+
             curDisplay.addListener((prop, prev, now) -> {
                 if (prev.intValue() >= 0 && prev.intValue() < varDisplay.size())
                     getChildren().remove(varDisplay.get(prev.intValue()));
@@ -183,7 +183,7 @@ public class DebugInfo
                 if (parent == null && curDisplay.get() == varDisplay.size() - 1)
                     getChildren().add(0, varDisplay.get(curDisplay.get()));
             });
-            
+
             addState(prevVars, vars, varIndex);
         }
 
@@ -211,7 +211,7 @@ public class DebugInfo
             }
             return disp;
         }
-        
+
         @OnThread(Tag.FXPlatform)
         public void addState(Map<String, DebugVarInfo> prevVars, Map<String, DebugVarInfo> vars, int varIndex)
         {
@@ -228,7 +228,7 @@ public class DebugInfo
             JavaFXUtil.setPseudoclass("bj-highlight", true, this);
             pulse();
         }
-        
+
         private void left()
         {
             if (curDisplay.get() > 0)
@@ -236,7 +236,7 @@ public class DebugInfo
                 curDisplay.set(curDisplay.get() - 1);
             }
         }
-        
+
         private void right()
         {
             if (curDisplay.get() < varDisplay.size() - 1)
@@ -297,7 +297,7 @@ public class DebugInfo
                 child.varDisplay.addListener((ListChangeListener<? super Pane>)c -> updateChildren());
             }
         }
-        
+
         private void updateChildren()
         {
             for (Display child : children)
@@ -329,7 +329,7 @@ public class DebugInfo
             }
             return false;
             /*
-            
+
             return curDisplay.get() >= 0 && 
                 ((curDisplay.get() < varDisplay.size() && 
                     (varIndexes.get(curDisplay.get()) == index || 

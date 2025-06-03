@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2021,2022 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -46,7 +46,7 @@ public class ThrowFrame extends SingleLineFrame
     private ExpressionSlot<FilledExpressionSlotFragment> param1;
     private ThrowElement element;
     private SimpleIntegerProperty codeVersion;
-    
+
     /**
      * Default constructor.
      * @param editor 
@@ -64,7 +64,7 @@ public class ThrowFrame extends SingleLineFrame
         frameName = "throw " + param1.getScreenreaderText();
         param1.setSlotName("exception name");
     }
-    
+
     public ThrowFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
     {
         this(editor);
@@ -95,13 +95,13 @@ public class ThrowFrame extends SingleLineFrame
         element = new ThrowElement(this, param1.getSlotElement(), frameEnabledProperty.get());
         codeVersion.set(codeVersion.get() + 1);
     }
-    
+
     @Override
     public ThrowElement getCode()
     {
         return element;
     }
-    
+
     public static FrameFactory<ThrowFrame> getFactory()
     {
         return new FrameFactory<ThrowFrame>() {
@@ -110,7 +110,7 @@ public class ThrowFrame extends SingleLineFrame
             {
                 return new ThrowFrame(editor);
             }
-                        
+
             @Override 
             public Class<ThrowFrame> getBlockClass()
             {

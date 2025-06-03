@@ -77,7 +77,7 @@ public class TextLine extends TextFlow
     private final Path errorUnderlineShape = new Path();
     // Ranges are column locations relative to start of line, 0 is beginning.
     private final ArrayList<IndexRange> errorLocations = new ArrayList<>();
-    
+
     private List<BackgroundItem> backgroundNodes = Collections.emptyList();
     private List<StyledSegment> latestContent = Collections.emptyList();
     private final Rectangle clip;
@@ -131,7 +131,7 @@ public class TextLine extends TextFlow
         selectionShape.getElements().clear();
         selectionShape.setVisible(false);
     }
-    
+
     private void runOnceLaidOut(FXRunnable action)
     {
         if (isNeedsLayout())
@@ -172,7 +172,7 @@ public class TextLine extends TextFlow
             ((LineTo)rangeShape[2]).setY(height);
             ((LineTo)rangeShape[3]).setY(height);
         }
-        
+
         if (extendToRight)
         {
             double width = getWidth();
@@ -185,8 +185,8 @@ public class TextLine extends TextFlow
             {
                 // Selection begins at the end of the line (including case where line is blank); make the selection ourselves from right edge of text:
                 double rhs = Utility.findLast(getChildren().stream().filter(t -> t instanceof Text).map(n -> n.getBoundsInParent().getMaxX())).orElse(0.0);
-                
-                
+
+
                 rangeShape = new PathElement[] {
                     new MoveTo(rhs, 0),
                     new LineTo(width - 1.0, 0),
@@ -233,7 +233,7 @@ public class TextLine extends TextFlow
         {
             return;
         }
-        
+
         hideSelection();
         hideErrorUnderline();
         // Since getChildren() has listeners, it's a bit more optimal to construct the list and set it once
@@ -290,7 +290,7 @@ public class TextLine extends TextFlow
             double leftHandX = ((LineTo)rectShape[3]).getX();
             double rightHandX = ((LineTo)rectShape[2]).getX();
             double y = ((LineTo)rectShape[2]).getY() - 1;
-            
+
             // Minimum size for underline:
             double width = Math.max(9, rightHandX - leftHandX);
             boolean downStroke = true;
@@ -390,7 +390,7 @@ public class TextLine extends TextFlow
         {
             this(cssClasses, text, null);
         }
-        
+
         @OnThread(Tag.Any)
         public StyledSegment(List<String> cssClasses, String text, Object customData)
         {

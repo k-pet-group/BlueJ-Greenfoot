@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -106,7 +106,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * FrameContentItem is a logical container, not a GUI item directly.
      */
     protected final ObservableList<FrameContentItem> contents = FXCollections.observableArrayList();
-    
+
     /**
      * All frames have a header row, so we include it in the base class.  The header will
      * also always (I *think*) be in the contents list above, but a reference is kept separately for convenience).
@@ -175,7 +175,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     @OnThread(Tag.FXPlatform)
     public void lostFocus()
     {
-        
+
     }
 
     /**
@@ -185,7 +185,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     @OnThread(Tag.FXPlatform)
     public void insertedWithCtrl()
     {
-        
+
     }
 
     /** enum for keeping track of frame preview state */
@@ -302,13 +302,13 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             throw new NullPointerException();
         JavaFXUtil.addStyleClass(frameContents, "frame", stylePrefix + "frame");
         this.stylePrefix = stylePrefix;
-        
+
         // When we are enabled/disabled, update our child slot states and trigger a compilation.
         frameEnabledProperty.addListener((a, b, enabled) -> {
             getEditableSlotsDirect().forEach(e -> e.setEditable(enabled));
             editor.modifiedFrame(this, false);
         });
-        
+
         //Debug.time("&&&&&&   Binding effect");
 
         //  Here's the state diagram for when we are enabled/disabled, and the preview state, as to what
@@ -343,7 +343,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         JavaFXUtil.addChangeListenerAndCallNow(frameEnabledProperty, effectForUIListener);
         JavaFXUtil.addChangeListenerAndCallNow(framePreviewEnableProperty, effectForUIListener);
         JavaFXUtil.addChangeListenerAndCallNow(frameDragSourceProperty, effectForUIListener);
-        
+
         // We put some setup into the editor class because the setup requires a lot of access
         // to editor internals.  Easier to pass the editor the frame than it is to expose all
         // the editor internals to the frame.
@@ -351,8 +351,8 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         if (editor != null) {
             editor.setupFrame(this);
         }
-        
-        
+
+
         //Debug.time("&&&&&&   Making frame internals");
 
         if (caption == null)
@@ -366,14 +366,14 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
 
 
         header = makeHeader(stylePrefix);
-        
+
         // Whenever the logical containers in contents change, we update the
         // GUI elements in frameContents:
-        
+
         // Add listener before setAll call:
         contents.addListener((ListChangeListener<? super FrameContentItem>) c -> frameContents.getChildren().setAll(calculateContents(Utility.mapList(contents, FrameContentItem::getNode))));
         contents.setAll(header);
-        
+
         // By default, the header row contains only the caption, if present:
         setHeaderRow();
 
@@ -384,7 +384,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
                 getCursorAfter().requestFocus();
             }
         });
-        
+
         // Whenever a *frame error* (not slot error) is added, we recalculate whether,
         // and which error to show.
         allFrameErrors.addListener((ListChangeListener<CodeError>)c -> {
@@ -397,7 +397,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
                 update.run();
         });
 
-        
+
         //Debug.time("&&&&&& Constructed frame");
     }
 
@@ -424,7 +424,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             maxWidth = Math.max(maxWidth, (int)Math.ceil(b.getWidth()));
         }
         totalHeight -= FrameCursor.HIDE_HEIGHT; // Don't need trailing space
-    
+
         WritableImage collated;
         int xOffset, yOffset;
         if (border != null) {
@@ -446,7 +446,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             collated = new WritableImage(maxWidth, totalHeight);
             xOffset = yOffset = 0;
         }
-        
+
         int y = 0;
         for (Frame f : frames) {
             Bounds b = f.getNode().getBoundsInParent();
@@ -468,7 +468,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             JavaFXUtil.blitImage(collated, xOffset, yOffset + y, image);
             y += (int)Math.ceil(b.getHeight()) + FrameCursor.HIDE_HEIGHT;
         }
-        
+
         return collated;
     }
 
@@ -554,7 +554,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         return getCanvases().map(FrameCanvas::getFirstCursor).findFirst().orElse(null);
     }
-    
+
     /**
      * Gets the last cursor inside this frame (or null if none)
      */
@@ -616,7 +616,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         JavaFXUtil.removeStyleClass(frameContents, styleClass);
     }
-    
+
     /**
      * This is primarily intended for use in adding the item to its parent container
      * and adding handlers.  It should not be used to circumvent this interface to the display properties.
@@ -625,7 +625,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         return frameContents;
     }
-    
+
     /**
      * This is primarily intended for use by sub-classes which need to access properties
      * of the graphics item (e.g. layout properties)
@@ -634,7 +634,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         return frameContents;
     }
-    
+
     /**
      * Method which can be over-ridden if the block is styled differently depending on its parent
      */
@@ -651,7 +651,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         frameDragSourceProperty.set(on);
     }
-    
+
     /**
      * Returns whether the frame is currently enabled.
      */
@@ -676,7 +676,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         // work because we'd lose the useful type parameter on CodeFrame
         if (this instanceof CodeFrame)
             ((CodeFrame<?>)this).setElementEnabled(enabled);
-        
+
         if (!enabled)
         {
             // Get rid of all errors straight away:
@@ -685,7 +685,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
                 removeOldErrors();
             });
         }
-        
+
         // When our status changes, copy that status to all children:
         getCanvases().forEach(canvas -> canvas.getBlocksSubtype(Frame.class).forEach(b -> b.setFrameEnabled(enabled)));
 
@@ -750,7 +750,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         getPossiblyHiddenSlotsDirect().forEach(EditableSlot::removeOldErrors);
         getCanvases().forEach(FrameHelper::removeOldErrors);
     }
-    
+
     /**
      * Public method called while frame is being removed.  Should remove any overlays, listeners, etc.
      * 
@@ -849,7 +849,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         List<ExtensionDescription> candidates = extensions.stream()
                 .filter(e -> e.getShortcutKey() == c && e.validFor(src))
                 .collect(Collectors.toList());
-        
+
         if (candidates.size() == 0) {
             return false;
         }
@@ -871,7 +871,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         return true; 
     }
-    
+
     /**
      * Notifies about a left-click.  Returns true if we have consumed the click, false otherwise.
      */
@@ -882,7 +882,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         editor.clickNearestCursor(sceneX, sceneY, shiftDown);
         return true;
     }
-    
+
     /**
      * Called automatically when first created and added to its parent; shows where to focus input after initial key-press
      *
@@ -964,7 +964,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         return editor;
     }
-        
+
     /**
      * Called when you have clicked on the frame in a stack trace or want to jump to definition.
      */
@@ -1001,7 +1001,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         JavaFXUtil.setPseudoclass("bj-stack-highlight", false, getNode());
     }
-    
+
     /**
      * Gets all slots, from this frame and all frames contained in canvases, to unlimited depth
      */
@@ -1017,7 +1017,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         return getHeaderItems().map(HeaderItem::asEditable).filter(x -> x != null);
     }
-    
+
     /**
      * Gets only those editable slots which are directly in this frame (not any in frames inside any canvases)
      * @return
@@ -1036,7 +1036,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         return Stream.empty();
     }
-    
+
     @Override
     public void focusUp(FrameContentItem src, boolean toEnd)
     {
@@ -1050,7 +1050,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
                 focusUp(contents.get(index - 1), toEnd);
     }
     // SlotParent:
-    
+
     @Override
     public void focusDown(FrameContentItem src)
     {
@@ -1066,7 +1066,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             if (!contents.get(index + 1).focusTopEndFromPrev())
                 focusDown(contents.get(index + 1));
     }
-    
+
     @Override
     public void focusEnter(FrameContentItem src)
     {
@@ -1242,7 +1242,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         return Collections.emptyList();
     }
-    
+
     /**
      * Sets the given view.
      * @param oldView the view transferring from
@@ -1254,7 +1254,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         setViewNoOverride(oldView, newView, animation);
     }
-    
+
     // Used by ClassFrame to access this method while overriding other functionality
     protected final void setViewNoOverride(View oldView, View newView, SharedTransition animation)
     {
@@ -1376,7 +1376,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     @OnThread(Tag.FXPlatform)
     public void compiled()
     {
-        
+
     }
 
     // By default, we use the first slot if there are any, otherwise we return null
@@ -1385,7 +1385,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     {
         return getEditableSlotsDirect().findFirst().orElse(null);
     }
-    
+
     /**
      * Returns true if the frame is about as blank as when it was first created.  This typically means that
      * all the slots are near blank, and the canvases only have blank frames, if any
@@ -1508,7 +1508,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
                 String childXPath = content.getXPathForElementAt(sceneX, sceneY, locationMap, frameXPath, canvasesBefore, includePseudoElements, includeSubstringIndex);
                 if (childXPath != null)
                     return childXPath;
-                
+
                 if (content.getCanvas().isPresent())
                     canvasesBefore += 1;
             }

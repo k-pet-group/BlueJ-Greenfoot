@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2013,2014,2016,2023  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -90,13 +90,13 @@ public class InfoParser extends EditorParser
     private boolean modAbstract = false;
     private List<MethodDesc> methodDescs = new LinkedList<MethodDesc>();
     private MethodDesc currentMethod;
-    
+
     private JavaEntity superclassEntity;
-    
+
     private List<JavaEntity> interfaceEntities;
     //private List<Selection> interfaceSelections;
     private List<JavaEntity> permitsEntities;
-    
+
     /** Represents a method description */
     class MethodDesc
     {
@@ -106,7 +106,7 @@ public class InfoParser extends EditorParser
         String paramNames; // space separated list
         String javadocText;
     }
-    
+
     /** Represents an unresolved value identifier expression */
     class UnresolvedVal
     {
@@ -115,11 +115,11 @@ public class InfoParser extends EditorParser
         Reflective accessSource;
         int accessPosition;
     }
-    
+
     private List<JavaEntity> typeReferences = new LinkedList<JavaEntity>();
     private List<UnresolvedVal> valueReferences = new LinkedList<UnresolvedVal>();
     private UnresolvedVal currentUnresolvedVal;
-    
+
     private boolean gotExtends; // next type spec is the superclass/superinterfaces
     private boolean gotImplements; // next type spec(s) are interfaces
     private boolean gotPermits;
@@ -148,7 +148,7 @@ public class InfoParser extends EditorParser
     {
         return parse(f, new ClassLoaderResolver(InfoParser.class.getClassLoader()));
     }
-    
+
     /**
      * Attempt to parse the specified source file, and resolve references via the specified
      * resolver. Returns null if the file could not be parsed.
@@ -163,7 +163,7 @@ public class InfoParser extends EditorParser
         catch (IOException ioe) {}
         return info;
     }
-    
+
     /**
      * Attempt to parse the specified source file, and resolve references via the specified
      * package (and its project). Returns null if the file could not be parsed.
@@ -204,7 +204,7 @@ public class InfoParser extends EditorParser
         }
         return null;
     }
-    
+
     /**
      * Resolve the method parameter and return types to their fully qualified types.
      */
@@ -215,7 +215,7 @@ public class InfoParser extends EditorParser
         for (MethodDesc md : methodDescs) {
             // Build the method signature
             String methodSig;
-            
+
             if (md.returnType != null) {
                 md.returnType = md.returnType.resolveAsType();
                 if (md.returnType == null) {
@@ -227,7 +227,7 @@ public class InfoParser extends EditorParser
                 // constructor
                 methodSig = md.name + "(";
             }
-            
+
             Iterator<JavaEntity> i = md.paramTypes.iterator();
             while (i.hasNext()) {
                 JavaEntity paramEnt = i.next();
@@ -243,13 +243,13 @@ public class InfoParser extends EditorParser
                     methodSig += ", ";
                 }
             }
-            
+
             methodSig += ")";
             md.paramNames = md.paramNames.trim();
             info.addComment(methodSig, md.javadocText, md.paramNames);
         }
     }
-    
+
     /**
      * All type references and method declarations are unresolved after parsing.
      * Call this method to resolve them.
@@ -258,7 +258,7 @@ public class InfoParser extends EditorParser
     public void resolveComments()
     {
         resolveMethodTypes();
-        
+
         // Now also resolve references
         for (JavaEntity entity: typeReferences) {
             entity = entity.resolveAsType();
@@ -269,7 +269,7 @@ public class InfoParser extends EditorParser
                 }
             }
         }
-        
+
         refloop:
         for (UnresolvedVal val: valueReferences) {
             Iterator<LocatableToken> i = val.components.iterator();
@@ -295,7 +295,7 @@ public class InfoParser extends EditorParser
                 }
             }
         }
-        
+
         if (superclassEntity != null) {
             superclassEntity = superclassEntity.resolveAsType();
             if (superclassEntity != null) {
@@ -306,7 +306,7 @@ public class InfoParser extends EditorParser
                 }
             }
         }
-        
+
         if (interfaceEntities != null && ! interfaceEntities.isEmpty()) {
             for (JavaEntity ifaceEnt : interfaceEntities) {
                 TypeEntity iEnt = ifaceEnt.resolveAsType();
@@ -334,7 +334,7 @@ public class InfoParser extends EditorParser
             }
         }
     }
-    
+
     /**
      * Add a reference to a type, and recursively process its type arguments (if any)
      */
@@ -361,7 +361,7 @@ public class InfoParser extends EditorParser
             }
         }
     }
-    
+
     /**
      * Add a reference to a type (fully-qualified type name) to the information to return.
      */
@@ -377,7 +377,7 @@ public class InfoParser extends EditorParser
             info.addUsed(name);
         }
     }
-    
+
     /**
      * Get a String describing a type as suitable for writing to the ctxt file.
      * This is the qualified, erased type name, with "." rather than "$" separating
@@ -394,7 +394,7 @@ public class InfoParser extends EditorParser
         }
         return erasedType.replace("$", ".");
     }
-    
+
     @Override
     protected void error(String msg, int beginLine, int beginColumn, int endLine, int endColumn)
     {
@@ -411,30 +411,30 @@ public class InfoParser extends EditorParser
         gotImplements = false;
         gotPermits = false;
     }
-    
+
     @Override
     protected void endTypeBody(LocatableToken token, boolean included)
     {
         super.endTypeBody(token, included);
         classLevel--;
     }
-    
+
     @Override
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
         lastTypespecToks = tokens;
         super.gotTypeSpec(tokens);
-        
+
         // Dependency tracking
         int tokpos = lineColToPosition(tokens.get(0).getLine(), tokens.get(0).getColumn());
         int topOffset = getTopNodeOffset();
         EntityResolver resolver = new PositionedResolver(scopeStack.peek(), tokpos - topOffset);
-        
+
         JavaEntity tentity = ParseUtils.getTypeEntity(resolver, currentQuerySource(), tokens);
         if (tentity != null && ! gotExtends && ! gotImplements && !gotPermits) {
             typeReferences.add(tentity);
         }
-        
+
         boolean isSuper = storeCurrentClassInfo && gotExtends && !info.isInterface();
         boolean isInterface = storeCurrentClassInfo && (gotImplements ||
                 (info.isInterface() && gotExtends));
@@ -490,7 +490,7 @@ public class InfoParser extends EditorParser
         super.gotMethodTypeParamsBegin();
         methodTypeParams = true;
     }
-    
+
     @Override
     protected void gotTypeParam(LocatableToken idToken)
     {
@@ -500,14 +500,14 @@ public class InfoParser extends EditorParser
             info.setTypeParametersSelection(getSelection(idToken));
         }
     }
-    
+
     @Override
     protected void endMethodTypeParams()
     {
         super.endMethodTypeParams();
         methodTypeParams = false;
     }
-    
+
     @Override
     protected void gotTypeParamBound(List<LocatableToken> tokens)
     {
@@ -517,14 +517,14 @@ public class InfoParser extends EditorParser
             typeReferences.add(ent);
         }
     }
-    
+
     @Override
     protected void gotIdentifier(LocatableToken token)
     {
         gotCompoundIdent(token);
         valueReferences.add(currentUnresolvedVal);
     }
-    
+
     @Override
     protected void gotCompoundIdent(LocatableToken token)
     {
@@ -536,14 +536,14 @@ public class InfoParser extends EditorParser
         int tokenPosition = lineColToPosition(token.getLine(), token.getColumn());
         currentUnresolvedVal.accessPosition = tokenPosition - getTopNodeOffset();
     }
-    
+
     @Override
     protected void gotCompoundComponent(LocatableToken token)
     {
         super.gotCompoundComponent(token);
         currentUnresolvedVal.components.add(token);
     }
-    
+
     @Override
     protected void completeCompoundValue(LocatableToken token)
     {
@@ -551,7 +551,7 @@ public class InfoParser extends EditorParser
         currentUnresolvedVal.components.add(token);
         valueReferences.add(currentUnresolvedVal);
     }
-    
+
     @Override
     protected void completeCompoundClass(LocatableToken token)
     {
@@ -559,10 +559,10 @@ public class InfoParser extends EditorParser
         List<LocatableToken> components = currentUnresolvedVal.components;
         components.add(token);
         Iterator<LocatableToken> i = components.iterator();
-        
+
         int tokpos = lineColToPosition(token.getLine(), token.getColumn());
         int offset = tokpos - getTopNodeOffset();
-        
+
         JavaEntity entity = UnresolvedEntity.getEntity(new PositionedResolver(scopeStack.peek(), offset),
                 i.next().getText(), currentQuerySource());
         while (entity != null && i.hasNext()) {
@@ -572,7 +572,7 @@ public class InfoParser extends EditorParser
             typeReferences.add(entity);
         }
     }
-    
+
     @Override
     protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken)
     {
@@ -618,7 +618,7 @@ public class InfoParser extends EditorParser
             currentMethod.paramTypes.add(ptype);
         }
     }
-    
+
     @Override
     protected void gotArrayDeclarator()
     {
@@ -692,7 +692,7 @@ public class InfoParser extends EditorParser
                 info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsToken.getEndColumn() - extendsStart.getColumn()));
             }
             info.setExtendsInsertSelection(null);
-            
+
             if (info.isInterface()) {
                 interfaceSelections = new LinkedList<Selection>();
                 interfaceSelections.add(getSelection(extendsToken));
@@ -757,7 +757,7 @@ public class InfoParser extends EditorParser
             modAbstract = true;
         }
     }
-    
+
     @Override
     protected void modifiersConsumed()
     {

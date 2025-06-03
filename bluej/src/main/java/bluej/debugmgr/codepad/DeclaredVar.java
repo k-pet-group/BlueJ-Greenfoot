@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2010,2014,2016,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -37,7 +37,7 @@ public class DeclaredVar implements NamedValue
     private JavaType declVarType;
     private String varName;
     private boolean isFinal = false;
-    
+
     public DeclaredVar(boolean isVarInit, boolean isFinal, JavaType varType, String varName)
     {
         this.isVarInit = isVarInit;
@@ -45,7 +45,7 @@ public class DeclaredVar implements NamedValue
         this.varName = varName;
         this.isFinal = isFinal;
     }
-    
+
     /**
      * Check whether the variable declaration included an initialization.
      */
@@ -54,7 +54,7 @@ public class DeclaredVar implements NamedValue
     {
         return isVarInit;
     }
-    
+
     /**
      * Get the type of variable which was declared by the recently parsed
      * statement. 
@@ -63,13 +63,13 @@ public class DeclaredVar implements NamedValue
     {
         return declVarType;
     }
-    
+
     @Override
     public JavaType getGenType()
     {
         return declVarType;
     }
-    
+
     /**
      * Get the name of the declared variable.
      */
@@ -78,7 +78,7 @@ public class DeclaredVar implements NamedValue
     {
         return varName;
     }
-    
+
     /**
      * Check whether the variable was declared "final".
      */

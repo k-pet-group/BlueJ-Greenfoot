@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2014,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -68,7 +68,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     private static TestDisplayFrame singleton = null;
     @OnThread(Tag.FXPlatform)
     private static BooleanProperty frameShowing = new SimpleBooleanProperty(false);
-    
+
     @OnThread(Tag.FXPlatform)
     public static TestDisplayFrame getTestDisplay()
     {
@@ -136,7 +136,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     private BooleanBinding hasErrors;
     private BooleanBinding hasFailures;
     private BooleanBinding hasFailuresOrErrors;
-        
+
     // private FailureDetailView fdv;
     /** The text field showing the exception message */
     private TextArea exceptionMessageField;
@@ -214,7 +214,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         JavaFXUtil.addStyleClass(testNames, "test-names");
         testNames.setItems(testEntries);
         testNames.setCellFactory(col -> new TestResultCell());
-        
+
         mainDivider.getItems().add(testNames);
         VBox content = new VBox();
         mainDivider.getItems().add(content);
@@ -255,7 +255,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         hasFailures = Bindings.greaterThan(failureCount, 0);
         JavaFXUtil.bindPseudoclass(failurePanel, "bj-non-zero", hasFailures);
         HBox.setHgrow(failurePanel, Priority.ALWAYS);
-        
+
         counterPanel.getChildren().addAll(
                 new Label(Config.getString("testdisplay.counter.runs")),
                 fNumberOfRuns,
@@ -285,12 +285,12 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
         Button closeButton = new Button(Config.getString("close"));
         closeButton.setOnAction(e -> frame.hide());
-            
+
         // Panel for "show source" and "close" buttons
         BorderPane buttonPanel = new BorderPane();
         buttonPanel.setLeft(showSourceButton);
         buttonPanel.setRight(closeButton);
-            
+
         content.getChildren().add(buttonPanel);
         VBox surround = new VBox(mainDivider);
         VBox.setVgrow(mainDivider, Priority.ALWAYS);
@@ -299,7 +299,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         frame.setScene(new Scene(surround));
         Config.addTestsStylesheets(frame.getScene());
         JavaFXUtil.addMacMinimiseShortcutHandler(frame);
-        
+
         surround.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.ESCAPE)
             {
@@ -326,7 +326,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     {
         testEntries.clear();
         testEntriesMethodName.clear();
-        
+
         errorCount.set(0);
         failureCount.set(0);
         totalTimeMs.set(0);
@@ -335,7 +335,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         exceptionMessageField.setText("");
         showSourceButton.setDisable(true);
     }
-    
+
     /**
      * Indicate that we are starting a bunch of tests.
      * 
@@ -346,12 +346,12 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         this.project = proj;
         proj.setTestMode(true);
         doingMultiple = true;
-        
+
         reset();
         testTotal.set(num);
         showTestDisplay(true);
     }
-    
+
     public void endMultipleTests()
     {
         doingMultiple = false;
@@ -465,7 +465,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
                     imageView.setImage(errorIcon);
                     acc = "Error ";
                 }
-                
+
                 // This checks if the JUnit executes all tests at the same time,
                 // We have used zero execution time for individual test as there is no way so
                 // far to extract the runtime of individual test.
@@ -493,7 +493,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
             }
         }
     }
-    
+
     private void selected(DebuggerTestResult dtr)
     {
         if (dtr != null && (dtr.isError() || dtr.isFailure())) {

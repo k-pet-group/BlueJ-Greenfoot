@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -135,7 +135,7 @@ public class ResultInspector extends Inspector
         // arguments passed to the method.
         // For now, use the base type of the any generic type parameters
         if (methodReturnType instanceof GenTypeParameter) {
-            
+
             // The return type may contain type parameters. First, get the
             // type parameters of the object:
             Map<String,GenTypeParameter> tparmap;
@@ -143,19 +143,19 @@ public class ResultInspector extends Inspector
                 tparmap = instanceType.mapToSuper(m.getDeclaringClass().getName()).getMap();
             else
                 tparmap = new HashMap<String,GenTypeParameter>();
-            
+
             // It's possible the mapping result is a raw type.
             if (tparmap == null) {
                 resultType = JavaUtils.getJavaUtils().getRawReturnType(m);
                 return;
             }
-            
+
             // Then put in the type parameters from the method itself,
             // if there are any (ie. if the method is a generic method).
             // Tpars from the method override those from the instance.
             List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(m);
             tparmap.putAll(JavaUtils.TParamsToMap(tpars));
-            
+
             methodReturnType = methodReturnType.mapTparsToTypes(tparmap).getUpperBound();
         }
 
@@ -189,7 +189,7 @@ public class ResultInspector extends Inspector
         else {
             fieldString = resultField.getType().toString(true);
         }
-        
+
         List<FieldInfo> rlist = new ArrayList<FieldInfo>(1);
         rlist.add(new FieldInfo(fieldString, resultField.getValueString()));
         return rlist;
@@ -205,7 +205,7 @@ public class ResultInspector extends Inspector
 
         // Create the header
         Pane header = new VBox();
-        
+
         Comment comment = expressionInformation.getComment();
         FXFormattedPrintWriter commentLabelPrintWriter = new FXFormattedPrintWriter();
         comment.print(commentLabelPrintWriter);
@@ -234,7 +234,7 @@ public class ResultInspector extends Inspector
         expression.setOnContextMenuRequested(e -> copyPopup.show(expression, e.getScreenX(), e.getScreenY()));
 
         result.getChildren().add(expression);
-        
+
         result.getChildren().add(fieldList);
 
         mainPanel.setCenter(result);
@@ -284,7 +284,7 @@ public class ResultInspector extends Inspector
             inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? ir : null, this, null);
         }
     }
-    
+
     /**
      * Remove this inspector.
      */
@@ -303,7 +303,7 @@ public class ResultInspector extends Inspector
     public String getResult()
     {
         DebuggerField resultField = obj.getField(0);
-        
+
         String result = resultField.getType() + " " + resultField.getName() + " = " + resultField.getValueString();
         return result;
     }
@@ -312,7 +312,7 @@ public class ResultInspector extends Inspector
     {
         return 2;
     }
-    
+
     protected void doGet()
     {
         if (selectedField != null) {

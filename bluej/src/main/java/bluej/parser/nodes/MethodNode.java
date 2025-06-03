@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2019,2020,2022,2024  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -55,7 +55,7 @@ public class MethodNode extends JavaParentNode
     private List<TparEntity> typeParams = null;
     private boolean isVarArgs = false;
     private int modifiers = 0;
-    
+
     /**
      * Construct a MethodNode representing a constructor or method.
      * @param parent  The parent node (containing this node)
@@ -80,7 +80,7 @@ public class MethodNode extends JavaParentNode
     {
         this.returnType = returnType;
     }
-    
+
     /**
      * Add a method parameter
      * @param name  The parameter name
@@ -91,7 +91,7 @@ public class MethodNode extends JavaParentNode
         paramNames.add(name);
         paramTypes.add(type);
     }
-    
+
     /**
      * Set the type parameters for this method.
      */
@@ -99,7 +99,7 @@ public class MethodNode extends JavaParentNode
     {
         this.typeParams = typeParams;
     }
-    
+
     /**
      * Mark this method as a varargs method (or not).
      * @param isVarArgs  Whether this method is a varargs method.
@@ -108,7 +108,7 @@ public class MethodNode extends JavaParentNode
     {
         this.isVarArgs = isVarArgs;
     }
-    
+
     /**
      * Check whether this method is a varargs method.
      */
@@ -116,7 +116,7 @@ public class MethodNode extends JavaParentNode
     {
         return isVarArgs;
     }
-    
+
     /**
      * Set the modifiers on this method (as per java.lang.reflect.Modifier)
      */
@@ -124,7 +124,7 @@ public class MethodNode extends JavaParentNode
     {
         this.modifiers = modifiers;
     }
-    
+
     /**
      * Get the modifiers on this method (as per java.lang.reflect.Modifier)
      */
@@ -132,7 +132,7 @@ public class MethodNode extends JavaParentNode
     {
         return modifiers;
     }
-    
+
     /**
      * Get the parameter names of this method
      * @return
@@ -141,7 +141,7 @@ public class MethodNode extends JavaParentNode
     {
         return paramNames;
     }
-    
+
     /**
      * Get the parameter types of this method.
      */
@@ -149,7 +149,7 @@ public class MethodNode extends JavaParentNode
     {
         return paramTypes;
     }
-    
+
     /**
      * Get the javadoc comment text for this node. May return null.
      */
@@ -157,25 +157,25 @@ public class MethodNode extends JavaParentNode
     {
         return javadoc;
     }
-    
+
     @Override
     public boolean isContainer()
     {
         return true;
     }
-    
+
     @Override
     public int getNodeType()
     {
         return ParsedNode.NODETYPE_METHODDEF;
     }
-    
+
     @Override
     public String getName()
     {
         return name;
     }
-    
+
     /**
      * Get the return type of the method represented by this node.
      * Returns a possibly unresolved JavaEntity. For a constructor,
@@ -185,7 +185,7 @@ public class MethodNode extends JavaParentNode
     {
         return returnType;
     }
-    
+
     /**
      * Get the type parameters for this method.
      */
@@ -194,7 +194,7 @@ public class MethodNode extends JavaParentNode
         if (typeParams == null) {
             return null;
         }
-        
+
         List<GenTypeDeclTpar> tparList = new ArrayList<GenTypeDeclTpar>(typeParams.size());
         for (TparEntity tparEnt : typeParams) {
             GenTypeDeclTpar tparType = tparEnt.getType();
@@ -204,13 +204,13 @@ public class MethodNode extends JavaParentNode
         }
         return tparList;
     }
-    
+
     @Override
     protected boolean marksOwnEnd()
     {
         return true;
     }
-    
+
     @Override
     public JavaEntity getValueEntity(String name, Reflective querySource)
     {
@@ -220,7 +220,7 @@ public class MethodNode extends JavaParentNode
         }
         return super.getValueEntity(name, querySource);
     }
-    
+
     /**
      * Look for a value entity in the method parameters.
      */
@@ -240,7 +240,7 @@ public class MethodNode extends JavaParentNode
         }
         return null;
     }
-    
+
     @Override
     public PackageOrClass resolvePackageOrClass(String name,
             Reflective querySource)
@@ -254,7 +254,7 @@ public class MethodNode extends JavaParentNode
         }
         return super.resolvePackageOrClass(name, querySource);
     }
-    
+
     @Override
     protected ExpressionTypeInfo getExpressionType(int pos, int nodePos,
             JavaEntity defaultType, ReparseableDocument document, ExpressionNode largestPlainExpressionNode)

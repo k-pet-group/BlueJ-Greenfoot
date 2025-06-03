@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024,2025 Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -893,7 +893,7 @@ public final class Package
                             // Don't do anything special if the the file is the readme file
                             if(f.getName().trim().equalsIgnoreCase(readmeName))
                                 continue;
-                            
+
                             String fExt = Utility.getFileExtension(f.getName()).toLowerCase();
                             if (fExt.length() > 0)
                             {
@@ -2723,7 +2723,7 @@ public final class Package
                     // so our checks generally indicate they are not compiled.  Combined with the code below,
                     // we used to end up in a loop of infinitely compiling them to see if they could be compiled
                     // on their own, but they never actually end up in the compiled state because there's no class generated.
-                    
+
                     // To prevent an issue that may happen when classes are batched in one compile job
                     // and an error in one may prevent others being compiled even though they could be 
                     // compiled separately, we check for all the classes that can be compiled and have

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2017,2021,2022 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -59,10 +59,10 @@ public class ReturnFrame extends SingleLineFrame
     private ReturnElement element;
     private final SimpleStringProperty returnType = new SimpleStringProperty();
     private final SimpleBooleanProperty showingValue = new SimpleBooleanProperty(true);
-    
+
     // We have to keep a reference to negated version, to prevent it getting GCed:
     private final BooleanExpression notShowingValue = showingValue.not();
-    
+
     /**
      * Default constructor.
      * @param editor 
@@ -70,7 +70,7 @@ public class ReturnFrame extends SingleLineFrame
     private ReturnFrame(InteractionManager editor)
     {
         super(editor, "return", "return-");
-        
+
         SlotLabel spacer = new SlotLabel(" ");
         spacer.setOpacity(0.0);
         spacer.setCursor(Cursor.TEXT);
@@ -89,14 +89,14 @@ public class ReturnFrame extends SingleLineFrame
             value.requestFocus();
             e.consume();
         });
-        
+
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(headerCaptionLabel),
                 JavaFXUtil.listBool(notShowingValue, spacer),
                 JavaFXUtil.listBool(showingValue, value),
                 FXCollections.observableArrayList(previewSemi)
         ));
-        
+
         // Remove value slot if return type is void:
         value.onLostFocus(() -> {
             if ("void".equals(returnType.get()) && value.getText().isEmpty())
@@ -107,7 +107,7 @@ public class ReturnFrame extends SingleLineFrame
         frameName = "return statement";
         value.setSlotName("return expression");
     }
-    
+
     public ReturnFrame(InteractionManager editor, ExpressionSlotFragment val, boolean enabled)
     {
         this(editor);
@@ -150,13 +150,13 @@ public class ReturnFrame extends SingleLineFrame
         final boolean generateReturnValue = showingValue.get() && (!value.getText().isEmpty() || value.isCurrentlyCompleting());
         element = new ReturnElement(this, generateReturnValue ? value.getSlotElement() : null, frameEnabledProperty.get());
     }
-    
+
     @Override
     public ReturnElement getCode()
     {
         return element;
     }
-    
+
     public static FrameFactory<ReturnFrame> getFactory()
     {
         return new FrameFactory<ReturnFrame>() {
@@ -165,7 +165,7 @@ public class ReturnFrame extends SingleLineFrame
             {
                 return new ReturnFrame(editor);
             }
-                        
+
             @Override 
             public Class<ReturnFrame> getBlockClass()
             {
@@ -192,7 +192,7 @@ public class ReturnFrame extends SingleLineFrame
                 return;
             }
         }
-        
+
         // If there is no normal method frame we may be in constructor or whatever, so no value return:
         returnType.unbind();
         returnType.set(null);

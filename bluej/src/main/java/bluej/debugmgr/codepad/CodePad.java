@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2012,2013,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -157,7 +157,7 @@ public class CodePad extends VBox
             this.pseudo = pseudo;
         }
     }
-    
+
     /**
      * A data item which backs a single row in the code pad.
      * This might be the currently edited row (the last row), or
@@ -489,14 +489,14 @@ public class CodePad extends VBox
     }
 
     private static final String nullLabel = "null";
-    
+
     private static final String uninitializedWarning = Config.getString("pkgmgr.codepad.uninitialized");
 
     private static final Image objectImage =
             Config.getImageAsFXImage("image.eval.object");
     private static final Image objectImageHighlight =
             Config.getImageAsFXImage("image.eval.object");
-    
+
     private final PkgMgrFrame frame;
     @OnThread(Tag.FX)
     private String currentCommand = "";
@@ -504,7 +504,7 @@ public class CodePad extends VBox
     private IndexHistory history;
     private Invoker invoker = null;
     private TextAnalyzer textParser = null;
-    
+
     // Keeping track of invocation
     private boolean firstTry;
     private boolean wrappedResult;
@@ -579,7 +579,7 @@ public class CodePad extends VBox
         historyView.setOnContextMenuRequested(e -> {
             showContextMenu(e.getScreenX(), e.getScreenY());
         });
-        
+
         // Allow "clicking off" the context menu (clicking back on the codepad history) to dismiss it.
         historyView.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
             if (e.getButton() == MouseButton.PRIMARY && contextMenu != null)
@@ -589,7 +589,7 @@ public class CodePad extends VBox
                 // Do not consume the event, still let it select.
             }
         });
-        
+
         // Add keyboard shortcut ourselves:
         historyView.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.C && e.isShortcutDown())
@@ -700,9 +700,9 @@ public class CodePad extends VBox
             textParser.newClassLoader(frame.getProject().getClassLoader());
         }
     }
-    
+
     //   --- ValueCollection interface ---
-    
+
     /*
      * @see bluej.debugmgr.ValueCollection#getValueIterator()
      */
@@ -710,7 +710,7 @@ public class CodePad extends VBox
     {
         return localVars.iterator();
     }
-    
+
     /*
      * @see bluej.debugmgr.ValueCollection#getNamedValue(java.lang.String)
      */
@@ -725,7 +725,7 @@ public class CodePad extends VBox
             return frame.getObjectBench().getNamedValue(name);
         }
     }
-    
+
     /**
      * Search for a named local variable, but do not fall back to the object
      * bench if it cannot be found (return null in this case).
@@ -741,11 +741,11 @@ public class CodePad extends VBox
             if (nv.getName().equals(name))
                 return nv;
         }
-        
+
         // not found
         return null;
     }
-    
+
     private class CodePadResultWatcher implements ResultWatcher
     {
         private final String command;
@@ -971,7 +971,7 @@ public class CodePad extends VBox
             completeExecution();
         }
     }
-    
+
     /**
      * Remove the newly declared variables from the value collection.
      * (This is needed if compilation fails, or execution bombs with an exception).
@@ -986,9 +986,9 @@ public class CodePad extends VBox
             newlyDeclareds = null;
         }
     }
-    
+
     //   --- end of ResultWatcher interface ---
-    
+
     /**
      * Show an error message, and allow further command input.
      */
@@ -997,7 +997,7 @@ public class CodePad extends VBox
         error("Error: " + message);
         completeExecution();
     }
-    
+
     /**
      * Show an exception message, and allow further command input.
      */
@@ -1006,7 +1006,7 @@ public class CodePad extends VBox
         error("Exception: " + message);
         completeExecution();
     }
-    
+
     /**
      * Execution of the current command has finished (one way or another).
      * Allow further command input.
@@ -1041,7 +1041,7 @@ public class CodePad extends VBox
     {
         addRow(new OutputSuccessRow(s, null));
     }
-    
+
     /**
      * Write a (non-error) message to the text area.
      * @param s The message
@@ -1050,7 +1050,7 @@ public class CodePad extends VBox
     {
         addRow(new OutputSuccessRow(s, objInfo));
     }
-    
+
     /**
      * Write an error message to the text area.
      * @param s The message
@@ -1087,7 +1087,7 @@ public class CodePad extends VBox
         if (busy) {
             return;
         }
-        
+
         firstTry = true;
         busy = true;
         if (textParser == null) {
@@ -1097,7 +1097,7 @@ public class CodePad extends VBox
         String retType;
         retType = textParser.parseCommand(command);
         wrappedResult = (retType != null && retType.length() != 0);
-        
+
         // see if any variables were declared
         if (retType == null) {
             firstTry = false; // Only try once.
@@ -1112,10 +1112,10 @@ public class CodePad extends VBox
                     if (autoInitializedVars == null) {
                         autoInitializedVars = new ArrayList<String>();
                     }
-                    
+
                     DeclaredVar dv = i.next();
                     String declaredName = dv.getName();
-                    
+
                     // If they used var and we couldn't work out the type, give an error:
                     if (dv.getDeclaredType() == null)
                     {
@@ -1123,7 +1123,7 @@ public class CodePad extends VBox
                         removeNewlyDeclareds();
                         return;
                     }
-                    
+
                     if (getLocalVar(declaredName) != null) {
                         // The variable has already been declared
                         String errMsg = Config.getString("pkgmgr.codepad.redefinedVar");
@@ -1132,7 +1132,7 @@ public class CodePad extends VBox
                         removeNewlyDeclareds();
                         return;
                     }
-                    
+
                     CodepadVar cpv = new CodepadVar(dv.getName(), dv.getDeclaredType(), dv.isFinal());
                     newlyDeclareds.add(cpv);
                     localVars.add(cpv);
@@ -1206,7 +1206,7 @@ public class CodePad extends VBox
     final class ObjectInfo {
         DebuggerObject obj;
         InvokerRecord ir;
-        
+
         /**
          * Create an object holding information about an invocation.
          */
@@ -1215,47 +1215,47 @@ public class CodePad extends VBox
             this.ir = ir;
         }
     }
-    
+
     final class CodepadVar implements NamedValue {
-        
+
         String name;
         boolean finalVar;
         boolean initialized = false;
         JavaType type;
-        
+
         public CodepadVar(String name, JavaType type, boolean finalVar)
         {
             this.name = name;
             this.finalVar = finalVar;
             this.type = type;
         }
-        
+
         public String getName()
         {
             return name;
         }
-        
+
         public JavaType getGenType()
         {
             return type;
         }
-        
+
         public boolean isFinal()
         {
             return finalVar;
         }
-        
+
         public boolean isInitialized()
         {
             return initialized;
         }
-        
+
         public void setInitialized()
         {
             initialized = true;
         }
     }
-    
+
     private static class CopyOperation extends AbstractOperation<HistoryRow>
     {
         public CopyOperation()
@@ -1269,7 +1269,7 @@ public class CodePad extends VBox
             String copied = historyRows.stream().map(HistoryRow::getText).collect(Collectors.joining("\n"));
             Clipboard.getSystemClipboard().setContent(Collections.singletonMap(DataFormat.PLAIN_TEXT, copied));
         }
-        
+
         @Override
         public List<ItemLabel> getLabels()
         {

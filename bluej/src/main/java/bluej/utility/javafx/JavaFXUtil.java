@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2017,2018,2019,2021,2023 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -106,7 +106,7 @@ public class JavaFXUtil
     {
         if (!pseudoClassName.startsWith("bj-") && !pseudoClassName.startsWith("gf-"))
             throw new IllegalArgumentException("Our pseudoclasses should begin with bj- or gf- to avoid confusion with JavaFX's pseudo classes");
-        
+
         for (Node node : nodes)
             node.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), enabled);        
     }
@@ -121,7 +121,7 @@ public class JavaFXUtil
     {
         return node.getPseudoClassStates().stream().filter(p -> p.getPseudoClassName().equals(pseudoClassName)).count() > 0;
     }
-    
+
     /**
      * Turns on the pseudoclass with the given index, and turns off all others in the list.
      * 
@@ -317,7 +317,7 @@ public class JavaFXUtil
         };
     }
 
-    
+
     /** Gets a new CssMetaData instance for the given property of the class.
      *  Assumes the property is always settable.  Thus do not pass a property that might be
      *  set or bound by other code.
@@ -604,7 +604,7 @@ public class JavaFXUtil
     {
         double scrollWidth = scrollPane.getContent().getBoundsInLocal().getWidth();
         double scrollHeight = scrollPane.getContent().getBoundsInLocal().getHeight();
-        
+
         Bounds b = scrollPane.getContent().sceneToLocal(target.localToScene(target.getBoundsInLocal()));
         Bounds viewPortBounds = scrollPane.getViewportBounds();
 
@@ -734,7 +734,7 @@ public class JavaFXUtil
                 Debug.reportError(e);
             }
         }
-        
+
         return null;
     }
 
@@ -874,7 +874,7 @@ public class JavaFXUtil
             return Collections.unmodifiableList(list);
         }
     }
-    
+
     /**
      * Helper method for extending a super-class's CSS meta data with some of your own
      */
@@ -900,12 +900,12 @@ public class JavaFXUtil
                     e.consume();
             }
         };
-        
+
         // According to docs for isPopupTrigger, we need this handler on pressed and released:
         node.addEventHandler(MouseEvent.MOUSE_PRESSED, popupHandler);
         node.addEventHandler(MouseEvent.MOUSE_RELEASED, popupHandler);
 
-        
+
         node.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.CONTEXT_MENU || Arrays.asList(otherKeys).contains(e.getCode()))
             {
@@ -1274,16 +1274,16 @@ public class JavaFXUtil
     public static <T6> void onceNotNull(ObservableValue<T6> observable, FXPlatformConsumer<T6> callback)
     {
         T6 t = observable.getValue();
-        
+
         if (t != null)
         {
             callback.accept(t);
             return;
         }
-        
+
         onceBecomesNotNull(observable, callback);
     }
-    
+
     /** 
      * Waits for the observable value to become non-null, then calls the given function on the
      * value once.
@@ -1363,7 +1363,7 @@ public class JavaFXUtil
             dest.clear();
             dest.addAll(Utility.mapList(src, func));
         });
-        
+
         src.addListener(new ListChangeListener<SRC2>()
         {
             @Override
@@ -1460,7 +1460,7 @@ public class JavaFXUtil
                 callback.accept(newValue);
                 prop.removeListener(this);
             }
-            
+
         };
         prop.addListener(l);
         return () -> prop.removeListener(l);
@@ -1495,7 +1495,7 @@ public class JavaFXUtil
         prop.addListener(l);
         return () -> prop.removeListener(l);
     }
-    
+
     /**
      * Makes one list (dest) always contain the contents of the other (src) until the returned
      * action is executed to cancel the binding.
@@ -1617,7 +1617,7 @@ public class JavaFXUtil
             task.run();
             return () -> {};
         }
-        
+
         // The documentation for stop says it may not stop immediately, so we
         // use this boolean as a fail safe:
         BooleanProperty okToRun = new SimpleBooleanProperty(true);
@@ -1632,7 +1632,7 @@ public class JavaFXUtil
             timeline.stop();
         };
     }
-    
+
     /**
      * Runs the given task on the FX Platform thread after the given interval,
      * and then forever-after, with the given interval between each execution.
@@ -1652,7 +1652,7 @@ public class JavaFXUtil
         {
             throw new IllegalArgumentException("Cannot run at a regular interval of zero or less");
         }
-        
+
         // The documentation for stop says it may not stop immediately, so we
         // use this boolean as a fail safe:
         BooleanProperty okToRun = new SimpleBooleanProperty(true);
@@ -1668,7 +1668,7 @@ public class JavaFXUtil
             timeline.stop();
         };
     }
-    
+
     public static enum DragType
     {
         /** The copy key (Mac: option, Others: Ctrl) was held down */
@@ -1719,7 +1719,7 @@ public class JavaFXUtil
         });
         from.forEach(c -> to.pseudoClassStateChanged(c, true));
     }
-    
+
     public static <T,R> ObjectBinding<R> of(ObservableValue<T> t, FXFunction<T, R> accessor)
     {
         return Bindings.createObjectBinding(() -> accessor.apply(t.getValue()), t);
@@ -1787,7 +1787,7 @@ public class JavaFXUtil
                 x2 = x + width;
                 y2 = y + offset - width;
             }
-            
+
             if (backslash)
             {
                 x1 = width - x1;

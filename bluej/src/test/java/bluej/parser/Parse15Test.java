@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -51,13 +51,13 @@ public class Parse15Test extends junit.framework.TestCase
     private File getFile(String name)
     {
         URL url = getClass().getResource("/bluej/parser/" + name);
-        
+
         if (url == null || url.getFile().equals(""))
             return null;
         else
             return new File(url.getFile());
     }
-    
+
     /**
      * Sets up the test fixture.
      *
@@ -87,36 +87,36 @@ public class Parse15Test extends junit.framework.TestCase
     {
         InfoParser.parse(getFile("15_generic.dat"));
     }
-    
+
     public void testSelections()
         throws Exception
     {
         ClassInfo info = InfoParser.parse(getFile("generic_selections.dat"));
-        
+
 //        Selection testSel = info.getTypeParametersSelection();
 //        assertEquals(3, testSel.getLine());
 //        assertEquals(19, testSel.getColumn());
 //        assertEquals(3, testSel.getEndLine());
 //        assertEquals(40, testSel.getEndColumn());
-        
+
         Selection testSel = info.getSuperReplaceSelection();
         assertEquals(3, testSel.getLine());
         assertEquals(49, testSel.getColumn());
         assertEquals(4, testSel.getEndLine());
         assertEquals(31, testSel.getEndColumn());
-        
+
         List<Selection> l = info.getInterfaceSelections();
         assertEquals(4, l.size());
         // "implements"  "List<Thread>"  ","  "GenInt<U>"
         Iterator<Selection> i = l.iterator();
         i.next();
-        
+
         testSel = (Selection) i.next();
         assertEquals(5, testSel.getLine());
         assertEquals(16, testSel.getColumn());
         assertEquals(5, testSel.getEndLine());
         assertEquals(28, testSel.getEndColumn());
-        
+
         i.next();
         testSel = (Selection) i.next();
         assertEquals(5, testSel.getLine());
@@ -124,7 +124,7 @@ public class Parse15Test extends junit.framework.TestCase
         assertEquals(5, testSel.getEndLine());
         assertEquals(39, testSel.getEndColumn());
     }
-    
+
     public void testStaticImport()
     {
         boolean success = true;

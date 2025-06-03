@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2019,2020,2022,2024  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -46,10 +46,10 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
     private int modifiers;
     /** Number of extra array declarators */
     private int arrayDecls;
-    
+
     /** The document for the source declaring this field, used for inferring "var" type fields */
     private ReparseableDocument document;
-    
+
     /**
      * Construct a field node representing the first declared field in a field
      * declaration. The fieldType may be null if it appears invalid.
@@ -83,7 +83,7 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
         this.document = document;
         this.isVarType = true;
     }
-    
+
     /**
      * Construct a field node representing the second or a subsequent field
      * declared in a field declaration.
@@ -97,13 +97,13 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
         this.firstNode = firstNode;
         this.arrayDecls = arrayDecls;
     }
-    
+
     @Override
     public int getNodeType()
     {
         return ParsedNode.NODETYPE_FIELD;
     }
-    
+
     @Override
     public String getName()
     {
@@ -115,7 +115,7 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
     {
         return true;
     }
-    
+
     /**
      * Calculate the absolute offset of this node, by walking up the node tree.
      */
@@ -131,7 +131,7 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
         }
         return offs;
     }
-    
+
     /**
      * Get the containing type of this field/variable.
      */
@@ -142,10 +142,10 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
         {
             pnode = pnode.getParentNode();
         }
-        
+
         return new TypeEntity(new ParsedReflective((ParsedTypeNode) pnode));
     }
-    
+
     /**
      * Get the initialiser-expression node and its position.
      */
@@ -155,7 +155,7 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
         NodeAndPosition<ParsedNode> r = findNodeAtOrAfter(0, mypos);
         return r;
     }
-    
+
     /**
      * Get the type of this field (as a JavaEntity, which needs to be resolved as a type).
      */
@@ -169,12 +169,12 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
             if (isVarType)
             {
                 NodeAndPosition<ParsedNode> initExpr = getInitExpression();
-                
+
                 if (document == null)
                 {
                     return new ErrorEntity();
                 }
-                
+
                 TextParser tp = new TextParser(this,
                         document.makeReader(initExpr.getPosition(), initExpr.getEnd()),
                         getContainingType(),
@@ -185,24 +185,24 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
                 {
                     return new ErrorEntity();
                 }
-                
+
                 ValueEntity inferredVal = inferredTypeEnt.resolveAsValue();
                 if (inferredVal == null)
                 {
                     return new ErrorEntity();
                 }
-                
+
                 JavaType inferredType = inferredVal.getType();
-                
+
                 if (inferredType != null)
                 {
                     return new TypeEntity(inferredType);
                 }
             }
-            
+
             return new ErrorEntity();
         }
-        
+
         for (int i = 0; i < arrayDecls; i++)
         {
             ftype = new UnresolvedArray(ftype);
@@ -227,10 +227,10 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
         {
             return fieldType.getName() + "[]".repeat(arrayDecls);
         }
-        
+
         return "";
     }
-    
+
     /**
      * Get the modifiers of this field 
      * @return
@@ -242,7 +242,7 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
         }
         return modifiers;
     }
-    
+
     @Override
     protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document, ExpressionNode largestPlainExpressionNode)
     {
@@ -250,7 +250,7 @@ public class FieldNode extends JavaParentNode implements VariableDeclaration
         if (child != null) {
             return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document, null);
         }
-        
+
         // A field node can actually be an expression with a missing semicolon, followed
         // by an identifier (which is actually meant to be part of the next statement).
         //

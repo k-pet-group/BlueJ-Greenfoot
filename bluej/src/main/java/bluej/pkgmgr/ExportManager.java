@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2014,2015,2016,2018,2019,2021  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -63,7 +63,7 @@ import threadchecker.Tag;
 final class ExportManager
 {
     private static final String specifyJar = Config.getString("pkgmgr.export.specifyJar");
-    
+
     private static final String sourceSuffix = "." + SourceType.Java.toString().toLowerCase();
     private static final String contextSuffix = ".ctxt";
     private static final String packageFilePrefix = "bluej.pk";
@@ -134,7 +134,7 @@ final class ExportManager
     private void createJar(Project proj, String fileName, String sourceDir, String mainClass,
                            List<File> userLibs, boolean includeSource, boolean includePkgFiles, boolean includeStrideLang)
     {
-        
+
         // Create a single jar file
         if(!fileName.endsWith(".jar"))
             fileName = fileName + ".jar";
@@ -176,7 +176,7 @@ final class ExportManager
             }
             for (File f : userLibs)
                 includeJarContent(f, jarOutput);
-            
+
             frame.setStatus(Config.getString("pkgmgr.exported.jar"));
         }
         catch(IOException exc) {
@@ -260,7 +260,7 @@ final class ExportManager
     {
         if (dir.getName().equals(Project.projectLibDirName))
             return ! includePkg;
-        
+
         for(int i = 0; i < skipDirs.length; i++) {
             if(dir.getName().equals(skipDirs[i]))
                 return true;
@@ -278,7 +278,7 @@ final class ExportManager
     {
         if(fileName.equals(packageFileBackup))
             return true;
-        
+
         if(fileName.endsWith(sourceSuffix) || fileName.endsWith(sourceSuffix + "~"))
             return skipSource;
         if(fileName.startsWith(packageFilePrefix) || fileName.endsWith(packageFileSuffix) ||

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -78,7 +78,7 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         this.throwsTypes = throwsTypes;
         this.contents = contents;
         this.documentation = documentation;
-        
+
         for (CodeElement c : this.contents) {
             c.setParent(this);
         }
@@ -123,7 +123,7 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
                     break;
             }
         }
-        
+
         if (documentation == null) {
             documentation = new JavadocUnit("");
         }
@@ -138,9 +138,9 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         this.access = new AccessPermissionFragment(AccessPermission.fromString(access));
         this.contents = new ArrayList<>(contents);
         this.documentation = new JavadocUnit(documentation);
-        
+
         this.throwsTypes = new ArrayList<>();
-        
+
         this.params = new ArrayList<>();
         if (params != null ) {
             for (Entry<String, String> entry : params) {
@@ -202,13 +202,13 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
     {
         if (throwsTypes.isEmpty())
             return Collections.emptyList();
-        
+
         ArrayList<JavaFragment> typesAndCommas = throwsTypes.stream().map(ThrowsTypeFragment::getJavaSource).collect(Utility.intersperse(() -> (JavaFragment)f(null, ", ")));
-        
+
         typesAndCommas.add(0, space());
         typesAndCommas.add(0, f(frame, "throws"));
         typesAndCommas.add(0, space());
-        
+
         return typesAndCommas;
     }
 
@@ -219,9 +219,9 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
     protected void setupFrame(InteractionManager editor)
     {
         frame.setAccess(access.getValue());
-        
+
         frame.setDocumentation(documentation.toString());
-        
+
         params.forEach(item -> frame.getParamsPane().addFormal(item.getParamType(), item.getParamName()));
         contents.forEach(c -> frame.getCanvas().insertBlockAfter(c.createFrame(editor), null));
         throwsTypes.forEach(t -> frame.addThrows(t.getType()));
@@ -234,7 +234,7 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         params.forEach(param -> vars.add(new LocalParamInfo(param.getParamType().getContent(), param.getParamName().getContent(), true, this)));
         return vars;
     }
-    
+
     @Override
     public List<CodeElement> childrenUpTo(CodeElement c)
     {
@@ -252,20 +252,20 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
     {
         return this;
     }
-    
+
     public List<CodeElement> getContents()
     {
         return contents;
     }
 
     public abstract String getType(); // returns null if NA, e.g. for constructors
-    
+
     @Override
     public Stream<CodeElement> streamContained()
     {
         return streamContained(contents);
     }
-    
+
     @OnThread(Tag.FXPlatform)
     public List<String> getQualifiedParamTypes(ClassElement topLevel)
     {

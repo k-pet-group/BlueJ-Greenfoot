@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -34,7 +34,7 @@ import bluej.stride.generic.FrameTypeCheck;
 public class StrideDictionary extends FrameDictionary<StrideCategory>
 {
     private static StrideDictionary instance = new StrideDictionary();
-    
+
     public static StrideDictionary getDictionary()
     {
         return instance;
@@ -109,7 +109,7 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
         }
         return names;
     }
-    
+
     private static FrameTypeCheck checkCategories(StrideCategory... categories)
     {
         List<StrideCategory> categoryList = Arrays.asList(categories);
@@ -128,7 +128,7 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
             }
         };
     }
-    
+
     public static FrameTypeCheck checkStatement()
     {
         return checkCategories(StrideCategory.CONDITIONAL,
@@ -145,7 +145,7 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
                 StrideCategory.TRY,
                 StrideCategory.RETURN);
     }
-    
+
     public static FrameTypeCheck checkClassField()
     {
         return checkCategories( 
@@ -162,14 +162,14 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
                 StrideCategory.BLANK,
                 StrideCategory.COMMENT);
     }
-    
+
     public static FrameTypeCheck checkConstructor()
     {
         return checkCategories( 
                 StrideCategory.CONSTRUCTOR,
                 StrideCategory.COMMENT);
     }
-    
+
     public static FrameTypeCheck checkClassMethod()
     {
         return checkCategories(
@@ -183,7 +183,7 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
                 StrideCategory.INTERFACE_METHOD,
                 StrideCategory.COMMENT);
     }
-    
+
     public static FrameTypeCheck checkImport()
     {
         return checkCategories(StrideCategory.IMPORT);

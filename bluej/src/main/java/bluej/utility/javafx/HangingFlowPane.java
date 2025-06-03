@@ -218,7 +218,7 @@ public class HangingFlowPane extends Pane {
     {
         return hangingIndentProperty;
     }
-    
+
     public void setHangingIndent(double pixels)
     {
         hangingIndentProperty.set(pixels);
@@ -228,7 +228,7 @@ public class HangingFlowPane extends Pane {
      * The gap between rows when there are multiple rows
      */
     private SimpleStyleableDoubleProperty rowSpacingProperty = new SimpleStyleableDoubleProperty(StyleableProperties.ROW_SPACING, 0.0);
-    
+
     /**
      * The preferred width where content should wrap in a horizontal flowpane or
      * the preferred height where content should wrap in a vertical flowpane.
@@ -982,14 +982,14 @@ public class HangingFlowPane extends Pane {
         else
             return FlowAlignment.LEFT;
     }
-    
+
     private static final String BREAK_BEFORE = "hangingflowpane-breakbefore";
-    
+
     public static void setBreakBefore(Node child, Boolean canBreakBefore)
     {
         setConstraint(child, BREAK_BEFORE, canBreakBefore);
     }
-    
+
     private static boolean canBreakBefore(Node child)
     {
         Boolean b = (Boolean)getConstraint(child, BREAK_BEFORE);

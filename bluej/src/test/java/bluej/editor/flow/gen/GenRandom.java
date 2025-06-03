@@ -33,7 +33,7 @@ public class GenRandom extends Generator<Random>
     {
         super(Random.class);
     }
-    
+
     @Override
     public Random generate(SourceOfRandomness sourceOfRandomness, GenerationStatus generationStatus)
     {

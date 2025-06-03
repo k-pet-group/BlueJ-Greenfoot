@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -40,7 +40,7 @@ public class UnresolvedEntity extends JavaEntity
     private String name;
     private List<TypeArgumentEntity> typeArguments;
     private Reflective querySource;
-    
+
     /**
      * Get an entity whose type (value or class) is not yet known. The returned entity
      * can later be resolved to either a value or type.
@@ -49,7 +49,7 @@ public class UnresolvedEntity extends JavaEntity
     {
         return new UnresolvedEntity(resolver, name, querySource, null);
     }
-    
+
     protected UnresolvedEntity(EntityResolver resolver, String name, Reflective querySource,
             List<TypeArgumentEntity> typeArgs)
     {
@@ -58,7 +58,7 @@ public class UnresolvedEntity extends JavaEntity
         this.querySource = querySource;
         this.typeArguments = typeArgs;
     }
-    
+
     @Override
     public String getName()
     {
@@ -76,7 +76,7 @@ public class UnresolvedEntity extends JavaEntity
     {
         return null;
     }
-    
+
     @Override
     public JavaEntity setTypeArgs(List<TypeArgumentEntity> tparams)
     {
@@ -90,14 +90,14 @@ public class UnresolvedEntity extends JavaEntity
         if (typeArguments != null) {
             return null;
         }
-        
+
         JavaEntity entity = resolver.getValueEntity(name, querySource);
         if (entity != null) {
             return entity.resolveAsValue();
         }
         return null;
     }
-    
+
     @Override
     public TypeEntity resolveAsType()
     {
@@ -113,7 +113,7 @@ public class UnresolvedEntity extends JavaEntity
         }
         return null;
     }
-    
+
     @Override
     public PackageOrClass resolveAsPackageOrClass()
     {

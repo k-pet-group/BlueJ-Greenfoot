@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2021 Michael Kölling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -46,14 +46,14 @@ import threadchecker.Tag;
 public abstract class SingleCanvasFrame extends Frame implements CanvasParent
 {
     protected FrameCanvas canvas;
-    
+
     private Sidebar sidebar;
-    
+
     private boolean collapsible = false; 
     private boolean collapsed = false;
 
     private PlusMinus collapsedIndicator;
-        
+
     /**
      * @param caption
      * @param stylePrefix
@@ -61,7 +61,7 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
     protected SingleCanvasFrame(final InteractionManager editor, String caption, String stylePrefix)
     {
         super(editor, caption, stylePrefix);
-        
+
         canvas = createCanvas(editor, stylePrefix);
 
         sidebar = Sidebar.addSidebar(editor, getSidebarContainer(), getNode().layoutBoundsProperty(), stylePrefix);
@@ -80,14 +80,14 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
     {
         private final static double DIAMETER = 15;
         private final static double BAR_WIDTH = 2;
-        
+
         public PlusMinus()
         {
             setWidth(DIAMETER + 5); // To get some RHS spacing
             setHeight(DIAMETER);
             drawPlus(false);
         }
-        
+
         public void drawPlus(boolean light)
         {
             drawMinus(light);
@@ -100,19 +100,19 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
             GraphicsContext gc = getGraphicsContext2D();
             gc.clearRect(0, 0, getWidth(), getHeight());
             gc.setGlobalBlendMode(BlendMode.SRC_OVER);
-            
+
             gc.setFill(Color.rgb(0, 0, 0, light ? 0.1 : 0.2));
             gc.fillOval(0, 0, DIAMETER, DIAMETER);
-            
-            
+
+
             // Now take out the minus part:
             gc.clearRect(0, DIAMETER / 2 - BAR_WIDTH / 2, DIAMETER, BAR_WIDTH);
-            
+
             //gc.setStroke(Color.rgb(0, 0, 0, 0.1));
             //gc.strokeOval(0, 0, getWidth(), getHeight());
         }
     }
-    
+
     protected void setCollapsible(boolean collapsible)
     {
         if (collapsible != this.collapsible)
@@ -147,23 +147,23 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
                 // TODO remove +/-
                 // TODO expand if collapsed
             }
-            
+
             this.collapsible = collapsible;
         }
     }
-    
+
     @Override
     public boolean isCollapsible()
     {
         return collapsible;
     }
-    
+
     @Override
     public void setCollapsed(boolean collapse)
     {
         if (collapse && !collapsible)
             return;
-        
+
         if (collapse != this.collapsed)
         {
             // TODO we also need to hide the overlays.  Use cleanup?  Need reverse for when we re-add
@@ -186,7 +186,7 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
         this.expandContents();
         getParentCanvas().removeBlock(this);
     }
-    
+
     /**
      * Remove all children and dump them in this container's parent, expanding contents out of container
      */
@@ -236,7 +236,7 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
         if (view == PreviewMode.EXPAND_OUT)
         {
             canvas.getNode().setEffect(new DropShadow(10.0, Color.BLACK));
-            
+
             Timeline t = new Timeline();
             KeyValue kv1 = new KeyValue(canvas.getNode().translateXProperty(), -40);
             KeyValue kv2 = new KeyValue(canvas.getNode().translateYProperty(), 20);
@@ -275,7 +275,7 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
     {
         return this;
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public void setView(View oldView, View newView, SharedTransition animateProgress)
@@ -304,7 +304,7 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
             content.add(0, sidebar.getNode());
         return content;
     }
-    
+
     @Override
     public FrameTypeCheck check(FrameCanvas child)
     {
@@ -317,5 +317,5 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
             throw new IllegalStateException("Asking about unknown child of SingleCanvasFrame");
         }
     }
-    
+
 }

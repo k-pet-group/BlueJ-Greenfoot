@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2019,2024  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -54,7 +54,7 @@ import java.util.concurrent.ExecutionException;
 public class BMethod
 {
     // The same reasoning as of BConstructor applies here.
-    
+
     private Identifier parentId;
     private MethodView bluej_view;
 
@@ -176,7 +176,7 @@ public class BMethod
         @OnThread(Tag.Any)
         record FailureOther(RuntimeException e) implements Outcome {}
     }
-    
+
     /**
      * Invokes this method on the given object. Note that this method should
      * not be called from the JavaFX (GUI) thread.
@@ -317,8 +317,8 @@ public class BMethod
             throw new InvocationErrorException(e.getMessage());
         }
     }
-    
-  
+
+
     /**
      * Returns a string representing the return type, name and signature of this method
      */

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2018,2021,2022  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -73,11 +73,11 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private ObjectWrapper selectedObject;
     private final PkgMgrFrame pkgMgrFrame;
-    
+
     // All invocations done since our last reset.
     @OnThread(Tag.FXPlatform)
     private List<InvokerRecord> invokerRecords;
-   
+
     /**
      * Construct an object bench which is used to hold
      * a bunch of object reference Components.
@@ -90,7 +90,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         this.pkgMgrFrame = pkgMgrFrame;
         updateAccessibleName();
     }
-    
+
     /**
      * Updates the accessible name for screen readers, based on the number
      * of objects currently on the bench
@@ -120,7 +120,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
 
         String newname = wrapper.getName();
         int count = 1;
-        
+
         if (JavaNames.isJavaKeyword(newname)) {
             newname = "x" + newname;
         }
@@ -146,7 +146,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
             wrapper.animateIn(animateFromScene);
             updateAccessibleName();
         });
-        
+
     }
 
     @Override
@@ -160,7 +160,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         addObject(wrapper);
         return wrapper.getName();
     }
-    
+
     /**
      * Return all the wrappers stored in this object bench in an array
      */
@@ -182,7 +182,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         // Iterates on the copy that getObjects provides, so thread-safe:
         return getObjects().iterator();
     }
-    
+
     /**
      * Get the object with name 'name', or null, if it does not
      * exist.
@@ -200,7 +200,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         }
         return null;
     }
-    
+
     @OnThread(Tag.Any)
     public NamedValue getNamedValue(String name)
     {
@@ -218,7 +218,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         return getObject(name) != null;
     }
 
-    
+
     /**
      * Count of object bench copmponents that are object wrappers
      * @return number of ObjectWrappers on the bench
@@ -229,7 +229,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         return objects.size();
     }
 
-    
+
     /**
      * Remove all objects from the object bench.
      */
@@ -248,7 +248,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         updateAccessibleName();
     }
 
-    
+
     /**
      * Remove an object from the object bench. When this is done, the object
      * is also removed from the scope of the package (so it is not accessible
@@ -259,9 +259,9 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         if(wrapper == selectedObject) {
             setSelectedObject(null);
         }
-     
+
         DataCollector.removeObject(wrapper.getPackage(), wrapper.getName());
-        
+
         wrapper.prepareRemove();
         wrapper.getPackage().getDebugger().removeObject(scopeId, wrapper.getName());
         objects.remove(wrapper);
@@ -270,7 +270,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         updateAccessibleName();
     }
 
-    
+
     /**
      * Remove the selected object from the bench. If no object is selected,
      * do nothing.
@@ -281,8 +281,8 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         if(wrapper != null)
             removeObject(wrapper, scopeId);
     }
-    
-    
+
+
     /**
      * Sets what is the currently selected ObjectWrapper, null can be given to 
      * signal that no wrapper is selected.
@@ -294,12 +294,12 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
             selectedObject.setSelected(false);
         }
         selectedObject = aWrapper;
-        
+
         if (selectedObject != null && !selectedObject.isFocused()) {
             selectedObject.requestFocus();
         }
     }
-    
+
     /**
      * Notify that an object has gained focus. The object becomes the selected object.
      */
@@ -309,7 +309,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         if (selectedObject == aWrapper) {
             return;
         }
-        
+
         if (selectedObject != null) {
             selectedObject.setSelected(false);
         }
@@ -317,7 +317,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         selectedObject = aWrapper;
         selectedObject.setSelected(true);
     }
-    
+
     /**
      * Returns the currently selected object wrapper. 
      * If no wrapper is selected null is returned.
@@ -328,7 +328,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         return selectedObject;
     }
 
-    
+
     /**
      * Add a listener for object events to this bench.
      * @param l  The listener object.
@@ -341,7 +341,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
             listenerList.add(l);
         }
     }
-    
+
 
     /**
      * Remove a listener for object events to this bench.
@@ -355,8 +355,8 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
             listenerList.remove(l);
         }
     }
-    
-    
+
+
     /**
      * Fire an object event for the named object. This will
      * notify all listeners that have registered interest for
@@ -377,7 +377,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
             }
         }
     }
-    
+
     // --- KeyListener interface ---
 
     /**
@@ -453,7 +453,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     }
 
     // --- methods for interaction recording ---
-    
+
     /**
      * Reset the recording of invocations.
      */
@@ -468,10 +468,10 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     {
         if (invokerRecords == null)
             resetRecordingInteractions();
-            
+
         invokerRecords.add(ir);    
     }
-    
+
     /**
      * Get the recorded interaction fixture declarations as Java code.
      */
@@ -480,10 +480,10 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     {
         StringBuffer sb = new StringBuffer();
         Iterator<InvokerRecord> it = invokerRecords.iterator();
-        
+
         while(it.hasNext()) {
             InvokerRecord ir = it.next();
-            
+
             if (ir.toFixtureDeclaration(firstIndent) != null) {
                 sb.append(ir.toFixtureDeclaration(firstIndent));
             }
@@ -491,7 +491,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
 
         return sb.toString();
     }
-    
+
     /**
      * Get the recorded interaction fixture setup as Java code.
      */
@@ -500,10 +500,10 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     {
         StringBuffer sb = new StringBuffer();
         Iterator<InvokerRecord> it = invokerRecords.iterator();
-        
+
         while(it.hasNext()) {
             InvokerRecord ir = it.next();
-            
+
             if (ir.toFixtureSetup(secondIndent) != null) {
                 sb.append(ir.toFixtureSetup(secondIndent));
             }
@@ -511,7 +511,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
 
         return sb.toString();
     }
-    
+
     /**
      * Get the recorded interactions as Java code.
      */
@@ -520,7 +520,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     {
         StringBuffer sb = new StringBuffer();
         Iterator<InvokerRecord> it = invokerRecords.iterator();
-        
+
         while(it.hasNext()) {
             InvokerRecord ir = it.next();
 

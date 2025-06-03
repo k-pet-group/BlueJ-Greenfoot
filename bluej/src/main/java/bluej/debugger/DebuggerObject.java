@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2010,2011,2013,2018,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -38,7 +38,7 @@ import threadchecker.Tag;
 public abstract class DebuggerObject
 {
     public static final String OBJECT_REFERENCE = "<object reference>";
-    
+
     /**
      * Get the fully qualified name of the class of this object.
      * If this object is the "null object", return an empty string.
@@ -46,14 +46,14 @@ public abstract class DebuggerObject
      * @return  the fully qualified class name
      */
     public abstract String getClassName();
-    
+
     /**
      *  Get the class of this object.
      *
      *  @return    The class object.
      */
     public abstract DebuggerClass getClassRef();
-    
+
     /**
      * Get the complete generic type of this object, if known. If not known, the raw
      * dynamic type of the object is returned, or null if this is the null object.
@@ -78,7 +78,7 @@ public abstract class DebuggerObject
      * Get all field/value pairs for the object.
      */
     public abstract List<DebuggerField> getFields();
-    
+
     /**
      * Get a field/value pair, specified by index. 
      */
@@ -86,7 +86,7 @@ public abstract class DebuggerObject
     {
         return getFields().get(slot);
     }
-    
+
     /**
      * Get an instance field/value pair, specified by index.
      */
@@ -102,7 +102,7 @@ public abstract class DebuggerObject
         }
         return null;
     }
-    
+
     /**
      * Return the number of array elements. Returns -1 if the object is not an array.
      */
@@ -112,13 +112,13 @@ public abstract class DebuggerObject
      * Return the array element type. Returns null if the object is not an array.
      */
     public abstract JavaType getElementType();
-    
+
     /**
      * Return the array element object for the specified index.
      */
     @OnThread(Tag.FXPlatform)
     public abstract DebuggerObject getElementObject(int index);
-    
+
     /**
      * Return a string representation of the array element at the specified index.
      * For null, the string "null" will be returned.

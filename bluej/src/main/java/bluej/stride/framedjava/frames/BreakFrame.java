@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2018,2021 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -55,7 +55,7 @@ public class BreakFrame extends SingleLineFrame
     public static enum BreakEncloser
     {
         WHILE, FOREACH, SWITCH;
-        
+
         public String getPseudoClass()
         {
             switch (this)
@@ -67,7 +67,7 @@ public class BreakFrame extends SingleLineFrame
             return null; // Impossible
         }
     }
-    
+
     private BreakElement element;
     private Rectangle rectangle;
     private FrameCanvas outer;
@@ -85,7 +85,7 @@ public class BreakFrame extends SingleLineFrame
         //cherry
         frameName = "break statement";
     }
-    
+
     public BreakFrame(InteractionManager editor, boolean enabled)
     {
         this(editor);
@@ -101,7 +101,7 @@ public class BreakFrame extends SingleLineFrame
     public String getScreenReaderHelp() {
         return "you are " + getParentCanvas().getParentLocationDescription();
     }
-        
+
     @Override
     public void updateAppearance(FrameCanvas c)
     {
@@ -111,11 +111,11 @@ public class BreakFrame extends SingleLineFrame
             JavaFXUtil.runNowOrLater(() -> setOverlay(false, null, null));
             return;
         }
-        
+
         // Remove all relevant pseudo-classes:
         for (BreakEncloser e : BreakEncloser.values())
             JavaFXUtil.setPseudoclass(e.getPseudoClass(), false, getNode());
-        
+
         while (c != null && c.getParent() != null && c.getParent().getFrame() != null && c.getParent().getFrame() instanceof CodeFrame<?>)
         {
             CodeFrame<?> cf = (CodeFrame<?>)c.getParent().getFrame();
@@ -141,7 +141,7 @@ public class BreakFrame extends SingleLineFrame
     {
         return element;
     }
-    
+
     @Override
     public void regenerateCode()
     {
@@ -185,7 +185,7 @@ public class BreakFrame extends SingleLineFrame
 
             JavaFXUtil.onceInScene(overlay, this::adjustOverlayBounds);
             getEditor().getCodeOverlayPane().addOverlay(overlay, getNode(), xOffset, yOffset);
-            
+
             JavaFXUtil.addChangeListener(getNode().localToSceneTransformProperty(), t -> adjustOverlayBounds());
             JavaFXUtil.addChangeListener(getNode().boundsInLocalProperty(), b -> adjustOverlayBounds());
         }

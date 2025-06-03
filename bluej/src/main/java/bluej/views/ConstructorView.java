@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2015,2020  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -76,7 +76,7 @@ public final class ConstructorView extends CallableView
     {
         return !JavaUtils.getJavaUtils().getTypeParams(cons).isEmpty();
     }
-    
+
     public boolean isConstructor()
     {
         return true;
@@ -126,7 +126,7 @@ public final class ConstructorView extends CallableView
             return ""; // TODO handle better
         }
     }
-    
+
     /**
      * Get an array of Class objects representing constructor's parameters
      * @returns array of Class objects
@@ -135,7 +135,7 @@ public final class ConstructorView extends CallableView
     {
         return cons.getParameterTypes();
     }
-    
+
     @Override
     public String[] getParamTypeStrings() 
     {
@@ -146,7 +146,7 @@ public final class ConstructorView extends CallableView
             return new String[0]; // TODO handle better
         }
     }
-    
+
     @Override
     public JavaType[] getParamTypes(boolean raw)
     {
@@ -157,7 +157,7 @@ public final class ConstructorView extends CallableView
             return new JavaType[0]; // TODO handle better
         }
     }
-    
+
     @Override
     public GenTypeDeclTpar[] getTypeParams()
     {

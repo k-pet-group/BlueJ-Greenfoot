@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2012,2013,2016,2019,2020,2022,2023  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -55,20 +55,20 @@ class DataCollectionDialog extends Dialog<Boolean>
         // So although resizing doesn't make much sense, we need to let users who have a small
         // dialog resize it to the proper size.
         setResizable(true);
-        
+
         setTitle("BlueJ - " + Config.getString("collect.dialog.title"));
-        
+
         Config.addDialogStylesheets(getDialogPane());
         VBox body = new VBox();
         JavaFXUtil.addStyleClass(body, "blackbox-optin-content");
-        
+
         Pane headerPanel = makeHeaderPanel();
-            
+
         body.getChildren().add(headerPanel);
         body.getChildren().add(makeButtonPanel());
         body.getChildren().add(new Separator(Orientation.HORIZONTAL));
         body.getChildren().add(makeExplanationText());
-    
+
         getDialogPane().setContent(body);
     }
 
@@ -91,7 +91,7 @@ class DataCollectionDialog extends Dialog<Boolean>
             link,
             new Text("\n\n"),
             new Text(Config.getString("collect.dialog.ethics2")));
-        
+
         return text;
     }
 
@@ -102,16 +102,16 @@ class DataCollectionDialog extends Dialog<Boolean>
     {
         HBox headerPanel = new HBox();
         JavaFXUtil.addStyleClass(headerPanel, "blackbox-optin-header");
-    
+
         headerPanel.getChildren().add(new ImageView(Config.getFixedImageAsFXImage("bluej-icon-48.png")));
-        
+
         String header = 
             Config.getString("collect.dialog.header1") + " "
           + Config.getString("collect.dialog.header2") + "\n\n"
           + Config.getString("collect.dialog.header3");
-        
+
         headerPanel.getChildren().add(new TextFlow(JavaFXUtil.withStyleClass(new Text(header), "blackbox-optin-header-text")));
-        
+
         return headerPanel;
     }
 
@@ -121,7 +121,7 @@ class DataCollectionDialog extends Dialog<Boolean>
     private Pane makeButtonPanel()
     {
         BorderPane buttonPanel = new BorderPane();
-        
+
         Button buttonNo = new Button();
         buttonNo.setText(Config.getString("collect.dialog.no"));
         buttonNo.setOnAction(e -> {
@@ -140,5 +140,5 @@ class DataCollectionDialog extends Dialog<Boolean>
         setOnShown(e -> buttonYes.requestFocus());
         return buttonPanel;
     }
-    
+
 }

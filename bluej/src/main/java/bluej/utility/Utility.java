@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -291,7 +291,7 @@ public class Utility
         }
         return true;
     }
-    
+
     /**
      * Wait for the given process to finish, try running the second command if
      * it returns false.
@@ -319,7 +319,7 @@ public class Utility
             Debug.reportError("caught exc " + ioe);
         }
     }
-    
+
     /**
      * Let the given file be shown in a browser window.
      * 
@@ -365,7 +365,7 @@ public class Utility
                         !(new File(startingDir.getParentFile(), "lib").isDirectory())) {
                     startingDir = startingDir.getParentFile();
                 }
-                
+
                 if (startingDir != null) {
                     bluejDir = new File(startingDir.getParentFile(), "lib");
                 }
@@ -375,13 +375,13 @@ public class Utility
                 // from the class name. Cut off the class name and the "jar:" prefix.
                 int classIndex = bootFullName.indexOf("!");
                 String bootName = bootFullName.substring(4, classIndex);
-                
+
                 File finalFile = new File(new URI(bootName));
                 bluejDir = finalFile.getParentFile();
             }   
         } 
         catch (URISyntaxException use) { }
-        
+
         return bluejDir;
     }
 
@@ -494,7 +494,7 @@ public class Utility
             return 0;
         };
     }
-    
+
     /**
      * Get the process ID of this process.
      */
@@ -509,7 +509,7 @@ public class Utility
         return pid;
     }
 
-   
+
     /**
      * merge s2 into s1 at position of first '$'
      */
@@ -561,7 +561,7 @@ public class Utility
         else
             return originalString;
     }
-    
+
     /**
      * Calculates how many spaces each tab in the given string turns into.
      * 
@@ -646,7 +646,7 @@ public class Utility
         try {
             is = new FileInputStream(arName);
             jarInStream = new JarInputStream(is);
-            
+
             // Extract entries in the jar file
             JarEntry je = jarInStream.getNextJarEntry();
             while (je != null) {
@@ -656,7 +656,7 @@ public class Utility
                     prefixFolder = null;
                     break;
                 }
-                
+
                 String prefix = entryName.substring(0, slashIndex);
                 if (prefixFolder == null)
                     prefixFolder = prefix;
@@ -664,7 +664,7 @@ public class Utility
                     prefixFolder = null;
                     break;
                 }
-                
+
                 je = jarInStream.getNextJarEntry();
             }
         }
@@ -680,7 +680,7 @@ public class Utility
             if (is != null)
                 is.close();
         }
-        
+
         return prefixFolder;
     }
 
@@ -699,7 +699,7 @@ public class Utility
     {
         JarInputStream jarInStream = null;
         File oPath = archive.getParentFile();
-    
+
         try { 
             // first need to determine the output path. If the jar file
             // contains a root-level (eg bluej.pkg) entry, extract into a directory
@@ -707,7 +707,7 @@ public class Utility
             // all entries have a common ancestor, extract to that directory
             // (after checking it doesn't exist).
             String prefixFolder = getArchivePrefixFolder(archive);
-            
+
             if (prefixFolder == null) {
                 // Try to extract to directory which has same name as the jar
                 // file, with the .jar or .bjar extension stripped.
@@ -745,23 +745,23 @@ public class Utility
                     return null;
                 }
             }
-            
+
             // Need to extract the project somewhere, then open it
             FileInputStream is = new FileInputStream(archive);
             jarInStream = new JarInputStream(is);
-            
+
             // Extract entries in the jar file
             JarEntry je = jarInStream.getNextJarEntry();
             while (je != null) {
                 File outFile = new File(oPath, je.getName());
-                
+
                 // An entry could represent a file or directory
                 if (je.getName().endsWith("/"))
                     outFile.mkdirs();
                 else {
                     outFile.getParentFile().mkdirs();
                     OutputStream os = new FileOutputStream(outFile);
-                    
+
                     // try to read 8k at a time
                     byte [] buffer = new byte[8192];
                     int rlength = jarInStream.read(buffer);
@@ -769,17 +769,17 @@ public class Utility
                         os.write(buffer, 0, rlength);
                         rlength = jarInStream.read(buffer);
                     }
-                    
+
                     jarInStream.closeEntry();
                     os.close();
                 }
                 je = jarInStream.getNextJarEntry();
             }
-            
+
             // Now, the jar file may contain a bluej project, or it may
             // be a regular jar file in which case we should convert it
             // to a bluej project first.
-            
+
             if (prefixFolder != null)
                 oPath = new File(oPath, prefixFolder);
         }
@@ -797,7 +797,7 @@ public class Utility
         }
         return oPath;
     }
-    
+
     /**
      * Convert an array of files into a classpath string that can be used to start a VM.
      * If files is null or files is empty then an empty string is returned.
@@ -817,7 +817,7 @@ public class Utility
                 .map(f -> f.toString())
                 .collect(Collectors.joining(File.pathSeparator));
     }
-    
+
     /**
      * Transform an array of URL into an array of File. Any non-file URLs are skipped.
      * 
@@ -837,7 +837,7 @@ public class Utility
 
             // A class path is always without the qualifier file in front of it.
             // However some characters (such as space) are encoded.
-            
+
             if ("file".equals(url.getProtocol())) {
                 URI uri = URI.create(url.toString());
                 rlist.add(new File(uri));
@@ -853,17 +853,17 @@ public class Utility
     public static List<String> dequoteCommandLine(String str)
     {
         List<String> strings = new ArrayList<String>();
-        
+
         int i = 0;
         while (i < str.length()) {
             // Skip white space
             while (i < str.length() && Character.isWhitespace(str.charAt(i))) {
                 i++;
             }
-            
+
             StringBuffer arg = new StringBuffer();
             char c;
-            
+
             while (i < str.length()) {
                 c = str.charAt(i++);
                 if (c == '\\') {
@@ -897,7 +897,7 @@ public class Utility
             }
             strings.add(arg.toString());
         }
-        
+
         return strings;        
     }
 
@@ -906,7 +906,7 @@ public class Utility
     {
         return dla.execute(s, t);
     }
-    
+
     public static String escapeAngleBrackets(String sig)
     {
         return sig.replace("<", "&lt;").replace(">", "&gt;");
@@ -931,7 +931,7 @@ public class Utility
      * problem recurs, because finding which "T" type is causing the problem is much harder than
      * finding "T8". 
      */
-    
+
     /** Concatenates any non-null streams in the list together */
     @SafeVarargs
     public static <T3> Stream<T3> concat(Stream<? extends T3>... streams)
@@ -952,7 +952,7 @@ public class Utility
             }
         }).flatMap(List::stream).collect(Collectors.toList());
     }
-    
+
     /** If the value is null, returns null.  Otherwise, applies the function. */
     public static <T5, R> R orNull(T5 t, Function<T5, R> f)
     {
@@ -964,7 +964,7 @@ public class Utility
         if (t != null)
             f.accept(t);
     }
-    
+
     /**
      * Collects the items into a list, but adds the given element between each of the collected
      * elements.  Like a mix of Collectors.toList and Collectors.joining
@@ -988,7 +988,7 @@ public class Utility
     {
         return intersperse(() -> inbetween);
     }
-    
+
     // Interleaves two streams.  Returns first element of a, then first element of b,
     // then second of a, second of b, third of a and so on.  Once one stream runs out, just
     // returns the rest of the remaining stream
@@ -1004,7 +1004,7 @@ public class Utility
                 r.add(ar.get(i));
             if (i < br.size())
                 r.add(br.get(i));
-            
+
         }
         return r.stream();
     }
@@ -1023,7 +1023,7 @@ public class Utility
         }
         return r;
     }
-    
+
     public static <T> Iterable<T> iterableStream(Stream<T> s)
     {
         // Via http://stackoverflow.com/a/20130475/412908 :
@@ -1063,22 +1063,22 @@ public class Utility
     {
         return new Iterable<T>() {
             private final ListIterator<T> listIterator = src.listIterator(src.size());
-    
+
             public Iterator<T> iterator() {
                 return new Iterator<T>() {
-    
+
                     public boolean hasNext() {
                         return listIterator.hasPrevious();
                     }
-    
+
                     public T next() {
                         return listIterator.previous();
                     }
-    
+
                     public void remove() {
                         listIterator.remove();
                     }
-    
+
                 };
             }
         };
@@ -1184,7 +1184,7 @@ public class Utility
     {
         return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();
     }
-    
+
     /**
      * Finds the index of the first item in the list where the given predicate returns true,
      * or -1 if none match
@@ -1237,7 +1237,7 @@ public class Utility
         String commandAsStr;
         String processName; 
         Process p;
-        
+
         public ExternalProcessLogger(String processName, String command, Process process)
         {
             super("ExternalProcessLogger");
@@ -1245,7 +1245,7 @@ public class Utility
             commandAsStr = command;
             p = process;
         }
-        
+
         @Override
         public void run()
         {
@@ -1263,7 +1263,7 @@ public class Utility
                         extra.append(buf, 0, len);
                     }
                 }
-                
+
                 if (extra.length() != 0) {
                     Debug.message("When trying to launch " + processName + ":" + commandAsStr);
                     Debug.message(" This error was recieved: " + extra);
@@ -1287,7 +1287,7 @@ public class Utility
      * @return the extension (String) in the format ".ext" or an empty value if the extension couldn't be extracted,
      *         Note: the extension is trimmed but case isn't changed (e.g. "file.TXT" will return ".TXT")
      */
-    
+
     public static String getFileExtension(String fileName)
     {
         if (fileName.contains("."))
@@ -1296,7 +1296,7 @@ public class Utility
         }
         return "";
     }
-    
+
     /**
      * A utility class to wait for an external process to complete.
      * This allows waiting with a timeout, unlike the Process.waitFor()
@@ -1306,7 +1306,7 @@ public class Utility
     private static class ProcessWaiter
     {
         boolean complete = false;
-        
+
         public ProcessWaiter(final Process p)
         {
             new Thread("Waiting for process") {
@@ -1323,7 +1323,7 @@ public class Utility
                 }
             }.start();
         }
-        
+
         /**
          * Wait for the process to complete, with the given timeout.
          * If the timeout is 0, wait indefinitely.

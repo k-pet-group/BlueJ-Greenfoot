@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2017,2022  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -65,7 +65,7 @@ public class DataCollector
     private static final String PROPERTY_EXPERIMENT = "blackbox.experiment";
     private static final String PROPERTY_PARTICIPANT = "blackbox.participant";
     private static final String OPT_OUT = "optout";
-    
+
     /**
      * We decide at the very beginning of the session whether we are recording, based
      * on whether the user was opted in.  Starting to record mid-session is fairly
@@ -81,7 +81,7 @@ public class DataCollector
      * Session identifier.  Never changes after startSession() has been called:
      */
     @OnThread(value = Tag.Any, requireSynchronized = true) private static String sessionUuid;
-    
+
     /**
      * These three variables can change during the execution:
      */
@@ -115,8 +115,8 @@ public class DataCollector
      * error indicators have been shown before we've been told about the compile event that generated them.
      */
     private static final BitSet createdErrors = new BitSet();
-    
-    
+
+
     /**
      * Checks whether we should send data.  This takes into account whether we
      * are in Greenfoot, and opt-in status.  It doesn't check whether we have stopped
@@ -133,7 +133,7 @@ public class DataCollector
     {
         // Look for an existing UUID:
         uuid = Config.getPropString(PROPERTY_UUID, null);
-        
+
         // If there is no UUID in the file, or it's invalid, ask them if they want to opt in or opt out:
         if (!(OPT_OUT.equals(uuid)) && !uuidValidForRecording() )
         {
@@ -141,13 +141,13 @@ public class DataCollector
         }
 
         recordingThisSession = uuidValidForRecording();
-        
+
         if (recordingThisSession)
         {
             // Initialise the session:
             sessionUuid = UUID.randomUUID().toString();
         }
-        
+
         // We fetch these regardless, so that everything is consistent
         // if the user opts in and edits them mid-session:
         experimentIdentifier = Config.getPropString(PROPERTY_EXPERIMENT, null);
@@ -200,7 +200,7 @@ public class DataCollector
         }
         Config.putPropString(PROPERTY_UUID, uuid);
     }
-    
+
     /**
      * Gets the user's UUID
      */
@@ -208,7 +208,7 @@ public class DataCollector
     {
         return uuid;
     }
-    
+
     /**
      * Get the experiment identifier.
      */
@@ -217,7 +217,7 @@ public class DataCollector
     {
         return experimentIdentifier;
     }
-    
+
     /**
      * Get the participant identifier.
      */
@@ -226,7 +226,7 @@ public class DataCollector
     {
         return participantIdentifier;
     };
-    
+
     /**
      * Get the session identifier.
      */
@@ -235,7 +235,7 @@ public class DataCollector
     {
         return sessionUuid;
     }
-    
+
     /**
      * Gets a String to display to the user in the preferences, explaining their
      * current opt-in/recording status
@@ -277,7 +277,7 @@ public class DataCollector
         if (dontSend()) return;
         DataCollectorImpl.bluejOpened(osVersion, javaVersion, bluejVersion, interfaceLanguage, extensions);
     }
-    
+
     public static void bluejClosed()
     {
         if (dontSend()) return;
@@ -336,13 +336,13 @@ public class DataCollector
         if (dontSend()) return;
         DataCollectorImpl.debuggerTerminate(project);
     }
-    
+
     public static void debuggerChangeVisible(Project project, boolean newVis)
     {
         if (dontSend()) return;
         DataCollectorImpl.debuggerChangeVisible(project, newVis);
     }
-    
+
     public static void debuggerContinue(Project project, String threadName)
     {
         if (dontSend()) return;
@@ -354,19 +354,19 @@ public class DataCollector
         if (dontSend()) return;
         DataCollectorImpl.debuggerHalt(project, threadName, stack);
     }
-    
+
     public static void debuggerStepInto(Project project, String threadName, SourceLocation[] stack)
     {
         if (dontSend()) return;
         DataCollectorImpl.debuggerStepInto(project, threadName, stack);
     }
-    
+
     public static void debuggerStepOver(Project project, String threadName, SourceLocation[] stack)
     {
         if (dontSend()) return;
         DataCollectorImpl.debuggerStepOver(project, threadName, stack);
     }
-    
+
     public static void debuggerHitBreakpoint(Project project, String threadName, SourceLocation[] stack)
     {
         if (dontSend()) return;
@@ -378,19 +378,19 @@ public class DataCollector
         if (dontSend()) return;
         DataCollectorImpl.invokeCompileError(pkg, code, compilationError);
     }
-    
+
     public static void invokeMethodSuccess(Package pkg, String code, String objName, String typeName, int testIdentifier, int invocationIdentifier)
     {
         if (dontSend()) return;
         DataCollectorImpl.invokeMethodSuccess(pkg, code, objName, typeName, testIdentifier, invocationIdentifier);
     }
-    
+
     public static void invokeMethodException(Package pkg, String code, ExceptionDescription ed)
     {
         if (dontSend()) return;
         DataCollectorImpl.invokeMethodException(pkg, code, ed);
     }
-    
+
     public static void invokeMethodTerminated(Package pkg, String code)
     {
         if (dontSend()) return;
@@ -861,7 +861,7 @@ public class DataCollector
     {
         private  String name;
         private  String type;
-        
+
         public NamedTyped(String name, String type)
         {
             this.name = name;

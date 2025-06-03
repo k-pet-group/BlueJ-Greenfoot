@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2021,2022,2024 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -83,7 +83,7 @@ public class SwitchFrame extends MultiCanvasFrame
 
         casesCanvas = new JavaCanvas(editor, this, SWITCH_STYLE_PREFIX, false);
         addCanvas(null, casesCanvas);
-        
+
         //Parameters
         expression = new FilledExpressionSlot(editor, this, this, getHeaderRow(), SWITCH_STYLE_PREFIX){
             @Override
@@ -101,7 +101,7 @@ public class SwitchFrame extends MultiCanvasFrame
         setHeaderRow(new SlotLabel("("), expression, new SlotLabel(")"));
         expression.onTextPropertyChange(updateSidebarCurried("switch "));
     }
-    
+
     public SwitchFrame(InteractionManager editor, ExpressionSlotFragment expression, boolean enabled)
     {
         this(editor);
@@ -162,7 +162,7 @@ public class SwitchFrame extends MultiCanvasFrame
             editor.modifiedFrame(this, false);
         }
     }
-    
+
     public static FrameFactory<SwitchFrame> getFactory()
     {
         return new FrameFactory<SwitchFrame>() {
@@ -173,7 +173,7 @@ public class SwitchFrame extends MultiCanvasFrame
                 switchFrame.getFirstInternalCursor().insertBlockAfter(CaseFrame.getFactory().createBlock(editor));
                 return switchFrame;
             }
-            
+
             @Override
             public Class<SwitchFrame> getBlockClass()
             { 
@@ -181,7 +181,7 @@ public class SwitchFrame extends MultiCanvasFrame
             }
         };
     }
-    
+
     @Override
     public void pullUpContents()
     {
@@ -214,7 +214,7 @@ public class SwitchFrame extends MultiCanvasFrame
             // (note that here a default frame isn't empty is something else than a BreakFrame is found)
             if (!previousCaseIsEmpty && defaultContents.stream().anyMatch(f -> !(f instanceof  BreakFrame)))
                 defaultContents.add(0, new BlankFrame(editor));
-            
+
             getCursorBefore().insertFramesAfter(defaultContents);
         }
         //notify the editor that a change has been occurred. That will trigger a file save
@@ -342,7 +342,7 @@ public class SwitchFrame extends MultiCanvasFrame
             {
                 return getCasesCanvas().showDebugBefore(null, debug);
             }
-            
+
             @Override
             public FrameCanvas getParentCanvas()
             {

@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2017,2021 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -93,7 +93,7 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
                 wrapper.setRight(classImage);
             }
         }
-        
+
         //maxHeightProperty().bind(cssMaxHeightProperty);
         setFocusTraversable(true);
         editor.setupFocusableSlotComponent(this, super.getNode(), false, Collections::emptyList, Collections.emptyList());
@@ -107,14 +107,14 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         JavaFXUtil.addStyleClass(previewCommentEnd, "preview-slashstar");
         wrapper.setTop(previewCommentStart);
         wrapper.setBottom(previewCommentEnd);
-        
+
         // Originally I tried binding to textProperty().isEqualTo("") but that seemed weirdly flakey
         // (on Mac OS X, 8u20).  So we add a listener direct to the text property:
         setPseudoclass("bj-blank", true); // We are blank to begin with
         textProperty().addListener((a, b, c) -> {
             setPseudoclass("bj-blank", getText().equals(""));
         });
-        
+
         // Make tab move focus, not insert a tab:
         addEventFilter(KeyEvent.KEY_PRESSED, event -> {
                 switch(event.getCode()) {
@@ -127,7 +127,7 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
                         }
                         event.consume();
                         break;
-                
+
                     case UP:
                         if (getCaretPosition() != 0)
                         {
@@ -237,12 +237,12 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
     public void addError(CodeError err)
     {
     }
-    
+
     @Override
     public void focusAndPositionAtError(CodeError err)
     {
     }
-    
+
     @Override
     public Stream<CodeError> getCurrentErrors()
     {
@@ -283,19 +283,19 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         // No links in documentation (at the moment; could add in future)
         return Collections.emptyList();
     }
-    
+
     @Override
     public Frame getParentFrame()
     {
         return frameParent;
     }
-    
+
     @Override
     public void lostFocus()
     {
-        
+
     }
-    
+
     @Override
     public void setView(View oldView, View newView, SharedTransition animate)
     {
@@ -314,7 +314,7 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
             // vice versa:
             growFromNothingUsing(animate);
         }
-        
+
         if (newView == View.JAVA_PREVIEW && (getParentFrame() == null || getParentFrame().isFrameEnabled()))
         {
             previewCommentStart.growToFullHeightWith(animate, true);
@@ -327,7 +327,7 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
             previewCommentEnd.shrinkToNothingWith(animate, true);
             animate.addOnStopped(() -> wrapper.setSnapToPixel(true));
         }
-        
+
         curView = newView;
     }
 
@@ -445,7 +445,7 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         else
             return null;
     }
-    
+
     @Override
     public String getXPathForElementAt(double sceneX, double sceneY, LocationMap locationMap, String xpathParent, int canvasesBefore, boolean includePseudoElements, boolean includeSubstringIndex)
     {

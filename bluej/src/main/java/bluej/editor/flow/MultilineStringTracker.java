@@ -81,7 +81,7 @@ public class MultilineStringTracker implements DocumentListener
             return "I" + Integer.toString(value);
         }
     }
-    
+
     // The live set of the triple quotes, held in sorted order for faster processing:
     private final TreeSet<Position> positionsOfTripleQuotes = new TreeSet<>();
     private final Document document;
@@ -98,7 +98,7 @@ public class MultilineStringTracker implements DocumentListener
         this.changeListener = changeListener;
         document.addListener(false, this);
     }
-    
+
     @Override
     public void textReplaced(int origStartIncl, String replaced, String replacement, int linesRemoved, int linesAdded)
     {
@@ -110,7 +110,7 @@ public class MultilineStringTracker implements DocumentListener
         int affectedEnd = origStartIncl + replacement.length();
         while (affectedEnd < document.getLength() && document.getContent(affectedEnd, affectedEnd + 1).charAt(0) == '\"')
             affectedEnd += 1;
-        
+
         // Remove any positions from the affected region...
         SortedSet<Position> toRemove = positionsOfTripleQuotes.subSet(new Position(affectedStart), new Position(affectedEnd - replacement.length() + replaced.length()));
         boolean anyChanged = !toRemove.isEmpty();
@@ -140,7 +140,7 @@ public class MultilineStringTracker implements DocumentListener
                 quoteCount = 0;
             }
         }
-        
+
         if (anyChanged)
         {
             changeListener.run();

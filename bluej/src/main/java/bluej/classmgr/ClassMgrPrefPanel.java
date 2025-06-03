@@ -76,7 +76,7 @@ implements PrefPanelListener
      */
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private static List<ClassPathEntry> savedUserLibraries = null;
-    
+
     private ListView<ClassPathEntry> userLibrariesListView = null;
     private ObservableList<ClassPathEntry> editingUserLibraries;
     private boolean classPathModified = false;
@@ -110,7 +110,7 @@ implements PrefPanelListener
         BorderPane userLibPane = new BorderPane();
         {
             JavaFXUtil.addStyleClass(userLibPane, "prefmgr-library-userlib-hbox");
-            
+
             editingUserLibraries = FXCollections.observableArrayList();
             editingUserLibraries.setAll(savedUserLibraries);
             // list of user library classpath entries
@@ -141,7 +141,7 @@ implements PrefPanelListener
         // Don't need selection in bottom table:
         userlibExtLibrariesListView.setSelectionModel(new NoMultipleSelectionModel<>());
         userlibExtLibrariesListView.setFocusTraversable(false);
-        
+
         String userlibLocation = Config.getString("classmgr.userliblibraries") 
                 + " " + Config.getBlueJLibDir() + File.separator + "userlib";
 
@@ -270,7 +270,7 @@ implements PrefPanelListener
     {
         savedUserLibraries.clear();
         savedUserLibraries.addAll(editingUserLibraries);
-        
+
         String r1;
         int resourceID = 1;
 

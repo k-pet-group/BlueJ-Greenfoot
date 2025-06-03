@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2018,2019  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -41,7 +41,7 @@ public class BlueJGuiHandler implements GuiHandler
 {
     private static final int FIRST_X_LOCATION = 20;
     private static final int FIRST_Y_LOCATION = 20;
-    
+
     @Override
     public boolean tryOpen(File path, boolean displayError)
     {
@@ -49,25 +49,25 @@ public class BlueJGuiHandler implements GuiHandler
         // TODO: fix BlueJ to respect displayError parameter.
         return PkgMgrFrame.doOpen(path, null);
     }
-    
+
     @Override
     public void handleAbout()
     {
         PkgMgrFrame.handleAbout();
     }
-    
+
     @Override
     public void handlePreferences()
     {
         PkgMgrFrame.handlePreferences();
     }
-    
+
     @Override
     public void handleQuit()
     {
         PkgMgrFrame.handleQuit();
     }
-    
+
     @Override
     public Stage initialOpenComplete(boolean projectOpen)
     {
@@ -101,11 +101,11 @@ public class BlueJGuiHandler implements GuiHandler
                     Debug.message("Did not find target class in opened project: \"" + targetName + "\"");
                 }
             }
-            
+
             return PkgMgrFrame.getMostRecent().getWindow();
         }
     }
-    
+
     @Override
     public void doExitCleanup()
     {
@@ -138,7 +138,7 @@ public class BlueJGuiHandler implements GuiHandler
         {
             removeOrphanPackageList();
         }
-        
+
         // add an entry for each open package
         for (int i = 0; i < openFrames.length; i++)
         {

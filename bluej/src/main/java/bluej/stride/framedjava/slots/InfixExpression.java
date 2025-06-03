@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2016,2018 Michael Kölling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -54,7 +54,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
      * Keeps track of whether we have queued a task to update the prompts:
      */
     private boolean queuedUpdatePrompts;
-    
+
     private InfixExpression(InteractionManager editor, ExpressionSlot<?> slot, String initialContent, BracketedStructured wrapper, StructuredSlot.ModificationToken token, Character... closingChars)
     {
         super(editor, slot, initialContent, wrapper, token, closingChars);
@@ -109,7 +109,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
     {
         return beginsExpressionOperator(c);
     }
-    
+
     /** Can this operator be unary */
     @Override
     boolean canBeUnary(String s)
@@ -137,7 +137,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
     {
         return c == ')' || c == ']' || c == '}';
     }
-    
+
     @Override
     protected boolean isDisallowed(char c)
     {
@@ -299,7 +299,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
             slot.afterCurrentModification(this::updatePromptsInMethodCalls);
         }
     }
-    
+
     @Override
     @OnThread(Tag.FXPlatform)
     public void calculateTooltipFor(StructuredSlotField expressionSlotField, FXConsumer<String> handler)

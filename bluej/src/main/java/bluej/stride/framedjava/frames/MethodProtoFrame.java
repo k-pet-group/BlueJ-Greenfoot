@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2020,2021,2022 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -61,7 +61,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         methodName = new MethodNameDefTextSlot(editor, this, getHeaderRow(), null, "method-name-");
         methodName.setPromptText("name");
         methodName.addValueListener( SlotTraversalChars.METHOD_NAME);
-        
+
         returnType = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.RETURN, "method-return-type-");
         returnType.setSimplePromptText("type");
         returnType.addClosingChar(' ');
@@ -83,7 +83,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         frameName = "method prototype "+ methodName.getText();
         returnType.setSlotName("return type");
     }
-    
+
     public MethodProtoFrame(final InteractionManager editor, TypeSlotFragment returnType,
             NameDefSlotFragment methodName, List<ParamFragment> params, List<ThrowsTypeFragment> throwsTypes, String documentation, boolean enabled)
     {
@@ -149,7 +149,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
             FXCollections.observableArrayList(previewSemi)
         ));
     }
-    
+
     public static FrameFactory<MethodProtoFrame> getFactory()
     {
         return new FrameFactory<MethodProtoFrame>() {
@@ -172,7 +172,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     public List<FrameOperation> getContextOperations()
     {
         List<FrameOperation> r = new ArrayList<>(super.getContextOperations());
-        
+
         if (parentIsClass.get()) 
         {
             r.add(new CustomFrameOperation(getEditor(), "abstract->concrete",
@@ -186,7 +186,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
                         c.getParentCanvas().removeBlock(this);
                     }));
         }
-        
+
         return r;
     }
 
@@ -209,7 +209,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     {
         return element;
     }
-    
+
     @Override
     public List<ExtensionDescription> getAvailableExtensions(FrameCanvas innerCanvas, FrameCursor cursorInCanvas)
     {

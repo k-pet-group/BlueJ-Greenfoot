@@ -46,7 +46,7 @@ public class HoleDocument implements Document
     private char[] content;
     private int holeStart; // Index of first character in the hole.
     private int holeEnd; // Index of first character in array after the hole
-    
+
     private final ArrayList<LineInformation> lineInformation = new ArrayList<>();
 
     /**
@@ -80,7 +80,7 @@ public class HoleDocument implements Document
                 // Unremovable first line -- skip
                 continue;
             }
-            
+
             TrackedPosition lineStartPosition = lineInformation.lineStart;
             if (lineStartPosition.position <= startCharIncl)
             {
@@ -91,9 +91,9 @@ public class HoleDocument implements Document
                 linesRemoved += 1;
                 iterator.remove();
             }
-            
+
         }
-        
+
         // Start by moving the hole to the modification location:
         if (holeStart < startCharIncl)
         {
@@ -112,13 +112,13 @@ public class HoleDocument implements Document
         }
 
         // Now hole is at the right position.
-        
+
         // Store content being replaced:
         String replaced = new String(content, holeEnd, endCharExcl - startCharIncl);
 
         // Remove existing content by deleting at end of hole
         holeEnd += (endCharExcl - startCharIncl);
-        
+
         // Check if we have enough space for the new content:
         int additionAmount = text.length();
         if (holeEnd - holeStart < additionAmount)
@@ -131,7 +131,7 @@ public class HoleDocument implements Document
             content = newContent;
             holeEnd += extraLength;
         }
-        
+
         // Add new content by copying into hole
         System.arraycopy(text.toCharArray(), 0, content, holeStart, text.length());
         holeStart += text.length();
@@ -149,7 +149,7 @@ public class HoleDocument implements Document
                 trackedPosition.updateTrackedPosition(startCharIncl, endCharExcl, text.length());
             }
         }
-        
+
         int linesAdded = 0;
         // Now add new positions for the added newlines:
         for (int i = 0; i < text.length(); i++)
@@ -248,11 +248,11 @@ public class HoleDocument implements Document
         trackedPositions.add(new WeakReference<>(trackedPosition));
         return trackedPosition;
     }
-    
+
     public List<CharSequence> getLines()
     {
         List<Integer> lineStarts = getLineStartPositions();
-        
+
         return new AbstractListRandomAccess<CharSequence>()
         {
             @Override
@@ -370,7 +370,7 @@ public class HoleDocument implements Document
         else
             listeners.add(listener);
     }
-    
+
     public void removeListener(DocumentListener listener)
     {
         // Remove all by reference equality:
@@ -390,7 +390,7 @@ public class HoleDocument implements Document
             return false;
         }
     }
-    
+
     public void addLineAttribute(int lineIndex, Object key, Object value)
     {
         if (lineIndex >= 0 && lineIndex < lineInformation.size())
@@ -398,7 +398,7 @@ public class HoleDocument implements Document
             lineInformation.get(lineIndex).lineAttributes.put(key, value);
         }
     }
-    
+
     public void removeLineAttributeThroughout(Object key)
     {
         for (LineInformation information : lineInformation)
@@ -443,7 +443,7 @@ public class HoleDocument implements Document
             this.lineStart = lineStart;
         }
     }
-    
+
     // Adapted from StringReader
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private class HoleReader extends Reader
@@ -451,7 +451,7 @@ public class HoleDocument implements Document
         private int next;
         private int mark = 0;
         private final int end; 
-        
+
         private HoleReader(int start, int end)
         {
             this.next = start;
@@ -476,7 +476,7 @@ public class HoleDocument implements Document
                 }
             }
         }
-        
+
         public int read(char cbuf[], int off, int len)
         {
             if ((off < 0) || (off > cbuf.length) || (len < 0) ||
@@ -492,7 +492,7 @@ public class HoleDocument implements Document
             {
                 return -1;
             }
-            
+
             int total = Math.min(end - next, len);
             int toCopy = total;
             if (next < holeStart)
@@ -523,17 +523,17 @@ public class HoleDocument implements Document
             next += n;
             return n;
         }
-        
+
         public boolean ready()
         {
             return true;
         }
-        
+
         public boolean markSupported()
         {
             return true;
         }
-        
+
         public void mark(int readAheadLimit)
         {
             if (readAheadLimit < 0)
@@ -542,12 +542,12 @@ public class HoleDocument implements Document
             }
             mark = next;
         }
-        
+
         public void reset()
         {
             next = mark;
         }
-        
+
         public void close()
         {
         }

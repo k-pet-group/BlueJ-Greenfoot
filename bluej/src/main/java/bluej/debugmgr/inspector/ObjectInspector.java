@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2010,2011,2013,2014,2016,2017,2018,2019,2021,2023,2025  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -82,7 +82,7 @@ public class ObjectInspector extends Inspector
     public static final int CORNER_SIZE = 40;
 
     // === instance variables ===
-    
+
     /** A reference to the object being inspected */
     protected DebuggerObject obj;
 
@@ -181,7 +181,7 @@ public class ObjectInspector extends Inspector
 
         BorderPane mainPanel = new BorderPane();
         mainPanel.setCenter(fieldList);
-        
+
         fieldList.setPlaceHolderText("  " + noFieldsMsg);
 
         mainPanel.setRight(createInspectAndGetButtons());
@@ -189,7 +189,7 @@ public class ObjectInspector extends Inspector
         // create bottom button pane with "Close" button
 
         Pane bottomPanel = new VBox();
-        
+
         BorderPane buttonPanel = new BorderPane();
         Button button = createCloseButton();
         buttonPanel.setRight(button);
@@ -205,7 +205,7 @@ public class ObjectInspector extends Inspector
             }
         });
         buttonPanel.setCenter(copyButton);
-        
+
         bottomPanel.getChildren().add(buttonPanel);
 
         BorderPane additionalPanel = new BorderPane();
@@ -319,7 +319,7 @@ public class ObjectInspector extends Inspector
             setButtonsEnabled(false, false);
             return;
         }
-        
+
         // add index to slot method for truncated arrays
         if (obj.isArray()) {
             slot = indexToSlot(slot);
@@ -354,12 +354,12 @@ public class ObjectInspector extends Inspector
                         return;
                     }
                 }
-                
+
                 // primitive or null
                 setCurrentObj(null, null, null);
                 setButtonsEnabled(false, false);
             }
-            
+
             return;
         }
 
@@ -405,7 +405,7 @@ public class ObjectInspector extends Inspector
         }
         else if (selectedField != null) {
             boolean isPublic = !getButton.isDisable();
-            
+
             if (! obj.isArray()) {
                 InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, ir);
                 inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this, null);
@@ -416,7 +416,7 @@ public class ObjectInspector extends Inspector
             }
         }
     }
-    
+
     @Override
     protected void doGet()
     {
@@ -436,7 +436,7 @@ public class ObjectInspector extends Inspector
             pkgEd.raisePutOnBenchEvent(this, selField, selField.getGenType(), getIr, true, Optional.empty());
         }
     }
-    
+
     /**
      * Remove this inspector.
      */
@@ -496,12 +496,12 @@ public class ObjectInspector extends Inspector
                             // Retrieve the right index in the list
                             extraArrayIndexInList = indexToSlotList.indexOf(extraArraySlotIndex);
                         }
-                        
+
                         // Select the right row (as we have [...], the actual index and slot index maybe different, we need it find it)
                         // Make sure graphics are refreshed by changing the selection back and forth:
                         fieldList.select(-1);
                         fieldList.select(extraArrayIndexInList);
-                        
+
                         //reset the indexes indicators
                         extraArraySlotIndex = -1;
                         extraArrayIndexInList = -1;
@@ -560,7 +560,7 @@ public class ObjectInspector extends Inspector
         // according to the java spec...
         indexToSlotList = new LinkedList<Integer>();
         indexToSlotList.add(0, Integer.valueOf(ARRAY_LENGTH_SLOT_VALUE));
-        
+
         int arrayTotalLength = arrayObject.getElementCount();
 
         // the +1 here is due to the fact that if we do not have at least one
@@ -628,7 +628,7 @@ public class ObjectInspector extends Inspector
         else {
             List<FieldInfo> fullArrayFieldList = new ArrayList<FieldInfo>(arrayObject.getElementCount() + 1);
             fullArrayFieldList.add(0, new FieldInfo("int length", "" + arrayObject.getElementCount()));
-            
+
             for (int i = 0; i < arrayObject.getElementCount(); i++) {
                 fullArrayFieldList.add(new FieldInfo("[" + i + "]", arrayObject.getElementValueString(i)));
                 indexToSlotList.add(i);

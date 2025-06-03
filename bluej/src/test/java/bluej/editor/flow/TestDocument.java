@@ -66,7 +66,7 @@ public class TestDocument
             this.lastPosition = initialPos;
         }
     }
-    
+
     @BeforeClass
     public static void setup()
     {
@@ -82,12 +82,12 @@ public class TestDocument
         DocumentUndoStack[] undoStacks = new DocumentUndoStack[] { new DocumentUndoStack(documents[0]), new DocumentUndoStack(documents[1])}; 
         String curContent = "";
         GenString stringMaker = new GenString();
-        
+
         // One entry per tracked position;
         List<Pos> trackedPositions = new ArrayList<>();
-        
+
         List<String> prevContent = new ArrayList<>();
-        
+
         // Perform 100 replacements:
         int lastInsert = 0;
         for (int i = 0; i < 100; i++)
@@ -101,7 +101,7 @@ public class TestDocument
                 Bias bias = Bias.values()[r.nextInt(Bias.values().length)];
                 trackedPositions.add(new Pos(documents, newTrackPos, bias));
             }
-            
+
             int start, end;
             // 20% chance of inserting at same position:
             if (r.nextInt(5) == 1)
@@ -123,7 +123,7 @@ public class TestDocument
                 end = start + r.nextInt(length - start);
             }
             String newContent = stringMaker.generate(new SourceOfRandomness(r), null);
-            
+
             prevContent.add(curContent);
 
             // Calculate desired content and check the document matches:
@@ -135,12 +135,12 @@ public class TestDocument
             }
             // What is the position if we kept on typing?
             lastInsert = start + newContent.length();
-            
+
             // Update all the positions and check them:
             for (Pos pos : trackedPositions)
             {
                 int was = pos.lastPosition;
-                
+
                 if (pos.lastPosition < start)
                 {
                     // Position is before our change, nothing to alter
@@ -169,7 +169,7 @@ public class TestDocument
                     assertEquals(column, trackedPosition.getColumn());
                 }
             }
-            
+
             // Check a few line start and end positions:
             for (int j = 0; j < 10; j++)
             {
@@ -187,7 +187,7 @@ public class TestDocument
                     assertEquals(document.getLineLength(line), document.getLineEnd(line) - document.getLineStart(line) + (nextNewLine == -1 ? 0 : 1));
                 }
             }
-            
+
             // Check that no lines have \n, and re-assembling them makes full content:
             for (Document document : documents)
             {
@@ -199,7 +199,7 @@ public class TestDocument
                 assertEquals(curContent, lines.stream().collect(Collectors.joining("\n")));
                 assertEquals(lines.size(), document.getLineCount());
             }
-            
+
             // Check that document reader on a random sub-part does the right thing:
             int startRead = curContent.length() <= 1 ? 0 : r.nextInt(curContent.length() - 1);
             int endRead = curContent.length() == 0 ? 0 : r.nextInt(curContent.length() - startRead) + startRead;
@@ -208,7 +208,7 @@ public class TestDocument
             {
                 // Check getContent while we're at it:
                 assertEquals(expectedRead, document.getContent(startRead, endRead).toString());
-                
+
                 Reader reader = document.makeReader(startRead, endRead);
                 try
                 {
@@ -258,7 +258,7 @@ public class TestDocument
                     fail("IOException: " + e.getLocalizedMessage());
                 }
             }
-            
+
             // Try some undo/redo:
             assertEquals(undoStacks[0].canUndoCount(), undoStacks[1].canUndoCount());
             assertEquals(undoStacks[0].canRedoCount(), undoStacks[1].canRedoCount());
@@ -279,7 +279,7 @@ public class TestDocument
                         assertEquals(undoCount, undoStack.canRedoCount());
                     }
                 }
-                
+
                 // Note: counts down as that makes some logic easier
                 for (int redoCount = undoTotal - 1; redoCount >= 0; redoCount--)
                 {
@@ -315,7 +315,7 @@ public class TestDocument
         {
             positions.put(pos, pos.onePosPerDoc.get(0).position);
         }
-        
+
         return positions;
     }
 

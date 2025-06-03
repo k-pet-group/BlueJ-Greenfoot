@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2014,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -37,7 +37,7 @@ import java.util.Set;
 public class GenTypeDeclTpar extends GenTypeTpar
 {
     protected GenTypeSolid [] upperBounds;
-    
+
     /**
      * Construct a GenTypeDeclTpar without specifying bounds. The bounds should then be
      * set using setBounds(). Until that occurs any intermediate method call has undefined
@@ -47,13 +47,13 @@ public class GenTypeDeclTpar extends GenTypeTpar
     {
         super(parname);
     }
-    
+
     public GenTypeDeclTpar(String parname, GenTypeSolid bound)
     {
         super(parname);
         upperBounds = new GenTypeSolid [] { bound };
     }
-    
+
     /**
      * Constructor for a type parameter with bounds. The array passed to this
      * constructor should not be modified afterwards.
@@ -66,7 +66,7 @@ public class GenTypeDeclTpar extends GenTypeTpar
         super(parname);
         upperBounds = bounds;
     }
-    
+
     /**
      * Constructor for a type parameter with a lower bound (as well as upper bounds).
      * This can occur from capture conversion of a "? super XX" wildcard.
@@ -76,7 +76,7 @@ public class GenTypeDeclTpar extends GenTypeTpar
         super(parname);
         upperBounds = ubounds;
     }
-    
+
     /**
      * Set the bounds. This should only be done when first creating the instance; otherwise,
      * GenTypeDeclTpar instances should be immutable (as with other JavaTypes).
@@ -85,7 +85,7 @@ public class GenTypeDeclTpar extends GenTypeTpar
     {
         upperBounds = ubounds;
     }
-    
+
     /**
      * Get the upper bound (possibly an intersection type).
      */
@@ -94,7 +94,7 @@ public class GenTypeDeclTpar extends GenTypeTpar
     {
         return IntersectionType.getIntersection(upperBounds);
     }
-    
+
     /**
      * Get the bounds of this type parameter, as an array of GenTypeSolid.
      */
@@ -104,7 +104,7 @@ public class GenTypeDeclTpar extends GenTypeTpar
         System.arraycopy(upperBounds, 0, r, 0, upperBounds.length);
         return r;
     }
-    
+
     /* (non-Javadoc)
      * @see bluej.debugger.gentype.GenTypeTpar#mapTparsToTypes(java.util.Map)
      */
@@ -119,14 +119,14 @@ public class GenTypeDeclTpar extends GenTypeTpar
             }
             return IntersectionType.getIntersection(mappedBounds);
         }
-        
+
         GenTypeParameter newType = (GenTypeParameter)tparams.get(getTparName());
         if( newType == null )
             return this;
         else
             return newType;
     }
-    
+
     /**
      * Returns a string describing this type parameter. This includes name and
      * bound as written in Java.<br>
@@ -186,7 +186,7 @@ public class GenTypeDeclTpar extends GenTypeTpar
         if (super.isAssignableFrom(t)) {
             return true;
         }
-        
+
         return false;
     }
 

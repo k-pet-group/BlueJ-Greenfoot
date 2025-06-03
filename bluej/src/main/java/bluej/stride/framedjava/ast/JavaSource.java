@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -61,7 +61,7 @@ public class JavaSource
         private final JavaSingleLineDebugHandler debugHandler;
         /** Is this line a breakpoint? */
         private final boolean breakpoint;
-        
+
         public SourceLine(String indent, List<JavaFragment> content,
                 JavaSingleLineDebugHandler debugHandler,
                 boolean breakpoint) {
@@ -72,7 +72,7 @@ public class JavaSource
             this.content = content;
             this.debugHandler = debugHandler;
             this.breakpoint = breakpoint;
-            
+
             for (JavaFragment f : content)
             {
                 if (f == null)
@@ -406,15 +406,15 @@ public class JavaSource
         // Methods can have breakpoint on last line so no need for extra code:
         parent.appendLine(Arrays.asList(new FrameFragment(frame, srcEl, "}")), debugHandler);
         return parent;
-        
+
     }
-    
+
     public static JavaSource createCompoundStatement(Frame frame, CodeElement srcEl, JavaSingleLineDebugHandler headerDebugHandler,
             JavaContainerDebugHandler endDebugHandler, List<JavaFragment> header, List<JavaSource> contents)
     {
         return createCompoundStatement(frame, srcEl, headerDebugHandler, endDebugHandler, header, contents, null);
     }
-    
+
     // Header line should have no curly brackets
     public static JavaSource createCompoundStatement(Frame frame, CodeElement srcEl, JavaSingleLineDebugHandler headerDebugHandler,
             final JavaContainerDebugHandler endDebugHandler, List<JavaFragment> header, List<JavaSource> contents, JavaFragment footer)
@@ -425,11 +425,11 @@ public class JavaSource
         for (JavaSource src : contents) {
             parent.addIndented(src);
         }
-        
+
         /*
          * Adding the extra dummy statement causes the breakboint to appear twice. In addition, it seems to be
          * unneeded after the change that been made in the 'removeSpecialsAfter' method in the 'JavaCanvas' class 
-       
+
         // If, loops, etc cannot have breakpoint on last line so need extra code to break on,
         // except if the last statement is a return one.
         boolean hasReturn = parent.lines.get(parent.lines.size() -1).content.get(0).getJavaCode().contains("return");
@@ -442,9 +442,9 @@ public class JavaSource
             });
         }
         */
-       
+
         parent.appendLine(Arrays.asList(new FrameFragment(frame, srcEl, "}")), null);
-        
+
         if (footer != null) {
             parent.addIndented(new JavaSource(headerDebugHandler, footer));
         }
@@ -457,7 +457,7 @@ public class JavaSource
         // (so step-over/-into work the same).  This may trigger a warning in future javac:
         JavaSource r = new JavaSource(handler);
         r.lines.add(new SourceLine("", Arrays.asList(new FrameFragment(frame, srcEl, "{ int org_greenfoot_debug_frame = 7; } /* dummy code for breakpoint */")), handler, true));
-         
+
         return r;
     }
 
@@ -473,7 +473,7 @@ public class JavaSource
             prependLine(Arrays.asList(new FrameFragment(null, null, javadocLines.get(i))), null);
         }
     }
-    
+
     public Stream<JavaFragment> getAllFragments()
     {
         return lines.stream().flatMap(l -> l.content.stream());

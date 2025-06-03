@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009,2011,2012,2014,2015,2016,2018,2019,2020  Michael Kolling and John Rosenberg
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -61,7 +61,7 @@ import java.util.regex.Pattern;
 public abstract class JavaUtils
 {
     private static JavaUtils jutils;
-    
+
     /**
      * Factory method. Returns a JavaUtils object.
      * @return an object supporting the appropriate feature set
@@ -71,11 +71,11 @@ public abstract class JavaUtils
         if( jutils != null ) {
             return jutils;
         }
-        
+
         jutils = new JavaUtils15();
         return jutils;
     }
-    
+
     /**
      * Get a "signature" description of a method.
      * Looks like:  void method(int, int, int)
@@ -144,7 +144,7 @@ public abstract class JavaUtils
         Class<?>[] params = cons.getParameterTypes();
         return makeSignature(name, params);
     }
- 
+
     /**
      * Translate escape characters into their source representation.
      * The result is suitable for inserting into Java source (between quotes).
@@ -184,10 +184,10 @@ public abstract class JavaUtils
                 outBuf.append(c);
             }
         }
-        
+
         return outBuf.toString();
     }
-    
+
     /**
      * Get a "short description" of a method. This is like the signature,
      * but substitutes the parameter names for their types.
@@ -221,7 +221,7 @@ public abstract class JavaUtils
      */
     abstract public String getLongDesc(Method method, String [] paramnames)
         throws ClassNotFoundException;
-    
+
     /**
      * Get a long String describing the method, with class type parameters
      * mapped to their instantiation types. A long description is similar to a
@@ -235,7 +235,7 @@ public abstract class JavaUtils
     @OnThread(Tag.FXPlatform)
     abstract public String getLongDesc(Method method, String [] paramnames,
             Map<String,GenTypeParameter> tparams) throws ClassNotFoundException;
-    
+
     /**
      * Get a "short description" of a constructor. This is like the signature,
      * but substitutes the parameter names for their types.
@@ -245,7 +245,7 @@ public abstract class JavaUtils
      */
     abstract public String getShortDesc(Constructor<?> constructor, String [] paramnames)
         throws ClassNotFoundException;
-    
+
     /**
      * Get a long String describing the constructor. A long description is
      * similar to the short description, but it has type names and parameters
@@ -253,15 +253,15 @@ public abstract class JavaUtils
      */
     abstract public String getLongDesc(Constructor<?> constructor, String [] paramnames)
         throws ClassNotFoundException;
-    
+
     abstract public boolean isVarArgs(Constructor<?> cons);
-    
+
     abstract public boolean isVarArgs(Method method);    
-   
+
     abstract public boolean isSynthetic(Method method);
-    
+
     abstract public boolean isEnum(Class<?> cl);
-    
+
     /**
      * Get the return type of a method.
      */
@@ -279,7 +279,7 @@ public abstract class JavaUtils
 
     @OnThread(Tag.FXPlatform)
     abstract public JavaType getRawFieldType(Field field);
-    
+
     /**
      * Get a list of the type parameters for a generic method.
      * (return an empty list if the method is not generic).
@@ -289,7 +289,7 @@ public abstract class JavaUtils
      */
     @OnThread(Tag.FXPlatform)
     abstract public List<GenTypeDeclTpar> getTypeParams(Method method);
-    
+
     /**
      * Get a list of the type parameters for a generic constructor.
      * (return an empty list if the method is not generic).
@@ -299,7 +299,7 @@ public abstract class JavaUtils
      */
     @OnThread(Tag.FXPlatform)
     abstract public List<GenTypeDeclTpar> getTypeParams(Constructor<?> cons);
-    
+
     /**
      * Get a list of the type parameters for a class. Return an empty list if
      * the class is not generic.
@@ -309,13 +309,13 @@ public abstract class JavaUtils
      */
     @OnThread(Tag.FXPlatform)
     abstract public List<GenTypeDeclTpar> getTypeParams(Class<?> cl);
-    
+
     /**
      * Get the declared supertype of a class.
      */
     @OnThread(Tag.FXPlatform)
     abstract public GenTypeClass getSuperclass(Class<?> cl) throws ClassNotFoundException;
-    
+
     /**
      * Get a list of the interfaces directly implemented by the given class.
      * @param cl  The class for which to find the interfaces
@@ -323,7 +323,7 @@ public abstract class JavaUtils
      */
     @OnThread(Tag.FXPlatform)
     abstract public GenTypeClass [] getInterfaces(Class<?> cl) throws ClassNotFoundException;
-    
+
     /**
      * Gets an array of nicely formatted strings with the types of the parameters.
      * Include the ellipsis (...) for a varargs method.
@@ -331,7 +331,7 @@ public abstract class JavaUtils
      * @param method The method to get the parameters for.
      */
     abstract public String[] getParameterTypes(Method method) throws ClassNotFoundException;
-    
+
     /**
      * Get an array containing the argument types of the method.
      * 
@@ -344,7 +344,7 @@ public abstract class JavaUtils
      */
     @OnThread(Tag.FXPlatform)
     abstract public JavaType[] getParamGenTypes(Method method, boolean raw) throws ClassNotFoundException;
-    
+
     /**
      * Gets an array of nicely formatted strings with the types of the parameters.
      * Include the ellipsis (...) for a varargs constructor.
@@ -352,7 +352,7 @@ public abstract class JavaUtils
      * @param constructor The constructor to get the parameters for.
      */
     abstract public String[] getParameterTypes(Constructor<?> constructor) throws ClassNotFoundException;
-    
+
     /**
      * Get an array containing the argument types of the method.
      * 
@@ -364,7 +364,7 @@ public abstract class JavaUtils
      */
     @OnThread(Tag.FXPlatform)
     abstract public JavaType[] getParamGenTypes(Constructor<?> constructor) throws ClassNotFoundException;
-    
+
     /**
      * Change a list of type parameters (with bounds) into a map, which maps
      * the name of the parameter to its bounding type.
@@ -382,7 +382,7 @@ public abstract class JavaUtils
         }
         return rmap;
     }
-    
+
     /**
      * Check whether a member of some container type can be accessed from another type
      * according to its modifiers.
@@ -402,15 +402,15 @@ public abstract class JavaUtils
         // Access from a static context can only access static members
         if (isStatic && !Modifier.isStatic(modifiers))
             return false;
-        
+
         if (Modifier.isPublic(modifiers)) {
             return true;
         }
-        
+
         if (accessor == null) {
             return false;
         }
-        
+
         String accessorName = accessor.getName();
         if (! Modifier.isPrivate(modifiers)) {
             String cpackage = JavaNames.getPrefix(container.getName());
@@ -420,12 +420,12 @@ public abstract class JavaUtils
                 return true;
             }
         }
-        
+
         // access class == container class, then access is always allowed
         if (accessorName.equals(container.getName())) {
             return true;
         }
-        
+
         Reflective outer = accessor.getOuterClass();
         if (outer != null) {
             // Inner classes can access outer class members with outer class privileges
@@ -434,7 +434,7 @@ public abstract class JavaUtils
                 return true;
             }
         }
-        
+
         // Protected access is allowed if the targetType is a subtype of the acessType
         Set<Reflective> targetSupers = new HashSet<Reflective>();
         targetType.erasedSuperTypes(targetSupers);
@@ -445,7 +445,7 @@ public abstract class JavaUtils
                 break;
             }
         }
-        
+
         List<Reflective> supers = accessor.getSuperTypesR();
         Set<String> done = new HashSet<String>();
         while (! supers.isEmpty()) {
@@ -464,7 +464,7 @@ public abstract class JavaUtils
                 }
             }
         }
-        
+
         return false;
     }
 
@@ -499,7 +499,7 @@ public abstract class JavaUtils
                 sb.append(paramTypes[j]);
                 typePrinted = true;
             }
-            
+
             if (paramNames != null && paramNames[j] != null) {
                 if (typePrinted)
                     sb.append(" ");
@@ -511,7 +511,7 @@ public abstract class JavaUtils
         sb.append(")");
         return sb.toString();
     }
-    
+
     /**
      * Convert a javadoc comment to a string with just the comment body, i.e. strip the
      * leading asterisks.
@@ -519,13 +519,13 @@ public abstract class JavaUtils
     public static String javadocToString(String javadoc)
     {
         String eol = System.getProperty("line.separator");
-        
+
         if (javadoc == null || javadoc.length() < 5) {
             return null;
         }
-        
+
         StringBuffer outbuf = new StringBuffer();
-        
+
         String str = javadoc;
         if (javadoc.charAt(0) == '/') {
             if (javadoc.charAt(1) == '*') {
@@ -539,7 +539,7 @@ public abstract class JavaUtils
                 }
             }
         }
-        
+
         int nl = str.indexOf('\n');
         int cr = str.indexOf('\r');
         int pos = 0;
@@ -547,13 +547,13 @@ public abstract class JavaUtils
             int lineEnd = Math.min(nl, cr);
             lineEnd = (nl == -1) ? cr : lineEnd;
             lineEnd = (cr == -1) ? nl : lineEnd;
-            
+
             String line = str.substring(pos, lineEnd);
             line = stripLeadingStars(line);
-            
+
             outbuf.append(line);
             outbuf.append(eol);
-            
+
             pos = lineEnd + 1;
             if (pos == nl) {
                 pos++;
@@ -562,43 +562,43 @@ public abstract class JavaUtils
             nl = str.indexOf('\n', pos);
             cr = str.indexOf('\r', pos);
         }
-        
+
         String line = stripLeadingStars(str.substring(pos)).trim();
         if (line.length() > 0) {
             outbuf.append(line);
         }
-        
+
         return outbuf.toString();
     }
-    
+
     public static class Javadoc
     {
         private final String intro;
         private final List<String> blocks;
-        
+
         public Javadoc(String intro, List<String> blocks)
         {
             this.intro = intro;
             this.blocks = blocks;
         }
-        
+
         public String getHeader()
         {
             return intro;
         }
-        
+
         // Minus the leading '@'
         public List<String> getBlocks()
         {
             return blocks;
         }
     }
-    
+
     public static Javadoc parseJavadoc(String javadocString)
     {
         if (javadocString == null)
             return null;
-        
+
         // find the first block tag
         int i;
         for (i = 0; i < javadocString.length(); i++) {
@@ -615,21 +615,21 @@ public abstract class JavaUtils
                 i++;
             }
         }
-        
+
         if (i >= javadocString.length()) {
             return new Javadoc(javadocString, Collections.emptyList());
         }
-        
+
         // Process the block tags
         String header = javadocString.substring(0, i);
         String blocksText = javadocString.substring(i);
         String[] lines = Utility.splitLines(blocksText);
 
         List<String> blocks = getBlockTags(lines);
-        
+
         return new Javadoc(header, blocks);
     }
-    
+
 
     /**
      * Strip leading asterisk characters (and any preceding whitespace) from a single
@@ -651,7 +651,7 @@ public abstract class JavaUtils
         }
         return s;
     }
-    
+
     /**
      * Get a GenType corresponding to the (raw) class c
      */
@@ -685,7 +685,7 @@ public abstract class JavaUtils
         }
         return new GenTypeClass(new JavaReflective(c));
     }
-    
+
 //    private static final Pattern headerPattern = Pattern.compile("{1,}\\s@\\w");
     private static final Pattern paramNamePattern = Pattern.compile("param\\s+\\w"); // regular expression for the parameter name
     private static final Pattern paramDescPattern = Pattern.compile("\\s+\\w");  // regular expression for the parameter description
@@ -703,7 +703,7 @@ public abstract class JavaUtils
         StringBuilder params = new StringBuilder();
         params.append("<h3>Parameters</h3>").append("<table border=0>");
         boolean hasParamDoc = false;
-        
+
 
         for (String block : j.getBlocks()) {
             Matcher matcher = paramNamePattern.matcher(block); //search the current block
