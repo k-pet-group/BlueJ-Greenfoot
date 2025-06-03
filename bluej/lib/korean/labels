@@ -477,13 +477,6 @@ pkgmgr.newPackage.prompt=\ud328\ud0a4\uc9c0 \uc774\ub984
 pkgmgr.newPackage.newPackage=\ud328\ud0a4\uc9c0
 pkgmgr.newPackage.error=\uc720\ud6a8\ud558\uc9c0 \uc54a\uc740 \ud328\ud0a4\uc9c0 \uc774\ub984\uc785\ub2c8\ub2e4.
 
-# "new CSS" dialog
-pkgmgr.newCSS.title=BlueJ:  \uc0c8 CSS \ud30c\uc77c \ub9cc\ub4e4\uae30
-pkgmgr.newCSS.label=CSS \ud30c\uc77c:
-pkgmgr.newCSS.prompt=\ud30c\uc77c\uba85
-pkgmgr.newCSS.newCSS=CSS
-pkgmgr.newCSS.error=\uc720\ud6a8\ud558\uc9c0 \uc54a\uc740 \ud30c\uc77c\uba85\uc785\ub2c8\ub2e4.
-
 # "duplicate class" dialog
 pkgmgr.duplicate.title=BlueJ: \ud074\ub798\uc2a4 \ubcf5\uc81c
 pkgmgr.duplicate.error.notValidClassName=\uc720\ud6a8\ud558\uc9c0 \uc54a\uc740 \ud074\ub798\uc2a4 \uc774\ub984\uc785\ub2c8\ub2e4.
@@ -648,7 +641,6 @@ menu.package.quit=\uc885\ub8cc@Q
 menu.edit=\ud3b8\uc9d1
 menu.edit.newClass=\uc0c8 \ud074\ub798\uc2a4...@N
 menu.edit.newPackage=\uc0c8 \ud328\ud0a4\uc9c0...@R
-menu.edit.newCSS=\uc0c8 CSS \ud30c\uc77c...
 menu.edit.addClass=\ud30c\uc77c\uc5d0\uc11c \ud074\ub798\uc2a4 \ucd94\uac00...
 menu.edit.remove=\uc0ad\uc81c@BACK_SPACE
 menu.edit.newUses=\uc0c8 \uc0ac\uc6a9 \ud654\uc0b4\ud45c...

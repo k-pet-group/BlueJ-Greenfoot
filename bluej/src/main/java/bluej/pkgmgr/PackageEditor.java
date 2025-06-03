@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2019,2020,2021,2022,2023,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,6 +38,7 @@ import bluej.pkgmgr.target.Target;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableCanvas;
 import bluej.views.CallableView;
@@ -290,10 +291,10 @@ public final class PackageEditor extends StackPane
         });
         JavaFXUtil.addStyleClass(newPackage, "class-action-inbuilt");
         
-        MenuItem newCSS = new MenuItem(Config.getString("menu.edit.newCSS"));
+        MenuItem newCSS = new MenuItem(Config.getString("menu.edit.newText"));
         newCSS.setOnAction(e -> {
             pmf.menuCall();
-            pmf.doCreateNewCSS(graphLoc.getX(), graphLoc.getY());
+            pmf.doCreateNewTextFile(graphLoc.getX(), graphLoc.getY());
         });
         JavaFXUtil.addStyleClass(newCSS, "class-action-inbuilt");
 
@@ -531,6 +532,11 @@ public final class PackageEditor extends StackPane
     public List<Target> getSelection()
     {
         return selectionController.getSelection();
+    }
+
+    public void setReRun(ClassTarget target, FXPlatformRunnable run)
+    {
+        pmf.setReRun(target, run);
     }
 
     /**

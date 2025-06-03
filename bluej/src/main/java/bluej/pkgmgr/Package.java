@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024 Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024,2025 Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -2322,21 +2322,6 @@ public final class Package
     }
 
     /**
-     * An interface for message "calculators" which can produce enhanced diagnostic messages when
-     * given a reference to the editor in which a compilation error occurred.
-     */
-    public static interface MessageCalculator
-    {
-        /**
-         * Produce a diagnostic message for the given editor.
-         * This should produce something half-way helpful if null is passed.
-         *
-         * @param e  The editor where the original error occurred (null if it cannot be determined).
-         */
-        public String calculateMessage(Editor e);
-    }
-
-    /**
      * Attempt to display (in the corresponding editor) an error message associated with a
      * specific line in a class. This is done by opening the class's source, highlighting the line
      * and showing the message in the editor's information area. If the filename specified does
@@ -2449,7 +2434,7 @@ public final class Package
      * @param errorIndex The index of the error (first is 0, second is 1, etc)
      * @param compileType The type of the compilation which caused the error.
      */
-    private ErrorShown showEditorDiagnostic(Diagnostic diagnostic, MessageCalculator messageCalc, int errorIndex, CompileType compileType)
+    private ErrorShown showEditorDiagnostic(Diagnostic diagnostic, int errorIndex, CompileType compileType)
     {
         String fileName = diagnostic.getFileName();
         if (fileName == null) {
@@ -2465,9 +2450,6 @@ public final class Package
 
         Editor targetEditor = t.getEditor();
         if (targetEditor != null) {
-            if (messageCalc != null) {
-                diagnostic.setMessage(messageCalc.calculateMessage(targetEditor));
-            }
 
             if (project.isClosing()) {
                 return ErrorShown.ERROR_NOT_SHOWN;
@@ -2755,10 +2737,10 @@ public final class Package
             errorPosition[2] = (int) diagnostic.getEndLine();
             errorPosition[3] = (int) diagnostic.getEndColumn();
             if (diagnostic.getType() == Diagnostic.ERROR) {
-                errorMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage(), type);
+                errorMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage().localisedMessage(), type);
             }
             else {
-                warningMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage(), type);
+                warningMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage().localisedMessage(), type);
             }
 
             boolean shown = false;
@@ -2926,7 +2908,7 @@ public final class Package
             }
             else {
                 return warningMessage(diagnostic.getFileName(), (int) diagnostic.getStartLine(),
-                    diagnostic.getMessage());
+                    diagnostic.getMessage().localisedMessage());
             }
         }
 
@@ -2942,12 +2924,12 @@ public final class Package
 
             if (diagnostic.getFileName() == null)
             {
-                showMessageWithText("compiler-error", diagnostic.getMessage());
+                showMessageWithText("compiler-error", diagnostic.getMessage().localisedMessage());
                 return true;
             }
 
-            String message = diagnostic.getMessage();
-            messageShown = showEditorDiagnostic(diagnostic, null, numErrors - 1, type);
+            String message = diagnostic.getMessage().localisedMessage();
+            messageShown = showEditorDiagnostic(diagnostic, numErrors - 1, type);
 
             // Display the error message in the source editor
             switch (messageShown)

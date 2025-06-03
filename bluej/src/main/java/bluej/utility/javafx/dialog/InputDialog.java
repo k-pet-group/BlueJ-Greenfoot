@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 2016,2017,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import bluej.Config;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -61,6 +62,7 @@ public abstract class InputDialog<R>
     private final Label error;
     // The dialog pane:
     private final DialogPaneAnimateError dialogPane;
+    private HBox fieldWrapper;
 
     /**
      * Creates an InputDialog.
@@ -87,16 +89,10 @@ public abstract class InputDialog<R>
             }
         });
         error = new Label();
-        if (labelAfterField == null)
-        {
-            // By default, error label is shown
-            content.getChildren().addAll(this.prompt, field, error);
-        }
-        else
-        {
-            HBox hbox = new HBox(field, new Label(labelAfterField));
-            content.getChildren().addAll(this.prompt, hbox, error);
-        }
+        error.setWrapText(true);
+        fieldWrapper = labelAfterField == null ? new HBox(field) : new HBox(field, new Label(labelAfterField));
+        fieldWrapper.getStyleClass().add("input-dialog-field-wrapper");
+        content.getChildren().addAll(this.prompt, fieldWrapper, error);
         dialogPane = new DialogPaneAnimateError(error, () -> validate(field.getText(), field.getText()));
         dialog.setDialogPane(dialogPane);
         dialog.getDialogPane().setContent(content);
@@ -131,6 +127,11 @@ public abstract class InputDialog<R>
             else
                 return null; // This will turn into Optional.empty in the showAndWait return.
         });
+    }
+
+    protected void addContentAfterField(Node... nodes)
+    {
+        fieldWrapper.getChildren().addAll(nodes);
     }
 
     /**
@@ -184,6 +185,14 @@ public abstract class InputDialog<R>
     protected void setPrompt(String s)
     {
         prompt.setText(s);
+    }
+
+    /**
+     * Sets whether the dialog is resizable.
+     */
+    protected void setResizable(boolean resizable)
+    {
+        dialog.setResizable(resizable);
     }
 
     /**

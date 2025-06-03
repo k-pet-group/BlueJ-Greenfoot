@@ -82,25 +82,8 @@ public class AssertPanel extends HBox
     // Callback method that implements the caller (must take a boolean value as argument)
     private Consumer<Boolean> updateCaller = null;
 
-    private static class AssertInfo
+    private static record AssertInfo(String label, String assertMethodName, int fieldsNeeded, boolean supportsFloatingPoint, boolean supportsObject, boolean supportsPrimitive)
     {
-        public final String label;
-        public final String assertMethodName;
-        public final int fieldsNeeded;
-        public final boolean supportsFloatingPoint;
-        public final boolean supportsObject;
-        public final boolean supportsPrimitive;
-
-        public AssertInfo(String label, String assertMethodName, int fieldsNeeded, boolean supportsFloatingPoint, boolean supportsObject, boolean supportsPrimitive)
-        {
-            this.label = label;
-            this.assertMethodName = assertMethodName;
-            this.fieldsNeeded = fieldsNeeded;
-            this.supportsFloatingPoint = supportsFloatingPoint;
-            this.supportsObject = supportsObject;
-            this.supportsPrimitive = supportsPrimitive;
-        }
-        
         public boolean needsFirstField()
         {
             return fieldsNeeded >= 1;
@@ -113,6 +96,7 @@ public class AssertPanel extends HBox
 
         // For display in the combo box:
         @Override
+        @OnThread(Tag.Any)
         public String toString()
         {
             return label;
@@ -191,7 +175,8 @@ public class AssertPanel extends HBox
         getChildren().add(standardPanel);
 
         assertCheckbox.setSelected(true);
-        
+
+        JavaFXUtil.addChangeListenerPlatform(assertCombo.getSelectionModel().selectedItemProperty(), ai -> update());
         assertCombo.setItems(asserts.filtered(a -> {
             if (isFloat)
                 return a.supportsFloatingPoint;

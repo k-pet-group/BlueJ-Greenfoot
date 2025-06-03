@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2024,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import bluej.editor.flow.Document;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXFunction;
+import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import javafx.beans.binding.DoubleExpression;
@@ -192,7 +193,7 @@ public class LineDisplay
             int lineIndex = firstVisibleLineIndex;
             while (lines.hasNext())
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), showLeftMargin, () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(editorPane), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), showLeftMargin, () -> editorPaneListener.marginClickedForLine(k), (e) -> editorPaneListener.getContextMenuToShow(editorPane, new Point2D(e.getScreenX(), e.getScreenY())), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
                 line.textLine.setText(lines.next(), xTranslate, false, fontCSS);
                 lineIndex += 1;
             }
@@ -208,7 +209,7 @@ public class LineDisplay
             int lineIndex;
             for (lineIndex = firstVisibleLineIndex; lineIndex < allLines.size() && totalHeightSoFar < height; lineIndex += 1)
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), showLeftMargin, () -> editorPaneListener.marginClickedForLine(k), () -> editorPaneListener.getContextMenuToShow(editorPane), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), showLeftMargin, () -> editorPaneListener.marginClickedForLine(k), (e) -> editorPaneListener.getContextMenuToShow(editorPane, new Point2D(e.getScreenX(), e.getScreenY())), e -> editorPaneListener.scrollEventOnTextLine(e, editorPane)));
                 line.textLine.setText(allLines.get(lineIndex), xTranslate, true, fontCSS);
                 double lineHeight = calculateLineHeight(allLines.get(lineIndex), width);
                 totalHeightSoFar += snapHeight.apply(lineHeight);
@@ -281,6 +282,19 @@ public class LineDisplay
      */
     public void ensureLineVisible(int line, double containerHeight, int linesInDocument)
     {
+        if (containerHeight == 0)
+        {
+            // It's possible for the stderr pane in the terminal that we get called to scroll even
+            // while the container height is zero, because the splitter pane is in the process of being adjusted
+            // to show the content.  In that case we don't want to run this code because we can end up
+            // getting confused and scrolling beyond the end of the content to a line that doesn't exist,
+            // and this doesn't get fixed when the container is laid out again.  So the simplest fix
+            // is just to bail out when the height is zero.  This code will end up being re-run once the
+            // height changes to something sensible.
+            return;
+        }
+
+
         // Note: if the line is the first/last visible, it may be only partially visible, so we still 
         // scroll because we may need to move slightly to bring the whole line into view.
         
@@ -399,6 +413,11 @@ public class LineDisplay
     public double textLeftEdge()
     {
         return MarginAndTextLine.textLeftEdge(showLeftMargin);
+    }
+
+    public void setPseudoclassOnAllVisibleLines(String pseudoclass, boolean on)
+    {
+        visibleLines.values().forEach(l -> JavaFXUtil.setPseudoclass(pseudoclass, on, l));
     }
 
     public static interface LineDisplayListener

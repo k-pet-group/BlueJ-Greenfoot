@@ -527,6 +527,8 @@ public class TextParserTest
         r = tp.parseCommand("true ? \"a string\" : 4");
         boolean correct = r.equals("java.lang.constant.ConstantDesc");
         correct |= r.equals("java.lang.constant.Constable");
+        correct |= r.equals("java.lang.Comparable<? extends java.lang.Comparable<?>>");
+        correct |= r.equals("java.io.Serializable");
         assertTrue(r, correct);
         
         // If one side is a byte and the other is a constant which could be narrowed to

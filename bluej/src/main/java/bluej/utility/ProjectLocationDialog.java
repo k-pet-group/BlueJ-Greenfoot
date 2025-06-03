@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2017,2018,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2017,2018,2019,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -90,7 +90,12 @@ class ProjectLocationDialog
         chooseParent.setOnAction(e -> {
             DirectoryChooser newChooser = new DirectoryChooser();
             newChooser.setTitle(title);
-            newChooser.setInitialDirectory(new File(parentField.getText()));
+            File parentDir = new File(parentField.getText());
+            // We get an exception if we set an initial directory that doesn't exist, so only set it if it exists:
+            if (parentDir.exists() && parentDir.isDirectory())
+            {
+                newChooser.setInitialDirectory(parentDir);
+            }
             File chosen = newChooser.showDialog(dialogPane.getScene().getWindow());
             if (chosen != null)
                 parentField.setText(chosen.getAbsolutePath());

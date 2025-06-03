@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2014,2015,2016,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2014,2015,2016,2018,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,9 +21,12 @@
  */
 package bluej.utility;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.stream.Collectors;
 
 import bluej.Config;
 
@@ -164,10 +167,10 @@ public class BlueJFileReader
      */
     public static void translateFile(File template, File dest,
                                      Dictionary<String,String> translations,
-                                     Charset templateCharset, Charset outputCharset)
+                                     Charset templateCharset, Charset outputCharset, boolean includeFullContent)
         throws IOException
     {
-        translateFile(template, dest, translations, true, templateCharset, outputCharset);
+        translateFile(template, dest, translations, true, templateCharset, outputCharset, includeFullContent);
     }
 
     /**
@@ -181,15 +184,75 @@ public class BlueJFileReader
      */
     private static void translateFile(File template, File dest,
             Dictionary<String,String> translations, boolean replaceTabs,
-            Charset templateCharset, Charset outputCharset)
+            Charset templateCharset, Charset outputCharset, boolean includeFullContent)
         throws IOException
     {
+        // This code was originally written using InputStreamReader and OutputStreamReader
+        // and done at character-level but we needed to add some line-based processing to it
+        // for includeFullContent, so we first process the file line-based then feed it
+        // to the original code:
+
+        List<String> templateLines = Files.readAllLines(template.toPath(), templateCharset);
+
+        if (!includeFullContent) {
+            // This is a bit of a hacky way of emptying out the content but it stops us having
+            // to add special tags into all existing contents, and should support any reasonable
+            // user-made templates:
+            for (int i = 0; i < templateLines.size(); i++)
+            {
+                if (templateLines.get(i).trim().matches("^public\\s+(class|interface|record|enum)\\s+\\$CLASSNAME.*"))
+                {
+                    // We need to now find and advance beyond the curly bracket:
+                    if (templateLines.get(i).trim().endsWith("{"))
+                    {
+                        i += 1;
+                    }
+                    else if (i + 1 < templateLines.size() && templateLines.get(i + 1).trim().endsWith("{"))
+                    {
+                        // Bracket is on following line:
+                        i += 2;
+                    }
+                    else
+                    {
+                        // Can't find it, so don't do any further preprocessing:
+                        break;
+                    }
+                    // Now we find the final closing bracket in the template:
+                    int j;
+                    for (j = templateLines.size() - 1; j >= i; j--)
+                    {
+                        if (templateLines.get(j).contains("}"))
+                        {
+                            break;
+                        }
+                    }
+                    if (i < j)
+                    {
+                        // Remove all lines after i (exclusive) and before j (exclusive)
+                        templateLines.subList(i, j).clear();
+                        if (template.getName().toLowerCase().startsWith("javafx"))
+                        {
+                            templateLines.addAll(i,
+                            """
+                                @Override
+                                public void start(Stage stage)
+                                {
+                                    
+                                }
+                            """.lines().toList());
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
         InputStreamReader in = null;
         OutputStreamWriter out = null;
         String newline = System.getProperty("line.separator");
       
         try {
-            in = new InputStreamReader(new FileInputStream(template), templateCharset);
+            in = new InputStreamReader(new ByteArrayInputStream(templateLines.stream().collect(Collectors.joining("\n")).getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
             out = new OutputStreamWriter(new FileOutputStream(dest), outputCharset);
             
             for(int c; (c = in.read()) != -1; ) {

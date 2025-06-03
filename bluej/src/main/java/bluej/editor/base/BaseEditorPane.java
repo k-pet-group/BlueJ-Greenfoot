@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 2021,2022,2023,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,8 +21,10 @@
  */
 package bluej.editor.base;
 
+import bluej.Config;
 import bluej.editor.base.TextLine.StyledSegment;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
@@ -37,6 +39,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
@@ -104,13 +107,14 @@ public abstract class BaseEditorPane extends Region
     private double offScreenDragX = 0;
     private double offScreenDragY = 0;
 
+    private int fontSizeAtZoomStart = 0;
+
     protected BaseEditorPane(boolean showLeftMargin, BaseEditorPaneListener listener)
     {
         this.showLeftMargin = showLeftMargin;
         this.editorPaneListener = listener;
         caretShape = new Path();
         caretShape.getStyleClass().add("flow-caret");
-        caretShape.setStroke(Color.RED);
         caretShape.setMouseTransparent(true);
         caretShape.setManaged(false);
 
@@ -160,7 +164,9 @@ public abstract class BaseEditorPane extends Region
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
             InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged),
             InputMap.consume(MouseEvent.MOUSE_RELEASED, this::mouseReleased),
-            InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved)
+            InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved),
+            InputMap.consume(ZoomEvent.ZOOM_STARTED, this::zoomStarted),
+            InputMap.consume(ZoomEvent.ZOOM, this::zoomed)
             // Note: we deliberately do not handle scroll events here, and instead
             // handle them in MarginAndTextLine.  See the comments there for more info.
             // InputMap.consume(ScrollEvent.SCROLL, this::scroll)
@@ -194,6 +200,30 @@ public abstract class BaseEditorPane extends Region
     // The handler for the KeyEvent.KEY_PRESSED event:
     protected abstract void keyPressed(KeyEvent event);
 
+    protected void zoomStarted(ZoomEvent zoomEvent)
+    {
+        this.fontSizeAtZoomStart = PrefMgr.getEditorFontSize().get();
+    }
+
+    protected void zoomed(ZoomEvent event)
+    {
+        // We don't want to end up with a font size outside our usual possibilities
+        // because then Ctrl-+/- might misbehave.  So we set the original then go
+        // up/down to find the most suitable level:
+
+        PrefMgr.getEditorFontSize().set(fontSizeAtZoomStart);
+        if (event.getTotalZoomFactor() > 1)
+        {
+            while (PrefMgr.getEditorFontSize().get() < event.getTotalZoomFactor() * fontSizeAtZoomStart && PrefMgr.getEditorFontSize().get() < PrefMgr.MAX_EDITOR_FONT_SIZE)
+                Utility.increaseFontSize(PrefMgr.getEditorFontSize());
+        }
+        else
+        {
+            while (PrefMgr.getEditorFontSize().get() > event.getTotalZoomFactor() * fontSizeAtZoomStart && PrefMgr.getEditorFontSize().get() > PrefMgr.MIN_EDITOR_FONT_SIZE)
+                Utility.decreaseFontSize(PrefMgr.getEditorFontSize());
+        }
+    }
+
     /**
      * Shows the context menu at the current position of the caret.
      */
@@ -203,7 +233,7 @@ public abstract class BaseEditorPane extends Region
         Point2D scenePt = new Point2D(sceneBounds.getMaxX(), sceneBounds.getMaxY());
         Scene scene = getScene();
         Point2D screenPt = scenePt.add(scene.getWindow().getX() + scene.getX(), scene.getWindow().getY() + scene.getY());
-        editorPaneListener.getContextMenuToShow(this).show(this, screenPt.getX(), screenPt.getY());
+        editorPaneListener.getContextMenuToShow(this, null).show(this, screenPt.getX(), screenPt.getY());
     }
 
     // The handler for the KeyEvent.KEY_TYPED event:
@@ -294,6 +324,16 @@ public abstract class BaseEditorPane extends Region
             JavaFXUtil.runAfter(SCROLL_DELAY, this::doDragScroll);
             isDragScrollScheduled = true;
         }
+    }
+
+    /**
+     * Set/remove a given pseudoclass on the lineContainer.
+     * @param pseudoclass The pseudoclass name
+     * @param on Whether to set it (true) or remove it (false)
+     */
+    protected void setLineDisplayPseudoclass(String pseudoclass, boolean on)
+    {
+        JavaFXUtil.setPseudoclass(pseudoclass, on, lineContainer);
     }
 
     /**
@@ -555,7 +595,17 @@ public abstract class BaseEditorPane extends Region
      */
     public void scrollEventOnTextLine(ScrollEvent scrollEvent)
     {
-        scroll(scrollEvent.getDeltaX(), scrollEvent.getDeltaY());
+        if ((Config.isWinOS() || Config.isLinux()) && scrollEvent.isControlDown())
+        {
+            if (scrollEvent.getDeltaY() > 0)
+                Utility.increaseFontSize(PrefMgr.getEditorFontSize());
+            else
+                Utility.decreaseFontSize(PrefMgr.getEditorFontSize());
+        }
+        else
+        {
+            scroll(scrollEvent.getDeltaX(), scrollEvent.getDeltaY());
+        }
     }
 
     /**
@@ -655,8 +705,10 @@ public abstract class BaseEditorPane extends Region
         /**
          * Gets the context menu to show.  If necessary, should be hidden before being returned
          * by this method.
+         *
+         * The screenCoords point can be null.  If it is present, it can be used to position the caret before showing the menu.
          */
-        ContextMenu getContextMenuToShow(BaseEditorPane editorPane);
+        ContextMenu getContextMenuToShow(BaseEditorPane editorPane, Point2D screenCoords);
 
         /**
          * Called when a scroll event has occurred on one of the text lines in the editor

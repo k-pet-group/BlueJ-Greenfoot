@@ -17,7 +17,8 @@ dependencies {
     implementation 'io.github.classgraph:classgraph:4.8.90'
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     implementation 'org.apache.httpcomponents:httpmime:4.1.1'
-    implementation 'org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r'
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:7.1.0.202411261347-r'
+    implementation 'org.eclipse.jgit:org.eclipse.jgit.ssh.apache:7.1.0.202411261347-r'
     implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'    
     implementation 'org.junit.jupiter:junit-jupiter:5.5.2'
     implementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
@@ -79,7 +80,7 @@ repositories {
 }
 
 javafx {
-    version = "21.0.3" // javafx_version_setting <-- The Github Actions on Linux uses this to find and replace this line
+    version = "23.0.2" // javafx_version_setting <-- The Github Actions on Linux uses this to find and replace this line
     // Important that we depend on all the JavaFX modules, so that they are
     // all made available to user code:
     modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.media', 'javafx.swing', 'javafx.web']

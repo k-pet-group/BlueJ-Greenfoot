@@ -42,6 +42,7 @@ import javafx.collections.*;
 import javafx.css.*;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -825,6 +826,23 @@ public class JavaFXUtil
     public static boolean containsScenePoint(Node node, double sceneX, double sceneY)
     {
         return node.localToScene(node.getBoundsInLocal()).contains(sceneX, sceneY);
+    }
+
+    /**
+     * Gets the smallest bounding box which contains all of the two given bounds inside it.
+     * If either are null, null is returned.
+     */
+    public static BoundingBox unionBounds(Bounds a, Bounds b)
+    {
+        if (a == null || b == null)
+            return null;
+
+        // The smallest rectangle that encompasses all of both bounds:
+        double minX = Math.min(a.getMinX(), b.getMinX());
+        double minY = Math.min(a.getMinY(), b.getMinY());
+        double maxX = Math.max(a.getMaxX(), b.getMaxX());
+        double maxY = Math.max(a.getMaxY(), b.getMaxY());
+        return new BoundingBox(minX, minY, maxX - minX, maxY - minY);
     }
 
     /**

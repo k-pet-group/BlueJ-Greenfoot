@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018,2019,2020,2021,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018,2019,2020,2021,2023,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,6 +54,7 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -128,6 +129,10 @@ public class Invoker
 
     @OnThread(Tag.FXPlatform)
     private CallDialog dialog;
+    private InvokerErrorListener errorListener;
+    // When we invoke, we call this with the inner consumer, which takes
+    // the new error listener (for the re-run) and re-runs.
+    private FXPlatformConsumer<FXPlatformConsumer<InvokerErrorListener>> storeRerun;
     private boolean constructing;
 
     private String commandString;
@@ -316,9 +321,15 @@ public class Invoker
      * 
      * When the dialog is complete, it will call proceed with the invocation
      * (see callDialogEvent).
+     *
+     * When the invocation occurs, the setReRunAction is called with a callback
+     * which lets you later do a re-run of that same invocation, but with a customised
+     * error listener.  This is because the first invocation may show an error in the call
+     * dialog, but the second invocation may need to show a new alert instead.
      */
-    public void invokeInteractive()
+    public void invokeInteractive(FXPlatformConsumer<FXPlatformConsumer<InvokerErrorListener>> setReRunAction)
     {
+        this.storeRerun = setReRunAction;
         gotError = false;
         // Here are the different cases for when we do/don't show an invoker dialog:
         // - If there's parameters needed, we must always show the dialog
@@ -328,6 +339,11 @@ public class Invoker
         if ((!constructing || Config.isGreenfoot()) && !member.hasParameters() && (!inTestMode() || isVoidReturn()))
         {
             doInvocation(null, (JavaType[]) null, null);
+            if (setReRunAction != null)
+                setReRunAction.accept(errorListener -> {
+                    this.errorListener = errorListener;
+                    doInvocation(null, (JavaType[]) null, null);
+                });
         }
         else {
 
@@ -351,6 +367,7 @@ public class Invoker
             //org.scenicview.ScenicView.show(cDialog.getDialogPane());
 
             dialog = cDialog;
+            this.errorListener = (cmd, err) -> cDialog.setErrorMessage(err);
             if (pkg != null)
             {
                 pkg.addListener(this);
@@ -373,6 +390,14 @@ public class Invoker
         objName = newInstanceName;
         benchName = objName;
         doInvocation(args, argGenTypes, actualTypeParams);
+        if (storeRerun != null)
+        {
+            storeRerun.accept(errorListener -> {
+                this.errorListener = errorListener;
+                this.objName = this.benchName = debugger.guessNewName(member.getClassName());
+                doInvocation(args, argGenTypes, actualTypeParams);
+            });
+        }
     }
 
     // -- end of CallDialogWatcher interface --
@@ -1063,7 +1088,7 @@ public class Invoker
         if (diagnostic.getType() == Diagnostic.ERROR) {
             if (! gotError) {
                 gotError = true;
-                errorMessage(diagnostic.getMessage());
+                errorMessage(diagnostic.getMessage().localisedMessage());
                 return true;
             }
         }
@@ -1078,9 +1103,9 @@ public class Invoker
     {
         DataCollector.invokeCompileError(pkg, commandString, message);
         
-        if (dialog != null)
+        if (errorListener != null)
         {
-            dialog.setErrorMessage("Error: " + message);
+            errorListener.setErrorMessage(commandString, "Error: " + message);
         }
         watcher.putError(message, ir);
     }
@@ -1391,5 +1416,11 @@ public class Invoker
     public boolean inTestMode()
     {
         return pkg.getProject().inTestMode();
+    }
+
+    public static interface InvokerErrorListener
+    {
+        @OnThread(Tag.FX)
+        public void setErrorMessage(String commandString, String message);
     }
 }

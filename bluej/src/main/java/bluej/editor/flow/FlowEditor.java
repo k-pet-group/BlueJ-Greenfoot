@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,6 +60,8 @@ import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ImportsCollection.LocatableImport;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageEntity;
+import bluej.parser.entity.PackageOrClass;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
@@ -73,6 +75,8 @@ import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.print.PrintProgressDialog;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.stride.framedjava.elements.CallElement;
@@ -115,9 +119,14 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
@@ -133,6 +142,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.TextFlow;
+import javafx.scene.transform.Transform;
 import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow.AnchorLocation;
 import javafx.stage.Stage;
@@ -181,6 +191,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final List<Menu> fxMenus;
     private final ListView<ErrorDetails> errorList;
     private final BorderPane errorListPane;
+    private final MenuItem screenshotLinesMenuItem;
     private boolean compilationStarted;
     private boolean requeueForCompilation;
     private boolean compilationQueued;
@@ -236,6 +247,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private FXPlatformRunnable callbackOnOpen;
 
     private final ContextMenu editorContextMenu;
+    private int numGoToItemsInContextMenu = 0;
 
     public boolean containsSourceCode()
     {
@@ -255,11 +267,106 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @Override
-    public ContextMenu getContextMenuToShow(BaseEditorPane editorPane)
+    public ContextMenu getContextMenuToShow(BaseEditorPane editorPane, Point2D screenCoords)
     {
         // It may already be showing; if so, hide and re-show at new click position:
         editorContextMenu.hide();
+        if (screenCoords != null)
+        {
+            // If the given coords are a caret position outside the current selection, position the caret
+            // before calculating and showing the menu:
+            flowEditorPane.getCaretPositionForLocalPoint(flowEditorPane.screenToLocal(screenCoords))
+                    .ifPresent(p ->
+                    {
+                        if (p.getPosition() < flowEditorPane.getSelectionStart() || p.getPosition() > flowEditorPane.getSelectionEnd())
+                            flowEditorPane.positionCaret(p.getPosition());
+                    });
+        }
+
+        screenshotLinesMenuItem.setDisable(getScreenshotLineBounds() == null);
+
+        if (numGoToItemsInContextMenu > 0)
+        {
+            editorContextMenu.getItems().remove(0, numGoToItemsInContextMenu);
+            numGoToItemsInContextMenu = 0;
+        }
+        String identifierAtCaret = flowEditorPane.getCurrentJavaIdentifier();
+        if (identifierAtCaret != null)
+        {
+            for (IdentifierDefinition id : findIdentifierDefinitions(identifierAtCaret))
+            {
+                editorContextMenu.getItems().add(numGoToItemsInContextMenu, JavaFXUtil.makeMenuItem(id.name(), id.goToDef(), null));
+                numGoToItemsInContextMenu += 1;
+            }
+            // If we have some go-to items, add a separator after them:
+            if (numGoToItemsInContextMenu > 0)
+            {
+                editorContextMenu.getItems().add(numGoToItemsInContextMenu, new SeparatorMenuItem());
+                numGoToItemsInContextMenu += 1;
+            }
+        }
         return editorContextMenu;
+    }
+
+    record IdentifierDefinition(String name, FXPlatformRunnable goToDef) {}
+
+    private ArrayList<IdentifierDefinition> findIdentifierDefinitions(String name)
+    {
+        // Any given identifier is assumed to potentially be anything.
+        ArrayList<IdentifierDefinition> r = new ArrayList<>();
+
+        // First, check for classes in our package:
+        bluej.pkgmgr.Package pkg = watcher.getPackage();
+        // Don't look if it's our name, no point navigating to ourselves:
+        if (!name.equals(windowTitle) && pkg.getAllClassnamesWithSource().contains(name))
+        {
+            Target t = pkg.getTarget(name);
+            if (t instanceof ClassTarget ct)
+            {
+                Properties p = new Properties();
+                p.put("name", ct.getQualifiedName());
+                r.add(new IdentifierDefinition(Config.getString("editor.goto.class", null, p, false), () -> ct.open()));
+            }
+        }
+        // Also look for classes in standard library or Greenfoot library:
+        PackageOrClass resolved = getParsedNode().resolvePackageOrClass(name, null, flowEditorPane.getCaretPosition());
+        String resolvedName = resolved == null || resolved instanceof PackageEntity ? null : resolved.getName();
+        if (resolvedName != null)
+        {
+            Properties p = new Properties();
+            p.put("name", resolvedName);
+            // Slightly hacky way of deciding if it's in the standard API:
+            if (resolvedName.startsWith("java.") || resolvedName.startsWith("javax."))
+            {
+                r.add(new IdentifierDefinition(Config.getString("editor.goto.documentation", null, p, false), () -> fxTabbedEditor.openJavaCoreDocTab(resolvedName)));
+            }
+            else if (resolvedName.startsWith("greenfoot."))
+            {
+                r.add(new IdentifierDefinition(Config.getString("editor.goto.documentation", null, p, false), () -> fxTabbedEditor.openGreenfootDocTab(resolvedName)));
+            }
+        }
+
+        return r;
+    }
+
+    @Override
+    public void middleClickedAtPosition(double screenX, double screenY)
+    {
+        String identifierAtCaret = flowEditorPane.getCurrentJavaIdentifier();
+        if (identifierAtCaret != null)
+        {
+            ArrayList<IdentifierDefinition> defs = findIdentifierDefinitions(identifierAtCaret);
+            if (defs.size() == 1)
+            {
+                // Exactly one possibility: go!
+                JavaFXUtil.runAfterCurrent(defs.get(0).goToDef());
+            }
+            else if (defs.size() > 1)
+            {
+                // Multiple options; show context menu:
+                getContextMenuToShow(flowEditorPane, new Point2D(screenX, screenY)).show(getWindow(), screenX, screenY);
+            }
+        }
     }
 
     // Returns state of breakpoint afterwards: true if present, false if not
@@ -346,13 +453,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
 
         @Override
-        public ContextMenu getContextMenuToShow(BaseEditorPane editorPane)
+        public ContextMenu getContextMenuToShow(BaseEditorPane editorPane, Point2D screenCoords)
         {
             return null;
         }
 
         @Override
         public void scrollEventOnTextLine(ScrollEvent e, BaseEditorPane editorPane)
+        {
+        }
+
+        @Override
+        public void middleClickedAtPosition(double screenX, double screenY)
         {
         }
     }
@@ -466,7 +578,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 if (empty || item == null)
                     setText(null);
                 else
-                    setText("Line " + document.getLineFromPosition(item.startPos) + ": " + item.message);
+                    setText("Line " + document.getLineFromPosition(item.startPos) + ": " + item.message.localisedMessage());
             }
         });
         errorList.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
@@ -545,10 +657,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         bottomArea.setTop(finder);
         setBottom(bottomArea);
 
+        screenshotLinesMenuItem = JavaFXUtil.makeMenuItem(Config.getString("editor.screenshotLines"), this::screenshotLines, null);
         this.editorContextMenu = new ContextMenu(
             getActions().getActionByName("cut-to-clipboard").makeContextMenuItem(Config.getString("editor.cutLabel")),
             getActions().getActionByName("copy-to-clipboard").makeContextMenuItem(Config.getString("editor.copyLabel")),
-            getActions().getActionByName("paste-from-clipboard").makeContextMenuItem(Config.getString("editor.pasteLabel"))
+            getActions().getActionByName("paste-from-clipboard").makeContextMenuItem(Config.getString("editor.pasteLabel")),
+            new SeparatorMenuItem(),
+            screenshotLinesMenuItem
         );
         // watcher is null for plain text files, and during testing:
         if (watcher != null)
@@ -768,7 +883,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public String getErrorAtPosition(int caretPos)
     {
         String errorMessage = (errorManager.getErrorAtPosition(caretPos) != null)
-            ? errorManager.getErrorAtPosition(caretPos).message
+            ? errorManager.getErrorAtPosition(caretPos).message.localisedMessage()
             : null;
         return errorMessage;
     }
@@ -3768,6 +3883,50 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
     }
 
+    /**
+     * Take a screenshot of all the lines currently involved in the text selection
+     * (or just the current line, if there is no selection)
+     */
+    public void screenshotLines()
+    {
+        Bounds sceneBounds = getScreenshotLineBounds();
+        // Some lines are off-screen, we can't take the screenshot:
+        if (sceneBounds == null)
+            return;
+        // Put it into screenshotting state to hide the selection and caret:
+        flowEditorPane.setLineDisplayPseudoclass("bj-screenshotting", true);
+        Parent root = fxTabbedEditor.getStage().getScene().getRoot();
+        SnapshotParameters sp = new SnapshotParameters();
+        // Take double resolution screenshot:
+        final int SCALE = 2;
+        // We add one extra pixel above and below because it looks a bit better:
+        sp.setViewport(new Rectangle2D(sceneBounds.getMinX() * SCALE, (sceneBounds.getMinY() - 1) * SCALE, sceneBounds.getWidth() * SCALE, (sceneBounds.getHeight() + 2) * SCALE));
+        sp.setTransform(Transform.scale(SCALE, SCALE));
+        WritableImage img = root.snapshot(sp, null);
+        Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.IMAGE, img));
+        // Important -- restore normal state:
+        flowEditorPane.setLineDisplayPseudoclass("bj-screenshotting", false);
+    }
+
+    /**
+     * Gets the bounds for the screenshot-lines function, or null if some
+     * selected lines are off-screen.
+     */
+    private Bounds getScreenshotLineBounds()
+    {
+        int selStartLine = document.getLineFromPosition(flowEditorPane.getSelectionStart());
+        int selEndLine = document.getLineFromPosition(flowEditorPane.getSelectionEnd());
+        // Only include margin if line numbers are on:
+        boolean inclMargin = PrefMgr.getFlag(PrefMgr.LINENUMBERS);
+        // Get the bounds that will include all selected lines:
+        Bounds sceneBounds = flowEditorPane.getLineBoundsInScene(selStartLine, inclMargin);
+        for (int i = selStartLine + 1; i <= selEndLine; i++)
+        {
+            sceneBounds = JavaFXUtil.unionBounds(sceneBounds, flowEditorPane.getLineBoundsInScene(i, inclMargin));
+        }
+        return sceneBounds;
+    }
+
     private static class ErrorDisplay extends FixDisplayManager
     {
         private final ErrorDetails details;
@@ -3777,7 +3936,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
         public ErrorDisplay(FlowEditor flowEditor, Supplier<EditorWatcher> editorWatcherSupplier, ErrorDetails details)
         {
-            super(details.identifier, details.message);
+            super(details.identifier, details.message.localisedMessage());
             this.details = details;
             this.editorWatcherSupplier = editorWatcherSupplier;
             this.flowEditor = flowEditor;
@@ -3814,7 +3973,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             this.popup = new PopupControl();
             VBox errorVBox = new VBox();
 
-            String errorMessage = ParserMessageHandler.getMessageForCode(details.message);
+            String errorMessage = ParserMessageHandler.getMessageForCode(details.message.localisedMessage());
             TextFlow tf = null;
             if (details.getItalicMessageStartIndex() == -1 || details.getItalicMessageEndIndex() == -1)
             {

@@ -97,7 +97,7 @@ public class KotlinCompiler extends Compiler
                     long column = location != null ? location.getColumn() : -1;
 
                     Diagnostic diagnostic = new Diagnostic(Diagnostic.ERROR, 
-                        message, src, line, column, line, column, DiagnosticOrigin.KOTLIN, getNewErrorIdentifier());
+                        new DiagnosticMessage(message, message), src, line, column, line, column, DiagnosticOrigin.KOTLIN, getNewErrorIdentifier());
 
                     observer.compilerMessage(diagnostic, type);
                 } else if (severity.isWarning()) {
@@ -105,8 +105,8 @@ public class KotlinCompiler extends Compiler
                     long line = location != null ? location.getLine() : -1;
                     long column = location != null ? location.getColumn() : -1;
 
-                    Diagnostic diagnostic = new Diagnostic(Diagnostic.WARNING, 
-                        message, src, line, column, line, column, DiagnosticOrigin.KOTLIN, getNewErrorIdentifier());
+                    Diagnostic diagnostic = new Diagnostic(Diagnostic.WARNING,
+                        new DiagnosticMessage(message, message), src, line, column, line, column, DiagnosticOrigin.KOTLIN, getNewErrorIdentifier());
 
                     observer.compilerMessage(diagnostic, type);
                 }

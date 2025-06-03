@@ -9,7 +9,7 @@
 .inspector-side-buttons .button {
     -fx-max-width: 9999.0;
 }
-.field-list > .viewport {
+.field-list > .viewport, .inspector-string-scroll > .viewport {
     -fx-background-color: transparent;
 } 
 
@@ -49,14 +49,14 @@
     -fx-padding: 0 0 1em 0;
     -fx-font-size: 120%;
 }
-.inspector-object-header .label {
+.inspector-object-header .label, .inspector-string-panel > .label {
     -fx-text-fill: white;
 }
 .inspector-class-header .label {
     -fx-text-fill: black;
     
 }
-.inspector-object .field-list {
+.inspector-object .field-list, .inspector-object .inspector-string-scroll {
     -fx-background-color: rgb(244,158,158);
 }
 .inspector-class .field-list {

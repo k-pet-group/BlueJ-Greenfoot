@@ -43,10 +43,8 @@ echo "Unzip download - done"
 
 # JLI causes problems but is not needed:
 rm "$TOP_LEVEL"/Contents/PlugIns/*/Contents/MacOS/libjli.dylib
-# Fix permissions on JSA files, which are read-only by default:
-# These files are currently missing due to https://github.com/adoptium/adoptium-support/issues/937
-# We should restore this once the files are put back
-#chmod u+w $TOP_LEVEL/Contents/PlugIns/*/Contents/Home/lib/server/*.jsa
+# Currently, these files exist in Aarch but not Intel so we need to survive an error here:
+chmod u+w $TOP_LEVEL/Contents/PlugIns/*/Contents/Home/lib/server/*.jsa || true
 
 # There is a jnilib inside JNA (which is pulled in by NSMenuFX) so we have to sign that:
 echo "Signing JNI lib..."

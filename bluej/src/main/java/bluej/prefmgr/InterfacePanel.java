@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2014,2016,2019,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2014,2016,2019,2024,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -48,14 +48,16 @@ import threadchecker.Tag;
 public class InterfacePanel extends VBox
         implements PrefPanelListener
 {
-    private ArrayList<String> allLangsInternal;
-    private ComboBox langDropdown;
+    private final ArrayList<String> allLangsInternal;
+    private final ComboBox langDropdown;
 
-    private CheckBox terminalScopes;
+    private final CheckBox terminalScopes;
 
-    private CheckBox accessibility;
+    private final CheckBox reopenProjects;
+
+    private final CheckBox accessibility;
     
-    private CheckBox toggleTestNewsMode;
+    private final CheckBox toggleTestNewsMode;
     
     public InterfacePanel()
     {
@@ -115,6 +117,9 @@ public class InterfacePanel extends VBox
         terminalScopes = new CheckBox(Config.getString("prefmgr.terminal.scopes"));
         getChildren().add(PrefMgrDialog.headedVBox("prefmgr.terminal.title", Arrays.asList(terminalScopes)));
 
+        reopenProjects = new CheckBox(Config.getString("prefmgr.interface.general.reopen"));
+        getChildren().add(PrefMgrDialog.headedVBox("prefmgr.interface.general.title", Arrays.asList(reopenProjects)));
+
         accessibility = new CheckBox(Config.getString("prefmgr.accessibility.support"));
         getChildren().add(PrefMgrDialog.headedVBox("prefmgr.accessibility.title", Arrays.asList(accessibility)));
         
@@ -141,6 +146,8 @@ public class InterfacePanel extends VBox
         langDropdown.getSelectionModel().select(curLangIndex);
 
         terminalScopes.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TERMINAL_SCOPES));
+
+        reopenProjects.setSelected(PrefMgr.getFlag(PrefMgr.AUTO_OPEN_LAST_PROJECTS));
         
         accessibility.setSelected(PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT));
         
@@ -165,6 +172,8 @@ public class InterfacePanel extends VBox
         }
 
         PrefMgr.setFlag(PrefMgr.ACCESSIBILITY_SUPPORT, accessibility.isSelected());
+
+        PrefMgr.setFlag(PrefMgr.AUTO_OPEN_LAST_PROJECTS, reopenProjects.isSelected());
 
         // Only counts as selected if selected and visible:
         boolean testNewsMode = toggleTestNewsMode.isSelected() && toggleTestNewsMode.getOpacity() == 1.0;
