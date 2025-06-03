@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2017,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,36 +21,50 @@
  */
 package bluej.pkgmgr;
 
+import bluej.prefmgr.PrefMgr;
+import javafx.scene.control.ComboBox;
 import javafx.stage.Window;
 
 import bluej.Config;
-import bluej.utility.JavaNames;
 import bluej.utility.javafx.dialog.InputDialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.ArrayList;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
 
 /**
- * Dialog for creating a new CSS file
+ * Dialog for creating a new plain text file (.css, .txt, etc)
  */
 @OnThread(Tag.FXPlatform)
-class NewCSSDialog extends InputDialog<String>
+class NewTextFileDialog extends InputDialog<String>
 {
-    public NewCSSDialog(Window parent)
+    private final ComboBox<String> extension;
+
+    public NewTextFileDialog(Window parent)
     {
-        super(Config.getString("pkgmgr.newCSS.title"), Config.getString("pkgmgr.newCSS.label"), Config.getString("pkgmgr.newCSS.prompt"), "new-css-dialog", ".css");
+        super(Config.getString("pkgmgr.newText.title"), Config.getString("pkgmgr.newText.label"), Config.getString("pkgmgr.newText.prompt"), "new-textfile-dialog");
         initOwner(parent);
         setOKEnabled(false);
+        setResizable(true);
+
+        extension = new ComboBox<>();
+        extension.getItems().add(".css");
+        extension.getItems().addAll(PrefMgr.getEditorFormattedTextFileExtensionsList());
+        extension.getSelectionModel().select(0);
+        addContentAfterField(extension);
     }
     
     public String convert(String fieldText)
     {
-        return fieldText.trim() + ".css"; // Validation is done in convert
+        return fieldText.trim() + extension.getSelectionModel().getSelectedItem(); // Validation is done in convert
     }
     
-    public boolean validate(String oldInput, String newInput)
+    public boolean validate(String oldInput, String newInputUntrimmed)
     {
-        newInput = newInput.trim();
+        final String newInput = newInputUntrimmed.trim();
         
         if (!newInput.isEmpty() && !newInput.contains("/") && !newInput.contains("\\"))
         {
@@ -60,7 +74,7 @@ class NewCSSDialog extends InputDialog<String>
         }
         else
         {
-            setErrorText(Config.getString("pkgmgr.newCSS.error"));
+            setErrorText(Config.getString("pkgmgr.newText.error"));
             setOKEnabled(false);
             return true; // Let it be invalid, but show error
         }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2018,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.tools.Diagnostic;
@@ -83,7 +84,7 @@ public class CompilerAPICompiler extends Compiler
         if (jc == null) {
             // We'd expect that this should never happen, but it's been reported once.
             observer.compilerMessage(new bluej.compiler.Diagnostic(bluej.compiler.Diagnostic.ERROR,
-                    "The compiler does not appear to be available."), type);
+                    DiagnosticMessage.fromEnglish("The compiler does not appear to be available.")), type);
             return false;
         }
         
@@ -114,11 +115,11 @@ public class CompilerAPICompiler extends Compiler
                 
                 int diagType;
                 bluej.compiler.Diagnostic bjDiagnostic;
-                String message = diag.getMessage(null);
+                DiagnosticMessage message = new DiagnosticMessage(diag.getMessage(Locale.ENGLISH), diag.getMessage(Config.getLocale()));
                 
                 if (diag.getKind() == Diagnostic.Kind.ERROR) {
                     diagType = bluej.compiler.Diagnostic.ERROR;
-                    message = processMessage(src, (int) diag.getLineNumber(), message);
+                    message = new DiagnosticMessage(processMessage(src, (int) diag.getLineNumber(), message.englishMessage()), message.localisedMessage());
                     long beginCol = diag.getColumnNumber();
                     long endCol = diag.getEndPosition() - diag.getPosition() + beginCol;
                     // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7158654
@@ -142,16 +143,16 @@ public class CompilerAPICompiler extends Compiler
                             diag.getLineNumber(), endCol, DiagnosticOrigin.JAVAC, getNewErrorIdentifer());
                 }
                 else if (diag.getKind() == Diagnostic.Kind.WARNING) {
-                    if (message.startsWith("bootstrap class path not set in conjunction with -source ")) {
+                    if (message.englishMessage().startsWith("bootstrap class path not set in conjunction with -source ")) {
                         // Java 7 produces this warning if "-source 1.6" is specified
                         return;
                     }
-                    if (message.startsWith("未与 -source") && message.endsWith("一起设置引导类路径")) {
+                    if (message.localisedMessage().startsWith("未与 -source") && message.localisedMessage().endsWith("一起设置引导类路径")) {
                         // Chinese version of above
                         return;
                     }
                     
-                    if (message.startsWith("ブートストラップ・クラスパスが-source") && message.endsWith("一緒に設定されていません")){
+                    if (message.localisedMessage().startsWith("ブートストラップ・クラスパスが-source") && message.localisedMessage().endsWith("一緒に設定されていません")){
                         // Japanese version of above
                         return;
                     }
@@ -169,9 +170,9 @@ public class CompilerAPICompiler extends Compiler
                     // - for a single file, "xyz.java uses unchecked or unsafe operations"
                     // - for multiple, "Some input files use unchecked or unsafe operations"
                     if (internal &&
-                            (message.endsWith(" uses unchecked or unsafe operations.") ||
-                            message.endsWith("Some input files use unchecked or unsafe operations.") ||
-                            message.endsWith("Recompile with -Xlint:unchecked for details."))) {
+                            (message.englishMessage().endsWith(" uses unchecked or unsafe operations.") ||
+                            message.englishMessage().endsWith("Some input files use unchecked or unsafe operations.") ||
+                            message.englishMessage().endsWith("Recompile with -Xlint:unchecked for details."))) {
                         return;
                     }
                 }

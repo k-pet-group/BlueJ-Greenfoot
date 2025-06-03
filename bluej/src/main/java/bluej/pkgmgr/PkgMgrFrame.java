@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,8 +24,11 @@ package bluej.pkgmgr;
 import bluej.*;
 import bluej.classmgr.BPClassLoader;
 import bluej.collect.DataCollector;
+import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
+import bluej.compiler.Diagnostic;
+import bluej.compiler.FXCompileObserver;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
@@ -51,8 +54,10 @@ import bluej.pkgmgr.actions.*;
 import bluej.pkgmgr.print.PackagePrintManager;
 import bluej.pkgmgr.target.CSSTarget;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.DependentTarget;
 import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.pkgmgr.target.TextFileTarget;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
@@ -66,13 +71,11 @@ import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.animation.*;
-import javafx.application.Platform;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
-import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.*;
@@ -180,7 +183,7 @@ public class PkgMgrFrame
     @OnThread(Tag.Any)
     private final PkgMgrAction newClassAction = new NewClassAction(this);
     private final PkgMgrAction newPackageAction = new NewPackageAction(this);
-    private final PkgMgrAction newCSSAction = new NewCSSAction(this);
+    private final PkgMgrAction newCSSAction = new NewTextFileAction(this);
     private final PkgMgrAction addClassAction = new AddClassAction(this);
     private final PkgMgrAction removeAction = new RemoveAction(this);
     @OnThread(Tag.Any)
@@ -262,6 +265,9 @@ public class PkgMgrFrame
     @OnThread(Tag.FX)
     private BooleanExpression teamShowSharedButtons;
     private AboutDialogTemplate aboutDialog = null;
+    private final SimpleObjectProperty<RerunDetails> reRun = new SimpleObjectProperty<>(null);
+    // Need to keep a reference to avoid garbage collection:
+    private final BooleanExpression reRunUnavailable = reRun.isNull();
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
@@ -1446,7 +1452,7 @@ public class PkgMgrFrame
      * @param y The Y coordinate in the class diagram, or -1 for auto-place
      * @return  true if successful, false is the named class already exists
      */
-    public boolean createNewClass(String name, String template, SourceType sourceType, boolean showErr, double x, double y)
+    public boolean createNewClass(String name, String template, SourceType sourceType, ClassContent classContent, double x, double y)
     {
         Package thePkg = getPackage();
         // check whether name is already used
@@ -1471,7 +1477,7 @@ public class PkgMgrFrame
         ClassTarget target = new ClassTarget(thePkg, name, template);
 
         if ( template != null ) { 
-            boolean success = target.generateSkeleton(template, sourceType);
+            boolean success = target.generateSkeleton(template, sourceType, classContent == ClassContent.FULL);
             if (! success)
                 return false;
         }
@@ -2117,8 +2123,16 @@ public class PkgMgrFrame
 
         // create an Invoker to handle the actual invocation
         if (checkDebuggerState()) {
-            new Invoker(this, cv, watcher).invokeInteractive();
+            this.reRun.set(null);
+            new Invoker(this, cv, watcher).invokeInteractive(reRun -> {
+                this.reRun.set(new RerunDetails(cv.getClassName(), reRun));
+            });
         }
+    }
+
+    void setReRun(ClassTarget classTarget, FXPlatformRunnable run)
+    {
+        this.reRun.set(new RerunDetails(classTarget.getQualifiedName(), err -> run.run()));
     }
 
     /**
@@ -2218,7 +2232,7 @@ public class PkgMgrFrame
         Optional<NewClassDialog.NewClassInfo> result = dlg.showAndWait();
 
         result.ifPresent(info ->
-            createNewClass(info.className, info.templateName, info.sourceType, true, x, y)
+            createNewClass(info.className(), info.templateName(), info.sourceType(), info.classContent(), x, y)
         );
     }
 
@@ -2229,12 +2243,12 @@ public class PkgMgrFrame
      * @param x The X coordinate in the class diagram, or -1 for auto-place
      * @param y The Y coordinate in the class diagram, or -1 for auto-place
      */
-    public void doCreateNewCSS(double x, double y)
+    public void doCreateNewTextFile(double x, double y)
     {
-        NewCSSDialog dlg = new NewCSSDialog(stageProperty.getValue());
+        NewTextFileDialog dlg = new NewTextFileDialog(stageProperty.getValue());
         Optional<String> fileName = dlg.showAndWait();
 
-        fileName.ifPresent(name -> createNewCSS(name, x, y));
+        fileName.ifPresent(name -> createNewTextFile(name, x, y));
     }
 
     /**
@@ -2326,23 +2340,28 @@ public class PkgMgrFrame
         return true;
     }
     
-    private void createNewCSS(String fileName, double x, double y)
+    private void createNewTextFile(String fileName, double x, double y)
     {
         if (getProject().getTarget(fileName) != null)
         {
             DialogManager.showErrorFX(getWindow(), "duplicate-name");
             return;
         }
-        File cssFile = new File(getPackage().getPath(), fileName);
+        File textFile = new File(getPackage().getPath(), fileName);
         try
         {
-            cssFile.createNewFile();
+            if (!textFile.createNewFile())
+            {
+                DialogManager.showErrorFX(getWindow(), "duplicate-name");
+                return;
+            }
         }
         catch (IOException e)
         {
             Debug.reportError(e);
+            return;
         }
-        Target target = new CSSTarget(getPackage(), cssFile);
+        Target target = textFile.getName().toLowerCase().endsWith(".css") ? new CSSTarget(getPackage(), textFile) : new TextFileTarget(getPackage(), textFile);
         target.setPos((int)x, (int)y);
         if (editor != null && x == -1)
         {
@@ -2819,6 +2838,69 @@ public class PkgMgrFrame
         Button compileButton = compileAction.makeButton();
         JavaFXUtil.addStyleClass(compileButton, "compile-button");
         topButtons.getChildren().add(compileButton);
+
+        Button reRunButton = new Button(Config.getString("pkgmgr.rerun"));
+        reRunButton.disableProperty().bind(reRunUnavailable);
+        reRunButton.setOnAction(e -> {
+            RerunDetails details = reRun.get();
+            if (details != null)
+            {
+                Invoker.InvokerErrorListener showErrorDialog = (cmd, err) -> {
+                    JavaFXUtil.runNowOrLater(() -> JavaFXUtil.errorDialog(Config.getString("pkgmgr.rerun.errorInvoking").replace("$", cmd), err));
+                };
+
+                Package thePkg = pkg.get();
+                if (thePkg == null)
+                    return;
+
+                thePkg
+                    .getClassTargets()
+                    .stream()
+                    .filter(ct -> ct.getBaseName().equals(details.className()))
+                    .findFirst()
+                    .ifPresentOrElse(ct -> {
+                        if (ct.getState() == DependentTarget.State.COMPILED)
+                        {
+                            details.reRun().accept(showErrorDialog);
+                        }
+                        else
+                        {
+                            thePkg.compile(ct, false, new FXCompileObserver()
+                            {
+                                @Override
+                                public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
+                                {
+
+                                }
+
+                                @Override
+                                public boolean compilerMessage(Diagnostic diagnostic, CompileType type)
+                                {
+                                    // If an error occurs, the normal mechanisms will kick in to show the editor
+                                    // with the error, so nothing to do here.
+                                    return false;
+                                }
+
+                                @Override
+                                public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence)
+                                {
+                                    if (succesful)
+                                    {
+                                        details.reRun().accept(showErrorDialog);
+                                    }
+                                }
+                            }, CompileReason.INVOKE, CompileType.EXPLICIT_USER_COMPILE);
+                        }
+                    }, () -> {
+                        // If the class isn't in our source, it's a library class so re-run without recompile:
+                        details.reRun().accept(showErrorDialog);
+                    });
+
+
+            }
+        });
+        topButtons.getChildren().add(reRunButton);
+
         toolPanel.getChildren().add(topButtons);
         
         Pane space = new Pane();
@@ -3469,10 +3551,23 @@ public class PkgMgrFrame
         return pkg;
     }
 
+    /**
+     * Clear the last re-run details, disabling the re-run button.
+     */
+    public void clearRerun()
+    {
+        reRun.set(null);
+    }
+
     // Used as a way to tag the main panes in the PkgMgrFrame window
     public static interface PkgMgrPane
     {
         @OnThread(Tag.FXPlatform)
         public Node getPkgMgrPaneNode();
+    }
+
+    // Details for the re-run: the class being invoked on, and the re-run action (which takes an error listener)
+    public static record RerunDetails(String className, FXPlatformConsumer<Invoker.InvokerErrorListener> reRun)
+    {
     }
 }

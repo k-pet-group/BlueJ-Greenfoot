@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2021,2022,2023,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,6 +34,7 @@ import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Tooltip;
@@ -193,7 +194,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
             }
 
             @Override
-            public ContextMenu getContextMenuToShow(BaseEditorPane editorPane)
+            public ContextMenu getContextMenuToShow(BaseEditorPane editorPane, Point2D screenCoords)
             {
                 return new ContextMenu(JavaFXUtil.makeMenuItem(Config.getString("editor.copyLabel"), () -> ((TerminalTextPane)editorPane).copy(), null)); // TODO
             }
@@ -210,6 +211,7 @@ public abstract class TerminalTextPane extends BaseEditorPane
         // Add shortcuts to allow changing font size:
         Nodes.addInputMap(this, InputMap.sequence(
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.increaseFontSize(PrefMgr.getEditorFontSize())),
+                InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.PLUS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.increaseFontSize(PrefMgr.getEditorFontSize())),
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.decreaseFontSize(PrefMgr.getEditorFontSize())),
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN)), e -> PrefMgr.getEditorFontSize().set(PrefMgr.DEFAULT_JAVA_FONT_SIZE))
         ));

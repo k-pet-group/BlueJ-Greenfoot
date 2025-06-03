@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018,2019,2020,2024,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,9 @@ import org.eclipse.jgit.api.LsRemoteCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.transport.sshd.SshdSessionFactory;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -57,8 +59,13 @@ import java.util.Arrays;
 @OnThread(Tag.Any)
 public class GitProvider implements TeamworkProvider 
 {
+    public GitProvider()
+    {
+        // It seems that this factory initialisation doesn't work automatically in the bundled
+        // version (classloader issues?) so we do it manually:
+        SshSessionFactory.setInstance(new SshdSessionFactory());
+    }
 
-    private String gitUrlString;
     
     @Override
     public String getProviderName() 
@@ -88,12 +95,13 @@ public class GitProvider implements TeamworkProvider
     @Override
     public TeamworkCommandResult checkConnection(TeamSettings settings) 
     {
+        String gitUrlString = "";
         try
         {
             gitUrlString = makeGitUrl(settings);
             //perform a lsRemote on the remote git repo.
             LsRemoteCommand lsRemoteCommand = Git.lsRemoteRepository();
-            UsernamePasswordCredentialsProvider cp = new UsernamePasswordCredentialsProvider(settings.getUserName(), settings.getPassword()); // set a configuration with username and password.
+            UsernamePasswordCredentialsProvider cp = GitRepository.getCredentialsProvider(settings.getUserName(), settings.getPassword()); // set a configuration with username and password.
             lsRemoteCommand.setRemote(gitUrlString); //configure remote repository address.
             lsRemoteCommand.setCredentialsProvider(cp); //associate the repository to the username and password.
             lsRemoteCommand.setTags(false); //disable refs/tags in reference results
@@ -103,6 +111,9 @@ public class GitProvider implements TeamworkProvider
         }
         catch (GitAPIException ex)
         {
+            // Log it in case it needs further investigation:
+            Debug.reportError(ex);
+
             if (ex instanceof TransportException)
             {
                 // There was a problem in the connection. Proceed to diagnosis.
@@ -131,6 +142,10 @@ public class GitProvider implements TeamworkProvider
                         String message = DialogManager.getMessage("team-noRepository-uri", ex.getLocalizedMessage());
                         return new TeamworkCommandError(message, message);
                     }
+
+                    // Something must be wrong because we got an exception, so report it:
+                    String message = DialogManager.getMessage("team-unrecognised-error", ex.getLocalizedMessage());
+                    return new TeamworkCommandError(message, message);
                 }
                 return diagnosis;
             }

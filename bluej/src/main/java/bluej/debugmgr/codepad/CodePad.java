@@ -636,6 +636,7 @@ public class CodePad extends VBox
             currentCommand = (currentCommand + line).trim();
             if(currentCommand.length() != 0)
             {
+                frame.clearRerun();
                 history.add(line);
                 String cmd = currentCommand;
                 currentCommand = "";

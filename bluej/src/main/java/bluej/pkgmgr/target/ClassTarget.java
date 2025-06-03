@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -181,7 +181,7 @@ public class ClassTarget extends DependentTarget
     /**
      * Sets the Kotlin source file name for this class target.
      * This is used when multiple class targets are created from a single Kotlin file.
-     * 
+     *
      * @param sourceFileName the name of the Kotlin source file
      */
     public void setKotlinSourceFileName(String sourceFileName)
@@ -1646,7 +1646,7 @@ public class ClassTarget extends DependentTarget
     /**
      * generates a source code skeleton for this class
      */
-    public boolean generateSkeleton(String template, SourceType sourceType)
+    public boolean generateSkeleton(String template, SourceType sourceType, boolean includeFullContent)
     {
         // delegate to role object
         if (template == null) {
@@ -1659,11 +1659,11 @@ public class ClassTarget extends DependentTarget
                 case Java:
                 case Kotlin:
                     success = role.generateSkeleton(template, getPackage(), getBaseName(),
-                            guessSourceFile(sourceType).getPath(), sourceType);
+                            guessSourceFile(sourceType).getPath(), sourceType, includeFullContent);
                     break;
                 case Stride:
                     addStride(Loader.buildTopLevelElement(template, getPackage().getProject().getEntityResolver(),
-                            getBaseName(), getPackage().getBaseName()));
+                            getBaseName(), getPackage().getBaseName(), includeFullContent));
                     success = true;
                     break;
                 default:
@@ -2899,6 +2899,8 @@ public class ClassTarget extends DependentTarget
                 else
                     target.getPackage().getProject().setRunOnThread(RunOnThread.DEFAULT);
             }
+
+            target.getPackage().getEditor().setReRun(target, () -> this.execute(target));
 
             CompletableFuture<FXPlatformSupplier<DebuggerResult>> result = target.getPackage().getDebugger().launchFXApp(cl.getName());
             target.putFXLaunchResult(ed, fxWindow, result);

@@ -2485,7 +2485,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 Package unpkg = project.getPackage("");
                 Invoker invoker = new Invoker(GreenfootStage.this, unpkg, mv, watcher, unpkg.getCallHistory(), debugHandler, debugHandler,
                         project.getDebugger(), objInstanceName);
-                invoker.invokeInteractive();
+                invoker.invokeInteractive(null);
             }
         }
 
@@ -2818,7 +2818,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         if (ProjectUtils.checkDebuggerState(project, this)) {
             project.getTerminal().activate(true);
             new Invoker(this, pkg, cv, watcher, pkg.getCallHistory(), debugHandler, debugHandler,
-                    project.getDebugger(), null).invokeInteractive();
+                    project.getDebugger(), null).invokeInteractive(null);
         }
     }
 

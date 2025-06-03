@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2019,2020,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@ import bluej.utility.Debug;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.jgit.api.Git;
@@ -37,6 +38,7 @@ import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -44,6 +46,8 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
+import org.eclipse.jgit.transport.CredentialItem;
+import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 /**
@@ -200,12 +204,49 @@ public class GitRepository implements Repository
     {
         return protocol;
     }
-    
-    public UsernamePasswordCredentialsProvider getCredentialsProvider() 
+
+    public UsernamePasswordCredentialsProvider getCredentialsProvider()
+    {
+        return getCredentialsProvider(userName, password);
+    }
+
+    public static UsernamePasswordCredentialsProvider getCredentialsProvider(String userName, String password)
     {
         // set a configuration with username and password.
         UsernamePasswordCredentialsProvider cp = new UsernamePasswordCredentialsProvider(userName,
-                password == null ? "" : password);
+                password == null ? "" : password) {
+            @Override
+            public boolean get(URIish uri, CredentialItem... items) throws UnsupportedCredentialItem {
+                ArrayList<CredentialItem> remainder = new ArrayList<CredentialItem>();
+                for (CredentialItem item : items)
+                {
+                    if (item instanceof CredentialItem.YesNoType yn)
+                    {
+                        // This happens when asking whether to trust a server, which we do automatically:
+                        yn.setValue(true);
+                    }
+                    else
+                    {
+                        remainder.add(item);
+                    }
+                }
+                if (remainder.isEmpty())
+                {
+                    return true;
+                }
+                else
+                {
+                    return super.get(uri, remainder.toArray(new CredentialItem[remainder.size()]));
+                }
+            }
+
+            @Override
+            public boolean isInteractive() {
+                // We have to pretend to be interactive to fit with JGit's model, but really we just
+                // supply the password that the user already gave us:
+                return true;
+            }
+        };
         return cp;
     }
 

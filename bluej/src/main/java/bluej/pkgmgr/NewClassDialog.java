@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2016,2017,2019,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2016,2017,2019,2022,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,15 +32,11 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import javafx.collections.ObservableList;
+
+import bluej.prefmgr.PrefMgr;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -54,6 +50,7 @@ import bluej.utility.JavaNames;
 import bluej.utility.javafx.HorizontalRadio;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.dialog.DialogPaneAnimateError;
+import javafx.util.StringConverter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -73,6 +70,8 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
     
     /** The buttons for the source language (Java/Stride) */
     private final HorizontalRadio<SourceType> language;
+
+    private final ComboBox<ClassContent> classContent;
 
     /** stores restricted windows class filenames */
     private static List<String> windowsRestrictedWords;
@@ -95,21 +94,10 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
      * template name and source type.
      */
     @OnThread(Tag.Any)
-    public static class NewClassInfo
+    public static record NewClassInfo(String className, String templateName, SourceType sourceType, ClassContent classContent)
     {
-        public final String className;
-        public final String templateName;
-        public final SourceType sourceType;
-
-        private NewClassInfo(String className, String templateName, SourceType sourceType)
-        {
-            this.templateName = templateName;
-            this.className = className;
-            this.sourceType = sourceType;
-        }
     }
-    
-    
+
     /**
      * Construct a NewClassDialog.
      */
@@ -154,6 +142,31 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
         templateButtons = new ToggleGroup();
         addClassTypeButtons(parent, mainPanel);
+
+        classContent = new ComboBox<>();
+        classContent.getItems().addAll(ClassContent.values());
+        classContent.getSelectionModel().select(PrefMgr.getFlag(PrefMgr.NEW_CLASS_FULL_CONTENT) ? ClassContent.FULL : ClassContent.EMPTY);
+        classContent.setConverter(new StringConverter<ClassContent>() {
+            @Override
+            public String toString(ClassContent classContent) {
+                return switch (classContent) {
+                    case FULL -> Config.getString("pkgmgr.newClass.content.full");
+                    case EMPTY -> Config.getString("pkgmgr.newClass.content.empty");
+                };
+            }
+
+            @Override
+            public ClassContent fromString(String s) {
+                // Won't be used because it's not an editable text field:
+                return null;
+            }
+        });
+        HBox classContentBox = new HBox(new Label(Config.getString("pkgmgr.newClass.content")), classContent);
+        classContentBox.setSpacing(10);
+        classContentBox.setAlignment(Pos.BASELINE_LEFT);
+        mainPanel.getChildren().add(classContentBox);
+
+
         mainPanel.getChildren().add(errorLabel);
         JavaFXUtil.addChangeListenerPlatform(templateButtons.selectedToggleProperty(), toggle -> {
             hideError();
@@ -170,7 +183,10 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         setResultConverter(buttonType -> {
             if (buttonType == ButtonType.OK)
             {
-                return new NewClassInfo(nameField.getText().trim(), templates.get(templateButtons.getSelectedToggle()).name, language.selectedProperty().get());
+                // Save the classContent preference:
+                PrefMgr.setFlag(PrefMgr.NEW_CLASS_FULL_CONTENT, classContent.getSelectionModel().getSelectedItem() == ClassContent.FULL);
+
+                return new NewClassInfo(nameField.getText().trim(), templates.get(templateButtons.getSelectedToggle()).name, language.selectedProperty().get(), classContent.getSelectionModel().getSelectedItem());
             }
             else {
                 return null;

@@ -360,8 +360,8 @@ bluej.editor.fontsize=12
 # size is specified in the BlueJ preference dialogue.  You can specify
 # any font name which has a corresponding TTF file in the lib/fonts directory:
 
-bluej.editor.font=Roboto Mono
-bluej.editor.MacOS.font=Roboto Mono
+bluej.editor.font=Source Code Pro
+bluej.editor.MacOS.font=Source Code Pro
 
 
 #######################################################################
@@ -399,7 +399,7 @@ bluej.terminal.encoding=UTF-8
 
 bluej.editor.autoIndent=true
 bluej.editor.syntaxHilighting=true
-bluej.editor.displayLineNumbers=false
+bluej.editor.displayLineNumbers=true
 bluej.editor.matchBrackets=true
 
 bluej.editor.tabsize=4

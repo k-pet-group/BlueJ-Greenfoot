@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2016,2017,2019,2020,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2016,2017,2019,2020,2023,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -48,6 +48,7 @@ import threadchecker.Tag;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -123,8 +124,10 @@ public abstract class ClassRole
      *            the name of the class
      * @param sourceFile
      *            the name of the source file to be generated
+     * @param includeFullContent
+     *            whether to include the full template content (true) or omit the body content (false)
      */
-    public boolean generateSkeleton(String template, Package pkg, String name, String sourceFile, SourceType sourceType)
+    public boolean generateSkeleton(String template, Package pkg, String name, String sourceFile, SourceType sourceType, boolean includeFullContent)
     {
         Hashtable<String,String> translations = new Hashtable<>();
         translations.put("CLASSNAME", name);
@@ -148,7 +151,7 @@ public abstract class ClassRole
             }
             BlueJFileReader.translateFile(Config.getClassTemplateFile( template, sourceType.getConfigSourceType()),
                     new File(sourceFile), translations,
-                    Charset.forName("UTF-8"), pkg.getProject().getProjectCharset());
+                    StandardCharsets.UTF_8, pkg.getProject().getProjectCharset(), includeFullContent);
             return true;
         }
         catch (IOException e) {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2022,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022,2024,2025  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,7 @@
 package bluej.editor.flow;
 
 import bluej.Config;
+import bluej.compiler.DiagnosticMessage;
 import bluej.editor.TextEditor;
 import bluej.editor.fixes.Correction;
 import bluej.editor.fixes.Correction.CorrectionInfo;
@@ -88,7 +89,7 @@ public class FlowErrorManager implements ErrorQuery
      * @param startPos The document position where the error highlight should begin
      * @param endPos   The document position where the error highlight should end
      */
-    public void addErrorHighlight(int startPos, int endPos, String message, int identifier)
+    public void addErrorHighlight(int startPos, int endPos, DiagnosticMessage message, int identifier)
     {
         if (endPos < startPos)
             throw new IllegalArgumentException("Error ends before it begins: " + startPos + " to " + endPos);
@@ -100,7 +101,7 @@ public class FlowErrorManager implements ErrorQuery
         showErrors(editor, sourcePane, startPos, endPos, message, identifier, () -> efm.getImportSuggestions().values().stream().flatMap(Collection::stream));
     }
 
-    private void showErrors(FlowEditor editor, FlowEditorPane sourcePane, int startPos, int endPos, String message, int identifier, BackgroundSupplier<Stream<AssistContentThreadSafe>> imports)
+    private void showErrors(FlowEditor editor, FlowEditorPane sourcePane, int startPos, int endPos, DiagnosticMessage message, int identifier, BackgroundSupplier<Stream<AssistContentThreadSafe>> imports)
     {
         errorInfos.add(new FlowErrorManager.ErrorDetails(editor, startPos, endPos, message, identifier, imports));
         editor.updateHeaderHasErrors(true);
@@ -206,13 +207,13 @@ public class FlowErrorManager implements ErrorQuery
         // access (both read and write) happens on the FX thread:
         public final int startPos;
         public final int endPos;
-        public String message;
+        public DiagnosticMessage message;
         private int italicMessageStartIndex;
         private int italicMessageEndIndex;
         public final int identifier;
         public final List<FixSuggestion> corrections = new ArrayList<>();
 
-        private ErrorDetails(FlowEditor editor, int startPos, int endPos, String message, int identifier, BackgroundSupplier<Stream<AssistContentThreadSafe>> possibleImports)
+        private ErrorDetails(FlowEditor editor, int startPos, int endPos, DiagnosticMessage message, int identifier, BackgroundSupplier<Stream<AssistContentThreadSafe>> possibleImports)
         {
             this.message = message;
             this.startPos = startPos;
@@ -240,10 +241,10 @@ public class FlowErrorManager implements ErrorQuery
                 String errorLineText = editor.getText(startErrorLineSourceLocation, endErrorLineSourceLocation);
     
                 // set the quick fix imports if detected an unknown type error...
-                if (message.contains("cannot find symbol") && message.contains("class"))
+                if (message.englishMessage().contains("cannot find symbol") && message.englishMessage().contains("class"))
                 {
-                    String typeName = message.substring(message.lastIndexOf(' ') + 1);
-                    message = Config.getString("editor.quickfix.unknownType.errorMsg") + typeName;
+                    String typeName = message.englishMessage().substring(message.englishMessage().lastIndexOf(' ') + 1);
+                    message = DiagnosticMessage.fromLocalised(Config.getString("editor.quickfix.unknownType.errorMsg") + typeName);
                     if (possibleImports != null)
                     {
                         List<AssistContentThreadSafe> possibleCorrectionsList = possibleImports
@@ -279,11 +280,11 @@ public class FlowErrorManager implements ErrorQuery
                 }
                 // set the quick fix "== instead of =" if :
                 // detected the error is "Incompatible types: xx cannot be converted to boolean"
-                else if (message.startsWith("incompatible types:") && message.endsWith("cannot be converted to boolean")
+                else if (message.englishMessage().startsWith("incompatible types:") && message.englishMessage().endsWith("cannot be converted to boolean")
                     && editor.getText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(startPos + 1)).equals("="))
                 {
                     // Change the error message to a more meaningful message
-                    message = Config.getString("editor.quickfix.wrongComparisonOperator.errorMsg");
+                    message = DiagnosticMessage.fromLocalised(Config.getString("editor.quickfix.wrongComparisonOperator.errorMsg"));
                     // Ge the length of this line, but because here the method expects a 0-based value we need to offset.
                     String leftCompPart = errorLineText.substring(0, startPos - editor.getOffsetFromLineColumn(startErrorLineSourceLocation));
                     String rightCompPart = errorLineText.substring(startPos - editor.getOffsetFromLineColumn(startErrorLineSourceLocation) + 1);
@@ -295,11 +296,11 @@ public class FlowErrorManager implements ErrorQuery
                 }
                 // set the quick fix to correct a wrong variable or declare it:
                 // detected the error is "cannot find symbol - variable"
-                else if (message.startsWith("cannot find symbol -   variable "))
+                else if (message.englishMessage().startsWith("cannot find symbol -   variable "))
                 {
                     // Change the error message to a more meaningful message
-                    String varName = message.substring(message.lastIndexOf(' ') + 1);
-                    message = Config.getString("editor.quickfix.undeclaredVar.errorMsg") + varName;
+                    String varName = message.englishMessage().substring(message.englishMessage().lastIndexOf(' ') + 1);
+                    message = DiagnosticMessage.fromLocalised(Config.getString("editor.quickfix.undeclaredVar.errorMsg") + varName);
     
                     // Add a quick fix for correcting to an existing closely spelt variable
                     Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.FIELD);
@@ -354,11 +355,11 @@ public class FlowErrorManager implements ErrorQuery
                 }
                 // set the quick fix to correct a misspelled method:
                 // detected the error is "cannot find symbol - method"
-                else if (message.startsWith("cannot find symbol -   method "))
+                else if (message.englishMessage().startsWith("cannot find symbol -   method "))
                 {
                     // Change the error message to a more meaningful message
-                    String methodName = message.substring("cannot find symbol -   method ".length(), message.lastIndexOf('('));
-                    message = Config.getString("editor.quickfix.undeclaredMethod.errorMsg") + methodName + message.substring(message.lastIndexOf('('));
+                    String methodName = message.englishMessage().substring("cannot find symbol -   method ".length(), message.englishMessage().lastIndexOf('('));
+                    message = DiagnosticMessage.fromLocalised(Config.getString("editor.quickfix.undeclaredMethod.errorMsg") + methodName + message.englishMessage().substring(message.englishMessage().lastIndexOf('(')));
     
                     // Add a quick fix for correcting to an existing closely spelt method
                     Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.METHOD);
@@ -376,12 +377,12 @@ public class FlowErrorManager implements ErrorQuery
                 }
                 // set the quick fix to add a try/catch statement or throw the exception:
                 // detected the error is "unreported exception [...]"
-                else if (message.startsWith("unreported exception "))
+                else if (message.englishMessage().startsWith("unreported exception "))
                 {
                     // Change the error message to a more meaningful message
-                    String exceptionQualifiedNameType = message.substring("unreported exception ".length(), message.indexOf(';'));
-                    message = Config.getString("editor.quickfix.unreportedException.errorMsg.part1") + exceptionQualifiedNameType + Config.getString("editor.quickfix.unreportedException.errorMsg.part2");
-                    String messageFinal = message;
+                    String exceptionQualifiedNameType = message.englishMessage().substring("unreported exception ".length(), message.englishMessage().indexOf(';'));
+                    message = DiagnosticMessage.fromLocalised(Config.getString("editor.quickfix.unreportedException.errorMsg.part1") + exceptionQualifiedNameType + Config.getString("editor.quickfix.unreportedException.errorMsg.part2"));
+                    DiagnosticMessage messageFinal = message;
     
                     // If the exception type is already imported, we don't need to use the qualified name in the corrections:
                     // so we check if imports contains that type, and if so, use a simple type name.
@@ -456,8 +457,8 @@ public class FlowErrorManager implements ErrorQuery
                                         int prevStatementPos = Math.max(Math.max(fileContentBeforeErrorPart.lastIndexOf('{'), fileContentBeforeErrorPart.lastIndexOf('}')), fileContentBeforeErrorPart.lastIndexOf(';'));
                                         if (prevStatementPos == -1)
                                         {
-                                            this.italicMessageStartIndex = messageFinal.indexOf(exceptionQualifiedNameType);
-                                            this.italicMessageEndIndex = messageFinal.indexOf(exceptionQualifiedNameType) + exceptionQualifiedNameType.length();
+                                            this.italicMessageStartIndex = messageFinal.localisedMessage().indexOf(exceptionQualifiedNameType);
+                                            this.italicMessageEndIndex = messageFinal.localisedMessage().indexOf(exceptionQualifiedNameType) + exceptionQualifiedNameType.length();
                                             return;
                                         }
                                         int statementStartPos = prevStatementPos + 1;
@@ -574,8 +575,8 @@ public class FlowErrorManager implements ErrorQuery
                                             int posOfOpeningMethodBodyBracket = fileContentBeforeErrorPart.indexOf('{', posOfClosingMethodParamsBracket);
                                             if (posOfClosingMethodParamsBracket == -1 || posOfOpeningMethodBodyBracket == -1)
                                             {
-                                                this.italicMessageStartIndex = messageFinal.indexOf(exceptionQualifiedNameType);
-                                                this.italicMessageEndIndex = messageFinal.indexOf(exceptionQualifiedNameType) + exceptionQualifiedNameType.length();
+                                                this.italicMessageStartIndex = messageFinal.localisedMessage().indexOf(exceptionQualifiedNameType);
+                                                this.italicMessageEndIndex = messageFinal.localisedMessage().indexOf(exceptionQualifiedNameType) + exceptionQualifiedNameType.length();
                                                 return;
                                             }
                                             boolean methodHasThrows = fileContentBeforeErrorPart.substring(posOfClosingMethodParamsBracket, posOfOpeningMethodBodyBracket).contains(" throws ");

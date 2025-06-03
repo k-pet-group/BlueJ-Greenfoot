@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.RandomAccess;
 
 public class HoleDocument implements Document
 {
@@ -203,8 +204,7 @@ public class HoleDocument implements Document
     private List<Integer> getLineStartPositions()
     {
         // No need to copy when we are read-only, just make a dummy list object: 
-        return new AbstractList<Integer>() {
-
+        return new AbstractListRandomAccess<Integer>() {
             @Override
             public int size()
             {
@@ -253,7 +253,7 @@ public class HoleDocument implements Document
     {
         List<Integer> lineStarts = getLineStartPositions();
         
-        return new AbstractList<CharSequence>()
+        return new AbstractListRandomAccess<CharSequence>()
         {
             @Override
             public CharSequence get(int lineIndex)
@@ -552,4 +552,11 @@ public class HoleDocument implements Document
         {
         }
     }
+
+    // Anonymous inner classes can't extend and implements so we introduce this helper:
+    // Important to implement empty RandomAccess interface for use of Collections.binarySearch()
+    private static abstract class AbstractListRandomAccess<T> extends AbstractList<T> implements RandomAccess
+    {
+    }
+
 }

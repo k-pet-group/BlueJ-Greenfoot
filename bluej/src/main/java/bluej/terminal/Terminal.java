@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -461,8 +461,14 @@ public final class Terminal
         //     Jan 23, 2023 12:09:30 PM com.sun.javafx.application.PlatformImpl startup
         //     WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @18be7add'
         //     WARNUNG: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @28f3d2a1'
+        // But also lines like these (macOS logging spam):
+        //     2025-02-13 14:48:51.163 java[83289:5492299] +[IMKClient subclass]: chose IMKClient_Modern
+        //     2025-02-13 14:48:51.163 java[83289:5492299] +[IMKInputSession subclass]: chose IMKInputSession_Modern
+        //     2024-09-16 16:46:01.694 java[2023:63977] +[IMKClient subclass]: chose IMKClient_Legacy
+        //     2024-09-16 16:46:01.694 java[2023:63977] +[IMKInputSession subclass]: chose IMKInputSession_Legacy
         if (paneType == PaneType.STDERR && lines.removeIf(l -> l.trim().endsWith("com.sun.javafx.application.PlatformImpl startup") ||
-            l.contains("Unsupported JavaFX configuration: classes were loaded from")))
+            l.contains("Unsupported JavaFX configuration: classes were loaded from") ||
+            l.contains("+[IMKClient subclass]") || l.contains("+[IMKInputSession subclass]")))
         {
             // No need to continue (and thus show the terminal window) if there's no new output to add:
             if (lines.isEmpty())
@@ -857,7 +863,14 @@ public final class Terminal
         CheckMenuItem unlimitedBuffering = new CheckMenuItem(Config.getString("terminal.buffering"));
         unlimitedBuffering.selectedProperty().bindBidirectional(unlimitedBufferingCall);
 
-        menu.getItems().addAll(autoClear, recordCalls, unlimitedBuffering);
+        CheckMenuItem alwaysOnTop = new CheckMenuItem(Config.getString("terminal.alwaysOnTop"));
+        alwaysOnTop.setSelected(false);
+        // We don't save this, it's just within the session, and it always starts as false:
+        JavaFXUtil.addChangeListenerPlatform(alwaysOnTop.selectedProperty(), sel -> {
+            window.setAlwaysOnTop(sel);
+        });
+
+        menu.getItems().addAll(autoClear, recordCalls, unlimitedBuffering, alwaysOnTop);
 
         MenuItem closeItem = new MenuItem(Config.getString("terminal.close"));
         closeItem.setOnAction(e -> showHide(false));

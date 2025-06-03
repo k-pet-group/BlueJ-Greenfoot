@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2022,2023,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -116,6 +116,7 @@ public final class Config
     // bluej configuration properties hierarchy
     // (command overrides user which overrides system)
     public static String language;      // message language (english, ...)
+    private static Locale locale;
     public static Rectangle2D screenBounds; // maximum dimensions of screen
     public static String debugLogName = bluejDebugLogName;
     public static List<String> fontOptions = new ArrayList<>();
@@ -296,6 +297,61 @@ public final class Config
         }
         
         langProps = loadLanguageLabels(language);
+
+        // Also set locale, needed for error messages:
+        // Default is local one:
+        locale = Locale.getDefault();
+        for (int i = 1; ; i++) {
+            String langString = Config.getPropString("bluej.language" + i, null);
+            if (langString == null) {
+                break;
+            }
+
+            // The format of a language string is:
+            //    internal-name:display-name:iso3cc
+            // The iso3cc (ISO country code) is optional.
+
+            int colonIndex = langString.indexOf(':');
+            if (colonIndex == -1)
+            {
+                continue; // don't understand this one
+            }
+
+            // If it's not our language, keep searching:
+            if (!langString.substring(0, colonIndex).equals(language))
+            {
+                continue;
+            }
+
+            int secondColon = langString.indexOf(':', colonIndex + 1);
+            if (secondColon == -1)
+            {
+                continue;
+            }
+
+            String iso3lang = langString.substring(secondColon + 1);
+            for (Locale locale : Locale.getAvailableLocales())
+            {
+                try {
+                    if (locale.getISO3Language().equalsIgnoreCase(iso3lang))
+                    {
+                        Config.locale = locale;
+                        break;
+                    }
+                } catch (MissingResourceException e) {
+                    // Some Locales may not support ISO3 codes
+                }
+            }
+            // Stop because we won't find our language a second time:
+            break;
+        }
+
+    }
+
+    // Get the Locale as detected from the user's BlueJ language setting
+    public static Locale getLocale()
+    {
+        return locale;
     }
     
     /**

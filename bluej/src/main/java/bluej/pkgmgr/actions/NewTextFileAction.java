@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2017,2025  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,21 +24,21 @@ package bluej.pkgmgr.actions;
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
- * "New CSS File" command. Allows the user to create a new CSS File with a
- * specified name.
+ * "New Text File" command. Allows the user to create a new plain file with a
+ * specified name and extension.
  * 
  * @author Davin McCall
  */
-final public class NewCSSAction extends PkgMgrAction
+final public class NewTextFileAction extends PkgMgrAction
 {
-    public NewCSSAction(PkgMgrFrame pmf)
+    public NewTextFileAction(PkgMgrFrame pmf)
     {
-        super(pmf, "menu.edit.newCSS");
+        super(pmf, "menu.edit.newText");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        pmf.doCreateNewCSS(-1, -1);
+        pmf.doCreateNewTextFile(-1, -1);
     }
 }

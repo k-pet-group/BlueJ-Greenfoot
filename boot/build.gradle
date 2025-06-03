@@ -13,7 +13,7 @@ repositories {
 }
 
 javafx {
-    version = "21.0.3"  // javafx_version_setting <-- The Github Actions on Linux uses this to find and replace this line
+    version = "23.0.2"  // javafx_version_setting <-- The Github Actions on Linux uses this to find and replace this line
     modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.swing']
 }
 

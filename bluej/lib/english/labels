@@ -34,6 +34,8 @@ debugger.inspector.class.nameLabel=Class
 debugger.inspector.enum.nameLabel=Enum
 debugger.inspector.interface.nameLabel=Interface
 debugger.inspector.numFields=Number of fields
+debugger.inspector.stringContent=String Content
+debugger.inspector.copyToClipboard=Copy to clipboard
 
 debugger.objectwrapper.methodException=Exception accessing methods:
 debugger.objectwrapper.invocationException=Exception during invocation:
@@ -142,6 +144,8 @@ prefmgr.accessibility.title=Accessibility
 prefmgr.accessibility.support=Accessibility Mode [only for use with screen readers]
 prefmgr.terminal.title=Terminal
 prefmgr.terminal.scopes=Show Terminal execution scopes
+prefmgr.interface.general.reopen=Re-open last projects when BlueJ starts
+prefmgr.interface.general.title=General
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Installed Extensions
@@ -223,6 +227,8 @@ editor.gotoline.label = Enter line number
 editor.gotoline.prompt=Line number
 editor.gotoline.notNumericMessage = Input must be numeric
 
+editor.screenshotLines=Screenshot line(s)
+
 editor.implementationLabel = Source Code
 editor.interfaceLabel = Documentation
 
@@ -261,6 +267,9 @@ editor.quickfix.unreportedException.errorMsg.part1=The possible exception of typ
 editor.quickfix.unreportedException.errorMsg.part2=\u0020needs to be handled
 editor.quickfix.unreportedException.fixMsg.trycatch=Surround this line with try/catch
 editor.quickfix.unreportedException.fixMsg.throws=Add throws statement for this exception in the containing method
+
+editor.goto.class=Go to class ${name}
+editor.goto.documentation=Show documentation for ${name}
 
 # Dialog titles and texts
 editor.functions.title = Editor Functions
@@ -454,8 +463,11 @@ pkgmgr.codepad.redefinedVar=$ is already defined
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Create New Class
 pkgmgr.newClass.label=Class Name:
-pkgmgr.newClass.prompt=Enter a name for the new class
+pkgmgr.newClass.prompt=New class name
 pkgmgr.newClass.lang=Class Language:
+pkgmgr.newClass.content=Class Content:
+pkgmgr.newClass.content.full=Template
+pkgmgr.newClass.content.empty=Minimal
 pkgmgr.newClass.classType=Class Type
 pkgmgr.newClass.stdclass=Class
 pkgmgr.newClass.interface=Interface
@@ -479,17 +491,19 @@ pkgmgr.newPackage.prompt=Package name
 pkgmgr.newPackage.newPackage=Package
 pkgmgr.newPackage.error=Invalid package name
 
-# "new CSS" dialog
-pkgmgr.newCSS.title=BlueJ:  Create New CSS File
-pkgmgr.newCSS.label=CSS File:
-pkgmgr.newCSS.prompt=Filename
-pkgmgr.newCSS.newCSS=CSS
-pkgmgr.newCSS.error=Invalid filename
+# "new text file" dialog
+pkgmgr.newText.title=BlueJ: Create New CSS/Text File
+pkgmgr.newText.label=File name:
+pkgmgr.newText.prompt=Filename
+pkgmgr.newText.newText=Text file
+pkgmgr.newText.error=Invalid filename
 
 # "duplicate class" dialog
 pkgmgr.duplicate.title=BlueJ: Duplicate a Class
 pkgmgr.duplicate.error.notValidClassName=Not a valid class name
 
+pkgmgr.rerun=Re-run
+pkgmgr.rerun.errorInvoking=Error invoking $$
 
 # "Use Library Class" dialog
 callLibraryDialog.title=BlueJ:  Call Library Class
@@ -590,6 +604,7 @@ terminal.close = Close
 terminal.clearScreen = Clear screen at method call
 terminal.recordCalls = Record method calls
 terminal.buffering = Unlimited buffering
+terminal.alwaysOnTop = Always on top
 terminal.save.title = Save terminal text
 terminal.save.buttonText = Save
 terminal.notRunning=Can only enter input while your program is running
@@ -650,7 +665,7 @@ menu.package.quit=_Quit@Q
 menu.edit=_Edit
 menu.edit.newClass=New _Class...@N
 menu.edit.newPackage=New _Package...@R
-menu.edit.newCSS=New C_SS File...
+menu.edit.newText=New _CSS/Text File...
 menu.edit.addClass=_Add Class from File...
 menu.edit.remove=_Delete@BACK_SPACE
 menu.edit.newUses=New _Uses Arrow...
@@ -796,8 +811,9 @@ team.settings.yourName=Your name
 team.settings.yourEmail=Your e-mail
 team.settings.user=User
 team.settings.password=Password
-team.settings.savepwd=Save password on this computer (not recommended)
-team.settings.savepwd.details=Your password will be encoded and saved in a file. Uncheck the box if you are going to share the original project directory (other than through Git).
+team.settings.accessToken=Access token
+team.settings.savepwd=Save password/token on this computer (not recommended)
+team.settings.savepwd.details=Your password/token will be encoded and saved in a file. Uncheck the box if you are going to share the original project directory (other than through Git).
 team.settings.server=Server
 team.settings.prefix=Repository Path
 team.settings.ext=ext (using SSH)
@@ -807,6 +823,7 @@ team.settings.uri=Repository URI
 team.settings.branch=Branch
 team.settings.defaultBranch=Default branch
 team.settings.checkConnection=Check connection
+team.settings.accessTokenHint=Note: Github and Gitlab require you to use access tokens instead of your main password.  Search the Internet for how to generate these.
 
 team.moduleselect.title=Select Project to Checkout
 team.moduleselect.label=Select or type project name:
