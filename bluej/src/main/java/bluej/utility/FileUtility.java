@@ -219,9 +219,12 @@ public class FileUtility
     }
 
     @OnThread(Tag.FX)
-    public static ExtensionFilter getJavaStrideSourceFilterFX()
+    public static ExtensionFilter getSourceCodeFilterFX()
     {
-        return new ExtensionFilter("Java/Stride source", "*." + SourceType.Java.getExtension(), "*." + SourceType.Stride.getExtension());
+        return new ExtensionFilter("Java/Stride/Kotlin source",
+                "*." + SourceType.Java.getExtension(),
+                "*." + SourceType.Stride.getExtension(),
+                "*." + SourceType.Kotlin.getExtension());
     }
 
     /**

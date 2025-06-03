@@ -70,7 +70,7 @@ public class DataCollectionCompileObserverWrapper implements FXCompileObserver
             File userFile = new File(diagnostic.getFileName());
             for (CompileInputFile input : sources)
             {
-                if (input.getJavaCompileInputFile().getName().equals(userFile.getName()))
+                if (input.getCompileInputFile().getName().equals(userFile.getName()))
                 {
                     userFile = input.getUserSourceFile();
                     break;
@@ -90,7 +90,7 @@ public class DataCollectionCompileObserverWrapper implements FXCompileObserver
         Set<String> packages = new HashSet<String>();
         for (CompileInputFile f : sources)
         {
-            packages.add(project.getPackageForFile(f.getJavaCompileInputFile()));
+            packages.add(project.getPackageForFile(f.getCompileInputFile()));
         }
         bluej.pkgmgr.Package pkg = packages.size() == 1 ? project.getPackage(packages.iterator().next()) : null;
         

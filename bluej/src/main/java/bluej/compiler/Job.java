@@ -29,15 +29,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
+import bluej.utility.Utility;
+import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 
 /**
  * A compiler "job". A list of filenames to compile + parameters.
  * Jobs are held in a queue by the CompilerThread, which compiles them
  * by running the job's "compile" method.
  *
+ * <p>The job takes two compilers: one for Java, and one for Kotlin.
+ * The {@code kotlinCompiler} parameter is not null if and only if
+ * we have Kotlin files to compile.</p>
+ *
  * @author  Michael Cahill
  */
-record Job(CompileInputFile[] sources, Compiler compiler, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
+record Job(List<CompileInputFile> sources, Compiler javaCompiler, Compiler kotlinCompiler,
+           CompileObserver observer, BPClassLoader bpClassLoader, File sourcePath,
            boolean internal, // true for compiling shell files,
                              // or user files if we want to suppress
                              // "unchecked" warnings, false otherwise
@@ -50,42 +58,73 @@ record Job(CompileInputFile[] sources, Compiler compiler, CompileObserver observ
      */
     private static final AtomicInteger nextCompilationSequence = new AtomicInteger(1);
 
+    private void configureCompiler(Compiler compiler, File sourcePath, BPClassLoader bpClassLoader)
+    {
+        if(sourcePath != null) {
+            compiler.setSourcePath(sourcePath);
+        }
+        compiler.setClasspath(bpClassLoader.getClassPathAsFiles());
+        compiler.setBootClassPath(null);
+    }
+
     /**
      * Compile this job
+     *
+     * <p>The job might have Java and/or Kotlin sources, so we might need to run both compilers.
+     * To handle dependencies correctly, if there are any Kotlin files,
+     * we run the Kotlin compiler first and feed all the source files to it (both Kotlin and Java).
+     * Kotlin compiler will figure out what it needs if some Kotlin files depend on Java sources.</p>
+     *
+     * <p>The results of Kotlin compilation (class files) need to be saved to the output directory
+     * (whether it's a destination directory or a temporary one) so that Java compiler can find them.
+     * This is needed even for CompileType.ERROR_CHECK_ONLY.
+     * That's why we bring a temporary directory handling logic here.
+     * Once we're done with Java compilation, we can delete the temporary directory if needed.</p>
+     *
      */
     public void compile()
     {
         int compilationSequence = nextCompilationSequence.getAndIncrement();
-
+        CompileInputFile[] sourcesArray = sources.toArray(new CompileInputFile[0]);
         try {
             if(observer != null) {
-                observer.startCompile(sources, reason, type, compilationSequence);
+                observer.startCompile(sourcesArray, reason, type, compilationSequence);
             }
 
-            if(destDir != null) {
-                compiler.setDestDir(destDir);
-            }
-
-            compiler.setClasspath(bpClassLoader.getClassPathAsFiles());
-
-            compiler.setBootClassPath(null);
-
-            File[] actualSourceFiles = new File[sources.length];
-            for (int i = 0; i < sources.length; i++)
+            File outputDir = type.keepClasses() ? sourcePath : Files.createTempDirectory("bluej").toFile();
+            List<File> srcFiles = Utility.mapList(sources, CompileInputFile::getCompileInputFile);
+            boolean successful = true;
+            if (kotlinCompiler != null)
             {
-                actualSourceFiles[i] = sources[i].getJavaCompileInputFile();
+                configureCompiler(kotlinCompiler, sourcePath, bpClassLoader);
+                successful &= kotlinCompiler.compile(srcFiles,
+                        observer, internal, userCompileOptions, fileCharset, type, outputDir);
             }
 
-            boolean successful = compiler.compile(actualSourceFiles, observer, internal, userCompileOptions, fileCharset, type);
+            List<File> javaSourceFiles =  Utility.filterList(srcFiles,
+                    file -> file.getName().endsWith(".java"));
+            if (!javaSourceFiles.isEmpty())
+            {
+                configureCompiler(javaCompiler, sourcePath, bpClassLoader);
+                successful &= javaCompiler.compile(javaSourceFiles,
+                        observer, internal, userCompileOptions, fileCharset, type, outputDir);
+            }
 
-            if(observer != null) {
-                observer.endCompile(sources, successful, type, compilationSequence);
+            if (!type.keepClasses() && outputDir != null)
+            {
+                // This is a temporary directory without symbolic links, so we can safely delete it now.
+                MoreFiles.deleteRecursively(outputDir.toPath(), RecursiveDeleteOption.ALLOW_INSECURE);
+            }
+
+            if(observer != null)
+            {
+                observer.endCompile(sourcesArray, successful, type, compilationSequence);
             }
         } catch(Exception e) {
             System.err.println(Config.getString("compileException") + ": " + e);
             e.printStackTrace();
             if (observer != null) {
-                observer.endCompile(sources, false, type, compilationSequence);
+                observer.endCompile(sourcesArray, false, type, compilationSequence);
             }
         }
     }

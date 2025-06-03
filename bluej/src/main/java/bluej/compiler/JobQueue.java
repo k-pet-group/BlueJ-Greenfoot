@@ -28,7 +28,6 @@ import java.util.List;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
-import bluej.utility.Debug;
 import bluej.utility.Utility;
 
 /**
@@ -51,14 +50,15 @@ public class JobQueue
     // ---- instance ----
 
     private CompilerThread thread = null;
-    private Compiler compiler = null;
+    private Compiler javaCompiler = null;
+    private Compiler kotlinCompiler = null;
 
     /**
      * Construct the JobQueue. This is private; use getJobQueue() to get the job queue instance.
      */
     private JobQueue()
     {
-        compiler = new CompilerAPICompiler();
+        javaCompiler = new CompilerAPICompiler();
         thread = new CompilerThread();
 
         // Lower priority to improve GUI response time during compilation
@@ -75,19 +75,24 @@ public class JobQueue
      * @param sources   The files to compile
      * @param observer  Observer to be notified when compilation begins,
      *                  errors/warnings, completes
-     * @param classPath The classpath to use to locate objects/source code
-     * @param destDir   Destination for class files?
+     * @param sourcePath   Path to the source files (might be used also as an output folder
+     *                     for the compiled classes depending on the compilation type)
      * @param suppressUnchecked    Suppress "unchecked" warning in java 1.5
      */
-    public void addJob(CompileInputFile[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
+    public void addJob(List<CompileInputFile> sources, boolean needsKotlinCompiler, CompileObserver observer, BPClassLoader bpClassLoader, File sourcePath,
             boolean suppressUnchecked, Charset fileCharset, CompileReason reason, CompileType type)
     {
         List<String> options = new ArrayList<String>();
         String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, "");
         options.addAll(Utility.dequoteCommandLine(optionString));
-        
-        thread.addJob(new Job(sources, compiler, observer, bpClassLoader,
-                destDir, suppressUnchecked, options, fileCharset, type, reason));
+
+        // We don't instantiate the Kotlin compiler until we really need it
+        if (needsKotlinCompiler && kotlinCompiler == null) {
+            kotlinCompiler = new KotlinCompiler();
+        }
+
+        thread.addJob(new Job(sources, javaCompiler, needsKotlinCompiler ? kotlinCompiler : null, observer, bpClassLoader,
+                sourcePath, suppressUnchecked, options, fileCharset, type, reason));
     }
 
     /**

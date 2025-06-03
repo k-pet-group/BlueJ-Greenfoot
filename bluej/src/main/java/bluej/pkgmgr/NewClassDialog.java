@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+import javafx.collections.ObservableList;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
@@ -139,7 +140,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
         mainPanel.getChildren().add(nameBox);
 
-        language = new HorizontalRadio(Arrays.asList(SourceType.Java, SourceType.Stride));
+        language = new HorizontalRadio(Arrays.asList(SourceType.Java, SourceType.Stride, SourceType.Kotlin));
         language.select(defaultSourceType);
         
         HBox langBox = new HBox();
@@ -162,6 +163,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         JavaFXUtil.addChangeListenerPlatform(language.selectedProperty(), language -> {
             hideError();
             updateOKButton(false);
+            resortTemplateButtons(templateButtons);
         });
         
         getDialogPane().setContent(mainPanel);
@@ -176,6 +178,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         });
         
         updateOKButton(false);
+        resortTemplateButtons(templateButtons);
         setOnShown(e -> Platform.runLater(nameField::requestFocus));
         if (Config.makeDialogsResizable())
         {
@@ -238,9 +241,11 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         // (we do this rather than using the directory only to be able to force an order on the templates.)
         addDEFsTemplates(templates, SourceType.Java);
         addDEFsTemplates(templates, SourceType.Stride);
+        addDEFsTemplates(templates, SourceType.Kotlin);
 
         // next, get templates from files in template directory and merge them in
         addDirectoryTemplates(templates, SourceType.Java, parent);
+        addDirectoryTemplates(templates, SourceType.Kotlin, parent);
 
         // Create a radio button for each template found
         boolean first = true;
@@ -251,6 +256,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             if (first)
                 button.setSelected(true); // select first
             button.setToggleGroup(templateButtons);
+            button.setUserData(template.name);
             this.templates.put(button, template);
             panel.getChildren().add(button);
             first = false;
@@ -269,7 +275,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
     private void addDirectoryTemplates(TemplatesList templates, SourceType sourceType, Window parent)
     {
-        File templateDir = Config.getClassTemplateDir();
+        File templateDir = Config.getClassTemplateDir(sourceType.getConfigSourceType());
         if ( !templateDir.exists() ) {
             DialogManager.showErrorFX(parent, "error-no-templates");
         }
@@ -318,6 +324,10 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         {
             if (fieldHasHadContent || force)
                 showError(Config.getString("pkgmgr.newClass.error.windowsRestricted"), true);
+        }
+        else if (sourceType == SourceType.Kotlin && selectedToggle.getUserData().equals("facade") && !newClassName.endsWith("Kt")) {
+            if (fieldHasHadContent || force)
+                showError(Config.getString("pkgmgr.newClass.error.notFacadeName"), true);
         }
         else
         {
@@ -371,5 +381,51 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             windowsRestrictedWords = Arrays.asList("CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5",
                     "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9");
         }
+    }
+
+    /**
+     * Resorts the template buttons so that all visible buttons are at the top,
+     * while preserving the original order of visible items.
+     */
+    private void resortTemplateButtons(ToggleGroup templateButtons)
+    {
+        // Get all toggles
+        ObservableList<Toggle> toggles = templateButtons.getToggles();
+
+        // If there are no toggles or only one toggle, no need to resort
+        if (toggles == null || toggles.isEmpty() || toggles.size() <= 1) {
+            return;
+        }
+
+        // Create separate lists for visible and invisible buttons, preserving the original order
+        List<RadioButton> visibleButtons = new ArrayList<>();
+        List<RadioButton> invisibleButtons = new ArrayList<>();
+
+        for (Toggle toggle : toggles) {
+            RadioButton button = (RadioButton) toggle;
+            if (button.isVisible()) {
+                visibleButtons.add(button);
+            } else {
+                invisibleButtons.add(button);
+            }
+        }
+
+        // Get the parent container of the buttons
+        Pane parent = (Pane) visibleButtons.get(0).getParent();
+        if (parent == null) {
+            return;
+        }
+
+        // Create a list of all buttons for removal
+        List<RadioButton> allButtons = new ArrayList<>();
+        allButtons.addAll(visibleButtons);
+        allButtons.addAll(invisibleButtons);
+
+        // Remove all buttons from the parent
+        parent.getChildren().removeAll(allButtons);
+
+        // Add visible buttons first, then invisible buttons, preserving original order within each group
+        parent.getChildren().addAll(visibleButtons);
+        parent.getChildren().addAll(invisibleButtons);
     }
 }

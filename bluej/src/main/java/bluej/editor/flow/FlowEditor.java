@@ -176,8 +176,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final EditorWatcher watcher;
     /** The Editor Quick Fixes manager associated with this Editor */
     private final EditorFixesManager editorFixesMgr;
-    
-    private final boolean sourceIsCode;           // true if current buffer is code
+
+    private final FlowSource flowSource;           // The type of source being edited
     private final List<Menu> fxMenus;
     private final ListView<ErrorDetails> errorList;
     private final BorderPane errorListPane;
@@ -239,7 +239,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
     public boolean containsSourceCode()
     {
-        return sourceIsCode;
+        return flowSource != FlowSource.PlainText;
     }
 
     // Used during testing
@@ -417,7 +417,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     // package-visible:
     final UndoManager undoManager;
 
-    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting, boolean sourceIsCode)
+    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting, FlowSource flowSource)
     {
         this.fxTab = new FlowFXTab(this, title);
         this.javadocResolver = javadocResolver;
@@ -435,12 +435,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.saveState = new StatusLabel(Status.SAVED, this, errorManager);
         this.actions = new FlowActions(this);
         this.htmlPane = new WebView();
-        this.sourceIsCode = sourceIsCode;
+        this.flowSource = flowSource;
         this.editorFixesMgr = new EditorFixesManager(watcher == null || watcher.getPackage() == null ? new CompletableFuture<>() : watcher.getPackage().getProject().getImports());
         htmlPane.visibleProperty().bind(viewingHTML);
         setCenter(new StackPane(flowEditorPane, htmlPane));
         this.interfaceToggle = createInterfaceSelector();
-        interfaceToggle.setDisable(!sourceIsCode);
+        interfaceToggle.setDisable(!containsSourceCode());
         Region toolbar = createToolbar(interfaceToggle.heightProperty());
         setTop(JavaFXUtil.withStyleClass(new BorderPane(toolbar, null, interfaceToggle, null, null), "flow-top-bar"));
         errorList = new ListView<>(errorManager.getObservableErrorList());
@@ -633,7 +633,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             Debug.message("Moe: action not found for button " + label);
         }
 
-        if (isNonReadmeAction(actionName) && !sourceIsCode){
+        if (isNonReadmeAction(actionName) && !containsSourceCode()){
             action.setEnabled(false);
         }
 
@@ -1046,7 +1046,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         if (saveState.isChanged())
         {
-            if (sourceIsCode)
+            if (containsSourceCode())
             {
                 // Save will occur as part of the future compilation:
                 scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
@@ -1163,7 +1163,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 getSourcePane().positionCaret(0);
                 undoManager.forgetHistory();
 
-                if (sourceIsCode)
+                if (flowSource == FlowSource.Java)
                 {
                     javaSyntaxView.enableParser(false);
                 }
@@ -1408,7 +1408,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             File file = new File(filename);
             setLastModified(file.lastModified());
 
-            if (sourceIsCode)
+            if (flowSource == FlowSource.Java)
             {
                 enableParser(false);
             }
@@ -1485,7 +1485,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 
                 checkBracketStatus();
 
-                if (sourceIsCode && !compiledProperty.get())
+                if (containsSourceCode() && !compiledProperty.get())
                 {
                     // Schedule a compilation so we can find and display any errors:
                     scheduleCompilation(CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
@@ -2020,7 +2020,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     private boolean viewingCode()
     {
-        return sourceIsCode && (!viewingHTML.get());
+        return containsSourceCode() && (!viewingHTML.get());
     }
 
     @Override
@@ -2157,7 +2157,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             setChanged();
 
             // Note that this compilation will cause a save:
-            if (sourceIsCode && watcher != null) {
+            if (containsSourceCode() && watcher != null) {
                 scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
         }

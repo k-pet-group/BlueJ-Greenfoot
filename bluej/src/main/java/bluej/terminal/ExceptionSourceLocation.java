@@ -67,7 +67,8 @@ public class ExceptionSourceLocation
     
     public void showInEditor()
     {
-        String fileName = className.replace('.', '/') + "." + SourceType.Java.toString().toLowerCase();
+        // TODO BlueJ/Kotlin It might be an exception in Kotlin source file
+        String fileName = className.replace('.', '/') + "." + SourceType.Java.getExtension();
         
         pkg.exceptionMessage(new File(pkg.getPath(), fileName).getAbsolutePath(), lineNumber);
         

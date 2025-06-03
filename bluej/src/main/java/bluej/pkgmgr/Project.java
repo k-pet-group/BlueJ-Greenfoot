@@ -162,6 +162,9 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     private boolean inTestMode = false;
     private BPClassLoader currentClassLoader;
     private List<URL> libraryUrls;
+    // Having a single Kotlin source in the project requires
+    // running a Kotlin compiler before any Java compilation.
+    private boolean hasKotlinSources = false;
     // the TeamSettingsController for this project
     private TeamSettingsController teamSettingsController = null;
     private CommitAndPushFrame commitCommentsFrame = null;
@@ -2660,6 +2663,14 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     public Map<String, ExternalFileLauncher.OpenExternalFileHandler> getProjectExternalFileOpenMap()
     {
         return projectExternalFileOpenMap;
+    }
+
+    public boolean hasKotlinSources() {
+        return hasKotlinSources;
+    }
+
+    public void setHasKotlinSources(boolean hasKotlinSources) {
+        this.hasKotlinSources = hasKotlinSources;
     }
 
     /**

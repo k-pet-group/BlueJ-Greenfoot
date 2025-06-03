@@ -467,6 +467,8 @@ pkgmgr.newClass.error.noType=No class type selected
 pkgmgr.newClass.error.typeNotAvailable=Type not available for $LANGUAGE
 pkgmgr.newClass.error.notValidClassName=Not a valid $LANGUAGE class name
 pkgmgr.newClass.error.windowsRestricted=Windows restricted word
+pkgmgr.newClass.facade = File with top-level functions
+pkgmgr.newClass.error.notFacadeName = Name should end with "Kt"
 
 
 

@@ -23,6 +23,7 @@ package bluej.pkgmgr.target;
 
 
 import bluej.Config;
+import bluej.classmgr.ClassFileReader;
 import bluej.collect.DataCollector;
 import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
@@ -36,6 +37,7 @@ import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.TextEditor;
 import bluej.editor.flow.FlowEditor;
+import bluej.editor.flow.FlowSource;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions2.*;
@@ -43,6 +45,7 @@ import bluej.extensions2.event.ClassEvent;
 import bluej.extmgr.ExtensionMenu;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionsMenuManager;
+import bluej.parser.DummyReflective;
 import bluej.parser.ParseFailure;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
@@ -53,18 +56,12 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.*;
-import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.PermitsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.actions.*;
-import bluej.pkgmgr.target.role.AbstractClassRole;
-import bluej.pkgmgr.target.role.ClassRole;
-import bluej.pkgmgr.target.role.EnumClassRole;
-import bluej.pkgmgr.target.role.InterfaceClassRole;
-import bluej.pkgmgr.target.role.StdClassRole;
-import bluej.pkgmgr.target.role.UnitTestClassRole;
+import bluej.pkgmgr.target.role.*;
 import bluej.pkgmgr.target.role.UnitTestClassRole.UnitTestFramework;
 import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.ast.Loader;
@@ -93,6 +90,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.stage.Window;
+import kotlin.Metadata;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -174,9 +172,33 @@ public class ClassTarget extends DependentTarget
     // Whether the current compilation is invalid due to edits since compilation began
     private boolean compilationInvalid = false;
 
-    private SourceType sourceAvailable;
+    private SourceType sourceAvailable = SourceType.NONE;
+    // value of .class-file's SourceFile attribute (used for Kotlin sources)
+    private Optional<String> ktSourceFileName = Optional.empty();
     // Part of keeping track of number of editors opened, for Greenfoot phone home:
     private boolean hasBeenOpened = false;
+
+    /**
+     * Sets the Kotlin source file name for this class target.
+     * This is used when multiple class targets are created from a single Kotlin file.
+     * 
+     * @param sourceFileName the name of the Kotlin source file
+     */
+    public void setKotlinSourceFileName(String sourceFileName)
+    {
+        this.ktSourceFileName = Optional.of(sourceFileName);
+
+        // If we don't know the source type yet, set it to Kotlin
+        if (sourceAvailable == SourceType.NONE) {
+            sourceAvailable = SourceType.Kotlin;
+            // Check if the file exists and is readable
+            File file = guessSourceFile(SourceType.Kotlin);
+            if (file != null && file.canRead()) {
+                getPackage().getProject().setHasKotlinSources(true);
+                noSourceLabel.setText("");
+            }
+        }
+    }
 
     private String typeParameters = "";
 
@@ -296,6 +318,10 @@ public class ClassTarget extends DependentTarget
             {
                 setRole(new EnumClassRole());
             }
+            else if (template.startsWith("facade"))
+            {
+                setRole(new KotlinFileFacadeRole());
+            }
             else
             {
                 setRole(new StdClassRole());
@@ -310,28 +336,51 @@ public class ClassTarget extends DependentTarget
         });
     }
 
+    private boolean sourceFileFound(SourceType sourceType)
+    {
+        final File file = guessSourceFile(sourceType);
+        if (file != null && file.canRead()) {
+            sourceAvailable = sourceType;
+            if (sourceType == SourceType.Kotlin) {
+                getPackage().getProject().setHasKotlinSources(true);
+            }
+            noSourceLabel.setText("");
+            return true;
+        }
+        return false;
+    }
     /**
      * Check whether the class has source, and of what type.
      */
     private void calcSourceAvailable()
     {
-        if (getFrameSourceFile().canRead())
-        {
-            sourceAvailable = SourceType.Stride;
-            noSourceLabel.setText("");
+
+        if (sourceAvailable != SourceType.NONE) {
+            return;
         }
-        else if (getJavaSourceFile().canRead())
-        {
-            sourceAvailable = SourceType.Java;
-            noSourceLabel.setText("");
+        // It's important to check for Stride source first!
+        final SourceType[] languageTypes = { SourceType.Stride, SourceType.Java, SourceType.Kotlin };
+        for (SourceType languageType : languageTypes) {
+            if(sourceFileFound(languageType)) {
+                return;
+            }
         }
-        else
-        {
-            sourceAvailable = SourceType.NONE;
-            // Can't have been modified since compile since there's no source to modify:
-            setState(State.COMPILED);
-            noSourceLabel.setText("(" + Config.getString("classTarget.noSource") + ")");
+
+        // Second attempt: a Kotlin source file might be compiled to class files with different names
+        if (ktSourceFileName.isEmpty()) {
+            ktSourceFileName = Optional.ofNullable(ClassFileReader.readSourceFileField(getClassFile()));
+
+            if (ktSourceFileName.isPresent()) {
+                if(sourceFileFound(SourceType.Kotlin)) {
+                    return;
+                }
+            }
         }
+
+        // No sources found
+        // Can't have been modified since compile since there's no source to modify:
+        setState(State.COMPILED);
+        noSourceLabel.setText("(" + Config.getString("classTarget.noSource") + ")");
     }
 
     private BClass singleBClass;  // Every Target has none or one BClass
@@ -405,6 +454,10 @@ public class ClassTarget extends DependentTarget
             {
                 return null;
             }
+        }
+
+        if (sourceAvailable == SourceType.Kotlin) {
+            return new DummyReflective(getQualifiedName());
         }
 
         // Not compiled; try to get a reflective from the parser
@@ -746,6 +799,9 @@ public class ClassTarget extends DependentTarget
             else if (isJunit5TestClass(cl)) {
                 setRole(new UnitTestClassRole(UnitTestFramework.JUnit5));
             }
+            else if (isKotlinFileFacadeClass(cl)) {
+                setRole(new KotlinFileFacadeRole());
+            }
             else {
                 setRole(new StdClassRole());
             }
@@ -768,12 +824,14 @@ public class ClassTarget extends DependentTarget
                 }
                 else if (classInfo.isAbstract()) {
                     setRole(new AbstractClassRole());
+                } else if (classInfo.hasTopLevelFunctions()) {
+                    setRole(new KotlinFileFacadeRole());
                 }
                 else {
                     // We shouldn't override applet/unit test class roles based only
                     // on source analysis: if they inherit only indirectly from Applet
                     // or UnitTest, source analysis won't give the correct role
-                    if (!(role instanceof UnitTestClassRole))
+                    if (!(role instanceof UnitTestClassRole) && !(role instanceof KotlinFileFacadeRole))
                     {
                         setRole(new StdClassRole());
                     }
@@ -784,6 +842,11 @@ public class ClassTarget extends DependentTarget
         }
     }
 
+    private static  boolean isKotlinFileFacadeClass(Class<?> cl) {
+        Metadata metadata = cl.getAnnotation(Metadata.class);
+        if (metadata == null) return false;
+        return metadata.k() == 2 && cl.getSimpleName().endsWith("Kt");
+    }
     /**
      * Load existing information about this class target
      * 
@@ -804,6 +867,12 @@ public class ClassTarget extends DependentTarget
 
         String intf = props.getProperty(prefix + ".showInterface");
         openWithInterface = Boolean.valueOf(intf).booleanValue();
+
+        // Load the Kotlin source file name if it exists
+        String ktSourceFileNameValue = props.getProperty(prefix + ".ktSourceFileName");
+        if (ktSourceFileNameValue != null) {
+            ktSourceFileName = Optional.of(ktSourceFileNameValue);
+        }
 
         if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type)) {
             setRole(new UnitTestClassRole(UnitTestFramework.JUnit3));
@@ -884,7 +953,11 @@ public class ClassTarget extends DependentTarget
         {
             props.put(prefix + ".naviview.expanded", String.valueOf(isNaviviewExpanded()));
         }
-        
+        // Save the Kotlin source file name if it's present
+        if (ktSourceFileName.isPresent()) {
+            props.put(prefix + ".ktSourceFileName", ktSourceFileName.get());
+        }
+
         props.put(prefix + ".showInterface", Boolean.valueOf(intf).toString());
 
         List<Integer> breakpoints;
@@ -1080,18 +1153,36 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * @return the name of the Java file this target corresponds to. In the case of a Stride target this is
-     *          the file generated during compilation.
+     * Attempts to determine the source file based on the provided source type.
+     * If no package is associated, this method will return null.
+     * The returned {@code File} object may point to a non-existent file.
+     *
+     * @param sourceType the type of the source file (e.g., Kotlin, Java, Stride) used to determine the file extension.
+     * @return the determined source file as a {@code File} object, or null if no package is associated.
      */
-    public File getJavaSourceFile() {
+    private File guessSourceFile(SourceType sourceType)
+    {
         if (null == getPackage())
         {
             return null;
         }
-        else
-        {
-            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Java.toString().toLowerCase());
-        }
+        String defaultNameBySourceType = (role instanceof KotlinFileFacadeRole
+                ? getBaseName().substring(0, getBaseName().length() - 2)
+                : getBaseName()) + "." + sourceType.getExtension();
+        String sourceFileName = sourceType == SourceType.Kotlin
+                ?  ktSourceFileName.orElse(defaultNameBySourceType)
+                : defaultNameBySourceType;
+        return new File(getPackage().getPath(), sourceFileName);
+    }
+
+    /**
+     * @return the name of the Java file this target corresponds to.
+     * In the case of a Stride target, this is
+     * the file generated during compilation.
+     */
+    public File getJavaSourceFile()
+    {
+        return guessSourceFile(SourceType.Java);
     }
     
     /**
@@ -1099,26 +1190,21 @@ public class ClassTarget extends DependentTarget
      */
     public File getFrameSourceFile()
     {
-        if (null == getPackage())
-        {
-            return null;
-        }
-        else
-        {
-            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Stride.toString().toLowerCase());
-        }
+        return guessSourceFile(SourceType.Stride);
     }
-    
-    @SuppressWarnings("incomplete-switch")
+
+    /**
+     * Retrieves the source file based on the current source type.
+     *
+     * <p>If the source type is set to "Stride", it will return the corresponding "Java" source file.
+     * Otherwise, it will return the source file for the currently available source type (Java or Kotlin respectively).</p>
+     *
+     * @return the source file corresponding to the determined source type
+     */
     @Override
     public File getSourceFile()
     {
-        switch (sourceAvailable)
-        {
-            case Java: return getJavaSourceFile();
-            case Stride: return getFrameSourceFile();
-        }
-        return null;
+        return guessSourceFile(sourceAvailable);
     }
 
     public boolean isVisible()
@@ -1181,17 +1267,21 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * If this is a Java class, returns the .java source file only.
+     * If this is a Java or Kotlin class, returns the source file only.
      * If this is a Stride class, returns the .stride and .java source files, *in that order*.
      * This is a strict requirement in the call in DataCollectorImpl, do not change the order.
      */
     public Collection<SourceFileInfo> getAllSourceFilesJavaLast()
     {
         List<SourceFileInfo> list = new ArrayList<>();
-        if (sourceAvailable.equals(SourceType.Stride)) {
+        if (!hasSourceCode())
+            return list;
+        if (sourceAvailable == SourceType.Stride) {
             list.add(new SourceFileInfo(getFrameSourceFile(), SourceType.Stride));
+            list.add(new SourceFileInfo(getJavaSourceFile(), SourceType.Java));
+        } else {
+            list.add(new SourceFileInfo(getSourceFile(), sourceAvailable));
         }
-        list.add(new SourceFileInfo(getJavaSourceFile(), SourceType.Java));
         return list;
     }
 
@@ -1312,20 +1402,21 @@ public class ClassTarget extends DependentTarget
                     stateListener.editorOpened();
                 }
             };
-            if (sourceAvailable == SourceType.Java || sourceAvailable == SourceType.NONE) {
-                editor = new FlowEditor(newWindow -> {
-                    if (newWindow)
-                    {
+            if (sourceAvailable != SourceType.Stride) {
+                final FlowEditor.FetchTabbedEditor fetchTabbedEditor = newWindow -> {
+                    if (newWindow) {
                         return project.createNewFXTabbedEditor();
-                    }
-                    else
-                    {
+                    } else {
                         return project.getDefaultFXTabbedEditor();
                     }
-                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true);
+                };
+                editor = new FlowEditor(fetchTabbedEditor, getBaseName(), this,
+                        resolver, project.getJavadocResolver(), openCallback,
+                        PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING),
+                        FlowSource.fromSourceType(sourceAvailable));
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
             }
-            else if (sourceAvailable == SourceType.Stride) {
+            else /* sourceAvailable == SourceType.Stride */ {
                 File frameSourceFile = getFrameSourceFile();
                 File javaSourceFile = getJavaSourceFile();
                 JavadocResolver javadocResolver = project.getJavadocResolver();
@@ -1352,17 +1443,9 @@ public class ClassTarget extends DependentTarget
         if (!hasBeenOpened)
         {
             hasBeenOpened = true;
-            switch (sourceAvailable)
-            {
-                case Java:
-                    Config.recordEditorOpen(Config.SourceType.Java);
-                    break;
-                case Stride:
-                    Config.recordEditorOpen(Config.SourceType.Stride);
-                    break;
-                default:
-                    break;
-            }
+            final Config.SourceType configSourceType = sourceAvailable.getConfigSourceType();
+            if (configSourceType != null)
+                Config.recordEditorOpen(configSourceType);
         }
     }
 
@@ -1574,7 +1657,9 @@ public class ClassTarget extends DependentTarget
             boolean success;
             switch (sourceType) {
                 case Java:
-                    success = role.generateSkeleton(template, getPackage(), getBaseName(), getJavaSourceFile().getPath());
+                case Kotlin:
+                    success = role.generateSkeleton(template, getPackage(), getBaseName(),
+                            guessSourceFile(sourceType).getPath(), sourceType);
                     break;
                 case Stride:
                     addStride(Loader.buildTopLevelElement(template, getPackage().getProject().getEntityResolver(),
@@ -1598,7 +1683,7 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Inserts a package deceleration in the source file of this class, only if it
-     * is not correct or if it does't exist. Also, the default package will be ignored.
+     * is not correct or if it doesn't exist. Also, the default package will be ignored.
      * 
      * @param packageName the package's name
      * @exception IllegalArgumentException if the package name is not a valid java identifier
@@ -1717,7 +1802,7 @@ public class ClassTarget extends DependentTarget
 
         analysing = true;
 
-        ClassInfo info = sourceInfo.getInfo(getJavaSourceFile(), getPackage());
+        ClassInfo info = sourceInfo.getInfo(getSourceFile(), getPackage());
 
         // info will be null if the source was unparseable
         if (info != null) {
@@ -1788,6 +1873,10 @@ public class ClassTarget extends DependentTarget
      */
     public boolean analyseClassName(ClassInfo info)
     {
+        if (role instanceof KotlinFileFacadeRole) {
+            return false;
+        }
+
         String newName = info.getName();
 
         if ((newName == null) || (newName.length() == 0)) {
@@ -1971,7 +2060,7 @@ public class ClassTarget extends DependentTarget
         }
 
         File oldJavaSourceFile  = getJavaSourceFile();
-        File newJavaSourceFile = new File(getPackage().getPath(), newName + "." + SourceType.Java.toString().toLowerCase());
+        File newJavaSourceFile = new File(getPackage().getPath(), newName + "." + SourceType.Java.getExtension());
 
         try {
             String filename;
@@ -1980,7 +2069,7 @@ public class ClassTarget extends DependentTarget
             getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
 
             if (getSourceType().equals(SourceType.Stride)) {
-                newFrameSourceFile = new File(getPackage().getPath(), newName + "." + SourceType.Stride.toString().toLowerCase());
+                newFrameSourceFile = new File(getPackage().getPath(), newName + "." + SourceType.Stride.getExtension());
                 oldFrameSourceFile = getFrameSourceFile();
                 FileUtility.copyFile(oldFrameSourceFile, newFrameSourceFile);
                 filename = newFrameSourceFile.getAbsolutePath();
@@ -2625,7 +2714,9 @@ public class ClassTarget extends DependentTarget
 
     public CompileInputFile getCompileInputFile()
     {
-        return new CompileInputFile(getJavaSourceFile(), getSourceFile());
+        File sourceFile = getSourceFile();
+        File fileForCompiler = sourceAvailable == SourceType.Stride ? getJavaSourceFile() : sourceFile;
+        return new CompileInputFile(fileForCompiler, sourceFile, this);
     }
 
     /**

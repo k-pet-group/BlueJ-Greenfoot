@@ -38,7 +38,7 @@ abstract class Compiler
 {
     public static final String COMPILER_OPTIONS = "bluej.compiler.options";
     
-    private File destDir;
+    private File sourcePath;
     private List<File> classPath;
     /** "boot" class path - may be null if not specified */
     private File[] bootClassPath;
@@ -46,15 +46,14 @@ abstract class Compiler
     private boolean deprecation;
     
     /**
-     * Set the destination directory - the base directory for where the compiled class files
-     * are output to. (The final folder for a given class depends on the class' package).
-     * This currently also specifies the source path.
-     * 
-     * @param destDir  The destination directory
+     * Set the source path - the base directory for where the source files
+     * are looked for.
+     *
+     * @param sourcePath  The source path.
      */
-    public void setDestDir(File destDir)
+    public void setSourcePath(File sourcePath)
     {
-        this.destDir = destDir;
+        this.sourcePath = sourcePath;
     }
 
     public void setClasspath(List<File> classPath)
@@ -92,9 +91,9 @@ abstract class Compiler
         return deprecation;
     }
 
-    public File getDestDir()
+    public File getSourcePath()
     {
-        return destDir;
+        return sourcePath;
     }
     
     public List<File> getClassPath()
@@ -124,7 +123,6 @@ abstract class Compiler
      * 
      * @return  true if the compilation was successful
      */
-    public abstract boolean compile(File[] sources, CompileObserver observer,
-            boolean internal, List<String> options, Charset fileCharset, CompileType type);
-
+    public abstract boolean compile(List<File> sources, CompileObserver observer,
+            boolean internal, List<String> options, Charset fileCharset, CompileType type, File outputDir);
 }

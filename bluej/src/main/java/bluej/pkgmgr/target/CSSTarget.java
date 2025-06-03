@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Properties;
 
 import bluej.editor.flow.FlowEditor;
+import bluej.editor.flow.FlowSource;
 import bluej.pkgmgr.target.actions.EditAction;
 import bluej.pkgmgr.target.actions.RemoveEditableTargetAction;
 import bluej.utility.javafx.AbstractOperation;
@@ -107,7 +108,7 @@ public class CSSTarget extends NonCodeEditableTarget
                 {
                     return getPackage().getProject().getDefaultFXTabbedEditor();
                 }
-            }, getSourceFile().getName(), this, null, null, () -> {}, new ReadOnlyBooleanWrapper(false), false);
+            }, getSourceFile().getName(), this, null, null, () -> {}, new ReadOnlyBooleanWrapper(false), FlowSource.PlainText);
             flowEditor.showFile(file.getAbsolutePath(), StandardCharsets.UTF_8, false, null);
             this.editor = flowEditor;
         }

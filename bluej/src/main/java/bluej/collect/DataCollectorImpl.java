@@ -331,14 +331,9 @@ public class DataCollectorImpl
             {
                 String relative = CollectUtility.toPath(proj, fileInfo.file);
                 mpe.addPart("project[source_files][][name]", CollectUtility.toBody(relative));
-                switch (fileInfo.sourceType)
-                {
-                    case Java:
-                        mpe.addPart("project[source_files][][source_type]", CollectUtility.toBody("java"));
-                        break;
-                    case Stride:
-                        mpe.addPart("project[source_files][][source_type]", CollectUtility.toBody("stride"));
-                        break;
+                String sourceTypeStr = fileInfo.sourceType.toString();
+                if (!sourceTypeStr.isEmpty()) {
+                    mpe.addPart("project[source_files][][source_type]", CollectUtility.toBody(sourceTypeStr));
                 }
                 String anonymisedContent = CollectUtility.readFileAndAnonymise(proj, fileInfo.file);
 

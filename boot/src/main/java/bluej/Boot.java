@@ -67,7 +67,7 @@ public class Boot
     
     // The version numbers for Greenfoot are changed in the Greenfoot build.xml
     // and then the update-version target should be executed.
-    private static final String[] bluejUserJars = { "bluejcore.jar", "javafx-*.jar", "junit-*.jar", "hamcrest-*.jar", "opentest4j-*.jar", "lang-stride.jar" };
+    private static final String[] bluejUserJars = { "bluejcore.jar", "javafx-*.jar", "junit-*.jar", "hamcrest-*.jar", "opentest4j-*.jar", "lang-stride.jar", "kotlin-stdlib-*.jar" };
     private static final String JLAYER_MP3_JAR = "jl1.0.1.jar";
     // Jars that should be included with exported scenarios
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};

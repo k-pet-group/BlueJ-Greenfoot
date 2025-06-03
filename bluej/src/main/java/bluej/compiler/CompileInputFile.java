@@ -21,34 +21,55 @@
  */
 package bluej.compiler;
 
+import com.google.common.io.Files;
+
 import java.io.File;
 import java.io.Serializable;
+
+import bluej.pkgmgr.target.ClassTarget;
 
 /**
  * Information about a file to be fed to the compiler as input.
  */
 public class CompileInputFile implements Serializable
 {
-    private final File actualJavaFileForCompiler;
+    private final File actualSourceFileForCompiler;
     private final File sourceFileToRecord;
+    private final ClassTarget classTarget;
 
     /**
      *
-     * @param actualJavaFileForCompiler The .java file that the compiler will see, even if the original was Stride
-     * @param sourceFileToRecord The Stride file for Stride (or Java for Java; in this case, both parameters will be identical).
+     * @param actualSourceFileForCompiler The .java or .kt file that the compiler will see
+     *                                    (should be .java, if the original was Stride).
+     * @param sourceFileToRecord The Stride file for Stride (or Java for Java, Kotlin for Kotlin;
+     *                           in this case, both parameters will be identical).
+     * @param classTarget The ClassTarget associated with this file, or null if not available.
      */
-    public CompileInputFile(File actualJavaFileForCompiler, File sourceFileToRecord)
+    public CompileInputFile(File actualSourceFileForCompiler, File sourceFileToRecord, ClassTarget classTarget)
     {
-        this.actualJavaFileForCompiler = actualJavaFileForCompiler;
+        this.actualSourceFileForCompiler = actualSourceFileForCompiler;
         this.sourceFileToRecord = sourceFileToRecord;
+        this.classTarget = classTarget;
     }
 
     /**
-     * The .java source file that gets fed to the compiler (even for Stride classes)
+     *
+     * @param actualSourceFileForCompiler The .java or .kt file that the compiler will see
+     *                                    (should be .java, if the original was Stride).
+     * @param sourceFileToRecord The Stride file for Stride (or Java for Java, Kotlin for Kotlin;
+     *                           in this case, both parameters will be identical).
      */
-    public File getJavaCompileInputFile()
+    public CompileInputFile(File actualSourceFileForCompiler, File sourceFileToRecord)
     {
-        return actualJavaFileForCompiler;
+        this(actualSourceFileForCompiler, sourceFileToRecord, null);
+    }
+
+    /**
+     * The .java or .kt source file that gets fed to the compiler (even for Stride classes)
+     */
+    public File getCompileInputFile()
+    {
+        return actualSourceFileForCompiler;
     }
 
     /**
@@ -61,6 +82,21 @@ public class CompileInputFile implements Serializable
 
     public boolean isValid()
     {
-        return (actualJavaFileForCompiler !=null && sourceFileToRecord != null);
+        return (actualSourceFileForCompiler !=null && sourceFileToRecord != null);
+    }
+
+    public String getCompileFileExtension()
+    {
+        return Files.getFileExtension(actualSourceFileForCompiler.getName());
+    }
+
+    /**
+     * Get the ClassTarget associated with this file, if available.
+     * 
+     * @return The ClassTarget, or null if not available.
+     */
+    public ClassTarget getClassTarget()
+    {
+        return classTarget;
     }
 }
