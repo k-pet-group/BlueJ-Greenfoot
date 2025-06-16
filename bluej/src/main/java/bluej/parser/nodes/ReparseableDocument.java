@@ -21,6 +21,7 @@
  */
 package bluej.parser.nodes;
 
+import bluej.extensions2.SourceType;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -54,6 +55,11 @@ public interface ReparseableDocument
      * scheduled re-parses as appropriate and repaints the appropriate area.
      */
     public void markSectionParsed(int pos, int size);
+
+    /**
+     * Returns the type of source associated with this document.
+     */
+    public SourceType getSourceType();
 
     @OnThread(Tag.FXPlatform)
     public static interface Element

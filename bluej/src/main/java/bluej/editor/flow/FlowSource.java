@@ -43,4 +43,12 @@ public enum FlowSource {
             default -> PlainText;
         };
     }
+
+    public SourceType toSourceType() {
+        return switch (this) {
+            case Java -> SourceType.Java;
+            case Kotlin -> SourceType.Kotlin;
+            case PlainText -> SourceType.NONE;
+        };
+    }
 }

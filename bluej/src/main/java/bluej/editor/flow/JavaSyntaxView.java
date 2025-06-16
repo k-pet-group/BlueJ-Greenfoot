@@ -27,6 +27,7 @@ import bluej.editor.base.LineDisplay.LineDisplayListener;
 import bluej.editor.base.TextLine.StyledSegment;
 import bluej.editor.flow.JavaSyntaxView.SyntaxEvent.NodeChangeRecord;
 import bluej.editor.flow.MultilineStringTracker.TextBlockRelation;
+import bluej.extensions2.SourceType;
 import bluej.parser.Token;
 import bluej.parser.Token.TokenType;
 import bluej.parser.entity.EntityResolver;
@@ -107,6 +108,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private NodeTree<ReparseRecord> reparseRecordTree;
     private final ScopeColors scopeColors;
     private final BooleanExpression syntaxHighlighting;
+    private final SourceType sourceType;
     private final Display display;
 
     /* Scope painting colours */
@@ -330,7 +332,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * @param parentResolver The resolver to pass to the parser
      * @param syntaxHighlighting
      */
-    public JavaSyntaxView(Document document, Display display, ScopeColors scopeColors, EntityResolver parentResolver, BooleanExpression syntaxHighlighting)
+    public JavaSyntaxView(Document document, Display display, ScopeColors scopeColors, EntityResolver parentResolver, BooleanExpression syntaxHighlighting, SourceType sourceType)
     {
         this.parentResolver = parentResolver;
         this.scopeBackgrounds = new LiveScopeBackgrounds();
@@ -340,6 +342,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         this.multilineStringTracker = new MultilineStringTracker(this.document, () -> styledLines.clear());
         this.display = display;
         this.syntaxHighlighting = syntaxHighlighting;
+        this.sourceType = sourceType;
         this.scopeColors = scopeColors;
         resetColors();
         if (this.display != null)
@@ -2313,6 +2316,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             existing.getNode().remove();
             existing = next;
         }
+    }
+
+    @Override
+    public SourceType getSourceType() {
+        return sourceType;
     }
 
     private void repaintLines(int offset, int length, boolean restyle)

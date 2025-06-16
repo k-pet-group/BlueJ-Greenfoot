@@ -25,6 +25,7 @@ import bluej.debugger.gentype.ConstructorReflective;
 import bluej.editor.flow.HoleDocument;
 import bluej.editor.flow.JavaSyntaxView;
 import bluej.editor.flow.ScopeColorsBorderPane;
+import bluej.extensions2.SourceType;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.ReparseableDocument;
@@ -406,7 +407,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
             if (document == null)
             {
                 HoleDocument doc = new HoleDocument();
-                this.document = new JavaSyntaxView(doc, null, new ScopeColorsBorderPane(), projectResolver, new ReadOnlyBooleanWrapper(false));
+                this.document = new JavaSyntaxView(doc, null, new ScopeColorsBorderPane(), projectResolver, new ReadOnlyBooleanWrapper(false), SourceType.Java);
                 doc.replaceText(0, 0, src);
                 this.document.enableParser(true);
             }
