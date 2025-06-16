@@ -149,4 +149,53 @@ public interface JavaTokenTypes
 
     int INVALID = 181;
 
+    // Kotlin-specific token types
+    int LITERAL_fun = 200;
+    int LITERAL_val = 201;
+    int LITERAL_var = 202;
+    int LITERAL_constructor = 203;
+    int LITERAL_by = 204;
+    int LITERAL_companion = 205;
+    int LITERAL_init = 206;
+    int LITERAL_object = 207;
+    int LITERAL_typealias = 208;
+    int LITERAL_data = 209;
+    int LITERAL_suspend = 210;
+    int LITERAL_internal = 211;
+    int LITERAL_override = 212;
+    int LITERAL_lateinit = 213;
+    int LITERAL_tailrec = 214;
+    int LITERAL_vararg = 215;
+    int LITERAL_noinline = 216;
+    int LITERAL_crossinline = 217;
+    int LITERAL_reified = 218;
+    int LITERAL_inline = 219;
+    int LITERAL_actual = 220;
+    int LITERAL_expect = 221;
+    int LITERAL_const = 222;
+    int LITERAL_external = 223;
+    int LITERAL_operator = 224;
+    int LITERAL_infix = 225;
+    int ARROW = 226; // ->
+    int DOUBLE_COLON = 227; // ::
+    int RANGE = 228; // ..
+    int ELVIS = 229; // ?:
+    int SAFE_ACCESS = 230; // ?.
+    int LITERAL_as = 231;
+    int LITERAL_is = 232;
+    int LITERAL_in = 233;
+    int LITERAL_out = 234;
+    int LITERAL_where = 235;
+    int LITERAL_get = 236;
+    int LITERAL_set = 237;
+    int LITERAL_field = 238;
+    int LITERAL_property = 239;
+    int LITERAL_receiver = 240;
+    int LITERAL_param = 241;
+    int LITERAL_setparam = 242;
+    int LITERAL_delegate = 243;
+    int LITERAL_file = 244;
+    int LITERAL_open = 245;
+    int LITERAL_inner = 246;
+
 }

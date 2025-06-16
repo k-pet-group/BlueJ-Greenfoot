@@ -23,6 +23,7 @@ package bluej.parser;
 
 import java.io.StringReader;
 
+import bluej.extensions2.SourceType;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -44,7 +45,7 @@ public class Java11BasicParseTest
         StringReader sr = new StringReader(
                 "var v = \"hello\";"
         );
-        JavaParser ip = new JavaParser(sr);
+        SourceParser ip = new SourceParser(sr);
         ip.parseStatement();
     }
 
@@ -57,7 +58,7 @@ public class Java11BasicParseTest
         StringReader sr = new StringReader(
                 "String var = \"hello\";"
         );
-        JavaParser ip = new JavaParser(sr);
+        SourceParser ip = new SourceParser(sr);
         ip.parseStatement();
     }
 
@@ -70,7 +71,7 @@ public class Java11BasicParseTest
         StringReader sr = new StringReader(
                 "var var = \"var\" + var();"
         );
-        JavaParser ip = new JavaParser(sr);
+        SourceParser ip = new SourceParser(sr);
         ip.parseStatement();
     }
 

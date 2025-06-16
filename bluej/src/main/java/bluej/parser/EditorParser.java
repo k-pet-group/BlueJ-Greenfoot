@@ -22,15 +22,9 @@
 package bluej.parser;
 
 import bluej.debugger.gentype.Reflective;
+import bluej.extensions2.SourceType;
+import bluej.parser.entity.*;
 import bluej.parser.nodes.ReparseableDocument.Element;
-import bluej.parser.entity.EntityResolver;
-import bluej.parser.entity.IntersectionTypeEntity;
-import bluej.parser.entity.JavaEntity;
-import bluej.parser.entity.ParsedReflective;
-import bluej.parser.entity.PositionedResolver;
-import bluej.parser.entity.TparEntity;
-import bluej.parser.entity.TypeEntity;
-import bluej.parser.entity.UnresolvedArray;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.*;
@@ -53,7 +47,7 @@ import java.util.Stack;
  * 
  * @author Davin McCall
  */
-public class EditorParser extends JavaParser
+public class EditorParser extends SourceParser
 {
     private final NodeStructureListener nodeStructureListener;
     protected Stack<JavaParentNode> scopeStack = new Stack<JavaParentNode>();
@@ -107,9 +101,9 @@ public class EditorParser extends JavaParser
     /**
      * Constructor for use by subclasses (InfoReader).
      */
-    protected EditorParser(Reader r, EntityResolver resolver)
+    protected EditorParser(Reader r, EntityResolver resolver, SourceType sourceType)
     {
-        super(r);
+        super(r, sourceType);
         nodeStructureListener = new NodeStructureListener()
         {
             @Override
@@ -132,7 +126,7 @@ public class EditorParser extends JavaParser
 
     public EditorParser(ReparseableDocument document, Reader r, int line, int col, int pos, Stack<JavaParentNode> scopeStack, NodeStructureListener nodeStructureListener)
     {
-        super(r, line, col, pos);
+        super(r, document.getSourceType(), line, col, pos);
         this.document = document;
         this.scopeStack = scopeStack;
         this.nodeStructureListener = nodeStructureListener;
@@ -1031,7 +1025,14 @@ public class EditorParser extends JavaParser
         int insPos = lineColToPosition(start.getLine(), start.getColumn());
 
         MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), jdcomment);
-        JavaEntity returnType = ParseUtils.getTypeEntity(pnode, currentQuerySource(), lastTypeSpec);
+
+        JavaEntity returnType;
+        if (lastTypeSpec != null && !lastTypeSpec.isEmpty()) {
+            returnType = ParseUtils.getTypeEntity(pnode, currentQuerySource(), lastTypeSpec);
+        } else {
+            returnType = UnresolvedEntity.getEntity(pcuNode.getParentResolver(), "Unit", currentQuerySource());
+        }
+
         pnode.setReturnType(returnType);
         pnode.setModifiers(currentModifiers);
         pnode.setTypeParams(getTparList(pnode));

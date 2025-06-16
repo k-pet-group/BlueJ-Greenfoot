@@ -40,6 +40,7 @@ import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import bluej.extensions2.SourceType;
 import bluej.parser.TextAnalyzer.MethodCallDesc;
 import bluej.parser.entity.ConstantBoolValue;
 import bluej.parser.entity.ConstantFloatValue;
@@ -64,12 +65,14 @@ import bluej.utility.JavaReflective;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import static bluej.parser.JavaParser.isPrimitiveType;
+
 /**
  * A parser for the codepad.
  * 
  * @author Davin McCall
  */
-public class TextParser extends JavaParser
+public class TextParser extends SourceParser
 {
     private EntityResolver resolver;
     private JavaEntity accessType;
@@ -123,7 +126,7 @@ public class TextParser extends JavaParser
     /** Arguments for a method or constructor call are added to the list at the top of this stack */
     private Stack<List<JavaEntity>> argumentStack = new Stack<List<JavaEntity>>();
 
-
+    
     /**
      * Construct a text parser for parsing an expression.
      * 
@@ -134,7 +137,7 @@ public class TextParser extends JavaParser
      */
     public TextParser(EntityResolver resolver, Reader r, JavaEntity accessType, boolean staticAccess)
     {
-        super(r);
+        super(r, SourceType.Java);
         this.resolver = resolver;
         this.accessType = accessType;
         this.staticAccess = staticAccess;
@@ -154,7 +157,7 @@ public class TextParser extends JavaParser
     public TextParser(EntityResolver resolver, Reader r, JavaEntity accessType, boolean staticAccess,
             int line, int col, int pos)
     {
-        super(r, line, col, pos);
+        super(r, SourceType.Java, line, col, pos);
         this.resolver = resolver;
         this.accessType = accessType;
         this.staticAccess = staticAccess;
@@ -181,7 +184,7 @@ public class TextParser extends JavaParser
      */
     public boolean atEnd()
     {
-        return tokenStream.LA(1).getType() == JavaTokenTypes.EOF;
+        return getTokenStream().LA(1).getType() == JavaTokenTypes.EOF;
     }
 
     /**

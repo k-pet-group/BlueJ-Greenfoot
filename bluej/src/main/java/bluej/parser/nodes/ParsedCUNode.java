@@ -30,6 +30,7 @@ import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.utility.JavaNames;
 
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -192,15 +193,16 @@ public class ParsedCUNode extends IncrementalParsingNode
         return null;
     }
 
-//    public static void printTree(ParsedNode node, int nodepos, int indent)
-//    {
-//        for (int i = 0; i < indent; i++) {
-//            System.out.print("  ");
-//        }
-//        System.out.println("Node=" + node + " pos=" + nodepos + " size=" + node.getSize());
-//        for (Iterator<NodeAndPosition<ParsedNode>> i = node.getChildren(nodepos); i.hasNext(); ) {
-//            NodeAndPosition<ParsedNode> nap = i.next();
-//            printTree(nap.getNode(), nap.getPosition(), indent+1);
-//        }
-//    }
+    public static void printTree(ParsedNode node, int nodepos, int indent)
+    {
+        for (int i = 0; i < indent; i++) {
+            System.out.print("  ");
+        }
+        String nodeName = node.getName();
+        System.out.println(node.getClass().getSimpleName() + (nodeName != null ? " '" + nodeName + "'" : "") + " pos=" + nodepos + " size=" + node.getSize());
+        for (Iterator<NodeAndPosition<ParsedNode>> i = node.getChildren(nodepos); i.hasNext(); ) {
+            NodeAndPosition<ParsedNode> nap = i.next();
+            printTree(nap.getNode(), nap.getPosition(), indent+1);
+        }
+    }
 }

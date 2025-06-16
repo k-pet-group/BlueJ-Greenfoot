@@ -33,11 +33,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.extensions2.SourceType;
 import bluej.parser.JavaParser;
+import bluej.parser.JavaParserCallbacks;
 import bluej.parser.ParseFailure;
-import bluej.parser.lexer.JavaTokenTypes;
-import bluej.parser.lexer.LineColPos;
-import bluej.parser.lexer.LocatableToken;
+import bluej.parser.SourceParser;
+import bluej.parser.lexer.*;
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
@@ -70,6 +71,7 @@ import bluej.stride.framedjava.elements.WhileElement;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
 
+import static bluej.parser.JavaParser.*;
 import static bluej.parser.lexer.JavaTokenTypes.SL_COMMENT;
 
 /**
@@ -91,7 +93,7 @@ import static bluej.parser.lexer.JavaTokenTypes.SL_COMMENT;
  *    we just build a stack of things we've seen, to be dealt with once
  *    we know what it is later on.
  */
-public class JavaStrideParser extends JavaParser
+public class JavaStrideParser extends SourceParser
 {
     /** The original source code being transformed */
     private final String source;
@@ -229,7 +231,7 @@ public class JavaStrideParser extends JavaParser
      */
     public JavaStrideParser(String java, boolean testing)
     {
-        super(new StringReader(java), true);
+        super(new StringReader(java), SourceType.Java);
         this.source = java;
         this.testing = testing;
         statementHandlers.push(result);

@@ -22,6 +22,7 @@
 package bluej.parser;
 
 
+import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 
 import java.util.List;
@@ -581,4 +582,17 @@ public class JavaParserCallbacks
      * @param closeParen The close-parenthesis token
      */
     protected void endRecordParameters(LocatableToken closeParen) {}
+
+    /**
+     * An error occurred during parsing. Override this method to control error behaviour.
+     * @param msg A message describing the error
+     * @param beginLine  The line where the erroneous token begins
+     * @param beginCol   The column where the erroneous token begins
+     * @param endLine    The line where the erroneous token ends
+     * @param endCol     The column where the erroneous token ends
+     */
+    protected void error(String msg, int beginLine, int beginCol, int endLine, int endCol)
+    {
+        throw new ParseFailure("Parse error: (" + beginLine + ":" + beginCol + ") :" + msg);
+    }
 }

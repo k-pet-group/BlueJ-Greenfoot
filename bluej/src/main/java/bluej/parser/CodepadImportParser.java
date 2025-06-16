@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import bluej.extensions2.SourceType;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.UnresolvedEntity;
@@ -39,7 +40,7 @@ import threadchecker.Tag;
  * @author Davin McCall
  */
 @OnThread(Tag.FXPlatform)
-public class CodepadImportParser extends JavaParser
+public class CodepadImportParser extends SourceParser
 {
     private EntityResolver resolver;
 
@@ -54,7 +55,7 @@ public class CodepadImportParser extends JavaParser
     */
     public CodepadImportParser(EntityResolver resolver, Reader r)
     {
-        super(r);
+        super(r, SourceType.Java); // TODO SourceType should be inferred somehow
         this.resolver = resolver;
     }
 

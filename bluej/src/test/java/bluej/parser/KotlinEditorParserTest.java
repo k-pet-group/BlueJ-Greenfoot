@@ -32,11 +32,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.StringReader;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static bluej.utility.ResourceFileReader.getResourceFile;
 import static org.junit.Assert.*;
 
 public class KotlinEditorParserTest
@@ -101,6 +103,9 @@ public class KotlinEditorParserTest
                 "  fun hello() : String {\n" +
                 "    return \"hello\";\n" +
                 "  }\n" +
+                "  fun answer() : Int {\n" +
+                "    return 42;\n" +
+                "  }\n" +
                 "}\n";
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -113,10 +118,68 @@ public class KotlinEditorParserTest
         Set<MethodReflective> mset = methods.get("hello");
         assertNotNull(mset);
         assertEquals(1, mset.size());
-
         MethodReflective method = mset.iterator().next();
         assertEquals("java.lang.String", method.getReturnType().toString(false));
+
+        mset = methods.get("answer");
+        assertNotNull(mset);
+        assertEquals(1, mset.size());
+        method = mset.iterator().next();
+        assertEquals("int", method.getReturnType().toString(false));
     }
 
+    @Test
+    public void test3()
+    {
+        File file = getResourceFile(getClass(), "/bluej/parser/kotlin/yet_another_kotlin_class.dat");
+        assertNotNull("yet_another_kotlin_class.dat file should exist", file);
 
+        // Create a reader for the file
+        try{
+            String source = Files.readString(file.toPath());
+
+            ParsedCUNode aNode = cuForSource(source, "");
+            ParsedCUNode.printTree(aNode, 0, 0);
+
+            resolver.addCompilationUnit("", aNode);
+            EntityResolver resolver = new PackageResolver(this.resolver, "");
+            TypeEntity aClassEnt = resolver.resolvePackageOrClass("YetAnotherKotlinClass", null).resolveAsType();
+            GenTypeClass aClass = aClassEnt.getType().asClass();
+            Map<String,Set<MethodReflective>> methods = aClass.getReflective().getDeclaredMethods();
+            Set<MethodReflective> mset = methods.get("sampleMethod");
+            assertNotNull(mset);
+            assertEquals(1, mset.size());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void test4()
+    {
+        File file = getResourceFile(getClass(), "/bluej/parser/kotlin/hello_kotlin.dat");
+        assertNotNull("yet_another_kotlin_class.dat file should exist", file);
+
+        // Create a reader for the file
+        try{
+            String source = Files.readString(file.toPath());
+
+            ParsedCUNode aNode = cuForSource(source, "");
+            ParsedCUNode.printTree(aNode, 0, 0);
+
+            resolver.addCompilationUnit("", aNode);
+            EntityResolver resolver = new PackageResolver(this.resolver, "");
+            TypeEntity aClassEnt = resolver.resolvePackageOrClass("HelloKotlin", null).resolveAsType();
+            GenTypeClass aClass = aClassEnt.getType().asClass();
+            Map<String,Set<MethodReflective>> methods = aClass.getReflective().getDeclaredMethods();
+            Set<MethodReflective> mset = methods.get("sampleMethod");
+            assertNotNull(mset);
+            assertEquals(1, mset.size());
+            mset = methods.get("sayHello");
+            assertNotNull(mset);
+            assertEquals(1, mset.size());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

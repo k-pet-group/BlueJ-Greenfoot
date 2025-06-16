@@ -26,7 +26,6 @@ import java.io.FileNotFoundException;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.InfoParser;
-import bluej.parser.KotlinInfoParser;
 import bluej.parser.symtab.ClassInfo;
 
 /**
@@ -58,13 +57,8 @@ public final class SourceInfo
             try
             {
                 String fileName = sourceFile.getName();
-                if (fileName.endsWith("." + SourceType.Kotlin.getExtension())) {
-                    // Use KotlinInfoParser for Kotlin files
-                    info = KotlinInfoParser.parseWithPkg(sourceFile, pkg);
-                } else {
-                    // Use InfoParser for Java files (default)
-                    info = InfoParser.parseWithPkg(sourceFile, pkg);
-                }
+                SourceType sourceType = fileName.endsWith("." + SourceType.Kotlin.getExtension() ) ? SourceType.Kotlin : SourceType.Java;
+                info = InfoParser.parseWithPkg(sourceFile, pkg, sourceType);
             }
             catch (FileNotFoundException fnfe)
             {

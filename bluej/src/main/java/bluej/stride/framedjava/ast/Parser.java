@@ -25,8 +25,9 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.function.Consumer;
 
-import bluej.parser.JavaParser;
+import bluej.extensions2.SourceType;
 import bluej.parser.ParseFailure;
+import bluej.parser.SourceParser;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
@@ -45,9 +46,9 @@ public class Parser
         return parseableAs(s, p -> p.parseTypeSpec(true));
     }
 
-    public static boolean parseableAs(String s, Consumer<JavaParser> parse)
+    public static boolean parseableAs(String s, Consumer<SourceParser> parse)
     {
-        JavaParser p = new JavaParser(new StringReader(s), false);
+        SourceParser p = new SourceParser(new StringReader(s),  SourceType.Java, false);
         try
         {
             parse.accept(p);
@@ -98,7 +99,7 @@ public class Parser
 
     public static boolean parseableAsExpression(String e)
     {
-        return Parser.parseAsExpression(new JavaParser(new StringReader(e), false));
+        return Parser.parseAsExpression(new SourceParser(new StringReader(e),  SourceType.Java, false));
     }
 
     /**
@@ -109,7 +110,7 @@ public class Parser
      * true is only returned if there is no ParseFailure, and we parse
      * all the way to EOF
      */
-    public static boolean parseAsExpression(JavaParser p)
+    public static boolean parseAsExpression(SourceParser p)
     {
         try
         {
