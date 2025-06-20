@@ -32,13 +32,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static bluej.utility.ResourceFileReader.getResourceFile;
 import static org.junit.Assert.*;
 
 public class KotlinEditorParserTest
@@ -69,8 +65,35 @@ public class KotlinEditorParserTest
         return document.getParser();
     }
 
+    /**
+     * Helper method to assert that a method exists in a class with the expected return type.
+     */
+    private void assertMethodExists(GenTypeClass aClass, String methodName, String expectedReturnType)
+    {
+        Map<String,Set<MethodReflective>> methods = aClass.getReflective().getDeclaredMethods();
+        Set<MethodReflective> methodSet = methods.get(methodName);
+        assertNotNull("Method " + methodName + " should exist", methodSet);
+        assertEquals("Method " + methodName + " should have exactly one overload", 1, methodSet.size());
+        MethodReflective method = methodSet.iterator().next();
+        assertEquals("Method " + methodName + " should have correct return type",
+                     expectedReturnType, method.getReturnType().toString(false));
+    }
+
+    /**
+     * Helper method to parse source code and resolve a class for testing.
+     */
+    private GenTypeClass parseAndResolveClass(String sourceCode, String className, String packageName)
+    {
+        ParsedCUNode parsedNode = cuForSource(sourceCode, packageName);
+        resolver.addCompilationUnit(packageName, parsedNode);
+
+        EntityResolver entityResolver = new PackageResolver(this.resolver, packageName);
+        TypeEntity classEntity = entityResolver.resolvePackageOrClass(className, null).resolveAsType();
+        return classEntity.getType().asClass();
+    }
+
     @Test
-    public void test1()
+    public void testNestedClassParsing()
     {
         String sourceCode = ""
             + "class A\n"       // position 0
@@ -97,89 +120,107 @@ public class KotlinEditorParserTest
      * Test that a method defined inside a class is recognized properly.
      */
     @Test
-    public void test2()
+    public void testMethodRecognition()
     {
-        String aClassSrc = "class A {\n" +
-                "  fun hello() : String {\n" +
-                "    return \"hello\";\n" +
-                "  }\n" +
-                "  fun answer() : Int {\n" +
-                "    return 42;\n" +
-                "  }\n" +
-                "}\n";
+        String aClassSrc = """
+                class A {
+                  fun hello() : String {
+                    return "hello";
+                  }
+                  fun answer() : Int {
+                    return 42;
+                  }
+                }
+                """;
 
-        ParsedCUNode aNode = cuForSource(aClassSrc, "");
-        resolver.addCompilationUnit("", aNode);
-
-        EntityResolver resolver = new PackageResolver(this.resolver, "");
-        TypeEntity aClassEnt = resolver.resolvePackageOrClass("A", null).resolveAsType();
-        GenTypeClass aClass = aClassEnt.getType().asClass();
-        Map<String,Set<MethodReflective>> methods = aClass.getReflective().getDeclaredMethods();
-        Set<MethodReflective> mset = methods.get("hello");
-        assertNotNull(mset);
-        assertEquals(1, mset.size());
-        MethodReflective method = mset.iterator().next();
-        assertEquals("java.lang.String", method.getReturnType().toString(false));
-
-        mset = methods.get("answer");
-        assertNotNull(mset);
-        assertEquals(1, mset.size());
-        method = mset.iterator().next();
-        assertEquals("int", method.getReturnType().toString(false));
+        GenTypeClass aClass = parseAndResolveClass(aClassSrc, "A", "");
+        assertMethodExists(aClass, "hello", "java.lang.String");
+        assertMethodExists(aClass, "answer", "int");
     }
 
     @Test
-    public void test3()
+    public void testComplexKotlinClass()
     {
-        File file = getResourceFile(getClass(), "/bluej/parser/kotlin/yet_another_kotlin_class.dat");
-        assertNotNull("yet_another_kotlin_class.dat file should exist", file);
+        String source = """
+                /**
+                 * Write a description of class YetAnotherKotlinClass here.
+                 *
+                 * @author (your name)
+                 * @version (a version number or a date)
+                 */
+                class YetAnotherKotlinClass {
+                    // instance variables - replace the example below with your own
+                    private var x: Int = 0
 
-        // Create a reader for the file
-        try{
-            String source = Files.readString(file.toPath());
+                    /**
+                     * Constructor for objects of class YetAnotherKotlinClass
+                     */
+                    init {
+                        // initialise instance variables
+                        x = 0
+                    }
 
-            ParsedCUNode aNode = cuForSource(source, "");
-            ParsedCUNode.printTree(aNode, 0, 0);
+                    /**
+                     * An example of a method - replace this comment with your own
+                     *
+                     * @param  y  a sample parameter for a method
+                     * @return    the sum of x and y
+                     */
+                    fun sampleMethod(y: Int): Int {
+                        // put your code here
+                        return x + y
+                    }
+                }
+                """;
 
-            resolver.addCompilationUnit("", aNode);
-            EntityResolver resolver = new PackageResolver(this.resolver, "");
-            TypeEntity aClassEnt = resolver.resolvePackageOrClass("YetAnotherKotlinClass", null).resolveAsType();
-            GenTypeClass aClass = aClassEnt.getType().asClass();
-            Map<String,Set<MethodReflective>> methods = aClass.getReflective().getDeclaredMethods();
-            Set<MethodReflective> mset = methods.get("sampleMethod");
-            assertNotNull(mset);
-            assertEquals(1, mset.size());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        GenTypeClass aClass = parseAndResolveClass(source, "YetAnotherKotlinClass", "");
+        assertMethodExists(aClass, "sampleMethod", "int");
     }
 
     @Test
-    public void test4()
+    public void testKotlinClassWithPackage()
     {
-        File file = getResourceFile(getClass(), "/bluej/parser/kotlin/hello_kotlin.dat");
-        assertNotNull("yet_another_kotlin_class.dat file should exist", file);
+        String source = """
+                package my.kotlin
+                /**
+                 * Write a description of class HelloKotlin here.
+                 *
+                 * @author (your name)
+                 * @version (a version number or a date)
+                 */
+                class HelloKotlin {
+                    // instance variables - replace the example below with your own
+                    private val jinit: JInitializer = JInitializer();
+                    private var x: Int = 0
 
-        // Create a reader for the file
-        try{
-            String source = Files.readString(file.toPath());
+                    /**
+                     * Constructor for objects of class HelloKotlin
+                     */
+                    init {
+                        // initialise instance variables
+                        x = jinit.getInitialValue();
+                    }
 
-            ParsedCUNode aNode = cuForSource(source, "");
-            ParsedCUNode.printTree(aNode, 0, 0);
+                    /**
+                     * An example of a method - replace this comment with your own
+                     *
+                     * @param  y  a sample parameter for a method
+                     * @return    the sum of x and y
+                     */
+                    fun sampleMethod(y: Int): Int {
+                        println("Running computation in Kotlin.")
+                        return x + y
+                    }
+                    
+                    fun sayHello(sender: String) {
+                        println("Hello from Kotlin! Sender: {" + sender + "}")
+                    }
+                }
+                """;
 
-            resolver.addCompilationUnit("", aNode);
-            EntityResolver resolver = new PackageResolver(this.resolver, "");
-            TypeEntity aClassEnt = resolver.resolvePackageOrClass("HelloKotlin", null).resolveAsType();
-            GenTypeClass aClass = aClassEnt.getType().asClass();
-            Map<String,Set<MethodReflective>> methods = aClass.getReflective().getDeclaredMethods();
-            Set<MethodReflective> mset = methods.get("sampleMethod");
-            assertNotNull(mset);
-            assertEquals(1, mset.size());
-            mset = methods.get("sayHello");
-            assertNotNull(mset);
-            assertEquals(1, mset.size());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        GenTypeClass aClass = parseAndResolveClass(source, "HelloKotlin", "my.kotlin");
+        assertMethodExists(aClass, "sampleMethod", "int");
+        // Note: Kotlin Unit type maps to int in the parser, not void
+        assertMethodExists(aClass, "sayHello", "kotlin.Unit");
     }
 }
