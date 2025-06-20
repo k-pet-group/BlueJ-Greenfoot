@@ -1030,7 +1030,7 @@ public class EditorParser extends SourceParser
         if (lastTypeSpec != null && !lastTypeSpec.isEmpty()) {
             returnType = ParseUtils.getTypeEntity(pnode, currentQuerySource(), lastTypeSpec);
         } else {
-            returnType = UnresolvedEntity.getEntity(pcuNode.getParentResolver(), "Unit", currentQuerySource());
+            returnType = pcuNode.resolveQualifiedClass("kotlin.Unit");
         }
 
         pnode.setReturnType(returnType);

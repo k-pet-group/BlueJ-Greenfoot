@@ -1315,6 +1315,8 @@ public class KotlinParser implements ParserBehavior
 
         if (hasReturnType) {
             parser.gotTypeSpec(typeTokens);
+        } else {
+            parser.gotTypeSpec(null);
         }
         parser.gotMethodDeclaration(nameToken, funToken.getHiddenBefore());
 

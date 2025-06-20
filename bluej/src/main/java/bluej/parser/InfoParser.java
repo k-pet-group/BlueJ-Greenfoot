@@ -476,6 +476,9 @@ public class InfoParser extends EditorParser
         lastTypespecToks = tokens;
         super.gotTypeSpec(tokens);
 
+        if (lastTypespecToks == null)
+            return;
+
         // Dependency tracking
         int tokpos = lineColToPosition(tokens.get(0).getLine(), tokens.get(0).getColumn());
         int topOffset = getTopNodeOffset();
