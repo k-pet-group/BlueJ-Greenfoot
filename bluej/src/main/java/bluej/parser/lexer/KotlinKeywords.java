@@ -54,6 +54,7 @@ public class KotlinKeywords implements Keywords {
         keywords.put("while", JavaTokenTypes.LITERAL_while);
         keywords.put("do", JavaTokenTypes.LITERAL_do);
         keywords.put("for", JavaTokenTypes.LITERAL_for);
+        keywords.put("in", JavaTokenTypes.LITERAL_in);
         keywords.put("when", JavaTokenTypes.LITERAL_when);
         keywords.put("break", JavaTokenTypes.LITERAL_break);
         keywords.put("continue", JavaTokenTypes.LITERAL_continue);

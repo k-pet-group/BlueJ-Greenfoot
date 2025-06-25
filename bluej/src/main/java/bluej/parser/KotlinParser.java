@@ -958,6 +958,13 @@ public class KotlinParser implements ParserBehavior
      */
     public final LocatableToken parseStatement(LocatableToken token, boolean allowComma)
     {
+        if (token.getType() == JavaTokenTypes.LITERAL_while) {
+            return parseWhileStatement(token);
+        }
+        else if (token.getType() == JavaTokenTypes.LITERAL_for) {
+            return parseForStatement(token);
+        }
+        
         // For now, just skip to the next semicolon or closing brace
         while (token.getType() != JavaTokenTypes.SEMI && 
                token.getType() != JavaTokenTypes.RCURLY &&
@@ -970,6 +977,116 @@ public class KotlinParser implements ParserBehavior
         }
 
         return token;
+    }
+    
+    /**
+     * Parse a "while(...)" loop.
+     * 
+     * @param token The "while" token, which has already been extracted from the token stream.
+     * @return The last token that is part of the loop (or null).
+     */
+    public final LocatableToken parseWhileStatement(LocatableToken token)
+    {
+        parser.beginWhileLoop(token);
+        token = nextToken();
+        if (token.getType() != JavaTokenTypes.LPAREN) {
+            error("Expecting '(' after 'while'");
+            getTokenStream().pushBack(token);
+            parser.endWhileLoop(token, false);
+            return null;
+        }
+        parseExpression();
+        token = nextToken();
+        if (token.getType() != JavaTokenTypes.RPAREN) {
+            error("Expecting ')' after conditional expression (in 'while' statement)");
+            getTokenStream().pushBack(token);
+            parser.endWhileLoop(token, false);
+            return null;
+        }
+        token = getTokenStream().LA(1);
+        parser.beginWhileLoopBody(token);
+        parseStmtBlock();
+        token = nextToken();
+        if (token != null) {
+            parser.endWhileLoopBody(token, true);
+            parser.endWhileLoop(token, true);
+        }
+        else {
+            token = getTokenStream().LA(1);
+            parser.endWhileLoopBody(token, false);
+            parser.endWhileLoop(token, false);
+            token = null;
+        }
+        return token;
+    }
+    
+    /**
+     * Parse a "for(...)" loop.
+     * 
+     * @param forToken The "for" token, which has already been extracted from the token stream.
+     * @return The last token that is part of the loop (or null).
+     */
+    public final LocatableToken parseForStatement(LocatableToken forToken)
+    {
+        parser.beginForLoop(forToken);
+        LocatableToken token = nextToken();
+        if (token.getType() != JavaTokenTypes.LPAREN) {
+            error("Expecting '(' after 'for'");
+            getTokenStream().pushBack(token);
+            endForLoop(token);
+            return null;
+        }
+        
+        // Parse the variable declaration or expression before 'in'
+        parseExpression();
+        
+        // Look for the 'in' keyword
+        token = nextToken();
+        if (token.getType() != JavaTokenTypes.LITERAL_in) {
+            error("Expecting 'in' in for loop");
+            getTokenStream().pushBack(token);
+            endForLoop(token);
+            return null;
+        }
+        
+        // Parse the iterable expression after 'in'
+        parseExpression();
+        
+        token = nextToken();
+        if (token.getType() != JavaTokenTypes.RPAREN) {
+            error("Expecting ')' after for loop expression");
+            getTokenStream().pushBack(token);
+            endForLoop(token);
+            return null;
+        }
+
+        token = getTokenStream().LA(1);
+        parser.beginWhileLoopBody(token);
+        parseStmtBlock();
+        token = nextToken();
+        endForLoopBody(token);
+        endForLoop(token);
+        return token;
+    }
+    
+    private void endForLoop(LocatableToken token)
+    {
+        if (token == null) {
+            parser.endForLoop(getTokenStream().LA(1), false);
+        }
+        else {
+            parser.endForLoop(token, true);
+        }
+    }
+    
+    private void endForLoopBody(LocatableToken token)
+    {
+        if (token == null) {
+            parser.endForLoopBody(getTokenStream().LA(1), false);
+        }
+        else {
+            parser.endForLoopBody(token, true);
+        }
     }
 
     /**
@@ -1017,11 +1134,14 @@ public class KotlinParser implements ParserBehavior
         LocatableToken token = nextToken();
         while (token.getType() != JavaTokenTypes.SEMI && 
                token.getType() != JavaTokenTypes.RCURLY &&
-               token.getType() != JavaTokenTypes.EOF) {
+               token.getType() != JavaTokenTypes.RPAREN &&
+               token.getType() != JavaTokenTypes.EOF &&
+                token.getType() != JavaTokenTypes.LITERAL_in
+                ) {
             token = nextToken();
         }
 
-        if (token.getType() == JavaTokenTypes.RCURLY) {
+        if (token.getType() == JavaTokenTypes.RCURLY || token.getType() == JavaTokenTypes.RPAREN || token.getType() == JavaTokenTypes.LITERAL_in) {
             getTokenStream().pushBack(token);
         }
     }
@@ -1355,9 +1475,9 @@ public class KotlinParser implements ParserBehavior
         }
     }
 
-    private void processProperty(LocatableToken propertyToken)
+    private void processVariableDeclaration(LocatableToken propertyToken)
     {
-//        parser.gotDeclBegin(propertyToken);
+        parser.gotDeclBegin(propertyToken);
         boolean isVal = propertyToken.getType() == JavaTokenTypes.LITERAL_val;
 
         // Get property name
@@ -1409,6 +1529,96 @@ public class KotlinParser implements ParserBehavior
         parser.endFieldDeclarations(token, true);
     }
 
+    private void processProperty(LocatableToken propertyToken)
+    {
+//        parser.gotDeclBegin(propertyToken);
+        boolean isVal = propertyToken.getType() == JavaTokenTypes.LITERAL_val;
+
+        // Get property name
+        LocatableToken nameToken = getTokenStream().nextToken();
+        if (nameToken.getType() != JavaTokenTypes.IDENT) {
+            parser.endDecl(nameToken);
+            return;
+        }
+
+        // Begin field declarations
+        parser.beginFieldDeclarations(propertyToken);
+
+        // Process type and initializer
+        LocatableToken token;
+        List<LocatableToken> typeTokens = new ArrayList<>();
+        boolean hasType = false;
+
+        while ((token = getTokenStream().nextToken()).getType() != JavaTokenTypes.SEMI &&
+                token.getType() != JavaTokenTypes.EOF) {
+            if (token.getType() == JavaTokenTypes.COLON) {
+                // Process type
+                token = getTokenStream().nextToken();
+                if (token.getType() == JavaTokenTypes.IDENT || isPrimitiveType(token)) {
+                    typeTokens.add(token);
+                    hasType = true;
+                }
+            } else if (token.getType() == JavaTokenTypes.ASSIGN) {
+                break; // We'll process the initializer after setting up the field
+            } else if (token.getType() == JavaTokenTypes.IDENT && (token.getText().equals("get")
+                    || token.getText().equals("set"))) {
+                break;
+            }
+        }
+
+        // If we found a type, tell the parser about it
+        if (hasType) {
+            parser.gotTypeSpec(typeTokens);
+        }
+
+        // Now that we've processed the type, we can create the field
+        parser.gotField(propertyToken, nameToken, true);
+
+        // If we found an assignment, process the initializer
+        if (token.getType() == JavaTokenTypes.ASSIGN) {
+            parser.beginExpression(token, false);
+            skipToSemicolon();
+            parser.endExpression(token, false);
+        }
+
+        if (token.getType() == JavaTokenTypes.IDENT && (token.getText().equals("get"))) {
+            token = getTokenStream().nextToken();
+            if (token.getType() != JavaTokenTypes.LPAREN) {
+                parser.endDecl(token);
+                error("Expected '('");
+                return;
+            }
+            token = getTokenStream().nextToken();
+            if (token.getType() != JavaTokenTypes.RPAREN) {
+                parser.endDecl(token);
+                error("Expected ')'");
+                return;
+            }
+
+            token = getTokenStream().nextToken();
+            if (token.getType() != JavaTokenTypes.LCURLY) {
+                parser.endDecl(token);
+                error("Expected '{'");
+                return;
+            }
+
+            getTokenStream().pushBack(token);
+
+            parseStmtBlock();
+            token = getTokenStream().nextToken();
+            if (token.getType() != JavaTokenTypes.RCURLY) {
+                parser.endDecl(token);
+                error("Expected '}'");
+                return;
+            }
+        }
+
+
+        // End field declaration
+        parser.endField(token, true);
+        parser.endFieldDeclarations(token, true);
+    }
+
     private void processBody()
     {
         int braceCount = 1;
@@ -1440,11 +1650,11 @@ public class KotlinParser implements ParserBehavior
             } else if (token.getType() == JavaTokenTypes.LITERAL_val ||
                        token.getType() == JavaTokenTypes.LITERAL_var) {
                 // Process property
-                processProperty(token);
+                processVariableDeclaration(token);
             } else {
-                // For other tokens, we might need to handle them as expressions or statements
-                // For simplicity, we'll just treat them as part of the current block
+                parseStatement(token, false);
             }
+
         }
     }
 

@@ -1168,7 +1168,7 @@ public class EditorParser extends SourceParser
         boolean declaredVar = isVariable && initExpressionFollows && typeSpecIsVar(lastTypeSpec);
 
         JavaEntity fieldType;
-        if (declaredVar)
+        if (declaredVar || lastTypeSpec == null || lastTypeSpec.isEmpty())
         {
             fieldType = null; // we will infer the type from the expression
             lastField = new FieldNode(scopeStack.peek(), idToken.getText(), arrayDecls,

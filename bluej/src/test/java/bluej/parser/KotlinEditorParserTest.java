@@ -86,11 +86,56 @@ public class KotlinEditorParserTest
     {
         ParsedCUNode parsedNode = cuForSource(sourceCode, packageName);
         resolver.addCompilationUnit(packageName, parsedNode);
-
+        ParsedCUNode.printTree(parsedNode, 0, 0);
         EntityResolver entityResolver = new PackageResolver(this.resolver, packageName);
         TypeEntity classEntity = entityResolver.resolvePackageOrClass(className, null).resolveAsType();
         return classEntity.getType().asClass();
     }
+
+    public static void printLinesWithPositions(String input) {
+        String[] lines = input.split("\n", -1); // keep empty lines
+        int offset = 0;
+
+        // Determine max width of line content for alignment, excluding empty lines
+        int maxContentLength = 0;
+        for (String line : lines) {
+            if (!line.trim().isEmpty()) {
+                maxContentLength = Math.max(maxContentLength, line.length());
+            }
+        }
+
+        // Determine width for line numbers
+        int maxLineNumberWidth = String.valueOf(lines.length).length();
+
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            int lineStart = offset;
+            int from = -1;
+            int to = -1;
+
+            for (int j = 0; j < line.length(); j++) {
+                if (!Character.isWhitespace(line.charAt(j))) {
+                    if (from == -1) {
+                        from = lineStart + j;
+                    }
+                    to = lineStart + j;
+                }
+            }
+
+            String lineNumber = String.format("%" + maxLineNumberWidth + "d", i + 1);
+            if (from != -1) {
+                String paddedLine = String.format("%-" + maxContentLength + "s", line);
+                String annotation = "//from=" + from + " to=" + to;
+                System.out.println(lineNumber + ": " + paddedLine + " " + annotation);
+            } else {
+                // Just print line number and original line (empty or whitespace only)
+                System.out.println(lineNumber + ": " + line);
+            }
+
+            offset += line.length() + 1; // account for '\n'
+        }
+    }
+
 
     @Test
     public void testNestedClassParsing()
@@ -222,5 +267,45 @@ public class KotlinEditorParserTest
         assertMethodExists(aClass, "sampleMethod", "int");
         // Note: Kotlin Unit type maps to int in the parser, not void
         assertMethodExists(aClass, "sayHello", "kotlin.Unit");
+    }
+
+    @Test
+    public void testKotlinClassWithReadPropertyAndMethod()
+    {
+        String source = """
+                class Dog {
+                    val name: String
+                      get() {
+                          return "sparky"
+                      }
+                
+                    fun bark() {
+                          var i = 0;
+                          while (i < 5) {
+                              print(name)
+                          }
+                          for (x in 1..5) {
+                              print(name + "!");
+                          }
+                    }
+                }
+                """;
+
+        printLinesWithPositions(source);
+        GenTypeClass aClass = parseAndResolveClass(source, "Dog", "");
+
+
+        ParsedCUNode parsedNode = cuForSource(source, "");
+        resolver.addCompilationUnit("", parsedNode);
+        ParsedCUNode.printTree(parsedNode, 0, 0);
+
+        NodeAndPosition<ParsedNode> nap = parsedNode.findNodeAt(0, 0);
+        nap = nap.getNode().findNodeAt(86, nap.getPosition());
+        nap = nap.getNode().findNodeAt(86, nap.getPosition());
+        nap = nap.getNode().findNodeAt(98, nap.getPosition());
+        nap = nap.getNode().findNodeAt(194, nap.getPosition());
+        assertEquals(nap.getSize(), 62);
+
+        assertMethodExists(aClass, "bark", "kotlin.Unit");
     }
 }
