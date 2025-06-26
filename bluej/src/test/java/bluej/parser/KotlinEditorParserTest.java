@@ -26,6 +26,7 @@ import bluej.debugger.gentype.MethodReflective;
 import bluej.extensions2.SourceType;
 import bluej.parser.entity.*;
 import bluej.parser.nodes.ContainerNode;
+import bluej.parser.nodes.FieldNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
@@ -331,6 +332,48 @@ public class KotlinEditorParserTest
     }
 
     @Test
+    public void testKotlinClassWithReadPropertyAndMethod2() throws ParseException {
+        String source = """
+                class Dog {
+                    val name
+                      get() : String {
+                          return "sparky"
+                      }
+                
+                    fun bark() {
+                        
+                    }
+                }
+                """;
+
+        printLinesWithPositions(source);
+        /*
+         1: class Dog {               //from=0 to=10
+         2:     val name              //from=16 to=23
+         3:       get() : String {    //from=31 to=46
+         4:           return "sparky" //from=58 to=72
+         5:       }                   //from=80 to=80
+         6:
+         7:     fun bark() {          //from=87 to=98
+         8:
+         9:     }                     //from=105 to=105
+        10: }                         //from=107 to=107
+         */
+
+        GenTypeClass aClass = parseAndResolveClass(source, "Dog", "", false, true);
+        assertMethodExists(aClass, "bark", "kotlin.Unit");
+
+        ParsedCUNode parsedNode = cuForSource(source, "", true);
+        resolver.addCompilationUnit("", parsedNode);
+        ParsedCUNode.printTree(parsedNode, 0, 0);
+        NodeAndPosition<ParsedNode> nap = parsedNode.findNodeAt(16, 0);
+        nap = nap.getNode().findNodeAt(16, nap.getPosition());
+        nap = nap.getNode().findNodeAt(16, nap.getPosition());
+        assertTrue("Property declaration node must be FieldNode", nap.getNode() instanceof FieldNode);
+        assertEquals("Propery declaration node must include both getter and setter", 80-16+1, nap.getSize());
+    }
+
+    @Test
     public void testNestedLoops() throws ParseException {
         String source = """
                 class Dog {
@@ -394,4 +437,53 @@ public class KotlinEditorParserTest
         GenTypeClass aClass = parseAndResolveClass(source, "Dog", "", false, true);
         assertMethodExists(aClass, "bark", "kotlin.Unit");
     }
+
+    @Test
+    public void testKotlinClassWithVarProperty() throws ParseException {
+        String source = """
+                class Dog {
+                     var name = "sparky"
+                       get() : String {
+                           return field+"!"
+                       }
+                       set(value) {
+                         field = value
+                       }
+
+                     fun bark() {
+                         println(name)
+                     }
+                 }
+                """;
+
+        printLinesWithPositions(source);
+        /*
+         1: class Dog {                 //from=0 to=10
+         2:      var name = "sparky"    //from=17 to=35
+         3:        get() : String {     //from=44 to=59
+         4:            return field+"!" //from=72 to=87
+         5:        }                    //from=96 to=96
+         6:        set(value) {         //from=105 to=116
+         7:          field = value      //from=127 to=139
+         8:        }                    //from=148 to=148
+         9:
+        10:      fun bark() {           //from=156 to=167
+        11:          println(name)      //from=178 to=190
+        12:      }                      //from=197 to=197
+        13:  }                          //from=200 to=200
+         */
+
+        GenTypeClass aClass = parseAndResolveClass(source, "Dog", "", false, false);
+        assertMethodExists(aClass, "bark", "kotlin.Unit");
+
+        ParsedCUNode parsedNode = cuForSource(source, "", false);
+        resolver.addCompilationUnit("", parsedNode);
+        ParsedCUNode.printTree(parsedNode, 0, 0);
+        NodeAndPosition<ParsedNode> nap = parsedNode.findNodeAt(17, 0);
+        nap = nap.getNode().findNodeAt(17, nap.getPosition());
+        nap = nap.getNode().findNodeAt(17, nap.getPosition());
+        assertTrue("Property declaration node must be FieldNode", nap.getNode() instanceof FieldNode);
+        assertEquals("Propery declaration node must include both getter and setter", 148-17+1, nap.getSize());
+    }
+
 }
