@@ -25,6 +25,7 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.extensions2.SourceType;
 import bluej.parser.entity.*;
+import bluej.parser.nodes.ContainerNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
@@ -59,13 +60,13 @@ public class KotlinEditorParserTest
     /**
      * Generate a compilation unit node based on some source code.
      */
-    private ParsedCUNode cuForSource(String sourceCode, String pkg) throws ParseException {
+    private ParsedCUNode cuForSource(String sourceCode, String pkg, boolean throwOnException) throws ParseException {
         EntityResolver resolver = new PackageResolver(this.resolver, pkg);
         TestableDocument document = new TestableDocument(resolver, SourceType.Kotlin);
         document.enableParser(true);
         document.insertString(0, sourceCode);
         List<String> parseErrors = document.getParseErrors();
-        if(!parseErrors.isEmpty()) {
+        if(!parseErrors.isEmpty() && throwOnException) {
             String msg = String.join("\n", parseErrors);
             throw new ParseException(msg, 0);
         }
@@ -89,10 +90,12 @@ public class KotlinEditorParserTest
     /**
      * Helper method to parse source code and resolve a class for testing.
      */
-    private GenTypeClass parseAndResolveClass(String sourceCode, String className, String packageName) throws ParseException {
-        ParsedCUNode parsedNode = cuForSource(sourceCode, packageName);
+    private GenTypeClass parseAndResolveClass(String sourceCode, String className, String packageName, boolean printResult, boolean throwOnException) throws ParseException {
+        ParsedCUNode parsedNode = cuForSource(sourceCode, packageName, throwOnException);
         resolver.addCompilationUnit(packageName, parsedNode);
-        ParsedCUNode.printTree(parsedNode, 0, 0);
+        if (printResult) {
+            ParsedCUNode.printTree(parsedNode, 0, 0);
+        }
         EntityResolver entityResolver = new PackageResolver(this.resolver, packageName);
         TypeEntity classEntity = entityResolver.resolvePackageOrClass(className, null).resolveAsType();
         return classEntity.getType().asClass();
@@ -153,7 +156,7 @@ public class KotlinEditorParserTest
             + "    }\n"
             + "}\n";
 
-        ParsedCUNode pcuNode = cuForSource(sourceCode, "");
+        ParsedCUNode pcuNode = cuForSource(sourceCode, "", true);
         NodeAndPosition<ParsedNode> classNP = pcuNode.findNodeAtOrAfter(0, 0);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNP.getNode().getNodeType());
         assertEquals(0, classNP.getPosition());
@@ -182,7 +185,7 @@ public class KotlinEditorParserTest
                 }
                 """;
 
-        GenTypeClass aClass = parseAndResolveClass(aClassSrc, "A", "");
+        GenTypeClass aClass = parseAndResolveClass(aClassSrc, "A", "", false, true);
         assertMethodExists(aClass, "hello", "java.lang.String");
         assertMethodExists(aClass, "answer", "int");
     }
@@ -221,7 +224,7 @@ public class KotlinEditorParserTest
                 }
                 """;
 
-        GenTypeClass aClass = parseAndResolveClass(source, "YetAnotherKotlinClass", "");
+        GenTypeClass aClass = parseAndResolveClass(source, "YetAnotherKotlinClass", "", false, true);
         assertMethodExists(aClass, "sampleMethod", "int");
     }
 
@@ -265,7 +268,7 @@ public class KotlinEditorParserTest
                 }
                 """;
 
-        GenTypeClass aClass = parseAndResolveClass(source, "HelloKotlin", "my.kotlin");
+        GenTypeClass aClass = parseAndResolveClass(source, "HelloKotlin", "my.kotlin", false, true);
         assertMethodExists(aClass, "sampleMethod", "int");
         // Note: Kotlin Unit type maps to int in the parser, not void
         assertMethodExists(aClass, "sayHello", "kotlin.Unit");
@@ -292,22 +295,39 @@ public class KotlinEditorParserTest
                 }
                 """;
 
-        printLinesWithPositions(source);
-        GenTypeClass aClass = parseAndResolveClass(source, "Dog", "");
+//        printLinesWithPositions(source);
+        /*
+         1: class Dog {                      //from=0 to=10
+         2:     val name: String             //from=16 to=31
+         3:       get() {                    //from=39 to=45
+         4:           return "sparky"        //from=57 to=71
+         5:       }                          //from=79 to=79
+         6:
+         7:     fun bark() {                 //from=86 to=97
+         8:           var i = 0;             //from=109 to=118
+         9:           while (i < 5) {        //from=130 to=144
+        10:               print(name)        //from=160 to=170
+        11:           }                      //from=182 to=182
+        12:           for (x in 1..5) {      //from=194 to=210
+        13:               print(name + "!"); //from=226 to=243
+        14:           }                      //from=255 to=255
+        15:     }                            //from=261 to=261
+        16: }                                //from=263 to=263
+         */
 
-
-        ParsedCUNode parsedNode = cuForSource(source, "");
-        resolver.addCompilationUnit("", parsedNode);
-        ParsedCUNode.printTree(parsedNode, 0, 0);
-
-        NodeAndPosition<ParsedNode> nap = parsedNode.findNodeAt(0, 0);
-        nap = nap.getNode().findNodeAt(86, nap.getPosition());
-        nap = nap.getNode().findNodeAt(86, nap.getPosition());
-        nap = nap.getNode().findNodeAt(98, nap.getPosition());
-        nap = nap.getNode().findNodeAt(194, nap.getPosition());
-        assertEquals(nap.getSize(), 62);
-
+        GenTypeClass aClass = parseAndResolveClass(source, "Dog", "", false, true);
         assertMethodExists(aClass, "bark", "kotlin.Unit");
+
+        ParsedCUNode parsedNode = cuForSource(source, "", true);
+        resolver.addCompilationUnit("", parsedNode);
+//        ParsedCUNode.printTree(parsedNode, 0, 0);
+        NodeAndPosition<ParsedNode> nap = parsedNode.findNodeAt(194, 0);
+        nap = nap.getNode().findNodeAt(194, nap.getPosition());
+        nap = nap.getNode().findNodeAt(194, nap.getPosition());
+        nap = nap.getNode().findNodeAt(194, nap.getPosition());
+        nap = nap.getNode().findNodeAt(194, nap.getPosition());
+        assertTrue("For loop node must be ContainerNode", nap.getNode() instanceof ContainerNode);
+        assertEquals("For loop size is incorrect", 255-194+1, nap.getSize());
     }
 
     @Test
@@ -318,6 +338,7 @@ public class KotlinEditorParserTest
                           while(true) {
                               break
                               while(true) {
+                                  println("")
                                   break
                               }
                           }
@@ -325,21 +346,52 @@ public class KotlinEditorParserTest
                 }
                 """;
 
-        printLinesWithPositions(source);
-        GenTypeClass aClass = parseAndResolveClass(source, "Dog", "");
+//        printLinesWithPositions(source);
+        /*
+         1: class Dog {                   //from=0 to=10
+         2:     fun bark() {              //from=16 to=27
+         3:           while(true) {       //from=39 to=51
+         4:               break           //from=67 to=71
+         5:               while(true) {   //from=87 to=99
+         6:                   println("") //from=119 to=129
+         7:                   break       //from=149 to=153
+         8:               }               //from=169 to=169
+         9:           }                   //from=181 to=181
+        10:     }                         //from=187 to=187
+        11: }                             //from=189 to=189
+         */
+        GenTypeClass aClass = parseAndResolveClass(source, "Dog", "", false, true);
+        assertMethodExists(aClass, "bark", "kotlin.Unit");
 
+        ParsedCUNode parsedNode = cuForSource(source, "", false);
+        NodeAndPosition<ParsedNode> nap = parsedNode.findNodeAt(87, 0);
+        nap = nap.getNode().findNodeAt(87, nap.getPosition());
+        nap = nap.getNode().findNodeAt(87, nap.getPosition());
+        nap = nap.getNode().findNodeAt(87, nap.getPosition());
+        nap = nap.getNode().findNodeAt(87, nap.getPosition());
+        assertTrue("Outer while node must be ContainerNode", nap.getNode() instanceof ContainerNode);
+        assertEquals("Outer while size is incorrect",181-39+1, nap.getSize());
 
-        ParsedCUNode parsedNode = cuForSource(source, "");
-        resolver.addCompilationUnit("", parsedNode);
-        ParsedCUNode.printTree(parsedNode, 0, 0);
+        nap = nap.getNode().findNodeAt(87, nap.getPosition());
+        nap = nap.getNode().findNodeAt(87, nap.getPosition());
+        assertTrue("Inner while node must be ContainerNode", nap.getNode() instanceof ContainerNode);
+        assertEquals("Inner while size is incorrect",169-87+1, nap.getSize());
 
-        NodeAndPosition<ParsedNode> nap = parsedNode.findNodeAt(0, 0);
-        nap = nap.getNode().findNodeAt(86, nap.getPosition());
-        nap = nap.getNode().findNodeAt(86, nap.getPosition());
-        nap = nap.getNode().findNodeAt(98, nap.getPosition());
-        nap = nap.getNode().findNodeAt(194, nap.getPosition());
-        assertEquals(nap.getSize(), 62);
+    }
 
+    @Test
+    public void testWhileWithoutBlock() throws ParseException {
+        String source = """
+                class Dog {
+                    fun bark() {
+                      while(true)
+                          break
+                    }
+                }
+                """;
+
+//        printLinesWithPositions(source);
+        GenTypeClass aClass = parseAndResolveClass(source, "Dog", "", false, true);
         assertMethodExists(aClass, "bark", "kotlin.Unit");
     }
 }

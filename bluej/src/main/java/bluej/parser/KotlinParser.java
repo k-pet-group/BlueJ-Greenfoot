@@ -911,13 +911,15 @@ public class KotlinParser implements ParserBehavior
 
     /**
      * Parse a statement block.
+     *
+     * @return
      */
-    public final void parseStmtBlock()
+    public final LocatableToken parseStmtBlock()
     {
         LocatableToken token = getTokenStream().LA(1);
         if (token.getType() != JavaTokenTypes.LCURLY) {
             error("Expected '{' (at beginning of statement block)");
-            return;
+            return token;
         }
 
         token = nextToken(); // consume the '{'
@@ -932,11 +934,12 @@ public class KotlinParser implements ParserBehavior
         if (token.getType() == JavaTokenTypes.EOF) {
             error("Unexpected end-of-file in statement block; missing '}'");
             parser.endStmtblockBody(token, false);
-            return;
+            return token;
         }
 
         // Don't consume the '}'
         parser.endStmtblockBody(token, true);
+        return token;
     }
 
     /**
@@ -964,12 +967,23 @@ public class KotlinParser implements ParserBehavior
         else if (token.getType() == JavaTokenTypes.LITERAL_for) {
             return parseForStatement(token);
         }
+        else if (token.getType() == JavaTokenTypes.LCURLY) {
+            getTokenStream().pushBack(token);
+            parseStmtBlock();
+            return nextToken();
+        }
         
         // For now, just skip to the next semicolon or closing brace
         while (token.getType() != JavaTokenTypes.SEMI && 
                token.getType() != JavaTokenTypes.RCURLY &&
                token.getType() != JavaTokenTypes.EOF) {
+            int line = token.getLine();
             token = nextToken();
+            if (token.getLine() > line) {
+                getTokenStream().pushBack(token);
+                return token;
+            }
+
         }
 
         if (token.getType() == JavaTokenTypes.RCURLY) {
@@ -978,7 +992,7 @@ public class KotlinParser implements ParserBehavior
 
         return token;
     }
-    
+
     /**
      * Parse a "while(...)" loop.
      * 
@@ -1005,8 +1019,8 @@ public class KotlinParser implements ParserBehavior
         }
         token = getTokenStream().LA(1);
         parser.beginWhileLoopBody(token);
-        parseStmtBlock();
-        token = nextToken();
+
+        token = parseStatement();
         if (token != null) {
             parser.endWhileLoopBody(token, true);
             parser.endWhileLoop(token, true);
@@ -1062,8 +1076,7 @@ public class KotlinParser implements ParserBehavior
 
         token = getTokenStream().LA(1);
         parser.beginWhileLoopBody(token);
-        parseStmtBlock();
-        token = nextToken();
+        token = parseStatement();
         endForLoopBody(token);
         endForLoop(token);
         return token;
@@ -1621,23 +1634,15 @@ public class KotlinParser implements ParserBehavior
 
     private void processBody()
     {
-        int braceCount = 1;
+//        int braceCount = 1;
 
-        while (braceCount > 0) {
+        while (true) {
             LocatableToken token = getTokenStream().nextToken();
             if (token.getType() == JavaTokenTypes.EOF) {
                 return;
-            } else if (token.getType() == JavaTokenTypes.LCURLY) {
-                // Begin a statement block
-                parser.beginStmtblockBody(token);
-                braceCount++;
             } else if (token.getType() == JavaTokenTypes.RCURLY) {
-                braceCount--;
-                if (braceCount > 0) {
-                    // End a statement block (but not the outer block)
-                    parser.endStmtblockBody(token, true);
-                }
                 parser.setLastToken(token);
+                return;
             } else if (token.getType() == JavaTokenTypes.LITERAL_class) {
                 // Process nested class
                 processClass(token);
