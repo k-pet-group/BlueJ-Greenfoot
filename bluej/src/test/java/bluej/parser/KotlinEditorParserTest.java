@@ -32,6 +32,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,12 +59,16 @@ public class KotlinEditorParserTest
     /**
      * Generate a compilation unit node based on some source code.
      */
-    private ParsedCUNode cuForSource(String sourceCode, String pkg)
-    {
+    private ParsedCUNode cuForSource(String sourceCode, String pkg) throws ParseException {
         EntityResolver resolver = new PackageResolver(this.resolver, pkg);
         TestableDocument document = new TestableDocument(resolver, SourceType.Kotlin);
         document.enableParser(true);
         document.insertString(0, sourceCode);
+        List<String> parseErrors = document.getParseErrors();
+        if(!parseErrors.isEmpty()) {
+            String msg = String.join("\n", parseErrors);
+            throw new ParseException(msg, 0);
+        }
         return document.getParser();
     }
 
@@ -82,8 +89,7 @@ public class KotlinEditorParserTest
     /**
      * Helper method to parse source code and resolve a class for testing.
      */
-    private GenTypeClass parseAndResolveClass(String sourceCode, String className, String packageName)
-    {
+    private GenTypeClass parseAndResolveClass(String sourceCode, String className, String packageName) throws ParseException {
         ParsedCUNode parsedNode = cuForSource(sourceCode, packageName);
         resolver.addCompilationUnit(packageName, parsedNode);
         ParsedCUNode.printTree(parsedNode, 0, 0);
@@ -138,8 +144,7 @@ public class KotlinEditorParserTest
 
 
     @Test
-    public void testNestedClassParsing()
-    {
+    public void testNestedClassParsing() throws ParseException {
         String sourceCode = ""
             + "class A\n"       // position 0
             + "{\n"             // position 8 
@@ -147,7 +152,7 @@ public class KotlinEditorParserTest
             + "    {\n"         // position 21 
             + "    }\n"
             + "}\n";
-            
+
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         NodeAndPosition<ParsedNode> classNP = pcuNode.findNodeAtOrAfter(0, 0);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNP.getNode().getNodeType());
@@ -165,8 +170,7 @@ public class KotlinEditorParserTest
      * Test that a method defined inside a class is recognized properly.
      */
     @Test
-    public void testMethodRecognition()
-    {
+    public void testMethodRecognition() throws ParseException {
         String aClassSrc = """
                 class A {
                   fun hello() : String {
@@ -184,8 +188,7 @@ public class KotlinEditorParserTest
     }
 
     @Test
-    public void testComplexKotlinClass()
-    {
+    public void testComplexKotlinClass() throws ParseException {
         String source = """
                 /**
                  * Write a description of class YetAnotherKotlinClass here.
@@ -223,8 +226,7 @@ public class KotlinEditorParserTest
     }
 
     @Test
-    public void testKotlinClassWithPackage()
-    {
+    public void testKotlinClassWithPackage() throws ParseException {
         String source = """
                 package my.kotlin
                 /**
@@ -270,8 +272,7 @@ public class KotlinEditorParserTest
     }
 
     @Test
-    public void testKotlinClassWithReadPropertyAndMethod()
-    {
+    public void testKotlinClassWithReadPropertyAndMethod() throws ParseException {
         String source = """
                 class Dog {
                     val name: String
@@ -286,6 +287,39 @@ public class KotlinEditorParserTest
                           }
                           for (x in 1..5) {
                               print(name + "!");
+                          }
+                    }
+                }
+                """;
+
+        printLinesWithPositions(source);
+        GenTypeClass aClass = parseAndResolveClass(source, "Dog", "");
+
+
+        ParsedCUNode parsedNode = cuForSource(source, "");
+        resolver.addCompilationUnit("", parsedNode);
+        ParsedCUNode.printTree(parsedNode, 0, 0);
+
+        NodeAndPosition<ParsedNode> nap = parsedNode.findNodeAt(0, 0);
+        nap = nap.getNode().findNodeAt(86, nap.getPosition());
+        nap = nap.getNode().findNodeAt(86, nap.getPosition());
+        nap = nap.getNode().findNodeAt(98, nap.getPosition());
+        nap = nap.getNode().findNodeAt(194, nap.getPosition());
+        assertEquals(nap.getSize(), 62);
+
+        assertMethodExists(aClass, "bark", "kotlin.Unit");
+    }
+
+    @Test
+    public void testNestedLoops() throws ParseException {
+        String source = """
+                class Dog {
+                    fun bark() {
+                          while(true) {
+                              break
+                              while(true) {
+                                  break
+                              }
                           }
                     }
                 }
