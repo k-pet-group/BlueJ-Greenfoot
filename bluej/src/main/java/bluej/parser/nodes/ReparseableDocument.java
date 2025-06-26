@@ -26,6 +26,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.Reader;
+import java.util.List;
 
 public interface ReparseableDocument
 {
@@ -60,6 +61,8 @@ public interface ReparseableDocument
      * Returns the type of source associated with this document.
      */
     public SourceType getSourceType();
+
+    public default List<String> getParseErrors() { return null; }
 
     @OnThread(Tag.FXPlatform)
     public static interface Element
