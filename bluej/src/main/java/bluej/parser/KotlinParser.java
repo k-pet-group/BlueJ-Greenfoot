@@ -26,6 +26,8 @@ import java.util.List;
 
 import bluej.parser.lexer.*;
 
+import static bluej.parser.lexer.JavaTokenTypes.*;
+
 /**
  * Base class for Kotlin parsers.
  * 
@@ -70,6 +72,30 @@ public class KotlinParser implements ParserBehavior
     public final LocatableToken getLastToken()
     {
         return parser.getLastToken();
+    }
+
+    private boolean at(LocatableToken token, int... ttypes) {
+        int recent_ttype = token.getType();
+        for(int ttype: ttypes) {
+            if (recent_ttype == ttype)
+                return true;
+        }
+        return false;
+    }
+
+    private boolean at(LocatableToken token, String... idents) {
+        if (token.getType() != IDENT)
+            return false;
+        String text = token.getText();
+        for(String ident: idents) {
+            if (text.equals(ident))
+                return true;
+        }
+        return false;
+    }
+
+    private final void advance() {
+        nextToken();
     }
 
     /**
@@ -176,14 +202,14 @@ public class KotlinParser implements ParserBehavior
     public final int parseCUpart(int state)
     {
         LocatableToken token = nextToken();
-        if (token.getType() == JavaTokenTypes.LITERAL_package) {
+        if (at(token, JavaTokenTypes.LITERAL_package)) {
             if (state != 0) {
                 error("Only one 'package' statement is allowed", token);
             }
             token = parsePackageStmt(token);
             parser.reachedCUstate(1); state = 1;
         }
-        else if (token.getType() == JavaTokenTypes.LITERAL_import) {
+        else if (at(token,JavaTokenTypes.LITERAL_import)) {
             parseImportStatement(token);
             parser.reachedCUstate(1); state = 1;
         }
@@ -196,25 +222,24 @@ public class KotlinParser implements ParserBehavior
             parseTypeDef(token);
             parser.reachedCUstate(2); state = 2;
         }
-        else if (token.getType() == JavaTokenTypes.LITERAL_fun) {
+        else if (at(token,JavaTokenTypes.LITERAL_fun)) {
             parser.gotTopLevelDecl(token);
             parser.gotDeclBegin(token);
             processFunction(token);
             parser.reachedCUstate(2); state = 2;
         }
-        else if (token.getType() == JavaTokenTypes.LITERAL_val ||
-                 token.getType() == JavaTokenTypes.LITERAL_var) {
+        else if (at(token,JavaTokenTypes.LITERAL_val, JavaTokenTypes.LITERAL_var)) {
             parser.gotTopLevelDecl(token);
             parser.gotDeclBegin(token);
             processProperty(token);
             parser.reachedCUstate(2); state = 2;
         }
-        else if (token.getType() == JavaTokenTypes.EOF) {
+        else if (at(token, JavaTokenTypes.EOF)) {
             return state;
         }
         else {
             // TODO give different diagnostic depending on state
-            error("Expected: Type definition (class, interface or enum)", token);
+            error("Expected: Type definition (class, interface or enum) or other top-level construct", token);
         }
         return state;
     }
@@ -269,7 +294,7 @@ public class KotlinParser implements ParserBehavior
         LocatableToken token = getTokenStream().nextToken();
         while (isModifier(token)) {
             if (token.getType() == JavaTokenTypes.AT) {
-                if (getTokenStream().LA(1).getType() == JavaTokenTypes.IDENT) {
+                if (getTokenStream().LA(1).getType() == IDENT) {
                     parser.setLastToken(token);
                     parseAnnotation();
                 }
@@ -326,7 +351,7 @@ public class KotlinParser implements ParserBehavior
         LocatableToken token = nextToken();
         while (token.getType() == JavaTokenTypes.DOT) {
             LocatableToken ntoken = nextToken();
-            if (ntoken.getType() != JavaTokenTypes.IDENT) {
+            if (ntoken.getType() != IDENT) {
                 // This could be for example "xyz.class"
                 getTokenStream().pushBack(ntoken);
                 break;
@@ -368,7 +393,7 @@ public class KotlinParser implements ParserBehavior
             isStatic = true;
             token = getTokenStream().nextToken();
         }
-        if (token.getType() != JavaTokenTypes.IDENT) {
+        if (token.getType() != IDENT) {
             getTokenStream().pushBack(token);
             error("Expecting identifier (package containing element to be imported)");
             parser.endElement(token, false);
@@ -449,7 +474,7 @@ public class KotlinParser implements ParserBehavior
 
         // Class name
         LocatableToken token = getTokenStream().nextToken();
-        if (token.getType() != JavaTokenTypes.IDENT) {
+        if (token.getType() != IDENT) {
             getTokenStream().pushBack(token);
             parser.gotTypeDefEnd(token, false);
             error("Expected identifier (in type definition)");
@@ -561,7 +586,7 @@ public class KotlinParser implements ParserBehavior
                 break;
             }
 
-            if (token.getType() == JavaTokenTypes.IDENT) {
+            if (token.getType() == IDENT) {
                 // Found an enum constant
                 LocatableToken identToken = token;
                 parser.gotDeclBegin(identToken);
@@ -712,7 +737,7 @@ public class KotlinParser implements ParserBehavior
                 return null;
             }
 
-            if (token.getType() == JavaTokenTypes.COLON) {
+            if (token.getType() == COLON) {
                 // Process inheritance (Kotlin uses ':' instead of 'extends'/'implements')
                 processInheritance();
 
@@ -869,7 +894,7 @@ public class KotlinParser implements ParserBehavior
             parser.endInitBlock(token, true);
             parser.endElement(token, true);
         }
-        else if (token.getType() == JavaTokenTypes.IDENT) {
+        else if (token.getType() == IDENT) {
             // This could be an enum constant in an enum class
             // Process it as a field
             LocatableToken identToken = token;
@@ -1246,7 +1271,7 @@ public class KotlinParser implements ParserBehavior
                 else if (token.getType() != JavaTokenTypes.EOF) {
                     getTokenStream().pushBack(token);
                 }
-            } else if (token.getType() == JavaTokenTypes.IDENT) {
+            } else if (token.getType() == IDENT) {
                 pkgTokens.add(token);
             }
         }
@@ -1292,7 +1317,7 @@ public class KotlinParser implements ParserBehavior
                 return;
             }
 
-            if (token.getType() == JavaTokenTypes.IDENT) {
+            if (token.getType() == IDENT) {
                 typeTokens.add(token);
                 parser.beginTypeDefExtends(token);
                 parser.gotTypeSpec(typeTokens);
@@ -1363,7 +1388,7 @@ public class KotlinParser implements ParserBehavior
 
         // Get function name
         LocatableToken nameToken = getTokenStream().nextToken();
-        if (nameToken.getType() != JavaTokenTypes.IDENT) {
+        if (nameToken.getType() != IDENT) {
             parser.endDecl(nameToken);
             return;
         }
@@ -1383,16 +1408,16 @@ public class KotlinParser implements ParserBehavior
             token = getTokenStream().nextToken();
             while (token.getType() != JavaTokenTypes.RPAREN && token.getType() != JavaTokenTypes.EOF) {
                 // Parse parameter
-                if (token.getType() == JavaTokenTypes.IDENT) {
+                if (token.getType() == IDENT) {
                     LocatableToken paramNameToken = token;
                     paramNameTokens.add(paramNameToken);
 
                     // Check for parameter type
                     token = getTokenStream().nextToken();
-                    if (token.getType() == JavaTokenTypes.COLON) {
+                    if (token.getType() == COLON) {
                         // Parameter has a type
                         token = getTokenStream().nextToken();
-                        if (token.getType() == JavaTokenTypes.IDENT) {
+                        if (token.getType() == IDENT) {
                             List<LocatableToken> paramTypeTokens = new ArrayList<>();
                             paramTypeTokens.add(token);
                             paramTypeTokensList.add(paramTypeTokens);
@@ -1414,10 +1439,10 @@ public class KotlinParser implements ParserBehavior
 
             // After parameters, look for return type
             token = getTokenStream().nextToken();
-            if (token.getType() == JavaTokenTypes.COLON) {
+            if (token.getType() == COLON) {
                 // Process return type
                 token = getTokenStream().nextToken();
-                if (token.getType() == JavaTokenTypes.IDENT || isPrimitiveType(token)) {
+                if (token.getType() == IDENT || isPrimitiveType(token)) {
                     typeTokens.add(token);
                     hasReturnType = true;
                 }
@@ -1427,10 +1452,10 @@ public class KotlinParser implements ParserBehavior
             while (token.getType() != JavaTokenTypes.LCURLY && token.getType() != JavaTokenTypes.EOF) {
                 token = getTokenStream().nextToken();
             }
-        } else if (token.getType() == JavaTokenTypes.COLON) {
+        } else if (token.getType() == COLON) {
             // Process return type without parameters
             token = getTokenStream().nextToken();
-            if (token.getType() == JavaTokenTypes.IDENT) {
+            if (token.getType() == IDENT) {
                 typeTokens.add(token);
                 hasReturnType = true;
             }
@@ -1495,7 +1520,7 @@ public class KotlinParser implements ParserBehavior
 
         // Get property name
         LocatableToken nameToken = getTokenStream().nextToken();
-        if (nameToken.getType() != JavaTokenTypes.IDENT) {
+        if (nameToken.getType() != IDENT) {
             parser.endDecl(nameToken);
             return;
         }
@@ -1510,14 +1535,14 @@ public class KotlinParser implements ParserBehavior
 
         while ((token = getTokenStream().nextToken()).getType() != JavaTokenTypes.SEMI &&
                token.getType() != JavaTokenTypes.EOF) {
-            if (token.getType() == JavaTokenTypes.COLON) {
+            if (token.getType() == COLON) {
                 // Process type
                 token = getTokenStream().nextToken();
-                if (token.getType() == JavaTokenTypes.IDENT || isPrimitiveType(token)) {
+                if (token.getType() == IDENT || isPrimitiveType(token)) {
                     typeTokens.add(token);
                     hasType = true;
                 }
-            } else if (token.getType() == JavaTokenTypes.ASSIGN) {
+            } else if (token.getType() == ASSIGN) {
                 break; // We'll process the initializer after setting up the field
             }
         }
@@ -1531,7 +1556,7 @@ public class KotlinParser implements ParserBehavior
         parser.gotField(propertyToken, nameToken, true);
 
         // If we found an assignment, process the initializer
-        if (token.getType() == JavaTokenTypes.ASSIGN) {
+        if (token.getType() == ASSIGN) {
             parser.beginExpression(token, false);
             skipToSemicolon();
             parser.endExpression(token, false);
@@ -1549,7 +1574,7 @@ public class KotlinParser implements ParserBehavior
 
         // Get property name
         LocatableToken nameToken = getTokenStream().nextToken();
-        if (nameToken.getType() != JavaTokenTypes.IDENT) {
+        if (nameToken.getType() != IDENT) {
             parser.endDecl(nameToken);
             return;
         }
@@ -1564,17 +1589,16 @@ public class KotlinParser implements ParserBehavior
 
         while ((token = getTokenStream().nextToken()).getType() != JavaTokenTypes.SEMI &&
                 token.getType() != JavaTokenTypes.EOF) {
-            if (token.getType() == JavaTokenTypes.COLON) {
+            if (at(token, COLON)) {
                 // Process type
-                token = getTokenStream().nextToken();
-                if (token.getType() == JavaTokenTypes.IDENT || isPrimitiveType(token)) {
+                token = nextToken();
+                if (at(token, IDENT) || isPrimitiveType(token)) {
                     typeTokens.add(token);
                     hasType = true;
                 }
-            } else if (token.getType() == JavaTokenTypes.ASSIGN) {
+            } else if (at(token, ASSIGN)) {
                 break; // We'll process the initializer after setting up the field
-            } else if (token.getType() == JavaTokenTypes.IDENT && (token.getText().equals("get")
-                    || token.getText().equals("set"))) {
+            } else if (at(token, "get", "set")) {
                 break;
             }
         }
@@ -1588,7 +1612,7 @@ public class KotlinParser implements ParserBehavior
         parser.gotField(propertyToken, nameToken, true);
 
         // If we found an assignment, process the initializer
-        if (token.getType() == JavaTokenTypes.ASSIGN) {
+        if (at(token, ASSIGN)) {
             parser.beginExpression(token, false);
             skipToSemicolon();
             parser.endExpression(token, false);
@@ -1630,6 +1654,31 @@ public class KotlinParser implements ParserBehavior
         // End field declaration
         parser.endField(token, true);
         parser.endFieldDeclarations(token, true);
+    }
+
+    private boolean processGetterOrSetter(LocatableToken token, boolean isVal) {
+        boolean isGetter = at(token, "get");
+        if (!isGetter && isVal) {
+            error("Val property cannot have setter");
+            return false;
+        }
+        token = getTokenStream().nextToken();
+        if(endDeclWithErrorUnlessAt(token, LPAREN, "Expected '('"))
+            return false;
+        token = getTokenStream().nextToken();
+        if(!isGetter && at(token, IDENT))
+            token = getTokenStream().nextToken(); // skip setter parameter
+        if(endDeclWithErrorUnlessAt(token, RPAREN, "Expected ')'"))
+            return false;
+        token = getTokenStream().nextToken();
+        if(isGetter && at(token, COLON))
+            parseTypeSpec(false);
+        if(endDeclWithErrorUnlessAt(token, LCURLY, "Expected '{'"))
+            return false;
+        getTokenStream().pushBack(token);
+        parseStmtBlock();
+        token = getTokenStream().nextToken();
+        return !endDeclWithErrorUnlessAt(token, RCURLY, "Expected '}'");
     }
 
     private void processBody()
@@ -1701,7 +1750,7 @@ public class KotlinParser implements ParserBehavior
 
         // Check for a name (optional for companion objects)
         LocatableToken token = getTokenStream().LA(1);
-        if (token.getType() == JavaTokenTypes.IDENT) {
+        if (token.getType() == IDENT) {
             // Named companion object
             token = getTokenStream().nextToken();
             parser.gotTypeDefName(token);
@@ -1714,7 +1763,7 @@ public class KotlinParser implements ParserBehavior
 
         // Process inheritance if present
         while (token.getType() != JavaTokenTypes.LCURLY) {
-            if (token.getType() == JavaTokenTypes.COLON) {
+            if (token.getType() == COLON) {
                 // Process inheritance (Kotlin uses ':' instead of 'extends'/'implements')
                 processInheritance();
             }
@@ -1752,7 +1801,7 @@ public class KotlinParser implements ParserBehavior
 
         // Get object name
         LocatableToken token = getTokenStream().nextToken();
-        if (token.getType() != JavaTokenTypes.IDENT) {
+        if (token.getType() != IDENT) {
             getTokenStream().pushBack(token);
             parser.gotTypeDefEnd(token, false);
             error("Expected identifier (in object declaration)");
@@ -1763,7 +1812,7 @@ public class KotlinParser implements ParserBehavior
         // Process inheritance if present
         token = getTokenStream().nextToken();
         while (token.getType() != JavaTokenTypes.LCURLY) {
-            if (token.getType() == JavaTokenTypes.COLON) {
+            if (token.getType() == COLON) {
                 // Process inheritance (Kotlin uses ':' instead of 'extends'/'implements')
                 processInheritance();
             }
@@ -1783,5 +1832,14 @@ public class KotlinParser implements ParserBehavior
         }
         parser.endTypeBody(token, token.getType() == JavaTokenTypes.RCURLY);
         parser.gotTypeDefEnd(token, token.getType() == JavaTokenTypes.RCURLY);
+    }
+
+    private boolean endDeclWithErrorUnlessAt(LocatableToken token, int expected_ttype, String error_msg) {
+        if(!at(token, expected_ttype)) {
+            parser.endDecl(token);
+            error(error_msg);
+            return true;
+        }
+        return false;
     }
 }
