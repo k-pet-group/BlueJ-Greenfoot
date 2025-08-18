@@ -147,7 +147,7 @@ public class EditorParser extends SourceParser
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected void error(String msg, int beginLine, int beginColumn, int endLine, int endColumn)
     {
-        document.getParseErrors().add("EditorParser.error: " + msg + " beginLine=" + beginLine + " beginColumn=" + beginColumn + " endLine=" + endLine + " endColumn=" + endColumn);
+        document.addParseError("EditorParser.error: " + msg + " beginLine=" + beginLine + " beginColumn=" + beginColumn + " endLine=" + endLine + " endColumn=" + endColumn);
         Element lineEl = document.getDefaultRootElement().getElement(beginLine - 1);
         int position = lineEl.getStartOffset() + beginColumn - 1;
         if (endLine != beginLine) {

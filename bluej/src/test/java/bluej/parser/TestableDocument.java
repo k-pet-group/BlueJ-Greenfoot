@@ -72,8 +72,13 @@ public class TestableDocument extends JavaSyntaxView implements ReparseableDocum
     }
 
     @Override
+    public void addParseError(String error) {
+        parseErrors.add(error);
+    }
+
+    @Override
     public List<String> getParseErrors() {
-        return parseErrors;
+        return List.copyOf(parseErrors);
     }
 
 }

@@ -26,6 +26,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.Reader;
+import java.util.Collections;
 import java.util.List;
 
 public interface ReparseableDocument
@@ -62,7 +63,9 @@ public interface ReparseableDocument
      */
     public SourceType getSourceType();
 
-    public default List<String> getParseErrors() { return null; }
+    public default void addParseError(String error) {}
+
+    public default List<String> getParseErrors() { return Collections.emptyList(); }
 
     @OnThread(Tag.FXPlatform)
     public static interface Element
