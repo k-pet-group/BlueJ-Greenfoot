@@ -1,12 +1,16 @@
 package bluej.parser;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.After;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 import bluej.parser.nodes.InnerNode;
 import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
-public class NodeTreeTest extends TestCase
+public class NodeTreeTest
 {
     private NodeTree<ParsedNode> nt;
     private ParsedNode pn1;
@@ -21,7 +25,8 @@ public class NodeTreeTest extends TestCase
      *
      * Called before every test case method.
      */
-    protected void setUp()
+    @Before
+    public void setUp()
     {
         nt = new NodeTree<ParsedNode>();
         pn1 = new InnerNode(null);
@@ -42,10 +47,12 @@ public class NodeTreeTest extends TestCase
      *
      * Called after every test case method.
      */
-    protected void tearDown()
+    @After
+    public void tearDown()
     {
     }
 
+    @Test
     public void testBasic()
     {        
         NodeAndPosition<ParsedNode> np = nt.findNode(5);
@@ -74,6 +81,7 @@ public class NodeTreeTest extends TestCase
         assertTrue(np.getPosition() == 80);
     }
 
+    @Test
     public void testRemoval()
     {
         NodeAndPosition<ParsedNode> np = nt.findNode(65);
@@ -93,6 +101,7 @@ public class NodeTreeTest extends TestCase
         assertTrue(np.getPosition() == 80);
     }
 
+    @Test
     public void testRemoval2()
     {
         // Remove all nodes
@@ -119,6 +128,7 @@ public class NodeTreeTest extends TestCase
         assertNull(np);
     }
 
+    @Test
     public void testRemoval3()
     {
         // For delete_case_4, need:
@@ -164,6 +174,7 @@ public class NodeTreeTest extends TestCase
         nap.getNode().remove();
     }
 
+    @Test
     public void testRotation1()
     {
         nt.clear();
