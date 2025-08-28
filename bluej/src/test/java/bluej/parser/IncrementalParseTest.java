@@ -1,29 +1,29 @@
 /*
- This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2019  Michael Kolling and John Rosenberg 
+ This file is part of the BlueJ program.
+ Copyright (C) 1999-2009,2010,2014,2019  Michael Kolling and John Rosenberg
 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
- This file is subject to the Classpath exception as provided in the  
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.parser;
 
 import java.util.List;
 
-import bluej.JavaFXThreadingRule;
+
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -46,8 +46,7 @@ import static org.junit.Assert.assertTrue;
 
 public class IncrementalParseTest
 {
-    @Rule
-    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+
 
     @BeforeClass
     public static void initConfig()
@@ -79,8 +78,8 @@ public class IncrementalParseTest
     public void test1() throws Exception
     {
         String aSrc = "class A {\n" +   // 0 - 10
-            "  void method() {\n" +     // 10 - 28 
-            "  }\n" +                   // 28 - 32 
+            "  void method() {\n" +     // 10 - 28
+            "  }\n" +                   // 28 - 32
             "}\n";                      // 32 - 34
 
         TestableDocument aDoc = docForSource(aSrc, "");
@@ -105,8 +104,8 @@ public class IncrementalParseTest
     public void test2() throws Exception
     {
         String aSrc = "class A {\n" +   // 0 - 10
-            "  void method() {\n" +     // 10 - 28 
-            "  }\n" +                   // 28 - 32 
+            "  void method() {\n" +     // 10 - 28
+            "  }\n" +                   // 28 - 32
             "}\n";                      // 32 - 34
 
         TestableDocument aDoc = docForSource(aSrc, "");
@@ -157,9 +156,9 @@ public class IncrementalParseTest
     {
         String aSrc = "class A {\n" +         // 0 - 10
             "  public void someFunc() {\n" +  // 10 - 37
-            "    if (true) {\n" +             // 37 - 53 
+            "    if (true) {\n" +             // 37 - 53
             "    }\n" +                       // 53 - 59
-            "  \n" +                          // 59 - 62  
+            "  \n" +                          // 59 - 62
             "  }\n" +                         // 62 - 66
             "}\n";                            // 66 - 68
 
@@ -285,8 +284,8 @@ public class IncrementalParseTest
     public void test7() throws Exception
     {
         String aSrc = "class A {\n" +         // 0 - 10
-            "  class B {\n" +                 // 10 - 22 
-            "  \n" +                          // 22 - 25 
+            "  class B {\n" +                 // 10 - 22
+            "  \n" +                          // 22 - 25
             "  }\n" +                         // 25 - 29
             "}\n";                            // 29 - 31
 
@@ -370,9 +369,9 @@ public class IncrementalParseTest
     {
         String aSrc = "class A {\n" +         // 0 - 10
             "  public void someFunc() {\n" +  // 10 - 37
-            "    if (true) {\n" +             // 37 - 53 
+            "    if (true) {\n" +             // 37 - 53
             "    }\n" +                       // 53 - 59
-            "  \n" +                          // 59 - 62  
+            "  \n" +                          // 59 - 62
             "  }\n" +                         // 62 - 66
             "}\n";                            // 66 - 68
 
@@ -402,7 +401,7 @@ public class IncrementalParseTest
     {
         String aSrc = "class A {\n" +         // 0 - 10
             "  public void someFunc() {\n" +  // 10 - 37
-            "  \n" +                          // 37 - 40  
+            "  \n" +                          // 37 - 40
             "  }\n" +                         // 40 - 44
             "}\n";                            // 44 - 46
 
@@ -477,7 +476,7 @@ public class IncrementalParseTest
     @Test
     public void test10() throws Exception
     {
-        String aSrc = 
+        String aSrc =
             "/** A comment */\n" +  // 0 - 17
             "class A {\n" +         // 17 - 27
             "}\n";                  // 27 - 29
@@ -513,15 +512,15 @@ public class IncrementalParseTest
     public void test11() throws Exception
     {
         // Regression test for bug #276
-        String aSrc = 
-            "public class ArrayWrapper\n" +  // 0 - 26 
-            "{\n" +                          // 26 - 28 
-            "  private int x;\n" +           // 28 - 45 
-            "  /**\n" +                      // 45 - 51 
-            "   * Constructor for objects of class ArrayWrapper\n" +  // 51 - 102 
-            "   */\n" +                      // 102 - 108 
+        String aSrc =
+            "public class ArrayWrapper\n" +  // 0 - 26
+            "{\n" +                          // 26 - 28
+            "  private int x;\n" +           // 28 - 45
+            "  /**\n" +                      // 45 - 51
+            "   * Constructor for objects of class ArrayWrapper\n" +  // 51 - 102
+            "   */\n" +                      // 102 - 108
             "  public ArrayWrapper()\n" +    // 108 - 132
-            "  {\n" +                        // 132 - 136 
+            "  {\n" +                        // 132 - 136
             "    x = 0;\n" +                 // 136 - 147
             "  }\n" +                        // 147 - 151
             "}\n";                           // 151 - 153
@@ -599,7 +598,7 @@ public class IncrementalParseTest
     public void test12() throws Exception
     {
         String aSrc = "class A {\n" +         // 0 - 10
-            "    public int x() { }\n" +      // 10 - 33 
+            "    public int x() { }\n" +      // 10 - 33
             "}\n";                            // 33 - 35
 
         TestableDocument aDoc = docForSource(aSrc, "");
@@ -685,8 +684,8 @@ public class IncrementalParseTest
     public void test13() throws Exception
     {
         String aSrc = "class A {\n" +         // 0 - 10
-            "    \n" +                        // 10 - 15 
-            "    void xyz(int n) { }\n" +      // 15 - 39 
+            "    \n" +                        // 10 - 15
+            "    void xyz(int n) { }\n" +      // 15 - 39
             "}\n";                            // 39 - 41
 
         TestableDocument aDoc = docForSource(aSrc, "");
@@ -728,7 +727,7 @@ public class IncrementalParseTest
     {
         String aSrc = "class A {\n" +         // 0 - 10
             "  public void someFunc() {\n" +  // 10 - 37
-            "  \n" +                          // 37 - 40  
+            "  \n" +                          // 37 - 40
             "  }\n" +                         // 40 - 44
             "}\n";                            // 44 - 46
 
@@ -861,7 +860,7 @@ public class IncrementalParseTest
         aNode = aDoc.getParser();
         nap = aNode.findNodeAt(0, 0);
         assertNotNull(nap);
-        assertEquals(18, nap.getSize());        
+        assertEquals(18, nap.getSize());
     }
 
     @Test
@@ -878,7 +877,7 @@ public class IncrementalParseTest
         aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
         assertNotNull(nap);
-        assertEquals(33, nap.getSize());        
+        assertEquals(33, nap.getSize());
     }
 
     @Test
@@ -886,7 +885,7 @@ public class IncrementalParseTest
     {
         String aSrc = "class A {\n" +         // 0 - 10
             "  public void someFunc() {\n" +  // 10 - 37
-            "  \n" +                          // 37 - 40  
+            "  \n" +                          // 37 - 40
             "  }\n" +                         // 40 - 44
             "}\n";                            // 44 - 46
 
@@ -921,7 +920,7 @@ public class IncrementalParseTest
         // Note the comment is significant in this.
         String aSrc = "/* comment */ class A extends javax.swing.JFrame {\n" +
             "  public void someFunc() {\n" +
-            "  \n" +  
+            "  \n" +
             "  }\n" +
             "}\n";
 
@@ -948,11 +947,11 @@ public class IncrementalParseTest
     @Test
     public void testNewStmt() throws Exception
     {
-        String aSrc = "class A {\n" +         // 0 - 10 
-            "  public void someFunc() {\n" +  // 10 - 37 
+        String aSrc = "class A {\n" +         // 0 - 10
+            "  public void someFunc() {\n" +  // 10 - 37
             "    A a = new \\A();\n" +        // 37 - 57
-            "  }\n" +                         // 57 - 61 
-            "}\n";                            // 61 - 63 
+            "  }\n" +                         // 57 - 61
+            "}\n";                            // 61 - 63
 
         TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
@@ -1021,10 +1020,10 @@ public class IncrementalParseTest
         String aSrc = "public class XXXXX {\n" +   //  21
                 "    public XXXXX() {\n" +         //  21
                 "        //\n" +                   //  11
-                "        for (int i = 0; i < 10; i++) {\n" +  // 39 
+                "        for (int i = 0; i < 10; i++) {\n" +  // 39
                 "        \n" +                     //   9
                 "        }\n" +                    //  10
-                "    }\n" +                        //   6  
+                "    }\n" +                        //   6
                 "}\n";                             //   2
 
         TestableDocument aDoc = docForSource(aSrc, "");
@@ -1084,9 +1083,9 @@ public class IncrementalParseTest
     public void testMultipleDeclaration() throws Exception
     {
         String aSrc = "class A {\n" +  // 0 - 10
-                "  public Runnable r, b = new Runnable() {\n" +  // 10 - 52 
+                "  public Runnable r, b = new Runnable() {\n" +  // 10 - 52
                 "    public void run() {\n" +             // 52 - 76
-                "      c.run();\n"          +             // 76 - 81     
+                "      c.run();\n"          +             // 76 - 81
                 "    }\n" +                               // 81 - 97
                 "  };\n" +                                // 97 - 102
                 "}\n";                                    // 102 - 104
@@ -1126,7 +1125,7 @@ public class IncrementalParseTest
 
         aDoc.insertString(100, ", c");
         aNode = aDoc.getParser();
-        nap = aNode.findNodeAt(0, 0);        
+        nap = aNode.findNodeAt(0, 0);
         classNode = (ParsedTypeNode) nap.getNode();
         classInner = classNode.getInner();
 

@@ -1,22 +1,22 @@
 /*
- This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2014,2019,2022  Michael Kolling and John Rosenberg 
+ This file is part of the BlueJ program.
+ Copyright (C) 1999-2009,2013,2014,2019,2022  Michael Kolling and John Rosenberg
 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
- This file is subject to the Classpath exception as provided in the  
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.parser;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import bluej.JavaFXThreadingRule;
+
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.parser.entity.ClassLoaderResolver;
@@ -47,8 +47,7 @@ import static org.junit.Assert.*;
 
 public class EditorParserTest
 {
-    @Rule
-    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+
 
     @BeforeClass
     public static void initConfig()
@@ -81,9 +80,9 @@ public class EditorParserTest
     {
         String sourceCode = ""
             + "class A\n"       // position 0
-            + "{\n"             // position 8 
-            + "   class B\n"    // position 10 
-            + "    {\n"         // position 21 
+            + "{\n"             // position 8
+            + "   class B\n"    // position 10
+            + "    {\n"         // position 21
             + "    }\n"
             + "}\n";
 
@@ -105,9 +104,9 @@ public class EditorParserTest
     {
         String sourceCode = ""
                 + "class A\n"       // position 0
-                + "{\n"             // position 8 
-                + "   class B\n"    // position 10 
-                + "    {\n"         // position 21 
+                + "{\n"             // position 8
+                + "   class B\n"    // position 10
+                + "    {\n"         // position 21
                 + "    }\n"
                 + "}\n";
 
@@ -155,8 +154,8 @@ public class EditorParserTest
     {
         String aClassSrc = "class A {\n" +   // position 0
         "  public void someMethod() {\n" +   // position 10
-        "    methodCall(\n" +                // position 39 
-        "  }\n" +                            // position 55 
+        "    methodCall(\n" +                // position 39
+        "  }\n" +                            // position 55
         "}\n";
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -252,8 +251,8 @@ public class EditorParserTest
         String sourceCode = ""
             + "class A\n"       // 0 - 8
             + "{\n"             // 8 - 10
-            + "  A() {\n"       // 10 -  18 
-            + "    int a; // comment\n"  // comment starts at 11 + 18 = 29 
+            + "  A() {\n"       // 10 -  18
+            + "    int a; // comment\n"  // comment starts at 11 + 18 = 29
             + "  }"
             + "}\n";
 
@@ -326,17 +325,17 @@ public class EditorParserTest
     public void testIfNesting()
     {
         String sourceCode = ""
-                + "class A\n"    // 0 - 8 
+                + "class A\n"    // 0 - 8
                 + "{\n"             //   8 - 10
                 + "  void method() {\n"  // 10 - 28
                 + "    if (true)\n"      // 28 - 42
                 + "      if (true)\n"       // 42 - 58
                 + "        hashCode();\n"   // 58 - 78
-                + "      else\n"            // 78 - 89 
-                + "        hashCode();\n"   // 89 - 109 
-                + "    else\n"              // 109 - 118 
+                + "      else\n"            // 78 - 89
+                + "        hashCode();\n"   // 89 - 109
+                + "    else\n"              // 109 - 118
                 + "      hashCode();\n"     // 118 - 136
-                + "  }\n"                   // 126 - 130 
+                + "  }\n"                   // 126 - 130
                 + "}\n";                    // 130 - 132
 
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
@@ -360,13 +359,13 @@ public class EditorParserTest
     public void testTicket467()
     {
         String sourceCode = ""
-                + "class A\n"    // 0 - 8 
+                + "class A\n"    // 0 - 8
                 + "{\n"             //   8 - 10
                 + "  void method() {\n"  // 10 - 28
                 + "    while (true)\n"      // 28 - 45
                 + "      if (true) {\n"     // 45 - 63
                 + "      }\n"               // 63 - 71
-                + "  }\n"                   // 71 - 75 
+                + "  }\n"                   // 71 - 75
                 + "}\n";                    // 75 - 77
 
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
@@ -390,12 +389,12 @@ public class EditorParserTest
     public void testTryCatch()
     {
         String sourceCode = ""
-                + "class A\n"    // 0 - 8 
+                + "class A\n"    // 0 - 8
                 + "{\n"             //   8 - 10
                 + "  void method() {\n"  // 10 - 28
-                + "    try {\n"          // 28 - 38 
-                + "    }\n"              // 38 - 44 
-                + "    catch(E e) {  }\n"  // 44 - 64 
+                + "    try {\n"          // 28 - 38
+                + "    }\n"              // 38 - 44
+                + "    catch(E e) {  }\n"  // 44 - 64
                 + "  }\n"                  // 64 - 68
                 + "}\n";                   // 68 - 70
 
@@ -424,12 +423,12 @@ public class EditorParserTest
     public void testWhile()
     {
         String sourceCode = ""
-                + "class A\n"    // 0 - 8 
+                + "class A\n"    // 0 - 8
                 + "{\n"             //   8 - 10
                 + "  void method() {\n"  // 10 - 28
                 + "    while(true) {\n"  // 28 - 46
-                + "      // nothing\n"   // 46 - 63 
-                + "    }\n"              // 63 - 69 
+                + "      // nothing\n"   // 46 - 63
+                + "    }\n"              // 63 - 69
                 + "  }\n"                //
                 + "}\n";                 //
 
@@ -454,13 +453,13 @@ public class EditorParserTest
     public void testLambda()
     {
         String sourceCode = ""
-                + "class A\n" // 0 - 8 
+                + "class A\n" // 0 - 8
                 + "{\n" //   8 - 10
                 + "  void method() {\n" // 10 - 28
                 + "    Arrays.asList(\"A\", \"B\", \"C\").stream().map(s ->{\n" // 28 - 80
                 + "      return s.toLowerCase();\n" // 80 - 110
                 + "      }).collect(Collectors.joining(\",\"));\n" // 110 - 153
-                + "  }\n" // 153 - 157 
+                + "  }\n" // 153 - 157
                 + "}\n";  // 157 - 159
 
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");

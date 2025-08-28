@@ -1,22 +1,22 @@
 /*
- This file is part of the BlueJ program. 
+ This file is part of the BlueJ program.
  Copyright (C) 1999-2009,2010,2014,2015,2016,2017,2019,2020  Michael Kolling and John Rosenberg
 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
- This file is subject to the Classpath exception as provided in the  
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.parser;
@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 
-import bluej.JavaFXThreadingRule;
+
 import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeSolid;
@@ -56,8 +56,7 @@ import static org.junit.Assert.*;
 
 public class CompletionTest
 {
-    @Rule
-    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+
 
     @BeforeClass
     public static void initConfig()
@@ -146,9 +145,9 @@ public class CompletionTest
     public void testCompletionAfterArrayElement() throws Exception
     {
         String aClassSrc = "class A {\n" +         // 0 - 10
-        "  public static String s[] = null;\n" +   // 10 - 45 
-        "  void m() {\n" +                         // 45 - 58 
-        "    s[0].length();\n" +                   // 58 -   s[0]. <- 67 
+        "  public static String s[] = null;\n" +   // 10 - 45
+        "  void m() {\n" +                         // 45 - 58
+        "    s[0].length();\n" +                   // 58 -   s[0]. <- 67
         "  }\n" +
         "}\n";
 
@@ -225,9 +224,9 @@ public class CompletionTest
     @Test
     public void test3() throws Exception
     {
-        String aClassSrc = "class A {\n" +   //       10 
-        "void someMethod() {\n" +            // +20 = 30 
-        "    Object b = new Object();\n" +   // +29 = 59 
+        String aClassSrc = "class A {\n" +   //       10
+        "void someMethod() {\n" +            // +20 = 30
+        "    Object b = new Object();\n" +   // +29 = 59
         "    int a = b.hashCode();\n" +      // int a = b. <-- 73
         "}\n" +
         "}\n";
@@ -249,9 +248,9 @@ public class CompletionTest
     @Test
     public void test3var() throws Exception
     {
-        String aClassSrc = "class A {\n" +   //       10 
-        "void someMethod() {\n" +            // +20 = 30 
-        "    var b = new Object();\n" +      // +26 = 56 
+        String aClassSrc = "class A {\n" +   //       10
+        "void someMethod() {\n" +            // +20 = 30
+        "    var b = new Object();\n" +      // +26 = 56
         "    int a = b.hashCode();\n" +      // int a = b. <-- 70
         "}\n" +
         "}\n";
@@ -322,8 +321,8 @@ public class CompletionTest
     @Test
     public void testForInitializer() throws Exception
     {
-        String aClassSrc = "class A {\n" +   //       10 
-        "void someMethod() {\n" +            // +20 = 30 
+        String aClassSrc = "class A {\n" +   //       10
+        "void someMethod() {\n" +            // +20 = 30
         "    for (Object o = null ; ; ) {\n" + // +33 = 63
         "        o.wait();\n" +              // o. <-- 73
         "    }" +
@@ -347,8 +346,8 @@ public class CompletionTest
     @Test
     public void testForInitializerVar() throws Exception
     {
-        String aClassSrc = "class A {\n" +   //       10 
-        "void someMethod() {\n" +            // +20 = 30 
+        String aClassSrc = "class A {\n" +   //       10
+        "void someMethod() {\n" +            // +20 = 30
         "    for (var o = new Object() ; ; ) {\n" +  // +38 = 68
         "        o.wait();\n" +              // o. <-- 78
         "    }" +
@@ -372,10 +371,10 @@ public class CompletionTest
     @Test
     public void testVariableRef() throws Exception
     {
-        String aClassSrc = "class A {\n" +   //       10 
-        "void someMethod() {\n" +            // +20 = 30 
+        String aClassSrc = "class A {\n" +   //       10
+        "void someMethod() {\n" +            // +20 = 30
         "    String s = \"hello\";\n" +      // +24 = 54
-        "    s.length();" +                  // s. <--  60 
+        "    s.length();" +                  // s. <--  60
         "    }" +
         "}\n" +
         "}\n";
@@ -397,10 +396,10 @@ public class CompletionTest
     @Test
     public void testNoBwardVarRef() throws Exception
     {
-        String aClassSrc = "class A {\n" +   //       10 
-        "void someMethod() {\n" +            // +20 = 30 
+        String aClassSrc = "class A {\n" +   //       10
+        "void someMethod() {\n" +            // +20 = 30
         "    int a = b.hashCode();\n" +      //    int a = b. <-- 44
-        "    Object b = new Object();\n" + 
+        "    Object b = new Object();\n" +
         "}\n" +
         "}\n";
 
@@ -421,9 +420,9 @@ public class CompletionTest
     @Test
     public void testSelfRef() throws Exception
     {
-        String aClassSrc = "package abc;\n" + //       13  
-        "class A {\n" +                       // +10 = 23 
-        "void someMethod() {\n" +             // +20 = 43 
+        String aClassSrc = "package abc;\n" + //       13
+        "class A {\n" +                       // +10 = 23
+        "void someMethod() {\n" +             // +20 = 43
         "    new A().hashCode();\n" +         //    new A(). <-- 55
         "}\n" +
         "}\n";
@@ -440,18 +439,18 @@ public class CompletionTest
     }
 
     /**
-     * Completion from an expression involving inner classes accessing variables 
+     * Completion from an expression involving inner classes accessing variables
      * within the inner class
      */
     @Test
     public void testInnerClasses() throws Exception
     {
-        String aClassSrc = "class A {\n" +                  //10   
+        String aClassSrc = "class A {\n" +                  //10
         "String test=\"fg\";\n" +                           //+18=28
         "class B {\n" +                                     //+10=38
         "Integer temp=new Integer(\"1\");\n" +              //+31=69
         "void bluej() {\n" +                                //+15=84
-        "temp.hashCode();\n" +                              //+5=89  ---> temp.            
+        "temp.hashCode();\n" +                              //+5=89  ---> temp.
         "}\n" +
         "}\n" +
         "}\n";
@@ -472,18 +471,18 @@ public class CompletionTest
     }
 
     /**
-     * Completion from an expression involving inner classes accessing variables 
+     * Completion from an expression involving inner classes accessing variables
      * within the outer class
      */
     @Test
     public void testInnerClasses2() throws Exception
     {
-        String aClassSrc = "class A {\n" +                  //10   
+        String aClassSrc = "class A {\n" +                  //10
         "Integer test=new Integer(\"1\");\n" +              //+31=41
-        "class B {\n" +                                     //+10=51 
-        "String temp=\"fg\";\n" +                           //+18=69 
-        "void bluet() {\n" +                                //+15=84 
-        "test.hashCode();\n" +                              //+5=89  ---> test.            
+        "class B {\n" +                                     //+10=51
+        "String temp=\"fg\";\n" +                           //+18=69
+        "void bluet() {\n" +                                //+15=84
+        "test.hashCode();\n" +                              //+5=89  ---> test.
         "}\n" +
         "}\n" +
         "}\n";
@@ -565,8 +564,8 @@ public class CompletionTest
     public void testPartial() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
-            "String s = \"\";\n" +           // 10 - 25 
-            "public void m() {\n" +          // 25 - 43 
+            "String s = \"\";\n" +           // 10 - 25
+            "public void m() {\n" +          // 25 - 43
             "  s.c\n" +                      // 43 - 48  s.c_
             "abcd()\n" +
             "}}";
@@ -592,8 +591,8 @@ public class CompletionTest
     public void testAfterStatement() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
-            "public void m() {\n" +          // 10 - 28  
-            "  this(one,two,three);\n" +     // 28 - 51 
+            "public void m() {\n" +          // 10 - 28
+            "  this(one,two,three);\n" +     // 28 - 51
             "}\n" +                          // 51 - 53
             "}\n";                           // 53 - 55
 
@@ -612,8 +611,8 @@ public class CompletionTest
     public void testThisDot() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
-            "public void m() {\n" +          // 10 - 28  
-            "  this.\n" +                    // 28 - 36  this. <-- 35  
+            "public void m() {\n" +          // 10 - 28
+            "  this.\n" +                    // 28 - 36  this. <-- 35
             "}\n" +
             "}\n";
 
@@ -633,8 +632,8 @@ public class CompletionTest
     public void testTparCompletion() throws Exception
     {
         String aClassSrc = "class A<T extends String & Runnable> {\n" +   // 0 - 39
-        "public void m(T t) {\n" +              // 39 - 60   
-        "  (t+4).\n" +                          // 60 -   (t+4). <- 68   
+        "public void m(T t) {\n" +              // 39 - 60
+        "  (t+4).\n" +                          // 60 -   (t+4). <- 68
         "}\n" +
         "}\n";
 
@@ -654,8 +653,8 @@ public class CompletionTest
     public void testTparCompletion2() throws Exception
     {
         String aClassSrc = "class A<T extends String & Runnable> {\n" +   // 0 - 39
-        "public void m(T t) {\n" +              // 39 - 60   
-        "  (t+4).\n" +                          // 60 -   (t+4). <- 68   
+        "public void m(T t) {\n" +              // 39 - 60
+        "  (t+4).\n" +                          // 60 -   (t+4). <- 68
         "}\n" +
         "}\n";
 
@@ -681,8 +680,8 @@ public class CompletionTest
     public void testTparCompletion3() throws Exception
     {
         String aClassSrc = "class A<T extends String & Runnable> {\n" +   // 0 - 39
-        "public void m(T t) {\n" +              // 39 - 60   
-        "  (t+4).\n" +                          // 60 -   (t+4). <- 68   
+        "public void m(T t) {\n" +              // 39 - 60
+        "  (t+4).\n" +                          // 60 -   (t+4). <- 68
         "}\n" +
         "}\n";
 
@@ -708,8 +707,8 @@ public class CompletionTest
     public void testTparCompletion4() throws Exception
     {
         String aClassSrc = "class A<T extends String, U extends T> {\n" +   // 0 - 41
-        "public void m(U u) {\n" +              // 41 - 62   
-        "  u.\n" +                              // 62 -   u. <- 66   
+        "public void m(U u) {\n" +              // 41 - 62
+        "  u.\n" +                              // 62 -   u. <- 66
         "}\n" +
         "}\n";
 
@@ -732,7 +731,7 @@ public class CompletionTest
     {
         String aClassSrc = "class A {\n" +      // 0 - 10
         "public <T extends String, U extends T> void m(U u) {\n" +  // 10 - 63
-        "  u.\n" +                              // 63 -   u. <- 67   
+        "  u.\n" +                              // 63 -   u. <- 67
         "}\n" +
         "}\n";
 
@@ -754,8 +753,8 @@ public class CompletionTest
     public void testCompletionOnKeyword1() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
-            "public void m() {\n" +          // 10 - 28  
-            "  this.for\n" +                 // 28 - 39  this.for <-- 38  
+            "public void m() {\n" +          // 10 - 28
+            "  this.for\n" +                 // 28 - 39  this.for <-- 38
             "}\n" +
             "}\n";
 
@@ -778,8 +777,8 @@ public class CompletionTest
     public void testCompletionOnKeyword2() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
-            "public void m() {\n" +          // 10 - 28  
-            "  this.new\n" +                 // 28 - 39  this.new <-- 38  
+            "public void m() {\n" +          // 10 - 28
+            "  this.new\n" +                 // 28 - 39  this.new <-- 38
             "}\n" +
             "}\n";
 
@@ -802,8 +801,8 @@ public class CompletionTest
     public void testCompletionOnKeyword3() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
-            "public void m() {\n" +          // 10 - 28  
-            "  new\n" +                      // 28 - 34  new <-- 33  
+            "public void m() {\n" +          // 10 - 28
+            "  new\n" +                      // 28 - 34  new <-- 33
             "}\n" +
             "}\n";
 
@@ -826,8 +825,8 @@ public class CompletionTest
     public void testCompletionOnKeyword4() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
-            "public void m() {\n" +          // 10 - 28  
-            "  for\n" +                      // 28 - 34  for <-- 33  
+            "public void m() {\n" +          // 10 - 28
+            "  for\n" +                      // 28 - 34  for <-- 33
             "}\n" +
             "}\n";
 
@@ -851,11 +850,11 @@ public class CompletionTest
     {
         String canvasSrc = "class Canvas { }\n";
         String aClassSrc =
-            "import java.awt.*;\n" +    // 0 - 19     
-            "class A {\n" +             // 19 - 29 
-            "  Canvas canvas;\n" +      // 29 - 46 
+            "import java.awt.*;\n" +    // 0 - 19
+            "class A {\n" +             // 19 - 29
+            "  Canvas canvas;\n" +      // 29 - 46
             "  public void m() {\n" +   // 46 - 66
-            "    canvas.\n" +           //  canvas.  <--  77 
+            "    canvas.\n" +           //  canvas.  <--  77
             "  }\n" +
             "}\n";
 
@@ -879,11 +878,11 @@ public class CompletionTest
     public void testCompletionResolution2() throws Exception
     {
         String aClassSrc =
-            "import static javax.swing.text.DefaultEditorKit.*;\n" +    // 0 - 51     
-            "class A {\n" +             // 51 - 61 
-            "  BeepAction ba;\n" +      // 61 - 78  
+            "import static javax.swing.text.DefaultEditorKit.*;\n" +    // 0 - 51
+            "class A {\n" +             // 51 - 61
+            "  BeepAction ba;\n" +      // 61 - 78
             "  public void m() {\n" +   // 78 - 98
-            "    ba.\n" +           //  ba.  <--  105 
+            "    ba.\n" +           //  ba.  <--  105
             "  }\n" +
             "}\n";
 
@@ -905,7 +904,7 @@ public class CompletionTest
     public void testCompletionInArrayElement() throws Exception
     {
         String aClassSrc =
-            "class A {\n" +   // 0 - 10 
+            "class A {\n" +   // 0 - 10
             "  public void m() {\n" +  // 10 - 30
             "    short[] array = new short[s\n" +  // 30 - 62
             "  }\n" +
@@ -926,10 +925,10 @@ public class CompletionTest
     public void testCompletionOnGenericType() throws Exception
     {
         String aClassSrc =
-            "class A {\n" +   // 0 - 10 
+            "class A {\n" +   // 0 - 10
             "  public void m() {\n" +  // 10 - 30
             "    java.util.List<?> l = new java.util.LinkedList<Object>();\n" + // 30 - 92
-            "    l.size();\n" + // 92 -  98  =  l. 
+            "    l.size();\n" + // 92 -  98  =  l.
             "  }\n" +
             "}\n";
 
@@ -974,7 +973,7 @@ public class CompletionTest
     public void testInterNewCompletion() throws Exception
     {
         String aClassSrc =
-            "class A {\n" +   // 0 - 10 
+            "class A {\n" +   // 0 - 10
             "  public void m() {\n" +  // 10 - 30
             "    callMe(new Runnable() { });\n" +  // 30 -    53 <- Runnable[HERE]()
             "  }\n" +
@@ -996,7 +995,7 @@ public class CompletionTest
             "class A {\n" +             // 0 - 10
             "  public void g() {\n" +   // 10 - 30
             "    String s = \"\";\n" +  // 30 - 49
-            "    s.l\n" +               //   s.l <---  56 
+            "    s.l\n" +               //   s.l <---  56
             "    s.length();\n" +
             "  }\n" +
             "}\n";
@@ -1015,8 +1014,8 @@ public class CompletionTest
     {
         String aClassSrc =
             "class A extends javax.swing.JFrame {\n" +   // 0 - 37
-            "  public void g() {\n" +   // 37 - 57 
-            "  }\n" +                   
+            "  public void g() {\n" +   // 37 - 57
+            "  }\n" +
             "}\n";
 
         TestableDocument doc = new TestableDocument();
@@ -1057,7 +1056,7 @@ public class CompletionTest
             "class A {\n" +            // 0 - 10
             "  public void g() {\n" +   // 10 - 30
             "    someMethod(new int[] {new String().length, 45});\n" +  //  }.  <-- 80
-            "  }\n" +                   
+            "  }\n" +
             "}\n";
 
         TestableDocument doc = new TestableDocument();
@@ -1081,7 +1080,7 @@ public class CompletionTest
             "        int x = 5 + 6;\n" +  // 75 - 98
             "      }\n" +               // 98 - 106
             "    }.start();\n" +        //  }. <-- 112
-            "  }\n" +                   
+            "  }\n" +
             "}\n";
 
         TestableDocument doc = new TestableDocument();
@@ -1101,7 +1100,7 @@ public class CompletionTest
             "class A {\n" +            // 0 - 10
             "  public void g() {\n" +   // 10 - 30
             "    int l = new String[]{\"one\",\"two\"}.length;\n" +  //  }.  <-- 68
-            "  }\n" +                   
+            "  }\n" +
             "}\n";
 
         TestableDocument doc = new TestableDocument();
@@ -1129,7 +1128,7 @@ public class CompletionTest
                 "class A {\n" +                // 17 - 27
                 "  public A() {\n" +           // 27 - 42
                 "    class B {\n" +            // 42 - 56
-                "      public B() {\n" +       // 56 - 75 
+                "      public B() {\n" +       // 56 - 75
                 "        C.\n" +               // 75 -     C. <-- 85
                 "      }\n" +
                 "  }\n" +
@@ -1157,7 +1156,7 @@ public class CompletionTest
                 "class A {\n" +            // 0 - 10
                 "  public void g(String ... s) {\n" +   // 10 - 42
                 "    System.out.print(s.length);\n" +  //  s.  <-- 65
-                "  }\n" +                   
+                "  }\n" +
                 "}\n";
 
         TestableDocument doc = new TestableDocument();
@@ -1167,7 +1166,7 @@ public class CompletionTest
 
         ExpressionTypeInfo suggests = aNode.getExpressionType(66, doc);
         assertNotNull(suggests);
-        assertEquals("java.lang.String[]", suggests.getSuggestionType().toString());        
+        assertEquals("java.lang.String[]", suggests.getSuggestionType().toString());
     }
 
     @Test
@@ -1178,9 +1177,9 @@ public class CompletionTest
                 "  Runnable r, b = new Runnable() {\n" +  // 10 - 45
                 "    public void run() {\n" +             // 45 - 69
                 "      c.run();\n" +                      // 69 - 84   c. <- 77
-                "    }\n" +                               // 84 - 90 
+                "    }\n" +                               // 84 - 90
                 "  }, c = new Thread() {;\n" +            // 90 - 115
-                "    public void run() {\n" +             // 115 - 139 
+                "    public void run() {\n" +             // 115 - 139
                 "       b.run();\n" +                     // 139 - 155  b. <- 148
                 "    }\n" +
                 "  };\n" +

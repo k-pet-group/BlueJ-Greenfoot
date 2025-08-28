@@ -9,50 +9,20 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
-import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
+import javafx.stage.Stage;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.testfx.framework.junit.ApplicationTest;
 
 import bluej.stride.framedjava.slots.Operator.Precedence;
 
-public class TestExpressionSlot
+public class TestExpressionSlot extends ApplicationTest
 {
-    // Need to run tests on FX thread:
-    @Rule
-    public TestRule runOnFXThreadRule = new TestRule() {
-        boolean initialised = false;
-        @Override public Statement apply(Statement base, Description d) {
-            if (!initialised)
-            {   
-                // Initialise JavaFX:
-                new JFXPanel();
-                initialised = true;
-            }
-            return new Statement() {
-                @Override public void evaluate() throws Throwable {
-                    // Run on FX thread, rethrow any exceptions back on this thread:
-                    CompletableFuture<Throwable> thrown = new CompletableFuture<>();
-                    Platform.runLater(() -> {
-                      try {
-                        base.evaluate();
-                        thrown.complete(null);
-                      } catch( Throwable throwable ) {
-                        thrown.complete(throwable);
-                      }
-                    });
-                    Throwable t = thrown.get();
-                    if (t != null)
-                        throw t;
-                }
-            };
-        }
-
-    };
+    @Override
+    public void start(Stage stage) throws Exception {
+        super.start(stage);
+        // TestFX handles JavaFX initialization automatically
+    }
 
     // Class to suppress JUnit's clever string-difference display, which gets very confusing for this
     // sort of test:
