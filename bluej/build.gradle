@@ -36,7 +36,7 @@ dependencies {
     testImplementation 'org.hamcrest:hamcrest-library:1.3'
     testImplementation 'org.testfx:testfx-core:4.0.15-alpha'
     testImplementation 'org.testfx:testfx-junit:4.0.15-alpha'
-    testImplementation 'org.testfx:openjfx-monocle:jdk-12.0.1+2'
+    testImplementation 'org.testfx:openjfx-monocle:21.0.2'
 }
 
 compileJava {

@@ -16,6 +16,7 @@ jobs:
           java-package: jdk
           architecture: x64
       - name: Run Xvfb
+        # Note: AWT requires a GUI even when running headless
         run: |
           sudo apt-get update
           sudo apt-get install xvfb icewm
@@ -31,6 +32,6 @@ jobs:
       - name: Build and Test
         env:
           DISPLAY: ":42.0"
-        run: ./gradlew build test -Pheadless=false --info --stacktrace --no-daemon
+        run: ./gradlew build test -Pheadless=true --info --stacktrace --no-daemon
       - name: Check copyright
         run: bash check-copyright.sh
