@@ -148,6 +148,8 @@ public final class FlowActions
             builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.ALT_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-previous-word"));
             builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.ALT_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-next-word"));
 
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCombination.ALT_DOWN), actions.get("delete-previous-word"));
+
             builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.META_DOWN), actions.get("caret-begin-line"));
             builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.META_DOWN), actions.get("caret-end-line"));
             builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.META_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-begin-line"));
@@ -159,6 +161,9 @@ public final class FlowActions
             builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN), actions.get("caret-next-word"));
             builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-previous-word"));
             builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-next-word"));
+
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCombination.CONTROL_DOWN), actions.get("delete-previous-word"));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.DELETE, KeyCombination.CONTROL_DOWN), actions.get("delete-next-word"));
         }
 
         builtInKeymap.put(new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), new FlowAbstractAction("select-all", Category.EDIT)
