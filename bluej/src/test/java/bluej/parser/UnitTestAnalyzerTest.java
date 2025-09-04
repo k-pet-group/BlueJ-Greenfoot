@@ -1,32 +1,37 @@
 /*
- This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ This file is part of the BlueJ program.
+ Copyright (C) 1999-2009  Michael Kolling and John Rosenberg
 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
- This file is subject to the Classpath exception as provided in the  
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.parser;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Test the unit testing parse code.
  *
  * @author  Andrew Patterson
  */
-public class UnitTestAnalyzerTest extends junit.framework.TestCase
+public class UnitTestAnalyzerTest
 {
 	private String testSrc =
 "class IgnoreMe extends junit.framework.TestCase {"             + "\n" + // 1
@@ -40,7 +45,7 @@ public class UnitTestAnalyzerTest extends junit.framework.TestCase
 ""                                                              + "\n" + // 9
 "    /**"                                                       + "\n" + // 10
 "     * Should be ignored because of the parameter"             + "\n" + // 11
-"     */"                                                       + "\n" + // 12 
+"     */"                                                       + "\n" + // 12
 "    protected void setUp(int a)"                               + "\n" + // 13
 "    {"                                                         + "\n" + // 14
 "        for (int i=0; i<10; i++) { ; }"                        + "\n" + // 15
@@ -70,7 +75,8 @@ public class UnitTestAnalyzerTest extends junit.framework.TestCase
      *
      * Called before every test case method.
      */
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         uta = new UnitTestAnalyzer(new java.io.StringReader(testSrc));
     }
@@ -80,13 +86,15 @@ public class UnitTestAnalyzerTest extends junit.framework.TestCase
      *
      * Called after every test case method.
      */
-    protected void tearDown()
+    @After
+    public void tearDown()
     {
     }
 
     /**
      * A sample test case method
      */
+    @Test
     public void testFindingVariables()
     {
        java.util.List<SourceSpan> variables = uta.getFieldSpans();
@@ -108,8 +116,9 @@ public class UnitTestAnalyzerTest extends junit.framework.TestCase
        assertEquals(5, testXXXSpan.getStartColumn());
        assertEquals(24, testXXXSpan.getEndLine());
        assertEquals(27, testXXXSpan.getEndColumn());
-    } 
+    }
 
+    @Test
     public void testFindingMethods()
     {
         SourceSpan setUpSpan = uta.getMethodBlockSpan("setUp");
@@ -127,6 +136,7 @@ public class UnitTestAnalyzerTest extends junit.framework.TestCase
         assertEquals(7, testXXXSpan.getEndColumn());
     }
 
+    @Test
     public void testMethodInsertion()
     {
         SourceLocation insertLocation = uta.getNewMethodInsertLocation();
@@ -135,6 +145,7 @@ public class UnitTestAnalyzerTest extends junit.framework.TestCase
         assertEquals(1, insertLocation.getColumn());
     }
 
+    @Test
     public void testFixtureInsertion()
     {
         SourceLocation insertLocation = uta.getFixtureInsertLocation();

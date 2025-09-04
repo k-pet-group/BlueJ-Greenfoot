@@ -1,27 +1,27 @@
 /*
- This file is part of the BlueJ program. 
+ This file is part of the BlueJ program.
  Copyright (C) 2022,2024  Michael Kolling and John Rosenberg
 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
- This file is subject to the Classpath exception as provided in the  
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.parser;
 
-import bluej.JavaFXThreadingRule;
+
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -47,8 +47,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class SwitchExpressionTest
 {
-    @Rule
-    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+
 
     @BeforeClass
     public static void initConfig()
@@ -74,7 +73,7 @@ public class SwitchExpressionTest
             /*class*/class Foo {/*class-inner*/
                 public enum Day { SUNDAY, MONDAY, TUESDAY,
                                 WEDNESDAY, THURSDAY, FRIDAY, SATURDAY; }
-                             
+
                 /*method*/void method(Day day) {/*method-inner*/
             """ + methodContent +
             """
@@ -134,7 +133,7 @@ public class SwitchExpressionTest
 
         NodeAndPosition<ParsedNode> switchBody = getSwitchBody(p);
 
-        // All the lines in the switch -- case, statements, break -- are all direct children: 
+        // All the lines in the switch -- case, statements, break -- are all direct children:
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
         // Break and throw are ignored, only the expressions get put in the tree:
         assertEquals(Arrays.asList(
@@ -158,7 +157,7 @@ public class SwitchExpressionTest
 
         NodeAndPosition<ParsedNode> switchBody = getSwitchBody(p);
 
-        // Each case is a direct child: 
+        // Each case is a direct child:
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
 
         assertEquals(Arrays.asList(
@@ -183,7 +182,7 @@ public class SwitchExpressionTest
 
         NodeAndPosition<ParsedNode> switchBody = getSwitchBody(p);
 
-        // Each case is a direct child: 
+        // Each case is a direct child:
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
 
         assertEquals(Arrays.asList(
@@ -223,7 +222,7 @@ public class SwitchExpressionTest
         NodeTree.NodeAndPosition<ParsedNode> switchBody = switchContent.get(2);
         assertEquals(p.positionStart("switch-inner"), switchBody.getPosition());
 
-        // All the lines in the switch -- case, statements, break -- are all direct children: 
+        // All the lines in the switch -- case, statements, break -- are all direct children:
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
         // Break and throw are ignored, only the expressions get put in the tree:
         assertEquals(Arrays.asList(
@@ -260,7 +259,7 @@ public class SwitchExpressionTest
         NodeTree.NodeAndPosition<ParsedNode> switchBody = switchContent.get(2);
         assertEquals(p.positionStart("switch-inner"), switchBody.getPosition());
 
-        // All the lines in the switch -- case, statements, break -- are all direct children: 
+        // All the lines in the switch -- case, statements, break -- are all direct children:
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
         // Break and throw are ignored, only the expressions get put in the tree:
         assertEquals(Arrays.asList(
@@ -300,7 +299,7 @@ public class SwitchExpressionTest
         NodeTree.NodeAndPosition<ParsedNode> switchBody = switchContent.get(2);
         assertEquals(p.positionStart("switch-inner"), switchBody.getPosition());
 
-        // All the lines in the switch -- case, statements, break -- are all direct children: 
+        // All the lines in the switch -- case, statements, break -- are all direct children:
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
         // Break and throw are ignored, only the expressions get put in the tree:
         assertEquals(Arrays.asList(
@@ -346,7 +345,7 @@ public class SwitchExpressionTest
         NodeTree.NodeAndPosition<ParsedNode> switchBody = switchContent.get(2);
         assertEquals(p.positionStart("switch-inner"), switchBody.getPosition());
 
-        // All the lines in the switch -- case, statements, break -- are all direct children: 
+        // All the lines in the switch -- case, statements, break -- are all direct children:
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
         // Break and throw are ignored, only the expressions get put in the tree:
         assertEquals(Arrays.asList(
@@ -386,7 +385,7 @@ public class SwitchExpressionTest
         NodeTree.NodeAndPosition<ParsedNode> switchBody = switchContent.get(2);
         assertEquals(p.positionStart("switch-inner"), switchBody.getPosition());
 
-        // Each case is a direct child: 
+        // Each case is a direct child:
         ImmutableList<NodeTree.NodeAndPosition<ParsedNode>> switchBodyContent = ImmutableList.copyOf(switchBody.getNode().getChildren(switchBody.getPosition()));
 
         assertEquals(Arrays.asList(

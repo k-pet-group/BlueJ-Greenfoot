@@ -1,22 +1,22 @@
 /*
- This file is part of the BlueJ program. 
+ This file is part of the BlueJ program.
  Copyright (C) 1999-2009,2010,2011,2013,2014,2016,2019,2022,2024  Michael Kolling and John Rosenberg
 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
- This file is subject to the Classpath exception as provided in the  
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.parser;
@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import bluej.JavaFXThreadingRule;
+
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
@@ -50,8 +50,7 @@ import static org.junit.Assert.*;
  */
 public class BasicParseTest
 {
-    @Rule
-    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+
 
     /**
      * Get a data or result file from our hidden stash..
@@ -86,7 +85,7 @@ public class BasicParseTest
     /**
      * Lots of sample files, none of which should cause exceptions
      * in our parser.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -211,7 +210,7 @@ public class BasicParseTest
         assertEquals("internalWidth internalHeight", paramNames);
 
         /*
-         * Second file - no superclass, multiple interfaces 
+         * Second file - no superclass, multiple interfaces
          */
 
         file = getFile("multi_interface.dat");
@@ -393,7 +392,7 @@ public class BasicParseTest
     @Test
     public void testCommentExtraction3() throws Exception
     {
-        String aSrc = "import java.util.*;\n" 
+        String aSrc = "import java.util.*;\n"
                 + "class A {\n"
                 + "  void method1(List<List<Integer>> a) { }\n"
                 + "}\n";
@@ -500,11 +499,11 @@ public class BasicParseTest
         ClassInfo info = InfoParser.parse(new InputStreamReader(fis), pkgr, "");
 
         List<String> used = info.getUsed();
-        assertTrue(used.contains("I")); 
-        assertTrue(used.contains("J")); 
-        assertTrue(used.contains("K")); 
-        assertTrue(used.contains("L")); 
-        assertTrue(used.contains("M")); 
+        assertTrue(used.contains("I"));
+        assertTrue(used.contains("J"));
+        assertTrue(used.contains("K"));
+        assertTrue(used.contains("L"));
+        assertTrue(used.contains("M"));
     }
 
     /**
@@ -922,7 +921,7 @@ public class BasicParseTest
         String aSrc =
             """
             package com.example.geometry;
-                        
+
             public abstract sealed class Shape
                 permits com.example.polar.Circle,
                         com.example.quad.Rectangle,
@@ -957,19 +956,19 @@ public class BasicParseTest
         String aSrc =
             """
             package com.example.geometry;
-                        
+
             public abstract sealed class Shape
                 permits Circle, Rectangle, Square, WeirdShape { }
-                        
+
             public final class Circle extends Shape { }
-                        
+
             public sealed class Rectangle extends Shape
                 permits TransparentRectangle, FilledRectangle { }
             public final class TransparentRectangle extends Rectangle { }
             public final class FilledRectangle extends Rectangle { }
-                        
+
             public final class Square extends Shape { }
-                        
+
             public non-sealed class WeirdShape extends Shape { }
             """;
 
@@ -985,7 +984,7 @@ public class BasicParseTest
             """
             sealed interface Celestial
                 permits Planet, Star, Comet { }
-                        
+
             final class Planet implements Celestial { }
             final class Star   implements Celestial { }
             final class Comet  implements Celestial { }
@@ -1002,10 +1001,10 @@ public class BasicParseTest
         String aSrc =
             """
             package com.example.expression;
-                        
+
             public sealed interface Expr
                 permits ConstantExpr, PlusExpr, TimesExpr, NegExpr { }
-                        
+
             public final class ConstantExpr implements Expr { }
             public final class PlusExpr     implements Expr { }
             public final class TimesExpr    implements Expr { }
@@ -1023,10 +1022,10 @@ public class BasicParseTest
         String aSrc =
             """
             package com.example.expression;
-                        
+
             public sealed interface Expr
                 permits ConstantExpr, PlusExpr, TimesExpr, NegExpr { }
-                        
+
             public record ConstantExpr(int i)       implements Expr { }
             public record PlusExpr(Expr a, Expr b)  implements Expr { }
             public record TimesExpr(Expr a, Expr b) implements Expr { }
@@ -1344,7 +1343,7 @@ public class BasicParseTest
                  sealed interface I<T> permits A, B {}
                  final class A<X> implements I<String> {}
                  final class B<Y> implements I<Y> {}
-                 
+
                  class Foo {
                      static int testGenericSealedExhaustive(I<Integer> i) {
                          return switch (i) {
@@ -1391,7 +1390,7 @@ public class BasicParseTest
                 """
                 // As of Java 16
                 record Point(int x, int y)
-                {                       
+                {
                     static void printSum(Object obj) {
                         if (obj instanceof Point p) {
                             int x = p.x();
@@ -1399,7 +1398,7 @@ public class BasicParseTest
                             System.out.println(x+y);
                         }
                     }
-                                    
+
                     // As of Java 21
                     static void printSum(Object obj) {
                         if (obj instanceof Point(int x, int y)) {
@@ -1423,21 +1422,21 @@ public class BasicParseTest
                 enum Color { RED, GREEN, BLUE }
                 record ColoredPoint(Point p, Color c) {}
                 record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight)
-                {               
+                {
                     // As of Java 21
                     static void printUpperLeftColoredPoint(Rectangle r) {
                         if (r instanceof Rectangle(ColoredPoint ul, ColoredPoint lr)) {
                              System.out.println(ul.c());
                         }
                     }
-                    
+
                     static void printColorOfUpperLeftPoint(Rectangle r) {
                         if (r instanceof Rectangle(ColoredPoint(Point p, Color c),
                                                    ColoredPoint lr)) {
                             System.out.println(c);
                         }
                     }
-                    
+
                     // As of Java 21
                     static void printXCoordOfUpperLeftPointWithPatterns(Rectangle r) {
                         if (r instanceof Rectangle(ColoredPoint(Point(var x, var y), var c),
@@ -1459,12 +1458,12 @@ public class BasicParseTest
         String aSrc =
                 """
                 record Pair(Object x, Object y) {}
-                 
+
                 class P
                 {
                   {
                     Pair p = new Pair(42, 42);
-                 
+
                     if (p instanceof Pair(String s, String t)) {
                       System.out.println(s + ", " + t);
                     } else {
@@ -1485,7 +1484,7 @@ public class BasicParseTest
         String aSrc =
                 """
                 record MyPair<S,T>(S fst, T snd) {
-                                
+
                     static void recordInference(MyPair<String, Integer> pair){
                         switch (pair) {
                             case MyPair(var f, var s) ->
@@ -1506,13 +1505,13 @@ public class BasicParseTest
         String aSrc =
                 """
                 record Box<T>(T t) {
-                                
+
                     static void test1(Box<Box<String>> bbs) {
                         if (bbs instanceof Box<Box<String>>(Box(var s))) {
                             System.out.println("String " + s);
                         }
                     }
-                    
+
                     static void test2(Box<Box<String>> bbs) {
                         if (bbs instanceof Box(Box(var s))) {
                             System.out.println("String " + s);
@@ -1537,31 +1536,31 @@ public class BasicParseTest
                 final class C implements I {}
                 final class D implements I {}
                 record Pair<T>(T x, T y) {}
-                                        
+
                 class Foo
                 {
                     {
                         Pair<A> p1;
                         Pair<I> p2;
-                                        
+
                         // As of Java 21
                         switch (p1) {                 // Error!
                             case Pair<A>(A a, B b) -> {return;}
                             case Pair<A>(B b, A a) -> {break;}
                         }
-                                        
+
                         // As of Java 21
                         switch (p2) {
                             case Pair<I>(I i, C c) -> {throw new NullPointerException();}
                             case Pair<I>(I i, D d) -> {return;}
                         }
-                                        
+
                         switch (p2) {
                             case Pair<I>(C c, I i) -> {break;}
                             case Pair<I>(D d, C c) -> {break;}
                             case Pair<I>(D d1, D d2) -> {return 2;}
                         }
-                                        
+
                         // As of Java 21
                         switch (p2) {                        // Error!
                             case Pair<I>(C fst, D snd) -> {if (true) {return 7;}}
@@ -1602,7 +1601,7 @@ public class BasicParseTest
         String aSrc =
                 """
                 record MyPair<S,T>(S fst, T snd) {
-                                
+
                     static void recordInference(MyPair<String, Integer> pair){
                         switch (pair) {
                             case MyPair(var f, Integer s):

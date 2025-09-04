@@ -21,6 +21,9 @@
  */
 package bluej.parser;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LineColPos;
@@ -38,10 +41,10 @@ import java.util.Set;
 
 /**
  * Tests for the Java lexer.
- * 
+ *
  * @author Davin McCall
  */
-public class LexerTest extends junit.framework.TestCase
+public class LexerTest
 {
     private TokenStream getLexerFor(String s)
     {
@@ -54,6 +57,7 @@ public class LexerTest extends junit.framework.TestCase
         return JavaParser.getLexer(new StringReader(s));
     }
     
+    @Test
     public void testKeywordParse()
     {
         // Modifiers
@@ -188,6 +192,7 @@ public class LexerTest extends junit.framework.TestCase
         ts = getLexerFor("goto");
     }
     
+    @Test
     public void testSymbols() throws Exception
     {
         TokenStream ts = getLexerFor("+ - = += -= / * /= *= : :: ! ~ @ % %=");
@@ -279,6 +284,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.EQUAL, token.getType());
     }
     
+    @Test
     public void testSymbols2() throws Exception
     {
         // Test symbols in combination
@@ -379,6 +385,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.EOF, token.getType());
     }
     
+    @Test
     public void testIdentifiers() throws Exception
     {
         TokenStream ts = getLexerFor("_abc abc123 def123kjl98 \\u0396XYZ");
@@ -396,6 +403,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals("\u0396XYZ", token.getText());
     }
     
+    @Test
     public void testOther() throws Exception
     {
         TokenStream ts = getLexerFor("\"a string\" an_identifier99 '\\n' 1234 1234l 0.34 .78 01.2 .56f 5.06d 0x1234");
@@ -449,6 +457,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.COMMA, token.getType());
     }
     
+    @Test
     public void testOther2() throws Exception
     {
         // Comments
@@ -505,6 +514,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(1, token.getLine());
     }
     
+    @Test
     public void testOther3() throws Exception
     {
         // String literal with embedded \"
@@ -559,6 +569,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.IDENT, token.getType());
     }
 
+    @Test
     public void testTextBlock()
     {
         TokenStream ts = getLexerFor("\"\"\"\none line text block\"\"\"identifier");
@@ -602,6 +613,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(27, token.getEndColumn());
     }
     
+    @Test
     public void testJava7NumLiterals() throws Exception
     {
         TokenStream ts = getLexerFor("1_000_000 1_000_000_000L 1_2.3_4f 1_2.3_4 1_2e3_4 0x12_34 " +
@@ -631,6 +643,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.NUM_LONG, token.getType());
     }
     
+    @Test
     public void testPositionTracking() throws Exception
     {
         TokenStream ts = getLexerFor("one two three\nfour five six  \n  seven eight nine");
@@ -668,6 +681,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(3, token.getEndColumn());        
     }
     
+    @Test
     public void testPositionTracking2() throws Exception
     {
         // Unicode escape sequences
@@ -704,6 +718,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(13, token.getEndColumn());
     }
     
+    @Test
     public void testPositionTracking3() throws Exception
     {
         // EOF position shouldn't change between reads
@@ -718,6 +733,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(6, token.getColumn());
     }
     
+    @Test
     public void testPositionTracking4() throws Exception
     {
         TokenStream ts = getLexerFor("\"somestring\" +\n    \"another string\";");
@@ -747,6 +763,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(2, token.getEndLine());
     }
 
+    @Test
     public void testPositionTracking5() throws Exception
     {
         // Two possible interpretations:
@@ -795,6 +812,7 @@ public class LexerTest extends junit.framework.TestCase
     }
     
     // Test dealing with hyphenated keywords using a tricky example
+    @Test
     public void testPositionTracking6() throws Exception
     {
         // This should be parsed as (adding spaces to break tokens):
@@ -837,6 +855,7 @@ public class LexerTest extends junit.framework.TestCase
         }
     }
     
+    @Test
     public void testBroken() throws Exception
     {
         // These should have a meaningful return from the lexer
@@ -913,6 +932,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(2, token.getLine());
     }
     
+    @Test
     public void testStressLexer() throws Exception
     {
         Map<Integer,String> tokenMap = new HashMap<Integer,String>();

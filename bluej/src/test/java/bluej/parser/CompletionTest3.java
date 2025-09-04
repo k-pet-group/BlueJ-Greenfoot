@@ -1,27 +1,27 @@
 /*
- This file is part of the BlueJ program. 
+ This file is part of the BlueJ program.
  Copyright (C) 2024  Michael Kolling and John Rosenberg
 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
- This file is subject to the Classpath exception as provided in the  
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.parser;
 
-import bluej.JavaFXThreadingRule;
+
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.ParseUtility.StartEnd;
 import bluej.parser.entity.ClassLoaderResolver;
@@ -52,8 +52,7 @@ import static org.junit.Assert.*;
  */
 public class CompletionTest3
 {
-    @Rule
-    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+
 
     @BeforeClass
     public static void initConfig()
@@ -109,7 +108,7 @@ public class CompletionTest3
      * / * A * / (without spaces) occurs in the source.
      * @param typesAndNamesShouldBeAvailable A list of space-separated types and names (e.g. "int x") which should be available.
      * @param namesShouldNotBeAvailable A list of names which should not be available
-     * @param javaSrc The Java source code                        
+     * @param javaSrc The Java source code
      */
     private void assertNamesAtA(List<String> typesAndNamesShouldBeAvailable, List<String> namesShouldNotBeAvailable, String javaSrc)
     {
@@ -393,7 +392,7 @@ public class CompletionTest3
                 {
                     int field1, field2;
                     Object field3;
-                    
+
                     void foo(int param1)
                     {
                         int var1, var2;
@@ -454,7 +453,7 @@ public class CompletionTest3
                 int x;
                 String y;
                 Object a;
-                
+
                 public Foo(double x, int y, int z)
                 {
                     this.x = (int)x;
@@ -622,7 +621,7 @@ public class CompletionTest3
     public void testSwitchRecordVar7()
     {
         assertNamesAtA(List.of("var a", "var b"), List.of("x", "y"), """
-                record Point(Integer x, Double y) 
+                record Point(Integer x, Double y)
                 {
                     static void foo()
                     {

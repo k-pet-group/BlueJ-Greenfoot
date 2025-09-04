@@ -1,29 +1,29 @@
 /*
- This file is part of the BlueJ program. 
+ This file is part of the BlueJ program.
  Copyright (C) 1999-2009,2010,2012,2013,2014,2015,2016,2019,2022 Michael Kolling and John Rosenberg
 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
- This file is subject to the Classpath exception as provided in the  
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.parser;
 
 import java.util.List;
 
-import bluej.JavaFXThreadingRule;
+
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugmgr.codepad.DeclaredVar;
 import bluej.parser.entity.ClassLoaderResolver;
@@ -42,13 +42,12 @@ import static org.junit.Assert.*;
 
 /**
  * Test that void results are handled correctly by the textpad parser.
- * 
+ *
  * @author Davin McCall
  */
 public class TextParserTest
 {
-    @Rule
-    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+
 
     @BeforeClass
     public static void initConfig()
@@ -152,7 +151,7 @@ public class TextParserTest
         String r = tp.parseCommand("(char) 4");
         assertEquals("char", r);
         r = tp.parseCommand("(byte) 4");
-        assertEquals("byte", r);        
+        assertEquals("byte", r);
         r = tp.parseCommand("(short) 4");
         assertEquals("short", r);
         r = tp.parseCommand("(int) 4");
@@ -175,7 +174,7 @@ public class TextParserTest
         String r = tp.parseCommand("(char) -4");
         assertEquals("char", r);
         r = tp.parseCommand("(byte) -4");
-        assertEquals("byte", r);        
+        assertEquals("byte", r);
         r = tp.parseCommand("(short) -4");
         assertEquals("short", r);
         r = tp.parseCommand("(int) -4");
@@ -282,7 +281,7 @@ public class TextParserTest
         TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("new javax.swing.Box.Filler(null, null, null)");
         assertEquals("javax.swing.Box.Filler", r);
-    } 
+    }
 
     @Test
     public void testCastToWildcard()
@@ -554,7 +553,7 @@ public class TextParserTest
 
         String r = tp.parseCommand("Lala.a++");
         assertEquals("long", r);
-        r = tp.parseCommand("Lala.a--");        
+        r = tp.parseCommand("Lala.a--");
         assertEquals("long", r);
         r = tp.parseCommand("++Lala.a");
         assertEquals("long", r);
@@ -969,11 +968,11 @@ public class TextParserTest
 
         TextAnalyzer tp = new TextAnalyzer(res, "xyz", objectBench);
 
-        String r = tp.parseCommand("46");        
+        String r = tp.parseCommand("46");
         assertEquals("int", r);
         tp.confirmCommand();
 
-        r = tp.parseCommand("new Lala()");        
+        r = tp.parseCommand("new Lala()");
         assertEquals("xyz.Lala", r);
         tp.confirmCommand();
 
@@ -991,7 +990,7 @@ public class TextParserTest
 
         r = tp.parseCommand("(new Nana()).bar()");
         assertEquals("int", r);
-        tp.confirmCommand();     
+        tp.confirmCommand();
     }
 
     @Test
@@ -1012,7 +1011,7 @@ public class TextParserTest
 
         String r = tp.parseCommand("new Lala().method((Runnable) null)");
         assertEquals("int", r);
-        r = tp.parseCommand("new Lala().method(new Thread())");        
+        r = tp.parseCommand("new Lala().method(new Thread())");
         assertEquals("float", r);
     }
 
@@ -1034,7 +1033,7 @@ public class TextParserTest
 
         String r = tp.parseCommand("new Lala().method((Runnable) null)");
         assertEquals("int", r);
-        r = tp.parseCommand("new Lala().method(new Thread())");        
+        r = tp.parseCommand("new Lala().method(new Thread())");
         assertEquals("int", r);
     }
 
