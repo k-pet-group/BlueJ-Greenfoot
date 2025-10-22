@@ -1659,7 +1659,7 @@ public class KotlinParser implements ParserBehavior
     private boolean processGetterOrSetter(LocatableToken token, boolean isVal) {
         boolean isGetter = at(token, "get");
         if (!isGetter && isVal) {
-            error("Val property cannot have setter");
+            error("Val property cannot have setterName");
             return false;
         }
         token = getTokenStream().nextToken();
@@ -1667,7 +1667,7 @@ public class KotlinParser implements ParserBehavior
             return false;
         token = getTokenStream().nextToken();
         if(!isGetter && at(token, IDENT))
-            token = getTokenStream().nextToken(); // skip setter parameter
+            token = getTokenStream().nextToken(); // skip setterName parameter
         if(endDeclWithErrorUnlessAt(token, RPAREN, "Expected ')'"))
             return false;
         token = getTokenStream().nextToken();

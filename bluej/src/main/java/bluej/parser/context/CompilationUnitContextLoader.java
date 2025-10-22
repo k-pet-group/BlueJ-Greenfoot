@@ -25,7 +25,12 @@ package bluej.parser.context;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.Project;
 import javafx.application.Platform;
+import kotlin.metadata.jvm.KotlinClassMetadata;
 import org.jetbrains.annotations.NotNull;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Opcodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -34,6 +39,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -122,7 +128,7 @@ public class CompilationUnitContextLoader implements AutoCloseable {
 
         return context != null
             ? context
-            : CompilationUnitContext.readOnly(qualifiedName);
+            : new JavaContext(qualifiedName, List.of(), List.of());
     }
 
 
@@ -162,6 +168,28 @@ public class CompilationUnitContextLoader implements AutoCloseable {
     private CompilationUnitContext resolveFromResources(ClassLoader loader, String qualifiedName) {
         Path resourcePath = constructContextFilePath(qualifiedName);
 
+//        URL resource = loader.getResource(resourcePath.toString());
+
+        // Try Kotlin metadata detection if .class file exists
+        try {
+            URL resource = loader.getResource(resourcePath.toString().replace(".ctxt", ".class"));
+
+            KotlinClassMetadata metadata = KotlinMetadataReader.readMetadata(new File(resource.getFile()));
+
+            if (metadata != null) {
+                // Kotlin class detected - use KotlinContextFactory
+                return KotlinContextFactory.fromMetadata(qualifiedName, metadata);
+            }
+        } catch (IOException e) {
+            // Metadata read failed - fall through to Java .ctxt loading
+            // This is expected for Java classes or corrupted Kotlin metadata
+        } catch (Exception e) {
+            // Unexpected error during Kotlin metadata processing
+            // Log and fall through to Java .ctxt loading for resilience
+            System.err.println("Warning: Kotlin metadata processing failed for " +
+                    qualifiedName + ": " + e.getMessage());
+        }
+
         URL resource = loader.getResource(resourcePath.toString());
 
         return (resource != null)
@@ -187,18 +215,52 @@ public class CompilationUnitContextLoader implements AutoCloseable {
 
 
     /**
-     * Resolves the given class FQDN against BlueJ project roots
-     * 
+     * Resolves the given class FQDN against BlueJ project roots with automatic language detection.
+     *
+     * <p>This method implements the language detection strategy:
+     * <ol>
+     *   <li>Check for .class file existence</li>
+     *   <li>If found, attempt to read Kotlin metadata from bytecode</li>
+     *   <li>If Kotlin metadata present, create KotlinContext via KotlinContextFactory</li>
+     *   <li>If no Kotlin metadata, fall back to Java .ctxt file loading</li>
+     * </ol>
+     *
      * @param qualifiedName the FQDN of the class to resolve
-     * 
+     *
      * @return a compilation unit context for this class, or null if not present
      */
     private CompilationUnitContext resolveFromPackageRoot(@NotNull String qualifiedName) {
-        Path resourcePath = constructContextFilePath(qualifiedName);
-        Path path = getPackageRoot().resolve(resourcePath);
+        // Construct paths for .class and .ctxt files
+        String[] elements = qualifiedName.split("\\.");
+        elements[elements.length - 1] += ".class";
+        Path classFilePath = getPackageRoot().resolve(Paths.get("", elements));
 
-        return (Files.exists(path))
-            ? loadContextFromFile(path.toFile(), qualifiedName)
+        // Try Kotlin metadata detection if .class file exists
+        if (Files.exists(classFilePath)) {
+            try {
+                KotlinClassMetadata metadata = KotlinMetadataReader.readMetadata(classFilePath);
+                
+                if (metadata != null) {
+                    // Kotlin class detected - use KotlinContextFactory
+                    return KotlinContextFactory.fromMetadata(qualifiedName, metadata);
+                }
+            } catch (IOException e) {
+                // Metadata read failed - fall through to Java .ctxt loading
+                // This is expected for Java classes or corrupted Kotlin metadata
+            } catch (Exception e) {
+                // Unexpected error during Kotlin metadata processing
+                // Log and fall through to Java .ctxt loading for resilience
+                System.err.println("Warning: Kotlin metadata processing failed for " +
+                    qualifiedName + ": " + e.getMessage());
+            }
+        }
+
+        // No Kotlin metadata or .class file not found - try Java .ctxt file
+        Path ctxtPath = constructContextFilePath(qualifiedName);
+        Path ctxtFile = getPackageRoot().resolve(ctxtPath);
+
+        return Files.exists(ctxtFile)
+            ? loadContextFromFile(ctxtFile.toFile(), qualifiedName)
             : null;
     }
 
@@ -228,23 +290,22 @@ public class CompilationUnitContextLoader implements AutoCloseable {
     @NotNull public CompilationUnitContext updateContextFromClassInfo(@NotNull String qualifiedName, @NotNull ClassInfo info) {
         // Extract ClassInfo data first (handles FX thread requirements)
         ClassInfoData data = extractClassInfoData(info);
-        CompilationUnitContext context = CompilationUnitContext.readOnly(data.className);
         Path contextFilePath = constructContextFilePath(qualifiedName);
 
         try {
-            File contextFile = contextFilePath.toFile();
-
-            context.setComments(PropertyContextFormat.fromProperties(data.comments));
-
+            // Create JavaContext from Properties
+            JavaContext context = PropertyContextFormat.fromProperties(data.className, data.comments);
+            
+            File contextFile = getPackageRoot().resolve(contextFilePath).toFile();
             PropertyContextFormat.writeToFile(context, contextFile);
+            
+            // Invalidate cache entry so subsequent lookups reload the updated data
+            evictFromCache(qualifiedName);
+            
+            return context;
         } catch (IOException ioe) {
             throw new UncheckedIOException("Could not write context for " + contextFilePath, ioe);
         }
-
-        // Invalidate cache entry so subsequent lookups reload the updated data
-        evictFromCache(qualifiedName);
-
-        return context;
     }
 
 

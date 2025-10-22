@@ -68,25 +68,28 @@ public class CompilationUnitContextTest {
             oldProps.store(out, "BlueJ class context");
         }
         
-        // Read it using CompilationUnitContext
-        CompilationUnitContext context = PropertyContextFormat.fromFile("TestClass", testCtxtFile);
+        // Read it using PropertyContextFormat
+        JavaContext context = PropertyContextFormat.fromFile("TestClass", testCtxtFile);
 
         assertNotNull("Context should not be null", context);
 
-        // Verify the data was loaded correctly
-        assertEquals("Should have 2 comments", 2, context.getComments().size());
+        // Verify the data was loaded correctly (2 methods)
+        assertEquals("Should have 2 methods", 2, context.methods().size());
         
-        CommentEntry entry0 = context.getComments().get(0);
-        assertEquals("void test()", entry0.getTarget());
-        assertEquals("Test method", entry0.getText());
-        assertEquals(0, entry0.getParamNames().size());
+        MethodMetadata method0 = context.methods().get(0);
+        assertEquals("test", method0.name());
+        assertEquals("void test()", method0.signature());
+        assertEquals("Test method", method0.documentation().orElse(""));
+        assertEquals(0, method0.parameters().size());
         
-        CommentEntry entry1 = context.getComments().get(1);
-        assertEquals("TestClass(int,String)", entry1.getTarget());
-        assertEquals("Constructor", entry1.getText());
-        assertEquals(2, entry1.getParamNames().size());
-        assertEquals("value", entry1.getParamNames().get(0));
-        assertEquals("name", entry1.getParamNames().get(1));
+        MethodMetadata method1 = context.methods().get(1);
+        assertEquals("TestClass", method1.name());
+        assertEquals("TestClass(int,String)", method1.signature());
+        assertEquals("Constructor", method1.documentation().orElse(""));
+        assertEquals(2, method1.parameters().size());
+        // Parameter format is "type name"
+        assertTrue("First param should contain 'value'", method1.parameters().get(0).contains("value"));
+        assertTrue("Second param should contain 'name'", method1.parameters().get(1).contains("name"));
     }
     
     /**
@@ -95,15 +98,27 @@ public class CompilationUnitContextTest {
      */
     @Test
     public void testBackwardsCompatibilityWrite() throws IOException {
-        // Create context with data
-        CompilationUnitContext context = CompilationUnitContext.writable("TestClass", testCtxtFile);
-        context.addComment(new CommentEntry(
-            "void test()", "Test method"));
-        context.addComment(new CommentEntry(
-            "TestClass(int,String)", "Constructor", 
-            Arrays.asList("value", "name")));
+        // Create context with data using new API
+        List<MethodMetadata> methods = Arrays.asList(
+            new MethodMetadata(
+                "test",
+                "void test()",
+                "void",
+                List.of(),
+                Optional.of("Test method")
+            ),
+            new MethodMetadata(
+                "TestClass",
+                "TestClass(int,String)",
+                "TestClass",
+                Arrays.asList("int value", "String name"),
+                Optional.of("Constructor")
+            )
+        );
         
-        // Save using CompilationUnitContext
+        JavaContext context = new JavaContext("TestClass", methods, List.of());
+        
+        // Save using PropertyContextFormat
         PropertyContextFormat.writeToFile(context, testCtxtFile);
         
         // Read it back using old Properties method
@@ -129,11 +144,11 @@ public class CompilationUnitContextTest {
         File emptyFile = File.createTempFile("empty", ".ctxt");
         emptyFile.deleteOnExit();
         
-        CompilationUnitContext context = PropertyContextFormat.fromFile("TestClass", emptyFile);
+        JavaContext context = PropertyContextFormat.fromFile("TestClass", emptyFile);
 
         assertNotNull("Context should not be null", context);
-        assertTrue("Should have no comments", context.isEmpty());
-        assertEquals(0, context.getComments().size());
+        assertEquals("Should have no methods", 0, context.methods().size());
+        assertEquals("Should have no fields", 0, context.fields().size());
     }
     
     /**
@@ -143,8 +158,8 @@ public class CompilationUnitContextTest {
     public void testNonExistentFile() throws IOException {
         File nonExistent = new File("non_existent_file.ctxt");
         
-        CompilationUnitContext context = PropertyContextFormat.fromFile("TestClass", nonExistent);
+        JavaContext context = PropertyContextFormat.fromFile("TestClass", nonExistent);
 
-        assertNull("Context should be null", context);
+        assertNull("Context should be null for non-existent file", context);
     }
 }

@@ -8,8 +8,10 @@ import java.util.List;
 /**
  * Represents a single comment entry (method, field, constructor, etc.)
  * Each entry contains a target signature, documentation text, and optional parameter names.
+ *
+ * <p>Package-private - internal to .ctxt file parsing implementation.
  */
-public class CommentEntry {
+class CommentEntry {
     // Method/field signature
     @NotNull
     private final String target;

@@ -74,9 +74,14 @@ public class CompilationUnitContextLoaderTest {
         CompilationUnitContext context = loader.contextForClass("example.app.Sample");
 
         assertNotNull("Context should not be null", context);
-        assertEquals("Expected one comment", 1, context.getComments().size());
-        assertEquals("void greet()", context.getComments().get(0).getTarget());
-        assertEquals("Greets the user", context.getComments().get(0).getText());
+        
+        // Verify it's a JavaContext with correct data
+        assertTrue("Should be JavaContext", context instanceof JavaContext);
+        JavaContext javaContext = (JavaContext) context;
+        assertEquals("Expected one method", 1, javaContext.methods().size());
+        assertEquals("greet", javaContext.methods().get(0).name());
+        assertEquals("void greet()", javaContext.methods().get(0).signature());
+        assertEquals("Greets the user", javaContext.methods().get(0).documentation().orElse(""));
 
         // Cached access should return the same instance when caching is enabled
         assertSame("Context should be cached", context, loader.contextForClass("example.app.Sample"));
@@ -113,9 +118,13 @@ public class CompilationUnitContextLoaderTest {
 
         CompilationUnitContext context = loader.contextForClass("cache.demo.List");
         assertNotNull("Context should be loaded from resource", context);
-        assertEquals(1, context.getComments().size());
-        assertEquals("int size()", context.getComments().get(0).getTarget());
-        assertEquals("Returns size", context.getComments().get(0).getText());
+        
+        assertTrue("Should be JavaContext", context instanceof JavaContext);
+        JavaContext javaContext = (JavaContext) context;
+        assertEquals(1, javaContext.methods().size());
+        assertEquals("size", javaContext.methods().get(0).name());
+        assertEquals("int size()", javaContext.methods().get(0).signature());
+        assertEquals("Returns size", javaContext.methods().get(0).documentation().orElse(""));
 
         // Ensure caching uses resource key (second call should reuse instance)
         assertSame(context, loader.contextForClass("cache.demo.List"));
@@ -170,9 +179,13 @@ public class CompilationUnitContextLoaderTest {
 
             CompilationUnitContext context = loader.contextForClass(clazz);
             assertNotNull(context);
-            assertEquals(1, context.getComments().size());
-            assertEquals("void ping()", context.getComments().get(0).getTarget());
-            assertEquals("Ping method", context.getComments().get(0).getText());
+            
+            assertTrue("Should be JavaContext", context instanceof JavaContext);
+            JavaContext javaContext = (JavaContext) context;
+            assertEquals(1, javaContext.methods().size());
+            assertEquals("ping", javaContext.methods().get(0).name());
+            assertEquals("void ping()", javaContext.methods().get(0).signature());
+            assertEquals("Ping method", javaContext.methods().get(0).documentation().orElse(""));
         }
     }
 }

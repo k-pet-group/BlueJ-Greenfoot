@@ -463,7 +463,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     public static void createMethodMenuItems(ObservableList<MenuItem> menu, Project project, Class<?> cl, InvokeListener il,
                                              String currentPackageName, boolean showObjectMethods)
     {
-        GenTypeClass gt = new GenTypeClass(new JavaReflective(cl));
+        GenTypeClass gt = new GenTypeClass(JavaReflective.getReflective(cl, project));
         createMethodMenuItems(menu, project, cl, gt, il, currentPackageName, showObjectMethods);
     }
 
@@ -498,7 +498,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
             // create method entries for locally declared methods
             GenTypeClass curType = gtype;
             if (curType == null) {
-                curType = new GenTypeClass(new JavaReflective(cl));
+                curType = new GenTypeClass(JavaReflective.getReflective(cl, project));
             }
 
             // HACK to make it work in greenfoot.

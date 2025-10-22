@@ -27,9 +27,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import bluej.debugger.gentype.GenTypeDeclTpar;
-import bluej.parser.context.CommentEntry;
-import bluej.parser.context.CompilationUnitContext;
-import bluej.parser.context.CompilationUnitContextLoader;
+import bluej.parser.context.*;
 import bluej.pkgmgr.Project;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaUtils;
@@ -340,22 +338,55 @@ public class View
     public MethodView[] getDeclaredMethods()
     {
         if(methods == null) {
+            var context2 = this.project.contextForClass(cl);
+
             int count = 0;
             try {
                 Method[] cl_methods = cl.getDeclaredMethods();
 
                 for(int i = 0; i < cl_methods.length; i++) {
-                    if (!cl_methods[i].isSynthetic()) {
-                        count++;
+                    var method = cl_methods[i];
+                    if (method.isSynthetic()) {
+                        continue;
                     }
+                    // TODO: very basic example of ignoring Kotlin setter methods
+                    switch (context2) {
+                        case KotlinContext context -> {
+                            var isPropMethod = context.properties().stream().anyMatch(prop ->
+                                   prop.getterName().map(name -> name.equals(method.getName())).orElse(false)
+                                || prop.setterName().map(name -> name.equals(method.getName())).orElse(false)
+                            );
+
+                            if (isPropMethod) {
+                                continue;
+                            }
+                        }
+                        default -> {}
+                    }
+                    count++;
                 }
                 methods = new MethodView[count];
 
                 count = 0;
                 for(int i = 0; i < cl_methods.length; i++) {
-                    if (!cl_methods[i].isSynthetic()) {
+                    var method = cl_methods[i];
+
+                    switch (context2) {
+                        case KotlinContext context -> {
+                            var isPropMethod = context.properties().stream().anyMatch(prop ->
+                                    prop.getterName().map(name -> name.equals(method.getName())).orElse(false)
+                                            || prop.setterName().map(name -> name.equals(method.getName())).orElse(false)
+                            );
+
+                            if (isPropMethod) {
+                                continue;
+                            }
+                        }
+                        default -> {}
+                    }
+                    if (!method.isSynthetic()) {
                         try {
-                            methods[count] = new MethodView(this, cl_methods[i]);
+                            methods[count] = new MethodView(this, method);
                         }
                         catch (Throwable t) {
                             t.printStackTrace();
@@ -455,7 +486,7 @@ public class View
 
     protected void loadClassComments(View curview, Map<String,MemberView> table)
     {
-        // move up to the superclass first, so that redefinied comments override
+        // move up to the superclass first, so that redefined comments override
         if(curview.getSuper() != null)
             loadClassComments(curview.getSuper(), table);
 
@@ -464,28 +495,84 @@ public class View
             // handles different classloaders for each class in the hierarchy
             CompilationUnitContext context = this.project.contextForClass(curview.cl);
             
-            // Match up the comments with the members of this view
-            for (CommentEntry entry : context.getComments()) {
-                String target = entry.getTarget();
-
-                if (target.startsWith("class ") || target.startsWith("interface ")) {
-                    // We only want to set a class comment on our base class, not for our supers
-                    if (curview == this) {
-                        // Convert CommentEntry to Comment for backward compatibility
-                        Comment c = convertToComment(entry);
-                        setComment(c);
+            // Pattern match to handle JavaContext (Phase 2 - KotlinContext in Phase 3)
+            switch (context) {
+                case JavaContext javaCtx -> {
+                    // Match methods by signature
+                    for (MethodMetadata method : javaCtx.methods()) {
+                        MemberView m = table.get(method.signature());
+                        if (m != null) {
+                            method.documentation().ifPresent(doc -> {
+                                Comment c = createComment(method.signature(), doc, method.parameters());
+                                m.setComment(c);
+                            });
+                        }
                     }
-                    continue;
+                    
+                    // Match fields by name
+                    for (FieldMetadata field : javaCtx.fields()) {
+                        MemberView m = table.get(field.name());
+                        if (m != null) {
+                            field.documentation().ifPresent(doc -> {
+                                Comment c = createComment(field.name(), doc, List.of());
+                                m.setComment(c);
+                            });
+                        }
+                    }
                 }
-
-                MemberView m = table.get(target);
-
-                if (m != null) {
-                    // Convert CommentEntry to Comment for backward compatibility
-                    Comment c = convertToComment(entry);
-                    m.setComment(c);
+                case KotlinContext kotlinCtx -> {
+                    // Phase 5: Handle Kotlin properties with display methods
+                    // Properties appear in UI using getterDisplay() and setterDisplay()
+                    for (PropertyMetadata property : kotlinCtx.properties()) {
+                        // Match getterName using getterSignature if available
+                        if (property.getterSignature().isPresent()) {
+                            String getterSig = property.getterSignature().get();
+                            MemberView m = table.get(getterSig);
+                            if (m != null) {
+                                property.documentation().ifPresent(doc -> {
+                                    // Use getterDisplay() for UI - just the property name
+                                    Comment c = createComment(property.getterDisplay(), doc, List.of());
+                                    m.setComment(c);
+                                });
+                            }
+                        }
+                        
+                        // Match setterName using setterSignature if available
+                        if (property.setterSignature().isPresent()) {
+                            String setterSig = property.setterSignature().get();
+                            MemberView m = table.get(setterSig);
+                            if (m != null) {
+                                property.documentation().ifPresent(doc -> {
+                                    // Use setterDisplay() for UI - property name with " ="
+                                    Comment c = createComment(property.setterDisplay(), doc, List.of());
+                                    m.setComment(c);
+                                });
+                            }
+                        }
+                    }
+                    
+                    // Also handle regular methods that aren't properties
+                    for (MethodMetadata method : kotlinCtx.methods()) {
+                        MemberView m = table.get(method.signature());
+                        if (m != null) {
+                            method.documentation().ifPresent(doc -> {
+                                Comment c = createComment(method.signature(), doc, method.parameters());
+                                m.setComment(c);
+                            });
+                        }
+                    }
+                    
+                    // Handle fields (backing fields in Kotlin)
+                    for (FieldMetadata field : kotlinCtx.fields()) {
+                        MemberView m = table.get(field.name());
+                        if (m != null) {
+                            field.documentation().ifPresent(doc -> {
+                                Comment c = createComment(field.name(), doc, List.of());
+                                m.setComment(c);
+                            });
+                        }
+                    }
                 }
-                // Removed debug messages for cleaner code
             }
 
         } catch (Exception e) {
@@ -495,26 +582,36 @@ public class View
     }
     
     /**
-     * Converts a CompilationUnitContext.CommentEntry to a Comment object
-     * for backward compatibility with existing code.
+     * Creates a Comment object from metadata.
+     * Converts structured metadata to the Comment format expected by the UI.
      *
-     * @param entry The CommentEntry to convert
-     * @return A Comment object with the same data
+     * @param target The target signature (method signature or field name)
+     * @param documentation The documentation text
+     * @param parameters The parameter list (for methods)
+     * @return A Comment object
      */
-    private Comment convertToComment(CommentEntry entry)
+    private Comment createComment(String target, String documentation, List<String> parameters)
     {
         Comment comment = new Comment();
         
         // Build a Properties object to use the existing Comment.load() method
         Properties props = new Properties();
-        props.setProperty(".target", entry.getTarget());
+        props.setProperty(".target", target);
+        props.setProperty(".text", documentation);
         
-        if (entry.getText() != null) {
-            props.setProperty(".text", entry.getText());
-        }
-        
-        if (!entry.getParamNames().isEmpty()) {
-            props.setProperty(".params", String.join(" ", entry.getParamNames()));
+        if (!parameters.isEmpty()) {
+            // Extract parameter names from "type name" format
+            String paramNames = parameters.stream()
+                .map(param -> {
+                    String[] parts = param.split("\\s+");
+                    return parts.length > 1 ? parts[1] : parts[0];
+                })
+                .reduce((a, b) -> a + " " + b)
+                .orElse("");
+            
+            if (!paramNames.isEmpty()) {
+                props.setProperty(".params", paramNames);
+            }
         }
         
         comment.load(props, "");

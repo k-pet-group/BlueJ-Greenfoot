@@ -372,7 +372,7 @@ public class KotlinEditorParserTest
         nap = nap.getNode().findNodeAt(16, nap.getPosition());
         nap = nap.getNode().findNodeAt(16, nap.getPosition());
         assertTrue("Property declaration node must be FieldNode", nap.getNode() instanceof FieldNode);
-        assertEquals("Propery declaration node must include both getter and setter", 80-16+1, nap.getSize());
+        assertEquals("Propery declaration node must include both getterName and setterName", 80-16+1, nap.getSize());
     }
 
     @Test
@@ -486,7 +486,7 @@ public class KotlinEditorParserTest
         nap = nap.getNode().findNodeAt(17, nap.getPosition());
         nap = nap.getNode().findNodeAt(17, nap.getPosition());
         assertTrue("Property declaration node must be FieldNode", nap.getNode() instanceof FieldNode);
-        assertEquals("Propery declaration node must include both getter and setter", 148-17+1, nap.getSize());
+        assertEquals("Propery declaration node must include both getterName and setterName", 148-17+1, nap.getSize());
     }
 
 }

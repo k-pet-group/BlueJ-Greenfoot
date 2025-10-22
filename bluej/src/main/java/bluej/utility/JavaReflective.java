@@ -42,12 +42,15 @@ import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
+import bluej.parser.context.CompilationUnitContext;
+import bluej.parser.context.KotlinContext;
+import bluej.pkgmgr.Project;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A reflective for GenTypeClass which uses the standard java reflection API.  
- * 
+ * A reflective for GenTypeClass which uses the standard java reflection API.
+ *
  * @author Davin McCall
  */
 public class JavaReflective extends Reflective
@@ -75,6 +78,40 @@ public class JavaReflective extends Reflective
         if (c == null)
             throw new NullPointerException();
         this.c = c;
+    }
+
+    /**
+     * Factory method to create the appropriate Reflective implementation for a class.
+     *
+     * <p>If the class is a Kotlin class (has Kotlin metadata available), returns a
+     * KotlinReflective. Otherwise, returns a JavaReflective.
+     *
+     * @param c The class to create a Reflective for
+     * @param project The project context (used to access Kotlin metadata)
+     * @return A Reflective instance (KotlinReflective or JavaReflective)
+     * @throws NullPointerException if c is null
+     */
+    public static Reflective getReflective(Class<?> c, Project project)
+    {
+        if (c == null) {
+            throw new NullPointerException();
+        }
+        
+        // Try to get Kotlin metadata context
+        if (project != null) {
+            try {
+                CompilationUnitContext context = project.contextForClass(c);
+                if (context instanceof KotlinContext) {
+                    return new KotlinReflective(c, (KotlinContext) context);
+                }
+            } catch (Exception e) {
+                // If we can't get Kotlin context, fall back to Java reflection
+                Debug.message("Could not get Kotlin context for " + c.getName() + ": " + e.getMessage());
+            }
+        }
+        
+        // Default to Java reflection
+        return new JavaReflective(c);
     }
 
     @Override

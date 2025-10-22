@@ -84,38 +84,33 @@ public class CtxtFileCompatibilityTest {
             writer.write(actualBlueJContent);
         }
         
-        // Load using CompilationUnitContext
-        CompilationUnitContext context = PropertyContextFormat.fromFile("TestClass", testCtxtFile);
+        // Load using PropertyContextFormat
+        JavaContext context = PropertyContextFormat.fromFile("TestClass", testCtxtFile);
 
         assertNotNull("Context should not be null", context);
         
-        // Verify all comments were loaded correctly
-        assertEquals("Should have 4 comments", 4, context.getComments().size());
+        // Verify all metadata was loaded correctly (4 total: 3 methods + 0 fields, ignoring class comment)
+        // Note: Class comments are not stored in metadata records
+        assertEquals("Should have 3 methods", 3, context.methods().size());
         
-        // Verify class comment
-        CommentEntry classComment = context.getComments().get(0);
-        assertEquals("TestClass", classComment.getTarget());
-        assertTrue("Class comment should contain description", 
-            classComment.getText().contains("sample class for testing"));
-        
-        // Verify constructor comment
-        CommentEntry constructorComment = context.getComments().get(1);
-        assertEquals("TestClass(int, int)", constructorComment.getTarget());
-        assertEquals(2, constructorComment.getParamNames().size());
-        assertEquals("x", constructorComment.getParamNames().get(0));
-        assertEquals("y", constructorComment.getParamNames().get(1));
+        // Verify constructor (first method in the list after parsing)
+        MethodMetadata constructor = context.methods().get(0);
+        assertEquals("TestClass", constructor.name());
+        assertEquals("TestClass(int, int)", constructor.signature());
+        assertEquals(2, constructor.parameters().size());
         assertTrue("Constructor comment should contain param descriptions",
-            constructorComment.getText().contains("x coordinate"));
+            constructor.documentation().orElse("").contains("x coordinate"));
         
         // Verify method comments
-        CommentEntry method1 = context.getComments().get(2);
-        assertEquals("int sampleMethod()", method1.getTarget());
-        assertEquals(0, method1.getParamNames().size());
+        MethodMetadata method1 = context.methods().get(1);
+        assertEquals("sampleMethod", method1.name());
+        assertEquals("int sampleMethod()", method1.signature());
+        assertEquals(0, method1.parameters().size());
         
-        CommentEntry method2 = context.getComments().get(3);
-        assertEquals("int anotherMethod(int)", method2.getTarget());
-        assertEquals(1, method2.getParamNames().size());
-        assertEquals("y", method2.getParamNames().get(0));
+        MethodMetadata method2 = context.methods().get(2);
+        assertEquals("anotherMethod", method2.name());
+        assertEquals("int anotherMethod(int)", method2.signature());
+        assertEquals(1, method2.parameters().size());
     }
     
     /**
@@ -123,49 +118,45 @@ public class CtxtFileCompatibilityTest {
      */
     @Test
     public void testWriteCorrectFormat() throws IOException {
-        // Create a context with typical BlueJ content
-        CompilationUnitContext context = CompilationUnitContext.writable("MyClass", testCtxtFile);
+        // Create a context with typical BlueJ content using new API
+        List<MethodMetadata> methods = Arrays.asList(
+            new MethodMetadata(
+                "MyClass",
+                "MyClass(String, int)",
+                "MyClass",
+                Arrays.asList("String name", "int value"),
+                Optional.of("Constructor for MyClass\n" +
+                           "@param name The name of the object\n" +
+                           "@param value The initial value\n")
+            ),
+            new MethodMetadata(
+                "doSomething",
+                "void doSomething()",
+                "void",
+                List.of(),
+                Optional.of("Method that performs an action")
+            ),
+            new MethodMetadata(
+                "getName",
+                "String getName()",
+                "String",
+                List.of(),
+                Optional.of("Returns the name of this object\n@return the name")
+            ),
+            new MethodMetadata(
+                "validate",
+                "boolean validate(String, int, boolean)",
+                "boolean",
+                Arrays.asList("String input", "int threshold", "boolean strict"),
+                Optional.of("Validates the object state\n" +
+                           "@param input The input to validate\n" +
+                           "@param threshold The threshold value\n" +
+                           "@param strict Whether to use strict validation\n" +
+                           "@return true if valid, false otherwise")
+            )
+        );
         
-        // Add class comment
-        context.addComment(new CommentEntry(
-            "MyClass",
-            "MyClass represents a sample object in BlueJ.\n" +
-            "This is a multi-line comment that explains the class.\n",
-            Collections.emptyList()
-        ));
-        
-        // Add constructor comment
-        context.addComment(new CommentEntry(
-            "MyClass(String, int)",
-            "Constructor for MyClass\n" +
-            "@param name The name of the object\n" +
-            "@param value The initial value\n",
-            Arrays.asList("name", "value")
-        ));
-        
-        // Add method comments
-        context.addComment(new CommentEntry(
-            "void doSomething()",
-            "Method that performs an action",
-            Collections.emptyList()
-        ));
-        
-        context.addComment(new CommentEntry(
-            "String getName()",
-            "Returns the name of this object\n" +
-            "@return the name",
-            Collections.emptyList()
-        ));
-        
-        context.addComment(new CommentEntry(
-            "boolean validate(String, int, boolean)",
-            "Validates the object state\n" +
-            "@param input The input to validate\n" +
-            "@param threshold The threshold value\n" +
-            "@param strict Whether to use strict validation\n" +
-            "@return true if valid, false otherwise",
-            Arrays.asList("input", "threshold", "strict")
-        ));
+        JavaContext context = new JavaContext("MyClass", methods, List.of());
         
         // Save the context
         PropertyContextFormat.writeToFile(context, testCtxtFile);
@@ -176,28 +167,24 @@ public class CtxtFileCompatibilityTest {
             props.load(in);
         }
         
-        // Verify the Properties format
-        assertEquals("5", props.getProperty("numComments"));
-        
-        // Check class comment
-        assertEquals("MyClass", props.getProperty("comment0.target"));
-        assertNotNull(props.getProperty("comment0.text"));
+        // Verify the Properties format (4 comments now, no class comment)
+        assertEquals("4", props.getProperty("numComments"));
         
         // Check constructor
-        assertEquals("MyClass(String, int)", props.getProperty("comment1.target"));
-        assertEquals("name value", props.getProperty("comment1.params"));
-        assertNotNull(props.getProperty("comment1.text"));
+        assertEquals("MyClass(String, int)", props.getProperty("comment0.target"));
+        assertEquals("name value", props.getProperty("comment0.params"));
+        assertNotNull(props.getProperty("comment0.text"));
         
         // Check methods
-        assertEquals("void doSomething()", props.getProperty("comment2.target"));
+        assertEquals("void doSomething()", props.getProperty("comment1.target"));
+        assertNull(props.getProperty("comment1.params")); // No params
+        
+        assertEquals("String getName()", props.getProperty("comment2.target"));
         assertNull(props.getProperty("comment2.params")); // No params
         
-        assertEquals("String getName()", props.getProperty("comment3.target"));
-        assertNull(props.getProperty("comment3.params")); // No params
-        
-        assertEquals("boolean validate(String, int, boolean)", props.getProperty("comment4.target"));
-        assertEquals("input threshold strict", props.getProperty("comment4.params"));
-        assertNotNull(props.getProperty("comment4.text"));
+        assertEquals("boolean validate(String, int, boolean)", props.getProperty("comment3.target"));
+        assertEquals("input threshold strict", props.getProperty("comment3.params"));
+        assertNotNull(props.getProperty("comment3.text"));
     }
     
     /**
@@ -206,28 +193,31 @@ public class CtxtFileCompatibilityTest {
     @Test
     public void testEscapeSequenceHandling() throws IOException {
         // Create content with special characters that need escaping in Properties
-        CompilationUnitContext context = CompilationUnitContext.writable("TestClass", testCtxtFile);
+        List<MethodMetadata> methods = Arrays.asList(
+            new MethodMetadata(
+                "test",
+                "void test()",
+                "void",
+                List.of(),
+                Optional.of("Method with special chars: = : \\ \n" +
+                           "New line above, tab\there, and unicode \\u0041")
+            )
+        );
         
-        context.addComment(new CommentEntry(
-            "void test()",
-            "Method with special chars: = : \\ \n" +
-            "New line above, tab\there, and unicode \\u0041",
-            Collections.emptyList()
-        ));
-        
+        JavaContext context = new JavaContext("TestClass", methods, List.of());
         PropertyContextFormat.writeToFile(context, testCtxtFile);
         
         // Read back
-        CompilationUnitContext loaded = PropertyContextFormat.fromFile("TestClass", testCtxtFile);
+        JavaContext loaded = PropertyContextFormat.fromFile("TestClass", testCtxtFile);
 
-        assertNotNull("Context should not be null", testCtxtFile);
+        assertNotNull("Context should not be null", loaded);
         
-        assertEquals(1, loaded.getComments().size());
-        CommentEntry entry = loaded.getComments().get(0);
+        assertEquals(1, loaded.methods().size());
+        MethodMetadata method = loaded.methods().get(0);
         
         // Properties should handle escaping automatically
-        assertTrue("Should preserve special characters", 
-            entry.getText().contains("special chars"));
+        assertTrue("Should preserve special characters",
+            method.documentation().orElse("").contains("special chars"));
     }
     
     /**
@@ -235,28 +225,31 @@ public class CtxtFileCompatibilityTest {
      */
     @Test
     public void testEmptyParamsHandling() throws IOException {
-        CompilationUnitContext context = CompilationUnitContext.writable("TestClass", testCtxtFile);
+        List<MethodMetadata> methods = Arrays.asList(
+            new MethodMetadata(
+                "noParams",
+                "void noParams()",
+                "void",
+                List.of(),
+                Optional.of("Method with no parameters")
+            ),
+            new MethodMetadata(
+                "emptyList",
+                "void emptyList()",
+                "void",
+                List.of(),
+                Optional.of("Method with empty param list")
+            ),
+            new MethodMetadata(
+                "withParams",
+                "void withParams(int, String)",
+                "void",
+                Arrays.asList("int value", "String text"),
+                Optional.of("Method with parameters")
+            )
+        );
         
-        // Method with no parameters
-        context.addComment(new CommentEntry(
-            "void noParams()",
-            "Method with no parameters"
-        ));
-
-        // Method with empty list
-        context.addComment(new CommentEntry(
-            "void emptyList()",
-            "Method with empty param list",
-            Collections.emptyList() // empty list
-        ));
-        
-        // Method with parameters
-        context.addComment(new CommentEntry(
-            "void withParams(int, String)",
-            "Method with parameters",
-            Arrays.asList("value", "text")
-        ));
-        
+        JavaContext context = new JavaContext("TestClass", methods, List.of());
         PropertyContextFormat.writeToFile(context, testCtxtFile);
         
         // Verify the file content
@@ -278,12 +271,8 @@ public class CtxtFileCompatibilityTest {
      */
     @Test
     public void testFileHeaderCompatibility() throws IOException {
-        CompilationUnitContext context = CompilationUnitContext.writable("TestClass", testCtxtFile);
-        context.addComment(new CommentEntry(
-            "TestClass",
-            "A test class",
-            Collections.emptyList()
-        ));
+        // Create an empty context (no methods or fields)
+        JavaContext context = new JavaContext("TestClass", List.of(), List.of());
         PropertyContextFormat.writeToFile(context, testCtxtFile);
         
         // Read the file content

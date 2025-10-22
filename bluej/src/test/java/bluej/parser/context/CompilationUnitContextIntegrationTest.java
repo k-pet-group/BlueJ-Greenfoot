@@ -104,52 +104,56 @@ public class CompilationUnitContextIntegrationTest {
      */
     @Test
     public void testClassInfoToContextFlow() throws Exception {
-        // Create a context from ClassInfo
-        CompilationUnitContext context = CompilationUnitContext.writable("TestClass", ctxtFile);
+        // Create a context using new immutable API
+        List<MethodMetadata> methods = Arrays.asList(
+            new MethodMetadata(
+                "TestClass",
+                "TestClass(int,String)",
+                "TestClass",
+                Arrays.asList("int value", "String name"),
+                Optional.of("Constructor")
+            ),
+            new MethodMetadata(
+                "testMethod",
+                "void testMethod()",
+                "void",
+                List.of(),
+                Optional.of("Test method")
+            ),
+            new MethodMetadata(
+                "processData",
+                "String processData(String,int)",
+                "String",
+                Arrays.asList("String input", "int count"),
+                Optional.of("Another method with parameters")
+            )
+        );
         
-        // Simulate what ClassInfo would do: add comments based on parsed Javadoc
-        context.addComment(new CommentEntry(
-            "TestClass(int,String)", 
-            "Constructor", 
-            Arrays.asList("value", "name")
-        ));
-        
-        context.addComment(new CommentEntry(
-            "void testMethod()", 
-            "Test method", 
-            Collections.emptyList()
-        ));
-        
-        context.addComment(new CommentEntry(
-            "String processData(String,int)", 
-            "Another method with parameters", 
-            Arrays.asList("input", "count")
-        ));
+        JavaContext context = new JavaContext("TestClass", methods, List.of());
         
         // Verify the context has the expected data
-        assertEquals("Should have 3 comments", 3, context.getComments().size());
+        assertEquals("Should have 3 methods", 3, context.methods().size());
         
-        // Verify first comment (constructor)
-        CommentEntry entry0 = context.getComments().get(0);
-        assertEquals("TestClass(int,String)", entry0.getTarget());
-        assertEquals("Constructor", entry0.getText());
-        assertEquals(2, entry0.getParamNames().size());
-        assertEquals("value", entry0.getParamNames().get(0));
-        assertEquals("name", entry0.getParamNames().get(1));
+        // Verify first method (constructor)
+        MethodMetadata method0 = context.methods().get(0);
+        assertEquals("TestClass", method0.name());
+        assertEquals("TestClass(int,String)", method0.signature());
+        assertEquals("Constructor", method0.documentation().orElse(""));
+        assertEquals(2, method0.parameters().size());
         
-        // Verify second comment (test method)
-        CommentEntry entry1 = context.getComments().get(1);
-        assertEquals("void testMethod()", entry1.getTarget());
-        assertEquals("Test method", entry1.getText());
-        assertEquals(0, entry1.getParamNames().size());
+        // Verify second method
+        MethodMetadata method1 = context.methods().get(1);
+        assertEquals("testMethod", method1.name());
+        assertEquals("void testMethod()", method1.signature());
+        assertEquals("Test method", method1.documentation().orElse(""));
+        assertEquals(0, method1.parameters().size());
         
-        // Verify third comment (process data method)
-        CommentEntry entry2 = context.getComments().get(2);
-        assertEquals("String processData(String,int)", entry2.getTarget());
-        assertEquals("Another method with parameters", entry2.getText());
-        assertEquals(2, entry2.getParamNames().size());
-        assertEquals("input", entry2.getParamNames().get(0));
-        assertEquals("count", entry2.getParamNames().get(1));
+        // Verify third method
+        MethodMetadata method2 = context.methods().get(2);
+        assertEquals("processData", method2.name());
+        assertEquals("String processData(String,int)", method2.signature());
+        assertEquals("Another method with parameters", method2.documentation().orElse(""));
+        assertEquals(2, method2.parameters().size());
     }
     
     /**
@@ -158,19 +162,25 @@ public class CompilationUnitContextIntegrationTest {
      */
     @Test
     public void testPackageSaveContext() throws Exception {
-        // Create and populate context
-        CompilationUnitContext context = CompilationUnitContext.writable("TestClass", ctxtFile);
+        // Create and populate context using new API
+        List<MethodMetadata> methods = Arrays.asList(
+            new MethodMetadata(
+                "TestClass",
+                "TestClass(int,String)",
+                "TestClass",
+                Arrays.asList("int value", "String name"),
+                Optional.of("Constructor with parameters")
+            ),
+            new MethodMetadata(
+                "doSomething",
+                "void doSomething()",
+                "void",
+                List.of(),
+                Optional.of("Method that does something")
+            )
+        );
         
-        context.addComment(new CommentEntry(
-            "TestClass(int,String)", 
-            "Constructor with parameters", 
-            Arrays.asList("value", "name")
-        ));
-        
-        context.addComment(new CommentEntry(
-            "void doSomething()", 
-            "Method that does something"
-        ));
+        JavaContext context = new JavaContext("TestClass", methods, List.of());
         
         // Save the context (simulates what Package would do)
         PropertyContextFormat.writeToFile(context, ctxtFile);
@@ -217,27 +227,28 @@ public class CompilationUnitContextIntegrationTest {
         }
         
         // Load using PropertyContextFormat (simulates what View would do)
-        CompilationUnitContext libContext = PropertyContextFormat.fromFile("String", libCtxtFile);
+        JavaContext libContext = PropertyContextFormat.fromFile("String", libCtxtFile);
 
         assertNotNull("Context should not be null", libContext);
 
-        // Verify library context was loaded correctly
-        assertEquals("Should have 3 comments", 3, libContext.getComments().size());
+        // Verify library context was loaded correctly (3 methods)
+        assertEquals("Should have 3 methods", 3, libContext.methods().size());
         
-        CommentEntry entry0 = libContext.getComments().get(0);
-        assertEquals("java.lang.String()", entry0.getTarget());
-        assertEquals("Default constructor", entry0.getText());
+        MethodMetadata method0 = libContext.methods().get(0);
+        assertEquals("java.lang.String", method0.name()); // Full qualified name from signature
+        assertEquals("java.lang.String()", method0.signature());
+        assertEquals("Default constructor", method0.documentation().orElse(""));
         
-        CommentEntry entry1 = libContext.getComments().get(1);
-        assertEquals("int length()", entry1.getTarget());
-        assertEquals("Returns the length of this string", entry1.getText());
+        MethodMetadata method1 = libContext.methods().get(1);
+        assertEquals("length", method1.name());
+        assertEquals("int length()", method1.signature());
+        assertEquals("Returns the length of this string", method1.documentation().orElse(""));
         
-        CommentEntry entry2 = libContext.getComments().get(2);
-        assertEquals("String substring(int,int)", entry2.getTarget());
-        assertEquals("Returns a substring", entry2.getText());
-        assertEquals(2, entry2.getParamNames().size());
-        assertEquals("beginIndex", entry2.getParamNames().get(0));
-        assertEquals("endIndex", entry2.getParamNames().get(1));
+        MethodMetadata method2 = libContext.methods().get(2);
+        assertEquals("substring", method2.name());
+        assertEquals("String substring(int,int)", method2.signature());
+        assertEquals("Returns a substring", method2.documentation().orElse(""));
+        assertEquals(2, method2.parameters().size());
     }
     
     /**
@@ -247,55 +258,65 @@ public class CompilationUnitContextIntegrationTest {
     @Test
     public void testClassTargetGetCompilationContext() throws Exception {
         // Create a context and save it to file
-        CompilationUnitContext context = CompilationUnitContext.writable("TestClass", ctxtFile);
+        List<MethodMetadata> methods = Arrays.asList(
+            new MethodMetadata(
+                "TestClass",
+                "TestClass()",
+                "TestClass",
+                List.of(),
+                Optional.of("Default constructor")
+            ),
+            new MethodMetadata(
+                "initialize",
+                "void initialize(String)",
+                "void",
+                Arrays.asList("String config"),
+                Optional.of("Initialization method")
+            )
+        );
         
-        context.addComment(new CommentEntry(
-            "TestClass()", 
-            "Default constructor", 
-            Collections.emptyList()
-        ));
-        
-        context.addComment(new CommentEntry(
-            "void initialize(String)", 
-            "Initialization method", 
-            Arrays.asList("config")
-        ));
-        
+        JavaContext context = new JavaContext("TestClass", methods, List.of());
         PropertyContextFormat.writeToFile(context, ctxtFile);
         
-        CompilationUnitContext loadedContext = PropertyContextFormat.fromFile("TestClass", ctxtFile);
+        JavaContext loadedContext = PropertyContextFormat.fromFile("TestClass", ctxtFile);
 
         assertNotNull("Loaded context should not be null", loadedContext);
         
         // Verify the loaded context matches what was saved
-        assertEquals("Should have 2 comments", 2, loadedContext.getComments().size());
+        assertEquals("Should have 2 methods", 2, loadedContext.methods().size());
         
-        CommentEntry entry0 = loadedContext.getComments().get(0);
-        assertEquals("TestClass()", entry0.getTarget());
-        assertEquals("Default constructor", entry0.getText());
-        assertEquals(0, entry0.getParamNames().size());
+        MethodMetadata method0 = loadedContext.methods().get(0);
+        assertEquals("TestClass", method0.name());
+        assertEquals("TestClass()", method0.signature());
+        assertEquals("Default constructor", method0.documentation().orElse(""));
+        assertEquals(0, method0.parameters().size());
         
-        CommentEntry entry1 = loadedContext.getComments().get(1);
-        assertEquals("void initialize(String)", entry1.getTarget());
-        assertEquals("Initialization method", entry1.getText());
-        assertEquals(1, entry1.getParamNames().size());
-        assertEquals("config", entry1.getParamNames().get(0));
+        MethodMetadata method1 = loadedContext.methods().get(1);
+        assertEquals("initialize", method1.name());
+        assertEquals("void initialize(String)", method1.signature());
+        assertEquals("Initialization method", method1.documentation().orElse(""));
+        assertEquals(1, method1.parameters().size());
     }
     
     /**
      * Test 5: Round-trip compatibility test
-     * Write with CompilationUnitContext, read with Properties, 
-     * then write with Properties and read with CompilationUnitContext
+     * Write with JavaContext, read with Properties, 
+     * then write with Properties and read with JavaContext
      */
     @Test
     public void testRoundTripCompatibility() throws Exception {
-        // Step 1: Create and save with CompilationUnitContext
-        CompilationUnitContext context1 = CompilationUnitContext.writable("TestClass", ctxtFile);
-        context1.addComment(new CommentEntry(
-            "TestClass(String,int,boolean)", 
-            "Complex constructor", 
-            Arrays.asList("name", "value", "flag")
-        ));
+        // Step 1: Create and save with JavaContext
+        List<MethodMetadata> methods1 = Arrays.asList(
+            new MethodMetadata(
+                "TestClass",
+                "TestClass(String,int,boolean)",
+                "TestClass",
+                Arrays.asList("String name", "int value", "boolean flag"),
+                Optional.of("Complex constructor")
+            )
+        );
+        
+        JavaContext context1 = new JavaContext("TestClass", methods1, List.of());
         PropertyContextFormat.writeToFile(context1, ctxtFile);
         
         // Step 2: Read with Properties
@@ -319,23 +340,25 @@ public class CompilationUnitContextIntegrationTest {
             props.store(out, "Modified by Properties");
         }
         
-        // Step 4: Read with CompilationUnitContext
-        CompilationUnitContext context2 = PropertyContextFormat.fromFile("TestClass", ctxtFile);
+        // Step 4: Read with JavaContext
+        JavaContext context2 = PropertyContextFormat.fromFile("TestClass", ctxtFile);
 
         assertNotNull("Context should not be null", context2);
         
-        // Verify both comments are present
-        assertEquals("Should have 2 comments", 2, context2.getComments().size());
+        // Verify both methods are present
+        assertEquals("Should have 2 methods", 2, context2.methods().size());
         
-        CommentEntry entry0 = context2.getComments().get(0);
-        assertEquals("TestClass(String,int,boolean)", entry0.getTarget());
-        assertEquals("Complex constructor", entry0.getText());
-        assertEquals(3, entry0.getParamNames().size());
+        MethodMetadata method0 = context2.methods().get(0);
+        assertEquals("TestClass", method0.name());
+        assertEquals("TestClass(String,int,boolean)", method0.signature());
+        assertEquals("Complex constructor", method0.documentation().orElse(""));
+        assertEquals(3, method0.parameters().size());
         
-        CommentEntry entry1 = context2.getComments().get(1);
-        assertEquals("void newMethod()", entry1.getTarget());
-        assertEquals("Added method", entry1.getText());
-        assertEquals(0, entry1.getParamNames().size());
+        MethodMetadata method1 = context2.methods().get(1);
+        assertEquals("newMethod", method1.name());
+        assertEquals("void newMethod()", method1.signature());
+        assertEquals("Added method", method1.documentation().orElse(""));
+        assertEquals(0, method1.parameters().size());
     }
     
     /**
@@ -351,13 +374,12 @@ public class CompilationUnitContextIntegrationTest {
         }
         
         // Try to load it - should handle gracefully
-        CompilationUnitContext context = PropertyContextFormat.fromFile("TestClass", ctxtFile);
+        JavaContext context = PropertyContextFormat.fromFile("TestClass", ctxtFile);
 
         assertNotNull("Context should not be null", context);
         
-        // Context should be empty or have partial data
+        // Context should have handled the error gracefully
         assertNotNull("Context should not be null", context);
-        // The exact behavior depends on Properties.load() error handling
     }
     
     /**
@@ -365,22 +387,26 @@ public class CompilationUnitContextIntegrationTest {
      */
     @Test
     public void testLargeCtxtFilePerformance() throws Exception {
-        // Create a large context with many comments
-        CompilationUnitContext context = CompilationUnitContext.writable("LargeClass", ctxtFile);
+        // Create a large context with many methods
+        int numMethods = 100;
+        List<MethodMetadata> methods = new ArrayList<>();
         
-        int numComments = 100;
-        for (int i = 0; i < numComments; i++) {
+        for (int i = 0; i < numMethods; i++) {
             List<String> params = new ArrayList<>();
             for (int j = 0; j < 5; j++) {
-                params.add("param" + j);
+                params.add("Object param" + j);
             }
             
-            context.addComment(new CommentEntry(
+            methods.add(new MethodMetadata(
+                "method" + i,
                 "void method" + i + "(String,int,boolean,Object,List)",
-                "Method number " + i + " with multiple parameters",
-                params
+                "void",
+                params,
+                Optional.of("Method number " + i + " with multiple parameters")
             ));
         }
+        
+        JavaContext context = new JavaContext("LargeClass", methods, List.of());
         
         // Measure save performance
         long startSave = System.currentTimeMillis();
@@ -391,13 +417,13 @@ public class CompilationUnitContextIntegrationTest {
         
         // Measure load performance
         long startLoad = System.currentTimeMillis();
-        CompilationUnitContext loadedContext = PropertyContextFormat.fromFile("LargeClass", ctxtFile);
+        JavaContext loadedContext = PropertyContextFormat.fromFile("LargeClass", ctxtFile);
 
         assertNotNull("Context should not be null", loadedContext);
         long loadDuration = System.currentTimeMillis() - startLoad;
         
         assertTrue("Load should complete within reasonable time", loadDuration < 1000);
-        assertEquals("Should load all comments", numComments, loadedContext.getComments().size());
+        assertEquals("Should load all methods", numMethods, loadedContext.methods().size());
     }
     
     /**
@@ -406,36 +432,42 @@ public class CompilationUnitContextIntegrationTest {
     @Test
     public void testUnicodeAndSpecialCharacters() throws Exception {
         // Create context with Unicode and special characters
-        CompilationUnitContext context = CompilationUnitContext.writable("TestClass", ctxtFile);
+        List<MethodMetadata> methods = Arrays.asList(
+            new MethodMetadata(
+                "método",
+                "void método()",
+                "void",
+                List.of(),
+                Optional.of("Method with Unicode: 日本語 中文 한국어 العربية")
+            ),
+            new MethodMetadata(
+                "processText",
+                "String processText(String)",
+                "String",
+                Arrays.asList("String tëxt_with_ümläuts"),
+                Optional.of("Handles special chars: !@#$%^&*(){}[]|\\:;\"'<>,.?/")
+            )
+        );
         
-        context.addComment(new CommentEntry(
-            "void método()", 
-            "Method with Unicode: 日本語 中文 한국어 العربية"
-        ));
-        
-        context.addComment(new CommentEntry(
-            "String processText(String)", 
-            "Handles special chars: !@#$%^&*(){}[]|\\:;\"'<>,.?/", 
-            Arrays.asList("tëxt_with_ümläuts")
-        ));
+        JavaContext context = new JavaContext("TestClass", methods, List.of());
         
         // Save and reload
         PropertyContextFormat.writeToFile(context, ctxtFile);
         
-        CompilationUnitContext loadedContext = PropertyContextFormat.fromFile("TestClass", ctxtFile);
+        JavaContext loadedContext = PropertyContextFormat.fromFile("TestClass", ctxtFile);
 
         assertNotNull("Context should not be null", loadedContext);
         
         // Verify Unicode and special characters are preserved
-        assertEquals(2, loadedContext.getComments().size());
+        assertEquals(2, loadedContext.methods().size());
         
-        CommentEntry entry0 = loadedContext.getComments().get(0);
-        assertEquals("void método()", entry0.getTarget());
-        assertTrue(entry0.getText().contains("日本語"));
-        assertTrue(entry0.getText().contains("中文"));
+        MethodMetadata method0 = loadedContext.methods().get(0);
+        assertEquals("método", method0.name());
+        assertTrue(method0.documentation().orElse("").contains("日本語"));
+        assertTrue(method0.documentation().orElse("").contains("中文"));
         
-        CommentEntry entry1 = loadedContext.getComments().get(1);
-        assertTrue(entry1.getText().contains("!@#$%^&*()"));
-        assertEquals("tëxt_with_ümläuts", entry1.getParamNames().get(0));
+        MethodMetadata method1 = loadedContext.methods().get(1);
+        assertTrue(method1.documentation().orElse("").contains("!@#$%^&*()"));
+        assertTrue(method1.parameters().get(0).contains("tëxt_with_ümläuts"));
     }
 }
