@@ -23,14 +23,21 @@ package bluej.parser;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.lexer.*;
+import bluej.utility.Debug;
 
+import javax.swing.text.BadLocationException;
+import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 
 public class SourceParser extends JavaParserCallbacks {
     protected JavaTokenFilter tokenStream;
     protected LocatableToken lastToken;
     protected final SourceType sourceType;
+    
+    /** Source input for file-based parsing (null for Reader-based parsing) */
+    private final SourceInput sourceInput;
 
     ParserBehavior parser;
 
@@ -67,33 +74,62 @@ public class SourceParser extends JavaParserCallbacks {
         return new JavaLexer(r, kws, line, col, pos);
     }
 
+    /**
+     * Creates parser from SourceInput (recommended for file-based parsing).
+     *
+     * @param input Source input encapsulating file and metadata
+     * @throws IOException if source cannot be read
+     */
+    public SourceParser(SourceInput input) throws IOException {
+        if (input == null) {
+            throw new NullPointerException("input cannot be null");
+        }
+        
+        this.sourceInput = input;
+        this.sourceType = input.sourceType();
+        
+        // Create Reader from input (consumed by lexer)
+        Reader r = input.createReader();
+        TokenStream lexer = getLexer(r, sourceType);
+        tokenStream = new JavaTokenFilter(lexer, this);
+        parser = sourceType == SourceType.Kotlin
+            ? new KotlinPsiParser(this)
+            : new JavaParser(this);
+    }
+
     public SourceParser(Reader r) {
+        this.sourceInput = null;  // No source input available
         TokenStream lexer = getLexer(r);
         tokenStream = new JavaTokenFilter(lexer, this);
         parser = new JavaParser(this);
         this.sourceType = SourceType.Java;
-
     }
 
     public SourceParser(Reader r, SourceType sourceType) {
+        this.sourceInput = null;  // No source input available
+        
         TokenStream lexer = getLexer(r, sourceType);
         tokenStream = new JavaTokenFilter(lexer, this);
-        parser = sourceType == SourceType.Kotlin ? new KotlinParser(this) : new JavaParser(this);
+        parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
         this.sourceType = sourceType;
     }
 
     public SourceParser(Reader r, SourceType sourceType, boolean handleComments)
     {
+        this.sourceInput = null;  // No source input available
+        
         TokenStream lexer = getLexer(r, sourceType, handleComments, true);
         tokenStream = new JavaTokenFilter(lexer, this);
-        parser = sourceType == SourceType.Kotlin ? new KotlinParser(this) : new JavaParser(this);
+        parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
         this.sourceType = sourceType;
     }
 
     public SourceParser(Reader r, SourceType sourceType, int line, int col, int pos) {
+        this.sourceInput = null;  // No source input available
+        
         TokenStream lexer = getLexer(r, sourceType, line, col, pos);
         tokenStream = new JavaTokenFilter(lexer, this);
-        parser = sourceType == SourceType.Kotlin ? new KotlinParser(this) : new JavaParser(this);
+        parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
         this.sourceType = sourceType;
     }
 
@@ -173,5 +209,14 @@ public class SourceParser extends JavaParserCallbacks {
 
     public void parseMethodParamsBody() {
         parser.parseMethodParamsBody();
+    }
+    
+    /**
+     * Gets the source input for PSI access.
+     *
+     * @return Source input, or null if parser created from Reader
+     */
+    public SourceInput getSourceInput() {
+        return sourceInput;
     }
 }

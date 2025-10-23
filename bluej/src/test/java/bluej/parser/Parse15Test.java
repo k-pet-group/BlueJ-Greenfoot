@@ -27,9 +27,12 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
+import bluej.extensions2.SourceType;
+import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 
+import static bluej.parser.SourceInputTestUtils.*;
 import static bluej.utility.ResourceFileReader.getResourceFile;
 
 import org.junit.After;
@@ -75,14 +78,14 @@ public class Parse15Test
     public void testNoParseExceptions()
         throws Exception
     {
-        InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/15_generic.dat"));
+        InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/15_generic.dat")).orElse(null);
     }
 
     @Test
     public void testSelections()
         throws Exception
     {
-        ClassInfo info = InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/generic_selections.dat"));
+        ClassInfo info = InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/generic_selections.dat")).orElse(null);
 
 //        Selection testSel = info.getTypeParametersSelection();
 //        assertEquals(3, testSel.getLine());
@@ -117,14 +120,14 @@ public class Parse15Test
     }
 
     @Test
-    public void testStaticImport()
+    public void testStaticImport() throws Exception
     {
         boolean success = true;
         try {
-            InfoParser.parse(new StringReader(
-                    "import static java.awt.Color.BLACK;\n" +
-                    "class A { }"),
-                    null, null);
+            String aSrc = "import static java.awt.Color.BLACK;\n" +
+                    "class A { }";
+            SourceInput input = createFromString(aSrc, SourceType.Java, new ClassLoaderResolver(Parse15Test.class.getClassLoader()));
+            InfoParser.parse(input).orElse(null);
         }
         catch (Exception e) {
             success = false;

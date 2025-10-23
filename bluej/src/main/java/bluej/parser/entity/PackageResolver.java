@@ -43,6 +43,16 @@ public class PackageResolver implements EntityResolver
         this.parentResolver = parentResolver;
         this.pkg = pkg;
     }
+    
+    /**
+     * Returns the package name this resolver is scoped to.
+     * Useful for test scenarios that need to extract targetPkg.
+     *
+     * @return Package name (empty string for default package)
+     */
+    public String getPackageName() {
+        return pkg;
+    }
 
     /* (non-Javadoc)
      * @see bluej.parser.entity.EntityResolver#getValueEntity(java.lang.String, java.lang.String)

@@ -21,19 +21,21 @@
  */
 package bluej.parser;
 
+import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import bluej.extensions2.SourceType;
+import org.jetbrains.annotations.NotNull;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.debugger.gentype.GenTypeClass;
@@ -41,10 +43,8 @@ import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
-import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
-import bluej.parser.entity.PackageResolver;
 import bluej.parser.entity.PositionedResolver;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedArray;
@@ -137,123 +137,45 @@ public class InfoParser extends EditorParser
     private LocatableToken pkgSemiToken;
 
     /**
-     * Construct an InfoParser which reads Java source using the given reader, and resolves
-     * reference via the given resolver.
+     * Constructor for SourceInput-based parsing.
+     *
+     * @param input Source input encapsulating file and metadata
+     * @throws IOException if source cannot be read
      */
-    public InfoParser(Reader r, EntityResolver resolver)
+    public InfoParser(SourceInput input) throws IOException
     {
-        super(r, resolver, SourceType.Java);
+        super(input, input.getEntityResolver());
     }
 
     /**
-     * Construct an InfoParser which reads Java source using the given reader, and resolves
-     * reference via the given resolver.
+     * Attempt to parse the specified source input, resolving references via the
+     * package contained in the input (and its project).
+     *
+     * @return Optional of ClassInfo if parsing succeeded, or Optional.empty() otherwise.
      */
-    public InfoParser(Reader r, SourceType sourceType, EntityResolver resolver)
-    {
-        super(r, resolver, sourceType);
-    }
-
-    /**
-     * Attempt to parse the specified source file. Returns null if the file could not be parsed.
-     */
-    public static ClassInfo parse(File f) throws FileNotFoundException
-    {
-        return parse(f, SourceType.Java, new ClassLoaderResolver(InfoParser.class.getClassLoader()));
-    }
-
-    /**
-     * Attempt to parse the specified source file. Returns null if the file could not be parsed.
-     */
-    public static ClassInfo parse(File f, SourceType sourceType) throws FileNotFoundException
-    {
-        return parse(f, sourceType, new ClassLoaderResolver(InfoParser.class.getClassLoader()));
-    }
-    /**
-     * Attempt to parse the specified source file, and resolve references via the specified
-     * resolver. Returns null if the file could not be parsed.
-     */
-    public static ClassInfo parse(File f, SourceType sourceType, EntityResolver resolver) throws FileNotFoundException
-    {
-        FileInputStream fis = new FileInputStream(f);
-        ClassInfo info = parse(new BufferedReader(new InputStreamReader(fis)), sourceType, resolver, null);
+    @OnThread(Tag.FXPlatform)
+    public static @NotNull Optional<ClassInfo> parse(@NotNull SourceInput input) {
         try {
-            fis.close();
+            InfoParser infoParser = new InfoParser(input);
+            if (input.hasPackage()) {
+                infoParser.targetPkg = input.getPackage().getQualifiedName();
+            }
+            // For test scenarios with PackageResolver but no Package, extract package name
+            else if (input.getEntityResolver() instanceof bluej.parser.entity.PackageResolver) {
+                bluej.parser.entity.PackageResolver pkgr = (bluej.parser.entity.PackageResolver) input.getEntityResolver();
+                infoParser.targetPkg = pkgr.getPackageName();
+            }
+            infoParser.parseCU();
+
+            if (infoParser.info != null) {
+                infoParser.info.setParseError(infoParser.hadError);
+                infoParser.resolveComments();
+                return Optional.of(infoParser.info);
+            }
+            return Optional.empty();
+        } catch (IOException e) {
+            return Optional.empty();
         }
-        catch (IOException ioe) {}
-        return info;
-    }
-
-    /**
-     * Attempt to parse the specified source file, and resolve references via the specified
-     * resolver. Returns null if the file could not be parsed.
-     */
-    public static ClassInfo parse(File f, EntityResolver resolver) throws FileNotFoundException
-    {
-        return parse(f, SourceType.Java, resolver);
-    }
-
-    /**
-     * Attempt to parse the specified source file, and resolve references via the specified
-     * package (and its project). Returns null if the file could not be parsed.
-     */
-    @OnThread(Tag.FXPlatform)
-    public static ClassInfo parseWithPkg(File f, Package pkg, SourceType sourceType) throws FileNotFoundException
-    {
-        FileInputStream fis = new FileInputStream(f);
-        EntityResolver resolver = new PackageResolver(pkg.getProject().getEntityResolver(),
-                pkg.getQualifiedName());
-        Reader reader = new InputStreamReader(fis, pkg.getProject().getProjectCharset());
-        reader = new BufferedReader(reader);
-        ClassInfo info = parse(reader, sourceType, resolver, pkg.getQualifiedName());
-        try {
-            fis.close();
-        }
-        catch (IOException ioe) {}
-        return info;
-    }
-
-    /**
-     * Attempt to parse the specified source file, and resolve references via the specified
-     * package (and its project). Returns null if the file could not be parsed.
-     */
-    @OnThread(Tag.FXPlatform)
-    public static ClassInfo parseWithPkg(File f, Package pkg) throws FileNotFoundException
-    {
-        return parseWithPkg(f, pkg, SourceType.Java);
-    }
-
-
-    /**
-     * Attempt to parse the specified source file, and resolve references via the specified
-     * resolver. The source should be assumed to reside in the specified package.
-     * Returns null if the source could not be parsed.
-     */
-    @OnThread(Tag.FXPlatform)
-    public static ClassInfo parse(Reader r, SourceType sourceType, EntityResolver resolver, String targetPkg)
-    {
-        InfoParser infoParser = null;
-        infoParser = new InfoParser(r, sourceType, resolver);
-        infoParser.targetPkg = targetPkg;
-        infoParser.parseCU();
-
-        if (infoParser.info != null) {
-            infoParser.info.setParseError(infoParser.hadError);
-            infoParser.resolveComments();
-            return infoParser.info;
-        }
-        return null;
-    }
-
-    /**
-     * Attempt to parse the specified source file, and resolve references via the specified
-     * resolver. The source should be assumed to reside in the specified package.
-     * Returns null if the source could not be parsed.
-     */
-    @OnThread(Tag.FXPlatform)
-    public static ClassInfo parse(Reader r, EntityResolver resolver, String targetPkg)
-    {
-        return parse(r, SourceType.Java, resolver, targetPkg);
     }
 
     /**

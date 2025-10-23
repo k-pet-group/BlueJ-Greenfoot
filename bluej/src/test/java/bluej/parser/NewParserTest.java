@@ -45,7 +45,7 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "LinkedList<String[]>"
         );
-        InfoParser ip = new InfoParser(sr, null);
+        SourceParser ip = new SourceParser(sr);
         List<LocatableToken> ll = new LinkedList<LocatableToken>();
         assertTrue(ip.parseTypeSpec(false, true, ll));
         // 6 tokens: LinkedList, '<', String, '[', ']', '>'
@@ -61,7 +61,7 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "LinkedList<List<String[]>>"
         );
-        InfoParser ip = new InfoParser(sr, null);
+        SourceParser ip = new SourceParser(sr);
         List<LocatableToken> ll = new LinkedList<LocatableToken>();
         assertTrue(ip.parseTypeSpec(false, true, ll));
         // 8 tokens: LinkedList, '<', List, '<', String, '[', ']', '>>'

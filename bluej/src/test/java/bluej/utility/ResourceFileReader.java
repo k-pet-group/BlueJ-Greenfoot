@@ -25,9 +25,44 @@ import java.io.File;
 import java.net.URL;
 
 public class ResourceFileReader {
-    public static File getResourceFile(Class<?> clazz, String name)
+    
+    /**
+     * Get resource as File object.
+     */
+    public static File getResourceAsFile(Class<?> clazz, String name)
     {
         URL url = clazz.getResource(name);
         return url != null && !url.getFile().isEmpty() ? new File(url.getFile()) : null;
+    }
+
+    /**
+     * Get resource file wrapped in SourceInput for InfoParser.
+     * Returns FileSource with default resolver for test convenience.
+     * This allows tests using getResourceFile() to work with new SourceInput API.
+     * 
+     * @param clazz Class to load resource from
+     * @param name Resource path
+     * @return SourceInput.FileSource ready for parsing, or null if resource not found
+     */
+    public static bluej.parser.SourceInput getResourceFile(Class<?> clazz, String name)
+    {
+        File file = getResourceAsFile(clazz, name);
+        if (file == null) {
+            return null;
+        }
+        
+        // Determine source type from file extension or path (test resources in /kotlin/ dir are Kotlin)
+        bluej.extensions2.SourceType sourceType = (name.endsWith(".kt") || name.contains("/kotlin/"))
+            ? bluej.extensions2.SourceType.Kotlin
+            : bluej.extensions2.SourceType.Java;
+        
+        // Create FileSource with default ClassLoaderResolver for tests
+        return new bluej.parser.SourceInput.FileSource(
+            file,
+            sourceType,
+            java.nio.charset.StandardCharsets.UTF_8,
+            null,
+            new bluej.parser.entity.ClassLoaderResolver(clazz.getClassLoader())
+        );
     }
 }

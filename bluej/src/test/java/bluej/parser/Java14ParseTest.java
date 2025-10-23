@@ -65,6 +65,6 @@ public class Java14ParseTest
     public void testStandardAssertion()
         throws FileNotFoundException
     {
-        assertNotNull(InfoParser.parse(getResourceFile(this.getClass(), "/bluej/parser/14_assertion.dat")));
+        assertNotNull(InfoParser.parse(getResourceFile(this.getClass(), "/bluej/parser/14_assertion.dat")).orElse(null));
     }
 }

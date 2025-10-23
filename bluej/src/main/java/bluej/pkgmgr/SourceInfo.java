@@ -22,10 +22,10 @@
 package bluej.pkgmgr;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.InfoParser;
+import bluej.parser.SourceInput;
 import bluej.parser.symtab.ClassInfo;
 
 /**
@@ -54,16 +54,11 @@ public final class SourceInfo
     {
         if(info == null)
         {
-            try
-            {
-                String fileName = sourceFile.getName();
-                SourceType sourceType = fileName.endsWith("." + SourceType.Kotlin.getExtension() ) ? SourceType.Kotlin : SourceType.Java;
-                info = InfoParser.parseWithPkg(sourceFile, pkg, sourceType);
-            }
-            catch (FileNotFoundException fnfe)
-            {
-                // info remains null
-            }
+            String fileName = sourceFile.getName();
+            SourceType sourceType = fileName.endsWith("." + SourceType.Kotlin.getExtension() ) ? SourceType.Kotlin : SourceType.Java;
+            SourceInput input = SourceInput.fromFile(sourceFile, sourceType, pkg.getProject().getProjectCharset(), pkg);
+
+            info = InfoParser.parse(input).orElse(null);
         }
 
         return info;

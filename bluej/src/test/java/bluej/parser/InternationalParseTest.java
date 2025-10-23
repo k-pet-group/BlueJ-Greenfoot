@@ -72,10 +72,9 @@ public class InternationalParseTest
     public void testInternationalization()
         throws FileNotFoundException
     {
-        assertNotNull(InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/escaped_unicode_string.dat")));
+        assertNotNull(InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/escaped_unicode_string.dat")).orElse(null));
 
-        ClassInfo info = InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/escaped_unicode_method.dat"),
-                new ClassLoaderResolver(this.getClass().getClassLoader()));
+        ClassInfo info = InfoParser.parse(getResourceFile(getClass(), "/bluej/parser/escaped_unicode_method.dat")).orElse(null);
 
         // Superclass name is Error (encoded)
         assertEquals("java.lang.Error", info.getSuperclass());

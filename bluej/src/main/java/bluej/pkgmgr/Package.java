@@ -62,6 +62,7 @@ import bluej.extensions2.event.CompileEvent;
 import bluej.extensions2.event.CompileEvent.EventType;
 import bluej.extmgr.ExtensionsManager;
 import bluej.parser.symtab.ClassInfo;
+import bluej.parser.SourceInput;
 import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
@@ -718,8 +719,9 @@ public final class Package
                 }
 
                 // Check if the file has top-level functions
-                ClassInfo info = bluej.parser.InfoParser.parseWithPkg(kotlinSrcFiles[i], this, SourceType.Kotlin);
-                if (info != null && info.hasTopLevelFunctions()) {
+                SourceInput input = SourceInput.fromFile(kotlinSrcFiles[i], SourceType.Kotlin, project.getProjectCharset(), this);
+                java.util.Optional<ClassInfo> info = bluej.parser.InfoParser.parse(input);
+                if (info.map(ClassInfo::hasTopLevelFunctions).orElse(false)) {
                     // Add a file facade target with the name as file name + "Kt" suffix
                     String facadeName = kotlinFileName + "Kt";
                     interestingSet.add(facadeName);

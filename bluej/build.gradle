@@ -91,6 +91,7 @@ test {
 
 repositories {
     mavenCentral()
+    maven { url "https://cache-redirector.jetbrains.com/intellij-dependencies" }
 }
 
 javafx {

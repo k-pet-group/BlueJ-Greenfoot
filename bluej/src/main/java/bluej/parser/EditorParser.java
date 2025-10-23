@@ -33,6 +33,7 @@ import bluej.parser.symtab.Selection;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -97,6 +98,36 @@ public class EditorParser extends SourceParser
     private Stack<List<LocatableToken>> newTypes = new Stack<List<LocatableToken>>();
 
     private int currentModifiers = 0;
+
+    /**
+     * Constructor for SourceInput-based parsing.
+     *
+     * @param input Source input encapsulating file and metadata
+     * @param resolver Entity resolver for type resolution
+     * @throws IOException if source cannot be read
+     */
+    protected EditorParser(SourceInput input, EntityResolver resolver) throws IOException
+    {
+        super(input);  // Calls SourceParser(SourceInput)
+        nodeStructureListener = new NodeStructureListener()
+        {
+            @Override
+            public void nodeAdded(NodeAndPosition<ParsedNode> node)
+            {
+            }
+
+            @Override
+            public void nodeRemoved(NodeAndPosition<ParsedNode> node)
+            {
+            }
+
+            @Override
+            public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize)
+            {
+            }
+        };
+        pcuNode = new ParsedCUNode(resolver);
+    }
 
     /**
      * Constructor for use by subclasses (InfoReader).

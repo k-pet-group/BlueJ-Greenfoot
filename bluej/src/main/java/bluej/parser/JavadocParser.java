@@ -21,8 +21,10 @@
  */
 package bluej.parser;
 
+import java.io.IOException;
 import java.io.Reader;
 
+import bluej.extensions2.SourceType;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.symtab.ClassInfo;
 import threadchecker.OnThread;
@@ -37,12 +39,11 @@ import threadchecker.Tag;
 public class JavadocParser extends InfoParser
 {
     /**
-     * Construct an InfoParser which reads Java source using the given reader,
-     * and resolves reference via the given resolver.
+     * Construct an InfoParser which reads Java source from SourceInput, and resolves references via the given resolver.
      */
-    public JavadocParser(Reader r, EntityResolver resolver)
+    private JavadocParser(SourceInput input) throws IOException
     {
-        super(r, resolver);
+        super(input);
     }
 
     /**
@@ -53,16 +54,20 @@ public class JavadocParser extends InfoParser
     @OnThread(Tag.FXPlatform)
     public static ClassInfo parse(Reader r, EntityResolver resolver, String targetPkg)
     {
-        JavadocParser javadocParser = null;
-        javadocParser = new JavadocParser(r, resolver);
-        javadocParser.targetPkg = targetPkg;
-        javadocParser.parseCU();
+        try {
+            SourceInput input = SourceInput.fromReader(r, SourceType.Java, resolver);
+            JavadocParser javadocParser = new JavadocParser(input);
+            javadocParser.targetPkg = targetPkg;
+            javadocParser.parseCU();
 
-        if (javadocParser.info != null) {
-            javadocParser.info.setParseError(javadocParser.hadError);
-            javadocParser.resolveMethodTypes();
-            return javadocParser.info;
+            if (javadocParser.info != null) {
+                javadocParser.info.setParseError(javadocParser.hadError);
+                javadocParser.resolveMethodTypes();
+                return javadocParser.info;
+            }
+            return null;
+        } catch (IOException e) {
+            return null;
         }
-        return null;
     }
 }

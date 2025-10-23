@@ -1,0 +1,18 @@
+PSI Tree: Unknown.kt
+================================================================================
+KtFile: Unknown.kt
+
+  Class: TestKotlin12 (line 8, col 7)
+
+    Property: x (line 10, col 17)
+      Modifiers: var, private
+      Type: Int
+      Initializer: present
+      Getter: absent
+      Setter: absent
+    Declaration: KtClassInitializer (line 12, col 5)
+    Function: sampleMethod (line 26, col 9)
+      Return Type: Int
+      Parameters: [y: Int]
+      Body: present
+
