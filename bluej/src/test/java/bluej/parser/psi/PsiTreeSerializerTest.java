@@ -49,7 +49,7 @@ public class PsiTreeSerializerTest {
     // ==================== BASIC TESTS ====================
     
     @Test
-    public void testSerializeSimpleFunction() {
+    public void testSerializeSimpleFunction() throws PsiParseException {
         String source = "fun hello() = 42";
         KtFile file = env.parseFile("Test.kt", source);
         assertNotNull("File should be parsed", file);
@@ -65,7 +65,7 @@ public class PsiTreeSerializerTest {
     }
     
     @Test
-    public void testSerializeDataClass() {
+    public void testSerializeDataClass() throws PsiParseException {
         String source = "data class User(val name: String, var age: Int)";
         KtFile file = env.parseFile("User.kt", source);
         assertNotNull("File should be parsed", file);
@@ -81,7 +81,7 @@ public class PsiTreeSerializerTest {
     }
     
     @Test
-    public void testSerializeClassWithInheritance() {
+    public void testSerializeClassWithInheritance() throws PsiParseException {
         String source = "open class Base\nclass Derived : Base()";
         KtFile file = env.parseFile("Inheritance.kt", source);
         assertNotNull("File should be parsed", file);
@@ -96,8 +96,8 @@ public class PsiTreeSerializerTest {
     }
     
     @Test
-    public void testSerializeCompanionObject() {
-        String source = 
+    public void testSerializeCompanionObject() throws PsiParseException {
+        String source =
             "class MyClass {\n" +
             "    companion object {\n" +
             "        fun create() = MyClass()\n" +
@@ -116,7 +116,7 @@ public class PsiTreeSerializerTest {
     // ==================== LOCATION TESTS ====================
     
     @Test
-    public void testSerializeWithLocation() {
+    public void testSerializeWithLocation() throws PsiParseException {
         String source = "fun test() = 1";
         KtFile file = env.parseFile("Location.kt", source);
         assertNotNull("File should be parsed", file);
@@ -132,7 +132,7 @@ public class PsiTreeSerializerTest {
     // ==================== FILE OPERATIONS ====================
     
     @Test
-    public void testWriteToFile() throws IOException {
+    public void testWriteToFile() throws IOException, PsiParseException {
         KtFile file = env.parseFile("Write.kt", "fun test() = 1");
         assertNotNull("File should be parsed", file);
         
@@ -151,7 +151,7 @@ public class PsiTreeSerializerTest {
     }
     
     @Test
-    public void testWriteToFileCreatesDirectories() throws IOException {
+    public void testWriteToFileCreatesDirectories() throws IOException, PsiParseException {
         KtFile file = env.parseFile("Test.kt", "fun test() = 1");
         String content = PsiTreeSerializer.serialize(file);
         
@@ -175,8 +175,8 @@ public class PsiTreeSerializerTest {
     // ==================== EDGE CASES ====================
     
     @Test
-    public void testSerializeEmptyFile() {
-        // Note: PsiEnvironment.parseFile() returns null for empty source by design
+    public void testSerializeEmptyFile() throws PsiParseException {
+        // Note: PsiEnvironment.parseFile() now throws exception for empty/invalid source
         // So we test with a minimal valid Kotlin file (just whitespace/comments)
         KtFile file = env.parseFile("Empty.kt", "// Empty file\n");
         assertNotNull("File should be parsed", file);
@@ -189,8 +189,8 @@ public class PsiTreeSerializerTest {
     }
     
     @Test
-    public void testSerializeComplexFile() {
-        String source = 
+    public void testSerializeComplexFile() throws PsiParseException {
+        String source =
             "package com.example\n" +
             "\n" +
             "import kotlin.collections.List\n" +
@@ -236,7 +236,7 @@ public class PsiTreeSerializerTest {
     // ==================== MODIFIER TESTS ====================
     
     @Test
-    public void testSerializeFunctionModifiers() {
+    public void testSerializeFunctionModifiers() throws PsiParseException {
         String source = "suspend inline fun process() = Unit";
         KtFile file = env.parseFile("Modifiers.kt", source);
         assertNotNull("File should be parsed", file);
@@ -248,8 +248,8 @@ public class PsiTreeSerializerTest {
     }
     
     @Test
-    public void testSerializePropertyModifiers() {
-        String source = 
+    public void testSerializePropertyModifiers() throws PsiParseException {
+        String source =
             "class Example {\n" +
             "    private lateinit var data: String\n" +
             "    const val MAX = 100\n" +
@@ -268,8 +268,8 @@ public class PsiTreeSerializerTest {
     // ==================== OBJECT TESTS ====================
     
     @Test
-    public void testSerializeSingletonObject() {
-        String source = 
+    public void testSerializeSingletonObject() throws PsiParseException {
+        String source =
             "object Database {\n" +
             "    private val connection = \"jdbc:...\"\n" +
             "    fun connect() = connection\n" +
@@ -288,8 +288,8 @@ public class PsiTreeSerializerTest {
     // ==================== PROPERTY TESTS ====================
     
     @Test
-    public void testSerializePropertyWithAccessors() {
-        String source = 
+    public void testSerializePropertyWithAccessors() throws PsiParseException {
+        String source =
             "class Example {\n" +
             "    var name: String = \"\"\n" +
             "        get() = field.uppercase()\n" +

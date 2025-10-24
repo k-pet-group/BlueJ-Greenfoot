@@ -20,7 +20,7 @@ public class PsiTreeSerializerDebugTest {
     }
     
     @Test
-    public void debugDataClassOutput() {
+    public void debugDataClassOutput() throws PsiParseException {
         String source = "data class User(val name: String, var age: Int)";
         KtFile file = env.parseFile("User.kt", source);
         assertNotNull("File should be parsed", file);
@@ -36,8 +36,8 @@ public class PsiTreeSerializerDebugTest {
     }
     
     @Test
-    public void debugComplexFileOutput() {
-        String source = 
+    public void debugComplexFileOutput() throws PsiParseException {
+        String source =
             "package com.example\n" +
             "\n" +
             "import kotlin.collections.List\n" +

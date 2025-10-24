@@ -156,7 +156,7 @@ public class PsiEnvironmentTest {
      * and return non-null {@link KtFile} with expected structure.</p>
      */
     @Test
-    public void testParseSimpleFunction() {
+    public void testParseSimpleFunction() throws PsiParseException {
         String source = "fun hello() = 42";
         KtFile file = env.parseFile("Test.kt", source);
         
@@ -177,7 +177,7 @@ public class PsiEnvironmentTest {
      * data classes with multiple properties.</p>
      */
     @Test
-    public void testParseDataClass() {
+    public void testParseDataClass() throws PsiParseException {
         String source = "data class User(val name: String, var age: Int)";
         KtFile file = env.parseFile("User.kt", source);
         
@@ -201,7 +201,7 @@ public class PsiEnvironmentTest {
      * create PSI trees even for invalid syntax, marking error regions.</p>
      */
     @Test
-    public void testParseSyntaxError() {
+    public void testParseSyntaxError() throws PsiParseException {
         String source = "fun broken(";  // Incomplete syntax
         KtFile file = env.parseFile("Broken.kt", source);
         
@@ -218,7 +218,7 @@ public class PsiEnvironmentTest {
      * without interference or resource exhaustion.</p>
      */
     @Test
-    public void testMultipleParseCalls() {
+    public void testMultipleParseCalls() throws PsiParseException {
         KtFile file1 = env.parseFile("File1.kt", "fun foo() = 1");
         KtFile file2 = env.parseFile("File2.kt", "fun bar() = 2");
         KtFile file3 = env.parseFile("File3.kt", "class Baz");
@@ -241,26 +241,22 @@ public class PsiEnvironmentTest {
     
     /**
      * Test 9: Parse with null source code.
-     * 
-     * <p><b>Requirement:</b> Must handle null input gracefully without
-     * throwing exceptions.</p>
+     *
+     * <p><b>Requirement:</b> Must throw PsiParseException for null input.</p>
      */
-    @Test
-    public void testParseNullSource() {
-        KtFile file = env.parseFile("Test.kt", null);
-        assertNull("Should return null for null source", file);
+    @Test(expected = PsiParseException.class)
+    public void testParseNullSource() throws PsiParseException {
+        env.parseFile("Test.kt", null);
     }
     
     /**
      * Test 10: Parse with empty source code.
-     * 
-     * <p><b>Requirement:</b> Must handle empty input gracefully without
-     * throwing exceptions.</p>
+     *
+     * <p><b>Requirement:</b> Must throw PsiParseException for empty input.</p>
      */
-    @Test
-    public void testParseEmptySource() {
-        KtFile file = env.parseFile("Test.kt", "");
-        assertNull("Should return null for empty source", file);
+    @Test(expected = PsiParseException.class)
+    public void testParseEmptySource() throws PsiParseException {
+        env.parseFile("Test.kt", "");
     }
     
     /**
@@ -270,8 +266,8 @@ public class PsiEnvironmentTest {
      * imports, classes, functions, and properties.</p>
      */
     @Test
-    public void testParseComplexCode() {
-        String source = 
+    public void testParseComplexCode() throws PsiParseException {
+        String source =
             "package com.example\n" +
             "\n" +
             "import java.util.*\n" +

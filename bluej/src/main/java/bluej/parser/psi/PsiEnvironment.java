@@ -201,38 +201,35 @@ public final class PsiEnvironment {
     
     /**
      * Parse Kotlin source code into PSI tree.
-     * 
+     *
      * <p><b>Usage Example:</b></p>
      * <pre>{@code
      * PsiEnvironment env = PsiEnvironment.getInstance();
      * if (env.isInitialized()) {
-     *     KtFile ktFile = env.parseFile("Example.kt", "fun hello() = 42");
-     *     if (ktFile != null) {
+     *     try {
+     *         KtFile ktFile = env.parseFile("Example.kt", "fun hello() = 42");
      *         // Process PSI tree
+     *     } catch (PsiParseException e) {
+     *         // Handle parsing failure
      *     }
      * }
      * }</pre>
-     * 
-     * <p><b>Error Handling:</b> Returns null on any failure. Errors are logged
-     * to stderr but don't throw exceptions.</p>
-     * 
+     *
+     * <p><b>Error Handling:</b> Throws {@link PsiParseException} on any failure.
+     * All parsing errors are wrapped in PsiParseException with descriptive messages.</p>
+     *
      * @param fileName The filename (e.g., "Example.kt" or "Script.kts")
      * @param sourceCode The Kotlin source code to parse
-     * @return Parsed KtFile, or null if parsing fails or environment not initialized
+     * @return Parsed KtFile (never null)
+     * @throws PsiParseException if parsing fails, environment not initialized, or source is invalid
      */
-    public KtFile parseFile(String fileName, String sourceCode) {
+    public KtFile parseFile(String fileName, String sourceCode) throws PsiParseException {
         if (!initialized) {
-            if (LOG_PSI_INIT) {
-                System.err.println("PSI: Cannot parse - environment not initialized");
-            }
-            return null;
+            throw new PsiParseException("PSI environment not initialized");
         }
         
         if (sourceCode == null || sourceCode.isEmpty()) {
-            if (LOG_PSI_INIT) {
-                System.err.println("PSI: Cannot parse - source code is null or empty");
-            }
-            return null;
+            throw new PsiParseException("Source code is null or empty for file: " + fileName);
         }
         
         try {
@@ -242,11 +239,7 @@ public final class PsiEnvironment {
             );
             return factory.createFile(fileName, sourceCode);
         } catch (Exception e) {
-            System.err.println("PSI parsing failed for " + fileName + ": " + e.getMessage());
-            if (LOG_PSI_INIT) {
-                e.printStackTrace();
-            }
-            return null;
+            throw new PsiParseException("Failed to parse Kotlin file: " + fileName, e);
         }
     }
     

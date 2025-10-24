@@ -23,6 +23,7 @@ package bluej.parser;
 
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.psi.PsiEnvironment;
+import bluej.parser.psi.PsiParseException;
 import bluej.parser.psi.PsiTreeSerializer;
 import org.jetbrains.kotlin.psi.KtFile;
 
@@ -134,17 +135,17 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     @Override
     public void parseCU() {
-        System.err.println("[PSI-DEBUG] parseCU() called");
+//        System.err.println("[PSI-DEBUG] parseCU() called");
         
         // Phase 1: Token-based parsing (existing behavior)
         delegate.parseCU();
         
         // Phase 2: PSI enhancement (new, optional)
         if (ENABLE_PSI_OUTPUT) {
-            System.err.println("[PSI-DEBUG] PSI output enabled, calling enhanceWithPSI()");
+//            System.err.println("[PSI-DEBUG] PSI output enabled, calling enhanceWithPSI()");
             enhanceWithPSI();
         } else {
-            System.err.println("[PSI-DEBUG] PSI output DISABLED");
+//            System.err.println("[PSI-DEBUG] PSI output DISABLED");
         }
     }
     
@@ -366,7 +367,7 @@ public class KotlinPsiParser implements ParserBehavior {
         try {
             // Step 1: Get source code from SourceParser
             String sourceCode = getSourceCode();
-            System.err.println("[PSI-DEBUG] Source code length: " + (sourceCode != null ? sourceCode.length() : "NULL"));
+//            System.err.println("[PSI-DEBUG] Source code length: " + (sourceCode != null ? sourceCode.length() : "NULL"));
             if (sourceCode == null || sourceCode.isEmpty()) {
                 if (LOG_PSI_ERRORS) {
                     System.err.println("PSI: No source code available for enhancement");
@@ -376,11 +377,11 @@ public class KotlinPsiParser implements ParserBehavior {
             
             // Step 2: Determine file path
             String filePath = getFilePath();
-            System.err.println("[PSI-DEBUG] File path: " + filePath);
+//            System.err.println("[PSI-DEBUG] File path: " + filePath);
             
             // Step 3: Initialize PSI environment (singleton, lazy)
             PsiEnvironment env = PsiEnvironment.getInstance();
-            System.err.println("[PSI-DEBUG] PsiEnvironment initialized: " + env.isInitialized());
+//            System.err.println("[PSI-DEBUG] PsiEnvironment initialized: " + env.isInitialized());
             if (!env.isInitialized()) {
                 if (LOG_PSI_ERRORS) {
                     System.err.println("PSI: Environment not initialized, skipping enhancement");
@@ -389,33 +390,37 @@ public class KotlinPsiParser implements ParserBehavior {
             }
             
             // Step 4: Parse with PSI
-            System.err.println("[PSI-DEBUG] Calling env.parseFile()...");
+//            System.err.println("[PSI-DEBUG] Calling env.parseFile()...");
             KtFile ktFile = env.parseFile(filePath, sourceCode);
-            System.err.println("[PSI-DEBUG] KtFile result: " + (ktFile != null ? "SUCCESS" : "NULL"));
-            if (ktFile == null) {
-                if (LOG_PSI_ERRORS) {
-                    System.err.println("PSI: Failed to parse file: " + filePath);
-                }
-                return;
-            }
+//            System.err.println("[PSI-DEBUG] KtFile result: SUCCESS");
             
             // Step 5: Serialize PSI tree
-            System.err.println("[PSI-DEBUG] Calling PsiTreeSerializer.serialize()...");
+//            System.err.println("[PSI-DEBUG] Calling PsiTreeSerializer.serialize()...");
             String serialized = PsiTreeSerializer.serialize(ktFile);
-            System.err.println("[PSI-DEBUG] Serialized length: " + (serialized != null ? serialized.length() : "NULL"));
+//            System.err.println("[PSI-DEBUG] Serialized length: " + (serialized != null ? serialized.length() : "NULL"));
             
             // Step 6: Determine output path
             Path outputPath = determinePsiOutputPath(filePath);
-            System.err.println("[PSI-DEBUG] Output path: " + outputPath.toAbsolutePath());
+//            System.err.println("[PSI-DEBUG] Output path: " + outputPath.toAbsolutePath());
             
             // Step 7: Write .psi file
-            System.err.println("[PSI-DEBUG] Writing to file...");
+//            System.err.println("[PSI-DEBUG] Writing to file...");
             PsiTreeSerializer.writeToFile(serialized, outputPath);
-            System.err.println("[PSI-DEBUG] === SUCCESS: .psi file written ===");
+//            System.err.println("[PSI-DEBUG] === SUCCESS: .psi file written ===");
             
+        } catch (PsiParseException e) {
+            // PSI parsing failures MUST NOT break compilation
+//            System.err.println("[PSI-DEBUG] === PSI PARSE EXCEPTION ===");
+            if (LOG_PSI_ERRORS) {
+                System.err.println("PSI parsing failed: " + e.getMessage());
+                if (e.getCause() != null) {
+                    System.err.println("Caused by: " + e.getCause().getMessage());
+                }
+            }
+            // Compilation continues despite PSI parsing failure
         } catch (Exception e) {
-            // PSI enhancement failures MUST NOT break compilation
-            System.err.println("[PSI-DEBUG] === EXCEPTION in enhanceWithPSI ===");
+            // Other PSI enhancement failures (I/O, serialization) also don't break compilation
+//            System.err.println("[PSI-DEBUG] === GENERIC EXCEPTION ===");
             if (LOG_PSI_ERRORS) {
                 System.err.println("PSI enhancement failed: " + e.getMessage());
                 e.printStackTrace();
