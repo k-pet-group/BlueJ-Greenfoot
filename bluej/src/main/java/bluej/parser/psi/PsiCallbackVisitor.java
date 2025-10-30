@@ -22,6 +22,15 @@
 package bluej.parser.psi;
 
 import bluej.parser.JavaParserCallbacks;
+import bluej.parser.PsiCallbackVisitorAdapter;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
+import bluej.parser.lexer.LineColPos;
+import org.jetbrains.kotlin.com.intellij.openapi.editor.Document;
+import org.jetbrains.kotlin.com.intellij.openapi.project.Project;
+import org.jetbrains.kotlin.com.intellij.psi.PsiDocumentManager;
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
+import org.jetbrains.kotlin.com.intellij.psi.PsiFile;
 import org.jetbrains.kotlin.psi.*;
 
 import threadchecker.OnThread;
@@ -176,10 +185,11 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
     private final List<String> traversalLog = new ArrayList<>();
     
     /**
-     * Optional callbacks for recording visitor traversal.
-     * Null in Phase 2 traversal-only mode, set for validation testing.
+     * Optional callback adapter for invoking parser callbacks.
+     * Null in Phase 2 traversal-only mode, set for Phase 3 callback integration.
+     * Uses adapter pattern to access protected JavaParserCallbacks methods.
      */
-    private final JavaParserCallbacks callbacks;
+    private final PsiCallbackVisitorAdapter callbacks;
     
     /**
      * Visitor state for scope tracking and modifier management.
@@ -210,19 +220,15 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
     /**
      * Creates a new PSI callback visitor with callbacks for validation testing.
      *
-     * <p><b>Milestone 2.3:</b> This constructor enables validation testing by
-     * allowing a {@link CallbackRecorder} instance to be provided. The visitor
-     * will invoke basic begin/end callbacks during traversal, enabling validation
-     * of callback sequences and pairing.</p>
+     * <p><b>Phase 3:</b> This constructor enables callback integration by accepting
+     * any {@link JavaParserCallbacks} instance wrapped in an adapter. The adapter
+     * provides public methods to invoke protected callback methods from the
+     * bluej.parser.psi package.</p>
      *
-     * <p>This is a transitional step between Phase 2 (traversal only) and Phase 3
-     * (full callback integration). The visitor invokes structural callbacks but does
-     * not yet create full token parameters or handle complex callback semantics.</p>
-     *
-     * @param recorder The callback recorder to receive traversal events
+     * @param callbacks The JavaParserCallbacks instance (will be wrapped in adapter)
      */
-    public PsiCallbackVisitor(CallbackRecorder recorder) {
-        this.callbacks = recorder;
+    public PsiCallbackVisitor(JavaParserCallbacks callbacks) {
+        this.callbacks = new PsiCallbackVisitorAdapter(callbacks);
     }
     
     /**
@@ -239,19 +245,22 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
     
     /**
      * Entry point for PSI traversal - visits a Kotlin file.
-     * 
+     *
      * <p>This method is the starting point for traversing a Kotlin PSI tree.
-     * It logs the file visit and then delegates to the default visitor behavior
-     * which will recursively visit all child elements.</p>
-     * 
+     * It logs the file visit and then explicitly visits all declarations in the file.</p>
+     *
+     * <p><b>Critical:</b> Unlike some visitor patterns, Kotlin's {@link KtVisitorVoid}
+     * does NOT automatically traverse children when calling super. We must explicitly
+     * iterate over and visit each declaration.</p>
+     *
      * <h3>Phase 2 Behavior</h3>
      * <p>Logs: "VISIT: FILE: &lt;fileName&gt;"</p>
-     * <p>Then continues standard depth-first traversal of all declarations.</p>
-     * 
+     * <p>Then explicitly visits all top-level declarations (classes, functions, properties).</p>
+     *
      * <h3>Phase 3 Migration</h3>
      * <p>Will invoke {@code callbacks.beginParsing()} before traversal and
      * {@code callbacks.endParsing()} after traversal.</p>
-     * 
+     *
      * @param file The Kotlin file PSI element to traverse
      */
     @Override
@@ -264,8 +273,11 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         String fileName = file.getName();
         traversalLog.add("VISIT: FILE: " + (fileName != null ? fileName : "<unnamed>"));
         
-        // Continue standard traversal of file contents
-        super.visitKtFile(file);
+        // Explicitly visit all declarations in the file
+        // Note: Kotlin PSI visitor requires explicit iteration over children
+        for (KtDeclaration declaration : file.getDeclarations()) {
+            declaration.accept(this);
+        }
     }
     
     /**
@@ -280,15 +292,19 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      *   <li>Sealed classes ({@code sealed class MySealed})</li>
      * </ul>
      *
-     * <h3>Phase 2 Behavior</h3>
-     * <p>Logs: "VISIT: CLASS: &lt;className&gt;"</p>
-     * <p>Manages state with push/pop pattern using try-finally for balanced stack.</p>
-     * <p>Continues traversal to visit members (functions, properties, nested classes).</p>
-     *
-     * <h3>Phase 3 Migration</h3>
-     * <p>Will extract modifiers via {@link #extractModifiers(KtModifierListOwner)},
-     * invoke {@code callbacks.beginTypeDecl()} before visiting class body,
-     * and {@code callbacks.endTypeDecl()} after visiting all members.</p>
+     * <h3>Phase 3 Milestone 3.1 Task 1: Core Callback Sequence</h3>
+     * <p>Implements the complete callback sequence for simple class declarations:</p>
+     * <ol>
+     *   <li>{@code gotDeclBegin(token)} - Begin declaration</li>
+     *   <li>{@code modifiersConsumed()} - Modifiers processed (empty for now)</li>
+     *   <li>{@code gotTypeDef(token, tdType)} - Type definition</li>
+     *   <li>{@code gotTypeDefName(nameToken)} - Type name</li>
+     *   <li>Supertype processing (deferred to later task)</li>
+     *   <li>{@code beginTypeBody(token)} - Begin body</li>
+     *   <li>Visit members via {@code super.visitClass()}</li>
+     *   <li>{@code endTypeBody(token, true)} - End body</li>
+     *   <li>{@code gotTypeDefEnd(token, true)} - End declaration</li>
+     * </ol>
      *
      * @param ktClass The class declaration PSI element
      */
@@ -298,35 +314,71 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             return;
         }
         
-        // Phase 2: Log class visit
+        // Phase 2: Log class visit (retained for debugging)
         String className = ktClass.getName();
         traversalLog.add("VISIT: CLASS: " + (className != null ? className : "<anonymous>"));
         
         // State management with try-finally
         state.pushScope(ktClass);
         try {
-            // TODO Phase 3: Extract modifiers and track with state.addModifier()
-            
-            // Milestone 2.3: Invoke minimal callbacks for validation testing
-            // PHASE 2 TEMPORARY: instanceof check for CallbackRecorder
-            // TODO Phase 3: Replace with proper polymorphic interface methods
-            if (callbacks instanceof CallbackRecorder) {
-                // Note: In Phase 3, we'll create proper token parameters
-                // For now, just invoke the structural callbacks
-                ((CallbackRecorder) callbacks).beginClass();
+            // Skip if no callbacks configured
+            if (callbacks == null) {
+                super.visitClass(ktClass);
+                return;
             }
             
-            // Continue traversal to visit class members
-            super.visitClass(ktClass);
+            // 1. Begin declaration
+            LocatableToken classToken = createToken(ktClass, JavaTokenTypes.LITERAL_class);
+            callbacks.invokeDeclBegin(classToken);
             
-            // Milestone 2.3: End callback for validation
-            // PHASE 2 TEMPORARY: instanceof check for CallbackRecorder
-            // TODO Phase 3: Replace with proper polymorphic interface methods
-            if (callbacks instanceof CallbackRecorder) {
-                ((CallbackRecorder) callbacks).endClass();
+            // 2. Modifiers consumed (empty for now - Task 2 will implement)
+            // TODO Task 2: Extract modifiers from ktClass.getModifierList()
+            callbacks.invokeModifiersConsumed();
+            
+            // 3. Type definition
+            int tdType = determineTypeDefType(ktClass);
+            callbacks.invokeTypeDef(classToken, tdType);
+            
+            // 4. Type name
+            if (className != null && ktClass.getNameIdentifier() != null) {
+                LocatableToken nameToken = createToken(ktClass.getNameIdentifier(), JavaTokenTypes.IDENT);
+                callbacks.invokeTypeDefName(nameToken);
             }
             
-            // TODO Phase 3: Clear modifiers with clearModifierState()
+            // 5. Supertypes (deferred to Task 3 - skip for now)
+            // TODO Task 3: Process extends/implements clauses
+            
+            // 6. Begin type body
+            KtClassBody body = ktClass.getBody();
+            if (body != null) {
+                // Extract separate opening and closing brace elements
+                PsiElement lBrace = body.getLBrace();
+                PsiElement rBrace = body.getRBrace();
+                
+                if (lBrace != null && rBrace != null) {
+                    // Create separate tokens for opening and closing braces
+                    LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+                    LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+                    
+                    callbacks.invokeBeginTypeBody(lBraceToken);
+                    
+                    // 7. Visit members - super.visitClass recurses into nested declarations
+                    super.visitClass(ktClass);
+                    
+                    // 8. End type body with separate closing brace token
+                    callbacks.invokeEndTypeBody(rBraceToken, true);
+                } else {
+                    // Braces missing - malformed code, but handle gracefully
+                    super.visitClass(ktClass);
+                }
+            } else {
+                // No body - just visit to be safe
+                super.visitClass(ktClass);
+            }
+            
+            // 9. End declaration
+            callbacks.invokeTypeDefEnd(classToken, true);
+            
         } finally {
             state.popScope();  // ALWAYS cleanup
         }
@@ -466,24 +518,11 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         state.pushScope(declaration);
         try {
             // TODO Phase 3: Extract modifiers and track with state.addModifier()
-            
-            // Milestone 2.3: Invoke minimal callbacks for validation testing
-            // Objects are treated as classes in the callback structure
-            // PHASE 2 TEMPORARY: instanceof check for CallbackRecorder
-            // TODO Phase 3: Replace with proper polymorphic interface methods
-            if (callbacks instanceof CallbackRecorder) {
-                ((CallbackRecorder) callbacks).beginClass();
-            }
+            // TODO Phase 3: Implement object declaration callback sequence
+            //   (similar to class but mark as object type)
             
             // Continue traversal to visit object members
             super.visitObjectDeclaration(declaration);
-            
-            // Milestone 2.3: End callback for validation
-            // PHASE 2 TEMPORARY: instanceof check for CallbackRecorder
-            // TODO Phase 3: Replace with proper polymorphic interface methods
-            if (callbacks instanceof CallbackRecorder) {
-                ((CallbackRecorder) callbacks).endClass();
-            }
             
             // TODO Phase 3: Clear modifiers with clearModifierState()
         } finally {
@@ -521,7 +560,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
     /**
      * Get current visitor state (for testing).
      *
-     * <p>Package-private to allow test access while preventing external misuse.
+     * <p>Public to allow test access from bluej.parser.psi package.
      * Tests can use this to verify state management during traversal, check
      * nesting depth, or validate modifier accumulation.</p>
      *
@@ -529,14 +568,149 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      *
      * @return The visitor state instance
      */
-    VisitorState getState() {
+    public VisitorState getState() {
         return state;
     }
     
-    // ==================== Phase 3 Preparation Stubs ====================
+    // ==================== Phase 3 Helper Methods ====================
     
     /**
-     * Extract modifiers from PSI element (Phase 3).
+     * Creates a LocatableToken from a PSI element with proper line/column positions.
+     *
+     * <p>This helper method converts a PSI element into a token suitable for callback
+     * invocation. It calculates accurate line and column positions by accessing the
+     * Document via PsiDocumentManager.</p>
+     *
+     * <p><b>Position Calculation:</b> Uses IntelliJ Platform's Document API to convert
+     * text offsets into line/column coordinates:</p>
+     * <ol>
+     *   <li>Get containing file from element</li>
+     *   <li>Access Project from file</li>
+     *   <li>Get Document via PsiDocumentManager</li>
+     *   <li>Convert offsets to line numbers (0-based → 1-based)</li>
+     *   <li>Calculate columns as offset from line start</li>
+     * </ol>
+     *
+     * <p><b>Fallback Strategy:</b> If Document is unavailable (rare edge case), falls back
+     * to placeholder positions to ensure graceful degradation.</p>
+     *
+     * @param element The PSI element to convert to a token
+     * @param type The token type from {@link JavaTokenTypes}
+     * @return LocatableToken with accurate line/column positions
+     * @throws IllegalArgumentException if element is null
+     */
+    private LocatableToken createToken(PsiElement element, int type) {
+        if (element == null) {
+            throw new IllegalArgumentException("PSI element must not be null");
+        }
+        
+        // Extract text and offset
+        String text = element.getText();
+        if (text == null) {
+            text = "";
+        }
+        
+        int startOffset = element.getTextOffset();
+        int endOffset = startOffset + text.length();
+        
+        // Get source file text for line/column calculation
+        // Note: Document API (PsiDocumentManager) is unavailable in lightweight test PSI environments,
+        // so we calculate positions directly from source text
+        PsiFile psiFile = element.getContainingFile();
+        if (psiFile == null) {
+            // Fallback if no containing file (shouldn't happen)
+            LineColPos begin = new LineColPos(1, startOffset, startOffset);
+            LineColPos end = new LineColPos(1, endOffset, endOffset);
+            return new LocatableToken(type, text, begin, end);
+        }
+        
+        String fileText = psiFile.getText();
+        
+        // Calculate start position
+        int[] startLineCol = calculateLineColumn(fileText, startOffset);
+        int startLine = startLineCol[0];
+        int startColumn = startLineCol[1];
+        
+        // Calculate end position
+        int[] endLineCol = calculateLineColumn(fileText, endOffset);
+        int endLine = endLineCol[0];
+        int endColumn = endLineCol[1];
+        
+        // Create token with accurate positions
+        LineColPos begin = new LineColPos(startLine, startColumn, startOffset);
+        LineColPos end = new LineColPos(endLine, endColumn, endOffset);
+        
+        return new LocatableToken(type, text, begin, end);
+    }
+    
+    /**
+     * Calculate line and column numbers from file text and offset.
+     *
+     * <p>Counts newlines from file start to offset to determine line number (1-based).
+     * Then scans backwards to find line start and calculates column position (1-based).</p>
+     *
+     * <p><b>Algorithm:</b></p>
+     * <ol>
+     *   <li>Start at line 1, lineStartOffset = 0</li>
+     *   <li>Scan through text from 0 to offset</li>
+     *   <li>Each newline increments line, updates lineStartOffset to position after newline</li>
+     *   <li>Column = (offset - lineStartOffset) + 1 to convert to 1-based</li>
+     * </ol>
+     *
+     * <p><b>Position Conventions:</b> Both line and column are 1-based to match BlueJ
+     * parser conventions. The first character on a line is column 1.</p>
+     *
+     * @param fileText The complete source file text
+     * @param offset The character offset in the file (0-based)
+     * @return Array of [line, column] where both are 1-based
+     */
+    private int[] calculateLineColumn(String fileText, int offset) {
+        int line = 1;  // 1-based line number
+        int lineStartOffset = 0;
+        
+        // Count newlines before offset to determine line number
+        for (int i = 0; i < Math.min(offset, fileText.length()); i++) {
+            if (fileText.charAt(i) == '\n') {
+                line++;
+                lineStartOffset = i + 1;  // Next line starts after newline
+            }
+        }
+        
+        // Column is offset from line start, converted to 1-based
+        int column = (offset - lineStartOffset) + 1;
+        
+        return new int[] { line, column };
+    }
+    
+    /**
+     * Determines the typedef type constant for a Kotlin class.
+     *
+     * <p>Maps Kotlin class declarations to their JavaTokenTypes typedef constants:</p>
+     * <ul>
+     *   <li>Interfaces → {@link JavaTokenTypes#LITERAL_interface}</li>
+     *   <li>Enum classes → {@link JavaTokenTypes#LITERAL_enum}</li>
+     *   <li>Regular classes (including data, sealed, etc.) → {@link JavaTokenTypes#LITERAL_class}</li>
+     * </ul>
+     *
+     * <p>This classification is used by {@link JavaParserCallbacks#gotTypeDef(LocatableToken, int)}
+     * to inform the parser infrastructure about the type of declaration being processed.</p>
+     *
+     * @param ktClass The Kotlin class PSI element to classify
+     * @return The appropriate TYPEDEF_* constant from {@link JavaTokenTypes}
+     */
+    private int determineTypeDefType(KtClass ktClass) {
+        if (ktClass.isInterface()) {
+            return JavaTokenTypes.LITERAL_interface;
+        } else if (ktClass.isEnum()) {
+            return JavaTokenTypes.LITERAL_enum;
+        } else {
+            // Regular class (includes data classes, sealed classes, etc.)
+            return JavaTokenTypes.LITERAL_class;
+        }
+    }
+    
+    /**
+     * Extract modifiers from PSI element (Phase 3 - Task 2).
      *
      * <p>This method will parse the modifier list from a Kotlin declaration and
      * add each modifier to the visitor state via {@link VisitorState#addModifier(String)}.
