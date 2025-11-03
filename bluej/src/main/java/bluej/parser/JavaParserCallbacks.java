@@ -249,13 +249,13 @@ public class JavaParserCallbacks
     protected void beginTypeDefExtends(LocatableToken extendsToken) { }
 
     /** Called after we have seen the last type in an "extends" type list */
-    protected void endTypeDefExtends() { }
+    public void endTypeDefExtends() { }
 
     /** Called when we have seen the "implements" literal token */
     protected void beginTypeDefImplements(LocatableToken implementsToken) { }
 
     /** Called after we have seen the last type in an "implements" type list */
-    protected void endTypeDefImplements() { }
+    public void endTypeDefImplements() { }
 
     /** Called when we have seen the "permits" literal token */
     protected void beginTypeDefPermits(LocatableToken permitsToken) { }

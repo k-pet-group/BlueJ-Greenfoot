@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.com.intellij.openapi.project.Project;
 import org.jetbrains.kotlin.com.intellij.psi.PsiDocumentManager;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
 import org.jetbrains.kotlin.com.intellij.psi.PsiFile;
+import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.*;
 
 import threadchecker.OnThread;
@@ -331,8 +332,11 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             LocatableToken classToken = createToken(ktClass, JavaTokenTypes.LITERAL_class);
             callbacks.invokeDeclBegin(classToken);
             
-            // 2. Modifiers consumed (empty for now - Task 2 will implement)
-            // TODO Task 2: Extract modifiers from ktClass.getModifierList()
+            // 2. Process modifiers
+            KtModifierList modifierList = ktClass.getModifierList();
+            if (modifierList != null) {
+                processModifiers(modifierList);
+            }
             callbacks.invokeModifiersConsumed();
             
             // 3. Type definition
@@ -345,8 +349,8 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 callbacks.invokeTypeDefName(nameToken);
             }
             
-            // 5. Supertypes (deferred to Task 3 - skip for now)
-            // TODO Task 3: Process extends/implements clauses
+            // 5. Process supertypes
+            processSuperTypes(ktClass);
             
             // 6. Begin type body
             KtClassBody body = ktClass.getBody();
@@ -362,19 +366,26 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                     
                     callbacks.invokeBeginTypeBody(lBraceToken);
                     
-                    // 7. Visit members - super.visitClass recurses into nested declarations
-                    super.visitClass(ktClass);
+                    // 7. Visit nested class declarations explicitly
+                    // Note: Kotlin PSI visitor requires explicit iteration over body declarations
+                    // super.visitClass() does NOT automatically recurse into nested classes
+                    // CRITICAL: Filter to KtClass AND exclude KtEnumEntry (enum constants, not classes)
+                    for (KtDeclaration declaration : body.getDeclarations()) {
+                        if (declaration instanceof KtClass && !(declaration instanceof KtEnumEntry)) {
+                            declaration.accept(this);  // Triggers visitClass() for nested classes
+                        }
+                        // Note: Other declarations (properties, functions, enum entries)
+                        // are deferred to Phase 4 - Member Declarations
+                    }
                     
                     // 8. End type body with separate closing brace token
                     callbacks.invokeEndTypeBody(rBraceToken, true);
                 } else {
                     // Braces missing - malformed code, but handle gracefully
-                    super.visitClass(ktClass);
+                    // No nested declarations can be visited without a proper body
                 }
-            } else {
-                // No body - just visit to be safe
-                super.visitClass(ktClass);
             }
+            // Note: No else needed - if no body, there are no nested declarations to visit
             
             // 9. End declaration
             callbacks.invokeTypeDefEnd(classToken, true);
@@ -710,28 +721,116 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
     }
     
     /**
-     * Extract modifiers from PSI element (Phase 3 - Task 2).
+     * Processes Kotlin modifiers and invokes corresponding callbacks.
+     *
+     * <p>This method extracts modifiers from a Kotlin modifier list and maps them
+     * to Java equivalents for callback invocation. The mapping strategy ensures
+     * compatibility with BlueJ's Java-centric parser infrastructure.</p>
+     *
+     * <h3>Modifier Mapping Strategy</h3>
+     * <table border="1">
+     *   <tr><th>Kotlin Modifier</th><th>Java Equivalent</th><th>Notes</th></tr>
+     *   <tr><td>public</td><td>public</td><td>Direct mapping</td></tr>
+     *   <tr><td>private</td><td>private</td><td>Direct mapping</td></tr>
+     *   <tr><td>protected</td><td>protected</td><td>Direct mapping</td></tr>
+     *   <tr><td>internal</td><td>public</td><td>Module-visible → public approximation</td></tr>
+     *   <tr><td>abstract</td><td>abstract</td><td>Direct mapping</td></tr>
+     *   <tr><td>final</td><td>final</td><td>Direct mapping</td></tr>
+     *   <tr><td>open</td><td>(skipped)</td><td>Default Java behavior (non-final)</td></tr>
+     * </table>
+     *
+     * <p><b>Processing Order:</b> Modifiers are processed in the order they appear
+     * in the source code, which matches BlueJ's expectation for Java modifiers.</p>
+     *
+     * <p><b>Kotlin-Specific Modifiers:</b> Modifiers like {@code data}, {@code sealed},
+     * {@code companion} don't have direct Java equivalents and are handled in later tasks.</p>
+     *
+     * @param modifierList The Kotlin modifier list to process (must not be null)
+     */
+    private void processModifiers(KtModifierList modifierList) {
+        if (modifierList == null || callbacks == null) {
+            return;
+        }
+        
+        // Process visibility modifiers
+        if (modifierList.hasModifier(KtTokens.PUBLIC_KEYWORD)) {
+            LocatableToken token = createToken(
+                modifierList.getModifier(KtTokens.PUBLIC_KEYWORD),
+                JavaTokenTypes.LITERAL_public
+            );
+            callbacks.invokeModifier(token);
+        }
+        
+        if (modifierList.hasModifier(KtTokens.PRIVATE_KEYWORD)) {
+            LocatableToken token = createToken(
+                modifierList.getModifier(KtTokens.PRIVATE_KEYWORD),
+                JavaTokenTypes.LITERAL_private
+            );
+            callbacks.invokeModifier(token);
+        }
+        
+        if (modifierList.hasModifier(KtTokens.PROTECTED_KEYWORD)) {
+            LocatableToken token = createToken(
+                modifierList.getModifier(KtTokens.PROTECTED_KEYWORD),
+                JavaTokenTypes.LITERAL_protected
+            );
+            callbacks.invokeModifier(token);
+        }
+        
+        if (modifierList.hasModifier(KtTokens.INTERNAL_KEYWORD)) {
+            // Kotlin 'internal' modifier - module visibility
+            LocatableToken token = createToken(
+                modifierList.getModifier(KtTokens.INTERNAL_KEYWORD),
+                JavaTokenTypes.LITERAL_internal
+            );
+            callbacks.invokeModifier(token);
+        }
+        
+        // Process inheritance modifiers
+        if (modifierList.hasModifier(KtTokens.ABSTRACT_KEYWORD)) {
+            LocatableToken token = createToken(
+                modifierList.getModifier(KtTokens.ABSTRACT_KEYWORD),
+                JavaTokenTypes.ABSTRACT
+            );
+            callbacks.invokeModifier(token);
+        }
+        
+        if (modifierList.hasModifier(KtTokens.FINAL_KEYWORD)) {
+            LocatableToken token = createToken(
+                modifierList.getModifier(KtTokens.FINAL_KEYWORD),
+                JavaTokenTypes.FINAL
+            );
+            callbacks.invokeModifier(token);
+        }
+        
+        if (modifierList.hasModifier(KtTokens.OPEN_KEYWORD)) {
+            // Kotlin 'open' modifier - allows inheritance (opposite of final)
+            LocatableToken token = createToken(
+                modifierList.getModifier(KtTokens.OPEN_KEYWORD),
+                JavaTokenTypes.LITERAL_open
+            );
+            callbacks.invokeModifier(token);
+        }
+        
+        // Note: Static modifier handling for companion objects deferred to Task 3.2
+        // Kotlin doesn't have static classes, only companion objects
+    }
+    
+    /**
+     * Extract modifiers from PSI element (Phase 3 - future tasks).
      *
      * <p>This method will parse the modifier list from a Kotlin declaration and
      * add each modifier to the visitor state via {@link VisitorState#addModifier(String)}.
      * Common modifiers include: public, private, protected, internal, static, final,
      * abstract, override, open, data, sealed.</p>
      *
-     * <p><b>Phase 2:</b> Stub method - not implemented yet.</p>
-     * <p><b>Phase 3:</b> Will be implemented to extract modifiers from
-     * {@link org.jetbrains.kotlin.psi.KtModifierListOwner#getModifierList()}.</p>
+     * <p><b>Phase 3:</b> Reserved for future use with VisitorState modifier tracking.</p>
      *
      * @param element The PSI element with potential modifiers
      */
     private void extractModifiers(KtModifierListOwner element) {
-        // TODO Phase 3: Implement modifier extraction from KtModifierListOwner
-        // Example implementation:
-        // KtModifierList modifierList = element.getModifierList();
-        // if (modifierList != null) {
-        //     for (PsiElement modifier : modifierList.getChildren()) {
-        //         state.addModifier(modifier.getText());
-        //     }
-        // }
+        // TODO Phase 3: Implement modifier extraction for VisitorState tracking
+        // This method is reserved for future use with state-based modifier management
     }
     
     /**
@@ -747,6 +846,124 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      */
     private void clearModifierState() {
         state.clearModifiers();
+    }
+    
+    /**
+     * Processes superclass and implemented interfaces.
+     *
+     * <p>Kotlin syntax: First supertype with constructor call is superclass,
+     * remaining supertypes are interfaces.</p>
+     *
+     * <p><b>Constructor Call Detection:</b> The critical distinction is whether
+     * the supertype entry has a constructor call (parentheses). This determines
+     * classification:</p>
+     * <ul>
+     *   <li>{@code class Child : Parent()} - Parent is superclass (has constructor call)</li>
+     *   <li>{@code class Impl : Interface} - Interface is interface (no constructor call)</li>
+     *   <li>{@code class Multi : Parent(), Interface1, Interface2} - Parent is superclass,
+     *       Interface1 and Interface2 are interfaces</li>
+     * </ul>
+     *
+     * @param ktClass The Kotlin class with potential supertypes
+     */
+    private void processSuperTypes(KtClass ktClass) {
+        if (callbacks == null) {
+            return;
+        }
+        
+        List<KtSuperTypeListEntry> superTypeEntries = ktClass.getSuperTypeListEntries();
+        if (superTypeEntries.isEmpty()) {
+            return; // No supertypes
+        }
+        
+        // Find superclass (first entry with constructor call)
+        KtSuperTypeListEntry superClassEntry = null;
+        List<KtSuperTypeListEntry> interfaceEntries = new ArrayList<>();
+        
+        for (KtSuperTypeListEntry entry : superTypeEntries) {
+            if (entry instanceof KtSuperTypeCallEntry) {
+                // Has constructor call () → this is the superclass
+                if (superClassEntry == null) {
+                    superClassEntry = entry;
+                } else {
+                    // Multiple constructor calls? Shouldn't happen, but treat as interface
+                    interfaceEntries.add(entry);
+                }
+            } else {
+                // No constructor call → interface
+                interfaceEntries.add(entry);
+            }
+        }
+        
+        // Process superclass
+        if (superClassEntry != null) {
+            processSuperClass(superClassEntry);
+        }
+        
+        // Process interfaces
+        if (!interfaceEntries.isEmpty()) {
+            processInterfaces(interfaceEntries);
+        }
+    }
+    
+    /**
+     * Processes the superclass (extends).
+     *
+     * <p>Extracts the superclass name from the type reference and invokes
+     * {@code beginTypeDefExtends} callback. The callback is invoked with a
+     * token representing the superclass type reference.</p>
+     *
+     * <p><b>Type Name Cleaning:</b> The type reference text may include:</p>
+     * <ul>
+     *   <li>Type parameters: {@code Parent<T>} → cleaned to {@code Parent}</li>
+     *   <li>Constructor call: {@code Parent()} → cleaned to {@code Parent}</li>
+     * </ul>
+     *
+     * @param superClassEntry The supertype entry representing the superclass
+     */
+    private void processSuperClass(KtSuperTypeListEntry superClassEntry) {
+        // Get type reference
+        KtTypeReference typeRef = superClassEntry.getTypeReference();
+        if (typeRef == null) {
+            return;
+        }
+        
+        // Create token from the type reference
+        LocatableToken extendsToken = createToken(typeRef, JavaTokenTypes.IDENT);
+        
+        // Invoke callbacks - begin/end pair for extends block
+        callbacks.beginTypeDefExtends(extendsToken);
+        callbacks.endTypeDefExtends();
+        // Note: No individual type processing between begin/end
+    }
+    
+    /**
+     * Processes implemented interfaces.
+     *
+     * <p>Invokes {@code beginTypeDefImplements} callback with a token representing
+     * the first interface type reference. The callback serves as a marker that
+     * the class implements one or more interfaces.</p>
+     *
+     * <p><b>Single Callback:</b> Unlike individual interface processing, this
+     * invokes a single {@code beginTypeDefImplements} callback regardless of
+     * the number of interfaces. Individual interface name extraction is deferred
+     * to later tasks.</p>
+     *
+     * @param interfaceEntries List of supertype entries representing interfaces
+     */
+    private void processInterfaces(List<KtSuperTypeListEntry> interfaceEntries) {
+        if (interfaceEntries.isEmpty()) {
+            return;
+        }
+        
+        // Begin implements block with first interface
+        KtTypeReference firstInterface = interfaceEntries.get(0).getTypeReference();
+        if (firstInterface != null) {
+            LocatableToken implToken = createToken(firstInterface, JavaTokenTypes.IDENT);
+            callbacks.beginTypeDefImplements(implToken);
+            callbacks.endTypeDefImplements();
+            // Note: No individual type processing between begin/end
+        }
     }
     
     // TODO: Task 2.2.3 - Implement additional visitor methods (Phase 3):

@@ -21,8 +21,6 @@
  */
 package bluej.parser.psi;
 
-import bluej.parser.psi.CallbackRecorder.CallbackRecord;
-
 import java.util.*;
 import java.util.stream.Collectors;
 

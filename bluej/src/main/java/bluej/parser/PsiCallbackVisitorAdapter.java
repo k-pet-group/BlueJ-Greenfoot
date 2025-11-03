@@ -88,6 +88,13 @@ public class PsiCallbackVisitorAdapter extends JavaParserCallbacks {
     }
     
     /**
+     * Public delegation to {@link JavaParserCallbacks#gotModifier(LocatableToken)}.
+     */
+    public void invokeModifier(LocatableToken token) {
+        delegate.gotModifier(token);
+    }
+    
+    /**
      * Public delegation to {@link JavaParserCallbacks#modifiersConsumed()}.
      */
     public void invokeModifiersConsumed() {
@@ -127,5 +134,33 @@ public class PsiCallbackVisitorAdapter extends JavaParserCallbacks {
      */
     public void invokeTypeDefEnd(LocatableToken token, boolean included) {
         delegate.gotTypeDefEnd(token, included);
+    }
+    
+    /**
+     * Public delegation to {@link JavaParserCallbacks#beginTypeDefExtends(LocatableToken)}.
+     */
+    public void beginTypeDefExtends(LocatableToken token) {
+        delegate.beginTypeDefExtends(token);
+    }
+    
+    /**
+     * Public delegation to {@link JavaParserCallbacks#endTypeDefExtends()}.
+     */
+    public void endTypeDefExtends() {
+        delegate.endTypeDefExtends();
+    }
+    
+    /**
+     * Public delegation to {@link JavaParserCallbacks#beginTypeDefImplements(LocatableToken)}.
+     */
+    public void beginTypeDefImplements(LocatableToken token) {
+        delegate.beginTypeDefImplements(token);
+    }
+    
+    /**
+     * Public delegation to {@link JavaParserCallbacks#endTypeDefImplements()}.
+     */
+    public void endTypeDefImplements() {
+        delegate.endTypeDefImplements();
     }
 }

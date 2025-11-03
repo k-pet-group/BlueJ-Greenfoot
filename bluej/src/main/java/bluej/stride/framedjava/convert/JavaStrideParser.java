@@ -1087,7 +1087,7 @@ public class JavaStrideParser extends SourceParser
     }
 
     @Override
-    protected void endTypeDefExtends()
+    public void endTypeDefExtends()
     {
         super.endTypeDefExtends();
         typeHandlers.pop();
@@ -1103,7 +1103,7 @@ public class JavaStrideParser extends SourceParser
     }
 
     @Override
-    protected void endTypeDefImplements()
+    public void endTypeDefImplements()
     {
         super.endTypeDefImplements();
         typeHandlers.pop();

@@ -107,11 +107,10 @@ public class CallbackRecorder extends JavaParserCallbacks {
     private final List<CallbackRecord> records = new ArrayList<>();
     
     /**
-     * Incremental pairing validator that updates as callbacks are recorded.
-     * This avoids O(n²) complexity when calling getValidationResult() multiple times.
-     * Updated incrementally in {@link #record(String, Map)} for efficiency.
+     * Cached pairing validator created on-demand for deferred validation.
+     * Null until first validation is requested.
      */
-    private final PairingValidator pairingValidator = new PairingValidator();
+    private PairingValidator cachedValidator = null;
     
     /**
      * Creates a new callback recorder for validation testing.
@@ -268,9 +267,14 @@ public class CallbackRecorder extends JavaParserCallbacks {
      * @return Detailed validation result
      */
     public ValidationResult getValidationResult() {
-        // Simply wrap the incrementally-maintained validator
-        // No reprocessing needed - O(1) complexity
-        return new ValidationResult(pairingValidator);
+        if (cachedValidator == null) {
+            cachedValidator = new PairingValidator(records);
+        }
+        return new ValidationResult(cachedValidator);
+    }
+    
+    public String getDetailedValidationSummary() {
+        return getValidationResult().getDetailedValidationSummary();
     }
     
     /**
@@ -283,11 +287,15 @@ public class CallbackRecorder extends JavaParserCallbacks {
         private final boolean balanced;
         private final boolean hasErrors;
         private final String validationSummary;
+        private final List<PairingValidator.CallbackPairing> pairings;
+        private final List<String> errors;
         
         private ValidationResult(PairingValidator validator) {
             this.balanced = validator.isBalanced();
             this.hasErrors = validator.hasErrors();
-            this.validationSummary = validator.getValidationSummary();
+            this.validationSummary = validator.getDetailedSummary();
+            this.pairings = validator.getPairings();
+            this.errors = validator.getErrors();
         }
         
         /**
@@ -316,6 +324,33 @@ public class CallbackRecorder extends JavaParserCallbacks {
         public String getValidationSummary() {
             return validationSummary;
         }
+        
+        /**
+         * Returns the detailed validation summary with enhanced context.
+         *
+         * @return Formatted detailed summary
+         */
+        public String getDetailedValidationSummary() {
+            return validationSummary;
+        }
+        
+        /**
+         * Returns the list of callback pairings.
+         *
+         * @return Unmodifiable list of pairings
+         */
+        public List<PairingValidator.CallbackPairing> getPairings() {
+            return pairings;
+        }
+        
+        /**
+         * Returns the list of validation errors.
+         *
+         * @return Unmodifiable list of error messages
+         */
+        public List<String> getErrors() {
+            return errors;
+        }
     }
     
     /**
@@ -340,9 +375,7 @@ public class CallbackRecorder extends JavaParserCallbacks {
      */
     public void reset() {
         records.clear();
-        // Note: PairingValidator doesn't currently have a reset() method
-        // This is acceptable since creating a new validator is lightweight
-        // and reset() is typically called infrequently between tests
+        cachedValidator = null;
     }
     
     // ==================== Core Recording Method ====================
@@ -354,32 +387,29 @@ public class CallbackRecorder extends JavaParserCallbacks {
      * It creates a {@link CallbackRecord} with the callback name and parameters,
      * then adds it to the records list.</p>
      *
-     * <p><b>Performance Note:</b> This method also updates the pairing validator
-     * incrementally to avoid O(n²) complexity on repeated validation calls.</p>
+     * <p><b>Deferred Validation:</b> This method NO LONGER performs incremental
+     * validation. Instead, validation happens when {@link #getValidationResult()}
+     * is called, allowing for much better error messages with full context.</p>
      *
      * @param callbackName The name of the callback being invoked
      * @param parameters Map of parameter names to values
      */
     private void record(String callbackName, Map<String, Object> parameters) {
         records.add(new CallbackRecord(callbackName, parameters));
-        
-        // Update validator incrementally for O(1) validation updates
-        if (callbackName.startsWith("begin")) {
-            pairingValidator.recordBegin(callbackName);
-        } else if (callbackName.startsWith("end")) {
-            pairingValidator.recordEnd(callbackName);
-        }
+        cachedValidator = null;
     }
     
     /**
      * Records a callback invocation without parameters.
-     * 
+     *
+     * <p>Convenience overload for callbacks that don't have parameters.</p>
+     *
      * @param callbackName The name of the callback being invoked
      */
     private void record(String callbackName) {
-        records.add(new CallbackRecord(callbackName, Collections.emptyMap()));
+        record(callbackName, Map.of());
     }
-    
+
     // ==================== JavaParserCallbacks Overrides ====================
     // Note: Only a subset of callbacks are shown here as examples.
     // In a complete implementation, ALL protected methods from JavaParserCallbacks
@@ -814,7 +844,7 @@ public class CallbackRecorder extends JavaParserCallbacks {
     }
     
     @Override
-    protected void endTypeDefExtends() {
+    public void endTypeDefExtends() {
         record("endTypeDefExtends");
     }
     
@@ -824,7 +854,7 @@ public class CallbackRecorder extends JavaParserCallbacks {
     }
     
     @Override
-    protected void endTypeDefImplements() {
+    public void endTypeDefImplements() {
         record("endTypeDefImplements");
     }
     
@@ -1444,87 +1474,5 @@ public class CallbackRecorder extends JavaParserCallbacks {
     
     public void endClass() {
         record("endClass");
-    }
-    
-    // ==================== CallbackRecord Inner Class ====================
-    
-    public static class CallbackRecord {
-        private final String callbackName;
-        private final Map<String, Object> parameters;
-        private final long timestamp;
-        
-        /**
-         * Creates a new callback record.
-         * 
-         * @param callbackName The name of the callback that was invoked
-         * @param parameters Map of parameter names to values
-         */
-        public CallbackRecord(String callbackName, Map<String, Object> parameters) {
-            this.callbackName = callbackName;
-            this.parameters = new HashMap<>(parameters); // Defensive copy
-            this.timestamp = System.currentTimeMillis();
-        }
-        
-        /**
-         * Returns the callback name.
-         * 
-         * @return The callback name (e.g., "beginClass", "gotMethodDeclaration")
-         */
-        public String getCallbackName() {
-            return callbackName;
-        }
-        
-        /**
-         * Returns all parameters passed to the callback.
-         * 
-         * <p>The returned map is unmodifiable to preserve record immutability.
-         * 
-         * @return Unmodifiable map of parameter names to values
-         */
-        public Map<String, Object> getParameters() {
-            return Collections.unmodifiableMap(parameters);
-        }
-        
-        /**
-         * Returns a specific parameter value.
-         * 
-         * <p>Returns null if the parameter doesn't exist. Tests should use
-         * appropriate casting based on the callback's expected parameter types.
-         * 
-         * @param name The parameter name
-         * @return The parameter value, or null if not present
-         */
-        public Object getParameter(String name) {
-            return parameters.get(name);
-        }
-        
-        /**
-         * Returns the timestamp when this callback was invoked.
-         * 
-         * @return Milliseconds since epoch
-         */
-        public long getTimestamp() {
-            return timestamp;
-        }
-        
-        @Override
-        public String toString() {
-            return callbackName + parameters.toString();
-        }
-        
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            CallbackRecord that = (CallbackRecord) o;
-            return timestamp == that.timestamp &&
-                   Objects.equals(callbackName, that.callbackName) &&
-                   Objects.equals(parameters, that.parameters);
-        }
-        
-        @Override
-        public int hashCode() {
-            return Objects.hash(callbackName, parameters, timestamp);
-        }
     }
 }

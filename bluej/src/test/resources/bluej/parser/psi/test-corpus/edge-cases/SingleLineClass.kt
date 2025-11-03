@@ -1,0 +1,1 @@
+package test.edgecases; class Tiny
