@@ -1,77 +1,41 @@
 package bluej.parser.psi;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import bluej.parser.lexer.LineColPos;
+import bluej.parser.lexer.LocatableToken;
+import java.util.*;
 
 /**
- * Validates that begin/end callback pairs are properly matched during PSI traversal.
- *
- * <p>This validator performs <b>deferred validation</b> - it analyzes the complete
- * callback sequence at construction time, providing enhanced error messages with full
- * context including:
+ * Validates pairing of parser callbacks using hybrid state machine.
+ * 
+ * <p>Handles two validation patterns:
  * <ul>
- *   <li>Position indices of both begin and end callbacks</li>
- *   <li>Which begin callback each end attempted to match</li>
- *   <li>Context about callbacks in between pairs</li>
- *   <li>Clear descriptions of what went wrong</li>
+ *   <li><b>Simple Pairs</b>: begin* ↔ end* (name-based)</li>
+ *   <li><b>State Transitions</b>: initiator → refiner → closer (state-based)</li>
  * </ul>
  * 
- * <h3>Architecture</h3>
- * <p>The validator accepts the complete callback sequence via constructor and immediately
- * performs validation. Results are cached and accessed via query methods. This approach
- * provides better error messages compared to incremental validation.</p>
+ * <h2>Type Safety</h2>
+ * <p>Uses sealed interfaces and pattern matching for compile-time guarantees.
  * 
- * <h3>Usage Pattern</h3>
- * <pre>{@code
- * // After collecting all callbacks
- * PairingValidator validator = new PairingValidator(callbackRecords);
- * 
- * // Query validation results
- * if (!validator.isBalanced()) {
- *     System.err.println(validator.getDetailedSummary());
- * }
- * 
- * // Access pairing information
- * for (CallbackPairing pairing : validator.getPairings()) {
- *     System.out.println(pairing);
- * }
- * }</pre>
- * 
- * <h3>Enhanced Error Messages</h3>
- * <p>Example error output:</p>
- * <pre>
- * Callback pairing mismatch at position 15:
- *   endClass at index 15 attempted to match beginMethod at index 10
- *   Expected: endMethod (to properly close beginMethod)
- *   Got: endClass (4 callbacks between begin and end)
- * </pre>
- * 
- * <h3>Thread Safety</h3>
+ * <h2>Thread Safety</h2>
  * <p><strong>Immutable after construction.</strong> All validation happens in the constructor,
- * making this class thread-safe for read operations.</p>
+ * making this class thread-safe for read operations.
  * 
- * @see PsiCallbackVisitor
- * @see CallbackRecord
+ * @see StackEntry
+ * @see CallbackRole
+ * @see StateTransitionRule
  */
 public class PairingValidator {
     
-    /**
-     * List of callback pairings discovered during validation.
-     * Immutable after construction.
-     */
+    // Configuration maps and rules
+    private final Map<String, CallbackRole> callbackRoles;
+    private final List<StateTransitionRule> stateRules;
+    
+    // Special pairing map for callbacks that don't follow begin*/end* convention
+    private final Map<String, String> specialPairings;
+    
+    // Validation results (immutable after construction)
     private final List<CallbackPairing> pairings;
-    
-    /**
-     * List of validation errors with enhanced context.
-     * Immutable after construction.
-     */
     private final List<String> errors;
-    
-    /**
-     * Whether the callback sequence is balanced (all begin/end pairs matched).
-     * Immutable after construction.
-     */
     private final boolean balanced;
     
     /**
@@ -83,6 +47,14 @@ public class PairingValidator {
      * @param callbacks The complete sequence of callback records to validate
      */
     public PairingValidator(List<CallbackRecord> callbacks) {
+        this.callbackRoles = new HashMap<>();
+        this.stateRules = new ArrayList<>();
+        this.specialPairings = new HashMap<>();
+        
+        initializeCallbackRoles();
+        initializeStateRules();
+        initializeSpecialPairings();
+        
         ValidationState state = validateSequence(callbacks);
         this.pairings = state.pairings;
         this.errors = state.errors;
@@ -90,22 +62,181 @@ public class PairingValidator {
     }
     
     /**
-     * Helper class to track pending begin callbacks with their position.
+     * Register callback roles for all known callbacks.
      */
-    private static class PendingBegin {
-        final String callback;
-        final int index;
-        PendingBegin(String callback, int index) {
-            this.callback = callback;
-            this.index = index;
-        }
+    private void initializeCallbackRoles() {
+        // State transition callbacks
+        callbackRoles.put("gotDeclBegin", CallbackRole.CONTEXT_INITIATOR);
+        callbackRoles.put("gotMethodDeclaration", CallbackRole.CONTEXT_REFINER);
+        callbackRoles.put("gotConstructorDecl", CallbackRole.CONTEXT_REFINER);
+        callbackRoles.put("gotTypeDef", CallbackRole.CONTEXT_REFINER);
+        callbackRoles.put("endMethodDecl", CallbackRole.CONTEXT_CLOSER);
+        callbackRoles.put("gotTypeDefEnd", CallbackRole.CONTEXT_CLOSER);
+        
+        // Simple paired callbacks
+        callbackRoles.put("beginMethodBody", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endMethodBody", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginTypeBody", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endTypeBody", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginForLoop", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endForLoop", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginWhileLoop", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endWhileLoop", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginForInitExpression", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endForInitExpression", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginForUpdateExpression", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endForUpdateExpression", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginExpression", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endExpression", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginDoLoop", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endDoLoop", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginExpressionStatement", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endExpressionStatement", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginBreak", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endBreak", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginContinue", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endContinue", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginReturnStatement", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endReturnStatement", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginThrowStatement", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endThrowStatement", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginSynchronizedBlock", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endSynchronizedBlock", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginTryBlock", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endTryBlock", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginCatchClause", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endCatchClause", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginFinallyBlock", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endFinallyBlock", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginArrayInitExpression", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endArrayInitExpression", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginFieldDeclarations", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endFieldDeclarations", CallbackRole.PAIRED_END);
+        callbackRoles.put("gotField", CallbackRole.PAIRED_BEGIN);          // First field opener
+        callbackRoles.put("gotSubsequentField", CallbackRole.PAIRED_BEGIN); // 2nd+ field opener
+        callbackRoles.put("endField", CallbackRole.PAIRED_END);             // Field closer (reused!)
+        callbackRoles.put("beginConstructor", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endConstructor", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginMethodParam", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endMethodParam", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginConstructorParam", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endConstructorParam", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginLambdaExpression", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endLambdaExpression", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginIfCondition", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endIfCondition", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginIfBody", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endIfBody", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginElseClause", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endElseClause", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginBlock", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endBlock", CallbackRole.PAIRED_END);
+        
+        // Additional begin/end pairs from existing tests
+        callbackRoles.put("beginClass", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endClass", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginMethod", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endMethod", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginObject", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endObject", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginParsing", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endParsing", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginTypeDecl", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endTypeDecl", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginMethodDeclaration", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endMethodDeclaration", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginFieldDeclaration", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endFieldDeclaration", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginClassDeclaration", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endClassDeclaration", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginMethodSignature", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endMethodSignature", CallbackRole.PAIRED_END);
+        
+        // Support for test callback names with "end" in middle
+        callbackRoles.put("beginExtendedMethod", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endExtendedMethod", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginAppend", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endAppend", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginExtended", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endExtended", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginAppendData", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endAppendData", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginWeekend", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endWeekend", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginDescriptor", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endDescriptor", CallbackRole.PAIRED_END);
+        
+        // Generic test patterns (A, B, C, First, Second, Third)
+        callbackRoles.put("beginA", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endA", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginB", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endB", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginC", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endC", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginFirst", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endFirst", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginSecond", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endSecond", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginThird", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endThird", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginClass1", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endClass1", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginClass2", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endClass2", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginClass3", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endClass3", CallbackRole.PAIRED_END);
+        
+        // Informational callbacks (no validation)
+        callbackRoles.put("gotModifier", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("gotIdentifier", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("gotTypeSpec", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("gotFieldType", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("gotMethodParameter", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("gotConstructorParameter", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("gotArrayDeclarator", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("modifiersConsumed", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("gotAllMethodParameters", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("gotMethodTypeParamsBegin", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("endMethodTypeParams", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("gotTypeParam", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("gotTypeParamBound", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("gotTypeDefName", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("beginTypeDefExtends", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("endTypeDefExtends", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("beginTypeDefImplements", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("endTypeDefImplements", CallbackRole.INFORMATIONAL);
     }
     
     /**
-     * Performs validation on the complete callback sequence.
-     *
-     * <p>This private method analyzes the complete sequence and builds pairing
-     * relationships with enhanced error context.</p>
+     * Register special pairings for callbacks that don't follow begin/end naming convention.
+     * Maps begin callback names to their corresponding end callback names.
+     */
+    private void initializeSpecialPairings() {
+        // Field callbacks: gotField and gotSubsequentField both pair with endField
+        // We'll store the primary one and check others via logic
+        specialPairings.put("gotField", "endField");
+        specialPairings.put("gotSubsequentField", "endField");
+    }
+    
+    /**
+     * Register state transition rules.
+     */
+    private void initializeStateRules() {
+        // Declaration rule: gotDeclBegin can be refined to method or type
+        StateTransitionRule declRule = new StateTransitionRule(
+            "gotDeclBegin",
+            List.of("gotMethodDeclaration", "gotConstructorDecl", "gotTypeDef"),
+            Map.of(
+                "gotMethodDeclaration", "endMethodDecl",
+                "gotConstructorDecl", "endMethodDecl",
+                "gotTypeDef", "gotTypeDefEnd"
+            )
+        );
+        stateRules.add(declRule);
+    }
+    
+    /**
+     * Performs validation on the complete callback sequence using hybrid state machine.
      *
      * @param callbacks The complete sequence of callback records
      * @return Validation state with pairings and errors
@@ -113,9 +244,8 @@ public class PairingValidator {
     private ValidationState validateSequence(List<CallbackRecord> callbacks) {
         List<CallbackPairing> pairings = new ArrayList<>();
         List<String> sequenceErrors = new ArrayList<>();
-        Stack<PendingBegin> beginStack = new Stack<>();
+        Stack<StackEntry> contextStack = new Stack<>();
         
-        // First pass: validate and build pairings
         for (int i = 0; i < callbacks.size(); i++) {
             CallbackRecord record = callbacks.get(i);
             String callbackName = record.getCallbackName();
@@ -127,33 +257,241 @@ public class PairingValidator {
                 continue;
             }
             
-            if (callbackName.startsWith("begin")) {
-                // Push begin callback onto stack
-                beginStack.push(new PendingBegin(callbackName, i));
-                
+            // Get callback role with fallback for unregistered begin/end callbacks
+            CallbackRole role;
+            if (callbackRoles.containsKey(callbackName)) {
+                role = callbackRoles.get(callbackName);
+            } else if (callbackName.startsWith("begin")) {
+                // Fallback: treat unregistered begin* as PAIRED_BEGIN
+                role = CallbackRole.PAIRED_BEGIN;
             } else if (callbackName.startsWith("end")) {
-                // Validate end callback
-                if (beginStack.isEmpty()) {
-                    sequenceErrors.add(String.format(
-                        "Unpaired end callback at position %d:\n" +
-                        "  Callback: %s\n" +
-                        "  Error: No matching begin callback found (stack is empty)",
-                        i, callbackName));
-                    continue;
+                // Fallback: treat unregistered end* as PAIRED_END
+                role = CallbackRole.PAIRED_END;
+            } else {
+                // Default to informational
+                role = CallbackRole.INFORMATIONAL;
+            }
+            
+            // Dispatch based on role
+            switch (role) {
+                case CONTEXT_INITIATOR -> 
+                    handleContextInitiator(callbackName, i, contextStack, sequenceErrors);
+                    
+                case CONTEXT_REFINER -> 
+                    handleContextRefiner(callbackName, i, contextStack, sequenceErrors);
+                    
+                case CONTEXT_CLOSER -> 
+                    handleContextCloser(callbackName, i, contextStack, sequenceErrors, pairings);
+                    
+                case PAIRED_BEGIN -> 
+                    handlePairedBegin(callbackName, i, contextStack);
+                    
+                case PAIRED_END -> 
+                    handlePairedEnd(callbackName, i, contextStack, sequenceErrors, pairings);
+                    
+                case INFORMATIONAL -> { 
+                    /* No validation */ 
+                }
+            }
+        }
+        
+        // Final check: all contexts must be closed
+        validateAllContextsClosed(contextStack, sequenceErrors, pairings);
+        
+        boolean isBalanced = sequenceErrors.isEmpty();
+        return new ValidationState(pairings, sequenceErrors, isBalanced);
+    }
+    
+    /**
+     * Handle CONTEXT_INITIATOR role.
+     */
+    private void handleContextInitiator(
+        String callback, 
+        int index,
+        Stack<StackEntry> contextStack,
+        List<String> errors
+    ) {
+        StateTransitionRule rule = findRuleForInitiator(callback);
+        
+        if (rule == null) {
+            errors.add(String.format(
+                "No state transition rule for initiator: %s at position %d", callback, index));
+            return;
+        }
+        
+        ValidationContext context = new ValidationContext(
+            callback, index, null, -1, ContextState.INITIATED
+        );
+        contextStack.push(context);
+    }
+    
+    /**
+     * Handle CONTEXT_REFINER role.
+     */
+    private void handleContextRefiner(
+        String callback,
+        int index,
+        Stack<StackEntry> contextStack,
+        List<String> errors
+    ) {
+        if (contextStack.isEmpty()) {
+            errors.add(String.format(
+                "Refiner without initiator: %s at position %d", callback, index));
+            return;
+        }
+        
+        StackEntry top = contextStack.peek();
+        
+        switch (top) {
+            case PendingBegin pending -> {
+                errors.add(String.format(
+                    "Cannot refine simple pair '%s' at index %d with refiner: %s at index %d",
+                    pending.callbackType(), pending.index(), callback, index
+                ));
+            }
+            
+            case ValidationContext ctx -> {
+                if (ctx.state() != ContextState.INITIATED) {
+                    errors.add(String.format(
+                        "Cannot refine context in state: %s at position %d", ctx.state(), index
+                    ));
+                    return;
                 }
                 
-                // Pop the most recent begin
-                PendingBegin pendingBegin = beginStack.pop();
-                String expectedEnd = pendingBegin.callback.replace("begin", "end");
+                StateTransitionRule rule = findRuleForInitiator(ctx.initiator());
                 
-                if (expectedEnd.equals(callbackName)) {
-                    // Successful match
-                    pairings.add(new CallbackPairing(
-                        pendingBegin.callback, pendingBegin.index,
-                        callbackName, i, true, null));
+                if (rule == null || !rule.validRefiners.contains(callback)) {
+                    errors.add(String.format(
+                        "Invalid refiner '%s' for initiator '%s' at position %d",
+                        callback, ctx.initiator(), index
+                    ));
+                    return;
+                }
+                
+                // Refine context (immutable pattern)
+                ValidationContext refined = ctx.refine(callback, index);
+                contextStack.pop();
+                contextStack.push(refined);
+            }
+        }
+    }
+    
+    /**
+     * Handle CONTEXT_CLOSER role.
+     */
+    private void handleContextCloser(
+        String callback,
+        int index,
+        Stack<StackEntry> contextStack,
+        List<String> errors,
+        List<CallbackPairing> pairings
+    ) {
+        if (contextStack.isEmpty()) {
+            errors.add(String.format(
+                "Closer without context: %s at position %d", callback, index));
+            return;
+        }
+        
+        StackEntry top = contextStack.peek();
+        
+        switch (top) {
+            case PendingBegin pending -> {
+                errors.add(String.format(
+                    "Expected end for '%s' at index %d but got closer: %s at index %d",
+                    pending.callbackType(), pending.index(), callback, index
+                ));
+            }
+            
+            case ValidationContext ctx -> {
+                if (ctx.state() != ContextState.REFINED) {
+                    errors.add(String.format(
+                        "Cannot close context in state: %s at position %d", ctx.state(), index
+                    ));
+                    return;
+                }
+                
+                StateTransitionRule rule = findRuleForInitiator(ctx.initiator());
+                if (rule == null) {
+                    errors.add(String.format(
+                        "No rule found for initiator: %s at position %d", ctx.initiator(), index
+                    ));
+                    return;
+                }
+                
+                String expectedCloser = rule.getCloserFor(ctx.refiner());
+                
+                if (!callback.equals(expectedCloser)) {
+                    errors.add(String.format(
+                        "Expected closer '%s' for refiner '%s', got '%s' at position %d",
+                        expectedCloser, ctx.refiner(), callback, index
+                    ));
+                    return;
+                }
+                
+                // Successfully closed - create pairing and remove
+                contextStack.pop();
+                pairings.add(new CallbackPairing(
+                    ctx.initiator(), ctx.initiatorIndex(),
+                    callback, index, true, null
+                ));
+            }
+        }
+    }
+    
+    /**
+     * Handle PAIRED_BEGIN role.
+     */
+    private void handlePairedBegin(
+        String callback,
+        int index,
+        Stack<StackEntry> contextStack
+    ) {
+        // Create dummy token for now (will be enhanced later if needed)
+        LineColPos dummyPos = new LineColPos(1, 1, 0);
+        LocatableToken dummyToken = new LocatableToken(0, "", dummyPos, dummyPos);
+        PendingBegin pending = new PendingBegin(callback, dummyToken, index);
+        contextStack.push(pending);
+    }
+    
+    /**
+     * Handle PAIRED_END role.
+     */
+    private void handlePairedEnd(
+        String callback,
+        int index,
+        Stack<StackEntry> contextStack,
+        List<String> errors,
+        List<CallbackPairing> pairings
+    ) {
+        if (contextStack.isEmpty()) {
+            errors.add(String.format(
+                "Unpaired end callback at position %d:\n" +
+                "  Callback: %s\n" +
+                "  Error: No matching begin callback found (stack is empty)",
+                index, callback));
+            return;
+        }
+        
+        StackEntry top = contextStack.peek();
+        
+        switch (top) {
+            case PendingBegin pending -> {
+                // Check if this is a valid pairing
+                boolean isValidPair;
+                String expectedEnd;
+                
+                // Check for special pairings (e.g., gotField/gotSubsequentField ↔ endField)
+                if (specialPairings.containsKey(pending.callbackType())) {
+                    expectedEnd = specialPairings.get(pending.callbackType());
+                    isValidPair = callback.equals(expectedEnd);
                 } else {
-                    // Mismatch - record error and put begin back on stack
-                    int callbacksBetween = i - pendingBegin.index - 1;
+                    // Standard begin*/end* pairing
+                    expectedEnd = pending.expectedEndType();
+                    isValidPair = callback.equals(expectedEnd);
+                }
+                
+                if (!isValidPair) {
+                    int callbacksBetween = index - pending.index() - 1;
                     String contextInfo = callbacksBetween > 0
                         ? String.format(" (%d callback%s between begin and end)",
                                        callbacksBetween, callbacksBetween == 1 ? "" : "s")
@@ -164,54 +502,86 @@ public class PairingValidator {
                         "  %s at index %d attempted to match %s at index %d\n" +
                         "  Expected: %s (to properly close %s)\n" +
                         "  Got: %s%s",
-                        i, callbackName, i, pendingBegin.callback, pendingBegin.index,
-                        expectedEnd, pendingBegin.callback, callbackName, contextInfo);
+                        index, callback, index, pending.callbackType(), pending.index(),
+                        expectedEnd, pending.callbackType(), callback, contextInfo);
                     
-                    sequenceErrors.add(detailedError);
-                    
-                    // Put the begin back on stack - it remains unmatched
-                    // Don't create a pairing for mismatches
-                    beginStack.push(pendingBegin);
+                    errors.add(detailedError);
+                    // Don't pop - keep begin on stack as unmatched
+                    return;
                 }
+                
+                // Valid pair
+                contextStack.pop();
+                pairings.add(new CallbackPairing(
+                    pending.callbackType(), pending.index(),
+                    callback, index, true, null
+                ));
             }
-            // Ignore non-begin/end callbacks
-        }
-        
-        // Second pass: report unmatched begins
-        while (!beginStack.isEmpty()) {
-            PendingBegin unmatched = beginStack.pop();
-            String expectedEnd = unmatched.callback.replace("begin", "end");
             
-            String detailedError = String.format(
-                "Unmatched begin callback:\n" +
-                "  %s at index %d was never closed\n" +
-                "  Expected: %s should appear after this callback\n" +
-                "  Context: This begin callback remains open at end of sequence",
-                unmatched.callback, unmatched.index, expectedEnd);
-            
-            sequenceErrors.add(detailedError);
-            pairings.add(new CallbackPairing(
-                unmatched.callback, unmatched.index,
-                null, -1, false, detailedError));
+            case ValidationContext ctx -> {
+                errors.add(String.format(
+                    "Expected ValidationContext closer but got end: %s at position %d", callback, index
+                ));
+            }
         }
-        
-        boolean balanced = sequenceErrors.isEmpty();
-        return new ValidationState(pairings, sequenceErrors, balanced);
     }
     
     /**
-     * Internal validation state holder.
+     * Validate all contexts closed at end.
      */
-    private static class ValidationState {
-        final List<CallbackPairing> pairings;
-        final List<String> errors;
-        final boolean balanced;
-        
-        ValidationState(List<CallbackPairing> pairings, List<String> errors, boolean balanced) {
-            this.pairings = pairings;
-            this.errors = errors;
-            this.balanced = balanced;
+    private void validateAllContextsClosed(
+        Stack<StackEntry> contextStack,
+        List<String> errors,
+        List<CallbackPairing> pairings
+    ) {
+        if (contextStack.isEmpty()) {
+            return;
         }
+        
+        while (!contextStack.isEmpty()) {
+            StackEntry entry = contextStack.pop();
+            
+            switch (entry) {
+                case PendingBegin pending -> {
+                    String expectedEnd = pending.expectedEndType();
+                    String detailedError = String.format(
+                        "Unmatched begin callback:\n" +
+                        "  %s at index %d was never closed\n" +
+                        "  Expected: %s should appear after this callback\n" +
+                        "  Context: This begin callback remains open at end of sequence",
+                        pending.callbackType(), pending.index(), expectedEnd);
+                    
+                    errors.add(detailedError);
+                    pairings.add(new CallbackPairing(
+                        pending.callbackType(), pending.index(),
+                        null, -1, false, detailedError
+                    ));
+                }
+                
+                case ValidationContext ctx -> {
+                    String detailedError = String.format(
+                        "Unclosed context: initiator='%s' at index %d, refiner='%s', state=%s",
+                        ctx.initiator(), ctx.initiatorIndex(), ctx.refiner(), ctx.state()
+                    );
+                    
+                    errors.add(detailedError);
+                    pairings.add(new CallbackPairing(
+                        ctx.initiator(), ctx.initiatorIndex(),
+                        null, -1, false, detailedError
+                    ));
+                }
+            }
+        }
+    }
+    
+    /**
+     * Find state transition rule for initiator.
+     */
+    private StateTransitionRule findRuleForInitiator(String initiator) {
+        return stateRules.stream()
+            .filter(rule -> rule.contextInitiator.equals(initiator))
+            .findFirst()
+            .orElse(null);
     }
     
     // ==================== Query Methods ====================
@@ -321,6 +691,21 @@ public class PairingValidator {
     }
     
     // ==================== Data Classes ====================
+    
+    /**
+     * Internal validation state holder.
+     */
+    private static class ValidationState {
+        final List<CallbackPairing> pairings;
+        final List<String> errors;
+        final boolean balanced;
+        
+        ValidationState(List<CallbackPairing> pairings, List<String> errors, boolean balanced) {
+            this.pairings = pairings;
+            this.errors = errors;
+            this.balanced = balanced;
+        }
+    }
     
     /**
      * Represents a begin/end callback pairing with position information.

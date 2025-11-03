@@ -705,8 +705,8 @@ public class PairingValidatorTest {
     public void errorMessages_includeContextInfo() {
         List<CallbackRecord> callbacks = new ArrayList<>();
         callbacks.add(new CallbackRecord("beginClass", Collections.emptyMap())); // 0
-        callbacks.add(new CallbackRecord("gotModifier", Collections.emptyMap())); // 1
-        callbacks.add(new CallbackRecord("gotField", Collections.emptyMap())); // 2
+        callbacks.add(new CallbackRecord("gotModifier", Collections.emptyMap())); // 1 - informational
+        callbacks.add(new CallbackRecord("gotIdentifier", Collections.emptyMap())); // 2 - informational
         callbacks.add(new CallbackRecord("endMethod", Collections.emptyMap())); // 3 - mismatch
         
         PairingValidator validator = new PairingValidator(callbacks);

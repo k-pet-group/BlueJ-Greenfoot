@@ -278,6 +278,34 @@ public class CallbackRecorder extends JavaParserCallbacks {
     }
     
     /**
+     * Asserts that callbacks are properly balanced, throwing AssertionError with detailed context if not.
+     *
+     * <p>This method provides much better error messages than a simple {@code assertTrue(validatePairing())},
+     * showing exactly which callbacks are unmatched and why.</p>
+     *
+     * <p><b>Example usage:</b>
+     * <pre>{@code
+     * CallbackRecorder recorder = parseAndVisit(kotlinCode);
+     * recorder.assertBalanced(); // Throws with detailed error if not balanced
+     * }</pre>
+     *
+     * @throws AssertionError if callbacks are not balanced, with detailed validation summary
+     */
+    public void assertBalanced() {
+        ValidationResult result = getValidationResult();
+        if (!result.isBalanced() || result.hasErrors()) {
+            throw new AssertionError(
+                "Callback pairing validation failed:\n" +
+                "===========================================\n" +
+                result.getValidationSummary() + "\n" +
+                "===========================================\n" +
+                "Callback Sequence:\n" +
+                getCallbackSequence()
+            );
+        }
+    }
+    
+    /**
      * Wrapper class for validation results.
      *
      * <p>Provides convenient access to validation state and error information
