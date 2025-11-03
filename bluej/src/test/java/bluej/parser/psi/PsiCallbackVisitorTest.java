@@ -78,21 +78,6 @@ public class PsiCallbackVisitorTest {
     }
     
     /**
-     * Tests that visitKtFile handles unnamed file gracefully.
-     */
-    @Test
-    public void visitKtFile_withNullName_logsUnnamed() {
-        PsiCallbackVisitor visitor = new PsiCallbackVisitor();
-        KtFile mockFile = mock(KtFile.class);
-        when(mockFile.getName()).thenReturn(null);
-        
-        visitor.visitKtFile(mockFile);
-        
-        List<String> log = visitor.getTraversalLog();
-        assertTrue(log.get(0).contains("<unnamed>"));
-    }
-    
-    /**
      * Tests that visitClass logs class visit.
      */
     @Test

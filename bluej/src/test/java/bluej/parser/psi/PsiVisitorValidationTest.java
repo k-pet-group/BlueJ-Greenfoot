@@ -258,18 +258,16 @@ public class PsiVisitorValidationTest {
     }
     
     @Test
-    @Ignore("TODO: disabled until `object` parsing is implemented")
     public void testObjectDeclaration() throws IOException, PsiParseException {
         String filePath = TestCorpus.getSimpleTests().stream()
             .filter(f -> f.contains("ObjectDeclaration"))
             .findFirst()
             .orElseThrow(() -> new AssertionError("ObjectDeclaration.kt not found in test corpus"));
-        
+
         CallbackRecorder recorder = runVisitorOnFile(filePath);
         
         // Object declarations are handled by visitObjectDeclaration()
-        // Currently in Phase 2/3.1, objects only log traversal (no callbacks yet - deferred to later task)
-        // Just validate pairing for now
+        assertCallbackPresence(recorder, "gotTypeDef");
         assertValidPairing(recorder);
     }
     

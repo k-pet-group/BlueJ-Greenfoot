@@ -26,14 +26,12 @@ import bluej.parser.PsiCallbackVisitorAdapter;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.lexer.LineColPos;
-import org.jetbrains.kotlin.com.intellij.openapi.editor.Document;
-import org.jetbrains.kotlin.com.intellij.openapi.project.Project;
-import org.jetbrains.kotlin.com.intellij.psi.PsiDocumentManager;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
 import org.jetbrains.kotlin.com.intellij.psi.PsiFile;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.*;
 
+import org.jetbrains.annotations.NotNull;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -265,14 +263,14 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      * @param file The Kotlin file PSI element to traverse
      */
     @Override
-    public void visitKtFile(KtFile file) {
+    public void visitKtFile(@NotNull KtFile file) {
         if (file == null) {
             return; // Gracefully handle null
         }
         
         // Phase 2: Log file visit
         String fileName = file.getName();
-        traversalLog.add("VISIT: FILE: " + (fileName != null ? fileName : "<unnamed>"));
+        traversalLog.add("VISIT: FILE: " + fileName);
         
         // Explicitly visit all declarations in the file
         // Note: Kotlin PSI visitor requires explicit iteration over children
@@ -310,7 +308,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      * @param ktClass The class declaration PSI element
      */
     @Override
-    public void visitClass(KtClass ktClass) {
+    public void visitClass(@NotNull KtClass ktClass) {
         if (ktClass == null) {
             return;
         }
@@ -366,13 +364,15 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                     
                     callbacks.invokeBeginTypeBody(lBraceToken);
                     
-                    // 7. Visit nested class declarations explicitly
+                    // 7. Visit nested class and object declarations explicitly
                     // Note: Kotlin PSI visitor requires explicit iteration over body declarations
-                    // super.visitClass() does NOT automatically recurse into nested classes
+                    // super.visitClass() does NOT automatically recurse into nested classes/objects
                     // CRITICAL: Filter to KtClass AND exclude KtEnumEntry (enum constants, not classes)
                     for (KtDeclaration declaration : body.getDeclarations()) {
                         if (declaration instanceof KtClass && !(declaration instanceof KtEnumEntry)) {
                             declaration.accept(this);  // Triggers visitClass() for nested classes
+                        } else if (declaration instanceof KtObjectDeclaration) {
+                            declaration.accept(this);  // Triggers visitObjectDeclaration() for companion/nested objects
                         }
                         // Note: Other declarations (properties, functions, enum entries)
                         // are deferred to Phase 4 - Member Declarations
@@ -380,12 +380,9 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                     
                     // 8. End type body with separate closing brace token
                     callbacks.invokeEndTypeBody(rBraceToken, true);
-                } else {
-                    // Braces missing - malformed code, but handle gracefully
-                    // No nested declarations can be visited without a proper body
                 }
+                // Note: If braces missing (malformed code), no nested declarations to visit
             }
-            // Note: No else needed - if no body, there are no nested declarations to visit
             
             // 9. End declaration
             callbacks.invokeTypeDefEnd(classToken, true);
@@ -419,7 +416,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      * @param function The function declaration PSI element
      */
     @Override
-    public void visitNamedFunction(KtNamedFunction function) {
+    public void visitNamedFunction(@NotNull KtNamedFunction function) {
         if (function == null) {
             return;
         }
@@ -467,7 +464,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      * @param property The property declaration PSI element
      */
     @Override
-    public void visitProperty(KtProperty property) {
+    public void visitProperty(@NotNull KtProperty property) {
         if (property == null) {
             return;
         }
@@ -500,42 +497,115 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      * <ul>
      *   <li>Singleton objects ({@code object MySingleton})</li>
      *   <li>Companion objects ({@code companion object})</li>
-     *   <li>Object expressions (anonymous objects)</li>
+     *   <li>Named companion objects ({@code companion object Factory})</li>
      * </ul>
      *
-     * <h3>Phase 2 Behavior</h3>
-     * <p>Logs: "VISIT: OBJECT: &lt;objectName&gt;"</p>
-     * <p>Manages state with push/pop pattern using try-finally for balanced stack.</p>
-     * <p>Continues traversal to visit object members.</p>
+     * <p>Object declarations are mapped to class callbacks since BlueJ's ClassInfo
+     * model doesn't have special object types. The callback sequence matches that
+     * of {@link #visitClass(KtClass)} but uses {@code JavaTokenTypes.OBJECT_DEF}
+     * as the token type.</p>
      *
-     * <h3>Phase 3 Migration</h3>
-     * <p>Will extract modifiers via {@link #extractModifiers(KtModifierListOwner)},
-     * invoke {@code callbacks.beginTypeDecl()} treating object as a special class type,
-     * visit members, and invoke {@code callbacks.endTypeDecl()}.</p>
+     * <h3>Phase 3 Milestone 3.2: Object Declaration Callback Sequence</h3>
+     * <ol>
+     *   <li>{@code gotDeclBegin(token)} - Begin declaration</li>
+     *   <li>{@code modifiersConsumed()} - Modifiers processed</li>
+     *   <li>{@code gotTypeDef(token, TYPEDEF_CLASS)} - Type definition (objects are classes)</li>
+     *   <li>{@code gotTypeDefName(nameToken)} - Object or "Companion" name</li>
+     *   <li>Supertype processing (objects can implement interfaces)</li>
+     *   <li>{@code beginTypeBody(token)} - Begin body</li>
+     *   <li>Visit members via recursive traversal</li>
+     *   <li>{@code endTypeBody(token, true)} - End body</li>
+     *   <li>{@code gotTypeDefEnd(token, true)} - End declaration</li>
+     * </ol>
+     *
+     * <h3>Companion Object Handling</h3>
+     * <p>Companion objects are detected via {@link KtObjectDeclaration#isCompanion()}.
+     * If the companion has no explicit name, "Companion" is used as the default name.
+     * Named companions like {@code companion object Factory} use their declared name.</p>
      *
      * @param declaration The object declaration PSI element
      */
     @Override
-    public void visitObjectDeclaration(KtObjectDeclaration declaration) {
+    public void visitObjectDeclaration(@NotNull KtObjectDeclaration declaration) {
         if (declaration == null) {
             return;
         }
         
-        // Phase 2: Log object visit
+        // Phase 2: Log object visit (retained for debugging)
         String objectName = declaration.getName();
+        if (objectName == null && declaration.isCompanion()) {
+            objectName = "Companion";
+        }
         traversalLog.add("VISIT: OBJECT: " + (objectName != null ? objectName : "<anonymous>"));
         
         // State management with try-finally
         state.pushScope(declaration);
         try {
-            // TODO Phase 3: Extract modifiers and track with state.addModifier()
-            // TODO Phase 3: Implement object declaration callback sequence
-            //   (similar to class but mark as object type)
+            // Skip if no callbacks configured
+            if (callbacks == null) {
+                super.visitObjectDeclaration(declaration);
+                return;
+            }
             
-            // Continue traversal to visit object members
-            super.visitObjectDeclaration(declaration);
+            // 1. Begin declaration
+            LocatableToken objectToken = createToken(declaration, JavaTokenTypes.LITERAL_class);
+            callbacks.invokeDeclBegin(objectToken);
             
-            // TODO Phase 3: Clear modifiers with clearModifierState()
+            // 2. Process modifiers (objects can have visibility modifiers)
+            KtModifierList modifierList = declaration.getModifierList();
+            if (modifierList != null) {
+                processModifiers(modifierList);
+            }
+            callbacks.invokeModifiersConsumed();
+            
+            // 3. Type definition - objects are mapped to classes
+            callbacks.invokeTypeDef(objectToken, JavaTokenTypes.LITERAL_class);
+            
+            // 4. Object name (or "Companion" for companion objects)
+            String name = declaration.getName();
+            if (name != null && declaration.getNameIdentifier() != null) {
+                // Named object or named companion
+                LocatableToken nameToken = createToken(declaration.getNameIdentifier(), JavaTokenTypes.IDENT);
+                callbacks.invokeTypeDefName(nameToken);
+            } else if (declaration.isCompanion()) {
+                // Companion object without explicit name - use "Companion" as synthetic name
+                LocatableToken nameToken = createTokenWithText(declaration, "Companion", JavaTokenTypes.IDENT);
+                callbacks.invokeTypeDefName(nameToken);
+            }
+            
+            // 5. Process supertypes (objects can implement interfaces)
+            processSuperTypes(declaration);
+            
+            // 6. Begin type body
+            KtClassBody body = declaration.getBody();
+            if (body != null) {
+                PsiElement lBrace = body.getLBrace();
+                PsiElement rBrace = body.getRBrace();
+                
+                if (lBrace != null && rBrace != null) {
+                    LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+                    callbacks.invokeBeginTypeBody(lBraceToken);
+                    
+                    // 7. Visit nested declarations (objects can contain nested classes/objects)
+                    for (KtDeclaration decl : body.getDeclarations()) {
+                        if (decl instanceof KtClass && !(decl instanceof KtEnumEntry)) {
+                            decl.accept(this);
+                        } else if (decl instanceof KtObjectDeclaration) {
+                            decl.accept(this);
+                        }
+                        // Note: Other declarations (properties, functions)
+                        // are deferred to Phase 4 - Member Declarations
+                    }
+                    
+                    // 8. End type body
+                    LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+                    callbacks.invokeEndTypeBody(rBraceToken, true);
+                }
+            }
+            
+            // 9. End declaration
+            callbacks.invokeTypeDefEnd(objectToken, true);
+            
         } finally {
             state.popScope();  // ALWAYS cleanup
         }
@@ -652,6 +722,55 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         LineColPos end = new LineColPos(endLine, endColumn, endOffset);
         
         return new LocatableToken(type, text, begin, end);
+    }
+    
+    /**
+     * Creates a LocatableToken with custom text at the position of a PSI element.
+     *
+     * <p>This is used for synthesized tokens where we need to provide specific text
+     * (like "Companion" for unnamed companion objects) while maintaining proper
+     * position information from the PSI element.</p>
+     *
+     * @param element The PSI element to get position from
+     * @param customText The text to use in the token
+     * @param type The token type from {@link JavaTokenTypes}
+     * @return LocatableToken with custom text and element's position
+     * @throws IllegalArgumentException if element is null
+     */
+    private LocatableToken createTokenWithText(PsiElement element, String customText, int type) {
+        if (element == null) {
+            throw new IllegalArgumentException("PSI element must not be null");
+        }
+        
+        int startOffset = element.getTextOffset();
+        int endOffset = startOffset + customText.length();
+        
+        // Get source file text for line/column calculation
+        PsiFile psiFile = element.getContainingFile();
+        if (psiFile == null) {
+            // Fallback if no containing file
+            LineColPos begin = new LineColPos(1, startOffset, startOffset);
+            LineColPos end = new LineColPos(1, endOffset, endOffset);
+            return new LocatableToken(type, customText, begin, end);
+        }
+        
+        String fileText = psiFile.getText();
+        
+        // Calculate start position
+        int[] startLineCol = calculateLineColumn(fileText, startOffset);
+        int startLine = startLineCol[0];
+        int startColumn = startLineCol[1];
+        
+        // Calculate end position based on custom text length
+        int[] endLineCol = calculateLineColumn(fileText, endOffset);
+        int endLine = endLineCol[0];
+        int endColumn = endLineCol[1];
+        
+        // Create token with custom text but real positions
+        LineColPos begin = new LineColPos(startLine, startColumn, startOffset);
+        LineColPos end = new LineColPos(endLine, endColumn, endOffset);
+        
+        return new LocatableToken(type, customText, begin, end);
     }
     
     /**
@@ -862,16 +981,21 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      *   <li>{@code class Impl : Interface} - Interface is interface (no constructor call)</li>
      *   <li>{@code class Multi : Parent(), Interface1, Interface2} - Parent is superclass,
      *       Interface1 and Interface2 are interfaces</li>
+     *   <li>{@code object MySingleton : MyInterface} - Objects can implement interfaces</li>
      * </ul>
      *
-     * @param ktClass The Kotlin class with potential supertypes
+     * <p><b>Note:</b> This method works with both {@link KtClass} and {@link KtObjectDeclaration}
+     * since they both implement the {@link KtClassOrObject} interface, which provides
+     * the {@code getSuperTypeListEntries()} method.</p>
+     *
+     * @param classOrObject The Kotlin class or object with potential supertypes
      */
-    private void processSuperTypes(KtClass ktClass) {
+    private void processSuperTypes(KtClassOrObject classOrObject) {
         if (callbacks == null) {
             return;
         }
         
-        List<KtSuperTypeListEntry> superTypeEntries = ktClass.getSuperTypeListEntries();
+        List<KtSuperTypeListEntry> superTypeEntries = classOrObject.getSuperTypeListEntries();
         if (superTypeEntries.isEmpty()) {
             return; // No supertypes
         }
@@ -922,6 +1046,8 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      * @param superClassEntry The supertype entry representing the superclass
      */
     private void processSuperClass(KtSuperTypeListEntry superClassEntry) {
+        if (callbacks == null) return;
+        
         // Get type reference
         KtTypeReference typeRef = superClassEntry.getTypeReference();
         if (typeRef == null) {
@@ -952,6 +1078,8 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      * @param interfaceEntries List of supertype entries representing interfaces
      */
     private void processInterfaces(List<KtSuperTypeListEntry> interfaceEntries) {
+        if (callbacks == null) return;
+        
         if (interfaceEntries.isEmpty()) {
             return;
         }
