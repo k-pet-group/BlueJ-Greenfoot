@@ -22,6 +22,7 @@
 package bluej.parser;
 
 import bluej.parser.lexer.LocatableToken;
+import bluej.parser.psi.PsiCallbackVisitor;
 import bluej.parser.psi.PsiEnvironment;
 import bluej.parser.psi.PsiParseException;
 import bluej.parser.psi.PsiTreeSerializer;
@@ -36,26 +37,32 @@ import java.util.List;
 /**
  * Facade for Kotlin parsing that delegates to existing {@link KotlinParser} while
  * adding optional PSI-based enhancements.
- * 
+ *
  * <p><b>MVP Implementation</b>: Pure delegation with PSI serialization after parsing completes.
  * All 18 {@link ParserBehavior} methods delegate to wrapped {@link KotlinParser}, with PSI
  * enhancement occurring only in {@link #parseCU()} after delegation succeeds.</p>
- * 
+ *
  * <p><b>Design Pattern</b>: Facade + Delegation</p>
  * <ul>
  *   <li><b>Facade</b>: Provides simplified interface for PSI integration</li>
  *   <li><b>Delegation</b>: All parsing logic delegates to {@link KotlinParser}</li>
  *   <li><b>Enhancement</b>: Optional PSI features added after delegation</li>
  * </ul>
- * 
+ *
+ * <p><b>Parsing Modes</b>: Supports two modes of operation controlled by {@link ParsingMode}:</p>
+ * <ul>
+ *   <li><b>DELEGATION</b>: Delegates to existing {@link KotlinParser} (default, production-ready)</li>
+ *   <li><b>PSI_VISITOR</b>: Uses PSI visitor for parsing (experimental, testing)</li>
+ * </ul>
+ *
  * <p><b>Error Handling</b>: PSI failures are logged but never propagate.
  * Compilation continues successfully even if PSI enhancement fails.</p>
- * 
+ *
  * <p><b>Thread Safety</b>: Not thread-safe (matches {@link SourceParser} single-threaded assumption)</p>
- * 
+ *
  * <p><b>Performance</b>: Delegation overhead {@literal <}1ns per method call.
  * PSI enhancement adds ~10-50ms per file but runs asynchronously to compilation.</p>
- * 
+ *
  * @see KotlinParser
  * @see ParserBehavior
  * @see PsiEnvironment
@@ -63,6 +70,37 @@ import java.util.List;
  * @since BlueJ 5.4.0
  */
 public class KotlinPsiParser implements ParserBehavior {
+    
+    /**
+     * Defines the parsing strategy for Kotlin source code.
+     *
+     * <p>This enum controls whether the parser delegates to the existing token-based
+     * {@link KotlinParser} or uses the PSI visitor-based parsing implementation.</p>
+     *
+     * @since BlueJ 5.4.0
+     */
+    public enum ParsingMode {
+        /**
+         * Delegate parsing to the existing {@link KotlinParser} implementation.
+         * This is the default, production-ready mode that uses token-based parsing.
+         *
+         * <p>When {@link #ENABLE_PSI_OUTPUT} is true, PSI enhancement occurs after
+         * delegation for debugging and analysis purposes.</p>
+         */
+        DELEGATION,
+        
+        /**
+         * Use PSI visitor-based parsing implementation.
+         * This is an experimental mode for testing the PSI visitor foundation.
+         *
+         * <p>In this mode, parsing uses the PSI tree structure directly via the
+         * visitor pattern, bypassing the legacy token-based parser.</p>
+         *
+         * <p><b>Warning</b>: This mode is experimental and may not handle all
+         * language constructs correctly. Use for testing only.</p>
+         */
+        PSI_VISITOR
+    }
     
     // ==================== FIELDS ====================
     
@@ -77,6 +115,18 @@ public class KotlinPsiParser implements ParserBehavior {
      * Used for source code extraction and filename resolution.
      */
     private final SourceParser sourceParser;
+    
+    /**
+     * Controls which parsing strategy to use.
+     *
+     * <p><b>Default</b>: {@link ParsingMode#DELEGATION} for backward compatibility
+     * and production stability.</p>
+     *
+     * <p><b>Immutable</b>: Set once in constructor, cannot be changed afterward.</p>
+     *
+     * @see ParsingMode
+     */
+    private final ParsingMode parsingMode;
     
     /**
      * Master switch for PSI output generation.
@@ -95,20 +145,44 @@ public class KotlinPsiParser implements ParserBehavior {
     // ==================== CONSTRUCTOR ====================
     
     /**
-     * Creates a new KotlinPsiParser facade.
-     * 
+     * Creates a new KotlinPsiParser facade with default {@link ParsingMode#DELEGATION} mode.
+     *
      * <p>Initializes delegation to {@link KotlinParser} and prepares
      * for optional PSI enhancement. The PSI environment is initialized
      * lazily on first use.</p>
-     * 
+     *
+     * <p>This constructor maintains backward compatibility by defaulting to
+     * {@link ParsingMode#DELEGATION} mode.</p>
+     *
      * @param sourceParser The SourceParser instance for callbacks and source access
      * @throws NullPointerException if sourceParser is null
      */
     public KotlinPsiParser(SourceParser sourceParser) {
+        this(sourceParser, ParsingMode.PSI_VISITOR);
+    }
+    
+    /**
+     * Creates a new KotlinPsiParser facade with specified parsing mode.
+     *
+     * <p>Allows explicit control over parsing strategy:</p>
+     * <ul>
+     *   <li>{@link ParsingMode#DELEGATION}: Delegates to {@link KotlinParser} (default, production)</li>
+     *   <li>{@link ParsingMode#PSI_VISITOR}: Uses {@link PsiCallbackVisitor} for parsing (experimental)</li>
+     * </ul>
+     *
+     * @param sourceParser The SourceParser instance for callbacks and source access
+     * @param parsingMode The parsing mode to use
+     * @throws NullPointerException if sourceParser or parsingMode is null
+     */
+    public KotlinPsiParser(SourceParser sourceParser, ParsingMode parsingMode) {
         if (sourceParser == null) {
             throw new NullPointerException("SourceParser cannot be null");
         }
+        if (parsingMode == null) {
+            throw new NullPointerException("ParsingMode cannot be null");
+        }
         this.sourceParser = sourceParser;
+        this.parsingMode = parsingMode;
         this.delegate = new KotlinParser(sourceParser);
     }
     
@@ -122,30 +196,50 @@ public class KotlinPsiParser implements ParserBehavior {
     /**
      * Parse a compilation unit (from the beginning).
      *
-     * <p><b>ENHANCEMENT POINT</b>: After delegation completes successfully,
-     * optionally enhances with PSI-based features if {@link #ENABLE_PSI_OUTPUT}
-     * is true.</p>
+     * <p><b>MODE SWITCHING</b>: Behavior depends on {@link #parsingMode}:</p>
+     * <ul>
+     *   <li><b>DELEGATION</b>: Delegates to {@link KotlinParser#parseCU()}, then optionally
+     *       enhances with PSI output if {@link #ENABLE_PSI_OUTPUT} is true</li>
+     *   <li><b>PSI_VISITOR</b>: Uses {@link PsiCallbackVisitor} to parse and call
+     *       {@link JavaParserCallbacks} directly, bypassing legacy parser</li>
+     * </ul>
      *
-     * <p><b>Delegation Flow</b>:</p>
+     * <p><b>Delegation Flow (DELEGATION mode)</b>:</p>
      * <ol>
      *   <li>Delegate to {@link KotlinParser#parseCU()}</li>
-     *   <li>If PSI enabled, call {@link #enhanceWithPSI()}</li>
+     *   <li>If PSI enabled, call {@link #enhanceWithPSI()} for .psi file output</li>
+     *   <li>PSI failures are logged but don't affect compilation</li>
+     * </ol>
+     *
+     * <p><b>PSI Visitor Flow (PSI_VISITOR mode)</b>:</p>
+     * <ol>
+     *   <li>Skip legacy parser delegation</li>
+     *   <li>Call {@link #parseWithPsiVisitor()} to parse using PSI visitor</li>
+     *   <li>PSI visitor directly invokes {@link JavaParserCallbacks} from {@link #sourceParser}</li>
      *   <li>PSI failures are logged but don't affect compilation</li>
      * </ol>
      */
     @Override
     public void parseCU() {
-//        System.err.println("[PSI-DEBUG] parseCU() called");
+//        System.err.println("[PSI-DEBUG] parseCU() called with mode: " + parsingMode);
         
-        // Phase 1: Token-based parsing (existing behavior)
-        delegate.parseCU();
-        
-        // Phase 2: PSI enhancement (new, optional)
-        if (ENABLE_PSI_OUTPUT) {
-//            System.err.println("[PSI-DEBUG] PSI output enabled, calling enhanceWithPSI()");
-            enhanceWithPSI();
-        } else {
-//            System.err.println("[PSI-DEBUG] PSI output DISABLED");
+        switch (parsingMode) {
+            case DELEGATION:
+                // Phase 1: Token-based parsing (existing behavior)
+                delegate.parseCU();
+                
+                // Phase 2: PSI enhancement (optional .psi file output)
+                if (ENABLE_PSI_OUTPUT) {
+//                    System.err.println("[PSI-DEBUG] PSI output enabled, calling enhanceWithPSI()");
+                    enhanceWithPSI();
+                }
+                break;
+                
+            case PSI_VISITOR:
+                // PSI visitor mode: Parse using PSI and call real JavaParserCallbacks
+//                System.err.println("[PSI-DEBUG] PSI_VISITOR mode: parsing with PsiCallbackVisitor");
+                parseWithPsiVisitor();
+                break;
         }
     }
     
@@ -336,6 +430,95 @@ public class KotlinPsiParser implements ParserBehavior {
     @Override
     public void parseMethodParamsBody() {
         delegate.parseMethodParamsBody();
+    }
+    
+    // ==================== PSI VISITOR PARSING ====================
+    
+    /**
+     * Parse source using PSI visitor and call real {@link JavaParserCallbacks}.
+     * 
+     * <p><b>PSI_VISITOR Mode Implementation</b>: Parse source into PSI tree and traverse
+     * using {@link PsiCallbackVisitor} to invoke callbacks from {@link #sourceParser}.</p>
+     * 
+     * <p><b>Parsing Flow</b>:</p>
+     * <ol>
+     *   <li>Extract source code from {@link SourceParser}</li>
+     *   <li>Determine filename for PSI parsing</li>
+     *   <li>Initialize {@link PsiEnvironment} (singleton, lazy)</li>
+     *   <li>Parse source with PSI using {@link PsiEnvironment#parseFile}</li>
+     *   <li>Create {@link PsiCallbackVisitor} with real callbacks from {@link #sourceParser}</li>
+     *   <li>Visit PSI tree using {@code ktFile.accept(visitor)}</li>
+     *   <li>Validate visitor state is balanced</li>
+     * </ol>
+     * 
+     * <p><b>Error Handling</b>: All failures are caught, logged (if {@link #LOG_PSI_ERRORS}),
+     * and suppressed. Compilation continues normally regardless of PSI outcome.</p>
+     * 
+     * <p><b>Performance</b>: PSI parsing adds ~10-50ms overhead per file.</p>
+     * 
+     * @see PsiCallbackVisitor
+     * @see JavaParserCallbacks
+     */
+    private void parseWithPsiVisitor() {
+        System.err.println("[PSI-DEBUG] === parseWithPsiVisitor() ENTRY ===");
+        try {
+            // Step 1: Get source code from SourceParser
+            String sourceCode = getSourceCode();
+            if (sourceCode == null || sourceCode.isEmpty()) {
+                if (LOG_PSI_ERRORS) {
+                    System.err.println("PSI: No source code available for parsing");
+                }
+                return;
+            }
+            
+            // Step 2: Determine file path
+            String filePath = getFilePath();
+            
+            // Step 3: Initialize PSI environment (singleton, lazy)
+            PsiEnvironment env = PsiEnvironment.getInstance();
+            if (!env.isInitialized()) {
+                if (LOG_PSI_ERRORS) {
+                    System.err.println("PSI: Environment not initialized, skipping parsing");
+                }
+                return;
+            }
+            
+            // Step 4: Parse with PSI
+            KtFile ktFile = env.parseFile(filePath, sourceCode);
+            
+            // Step 5: Create visitor with real JavaParserCallbacks from sourceParser
+            // SourceParser extends JavaParserCallbacks, so we can pass it directly
+            PsiCallbackVisitor visitor = new PsiCallbackVisitor(sourceParser);
+            
+            // Step 6: Visit the PSI tree (triggers callback invocations)
+            ktFile.accept(visitor);
+            
+            // Step 7: Validate visitor state is balanced
+            if (!visitor.validateState()) {
+                if (LOG_PSI_ERRORS) {
+                    System.err.println("PSI: Visitor state validation failed - unbalanced stack");
+                }
+            }
+            
+            System.err.println("[PSI-DEBUG] === SUCCESS: PSI visitor parsing complete ===");
+            
+        } catch (PsiParseException e) {
+            // PSI parsing failures MUST NOT break compilation
+            if (LOG_PSI_ERRORS) {
+                System.err.println("PSI parsing failed: " + e.getMessage());
+                if (e.getCause() != null) {
+                    System.err.println("Caused by: " + e.getCause().getMessage());
+                }
+            }
+            // Compilation continues despite PSI parsing failure
+        } catch (Exception e) {
+            // Other PSI failures also don't break compilation
+            if (LOG_PSI_ERRORS) {
+                System.err.println("PSI visitor parsing failed: " + e.getMessage());
+                e.printStackTrace();
+            }
+            // Compilation continues despite PSI failure
+        }
     }
     
     // ==================== PSI ENHANCEMENT ====================

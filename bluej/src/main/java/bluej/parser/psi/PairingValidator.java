@@ -70,9 +70,11 @@ public class PairingValidator {
         callbackRoles.put("gotMethodDeclaration", CallbackRole.CONTEXT_REFINER);
         callbackRoles.put("gotConstructorDecl", CallbackRole.CONTEXT_REFINER);
         callbackRoles.put("gotTypeDef", CallbackRole.CONTEXT_REFINER);
+        callbackRoles.put("beginFieldDeclarations", CallbackRole.CONTEXT_REFINER);
         callbackRoles.put("endMethodDecl", CallbackRole.CONTEXT_CLOSER);
         callbackRoles.put("gotTypeDefEnd", CallbackRole.CONTEXT_CLOSER);
-        
+        callbackRoles.put("endFieldDeclarations", CallbackRole.CONTEXT_CLOSER);
+
         // Simple paired callbacks
         callbackRoles.put("beginMethodBody", CallbackRole.PAIRED_BEGIN);
         callbackRoles.put("endMethodBody", CallbackRole.PAIRED_END);
@@ -110,8 +112,8 @@ public class PairingValidator {
         callbackRoles.put("endFinallyBlock", CallbackRole.PAIRED_END);
         callbackRoles.put("beginArrayInitExpression", CallbackRole.PAIRED_BEGIN);
         callbackRoles.put("endArrayInitExpression", CallbackRole.PAIRED_END);
-        callbackRoles.put("beginFieldDeclarations", CallbackRole.PAIRED_BEGIN);
-        callbackRoles.put("endFieldDeclarations", CallbackRole.PAIRED_END);
+//        callbackRoles.put("beginFieldDeclarations", CallbackRole.PAIRED_BEGIN);
+//        callbackRoles.put("endFieldDeclarations", CallbackRole.PAIRED_END);
         callbackRoles.put("gotField", CallbackRole.PAIRED_BEGIN);          // First field opener
         callbackRoles.put("gotSubsequentField", CallbackRole.PAIRED_BEGIN); // 2nd+ field opener
         callbackRoles.put("endField", CallbackRole.PAIRED_END);             // Field closer (reused!)
@@ -225,11 +227,12 @@ public class PairingValidator {
         // Declaration rule: gotDeclBegin can be refined to method or type
         StateTransitionRule declRule = new StateTransitionRule(
             "gotDeclBegin",
-            List.of("gotMethodDeclaration", "gotConstructorDecl", "gotTypeDef"),
+            List.of("gotMethodDeclaration", "gotConstructorDecl", "gotTypeDef",  "beginFieldDeclarations"),
             Map.of(
                 "gotMethodDeclaration", "endMethodDecl",
                 "gotConstructorDecl", "endMethodDecl",
-                "gotTypeDef", "gotTypeDefEnd"
+                "gotTypeDef", "gotTypeDefEnd",
+                "beginFieldDeclarations", "endFieldDeclarations"
             )
         );
         stateRules.add(declRule);

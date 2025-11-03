@@ -4,6 +4,8 @@ import java.io.Externalizable;
 
 public class G2
 {
+    String v1;
+
     public void testDecls()
     {
         String v1;

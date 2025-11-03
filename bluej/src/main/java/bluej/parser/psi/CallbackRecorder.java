@@ -235,6 +235,9 @@ public class CallbackRecorder extends JavaParserCallbacks {
      */
     public boolean validatePairing() {
         ValidationResult result = getValidationResult();
+        if (!(result.isBalanced() && !result.hasErrors())) {
+            System.out.println(result.getDetailedValidationSummary());
+        }
         return result.isBalanced() && !result.hasErrors();
     }
     
