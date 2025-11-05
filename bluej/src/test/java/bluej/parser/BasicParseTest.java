@@ -21,9 +21,6 @@
  */
 package bluej.parser;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,9 +35,9 @@ import bluej.parser.entity.PackageResolver;
 
 import static bluej.parser.SourceInputTestUtils.*;
 import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.psi.SourceInput;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
-import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

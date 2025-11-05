@@ -21,8 +21,7 @@
  */
 package bluej.parser.psi;
 
-import bluej.parser.JavaParserCallbacks;
-import bluej.parser.PsiCallbackVisitorAdapter;
+import bluej.parser.JavaParserCallbacksBase;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.lexer.LineColPos;
@@ -32,8 +31,6 @@ import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.*;
 
 import org.jetbrains.annotations.NotNull;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -170,7 +167,6 @@ import java.util.List;
  * @see TokenFactory Token creation for callback parameters (Phase 3)
  * @see <a href="file:///docs/planning/visitor-foundation/implementation-strategy.md">Implementation Strategy</a>
  */
-@OnThread(Tag.Any)
 public class PsiCallbackVisitor extends KtVisitorVoid {
     
     /**
@@ -188,10 +184,10 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      * Null in Phase 2 traversal-only mode, set for Phase 3 callback integration.
      * Uses adapter pattern to access protected JavaParserCallbacks methods.
      */
-    private final PsiCallbackVisitorAdapter callbacks;
+    private final JavaParserCallbacks callbacks;
     
     /**
-     * Visitor state for scope tracking and modifier management.
+     * Visitor state for scope tracking and modifier management.V
      *
      * <p>Tracks scope stack for context queries, accumulates modifiers for
      * declarations, and provides nesting depth information. Each visit method
@@ -227,7 +223,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      * @param callbacks The JavaParserCallbacks instance (will be wrapped in adapter)
      */
     public PsiCallbackVisitor(JavaParserCallbacks callbacks) {
-        this.callbacks = new PsiCallbackVisitorAdapter(callbacks);
+        this.callbacks = callbacks;
     }
     
     /**
@@ -277,6 +273,8 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         for (KtDeclaration declaration : file.getDeclarations()) {
             declaration.accept(this);
         }
+
+        callbacks.finishedCU(2); /// who the hell knows what that means xD
     }
     
     /**
@@ -330,22 +328,22 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             int tdType = determineTypeDefType(ktClass);
             LocatableToken classToken = createToken(ktClass.getClassOrInterfaceKeyword(), tdType);
 
-            callbacks.invokeDeclBegin(classToken);
+            callbacks.gotDeclBegin(classToken);
             
             // 2. Process modifiers
             KtModifierList modifierList = ktClass.getModifierList();
             if (modifierList != null) {
                 processModifiers(modifierList);
             }
-            callbacks.invokeModifiersConsumed();
+            callbacks.modifiersConsumed();
             
             // 3. Type definition
-            callbacks.invokeTypeDef(classToken, tdType);
+            callbacks.gotTypeDef(classToken, tdType);
             
             // 4. Type name
             if (className != null && ktClass.getNameIdentifier() != null) {
                 LocatableToken nameToken = createToken(ktClass.getNameIdentifier(), JavaTokenTypes.IDENT);
-                callbacks.invokeTypeDefName(nameToken);
+                callbacks.gotTypeDefName(nameToken);
             }
             
             // 5. Process supertypes
@@ -357,7 +355,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 visitPrimaryConstructor(primaryConstructor);
             }
 
-            LocatableToken finalToken;
+            LocatableToken finalToken = null;
             
             // 6. Begin type body
             KtClassBody body = ktClass.getBody();
@@ -371,7 +369,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                     LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
                     LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
                     
-                    callbacks.invokeBeginTypeBody(lBraceToken);
+                    callbacks.beginTypeBody(lBraceToken);
                     
                     // 7. Visit nested declarations explicitly
                     // Note: Kotlin PSI visitor requires explicit iteration over body declarations
@@ -395,19 +393,21 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                     }
                     
                     // 8. End type body with separate closing brace token
-                    callbacks.invokeEndTypeBody(rBraceToken, true);
+                    callbacks.endTypeBody(rBraceToken, true);
 
                     finalToken = rBraceToken;
                 }
                 // Note: If braces missing (malformed code), no nested declarations to visit
             }
 
-            var lastChild = ktClass.getLastChild();
+            if (finalToken == null) {
+                var lastChild = ktClass.getLastChild();
 
-            finalToken = createToken(lastChild, JavaTokenTypes.EOF); // TODO: figure out how to get proper token type
+                finalToken = createToken(lastChild, JavaTokenTypes.EOF); // TODO: figure out how to get proper token type
+            }
             
             // 9. End declaration
-            callbacks.invokeTypeDefEnd(finalToken, true);
+            callbacks.gotTypeDefEnd(finalToken, true);
 
         } finally {
             state.popScope();  // ALWAYS cleanup
@@ -492,7 +492,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             
             // 1. Begin declaration
             LocatableToken declToken = createToken(function.getFunKeyword(), JavaTokenTypes.LITERAL_fun);
-            callbacks.invokeDeclBegin(declToken);
+            callbacks.gotDeclBegin(declToken);
             
             // 2. Process modifiers (visibility, operator, infix, suspend, etc.)
             KtModifierList modifierList = function.getModifierList();
@@ -505,7 +505,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             KtTypeReference returnTypeRef = function.getTypeReference();
             if (returnTypeRef != null) {
                 List<LocatableToken> returnTypeTokens = extractTypeTokens(returnTypeRef);
-                callbacks.invokeTypeSpec(returnTypeTokens);
+                callbacks.gotTypeSpec(returnTypeTokens);
             }
             // Note: If no explicit return type, Kotlin infers Unit - we skip gotTypeSpec in this case
             
@@ -520,11 +520,11 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 // Map KDoc structure to LocatableToken (requires KDoc→JavaDoc conversion)
                 LocatableToken javadocToken = null;  // Intentionally null until Phase 4.4
                 
-                callbacks.invokeMethodDeclaration(nameToken, javadocToken);
+                callbacks.gotMethodDeclaration(nameToken, javadocToken);
             }
             
             // 5. Modifiers consumed
-            callbacks.invokeModifiersConsumed();
+            callbacks.modifiersConsumed();
             
             // 6. Generic type parameters (if present)
             KtTypeParameterList typeParams = function.getTypeParameterList();
@@ -539,11 +539,10 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             // Kotlin uses @Throws annotation instead of throws clause
             
             // 9. Method body (mark boundaries but don't traverse - Phase 6)
-            processMethodBody(function);
+            LocatableToken endToken = processMethodBody(function);
             
             // 10. End declaration
-            LocatableToken endToken = createToken(function, JavaTokenTypes.LITERAL_void);
-            callbacks.invokeEndMethodDecl(endToken, true);
+            callbacks.endMethodDecl(endToken, true);
             
         } finally {
             // Clear modifier state to prevent leakage into next declaration
@@ -615,7 +614,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
 
             // 1. Begin declaration
             LocatableToken declToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
-            callbacks.invokeDeclBegin(declToken);
+            callbacks.gotDeclBegin(declToken);
 
             // 2. Process modifiers (visibility modifiers only for constructors)
             KtModifierList modifierList = constructor.getModifierList();
@@ -644,17 +643,17 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             // TODO Phase 4.4: Extract KDoc from parent class for primary constructor
             LocatableToken javadocToken = null;  // Intentionally null until Phase 4.4
 
-            callbacks.invokeConstructorDecl(nameToken, javadocToken);
+            callbacks.gotConstructorDecl(nameToken, javadocToken);
 
             // 4. Modifiers consumed
-            callbacks.invokeModifiersConsumed();
+            callbacks.modifiersConsumed();
 
             // 5. Parameters (including property parameters with val/var)
             processConstructorParameters(constructor);
 
             // 6. End declaration (primary constructors have no explicit body)
             LocatableToken endToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
-            callbacks.invokeEndMethodDecl(endToken, true);
+            callbacks.endMethodDecl(endToken, true);
 
             // Visit children for any nested declarations
             super.visitPrimaryConstructor(constructor);
@@ -725,7 +724,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             
             // 1. Begin declaration
             LocatableToken declToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
-            callbacks.invokeDeclBegin(declToken);
+            callbacks.gotDeclBegin(declToken);
             
             // 2. Process modifiers (visibility modifiers for constructors)
             KtModifierList modifierList = constructor.getModifierList();
@@ -746,10 +745,10 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             // TODO Phase 4.4: Extract KDoc for secondary constructor
             LocatableToken javadocToken = null;  // Intentionally null until Phase 4.4
             
-            callbacks.invokeConstructorDecl(nameToken, javadocToken);
+            callbacks.gotConstructorDecl(nameToken, javadocToken);
             
             // 4. Modifiers consumed
-            callbacks.invokeModifiersConsumed();
+            callbacks.modifiersConsumed();
             
             // 5. Parameters
             processConstructorParameters(constructor);
@@ -768,7 +767,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 PsiElement lBrace = body.getLBrace();
                 if (lBrace != null) {
                     LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-                    callbacks.invokeBeginMethodBody(lBraceToken);
+                    callbacks.beginMethodBody(lBraceToken);
                 }
                 
                 // Phase 4: Skip body traversal (expressions/statements - Phase 6)
@@ -776,13 +775,13 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 PsiElement rBrace = body.getRBrace();
                 if (rBrace != null) {
                     LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-                    callbacks.invokeEndMethodBody(rBraceToken, true);
+                    callbacks.endMethodBody(rBraceToken, true);
                 }
             }
             
             // 8. End declaration
             LocatableToken endToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
-            callbacks.invokeEndMethodDecl(endToken, true);
+            callbacks.endMethodDecl(endToken, true);
             
             // Visit children for any nested declarations
             super.visitSecondaryConstructor(constructor);
@@ -857,7 +856,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 PsiElement lBrace = body.getLBrace();
                 if (lBrace != null) {
                     LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-                    callbacks.invokeBeginInitBlock(firstToken, lBraceToken);
+                    callbacks.beginInitBlock(firstToken, lBraceToken);
                 }
                 
                 // Phase 4: Skip init block body traversal (statements - Phase 6)
@@ -866,7 +865,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 PsiElement rBrace = body.getRBrace();
                 if (rBrace != null) {
                     LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-                    callbacks.invokeEndInitBlock(rBraceToken, true);
+                    callbacks.endInitBlock(rBraceToken, true);
                 }
             }
             
@@ -891,7 +890,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      *
      * <h3>Phase 4 Milestone 4.3: Property Declaration Callback Sequence</h3>
      * <p>Kotlin properties map to Java fields in BlueJ's ClassInfo. The callback sequence follows
-     * the field declaration pattern from {@link JavaParserCallbacks}:</p>
+     * the field declaration pattern from {@link JavaParserCallbacksBase}:</p>
      * <ol>
      *   <li>{@code beginFieldDeclarations(token)} - Begin field declarations</li>
      *   <li>{@code gotModifier(token)} × n - Process modifiers</li>
@@ -947,8 +946,8 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             
             // 1. Begin field declarations
             LocatableToken propertyToken = createToken( property.getValOrVarKeyword(), property.isVar() ? JavaTokenTypes.LITERAL_var : JavaTokenTypes.LITERAL_val);
-            callbacks.invokeDeclBegin(propertyToken);
-            callbacks.invokeBeginFieldDeclarations(propertyToken);
+            callbacks.gotDeclBegin(propertyToken);
+            callbacks.beginFieldDeclarations(propertyToken);
             
             // 2. Process modifiers
             KtModifierList modifierList = property.getModifierList();
@@ -960,7 +959,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             LocatableToken typeToken = processPropertyType(property);
             if (typeToken != null) {
                 List<LocatableToken> typeTokens = List.of(typeToken);
-                callbacks.invokeTypeSpec(typeTokens);
+                callbacks.gotTypeSpec(typeTokens);
             }
             
             // 4. Field declaration
@@ -968,17 +967,17 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             if (nameIdentifier != null && propertyName != null) {
                 LocatableToken nameToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
                 boolean hasInitializer = property.hasInitializer();
-                callbacks.invokeField(propertyToken, nameToken, hasInitializer);
+                callbacks.gotField(propertyToken, nameToken, hasInitializer);
             }
             
             // 5. End field
-            callbacks.invokeEndField(propertyToken, true);
+            callbacks.endField(propertyToken, true);
             
             // 6. End field declarations
-            callbacks.invokeEndFieldDeclarations(propertyToken, true);
+            callbacks.endFieldDeclarations(propertyToken, true);
 
             // TODO: that needs to be done only on failure
-            // callbacks.invokeEndDecl(propertyToken);
+            // callbacks.endDecl(propertyToken);
 
             // Visit custom accessors if present (custom getter/setter bodies)
             super.visitProperty(property);
@@ -1090,28 +1089,28 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             
             // 1. Begin declaration
             LocatableToken objectToken = createToken(declaration.getObjectKeyword(), JavaTokenTypes.LITERAL_object);
-            callbacks.invokeDeclBegin(objectToken);
+            callbacks.gotDeclBegin(objectToken);
             
             // 2. Process modifiers (objects can have visibility modifiers)
             KtModifierList modifierList = declaration.getModifierList();
             if (modifierList != null) {
                 processModifiers(modifierList);
             }
-            callbacks.invokeModifiersConsumed();
+            callbacks.modifiersConsumed();
             
             // 3. Type definition - objects are mapped to classes
-            callbacks.invokeTypeDef(objectToken, JavaTokenTypes.LITERAL_class);
+            callbacks.gotTypeDef(objectToken, JavaTokenTypes.LITERAL_class);
             
             // 4. Object name (or "Companion" for companion objects)
             String name = declaration.getName();
             if (name != null && declaration.getNameIdentifier() != null) {
                 // Named object or named companion
                 LocatableToken nameToken = createToken(declaration.getNameIdentifier(), JavaTokenTypes.IDENT);
-                callbacks.invokeTypeDefName(nameToken);
+                callbacks.gotTypeDefName(nameToken);
             } else if (declaration.isCompanion()) {
                 // Companion object without explicit name - use "Companion" as synthetic name
                 LocatableToken nameToken = createTokenWithText(declaration, "Companion", JavaTokenTypes.IDENT);
-                callbacks.invokeTypeDefName(nameToken);
+                callbacks.gotTypeDefName(nameToken);
             }
             
             // 5. Process supertypes (objects can implement interfaces)
@@ -1125,7 +1124,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 
                 if (lBrace != null && rBrace != null) {
                     LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-                    callbacks.invokeBeginTypeBody(lBraceToken);
+                    callbacks.beginTypeBody(lBraceToken);
                     
                     // 7. Visit nested declarations (objects can contain nested classes/objects/functions/properties)
                     for (KtDeclaration decl : body.getDeclarations()) {
@@ -1142,12 +1141,12 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                     
                     // 8. End type body
                     LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-                    callbacks.invokeEndTypeBody(rBraceToken, true);
+                    callbacks.endTypeBody(rBraceToken, true);
                 }
             }
             
             // 9. End declaration
-            callbacks.invokeTypeDefEnd(objectToken, true);
+            callbacks.gotTypeDefEnd(objectToken, true);
             
         } finally {
             state.popScope();  // ALWAYS cleanup
@@ -1420,7 +1419,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 modifierList.getModifier(KtTokens.PUBLIC_KEYWORD),
                 JavaTokenTypes.LITERAL_public
             );
-            callbacks.invokeModifier(token);
+            callbacks.gotModifier(token);
         }
         
         if (modifierList.hasModifier(KtTokens.PRIVATE_KEYWORD)) {
@@ -1428,7 +1427,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 modifierList.getModifier(KtTokens.PRIVATE_KEYWORD),
                 JavaTokenTypes.LITERAL_private
             );
-            callbacks.invokeModifier(token);
+            callbacks.gotModifier(token);
         }
         
         if (modifierList.hasModifier(KtTokens.PROTECTED_KEYWORD)) {
@@ -1436,7 +1435,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 modifierList.getModifier(KtTokens.PROTECTED_KEYWORD),
                 JavaTokenTypes.LITERAL_protected
             );
-            callbacks.invokeModifier(token);
+            callbacks.gotModifier(token);
         }
         
         if (modifierList.hasModifier(KtTokens.INTERNAL_KEYWORD)) {
@@ -1445,7 +1444,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 modifierList.getModifier(KtTokens.INTERNAL_KEYWORD),
                 JavaTokenTypes.LITERAL_internal
             );
-            callbacks.invokeModifier(token);
+            callbacks.gotModifier(token);
         }
         
         // Process inheritance modifiers
@@ -1454,7 +1453,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 modifierList.getModifier(KtTokens.ABSTRACT_KEYWORD),
                 JavaTokenTypes.ABSTRACT
             );
-            callbacks.invokeModifier(token);
+            callbacks.gotModifier(token);
         }
         
         if (modifierList.hasModifier(KtTokens.FINAL_KEYWORD)) {
@@ -1462,7 +1461,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 modifierList.getModifier(KtTokens.FINAL_KEYWORD),
                 JavaTokenTypes.FINAL
             );
-            callbacks.invokeModifier(token);
+            callbacks.gotModifier(token);
         }
         
         if (modifierList.hasModifier(KtTokens.OPEN_KEYWORD)) {
@@ -1471,7 +1470,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 modifierList.getModifier(KtTokens.OPEN_KEYWORD),
                 JavaTokenTypes.LITERAL_open
             );
-            callbacks.invokeModifier(token);
+            callbacks.gotModifier(token);
         }
         
         // Process property-specific modifiers (Phase 4.3)
@@ -1481,7 +1480,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 modifierList.getModifier(KtTokens.LATEINIT_KEYWORD),
                 JavaTokenTypes.LITERAL_lateinit
             );
-            callbacks.invokeModifier(token);
+            callbacks.gotModifier(token);
         }
         
         if (modifierList.hasModifier(KtTokens.CONST_KEYWORD)) {
@@ -1490,7 +1489,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 modifierList.getModifier(KtTokens.CONST_KEYWORD),
                 JavaTokenTypes.LITERAL_const
             );
-            callbacks.invokeModifier(token);
+            callbacks.gotModifier(token);
         }
         
         if (modifierList.hasModifier(KtTokens.OVERRIDE_KEYWORD)) {
@@ -1499,7 +1498,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 modifierList.getModifier(KtTokens.OVERRIDE_KEYWORD),
                 JavaTokenTypes.LITERAL_override
             );
-            callbacks.invokeModifier(token);
+            callbacks.gotModifier(token);
         }
         
         // Note: Static modifier handling for companion objects deferred to Task 3.2
@@ -1621,7 +1620,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             PsiElement operatorModifier = modifiers.getModifier(KtTokens.OPERATOR_KEYWORD);
             if (operatorModifier != null) {
                 LocatableToken token = createToken(operatorModifier, JavaTokenTypes.LITERAL_operator);
-                callbacks.invokeModifier(token);
+                callbacks.gotModifier(token);
             }
         }
         
@@ -1630,7 +1629,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             PsiElement infixModifier = modifiers.getModifier(KtTokens.INFIX_KEYWORD);
             if (infixModifier != null) {
                 LocatableToken token = createToken(infixModifier, JavaTokenTypes.LITERAL_infix);
-                callbacks.invokeModifier(token);
+                callbacks.gotModifier(token);
             }
         }
         
@@ -1639,7 +1638,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             PsiElement inlineModifier = modifiers.getModifier(KtTokens.INLINE_KEYWORD);
             if (inlineModifier != null) {
                 LocatableToken token = createToken(inlineModifier, JavaTokenTypes.LITERAL_inline);
-                callbacks.invokeModifier(token);
+                callbacks.gotModifier(token);
             }
         }
         
@@ -1648,7 +1647,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             PsiElement suspendModifier = modifiers.getModifier(KtTokens.SUSPEND_KEYWORD);
             if (suspendModifier != null) {
                 LocatableToken token = createToken(suspendModifier, JavaTokenTypes.LITERAL_suspend);
-                callbacks.invokeModifier(token);
+                callbacks.gotModifier(token);
             }
         }
         
@@ -1657,7 +1656,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             PsiElement overrideModifier = modifiers.getModifier(KtTokens.OVERRIDE_KEYWORD);
             if (overrideModifier != null) {
                 LocatableToken token = createToken(overrideModifier, JavaTokenTypes.LITERAL_override);
-                callbacks.invokeModifier(token);
+                callbacks.gotModifier(token);
             }
         }
     }
@@ -1733,25 +1732,25 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             return;
         }
         
-        callbacks.invokeMethodTypeParamsBegin();
+        callbacks.gotMethodTypeParamsBegin();
         
         for (KtTypeParameter typeParam : typeParams) {
             // Type parameter name
             PsiElement nameIdentifier = typeParam.getNameIdentifier();
             if (nameIdentifier != null) {
                 LocatableToken nameToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
-                callbacks.invokeTypeParam(nameToken);
+                callbacks.gotTypeParam(nameToken);
             }
             
             // Type parameter bound (e.g., T : Number)
             KtTypeReference bound = typeParam.getExtendsBound();
             if (bound != null) {
                 List<LocatableToken> boundTokens = extractTypeTokens(bound);
-                callbacks.invokeTypeParamBound(boundTokens);
+                callbacks.gotTypeParamBound(boundTokens);
             }
         }
         
-        callbacks.invokeEndMethodTypeParams();
+        callbacks.endMethodTypeParams();
     }
     
     /**
@@ -1788,7 +1787,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             KtTypeReference paramType = param.getTypeReference();
             if (paramType != null) {
                 List<LocatableToken> typeTokens = extractTypeTokens(paramType);
-                callbacks.invokeTypeSpec(typeTokens);
+                callbacks.gotTypeSpec(typeTokens);
             }
             
             // Parameter name
@@ -1809,12 +1808,12 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                     }
                 }
                 
-                callbacks.invokeMethodParameter(nameToken, ellipsisToken);
+                callbacks.gotMethodParameter(nameToken, ellipsisToken);
             }
         }
         
         // All parameters processed
-        callbacks.invokeAllMethodParameters();
+        callbacks.gotAllMethodParameters();
     }
     
     /**
@@ -1834,10 +1833,12 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      *
      * @param function The function whose body to process
      */
-    private void processMethodBody(KtNamedFunction function) {
+    private LocatableToken processMethodBody(KtNamedFunction function) {
         if (callbacks == null) {
-            return;
+            return null;
         }
+
+        LocatableToken lastToken = null;
         
         if (function.hasBlockBody()) {
             // Block body: fun method() { ... }
@@ -1846,7 +1847,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 PsiElement lBrace = body.getLBrace();
                 if (lBrace != null) {
                     LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-                    callbacks.invokeBeginMethodBody(lBraceToken);
+                    callbacks.beginMethodBody(lBraceToken);
                 }
                 
                 // Phase 4: Skip body traversal (expressions/statements - Phase 6)
@@ -1854,7 +1855,8 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 PsiElement rBrace = body.getRBrace();
                 if (rBrace != null) {
                     LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-                    callbacks.invokeEndMethodBody(rBraceToken, true);
+                    lastToken = rBraceToken;
+                    callbacks.endMethodBody(rBraceToken, true);
                 }
             }
         } else if (function.hasBody()) {
@@ -1863,14 +1865,21 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             if (body != null) {
                 // Mark expression body boundaries
                 LocatableToken bodyToken = createToken(body, JavaTokenTypes.ASSIGN);
-                callbacks.invokeBeginMethodBody(bodyToken);
+                callbacks.beginMethodBody(bodyToken);
                 
                 // Phase 4: Skip expression traversal (Phase 6)
-                
-                callbacks.invokeEndMethodBody(bodyToken, true);
+
+                lastToken = createToken(body.getLastChild(), JavaTokenTypes.LITERAL_void);
+
+                callbacks.endMethodBody(bodyToken, true);
             }
         }
-        // else: Abstract method or interface method - no body
+        else {
+            // else: Abstract method or interface method - no body
+            lastToken = createToken(function.getLastChild(), JavaTokenTypes.LITERAL_void);
+        }
+
+        return lastToken;
     }
     /**
      * Processes constructor parameter list.
@@ -1910,7 +1919,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             KtTypeReference paramType = param.getTypeReference();
             if (paramType != null) {
                 List<LocatableToken> typeTokens = extractTypeTokens(paramType);
-                callbacks.invokeTypeSpec(typeTokens);
+                callbacks.gotTypeSpec(typeTokens);
             }
             
             // Parameter name
@@ -1931,7 +1940,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                     }
                 }
                 
-                callbacks.invokeMethodParameter(nameToken, ellipsisToken);
+                callbacks.gotMethodParameter(nameToken, ellipsisToken);
             }
             
             // Note: If parameter has val/var, it also defines a property
@@ -1943,7 +1952,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         }
         
         // All parameters processed
-        callbacks.invokeAllMethodParameters();
+        callbacks.gotAllMethodParameters();
     }
     
     

@@ -13,7 +13,7 @@ class LocatedTag
     final Tag tag;
     private final boolean ignoreParent;
     private final boolean requireSynchronized;
-    private final String info;
+    public final String info;
     private final boolean applyToAllSubclassMethods;
     
     private final static HashMap<String, LocatedTag> foundTags = new HashMap<>();

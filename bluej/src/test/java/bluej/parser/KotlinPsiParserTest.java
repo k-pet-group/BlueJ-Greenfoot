@@ -3,12 +3,12 @@ package bluej.parser;
 import bluej.extensions2.SourceType;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.psi.PsiEnvironment;
+import bluej.parser.psi.SourceInput;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;

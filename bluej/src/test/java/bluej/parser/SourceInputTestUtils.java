@@ -24,11 +24,11 @@ package bluej.parser;
 import bluej.extensions2.SourceType;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.psi.SourceInput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**

@@ -62,7 +62,7 @@ import bluej.extensions2.event.CompileEvent;
 import bluej.extensions2.event.CompileEvent.EventType;
 import bluej.extmgr.ExtensionsManager;
 import bluej.parser.symtab.ClassInfo;
-import bluej.parser.SourceInput;
+import bluej.parser.psi.SourceInput;
 import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;

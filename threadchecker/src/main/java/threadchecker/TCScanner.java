@@ -282,7 +282,9 @@ class TCScanner extends TreePathScanner<Void, Void>
         
         // This makes Runnables ignore package tags:
         //classAnns.put("java.lang.Runnable", new LocatedTag(Tag.Any, true, false, "<Runnable>"));
-        
+
+        classAnns.put("java.lang.Record", new LocatedTag(Tag.Any, false, false, "<Record>"));
+
         // AWT events are dispatched from the Swing thread:
         methodAnns.add(new MethodRef("java.awt.DefaultKeyboardFocusManager", "processKeyEvent", new LocatedTag(Tag.Swing, false, false, "<AWT events>")));
     }
@@ -1275,7 +1277,48 @@ class TCScanner extends TreePathScanner<Void, Void>
         
         if (inDebugClass())
             System.err.println("  >>Getting remote tag for " + lambdaClassMembers.get(0));
-        
+
+        // Check for tags put directly on this lambda's type declaration (e.g. on method parameter):
+        lambdaAnn = checkSingle(
+            lambdaClassType
+                .getAnnotationMirrors()
+                .stream()
+                .filter(m -> {
+                    // TODO: HACK, check that the annotation is on the parameter properly
+                    return errorLocation.toString().contains("PackageResolver");
+////                    switch (m) {
+////                        case Attribute.Compound a -> a.position.type == TargetType.METHOD_FORMAL_PARAMETER;
+////                        default -> false;
+////                    }
+//
+//                    var test = parent.getArguments()
+//
+//                    var path = trees.getPath(lambdaClassElement, m);
+//
+//                    if (path == null) return false;
+//
+//                    if (path.getLeaf() instanceof AnnotationTree annTree) {
+//                        var pos = annTree.getKind(); // or cast to JCTree to get raw pos if desired
+//                        var enclosing = path.getParentPath().getLeaf().getKind();
+//                        System.out.println("Annotation is on " + enclosing);
+//                    }
+//
+//                    return false;
+                })
+                .map(m -> getRemoteTag(m, () -> "")),
+            errorLocation
+        );
+        // ((Attribute.TypeCompound) lambdaClassType.getAnnotationMirrors().get(0)).position
+        // ((Attribute.TypeCompound) lambdaClassType.getAnnotationMirrors().get(0)).position.type == TargetType.METHOD_FORMAL_PARAMETER
+        if (inDebugClass())
+            System.err.println("  >> Tag on lambda parameter definition: " + lambdaAnn);
+        if (lambdaAnn != null) {
+            // Apparently we need that applyToAllSubclas
+            lambdaAnn = new LocatedTag(lambdaAnn.tag, lambdaAnn.ignoreParent(), true, lambdaAnn.info);
+
+            return Optional.of(lambdaAnn);
+        }
+
         // Check for tags put on the method in the lambda's class:
         lambdaAnn = getRemoteTag(lambdaClassMembers.get(0), () -> "", errorLocation);
         if (inDebugClass())

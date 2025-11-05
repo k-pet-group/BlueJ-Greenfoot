@@ -22,15 +22,14 @@
 package bluej.parser;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.List;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.entity.ClassLoaderResolver;
+import bluej.parser.psi.SourceInput;
 import bluej.parser.symtab.ClassInfo;
 import org.junit.Ignore;
 import org.junit.Test;

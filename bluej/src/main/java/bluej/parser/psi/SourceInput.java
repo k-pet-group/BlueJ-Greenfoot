@@ -19,19 +19,27 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package bluej.parser;
+package bluej.parser.psi;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
 import bluej.pkgmgr.Package;
+import javafx.application.Platform;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
+
+import static bluej.parser.psi.Utils.onPlatformThread;
+
 
 /**
  * Sealed interface representing a source input for parsing.
@@ -179,13 +187,20 @@ public sealed interface SourceInput
      * The reader is fully consumed into memory. The reader is not closed by this method.
      */
     static ReaderSource fromReader(@NotNull Reader reader, @NotNull SourceType sourceType, 
-                                   @NotNull String virtualPath) throws IOException {
+                                   @NotNull String virtualPath) {
         char[] buf = new char[8192];
         StringBuilder sb = new StringBuilder();
         int n;
-        while ((n = reader.read(buf)) != -1) {
-            sb.append(buf, 0, n);
+
+        try {
+            while ((n = reader.read(buf)) != -1) {
+                sb.append(buf, 0, n);
+            }
         }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
         return new ReaderSource(sb.toString(), sourceType, StandardCharsets.UTF_8, 
                                virtualPath, null, null);
     }
@@ -195,9 +210,10 @@ public sealed interface SourceInput
      * The reader is fully consumed into memory. The reader is not closed by this method.
      */
     static ReaderSource fromReader(@NotNull Reader reader, @NotNull SourceType sourceType, 
-                                   @NotNull EntityResolver resolver) throws IOException {
+                                   @NotNull EntityResolver resolver) {
         String ext = sourceType == SourceType.Kotlin ? ".kt" : ".java";
         String path = "/<memory>/InMemory" + ext;
+
         return fromReader(reader, sourceType, resolver, path);
     }
     
@@ -206,14 +222,24 @@ public sealed interface SourceInput
      * The reader is fully consumed into memory. The reader is not closed by this method.
      */
     static ReaderSource fromReader(@NotNull Reader reader, @NotNull SourceType sourceType, 
-                                   @NotNull EntityResolver resolver, @NotNull String virtualPath) 
-            throws IOException {
+                                   @NotNull EntityResolver resolver, @NotNull String virtualPath) {
         char[] buf = new char[8192];
         StringBuilder sb = new StringBuilder();
         int n;
-        while ((n = reader.read(buf)) != -1) {
-            sb.append(buf, 0, n);
+
+        try {
+            reader.mark(Integer.MAX_VALUE);
+
+            while ((n = reader.read(buf)) != -1) {
+                sb.append(buf, 0, n);
+            }
+
+            reader.reset();
         }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
         return new ReaderSource(sb.toString(), sourceType, StandardCharsets.UTF_8, 
                                virtualPath, null, resolver);
     }
@@ -262,12 +288,16 @@ public sealed interface SourceInput
             if (directResolver != null) {
                 return directResolver;
             }
+
             if (pkg == null) {
                 throw new IllegalStateException("No Package or direct resolver available");
             }
-            return new PackageResolver(
-                pkg.getProject().getEntityResolver(),
-                pkg.getQualifiedName()
+
+            return onPlatformThread(() ->
+                    new PackageResolver(
+                            pkg.getProject().getEntityResolver(),
+                            pkg.getQualifiedName()
+                    )
             );
         }
         
@@ -349,13 +379,15 @@ public sealed interface SourceInput
             if (directResolver != null) {
                 return directResolver;
             }
+
             if (pkg == null) {
                 throw new IllegalStateException("No Package or direct resolver available");
             }
-            return new PackageResolver(
+
+            return onPlatformThread(() -> new PackageResolver(
                 pkg.getProject().getEntityResolver(),
                 pkg.getQualifiedName()
-            );
+            ));
         }
         
         @Override
@@ -440,10 +472,10 @@ public sealed interface SourceInput
             if (pkg == null) {
                 throw new IllegalStateException("No Package or direct resolver available");
             }
-            return new PackageResolver(
+            return onPlatformThread(() -> new PackageResolver(
                 pkg.getProject().getEntityResolver(),
                 pkg.getQualifiedName()
-            );
+            ));
         }
         
         @Override

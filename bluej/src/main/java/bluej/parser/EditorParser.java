@@ -29,6 +29,7 @@ import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.*;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.parser.psi.SourceInput;
 import bluej.parser.symtab.Selection;
 import threadchecker.OnThread;
 import threadchecker.Tag;

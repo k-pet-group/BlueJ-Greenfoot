@@ -39,7 +39,7 @@ import threadchecker.Tag;
  * </ul>
  * 
  * <h2>Design Pattern: Adapter (Wrapper)</h2>
- * <p>Wraps a {@link JavaParserCallbacks} instance and delegates all callback invocations
+ * <p>Wraps a {@link JavaParserCallbacksBase} instance and delegates all callback invocations
  * to it, exposing protected methods as public for cross-package access.</p>
  * 
  * <h2>Usage Example</h2>
@@ -53,16 +53,16 @@ import threadchecker.Tag;
  * <h2>Performance</h2>
  * <p>Zero overhead - simple delegation with no additional logic or state.</p>
  * 
- * @see JavaParserCallbacks The wrapped callback interface
+ * @see JavaParserCallbacksBase The wrapped callback interface
  * @see bluej.parser.psi.PsiCallbackVisitor The consumer of this adapter
  */
-@OnThread(Tag.Any)
-public class PsiCallbackVisitorAdapter extends JavaParserCallbacks {
+@OnThread(Tag.FXPlatform)
+public class PsiCallbackVisitorAdapter extends JavaParserCallbacksBase {
     
     /**
      * The wrapped callbacks instance to delegate to.
      */
-    private final JavaParserCallbacks delegate;
+    private final JavaParserCallbacksBase delegate;
     
     /**
      * Creates an adapter wrapping the given callbacks instance.
@@ -70,7 +70,7 @@ public class PsiCallbackVisitorAdapter extends JavaParserCallbacks {
      * @param delegate The JavaParserCallbacks instance to wrap
      * @throws NullPointerException if delegate is null
      */
-    public PsiCallbackVisitorAdapter(JavaParserCallbacks delegate) {
+    public PsiCallbackVisitorAdapter(JavaParserCallbacksBase delegate) {
         if (delegate == null) {
             throw new NullPointerException("Delegate callbacks must not be null");
         }
@@ -81,84 +81,84 @@ public class PsiCallbackVisitorAdapter extends JavaParserCallbacks {
     // These expose protected JavaParserCallbacks methods as public for PsiCallbackVisitor
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotDeclBegin(LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotDeclBegin(LocatableToken)}.
      */
     public void invokeDeclBegin(LocatableToken token) {
         delegate.gotDeclBegin(token);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotModifier(LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotModifier(LocatableToken)}.
      */
     public void invokeModifier(LocatableToken token) {
         delegate.gotModifier(token);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#modifiersConsumed()}.
+     * Public delegation to {@link JavaParserCallbacksBase#modifiersConsumed()}.
      */
     public void invokeModifiersConsumed() {
         delegate.modifiersConsumed();
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotTypeDef(LocatableToken, int)}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotTypeDef(LocatableToken, int)}.
      */
     public void invokeTypeDef(LocatableToken token, int tdType) {
         delegate.gotTypeDef(token, tdType);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotTypeDefName(LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotTypeDefName(LocatableToken)}.
      */
     public void invokeTypeDefName(LocatableToken nameToken) {
         delegate.gotTypeDefName(nameToken);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#beginTypeBody(LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#beginTypeBody(LocatableToken)}.
      */
     public void invokeBeginTypeBody(LocatableToken leftCurlyToken) {
         delegate.beginTypeBody(leftCurlyToken);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#endTypeBody(LocatableToken, boolean)}.
+     * Public delegation to {@link JavaParserCallbacksBase#endTypeBody(LocatableToken, boolean)}.
      */
     public void invokeEndTypeBody(LocatableToken endCurlyToken, boolean included) {
         delegate.endTypeBody(endCurlyToken, included);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotTypeDefEnd(LocatableToken, boolean)}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotTypeDefEnd(LocatableToken, boolean)}.
      */
     public void invokeTypeDefEnd(LocatableToken token, boolean included) {
         delegate.gotTypeDefEnd(token, included);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#beginTypeDefExtends(LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#beginTypeDefExtends(LocatableToken)}.
      */
     public void beginTypeDefExtends(LocatableToken token) {
         delegate.beginTypeDefExtends(token);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#endTypeDefExtends()}.
+     * Public delegation to {@link JavaParserCallbacksBase#endTypeDefExtends()}.
      */
     public void endTypeDefExtends() {
         delegate.endTypeDefExtends();
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#beginTypeDefImplements(LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#beginTypeDefImplements(LocatableToken)}.
      */
     public void beginTypeDefImplements(LocatableToken token) {
         delegate.beginTypeDefImplements(token);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#endTypeDefImplements()}.
+     * Public delegation to {@link JavaParserCallbacksBase#endTypeDefImplements()}.
      */
     public void endTypeDefImplements() {
         delegate.endTypeDefImplements();
@@ -167,77 +167,77 @@ public class PsiCallbackVisitorAdapter extends JavaParserCallbacks {
     // ==================== Phase 4 Method Declaration Callbacks ====================
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotMethodDeclaration(LocatableToken, LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotMethodDeclaration(LocatableToken, LocatableToken)}.
      */
     public void invokeMethodDeclaration(LocatableToken nameToken, LocatableToken javadocToken) {
         delegate.gotMethodDeclaration(nameToken, javadocToken);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotTypeSpec(java.util.List)}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotTypeSpec(java.util.List)}.
      */
     public void invokeTypeSpec(java.util.List<LocatableToken> tokens) {
         delegate.gotTypeSpec(tokens);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotMethodTypeParamsBegin()}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotMethodTypeParamsBegin()}.
      */
     public void invokeMethodTypeParamsBegin() {
         delegate.gotMethodTypeParamsBegin();
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotTypeParam(LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotTypeParam(LocatableToken)}.
      */
     public void invokeTypeParam(LocatableToken idToken) {
         delegate.gotTypeParam(idToken);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotTypeParamBound(java.util.List)}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotTypeParamBound(java.util.List)}.
      */
     public void invokeTypeParamBound(java.util.List<LocatableToken> tokens) {
         delegate.gotTypeParamBound(tokens);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#endMethodTypeParams()}.
+     * Public delegation to {@link JavaParserCallbacksBase#endMethodTypeParams()}.
      */
     public void invokeEndMethodTypeParams() {
         delegate.endMethodTypeParams();
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotMethodParameter(LocatableToken, LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotMethodParameter(LocatableToken, LocatableToken)}.
      */
     public void invokeMethodParameter(LocatableToken nameToken, LocatableToken ellipsisToken) {
         delegate.gotMethodParameter(nameToken, ellipsisToken);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotAllMethodParameters()}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotAllMethodParameters()}.
      */
     public void invokeAllMethodParameters() {
         delegate.gotAllMethodParameters();
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#beginMethodBody(LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#beginMethodBody(LocatableToken)}.
      */
     public void invokeBeginMethodBody(LocatableToken token) {
         delegate.beginMethodBody(token);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#endMethodBody(LocatableToken, boolean)}.
+     * Public delegation to {@link JavaParserCallbacksBase#endMethodBody(LocatableToken, boolean)}.
      */
     public void invokeEndMethodBody(LocatableToken token, boolean included) {
         delegate.endMethodBody(token, included);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#endMethodDecl(LocatableToken, boolean)}.
+     * Public delegation to {@link JavaParserCallbacksBase#endMethodDecl(LocatableToken, boolean)}.
      */
     public void invokeEndMethodDecl(LocatableToken token, boolean included) {
         delegate.endMethodDecl(token, included);
@@ -246,21 +246,21 @@ public class PsiCallbackVisitorAdapter extends JavaParserCallbacks {
     // ==================== Phase 4 Constructor Declaration Callbacks ====================
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotConstructorDecl(LocatableToken, LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotConstructorDecl(LocatableToken, LocatableToken)}.
      */
     public void invokeConstructorDecl(LocatableToken nameToken, LocatableToken javadocToken) {
         delegate.gotConstructorDecl(nameToken, javadocToken);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#beginInitBlock(LocatableToken, LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#beginInitBlock(LocatableToken, LocatableToken)}.
      */
     public void invokeBeginInitBlock(LocatableToken first, LocatableToken lcurly) {
         delegate.beginInitBlock(first, lcurly);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#endInitBlock(LocatableToken, boolean)}.
+     * Public delegation to {@link JavaParserCallbacksBase#endInitBlock(LocatableToken, boolean)}.
      */
     public void invokeEndInitBlock(LocatableToken rcurly, boolean included) {
         delegate.endInitBlock(rcurly, included);
@@ -269,35 +269,35 @@ public class PsiCallbackVisitorAdapter extends JavaParserCallbacks {
     // ==================== Phase 4 Field/Property Declaration Callbacks ====================
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#beginFieldDeclarations(LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#beginFieldDeclarations(LocatableToken)}.
      */
     public void invokeBeginFieldDeclarations(LocatableToken first) {
         delegate.beginFieldDeclarations(first);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#gotField(LocatableToken, LocatableToken, boolean)}.
+     * Public delegation to {@link JavaParserCallbacksBase#gotField(LocatableToken, LocatableToken, boolean)}.
      */
     public void invokeField(LocatableToken first, LocatableToken idToken, boolean initExpressionFollows) {
         delegate.gotField(first, idToken, initExpressionFollows);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#endField(LocatableToken, boolean)}.
+     * Public delegation to {@link JavaParserCallbacksBase#endField(LocatableToken, boolean)}.
      */
     public void invokeEndField(LocatableToken token, boolean included) {
         delegate.endField(token, included);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#endFieldDeclarations(LocatableToken, boolean)}.
+     * Public delegation to {@link JavaParserCallbacksBase#endFieldDeclarations(LocatableToken, boolean)}.
      */
     public void invokeEndFieldDeclarations(LocatableToken token, boolean included) {
         delegate.endFieldDeclarations(token, included);
     }
     
     /**
-     * Public delegation to {@link JavaParserCallbacks#endDecl(LocatableToken)}.
+     * Public delegation to {@link JavaParserCallbacksBase#endDecl(LocatableToken)}.
      */
     public void invokeEndDecl(LocatableToken token) {
         delegate.endDecl(token);

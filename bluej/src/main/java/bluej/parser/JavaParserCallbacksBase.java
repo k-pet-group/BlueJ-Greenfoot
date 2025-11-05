@@ -22,575 +22,508 @@
 package bluej.parser;
 
 
-import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 
 import java.util.List;
 
-public class JavaParserCallbacks
-{
-    /**
-     * Found a package X; statement
-     * @param token The "package" token
-     */
+public class JavaParserCallbacksBase { //  implements JavaParserCallbacks {
+    // @Override
     protected void beginPackageStatement(LocatableToken token) {  }
 
-    /**
-     * We have the package name for this source, from a package statement at the top of the file.
-     * @param pkgTokens The tokens making up the package name (including the dots)
-     */
+    // @Override
     protected void gotPackage(List<LocatableToken> pkgTokens) { }
 
-    /**
-     * We've seen the semicolon at the end of a "package" statement.
-     * @param token The semicolon token
-     */
+    // @Override
     protected void gotPackageSemi(LocatableToken token) { }
 
-    /** Saw a modifier (public,private etc) */
+    // @Override
     protected void gotModifier(LocatableToken token) { }
 
-    /**
-     * Modifiers were consumed. This is called after the entity to which the modifiers apply
-     * has been identified (eg gotTypeDef() called)
-     */
+    // @Override
     protected void modifiersConsumed() { }
 
-    /** Beginning of some arbitrary grammatical element */
+    // @Override
     protected void beginElement(LocatableToken token) { }
 
-    /** End of some arbitrary grammatical element.
-     *
-     * @param token  The end token 
-     * @param included  True if the end token is part of the element; false if it is part of the next element.
-     */
+    // @Override
     protected void endElement(LocatableToken token, boolean included) { }
 
-    /**
-     * Got the beginning (opening brace) of a method or constructor body.
-     */
+    // @Override
     protected void beginMethodBody(LocatableToken token) { }
 
-    /**
-     * End of a method or constructor body reached.
-     */
+    // @Override
     protected void endMethodBody(LocatableToken token, boolean included) { }
 
-    /** End of a method or constructor declaration */
+    // @Override
     protected void endMethodDecl(LocatableToken token, boolean included)
     {
         endElement(token, included);
     }
 
-    /**
-     * Reached a compilation unit state.
-     * State 1 = package statement parsed. State 2 = one or more type definitions parsed
-     */
+    // @Override
     protected void reachedCUstate(int i) { }
 
-    /**
-     * Finished parsing a compilation unit.
-     * @param state Our last state: see reachedCUState for details
-     */
+    // @Override
     protected void finishedCU(int state) { }
 
-    /** We've seen the semicolon at the end of an "import" statement */
+    // @Override
     protected void gotImportStmtSemi(LocatableToken token)
     {
         endElement(token, true);
     }
 
+    // @Override
     protected void beginForLoop(LocatableToken token) { beginElement(token); }
 
+    // @Override
     protected void beginForLoopBody(LocatableToken token) { }
 
+    // @Override
     protected void endForLoopBody(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void endForLoop(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void beginWhileLoop(LocatableToken token) { }
 
+    // @Override
     protected void beginWhileLoopBody(LocatableToken token) { }
 
+    // @Override
     protected void endWhileLoopBody(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void endWhileLoop(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void beginIfStmt(LocatableToken token) { }
 
-    /** Begin an "if" conditional block (the part that is executed conditionally) */
+    // @Override
     protected void beginIfCondBlock(LocatableToken token) { }
 
+    // @Override
     protected void endIfCondBlock(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void gotElseIf(LocatableToken token) {}
 
+    // @Override
     protected void endIfStmt(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void beginSwitchStmt(LocatableToken token, boolean isSwitchExpression) { }
 
+    // @Override
     protected void beginSwitchBlock(LocatableToken token) { }
 
+    // @Override
     protected void endSwitchBlock(LocatableToken token) { }
 
+    // @Override
     protected void endSwitchStmt(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void beginDoWhile(LocatableToken token) { beginElement(token); }
 
+    // @Override
     protected void beginDoWhileBody(LocatableToken token) { }
 
+    // @Override
     protected void endDoWhileBody(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void endDoWhile(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void beginTryCatchSmt(LocatableToken token, boolean hasResource) { }
 
+    // @Override
     protected void beginTryBlock(LocatableToken token) { }
 
+    // @Override
     protected void endTryBlock(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void endTryCatchStmt(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void beginSynchronizedBlock(LocatableToken token) { }
 
+    // @Override
     protected void endSynchronizedBlock(LocatableToken token, boolean included) { }
 
-    /** A list of a parameters to a method or constructor */
+    // @Override
     protected void beginArgumentList(LocatableToken token) { }
 
-    /** An individual argument has ended */
+    // @Override
     protected void endArgument() { }
 
-    /** The end of the argument list has been reached. */
+    // @Override
     protected void endArgumentList(LocatableToken token) { }
 
-    /**
-     * got a "new ..." expression. Will be followed by a type spec (gotTypeSpec())
-     * and possibly by array size declarations, then endExprNew()
-     */
+    // @Override
     protected void gotExprNew(LocatableToken token) { }
 
+    // @Override
     protected void endExprNew(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void beginArrayInitList(LocatableToken token) { }
 
+    // @Override
     protected void endArrayInitList(LocatableToken token) { }
 
-    /** An anonymous class body. Preceded by a type spec (see gotTypeSpec()) except in the case of an enum member body. */
+    // @Override
     protected void beginAnonClassBody(LocatableToken token, boolean isEnumMember) { }
 
+    // @Override
     protected void endAnonClassBody(LocatableToken token, boolean included) { }
 
-    /**
-     * Beginning of a statement block. This includes anonymous statement blocks, and static
-     * initializer blocks
-     */
+    // @Override
     protected void beginStmtblockBody(LocatableToken token)
     {
         beginElement(token);
     }
 
+    // @Override
     protected void endStmtblockBody(LocatableToken token, boolean included)
     {
         endElement(token, included);
     }
 
-    /**
-     * Begin a (possibly static) initialisation block.
-     * @param first   The first token (should be either "static" or the "{")
-     * @param lcurly  The "{" token which opens the block body
-     */
+    // @Override
     protected void beginInitBlock(LocatableToken first, LocatableToken lcurly) { }
 
-    /**
-     * End of a (possibly static) initialisation block
-     * @param rcurly    The last token (should be "}")
-     * @param included  True if the last token is actually a "}"
-     */
+    // @Override
     protected void endInitBlock(LocatableToken rcurly, boolean included) { }
 
-    /** Begin the type definition body. */
+    // @Override
     protected void beginTypeBody(LocatableToken leftCurlyToken) { }
 
-    /** End of type definition body. This should be a '}' unless an error occurred */
+    // @Override
     protected void endTypeBody(LocatableToken endCurlyToken, boolean included) { }
 
-    /**
-     * Got the beginning of a declaration - either a type, a field/variable, or a
-     * method constructor, or an initialisation block. This will be followed by one of:
-     *
-     * <ul>
-     * <li>gotTypeDef(...) - if a type definition
-     * <li>gotMethodDeclaration(...) - if a method declaration
-     * <li>gotConstructorDecl(...) - if a constructor declaration
-     * <li>beginInitBlock(...) - if an initialiser block
-     * <li>beginFieldDeclarations(...) - if a field declaration
-     * <li>beginVariableDecl(...) - if a variable declaration
-     * <li>endDecl(...) - if not a valid declaration
-     * </ul>
-     */
+    // @Override
     protected void gotDeclBegin(LocatableToken token) { beginElement(token); }
 
-    /**
-     * End a declaration (unsuccessfully).
-     */
+    // @Override
     protected void endDecl(LocatableToken token) { endElement(token, false); }
 
-    /**
-     * Called when the current element is recognised as a type definition.
-     * @param tdType  one of TYPEDEF_CLASS, _INTERFACE, _ANNOTATION or _ENUM
-     */
+    // @Override
     protected void gotTypeDef(LocatableToken firstToken, int tdType) { }
 
-    /** Called when we have the identifier token for a class/interface/enum definition */
+    // @Override
     protected void gotTypeDefName(LocatableToken nameToken) { }
 
-    /** Called when we have seen the "extends" literal token */
+    // @Override
     protected void beginTypeDefExtends(LocatableToken extendsToken) { }
 
-    /** Called after we have seen the last type in an "extends" type list */
-    public void endTypeDefExtends() { }
+    // @Override
+    protected void endTypeDefExtends() { }
 
-    /** Called when we have seen the "implements" literal token */
+    // @Override
     protected void beginTypeDefImplements(LocatableToken implementsToken) { }
 
-    /** Called after we have seen the last type in an "implements" type list */
-    public void endTypeDefImplements() { }
+    // @Override
+    protected void endTypeDefImplements() { }
 
-    /** Called when we have seen the "permits" literal token */
+    // @Override
     protected void beginTypeDefPermits(LocatableToken permitsToken) { }
 
-    /** Called after we have seen the last type in a "permits" type list */
+    // @Override
     protected void endTypeDefPermits() { }
 
+    // @Override
     protected void gotTypeDefEnd(LocatableToken token, boolean included)
     {
         endElement(token, included);
     }
 
-    /**
-     * Got a variable declaration, which might declare multiple variables. Each
-     * variable will generate gotVariable() or gotSubsequentVar().
-     * @param first  The first token in the declaration
-     */
+    // @Override
     protected void beginVariableDecl(LocatableToken first) { }
 
-    /**
-     * Got the (first) variable in a variable declaration.
-     * @param first    The first token in the declaration
-     * @param idToken  The token with the variable identifier
-     * @param inited   Whether the variable is initialized as part of the declaration
-     */
+    // @Override
     protected void gotVariableDecl(LocatableToken first, LocatableToken idToken, boolean inited) { }
 
+    // @Override
     protected void gotSubsequentVar(LocatableToken first, LocatableToken idToken, boolean inited) { }
 
+    // @Override
     protected void endVariable(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void endVariableDecls(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void beginForInitDecl(LocatableToken first) { }
 
+    // @Override
     protected void gotForInit(LocatableToken first, LocatableToken idToken) { }
 
+    // @Override
     protected void gotSubsequentForInit(LocatableToken first, LocatableToken idToken, boolean initFollows) { }
 
+    // @Override
     protected void endForInit(LocatableToken token, boolean included) { }
 
+    // @Override
     protected void endForInitDecls(LocatableToken token, boolean included) { }
 
-    /**
-     * Got a field declaration, which might declare multiple fields. Each field will generate
-     * gotField() or gotSubsequentField().
-     * @param first  The first token in the declaration
-     *
-     */
+    // @Override
     protected void beginFieldDeclarations(LocatableToken first) { }
 
-    /**
-     * Got a field (inside a type definition).
-     * @param first     The first token that forms part of the field declaration
-     * @param idToken   The token with the name of the field.
-     * @param initExpressionFollows
-     */
+    // @Override
     protected void gotField(LocatableToken first, LocatableToken idToken, boolean initExpressionFollows) { }
 
+    // @Override
     protected void gotSubsequentField(LocatableToken first, LocatableToken idToken, boolean initFollows) { }
 
-    /** End a single field declaration (but not necessarily the field declaration statement) */
+    // @Override
     protected void endField(LocatableToken token, boolean included) { }
 
-    /** End a field declaration statement */
+    // @Override
     protected void endFieldDeclarations(LocatableToken token, boolean included) { }
 
-    /** We've seen a type specification or something that looks a lot like one. */
+    // @Override
     protected void gotTypeSpec(List<LocatableToken> tokens) { }
 
-    /** Seen a type cast operator. The tokens list contains the type to which is cast. */
+    // @Override
     protected void gotTypeCast(List<LocatableToken> tokens)
     {
         gotTypeSpec(tokens);
     }
 
-    /** Saw the beginning of an expression */
+    // @Override
     protected void beginExpression(LocatableToken token, boolean isLambdaBody) { }
 
-    /** Reached the end of an expression. The given token is the first one past the end. */
+    // @Override
     protected void endExpression(LocatableToken token, boolean emptyExpression) { }
 
-    /** Saw a literal as part of an expression */
+    // @Override
     protected void gotLiteral(LocatableToken token) { }
 
-    /**
-     * Saw a primitive type literal in an expression; usually occurs as "int.class"
-     * or "int[].class" for example.
-     * @param token  The primitive token
-     */
+    // @Override
     protected void gotPrimitiveTypeLiteral(LocatableToken token) { }
 
-    /** Saw an identifier as (part of) an expression */
+    // @Override
     protected void gotIdentifier(LocatableToken token) { }
-    /**
-     * Got an identifier (possibly part of a compound identifier) immediately followed by
-     * end of input stream.
-     */
+    // @Override
     protected void gotIdentifierEOF(LocatableToken token) { gotIdentifier(token); }
 
+    // @Override
     protected void gotMemberAccessEOF(LocatableToken token) { gotMemberAccess(token); }
 
+    // @Override
     protected void gotCompoundIdent(LocatableToken token) { gotIdentifier(token); }
+    // @Override
     protected void gotCompoundComponent(LocatableToken token) { gotMemberAccess(token); }
+    // @Override
     protected void completeCompoundValue(LocatableToken token) { gotMemberAccess(token); }
+    // @Override
     protected void completeCompoundValueEOF(LocatableToken token) { completeCompoundValue(token); }
+    // @Override
     protected void completeCompoundClass(LocatableToken token) { gotMemberAccess(token); }
 
+    // @Override
     protected void gotMemberAccess(LocatableToken token) { }
 
-    /** Saw a member method call (expr.methodName()), token is the method name; arguments to follow */
+    // @Override
     protected void gotMemberCall(LocatableToken token, List<LocatableToken> typeArgs) { }
 
-    /** Saw a "naked" method call - "methodName(...)" */
+    // @Override
     protected void gotMethodCall(LocatableToken token) { }
 
-    /** Saw a call to the constructor as this(...) or super(...) */
+    // @Override
     protected void gotConstructorCall(LocatableToken token) { }
 
-    /** Saw a dot operator followed by end-of-file */
+    // @Override
     protected void gotDotEOF(LocatableToken token)
     {
         gotBinaryOperator(token);
     }
 
+    // @Override
     protected void gotStatementExpression() { }
 
+    // @Override
     protected void gotClassLiteral(LocatableToken token) { }
 
-    /** Saw a binary operator as part of an expression */
+    // @Override
     protected void gotBinaryOperator(LocatableToken token) { }
 
+    // @Override
     protected void gotUnaryOperator(LocatableToken token) { }
 
-    /** Saw a "?" operator. This will be followed by the left-hand-side expression
-     * (demarked by beginExpression() and endExpression(), then gotQuestionColon) followed by a continuation
-     * of the current expression (for the right-hand-side).
-     */
+    // @Override
     protected void gotQuestionOperator(LocatableToken token) { }
 
+    // @Override
     protected void gotQuestionColon(LocatableToken token) { }
 
-    /**
-     * Saw the "instanceof" operator. The type spec will follow.
-     */
+    // @Override
     protected void gotInstanceOfOperator(LocatableToken token) { }
 
-    /**
-     * Saw a var name following an "instanceof". Called after gotInstanceOfOperator and gotTypeSpec.
-     */
+    // @Override
     protected void gotInstanceOfVar(LocatableToken token) { }
 
+    // @Override
     protected void gotArrayElementAccess() { }
 
+    // @Override
     protected void gotImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken) { }
 
+    // @Override
     protected void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken) { }
 
-    /**
-     * We've seen a constructor declaration. The token supplied is the constructor name.
-     * The hiddenToken is the comment before the constructor.
-     */
+    // @Override
     protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken) {}
 
-    /**
-     * We've seen a method declaration; the token parameter is the method name;
-     * the hiddenToken parameter is the comment before the method
-     */
+    // @Override
     protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken) {}
 
-    /**
-     * We saw a method (or constructor) parameter. The given token specifies the parameter name. 
-     * The last type parsed by parseTypeSpec(boolean) is the parameter type, after any additonal
-     * array declarators (see gotArrayDeclarator()) are applied.
-     *
-     * @param token   The token giving the parameter name
-     * @param ellipsisToken  The token, if any, with the ellipsis indicating a varargs parameter. May be null.
-     */
+    // @Override
     protected void gotMethodParameter(LocatableToken token, LocatableToken ellipsisToken) { }
 
-    /**
-     * Called when, after a parameter/field/variable name, array declarators "[]" are seen.
-     * Will be called once for each set of "[]", immediately before gotField() or equivalent
-     * is called.
-     */
+    // @Override
     protected void gotArrayDeclarator() { }
 
-    /**
-     * Called for the array components when we get "new xyz[]".
-     */
+    // @Override
     protected void gotNewArrayDeclarator(boolean withDimension) { }
 
+    // @Override
     protected void gotAllMethodParameters() { }
 
-    /**
-     * Saw a type parameter for a class or method. If for a method, will be bracketed by
-     * calls to {@code gotMethodTypeParamsBegin} and {@code endMethodTypeParams}
-     * @param idToken  The token with the type parameter identifier
-     */
+    // @Override
     protected void gotTypeParam(LocatableToken idToken) { }
 
+    // @Override
     protected void gotTypeParamBound(List<LocatableToken> tokens) { }
 
+    // @Override
     protected void gotMethodTypeParamsBegin() { }
 
+    // @Override
     protected void endMethodTypeParams() { }
 
-    /**
-     * Called by the lexer when it sees a comment.
-     */
+    // @Override
     public void gotComment(LocatableToken token) { }
+    // TODO: why the heck this one has to be public?
 
 
+    // @Override
     protected void gotInnerType(LocatableToken start)
     {
     }
 
 
+    // @Override
     protected void beginThrows(LocatableToken token) { }
+    // @Override
     protected void endThrows() { }
 
+    // @Override
     protected void gotTopLevelDecl(LocatableToken token)
     {
     }
 
 
+    // @Override
     protected void beginSwitchCase(LocatableToken token) { }
 
+    // @Override
     protected void gotSwitchCaseType(LocatableToken token, boolean isArrowSyntax) { }
 
+    // @Override
     protected void endSwitchCase(LocatableToken token, boolean wasArrowSyntax) { }
 
+    // @Override
     protected void gotSwitchDefault() { }
 
+    // @Override
     protected void gotThrow(LocatableToken token) { }
 
+    // @Override
     protected void gotBreakContinue(LocatableToken keywordToken, LocatableToken labelToken) { }
 
+    // @Override
     protected void gotReturnStatement(boolean hasValue) { }
 
+    // @Override
     protected void gotYieldStatement() { }
 
+    // @Override
     protected void gotEmptyStatement() { }
 
+    // @Override
     protected void gotCatchFinally(LocatableToken token) { }
 
+    // @Override
     protected void gotMultiCatch(LocatableToken token) { }
 
+    // @Override
     protected void gotCatchVarName(LocatableToken token) { }
 
+    // @Override
     protected void gotAssert() { }
 
+    // @Override
     protected void gotForTest(boolean isPresent) { }
+    // @Override
     protected void gotForIncrement(boolean isPresent) { }
 
+    // @Override
     protected void determinedForLoop(boolean forEachLoop, boolean initExpressionFollows) { }
 
 
+    // @Override
     protected void gotAnnotation(List<LocatableToken> annName, boolean paramsFollow)
     {
     }
 
 
-    /**
-     * A lambda expression has been found and we are about to parse its body (the part after ->).
-     * If lambdaIsBlock, a statement block body follows, otherwise an expression follows.
-     */
+    // @Override
     protected void beginLambdaBody(boolean lambdaIsBlock, LocatableToken openCurly) { }
 
-    /**
-     * The end of the lambda body has been reached (either block or expression)
-     */
+    // @Override
     protected void endLambdaBody(LocatableToken closeCurly) { }
 
+    // @Override
     protected void gotPostOperator(LocatableToken token) { }
 
+    // @Override
     protected void gotArrayTypeIdentifier(LocatableToken token)
     {
         gotIdentifier(token);
     }
 
+    // @Override
     protected void gotParentIdentifier(LocatableToken token)
     {
         gotIdentifier(token);
     }
 
 
-    /**
-     * Called when we find a lambda formal parameter, i.e. declaration of a parameter
-     * like (int x) ->
-     */
+    // @Override
     protected void gotLambdaFormalParam() { }
-    /**
-     * Called when we find a lambda formal parameter name, i.e. the "x" in the 
-     * declaration of a parameter like (int x)
-     */
+    // @Override
     protected void gotLambdaFormalName(LocatableToken name) { }
-    /**
-     * Called when we find a lambda formal parameter name, i.e. the "List&lt;Integer&gt;" in the 
-     * declaration of a parameter like (List&lt;Integer&gt; x)
-     */
+    // @Override
     protected void gotLambdaFormalType(List<LocatableToken> type) { }
 
+    // @Override
     protected void beginFormalParameter(LocatableToken token) { }
 
-    /**
-     * Called at the beginning of the record parameters in a header, i.e. the opening parenthesis
-     * in record Point(int x, int y)
-     * @param parenToken The opening-parenthesis token
-     */
+    // @Override
     protected void beginRecordParameters(LocatableToken parenToken) {}
 
-    /**
-     * Called when a record parameter has been encountered in a record header.
-     * @param first The first token of that record parameter, either a modifier or the type.
-     * @param idToken The token for the identifier (name) of the parameter.
-     * @param varargsToken The token for the varargs on the parameter, or null if this is not a varargs parameter.
-     */
+    // @Override
     protected void gotRecordParameter(LocatableToken first, LocatableToken idToken, LocatableToken varargsToken) {}
 
-    /**
-     * Called at the end of the record parameters in a header, i.e. the closing parenthesis
-     * in record Point(int x, int y)
-     * @param closeParen The close-parenthesis token
-     */
+    // @Override
     protected void endRecordParameters(LocatableToken closeParen) {}
 
-    /**
-     * An error occurred during parsing. Override this method to control error behaviour.
-     * @param msg A message describing the error
-     * @param beginLine  The line where the erroneous token begins
-     * @param beginCol   The column where the erroneous token begins
-     * @param endLine    The line where the erroneous token ends
-     * @param endCol     The column where the erroneous token ends
-     */
+    // @Override
     protected void error(String msg, int beginLine, int beginCol, int endLine, int endCol)
     {
         throw new ParseFailure("Parse error: (" + beginLine + ":" + beginCol + ") :" + msg);

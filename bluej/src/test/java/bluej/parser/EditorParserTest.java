@@ -41,9 +41,10 @@ import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 import static bluej.parser.SourceInputTestUtils.*;
+
+import bluej.parser.psi.SourceInput;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

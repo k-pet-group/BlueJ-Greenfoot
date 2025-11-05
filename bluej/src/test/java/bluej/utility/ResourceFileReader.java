@@ -21,6 +21,8 @@
  */
 package bluej.utility;
 
+import bluej.parser.psi.SourceInput;
+
 import java.io.File;
 import java.net.URL;
 
@@ -44,7 +46,7 @@ public class ResourceFileReader {
      * @param name Resource path
      * @return SourceInput.FileSource ready for parsing, or null if resource not found
      */
-    public static bluej.parser.SourceInput getResourceFile(Class<?> clazz, String name)
+    public static SourceInput getResourceFile(Class<?> clazz, String name)
     {
         File file = getResourceAsFile(clazz, name);
         if (file == null) {
@@ -57,7 +59,7 @@ public class ResourceFileReader {
             : bluej.extensions2.SourceType.Java;
         
         // Create FileSource with default ClassLoaderResolver for tests
-        return new bluej.parser.SourceInput.FileSource(
+        return new SourceInput.FileSource(
             file,
             sourceType,
             java.nio.charset.StandardCharsets.UTF_8,

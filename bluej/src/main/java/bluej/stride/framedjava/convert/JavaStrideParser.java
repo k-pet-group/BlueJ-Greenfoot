@@ -34,8 +34,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.extensions2.SourceType;
-import bluej.parser.JavaParser;
-import bluej.parser.JavaParserCallbacks;
 import bluej.parser.ParseFailure;
 import bluej.parser.SourceParser;
 import bluej.parser.lexer.*;

@@ -21,14 +21,12 @@
  */
 package bluej.parser;
 
-import java.io.File;
-import java.io.StringReader;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.entity.ClassLoaderResolver;
+import bluej.parser.psi.SourceInput;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 

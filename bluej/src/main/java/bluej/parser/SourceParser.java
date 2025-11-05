@@ -23,15 +23,13 @@ package bluej.parser;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.lexer.*;
-import bluej.utility.Debug;
+import bluej.parser.psi.SourceInput;
 
-import javax.swing.text.BadLocationException;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.List;
 
-public class SourceParser extends JavaParserCallbacks {
+public class SourceParser extends JavaParserCallbacksBase {
     protected JavaTokenFilter tokenStream;
     protected LocatableToken lastToken;
     protected final SourceType sourceType;
@@ -125,12 +123,17 @@ public class SourceParser extends JavaParserCallbacks {
     }
 
     public SourceParser(Reader r, SourceType sourceType, int line, int col, int pos) {
-        this.sourceInput = null;  // No source input available
-        
-        TokenStream lexer = getLexer(r, sourceType, line, col, pos);
-        tokenStream = new JavaTokenFilter(lexer, this);
-        parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
-        this.sourceType = sourceType;
+        try {
+            this.sourceInput = SourceInput.fromReader(r, sourceType);  // No source input available
+
+            TokenStream lexer = getLexer(r, sourceType, line, col, pos);
+            tokenStream = new JavaTokenFilter(lexer, this);
+            parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
+            this.sourceType = sourceType;
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public JavaTokenFilter getTokenStream() {

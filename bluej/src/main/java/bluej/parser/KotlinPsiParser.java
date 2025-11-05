@@ -22,10 +22,7 @@
 package bluej.parser;
 
 import bluej.parser.lexer.LocatableToken;
-import bluej.parser.psi.PsiCallbackVisitor;
-import bluej.parser.psi.PsiEnvironment;
-import bluej.parser.psi.PsiParseException;
-import bluej.parser.psi.PsiTreeSerializer;
+import bluej.parser.psi.*;
 import org.jetbrains.kotlin.psi.KtFile;
 
 import java.io.IOException;
@@ -201,7 +198,7 @@ public class KotlinPsiParser implements ParserBehavior {
      *   <li><b>DELEGATION</b>: Delegates to {@link KotlinParser#parseCU()}, then optionally
      *       enhances with PSI output if {@link #ENABLE_PSI_OUTPUT} is true</li>
      *   <li><b>PSI_VISITOR</b>: Uses {@link PsiCallbackVisitor} to parse and call
-     *       {@link JavaParserCallbacks} directly, bypassing legacy parser</li>
+     *       {@link JavaParserCallbacksBase} directly, bypassing legacy parser</li>
      * </ul>
      *
      * <p><b>Delegation Flow (DELEGATION mode)</b>:</p>
@@ -215,7 +212,7 @@ public class KotlinPsiParser implements ParserBehavior {
      * <ol>
      *   <li>Skip legacy parser delegation</li>
      *   <li>Call {@link #parseWithPsiVisitor()} to parse using PSI visitor</li>
-     *   <li>PSI visitor directly invokes {@link JavaParserCallbacks} from {@link #sourceParser}</li>
+     *   <li>PSI visitor directly invokes {@link JavaParserCallbacksBase} from {@link #sourceParser}</li>
      *   <li>PSI failures are logged but don't affect compilation</li>
      * </ol>
      */
@@ -252,7 +249,9 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     @Override
     public int parseCUpart(int state) {
-        return delegate.parseCUpart(state);
+        parseWithPsiVisitor();
+
+        return 2; // delegate.parseCUpart(state);
     }
     
     /**
@@ -435,7 +434,7 @@ public class KotlinPsiParser implements ParserBehavior {
     // ==================== PSI VISITOR PARSING ====================
     
     /**
-     * Parse source using PSI visitor and call real {@link JavaParserCallbacks}.
+     * Parse source using PSI visitor and call real {@link JavaParserCallbacksBase}.
      * 
      * <p><b>PSI_VISITOR Mode Implementation</b>: Parse source into PSI tree and traverse
      * using {@link PsiCallbackVisitor} to invoke callbacks from {@link #sourceParser}.</p>
@@ -457,7 +456,7 @@ public class KotlinPsiParser implements ParserBehavior {
      * <p><b>Performance</b>: PSI parsing adds ~10-50ms overhead per file.</p>
      * 
      * @see PsiCallbackVisitor
-     * @see JavaParserCallbacks
+     * @see JavaParserCallbacksBase
      */
     private void parseWithPsiVisitor() {
         System.err.println("[PSI-DEBUG] === parseWithPsiVisitor() ENTRY ===");
@@ -488,7 +487,8 @@ public class KotlinPsiParser implements ParserBehavior {
             
             // Step 5: Create visitor with real JavaParserCallbacks from sourceParser
             // SourceParser extends JavaParserCallbacks, so we can pass it directly
-            PsiCallbackVisitor visitor = new PsiCallbackVisitor(sourceParser);
+            JavaParserCallbacks callbackAdapter = new JavaParserCallbacksAdapter(sourceParser);
+            PsiCallbackVisitor visitor = new PsiCallbackVisitor(callbackAdapter);
             
             // Step 6: Visit the PSI tree (triggers callback invocations)
             ktFile.accept(visitor);

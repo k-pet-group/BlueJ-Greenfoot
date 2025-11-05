@@ -26,6 +26,7 @@ import java.io.Reader;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.psi.SourceInput;
 import bluej.parser.symtab.ClassInfo;
 import threadchecker.OnThread;
 import threadchecker.Tag;

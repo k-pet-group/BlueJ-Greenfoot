@@ -25,7 +25,7 @@ import java.io.File;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.InfoParser;
-import bluej.parser.SourceInput;
+import bluej.parser.psi.SourceInput;
 import bluej.parser.symtab.ClassInfo;
 
 /**

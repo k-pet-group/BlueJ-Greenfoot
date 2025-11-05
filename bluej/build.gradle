@@ -52,7 +52,11 @@ dependencies {
 
 compileJava {
     options.compilerArgs += [
-//        "-Xplugin:threadchecker.TCPlugin",
+        "-Xplugin:threadchecker.TCPlugin",
+    ]
+    options.fork = true
+    options.forkOptions.jvmArgs += [
+//        '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
     ]
 }
 tasks.withType(JavaCompile) {

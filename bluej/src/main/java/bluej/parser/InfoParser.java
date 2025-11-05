@@ -22,12 +22,6 @@
 package bluej.parser;
 
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -35,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import bluej.extensions2.SourceType;
+import bluej.parser.psi.SourceInput;
 import org.jetbrains.annotations.NotNull;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -55,7 +50,6 @@ import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
-import bluej.pkgmgr.Package;
 import bluej.utility.JavaNames;
 
 import static bluej.parser.JavaParser.TYPEDEF_ENUM;
