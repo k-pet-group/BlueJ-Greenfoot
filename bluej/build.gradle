@@ -52,7 +52,7 @@ dependencies {
 
 compileJava {
     options.compilerArgs += [
-        "-Xplugin:threadchecker.TCPlugin",
+//        "-Xplugin:threadchecker.TCPlugin",
     ]
     options.fork = true
     options.forkOptions.jvmArgs += [

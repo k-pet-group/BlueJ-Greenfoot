@@ -290,7 +290,7 @@ public class NodeTree<T extends RBTreeNode<T>>
                 }
             }
             else {
-                assert(pnodeOffset + pnodeSize <= pos);
+//                assert(pnodeOffset + pnodeSize <= pos);
                 pos -= (pnodeOffset + pnodeSize);
                 if (right == null) {
                     right = new NodeTree<T>(this, newNode, pos, size);

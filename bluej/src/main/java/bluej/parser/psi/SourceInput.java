@@ -188,14 +188,31 @@ public sealed interface SourceInput
      */
     static ReaderSource fromReader(@NotNull Reader reader, @NotNull SourceType sourceType, 
                                    @NotNull String virtualPath) {
+//        char[] buf = new char[8192];
+//        StringBuilder sb = new StringBuilder();
+//        int n;
+//
+//        try {
+//            while ((n = reader.read(buf)) != -1) {
+//                sb.append(buf, 0, n);
+//            }
+//        }
+//        catch (IOException e) {
+//            throw new UncheckedIOException(e);
+//        }
+
         char[] buf = new char[8192];
         StringBuilder sb = new StringBuilder();
         int n;
 
         try {
+            reader.mark(Integer.MAX_VALUE);
+
             while ((n = reader.read(buf)) != -1) {
                 sb.append(buf, 0, n);
             }
+
+            reader.reset();
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -1,5 +1,7 @@
 package bluej.parser.psi;
 
+import bluej.parser.SourceParser;
+import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.lexer.LocatableToken;
 
 import java.lang.invoke.MethodHandle;
@@ -14,8 +16,8 @@ import java.util.List;
  *
  * @param <Target> The concrete type implementing JavaParserCallbacks
  */
-public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallbacks {
-    private final Target target;
+public final class JavaParserCallbacksAdapter implements JavaParserCallbacks {
+    private final SourceParser target;
     
     // Method handles - organized by functional category
     // Package and imports
@@ -226,7 +228,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     private final MethodHandle mhGotComment;
     private final MethodHandle mhError;
 
-    public JavaParserCallbacksAdapter(Target target) {
+    public JavaParserCallbacksAdapter(SourceParser target) {
         var targetClass = target.getClass();
         this.target = target;
 
@@ -461,6 +463,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginPackageStatement(LocatableToken token) {
         try {
             mhBeginPackageStatement.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -470,6 +473,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotPackage(List<LocatableToken> pkgTokens) {
         try {
             mhGotPackage.invokeExact(pkgTokens);
+            skipToLastToken(pkgTokens);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -479,6 +483,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotPackageSemi(LocatableToken token) {
         try {
             mhGotPackageSemi.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -488,6 +493,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotImportStmtSemi(LocatableToken token) {
         try {
             mhGotImportStmtSemi.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -497,6 +503,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken) {
         try {
             mhGotImport.invokeExact(tokens, isStatic, importToken, semiColonToken);
+            skipToToken(semiColonToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -506,6 +513,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken) {
         try {
             mhGotWildcardImport.invokeExact(tokens, isStatic, importToken, semiColonToken);
+            skipToToken(semiColonToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -516,6 +524,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotModifier(LocatableToken token) {
         try {
             mhGotModifier.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -525,6 +534,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void modifiersConsumed() {
         try {
             mhModifiersConsumed.invokeExact();
+            // No tokens to skip to
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -534,6 +544,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginElement(LocatableToken token) {
         try {
             mhBeginElement.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -543,6 +554,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endElement(LocatableToken token, boolean included) {
         try {
             mhEndElement.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -553,6 +565,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginMethodBody(LocatableToken token) {
         try {
             mhBeginMethodBody.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -562,6 +575,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endMethodBody(LocatableToken token, boolean included) {
         try {
             mhEndMethodBody.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -571,6 +585,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endMethodDecl(LocatableToken token, boolean included) {
         try {
             mhEndMethodDecl.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -580,6 +595,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken) {
         try {
             mhGotConstructorDecl.invokeExact(token, hiddenToken);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -589,6 +605,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken) {
         try {
             mhGotMethodDeclaration.invokeExact(token, hiddenToken);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -598,6 +615,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotMethodParameter(LocatableToken token, LocatableToken ellipsisToken) {
         try {
             mhGotMethodParameter.invokeExact(token, ellipsisToken);
+            skipToToken(ellipsisToken != null ? ellipsisToken : token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -607,6 +625,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotArrayDeclarator() {
         try {
             mhGotArrayDeclarator.invokeExact();
+            // No tokens to skip to
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -616,6 +635,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotAllMethodParameters() {
         try {
             mhGotAllMethodParameters.invokeExact();
+            // No tokens to skip to
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -625,6 +645,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotMethodTypeParamsBegin() {
         try {
             mhGotMethodTypeParamsBegin.invokeExact();
+            // No tokens to skip to
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -634,6 +655,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endMethodTypeParams() {
         try {
             mhEndMethodTypeParams.invokeExact();
+            // No tokens to skip to
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -643,6 +665,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginThrows(LocatableToken token) {
         try {
             mhBeginThrows.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -652,6 +675,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endThrows() {
         try {
             mhEndThrows.invokeExact();
+            // No tokens to skip to
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -681,6 +705,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginForLoop(LocatableToken token) {
         try {
             mhBeginForLoop.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -690,6 +715,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginForLoopBody(LocatableToken token) {
         try {
             mhBeginForLoopBody.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -699,6 +725,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endForLoopBody(LocatableToken token, boolean included) {
         try {
             mhEndForLoopBody.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -708,6 +735,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endForLoop(LocatableToken token, boolean included) {
         try {
             mhEndForLoop.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -717,6 +745,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotForTest(boolean isPresent) {
         try {
             mhGotForTest.invokeExact(isPresent);
+            // No tokens to skip to
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -726,6 +755,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotForIncrement(boolean isPresent) {
         try {
             mhGotForIncrement.invokeExact(isPresent);
+            // No tokens to skip to
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -735,6 +765,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void determinedForLoop(boolean forEachLoop, boolean initExpressionFollows) {
         try {
             mhDeterminedForLoop.invokeExact(forEachLoop, initExpressionFollows);
+            // No tokens to skip to
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -745,6 +776,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginWhileLoop(LocatableToken token) {
         try {
             mhBeginWhileLoop.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -754,6 +786,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginWhileLoopBody(LocatableToken token) {
         try {
             mhBeginWhileLoopBody.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -763,6 +796,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endWhileLoopBody(LocatableToken token, boolean included) {
         try {
             mhEndWhileLoopBody.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -772,6 +806,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endWhileLoop(LocatableToken token, boolean included) {
         try {
             mhEndWhileLoop.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -782,6 +817,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginIfStmt(LocatableToken token) {
         try {
             mhBeginIfStmt.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -791,6 +827,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginIfCondBlock(LocatableToken token) {
         try {
             mhBeginIfCondBlock.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -800,6 +837,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endIfCondBlock(LocatableToken token, boolean included) {
         try {
             mhEndIfCondBlock.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -809,6 +847,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotElseIf(LocatableToken token) {
         try {
             mhGotElseIf.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -818,6 +857,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endIfStmt(LocatableToken token, boolean included) {
         try {
             mhEndIfStmt.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -828,6 +868,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginSwitchStmt(LocatableToken token, boolean isSwitchExpression) {
         try {
             mhBeginSwitchStmt.invokeExact(token, isSwitchExpression);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -837,6 +878,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginSwitchBlock(LocatableToken token) {
         try {
             mhBeginSwitchBlock.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -846,6 +888,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endSwitchBlock(LocatableToken token) {
         try {
             mhEndSwitchBlock.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -855,6 +898,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endSwitchStmt(LocatableToken token, boolean included) {
         try {
             mhEndSwitchStmt.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -864,6 +908,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginSwitchCase(LocatableToken token) {
         try {
             mhBeginSwitchCase.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -873,6 +918,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotSwitchCaseType(LocatableToken token, boolean isArrowSyntax) {
         try {
             mhGotSwitchCaseType.invokeExact(token, isArrowSyntax);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -882,6 +928,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endSwitchCase(LocatableToken token, boolean wasArrowSyntax) {
         try {
             mhEndSwitchCase.invokeExact(token, wasArrowSyntax);
+            skipToToken(token, wasArrowSyntax);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -891,6 +938,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotSwitchDefault() {
         try {
             mhGotSwitchDefault.invokeExact();
+            // No tokens to skip to
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -901,6 +949,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginDoWhile(LocatableToken token) {
         try {
             mhBeginDoWhile.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -910,6 +959,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginDoWhileBody(LocatableToken token) {
         try {
             mhBeginDoWhileBody.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -919,6 +969,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endDoWhileBody(LocatableToken token, boolean included) {
         try {
             mhEndDoWhileBody.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -928,6 +979,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endDoWhile(LocatableToken token, boolean included) {
         try {
             mhEndDoWhile.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -938,6 +990,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginTryCatchSmt(LocatableToken token, boolean hasResource) {
         try {
             mhBeginTryCatchSmt.invokeExact(token, hasResource);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -947,6 +1000,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginTryBlock(LocatableToken token) {
         try {
             mhBeginTryBlock.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -956,6 +1010,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endTryBlock(LocatableToken token, boolean included) {
         try {
             mhEndTryBlock.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -965,6 +1020,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endTryCatchStmt(LocatableToken token, boolean included) {
         try {
             mhEndTryCatchStmt.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -974,6 +1030,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotCatchFinally(LocatableToken token) {
         try {
             mhGotCatchFinally.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -983,6 +1040,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotMultiCatch(LocatableToken token) {
         try {
             mhGotMultiCatch.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -992,6 +1050,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotCatchVarName(LocatableToken token) {
         try {
             mhGotCatchVarName.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1002,6 +1061,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginSynchronizedBlock(LocatableToken token) {
         try {
             mhBeginSynchronizedBlock.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1011,6 +1071,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endSynchronizedBlock(LocatableToken token, boolean included) {
         try {
             mhEndSynchronizedBlock.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1021,6 +1082,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginArgumentList(LocatableToken token) {
         try {
             mhBeginArgumentList.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1030,6 +1092,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endArgument() {
         try {
             mhEndArgument.invokeExact();
+            // No tokens to skip to
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1039,6 +1102,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endArgumentList(LocatableToken token) {
         try {
             mhEndArgumentList.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1049,6 +1113,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotExprNew(LocatableToken token) {
         try {
             mhGotExprNew.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1058,6 +1123,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endExprNew(LocatableToken token, boolean included) {
         try {
             mhEndExprNew.invokeExact(token, included);
+            skipToToken(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1067,6 +1133,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginArrayInitList(LocatableToken token) {
         try {
             mhBeginArrayInitList.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1076,6 +1143,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endArrayInitList(LocatableToken token) {
         try {
             mhEndArrayInitList.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1085,6 +1153,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void beginExpression(LocatableToken token, boolean isLambdaBody) {
         try {
             mhBeginExpression.invokeExact(token, isLambdaBody);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1094,6 +1163,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void endExpression(LocatableToken token, boolean emptyExpression) {
         try {
             mhEndExpression.invokeExact(token, emptyExpression);
+            skipToToken(token, emptyExpression);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1103,6 +1173,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotLiteral(LocatableToken token) {
         try {
             mhGotLiteral.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1112,6 +1183,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotPrimitiveTypeLiteral(LocatableToken token) {
         try {
             mhGotPrimitiveTypeLiteral.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1121,6 +1193,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotIdentifier(LocatableToken token) {
         try {
             mhGotIdentifier.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1130,6 +1203,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotIdentifierEOF(LocatableToken token) {
         try {
             mhGotIdentifierEOF.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1139,6 +1213,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotMemberAccessEOF(LocatableToken token) {
         try {
             mhGotMemberAccessEOF.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1148,6 +1223,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotCompoundIdent(LocatableToken token) {
         try {
             mhGotCompoundIdent.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1157,6 +1233,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotCompoundComponent(LocatableToken token) {
         try {
             mhGotCompoundComponent.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1166,6 +1243,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void completeCompoundValue(LocatableToken token) {
         try {
             mhCompleteCompoundValue.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1175,6 +1253,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void completeCompoundValueEOF(LocatableToken token) {
         try {
             mhCompleteCompoundValueEOF.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1184,6 +1263,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void completeCompoundClass(LocatableToken token) {
         try {
             mhCompleteCompoundClass.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1193,6 +1273,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotMemberAccess(LocatableToken token) {
         try {
             mhGotMemberAccess.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1202,6 +1283,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotMemberCall(LocatableToken token, List<LocatableToken> typeArgs) {
         try {
             mhGotMemberCall.invokeExact(token, typeArgs);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1211,6 +1293,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotMethodCall(LocatableToken token) {
         try {
             mhGotMethodCall.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1220,6 +1303,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotConstructorCall(LocatableToken token) {
         try {
             mhGotConstructorCall.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1229,6 +1313,7 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotDotEOF(LocatableToken token) {
         try {
             mhGotDotEOF.invokeExact(token);
+            skipToToken(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1238,662 +1323,791 @@ public final class JavaParserCallbacksAdapter<Target> implements JavaParserCallb
     public void gotStatementExpression() {
         try {
             mhGotStatementExpression.invokeExact();
+            // No tokens to skip to
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
     }
-@Override
-public void gotClassLiteral(LocatableToken token) {
-    try {
-        mhGotClassLiteral.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotBinaryOperator(LocatableToken token) {
-    try {
-        mhGotBinaryOperator.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotUnaryOperator(LocatableToken token) {
-    try {
-        mhGotUnaryOperator.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotQuestionOperator(LocatableToken token) {
-    try {
-        mhGotQuestionOperator.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotQuestionColon(LocatableToken token) {
-    try {
-        mhGotQuestionColon.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotInstanceOfOperator(LocatableToken token) {
-    try {
-        mhGotInstanceOfOperator.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotInstanceOfVar(LocatableToken token) {
-    try {
-        mhGotInstanceOfVar.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotArrayElementAccess() {
-    try {
-        mhGotArrayElementAccess.invokeExact();
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotPostOperator(LocatableToken token) {
-    try {
-        mhGotPostOperator.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Anonymous class bodies
-@Override
-public void beginAnonClassBody(LocatableToken token, boolean isEnumMember) {
-    try {
-        mhBeginAnonClassBody.invokeExact(token, isEnumMember);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endAnonClassBody(LocatableToken token, boolean included) {
-    try {
-        mhEndAnonClassBody.invokeExact(token, included);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Statement blocks
-@Override
-public void beginStmtblockBody(LocatableToken token) {
-    try {
-        mhBeginStmtblockBody.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endStmtblockBody(LocatableToken token, boolean included) {
-    try {
-        mhEndStmtblockBody.invokeExact(token, included);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Initializer blocks
-@Override
-public void beginInitBlock(LocatableToken first, LocatableToken lcurly) {
-    try {
-        mhBeginInitBlock.invokeExact(first, lcurly);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endInitBlock(LocatableToken rcurly, boolean included) {
-    try {
-        mhEndInitBlock.invokeExact(rcurly, included);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Type definitions
-@Override
-public void beginTypeBody(LocatableToken leftCurlyToken) {
-    try {
-        mhBeginTypeBody.invokeExact(leftCurlyToken);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endTypeBody(LocatableToken endCurlyToken, boolean included) {
-    try {
-        mhEndTypeBody.invokeExact(endCurlyToken, included);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotDeclBegin(LocatableToken token) {
-    try {
-        mhGotDeclBegin.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endDecl(LocatableToken token) {
-    try {
-        mhEndDecl.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotTypeDef(LocatableToken firstToken, int tdType) {
-    try {
-        mhGotTypeDef.invokeExact(firstToken, tdType);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotTypeDefName(LocatableToken nameToken) {
-    try {
-        mhGotTypeDefName.invokeExact(nameToken);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void beginTypeDefExtends(LocatableToken extendsToken) {
-    try {
-        mhBeginTypeDefExtends.invokeExact(extendsToken);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endTypeDefExtends() {
-    try {
-        mhEndTypeDefExtends.invokeExact();
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void beginTypeDefImplements(LocatableToken implementsToken) {
-    try {
-        mhBeginTypeDefImplements.invokeExact(implementsToken);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endTypeDefImplements() {
-    try {
-        mhEndTypeDefImplements.invokeExact();
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void beginTypeDefPermits(LocatableToken permitsToken) {
-    try {
-        mhBeginTypeDefPermits.invokeExact(permitsToken);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endTypeDefPermits() {
-    try {
-        mhEndTypeDefPermits.invokeExact();
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotTypeDefEnd(LocatableToken token, boolean included) {
-    try {
-        mhGotTypeDefEnd.invokeExact(token, included);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotInnerType(LocatableToken start) {
-    try {
-        mhGotInnerType.invokeExact(start);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotTopLevelDecl(LocatableToken token) {
-    try {
-        mhGotTopLevelDecl.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Variable declarations
-@Override
-public void beginVariableDecl(LocatableToken first) {
-    try {
-        mhBeginVariableDecl.invokeExact(first);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotVariableDecl(LocatableToken first, LocatableToken idToken, boolean inited) {
-    try {
-        mhGotVariableDecl.invokeExact(first, idToken, inited);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotSubsequentVar(LocatableToken first, LocatableToken idToken, boolean inited) {
-    try {
-        mhGotSubsequentVar.invokeExact(first, idToken, inited);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endVariable(LocatableToken token, boolean included) {
-    try {
-        mhEndVariable.invokeExact(token, included);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endVariableDecls(LocatableToken token, boolean included) {
-    try {
-        mhEndVariableDecls.invokeExact(token, included);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void beginForInitDecl(LocatableToken first) {
-    try {
-        mhBeginForInitDecl.invokeExact(first);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotForInit(LocatableToken first, LocatableToken idToken) {
-    try {
-        mhGotForInit.invokeExact(first, idToken);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotSubsequentForInit(LocatableToken first, LocatableToken idToken, boolean initFollows) {
-    try {
-        mhGotSubsequentForInit.invokeExact(first, idToken, initFollows);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endForInit(LocatableToken token, boolean included) {
-    try {
-        mhEndForInit.invokeExact(token, included);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endForInitDecls(LocatableToken token, boolean included) {
-    try {
-        mhEndForInitDecls.invokeExact(token, included);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Field declarations
-@Override
-public void beginFieldDeclarations(LocatableToken first) {
-    try {
-        mhBeginFieldDeclarations.invokeExact(first);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotField(LocatableToken first, LocatableToken idToken, boolean initExpressionFollows) {
-    try {
-        mhGotField.invokeExact(first, idToken, initExpressionFollows);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotSubsequentField(LocatableToken first, LocatableToken idToken, boolean initFollows) {
-    try {
-        mhGotSubsequentField.invokeExact(first, idToken, initFollows);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endField(LocatableToken token, boolean included) {
-    try {
-        mhEndField.invokeExact(token, included);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endFieldDeclarations(LocatableToken token, boolean included) {
-    try {
-        mhEndFieldDeclarations.invokeExact(token, included);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Type specifications
-@Override
-public void gotTypeSpec(List<LocatableToken> tokens) {
-    try {
-        mhGotTypeSpec.invokeExact(tokens);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotTypeCast(List<LocatableToken> tokens) {
-    try {
-        mhGotTypeCast.invokeExact(tokens);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotNewArrayDeclarator(boolean withDimension) {
-    try {
-        mhGotNewArrayDeclarator.invokeExact(withDimension);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotTypeParam(LocatableToken idToken) {
-    try {
-        mhGotTypeParam.invokeExact(idToken);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotTypeParamBound(List<LocatableToken> tokens) {
-    try {
-        mhGotTypeParamBound.invokeExact(tokens);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Statements
-@Override
-public void gotThrow(LocatableToken token) {
-    try {
-        mhGotThrow.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotBreakContinue(LocatableToken keywordToken, LocatableToken labelToken) {
-    try {
-        mhGotBreakContinue.invokeExact(keywordToken, labelToken);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotReturnStatement(boolean hasValue) {
-    try {
-        mhGotReturnStatement.invokeExact(hasValue);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotYieldStatement() {
-    try {
-        mhGotYieldStatement.invokeExact();
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotEmptyStatement() {
-    try {
-        mhGotEmptyStatement.invokeExact();
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotAssert() {
-    try {
-        mhGotAssert.invokeExact();
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Annotations
-@Override
-public void gotAnnotation(List<LocatableToken> annName, boolean paramsFollow) {
-    try {
-        mhGotAnnotation.invokeExact(annName, paramsFollow);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Lambda expressions
-@Override
-public void beginLambdaBody(boolean lambdaIsBlock, LocatableToken openCurly) {
-    try {
-        mhBeginLambdaBody.invokeExact(lambdaIsBlock, openCurly);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endLambdaBody(LocatableToken closeCurly) {
-    try {
-        mhEndLambdaBody.invokeExact(closeCurly);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotLambdaFormalParam() {
-    try {
-        mhGotLambdaFormalParam.invokeExact();
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotLambdaFormalName(LocatableToken name) {
-    try {
-        mhGotLambdaFormalName.invokeExact(name);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotLambdaFormalType(List<LocatableToken> type) {
-    try {
-        mhGotLambdaFormalType.invokeExact(type);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Formal parameters
-@Override
-public void beginFormalParameter(LocatableToken token) {
-    try {
-        mhBeginFormalParameter.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotArrayTypeIdentifier(LocatableToken token) {
-    try {
-        mhGotArrayTypeIdentifier.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotParentIdentifier(LocatableToken token) {
-    try {
-        mhGotParentIdentifier.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Record declarations
-@Override
-public void beginRecordParameters(LocatableToken parenToken) {
-    try {
-        mhBeginRecordParameters.invokeExact(parenToken);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void gotRecordParameter(LocatableToken first, LocatableToken idToken, LocatableToken varargsToken) {
-    try {
-        mhGotRecordParameter.invokeExact(first, idToken, varargsToken);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-@Override
-public void endRecordParameters(LocatableToken closeParen) {
-    try {
-        mhEndRecordParameters.invokeExact(closeParen);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Comments
-@Override
-public void gotComment(LocatableToken token) {
-    try {
-        mhGotComment.invokeExact(token);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-// Error handling
-@Override
-public void error(String msg, int beginLine, int beginCol, int endLine, int endCol) {
-    try {
-        mhError.invokeExact(msg, beginLine, beginCol, endLine, endCol);
-    } catch (Throwable t) {
-        throw sneakyThrow(t);
-    }
-}
-
-/**
- * Converts checked exceptions to unchecked ones without wrapping.
- * Preserves RuntimeException and Error as-is, wraps checked exceptions.
- */
-private static RuntimeException sneakyThrow(Throwable t) {
-    if (t instanceof RuntimeException re) return re;
-    if (t instanceof Error e) throw e;
-    throw new RuntimeException(t);
-}
+
+    @Override
+    public void gotClassLiteral(LocatableToken token) {
+        try {
+            mhGotClassLiteral.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotBinaryOperator(LocatableToken token) {
+        try {
+            mhGotBinaryOperator.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotUnaryOperator(LocatableToken token) {
+        try {
+            mhGotUnaryOperator.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotQuestionOperator(LocatableToken token) {
+        try {
+            mhGotQuestionOperator.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotQuestionColon(LocatableToken token) {
+        try {
+            mhGotQuestionColon.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotInstanceOfOperator(LocatableToken token) {
+        try {
+            mhGotInstanceOfOperator.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotInstanceOfVar(LocatableToken token) {
+        try {
+            mhGotInstanceOfVar.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotArrayElementAccess() {
+        try {
+            mhGotArrayElementAccess.invokeExact();
+            // No tokens to skip to
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotPostOperator(LocatableToken token) {
+        try {
+            mhGotPostOperator.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Anonymous class bodies
+    @Override
+    public void beginAnonClassBody(LocatableToken token, boolean isEnumMember) {
+        try {
+            mhBeginAnonClassBody.invokeExact(token, isEnumMember);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endAnonClassBody(LocatableToken token, boolean included) {
+        try {
+            mhEndAnonClassBody.invokeExact(token, included);
+            skipToToken(token, included);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Statement blocks
+    @Override
+    public void beginStmtblockBody(LocatableToken token) {
+        try {
+            mhBeginStmtblockBody.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endStmtblockBody(LocatableToken token, boolean included) {
+        try {
+            mhEndStmtblockBody.invokeExact(token, included);
+            skipToToken(token, included);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Initializer blocks
+    @Override
+    public void beginInitBlock(LocatableToken first, LocatableToken lcurly) {
+        try {
+            mhBeginInitBlock.invokeExact(first, lcurly);
+            skipToToken(lcurly);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endInitBlock(LocatableToken rcurly, boolean included) {
+        try {
+            mhEndInitBlock.invokeExact(rcurly, included);
+            skipToToken(rcurly, included);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Type definitions
+    @Override
+    public void beginTypeBody(LocatableToken leftCurlyToken) {
+        try {
+            mhBeginTypeBody.invokeExact(leftCurlyToken);
+            skipToToken(leftCurlyToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endTypeBody(LocatableToken endCurlyToken, boolean included) {
+        try {
+            mhEndTypeBody.invokeExact(endCurlyToken, included);
+            skipToToken(endCurlyToken, included);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotDeclBegin(LocatableToken token) {
+        try {
+            mhGotDeclBegin.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endDecl(LocatableToken token) {
+        try {
+            mhEndDecl.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotTypeDef(LocatableToken firstToken, int tdType) {
+        try {
+            mhGotTypeDef.invokeExact(firstToken, tdType);
+            skipToToken(firstToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotTypeDefName(LocatableToken nameToken) {
+        try {
+            mhGotTypeDefName.invokeExact(nameToken);
+            skipToToken(nameToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void beginTypeDefExtends(LocatableToken extendsToken) {
+        try {
+            mhBeginTypeDefExtends.invokeExact(extendsToken);
+            skipToToken(extendsToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endTypeDefExtends() {
+        try {
+            mhEndTypeDefExtends.invokeExact();
+            // No tokens to skip to
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void beginTypeDefImplements(LocatableToken implementsToken) {
+        try {
+            mhBeginTypeDefImplements.invokeExact(implementsToken);
+            skipToToken(implementsToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endTypeDefImplements() {
+        try {
+            mhEndTypeDefImplements.invokeExact();
+            // No tokens to skip to
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void beginTypeDefPermits(LocatableToken permitsToken) {
+        try {
+            mhBeginTypeDefPermits.invokeExact(permitsToken);
+            skipToToken(permitsToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endTypeDefPermits() {
+        try {
+            mhEndTypeDefPermits.invokeExact();
+            // No tokens to skip to
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotTypeDefEnd(LocatableToken token, boolean included) {
+        try {
+            mhGotTypeDefEnd.invokeExact(token, included);
+            skipToToken(token, included);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotInnerType(LocatableToken start) {
+        try {
+            mhGotInnerType.invokeExact(start);
+            skipToToken(start);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotTopLevelDecl(LocatableToken token) {
+        try {
+            mhGotTopLevelDecl.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Variable declarations
+    @Override
+    public void beginVariableDecl(LocatableToken first) {
+        try {
+            mhBeginVariableDecl.invokeExact(first);
+            skipToToken(first);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotVariableDecl(LocatableToken first, LocatableToken idToken, boolean inited) {
+        try {
+            mhGotVariableDecl.invokeExact(first, idToken, inited);
+            skipToToken(idToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotSubsequentVar(LocatableToken first, LocatableToken idToken, boolean inited) {
+        try {
+            mhGotSubsequentVar.invokeExact(first, idToken, inited);
+            skipToToken(idToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endVariable(LocatableToken token, boolean included) {
+        try {
+            mhEndVariable.invokeExact(token, included);
+            skipToToken(token, included);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endVariableDecls(LocatableToken token, boolean included) {
+        try {
+            mhEndVariableDecls.invokeExact(token, included);
+            skipToToken(token, included);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void beginForInitDecl(LocatableToken first) {
+        try {
+            mhBeginForInitDecl.invokeExact(first);
+            skipToToken(first);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotForInit(LocatableToken first, LocatableToken idToken) {
+        try {
+            mhGotForInit.invokeExact(first, idToken);
+            skipToToken(idToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotSubsequentForInit(LocatableToken first, LocatableToken idToken, boolean initFollows) {
+        try {
+            mhGotSubsequentForInit.invokeExact(first, idToken, initFollows);
+            skipToToken(idToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endForInit(LocatableToken token, boolean included) {
+        try {
+            mhEndForInit.invokeExact(token, included);
+            skipToToken(token, included);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endForInitDecls(LocatableToken token, boolean included) {
+        try {
+            mhEndForInitDecls.invokeExact(token, included);
+            skipToToken(token, included);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Field declarations
+    @Override
+    public void beginFieldDeclarations(LocatableToken first) {
+        try {
+            mhBeginFieldDeclarations.invokeExact(first);
+            skipToToken(first);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotField(LocatableToken first, LocatableToken idToken, boolean initExpressionFollows) {
+        try {
+            mhGotField.invokeExact(first, idToken, initExpressionFollows);
+            skipToToken(idToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotSubsequentField(LocatableToken first, LocatableToken idToken, boolean initFollows) {
+        try {
+            mhGotSubsequentField.invokeExact(first, idToken, initFollows);
+            skipToToken(idToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endField(LocatableToken token, boolean included) {
+        try {
+            mhEndField.invokeExact(token, included);
+            skipToToken(token, included);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endFieldDeclarations(LocatableToken token, boolean included) {
+        try {
+            mhEndFieldDeclarations.invokeExact(token, included);
+            skipToToken(token, included);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Type specifications
+    @Override
+    public void gotTypeSpec(List<LocatableToken> tokens) {
+        try {
+            mhGotTypeSpec.invokeExact(tokens);
+            skipToLastToken(tokens);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotTypeCast(List<LocatableToken> tokens) {
+        try {
+            mhGotTypeCast.invokeExact(tokens);
+            skipToLastToken(tokens);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotNewArrayDeclarator(boolean withDimension) {
+        try {
+            mhGotNewArrayDeclarator.invokeExact(withDimension);
+            // No tokens to skip to
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotTypeParam(LocatableToken idToken) {
+        try {
+            mhGotTypeParam.invokeExact(idToken);
+            skipToToken(idToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotTypeParamBound(List<LocatableToken> tokens) {
+        try {
+            mhGotTypeParamBound.invokeExact(tokens);
+            skipToLastToken(tokens);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Statements
+    @Override
+    public void gotThrow(LocatableToken token) {
+        try {
+            mhGotThrow.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotBreakContinue(LocatableToken keywordToken, LocatableToken labelToken) {
+        try {
+            mhGotBreakContinue.invokeExact(keywordToken, labelToken);
+            skipToToken(labelToken != null ? labelToken : keywordToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotReturnStatement(boolean hasValue) {
+        try {
+            mhGotReturnStatement.invokeExact(hasValue);
+            // No tokens to skip to
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotYieldStatement() {
+        try {
+            mhGotYieldStatement.invokeExact();
+            // No tokens to skip to
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotEmptyStatement() {
+        try {
+            mhGotEmptyStatement.invokeExact();
+            // No tokens to skip to
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotAssert() {
+        try {
+            mhGotAssert.invokeExact();
+            // No tokens to skip to
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Annotations
+    @Override
+    public void gotAnnotation(List<LocatableToken> annName, boolean paramsFollow) {
+        try {
+            mhGotAnnotation.invokeExact(annName, paramsFollow);
+            skipToLastToken(annName);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Lambda expressions
+    @Override
+    public void beginLambdaBody(boolean lambdaIsBlock, LocatableToken openCurly) {
+        try {
+            mhBeginLambdaBody.invokeExact(lambdaIsBlock, openCurly);
+            skipToToken(openCurly);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endLambdaBody(LocatableToken closeCurly) {
+        try {
+            mhEndLambdaBody.invokeExact(closeCurly);
+            skipToToken(closeCurly);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotLambdaFormalParam() {
+        try {
+            mhGotLambdaFormalParam.invokeExact();
+            // No tokens to skip to
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotLambdaFormalName(LocatableToken name) {
+        try {
+            mhGotLambdaFormalName.invokeExact(name);
+            skipToToken(name);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotLambdaFormalType(List<LocatableToken> type) {
+        try {
+            mhGotLambdaFormalType.invokeExact(type);
+            skipToLastToken(type);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Formal parameters
+    @Override
+    public void beginFormalParameter(LocatableToken token) {
+        try {
+            mhBeginFormalParameter.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotArrayTypeIdentifier(LocatableToken token) {
+        try {
+            mhGotArrayTypeIdentifier.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotParentIdentifier(LocatableToken token) {
+        try {
+            mhGotParentIdentifier.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Record declarations
+    @Override
+    public void beginRecordParameters(LocatableToken parenToken) {
+        try {
+            mhBeginRecordParameters.invokeExact(parenToken);
+            skipToToken(parenToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotRecordParameter(LocatableToken first, LocatableToken idToken, LocatableToken varargsToken) {
+        try {
+            mhGotRecordParameter.invokeExact(first, idToken, varargsToken);
+            skipToToken(varargsToken != null ? varargsToken : idToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endRecordParameters(LocatableToken closeParen) {
+        try {
+            mhEndRecordParameters.invokeExact(closeParen);
+            skipToToken(closeParen);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Comments
+    @Override
+    public void gotComment(LocatableToken token) {
+        try {
+            mhGotComment.invokeExact(token);
+            skipToToken(token);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    // Error handling
+    @Override
+    public void error(String msg, int beginLine, int beginCol, int endLine, int endCol) {
+        try {
+            mhError.invokeExact(msg, beginLine, beginCol, endLine, endCol);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    /**
+     * Advances the token stream to the position of the target token and sets it as lastToken.
+     * This ensures the token stream is properly positioned before recording the last token.
+     *
+     * @param targetToken The token to advance to and set as lastToken
+     * @param included If false, advances to one token before the target (target not included in construct)
+     */
+    private void skipToToken(LocatableToken targetToken, boolean included) {
+        if (targetToken == null) {
+            return;
+        }
+        
+        JavaTokenFilter tokenStream = target.getTokenStream();
+        LocatableToken currentToken;
+        LocatableToken previousToken = null;
+        
+        // Keep consuming tokens until we reach or pass the target token's position
+        while ((currentToken = tokenStream.nextToken()) != null) {
+            // Check if we've reached the target token by comparing positions
+            if (currentToken.getLine() > targetToken.getLine() ||
+                (currentToken.getLine() == targetToken.getLine() &&
+                 currentToken.getColumn() >= targetToken.getColumn())) {
+                if (!included) {
+                    tokenStream.pushBack(currentToken);
+                    currentToken = previousToken;
+                }
+
+                break;
+            }
+            // Consume this token and continue
+            previousToken = currentToken;
+        }
+        
+        // Set lastToken: if included use target, otherwise use token before it
+        if (currentToken == null) {
+            target.setLastToken(currentToken);
+        }
+    }
+    
+    /**
+     * Advances the token stream to the target token and sets it as lastToken (token IS included).
+     */
+    private void skipToToken(LocatableToken targetToken) {
+        skipToToken(targetToken, true);
+    }
+    
+    /**
+     * Advances the token stream to the last token in a list and sets it as lastToken.
+     *
+     * @param tokens List of tokens to process
+     */
+    private void skipToLastToken(List<LocatableToken> tokens) {
+        if (tokens == null || tokens.isEmpty()) {
+            return;
+        }
+        skipToToken(tokens.get(tokens.size() - 1), true);
+    }
+    
+    /**
+     * Converts checked exceptions to unchecked ones without wrapping.
+     * Preserves RuntimeException and Error as-is, wraps checked exceptions.
+     */
+    private static RuntimeException sneakyThrow(Throwable t) {
+        if (t instanceof RuntimeException re) return re;
+        if (t instanceof Error e) throw e;
+        throw new RuntimeException(t);
+    }
 }
     

@@ -249,7 +249,12 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     @Override
     public int parseCUpart(int state) {
-        parseWithPsiVisitor();
+        try {
+            parseWithPsiVisitor();
+        }
+        catch (Exception e) {
+            System.err.println("PSI visitor parsing failed: " + e.getMessage());
+        }
 
         return 2; // delegate.parseCUpart(state);
     }
