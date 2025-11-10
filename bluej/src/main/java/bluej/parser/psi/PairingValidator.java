@@ -74,6 +74,8 @@ public class PairingValidator {
         callbackRoles.put("endMethodDecl", CallbackRole.CONTEXT_CLOSER);
         callbackRoles.put("gotTypeDefEnd", CallbackRole.CONTEXT_CLOSER);
         callbackRoles.put("endFieldDeclarations", CallbackRole.CONTEXT_CLOSER);
+        callbackRoles.put("beginInitBlock", CallbackRole.CONTEXT_REFINER);
+        callbackRoles.put("endInitBlock", CallbackRole.CONTEXT_CLOSER);
 
         // Simple paired callbacks
         callbackRoles.put("beginMethodBody", CallbackRole.PAIRED_BEGIN);
@@ -227,12 +229,13 @@ public class PairingValidator {
         // Declaration rule: gotDeclBegin can be refined to method or type
         StateTransitionRule declRule = new StateTransitionRule(
             "gotDeclBegin",
-            List.of("gotMethodDeclaration", "gotConstructorDecl", "gotTypeDef",  "beginFieldDeclarations"),
+            List.of("gotMethodDeclaration", "gotConstructorDecl", "gotTypeDef",  "beginFieldDeclarations", "beginInitBlock"),
             Map.of(
                 "gotMethodDeclaration", "endMethodDecl",
                 "gotConstructorDecl", "endMethodDecl",
                 "gotTypeDef", "gotTypeDefEnd",
-                "beginFieldDeclarations", "endFieldDeclarations"
+                "beginFieldDeclarations", "endFieldDeclarations",
+                "beginInitBlock", "endInitBlock"
             )
         );
         stateRules.add(declRule);

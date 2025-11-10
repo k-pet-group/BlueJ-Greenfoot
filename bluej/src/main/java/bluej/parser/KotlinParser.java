@@ -61,7 +61,14 @@ public class KotlinParser implements ParserBehavior
 
     public final JavaTokenFilter getTokenStream()
     {
-        return parser.getTokenStream();
+        var tokenStream = parser.getTokenStream();
+
+        // Skip whitespace – we had to enable it for the new parser, but the old parser didn't expect whitespace
+        while (tokenStream.LA(1).getType() == JavaTokenTypes.WHITESPACE) {
+            tokenStream.nextToken();
+        }
+
+        return tokenStream;
     }
 
     /**

@@ -22,6 +22,7 @@
 package bluej.parser.psi;
 
 import bluej.parser.JavaParserCallbacksBase;
+import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.lexer.LocatableToken;
 
 import java.util.*;
@@ -98,7 +99,7 @@ import java.util.stream.Collectors;
  * @see PairingValidator Validator for begin/end callback pairing
  * @see CallbackRecord Individual callback invocation record
  */
-public class CallbackRecorder implements JavaParserCallbacks {
+public class CallbackRecorder implements JavaParserCallbacksAdapter {
     
     /**
      * Ordered list of all recorded callback invocations.
@@ -307,7 +308,37 @@ public class CallbackRecorder implements JavaParserCallbacks {
             );
         }
     }
-    
+
+    @Override
+    public JavaTokenFilter getTokenStream() {
+        return null;
+    }
+
+    @Override
+    public LocatableToken getLastToken() {
+        return null;
+    }
+
+    @Override
+    public void setLastToken(LocatableToken lastToken) {
+
+    }
+
+    @Override
+    public void setEmitRangeStart(int line, int column) {
+
+    }
+
+    @Override
+    public void clearEmitRangeStart() {
+
+    }
+
+    @Override
+    public boolean isInEmitRange(int line, int column) {
+        return true;
+    }
+
     /**
      * Wrapper class for validation results.
      *

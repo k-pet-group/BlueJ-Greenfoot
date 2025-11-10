@@ -188,7 +188,7 @@ public class KotlinPsiParser implements ParserBehavior {
         this.delegate = new KotlinParser(sourceParser);
         this.psiEnvironment = PsiEnvironment.getInstance();
 
-        var callbackAdapter = new JavaParserCallbacksAdapter(sourceParser);
+        var callbackAdapter = new JavaParserCallbacksAdapterImpl(sourceParser);
 
         this.psiVisitor = new PsiCallbackVisitor(callbackAdapter);
     }
@@ -260,29 +260,29 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     @Override
     public void parseCU() {
-//        System.err.println("[PSI-DEBUG] parseCU() called with mode: " + parsingMode);
+        System.err.println("[PSI-DEBUG] parseCU() called with mode: " + parsingMode);
         
-//        switch (parsingMode) {
-//            case DELEGATION:
-//                // Phase 1: Token-based parsing (existing behavior)
-//                delegate.parseCU();
-//
-//                // Phase 2: PSI enhancement (optional .psi file output)
-//                if (ENABLE_PSI_OUTPUT) {
-////                    System.err.println("[PSI-DEBUG] PSI output enabled, calling enhanceWithPSI()");
-//                    enhanceWithPSI();
-//                }
-//                break;
-//
-//            case PSI_VISITOR:
-//                // PSI visitor mode: Parse using PSI and call real JavaParserCallbacks
-////                System.err.println("[PSI-DEBUG] PSI_VISITOR mode: parsing with PsiCallbackVisitor");
-//                parseWithPsiVisitor();
-//                break;
-//        }
-        this.parseWithPsi();
+        switch (parsingMode) {
+            case DELEGATION:
+                // Phase 1: Token-based parsing (existing behavior)
+                delegate.parseCU();
+
+                // Phase 2: PSI enhancement (optional .psi file output)
+                if (ENABLE_PSI_OUTPUT) {
+//                    System.err.println("[PSI-DEBUG] PSI output enabled, calling enhanceWithPSI()");
+                    enhanceWithPSI();
+                }
+                break;
+
+            case PSI_VISITOR:
+                // PSI visitor mode: Parse using PSI and call real JavaParserCallbacks
+//                System.err.println("[PSI-DEBUG] PSI_VISITOR mode: parsing with PsiCallbackVisitor");
+                parseWithPsiVisitor();
+                break;
+        }
+//        this.parseWithPsi();
     }
-    
+
     /**
      * Parse a part of a compilation unit, starting from the given state.
      * <p><b>PURE DELEGATION</b> - No PSI enhancement.</p>
@@ -299,9 +299,16 @@ public class KotlinPsiParser implements ParserBehavior {
 //            System.err.println("PSI visitor parsing failed: " + e.getMessage());
 //        }
 
-        this.parseWithPsi();
+        return switch (parsingMode) {
+            case DELEGATION ->
+                // Phase 1: Token-based parsing (existing behavior)
+                delegate.parseCUpart(state);
+            case PSI_VISITOR -> {
+                this.parseWithPsi();
 
-        return 2; // delegate.parseCUpart(state);
+                yield 2;
+            }
+        };
     }
     
     /**
@@ -504,6 +511,11 @@ public class KotlinPsiParser implements ParserBehavior {
         var offset = this.psiVisitor.getPsiStartOffset();
         var psiTree = this.getPsiTree();
 
+        if (psiTree == null) {
+            System.err.println("[PSI-DEBUG] PSI tree is null, skipping parsing");
+            return;
+        }
+
         var startElement = offset == 0
             ? psiTree.getContainingKtFile()
             : psiTree.findElementAt(offset).getParent();
@@ -566,7 +578,7 @@ public class KotlinPsiParser implements ParserBehavior {
             
             // Step 5: Create visitor with real JavaParserCallbacks from sourceParser
             // SourceParser extends JavaParserCallbacks, so we can pass it directly
-            JavaParserCallbacksAdapter callbackAdapter = new JavaParserCallbacksAdapter(sourceParser);
+            JavaParserCallbacksAdapter callbackAdapter = new JavaParserCallbacksAdapterImpl(sourceParser);
             PsiCallbackVisitor visitor = new PsiCallbackVisitor(callbackAdapter);
             
             // Step 6: Visit the PSI tree (triggers callback invocations)
