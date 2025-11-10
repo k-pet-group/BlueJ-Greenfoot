@@ -55,6 +55,11 @@ public final class JavaTokenFilter implements TokenStream
         this.parser = parser;
     }
 
+    @Override
+    public LineColPos getOffset() {
+        return this.sourceStream.getOffset();
+    }
+
     public LocatableToken nextToken()
     {
         LocatableToken rval;

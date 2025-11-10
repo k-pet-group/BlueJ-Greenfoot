@@ -46,6 +46,7 @@ public final class JavaLexer implements TokenStream
     private final TreeMap<Integer, LineColPos> minusPositions = new TreeMap<>();
     private LineColPos begin;
     private LineColPos end;
+    private LineColPos offset;
     private boolean generateWhitespaceTokens = false;
     private boolean handleComments = true; // When false, doesn't recognise /*..*/ or //..\n as comments (for frames)
     private boolean handleMultilineStrings = true; // When false, treats """ as a single token rather than trying to match start/end
@@ -80,7 +81,7 @@ public final class JavaLexer implements TokenStream
         keywords = new JavaKeywords();
         LineColPos lineColPos = new LineColPos(line, col, position);
         reader.setLineColPos(lineColPos);
-        end = begin = lineColPos;
+        offset = end = begin = lineColPos;
         try {
             rChar = reader.read();
         }
@@ -119,13 +120,19 @@ public final class JavaLexer implements TokenStream
         this.isKotlinLexer = keywords instanceof KotlinKeywords;
         LineColPos lineColPos = new LineColPos(line, col, position);
         reader.setLineColPos(lineColPos);
-        end = begin = lineColPos;
+        offset = end = begin = lineColPos;
         try {
             rChar = reader.read();
         }
         catch (IOException ioe) {
             rChar = -1;
         }
+    }
+
+    @Override
+    public LineColPos getOffset()
+    {
+        return offset;
     }
 
     /**

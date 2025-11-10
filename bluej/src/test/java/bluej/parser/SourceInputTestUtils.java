@@ -155,7 +155,8 @@ public class SourceInputTestUtils {
         // This works because ReaderSource can use directResolver for entity resolution
         if (resolver instanceof bluej.parser.entity.PackageResolver) {
             try {
-                Reader reader = new FileReader(file, StandardCharsets.UTF_8);
+//                Reader reader = new FileReader(file, StandardCharsets.UTF_8);
+                Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
                 // Use fromReader factory with resolver and virtual path
                 String virtualPath = file.getName();
                 return SourceInput.fromReader(reader, sourceType, resolver, virtualPath);

@@ -21,6 +21,7 @@
  */
 package bluej.parser;
 
+import bluej.parser.lexer.LineColPos;
 import bluej.parser.lexer.LocatableToken;
 
 
@@ -32,4 +33,5 @@ import bluej.parser.lexer.LocatableToken;
 public interface TokenStream
 {
     public LocatableToken nextToken();
+    LineColPos getOffset();
 }

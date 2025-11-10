@@ -184,7 +184,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      * Null in Phase 2 traversal-only mode, set for Phase 3 callback integration.
      * Uses adapter pattern to access protected JavaParserCallbacks methods.
      */
-    private final JavaParserCallbacks callbacks;
+    private final JavaParserCallbacksAdapter callbacks;
     
     /**
      * Visitor state for scope tracking and modifier management.V
@@ -199,7 +199,10 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      * @see VisitorState for detailed state management documentation
      */
     private final VisitorState state = new VisitorState();
-    
+
+    private LocatableToken tokenBase = null;
+    private int psiStartOffset = 0;
+
     /**
      * Creates a new PSI callback visitor for Phase 2 traversal validation.
      *
@@ -222,7 +225,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
      *
      * @param callbacks The JavaParserCallbacks instance (will be wrapped in adapter)
      */
-    public PsiCallbackVisitor(JavaParserCallbacks callbacks) {
+    public PsiCallbackVisitor(JavaParserCallbacksAdapter callbacks) {
         this.callbacks = callbacks;
     }
     
@@ -339,7 +342,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             
             // 3. Type definition
             callbacks.gotTypeDef(classToken, tdType);
-            
+
             // 4. Type name
             if (className != null && ktClass.getNameIdentifier() != null) {
                 LocatableToken nameToken = createToken(ktClass.getNameIdentifier(), JavaTokenTypes.IDENT);
@@ -1307,6 +1310,16 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         int[] endLineCol = calculateLineColumn(fileText, endOffset);
         int endLine = endLineCol[0];
         int endColumn = endLineCol[1];
+
+        if (tokenBase != null) {
+            if (startLine == 1) { startColumn += tokenBase.getColumn() - 1; };
+            if (endLine == 1) { endColumn += tokenBase.getColumn() - 1; };
+
+            startLine += tokenBase.getLine() - 1;
+            endLine += tokenBase.getLine() - 1;
+            startOffset += tokenBase.getPosition();
+            endOffset += tokenBase.getPosition();
+        }
         
         // Return positions array
         return new LineColPos[] {
@@ -2019,7 +2032,53 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             // Note: No individual type processing between begin/end
         }
     }
-    
+
+    public void setTokenBase(LocatableToken currentToken) {
+        if (currentToken.getHiddenBefore() != null) {
+            currentToken = currentToken.getHiddenBefore();
+        }
+
+        if (currentToken.getPosition() > 0) {
+            this.tokenBase = currentToken;
+        }
+    }
+
+    public void setTokenBase(LineColPos position) {
+        if (position.position() > 0) {
+            this.tokenBase = new LocatableToken(
+                JavaTokenTypes.LITERAL_void,
+                "",
+                position,
+                position
+            );
+        }
+    }
+
+    public LocatableToken getTokenBase() {
+        if (this.tokenBase != null) { return this.tokenBase; }
+
+        return new LocatableToken(
+            JavaTokenTypes.LITERAL_void,
+            "",
+            new LineColPos(1, 1, 0),
+            new LineColPos(1, 1, 0)
+        );
+    }
+
+    public void setEmitRangeStart(LocatableToken currentToken) {
+        this.callbacks.setEmitRangeStart(currentToken);
+        var offset = this.getTokenBase().getPosition();
+
+        if (offset > 0) {
+            this.psiStartOffset = currentToken.getPosition() - offset;
+        }
+    }
+
+    public int getPsiStartOffset() {
+        return this.psiStartOffset;
+//        return this.getTokenBase().getPosition();
+    }
+
     // TODO: Task 2.2.3 - Implement additional visitor methods (Phase 3):
     // - visitParameter (for function parameters)
     // - visitSuperTypeList (for inheritance)

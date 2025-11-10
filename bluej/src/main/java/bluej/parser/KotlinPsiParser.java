@@ -67,7 +67,12 @@ import java.util.List;
  * @since BlueJ 5.4.0
  */
 public class KotlinPsiParser implements ParserBehavior {
-    
+
+    private final PsiEnvironment psiEnvironment;
+//    private final JavaParserCallbacksAdapter callbackAdapter;
+    private final PsiCallbackVisitor psiVisitor;
+    private KtFile _psiTree;
+
     /**
      * Defines the parsing strategy for Kotlin source code.
      *
@@ -181,6 +186,43 @@ public class KotlinPsiParser implements ParserBehavior {
         this.sourceParser = sourceParser;
         this.parsingMode = parsingMode;
         this.delegate = new KotlinParser(sourceParser);
+        this.psiEnvironment = PsiEnvironment.getInstance();
+
+        var callbackAdapter = new JavaParserCallbacksAdapter(sourceParser);
+
+        this.psiVisitor = new PsiCallbackVisitor(callbackAdapter);
+    }
+
+    private KtFile getPsiTree() {
+        if (_psiTree != null) {
+            return _psiTree;
+        }
+
+        try {
+            String sourceCode = getSourceCode();
+            if (sourceCode == null || sourceCode.isEmpty()) {
+                if (LOG_PSI_ERRORS) {
+                    System.err.println("PSI: No source code available for parsing");
+                }
+                return null;
+            }
+
+            // Step 2: Determine file path
+            String filePath = getFilePath();
+
+            return (_psiTree = psiEnvironment.parseFile(filePath, sourceCode));
+        } catch (PsiParseException e) {
+            // PSI parsing failures MUST NOT break compilation
+            if (LOG_PSI_ERRORS) {
+                System.err.println("PSI parsing failed: " + e.getMessage());
+                if (e.getCause() != null) {
+                    System.err.println("Caused by: " + e.getCause().getMessage());
+                }
+            }
+            // Compilation continues despite PSI parsing failure
+        }
+
+        return null;
     }
     
     // ==================== PARSERBEHAVIOR DELEGATION ====================
@@ -220,24 +262,25 @@ public class KotlinPsiParser implements ParserBehavior {
     public void parseCU() {
 //        System.err.println("[PSI-DEBUG] parseCU() called with mode: " + parsingMode);
         
-        switch (parsingMode) {
-            case DELEGATION:
-                // Phase 1: Token-based parsing (existing behavior)
-                delegate.parseCU();
-                
-                // Phase 2: PSI enhancement (optional .psi file output)
-                if (ENABLE_PSI_OUTPUT) {
-//                    System.err.println("[PSI-DEBUG] PSI output enabled, calling enhanceWithPSI()");
-                    enhanceWithPSI();
-                }
-                break;
-                
-            case PSI_VISITOR:
-                // PSI visitor mode: Parse using PSI and call real JavaParserCallbacks
-//                System.err.println("[PSI-DEBUG] PSI_VISITOR mode: parsing with PsiCallbackVisitor");
-                parseWithPsiVisitor();
-                break;
-        }
+//        switch (parsingMode) {
+//            case DELEGATION:
+//                // Phase 1: Token-based parsing (existing behavior)
+//                delegate.parseCU();
+//
+//                // Phase 2: PSI enhancement (optional .psi file output)
+//                if (ENABLE_PSI_OUTPUT) {
+////                    System.err.println("[PSI-DEBUG] PSI output enabled, calling enhanceWithPSI()");
+//                    enhanceWithPSI();
+//                }
+//                break;
+//
+//            case PSI_VISITOR:
+//                // PSI visitor mode: Parse using PSI and call real JavaParserCallbacks
+////                System.err.println("[PSI-DEBUG] PSI_VISITOR mode: parsing with PsiCallbackVisitor");
+//                parseWithPsiVisitor();
+//                break;
+//        }
+        this.parseWithPsi();
     }
     
     /**
@@ -249,12 +292,14 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     @Override
     public int parseCUpart(int state) {
-        try {
-            parseWithPsiVisitor();
-        }
-        catch (Exception e) {
-            System.err.println("PSI visitor parsing failed: " + e.getMessage());
-        }
+//        try {
+//            parseWithPsiVisitor();
+//        }
+//        catch (Exception e) {
+//            System.err.println("PSI visitor parsing failed: " + e.getMessage());
+//        }
+
+        this.parseWithPsi();
 
         return 2; // delegate.parseCUpart(state);
     }
@@ -355,7 +400,10 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     @Override
     public void parseClassElement(LocatableToken token) {
-        delegate.parseClassElement(token);
+        // For some reason this token needs to be put back in the stream again
+        this.sourceParser.getTokenStream().pushBack(token);
+        this.parseWithPsi(token);
+//        delegate.parseClassElement(token);
     }
     
     /**
@@ -437,6 +485,32 @@ public class KotlinPsiParser implements ParserBehavior {
     }
     
     // ==================== PSI VISITOR PARSING ====================
+
+    private void parseWithPsi() {
+        var currentToken = this.sourceParser.getTokenStream().LA(1);
+
+        parseWithPsi(currentToken);
+    }
+
+    private void parseWithPsi(LocatableToken currentToken) {
+        System.err.println("[PSI-DEBUG] === parseWithPsi() ENTRY ===");
+        System.err.println("[PSI-DEBUG] Starting at token: " + currentToken.toString());
+
+
+        // This does not necessarily have to equal current token (e.g. when comments come into play)
+        this.psiVisitor.setTokenBase(this.sourceParser.getOffset());
+        this.psiVisitor.setEmitRangeStart(currentToken);
+
+        var offset = this.psiVisitor.getPsiStartOffset();
+        var psiTree = this.getPsiTree();
+
+        var startElement = offset == 0
+            ? psiTree.getContainingKtFile()
+            : psiTree.findElementAt(offset).getParent();
+
+        startElement.accept(this.psiVisitor);
+    }
+
     
     /**
      * Parse source using PSI visitor and call real {@link JavaParserCallbacksBase}.
@@ -492,7 +566,7 @@ public class KotlinPsiParser implements ParserBehavior {
             
             // Step 5: Create visitor with real JavaParserCallbacks from sourceParser
             // SourceParser extends JavaParserCallbacks, so we can pass it directly
-            JavaParserCallbacks callbackAdapter = new JavaParserCallbacksAdapter(sourceParser);
+            JavaParserCallbacksAdapter callbackAdapter = new JavaParserCallbacksAdapter(sourceParser);
             PsiCallbackVisitor visitor = new PsiCallbackVisitor(callbackAdapter);
             
             // Step 6: Visit the PSI tree (triggers callback invocations)

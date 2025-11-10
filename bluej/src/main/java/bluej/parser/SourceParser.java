@@ -39,6 +39,10 @@ public class SourceParser extends JavaParserCallbacksBase {
 
     ParserBehavior parser;
 
+    LineColPos getOffset() {
+        return this.tokenStream.getOffset();
+    }
+
     public static TokenStream getLexer(Reader r)
     {
         return new JavaLexer(r);
@@ -57,19 +61,37 @@ public class SourceParser extends JavaParserCallbacksBase {
     public static TokenStream getLexer(Reader r, SourceType sourceType)
     {
         Keywords kws = sourceType == SourceType.Kotlin ? new KotlinKeywords() : new JavaKeywords();
-        return new JavaLexer(r, kws);
+        var lexer = new JavaLexer(r, kws);
+
+        if (sourceType == SourceType.Kotlin) {
+            lexer.setGenerateWhitespaceTokens(true);
+        }
+
+        return lexer;
     }
 
     public static TokenStream getLexer(Reader r, SourceType sourceType, boolean handleComments, boolean handleMultilineStrings)
     {
         Keywords kws = sourceType == SourceType.Kotlin ? new KotlinKeywords() : new JavaKeywords();
-        return new JavaLexer(r, kws, handleComments, handleMultilineStrings);
+        var lexer = new JavaLexer(r, kws, handleComments, handleMultilineStrings);
+
+        if (sourceType == SourceType.Kotlin) {
+            lexer.setGenerateWhitespaceTokens(true);
+        }
+
+        return lexer;
     }
 
     private static TokenStream getLexer(Reader r, SourceType sourceType, int line, int col, int pos)
     {
         Keywords kws = sourceType == SourceType.Kotlin ? new KotlinKeywords() : new JavaKeywords();
-        return new JavaLexer(r, kws, line, col, pos);
+        var lexer = new JavaLexer(r, kws, line, col, pos);
+
+        if (sourceType == SourceType.Kotlin) {
+//            lexer.setGenerateWhitespaceTokens(true);
+        }
+
+        return lexer;
     }
 
     /**
