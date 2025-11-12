@@ -524,13 +524,8 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 callbacks.gotTypeSpec(returnTypeTokens);
             }
             else {
-                callbacks.gotTypeSpec(
-                    List.of(createTokenWithText(
-                        function.getValueParameterList().getRightParenthesis(),
-                        "kotlin.Unit",
-                        JavaTokenTypes.IDENT)
-                    )
-                );
+                // This will be interpreted as unit and hopefully not blow up anything
+                callbacks.gotTypeSpec(null);
             }
 
             // 4. Method declaration (name + javadoc)
@@ -795,7 +790,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 }
                 
                 // Phase 6: Traverse constructor body via visitor
-                // body.accept(this);
+                body.accept(this);
                 
                 PsiElement rBrace = body.getRBrace();
                 if (rBrace != null) {
@@ -888,7 +883,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                     callbacks.beginInitBlock(initToken, lBraceToken);
 
                     // Phase 6: Traverse init block body via visitor
-                    // body.accept(this);
+                    body.accept(this);
 
                     // 2. End init block
                     LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
@@ -1909,7 +1904,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 }
                 
                 // Phase 6: Traverse body statements via visitor
-                // body.accept(this);
+                body.accept(this);
                 
                 PsiElement rBrace = body.getRBrace();
                 if (rBrace != null) {
@@ -1927,7 +1922,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 callbacks.beginMethodBody(bodyToken);
                 
                 // Phase 6: Traverse expression via visitor
-                // body.accept(this);
+                body.accept(this);
 
                 lastToken = createToken(body.getLastChild(), JavaTokenTypes.LITERAL_void);
 
@@ -2126,1510 +2121,1537 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
 //        return this.getTokenBase().getPosition();
     }
 
-    // // ==================== Phase 6 Statement and Expression Visitor Methods ====================
+     // ==================== Phase 6 Statement and Expression Visitor Methods ====================
     
-    // /**
-    //  * Visits a block expression ({ statements }).
-    //  *
-    //  * <p>Block expressions are the primary containers for statements in Kotlin. They appear in:</p>
-    //  * <ul>
-    //  *   <li>Method bodies: {@code fun method() { statements }}</li>
-    //  *   <li>Init blocks: {@code init { statements }}</li>
-    //  *   <li>Control flow bodies: {@code if (x) { statements }}</li>
-    //  *   <li>Lambda bodies: {@code { param -> statements }}</li>
-    //  * </ul>
-    //  *
-    //  * <h3>Phase 6.1 Task 1: Block Expression Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginStmtblockBody(lBrace)} - Begin block</li>
-    //  *   <li>For each statement:
-    //  *     <ul>
-    //  *       <li>{@code beginElement(statement)} - Begin statement</li>
-    //  *       <li>Statement visitor (recursive)</li>
-    //  *       <li>{@code endElement(statement, true)} - End statement</li>
-    //  *     </ul>
-    //  *   </li>
-    //  *   <li>{@code endStmtblockBody(rBrace, true)} - End block</li>
-    //  * </ol>
-    //  *
-    //  * <p><b>Statement Wrapping Pattern:</b> Following JavaParser convention from
-    //  * {@link JavaParser#parseStmtBlock()}, each statement is wrapped with
-    //  * {@code beginElement}/{@code endElement} callbacks.</p>
-    //  *
-    //  * @param block The block expression PSI element
-    //  */
-    // @Override
-    // public void visitBlockExpression(@NotNull KtBlockExpression block) {
-    //     if (block == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a block expression ({ statements }).
+      *
+      * <p>Block expressions are the primary containers for statements in Kotlin. They appear in:</p>
+      * <ul>
+      *   <li>Method bodies: {@code fun method() { statements }}</li>
+      *   <li>Init blocks: {@code init { statements }}</li>
+      *   <li>Control flow bodies: {@code if (x) { statements }}</li>
+      *   <li>Lambda bodies: {@code { param -> statements }}</li>
+      * </ul>
+      *
+      * <h3>Phase 6.1 Task 1: Block Expression Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginStmtblockBody(lBrace)} - Begin block</li>
+      *   <li>For each statement:
+      *     <ul>
+      *       <li>{@code beginElement(statement)} - Begin statement</li>
+      *       <li>Statement visitor (recursive)</li>
+      *       <li>{@code endElement(statement, true)} - End statement</li>
+      *     </ul>
+      *   </li>
+      *   <li>{@code endStmtblockBody(rBrace, true)} - End block</li>
+      * </ol>
+      *
+      * <p><b>Statement Wrapping Pattern:</b> Following JavaParser convention from
+      * {@link JavaParser#parseStmtBlock()}, each statement is wrapped with
+      * {@code beginElement}/{@code endElement} callbacks.</p>
+      *
+      * @param block The block expression PSI element
+      */
+     @Override
+     public void visitBlockExpression(@NotNull KtBlockExpression block) {
+         if (block == null || callbacks == null) {
+             return;
+         }
+
+         // TODO: this is also called as a part of parsing method body, where
+         //       we don't want to call the statement block callbacks
+         //       I think the proper solution would be to split this into separate visitors
         
-    //     // 1. Begin statement block
-    //     PsiElement lBrace = block.getLBrace();
-    //     if (lBrace != null) {
-    //         LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-    //         callbacks.beginStmtblockBody(lBraceToken);
-    //     }
+         // 1. Begin statement block
+         PsiElement lBrace = block.getLBrace();
+         if (lBrace != null && !(block.getParent() instanceof KtFunction)) {
+             LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+             callbacks.beginStmtblockBody(lBraceToken);
+         }
         
-    //     // 2. Visit each statement in the block
-    //     List<KtExpression> statements = block.getStatements();
-    //     for (KtExpression statement : statements) {
-    //         // Wrap each statement with beginElement/endElement
-    //         callbacks.beginElement(createToken(statement));
+         // 2. Visit each statement in the block
+         List<KtExpression> statements = block.getStatements();
+         for (KtExpression statement : statements) {
+             // Wrap each statement with beginElement/endElement
+             callbacks.beginElement(createToken(statement));
             
-    //         // Recursively visit the statement
-    //         statement.accept(this);
+             // Recursively visit the statement
+             statement.accept(this);
             
-    //         // End statement successfully
-    //         callbacks.endElement(createToken(statement), true);
-    //     }
+             // End statement successfully
+             callbacks.endElement(createToken(statement), true);
+         }
         
-    //     // 3. End statement block
-    //     PsiElement rBrace = block.getRBrace();
-    //     if (rBrace != null) {
-    //         LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-    //         callbacks.endStmtblockBody(rBraceToken, true);
-    //     }
-    // }
+         // 3. End statement block
+         PsiElement rBrace = block.getRBrace();
+         if (rBrace != null && !(block.getParent() instanceof KtFunction)) {
+             LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+             callbacks.endStmtblockBody(rBraceToken, true);
+         }
+     }
     
-    // /**
-    //  * Visits an if expression (if/else statement or expression).
-    //  *
-    //  * <p>Kotlin if expressions can be used as both statements and expressions:</p>
-    //  * <pre>{@code
-    //  * // As statement:
-    //  * if (x > 0) { println("positive") } else { println("negative") }
-    //  *
-    //  * // As expression:
-    //  * val result = if (x > 0) "positive" else "negative"
-    //  * }</pre>
-    //  *
-    //  * <p>Both forms use the same callback sequence - BlueJ doesn't distinguish
-    //  * between statement and expression usage.</p>
-    //  *
-    //  * <h3>Phase 6.1 Task 2: If Expression Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginIfStmt(ifToken)} - Begin if statement</li>
-    //  *   <li>Condition expression traversal</li>
-    //  *   <li>{@code beginIfCondBlock(thenToken)} - Begin then block</li>
-    //  *   <li>Then branch traversal</li>
-    //  *   <li>{@code endIfCondBlock(thenToken, true)} - End then block</li>
-    //  *   <li>For each else-if:
-    //  *     <ul>
-    //  *       <li>{@code gotElseIf(elseToken)} - Else-if marker</li>
-    //  *       <li>Recursively process as if statement</li>
-    //  *     </ul>
-    //  *   </li>
-    //  *   <li>For else branch (if present):
-    //  *     <ul>
-    //  *       <li>{@code beginIfCondBlock(elseToken)} - Begin else block</li>
-    //  *       <li>Else branch traversal</li>
-    //  *       <li>{@code endIfCondBlock(elseToken, true)} - End else block</li>
-    //  *     </ul>
-    //  *   </li>
-    //  *   <li>{@code endIfStmt(endToken, true)} - End if statement</li>
-    //  * </ol>
-    //  *
-    //  * <p><b>Else-If Chain Handling:</b> Kotlin else-if is represented as nested if expressions.
-    //  * We detect this pattern and emit {@code gotElseIf} callback to match JavaParser behavior.</p>
-    //  *
-    //  * @param ifExpr The if expression PSI element
-    //  */
-    // @Override
-    // public void visitIfExpression(@NotNull KtIfExpression ifExpr) {
-    //     if (ifExpr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits an if expression (if/else statement or expression).
+      *
+      * <p>Kotlin if expressions can be used as both statements and expressions:</p>
+      * <pre>{@code
+      * // As statement:
+      * if (x > 0) { println("positive") } else { println("negative") }
+      *
+      * // As expression:
+      * val result = if (x > 0) "positive" else "negative"
+      * }</pre>
+      *
+      * <p>Both forms use the same callback sequence - BlueJ doesn't distinguish
+      * between statement and expression usage.</p>
+      *
+      * <h3>Phase 6.1 Task 2: If Expression Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginIfStmt(ifToken)} - Begin if statement</li>
+      *   <li>Condition expression traversal</li>
+      *   <li>{@code beginIfCondBlock(thenToken)} - Begin then block</li>
+      *   <li>Then branch traversal</li>
+      *   <li>{@code endIfCondBlock(thenToken, true)} - End then block</li>
+      *   <li>For each else-if:
+      *     <ul>
+      *       <li>{@code gotElseIf(elseToken)} - Else-if marker</li>
+      *       <li>Recursively process as if statement</li>
+      *     </ul>
+      *   </li>
+      *   <li>For else branch (if present):
+      *     <ul>
+      *       <li>{@code beginIfCondBlock(elseToken)} - Begin else block</li>
+      *       <li>Else branch traversal</li>
+      *       <li>{@code endIfCondBlock(elseToken, true)} - End else block</li>
+      *     </ul>
+      *   </li>
+      *   <li>{@code endIfStmt(endToken, true)} - End if statement</li>
+      * </ol>
+      *
+      * <p><b>Else-If Chain Handling:</b> Kotlin else-if is represented as nested if expressions.
+      * We detect this pattern and emit {@code gotElseIf} callback to match JavaParser behavior.</p>
+      *
+      * @param ifExpr The if expression PSI element
+      */
+     @Override
+     public void visitIfExpression(@NotNull KtIfExpression ifExpr) {
+         if (ifExpr == null || callbacks == null) {
+             return;
+         }
         
-    //     // 1. Begin if statement
-    //     PsiElement ifKeyword = ifExpr.getIfKeyword();
-    //     if (ifKeyword != null) {
-    //         LocatableToken ifToken = createToken(ifKeyword, JavaTokenTypes.LITERAL_if);
-    //         callbacks.beginIfStmt(ifToken);
-    //     }
+         // 1. Begin if statement
+         PsiElement ifKeyword = ifExpr.getIfKeyword();
+         if (ifKeyword != null) {
+             LocatableToken ifToken = createToken(ifKeyword, JavaTokenTypes.LITERAL_if);
+             callbacks.beginIfStmt(ifToken);
+         }
         
-    //     // 2. Parse condition expression
-    //     KtExpression condition = ifExpr.getCondition();
-    //     if (condition != null) {
-    //         condition.accept(this);
-    //     }
+         // 2. Parse condition expression
+         KtExpression condition = ifExpr.getCondition();
+         if (condition != null) {
+             condition.accept(this);
+         }
         
-    //     // 3. Parse then branch
-    //     KtExpression thenBranch = ifExpr.getThen();
-    //     if (thenBranch != null) {
-    //         LocatableToken thenToken = createToken(thenBranch);
-    //         callbacks.beginIfCondBlock(thenToken);
-    //         thenBranch.accept(this);
-    //         callbacks.endIfCondBlock(thenToken, true);
-    //     }
+         // 3. Parse then branch
+         KtExpression thenBranch = ifExpr.getThen();
+         if (thenBranch != null) {
+             LocatableToken thenToken = createToken(thenBranch);
+             callbacks.beginIfCondBlock(thenToken);
+             thenBranch.accept(this);
+             callbacks.endIfCondBlock(thenToken, true);
+         }
         
-    //     // 4. Parse else branch (if present)
-    //     KtExpression elseBranch = ifExpr.getElse();
-    //     if (elseBranch != null) {
-    //         PsiElement elseKeyword = ifExpr.getElseKeyword();
+         // 4. Parse else branch (if present)
+         KtExpression elseBranch = ifExpr.getElse();
+         if (elseBranch != null) {
+             PsiElement elseKeyword = ifExpr.getElseKeyword();
             
-    //         // Check if else branch is another if expression (else-if chain)
-    //         if (elseBranch instanceof KtIfExpression) {
-    //             // Emit gotElseIf marker and recursively process
-    //             if (elseKeyword != null) {
-    //                 LocatableToken elseToken = createToken(elseKeyword, JavaTokenTypes.LITERAL_else);
-    //                 callbacks.gotElseIf(elseToken);
-    //             }
-    //             // Recursively visit the nested if expression
-    //             elseBranch.accept(this);
-    //         } else {
-    //             // Regular else block
-    //             LocatableToken elseToken = createToken(elseBranch);
-    //             callbacks.beginIfCondBlock(elseToken);
-    //             elseBranch.accept(this);
-    //             callbacks.endIfCondBlock(elseToken, true);
-    //         }
-    //     }
+             // Check if else branch is another if expression (else-if chain)
+             if (elseBranch instanceof KtIfExpression) {
+                 // Emit gotElseIf marker and recursively process
+                 if (elseKeyword != null) {
+                     LocatableToken elseToken = createToken(elseKeyword, JavaTokenTypes.LITERAL_else);
+                     callbacks.gotElseIf(elseToken);
+                 }
+                 // Recursively visit the nested if expression
+                 elseBranch.accept(this);
+             } else {
+                 // Regular else block
+                 LocatableToken elseToken = createToken(elseBranch);
+                 callbacks.beginIfCondBlock(elseToken);
+                 elseBranch.accept(this);
+                 callbacks.endIfCondBlock(elseToken, true);
+             }
+         }
         
-    //     // 5. End if statement
-    //     LocatableToken endToken = createToken(ifExpr.getLastChild());
-    //     callbacks.endIfStmt(endToken, true);
-    // }
+         // 5. End if statement
+         LocatableToken endToken = createToken(ifExpr.getLastChild());
+         callbacks.endIfStmt(endToken, true);
+     }
     
-    // /**
-    //  * Visits a return expression (return statement).
-    //  *
-    //  * <p>Kotlin return expressions can return values or return from labeled lambda/function:</p>
-    //  * <pre>{@code
-    //  * return              // Unit return (no value)
-    //  * return 42           // Return with value
-    //  * return@label expr   // Return from labeled function
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.1 Task 3: Return Statement Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code gotReturnStatement(hasValue)} - Return statement marker</li>
-    //  *   <li>If hasValue: Expression traversal for return value</li>
-    //  * </ol>
-    //  *
-    //  * <p><b>Labeled Returns:</b> Kotlin supports labeled returns ({@code return@label}).
-    //  * The label information is not passed to callbacks in Phase 6.1 - it's part of
-    //  * the return expression structure but not separately reported.</p>
-    //  *
-    //  * @param returnExpr The return expression PSI element
-    //  */
-    // @Override
-    // public void visitReturnExpression(@NotNull KtReturnExpression returnExpr) {
-    //     if (returnExpr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a return expression (return statement).
+      *
+      * <p>Kotlin return expressions can return values or return from labeled lambda/function:</p>
+      * <pre>{@code
+      * return              // Unit return (no value)
+      * return 42           // Return with value
+      * return@label expr   // Return from labeled function
+      * }</pre>
+      *
+      * <h3>Phase 6.1 Task 3: Return Statement Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code gotReturnStatement(hasValue)} - Return statement marker</li>
+      *   <li>If hasValue: Expression traversal for return value</li>
+      * </ol>
+      *
+      * <p><b>Labeled Returns:</b> Kotlin supports labeled returns ({@code return@label}).
+      * The label information is not passed to callbacks in Phase 6.1 - it's part of
+      * the return expression structure but not separately reported.</p>
+      *
+      * @param returnExpr The return expression PSI element
+      */
+     @Override
+     public void visitReturnExpression(@NotNull KtReturnExpression returnExpr) {
+         if (returnExpr == null || callbacks == null) {
+             return;
+         }
         
-    //     // Check if return has a value
-    //     KtExpression returnValue = returnExpr.getReturnedExpression();
-    //     boolean hasValue = returnValue != null;
+         // Check if return has a value
+         KtExpression returnValue = returnExpr.getReturnedExpression();
+         boolean hasValue = returnValue != null;
         
-    //     // 1. Emit return statement callback
-    //     callbacks.gotReturnStatement(hasValue);
+         // 1. Emit return statement callback
+         callbacks.gotReturnStatement(hasValue);
         
-    //     // 2. If has value, traverse the return expression
-    //     if (hasValue) {
-    //         returnValue.accept(this);
-    //     }
-    // }
+         // 2. If has value, traverse the return expression
+         if (hasValue) {
+             returnValue.accept(this);
+         }
+     }
     
-    // /**
-    //  * Visits a throw expression (throw statement).
-    //  *
-    //  * <p>Kotlin throw expressions throw exceptions:</p>
-    //  * <pre>{@code
-    //  * throw IllegalArgumentException("Invalid value")
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.4: Throw Expression Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code gotThrow(throwToken)} - Throw statement marker</li>
-    //  *   <li>Exception expression traversal</li>
-    //  * </ol>
-    //  *
-    //  * @param throwExpr The throw expression PSI element
-    //  */
-    // @Override
-    // public void visitThrowExpression(@NotNull KtThrowExpression throwExpr) {
-    //     if (throwExpr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a throw expression (throw statement).
+      *
+      * <p>Kotlin throw expressions throw exceptions:</p>
+      * <pre>{@code
+      * throw IllegalArgumentException("Invalid value")
+      * }</pre>
+      *
+      * <h3>Phase 6.4: Throw Expression Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code gotThrow(throwToken)} - Throw statement marker</li>
+      *   <li>Exception expression traversal</li>
+      * </ol>
+      *
+      * @param throwExpr The throw expression PSI element
+      */
+     @Override
+     public void visitThrowExpression(@NotNull KtThrowExpression throwExpr) {
+         if (throwExpr == null || callbacks == null) {
+             return;
+         }
         
-    //     // 1. Get throw keyword
-    //     PsiElement throwKeyword = throwExpr.getFirstChild();
-    //     if (throwKeyword != null) {
-    //         LocatableToken throwToken = createToken(throwKeyword, JavaTokenTypes.LITERAL_throw);
-    //         callbacks.gotThrow(throwToken);
-    //     }
+         // 1. Get throw keyword
+         PsiElement throwKeyword = throwExpr.getFirstChild();
+         if (throwKeyword != null) {
+             LocatableToken throwToken = createToken(throwKeyword, JavaTokenTypes.LITERAL_throw);
+             callbacks.gotThrow(throwToken);
+         }
         
-    //     // 2. Traverse the thrown expression
-    //     KtExpression thrownExpr = throwExpr.getThrownExpression();
-    //     if (thrownExpr != null) {
-    //         thrownExpr.accept(this);
-    //     }
-    // }
+         // 2. Traverse the thrown expression
+         KtExpression thrownExpr = throwExpr.getThrownExpression();
+         if (thrownExpr != null) {
+             thrownExpr.accept(this);
+         }
+     }
     
-    // /**
-    //  * Visits a break expression (break statement).
-    //  *
-    //  * <p>Kotlin break expressions can break from loops with optional labels:</p>
-    //  * <pre>{@code
-    //  * break           // Break from innermost loop
-    //  * break@outer     // Break from labeled loop
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.2 Task 4: Break Statement Callback</h3>
-    //  * <p>Emits {@code gotBreakContinue(keywordToken, labelToken)} with:</p>
-    //  * <ul>
-    //  *   <li>keywordToken: The "break" keyword</li>
-    //  *   <li>labelToken: The label if present, or null</li>
-    //  * </ul>
-    //  *
-    //  * @param breakExpr The break expression PSI element
-    //  */
-    // @Override
-    // public void visitBreakExpression(@NotNull KtBreakExpression breakExpr) {
-    //     if (breakExpr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a break expression (break statement).
+      *
+      * <p>Kotlin break expressions can break from loops with optional labels:</p>
+      * <pre>{@code
+      * break           // Break from innermost loop
+      * break@outer     // Break from labeled loop
+      * }</pre>
+      *
+      * <h3>Phase 6.2 Task 4: Break Statement Callback</h3>
+      * <p>Emits {@code gotBreakContinue(keywordToken, labelToken)} with:</p>
+      * <ul>
+      *   <li>keywordToken: The "break" keyword</li>
+      *   <li>labelToken: The label if present, or null</li>
+      * </ul>
+      *
+      * @param breakExpr The break expression PSI element
+      */
+     @Override
+     public void visitBreakExpression(@NotNull KtBreakExpression breakExpr) {
+         if (breakExpr == null || callbacks == null) {
+             return;
+         }
         
-    //     // Get break keyword
-    //     PsiElement breakKeyword = breakExpr.getFirstChild();
-    //     LocatableToken keywordToken = null;
-    //     if (breakKeyword != null) {
-    //         keywordToken = createToken(breakKeyword, JavaTokenTypes.LITERAL_break);
-    //     }
+         // Get break keyword
+         PsiElement breakKeyword = breakExpr.getFirstChild();
+         LocatableToken keywordToken = null;
+         if (breakKeyword != null) {
+             keywordToken = createToken(breakKeyword, JavaTokenTypes.LITERAL_break);
+         }
         
-    //     // Get label if present
-    //     LocatableToken labelToken = null;
-    //     String labelName = breakExpr.getLabelName();
-    //     if (labelName != null) {
-    //         // Create token for label (label appears after @)
-    //         labelToken = createTokenWithText(breakExpr, labelName, JavaTokenTypes.IDENT);
-    //     }
+         // Get label if present
+         LocatableToken labelToken = null;
+         String labelName = breakExpr.getLabelName();
+         if (labelName != null) {
+             // Create token for label (label appears after @)
+             labelToken = createTokenWithText(breakExpr, labelName, JavaTokenTypes.IDENT);
+         }
         
-    //     callbacks.gotBreakContinue(keywordToken, labelToken);
-    // }
+         callbacks.gotBreakContinue(keywordToken, labelToken);
+     }
     
-    // /**
-    //  * Visits a continue expression (continue statement).
-    //  *
-    //  * <p>Kotlin continue expressions can continue loops with optional labels:</p>
-    //  * <pre>{@code
-    //  * continue           // Continue to next iteration of innermost loop
-    //  * continue@outer     // Continue to next iteration of labeled loop
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.2 Task 4: Continue Statement Callback</h3>
-    //  * <p>Emits {@code gotBreakContinue(keywordToken, labelToken)} with:</p>
-    //  * <ul>
-    //  *   <li>keywordToken: The "continue" keyword</li>
-    //  *   <li>labelToken: The label if present, or null</li>
-    //  * </ul>
-    //  *
-    //  * @param continueExpr The continue expression PSI element
-    //  */
-    // @Override
-    // public void visitContinueExpression(@NotNull KtContinueExpression continueExpr) {
-    //     if (continueExpr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a continue expression (continue statement).
+      *
+      * <p>Kotlin continue expressions can continue loops with optional labels:</p>
+      * <pre>{@code
+      * continue           // Continue to next iteration of innermost loop
+      * continue@outer     // Continue to next iteration of labeled loop
+      * }</pre>
+      *
+      * <h3>Phase 6.2 Task 4: Continue Statement Callback</h3>
+      * <p>Emits {@code gotBreakContinue(keywordToken, labelToken)} with:</p>
+      * <ul>
+      *   <li>keywordToken: The "continue" keyword</li>
+      *   <li>labelToken: The label if present, or null</li>
+      * </ul>
+      *
+      * @param continueExpr The continue expression PSI element
+      */
+     @Override
+     public void visitContinueExpression(@NotNull KtContinueExpression continueExpr) {
+         if (continueExpr == null || callbacks == null) {
+             return;
+         }
         
-    //     // Get continue keyword
-    //     PsiElement continueKeyword = continueExpr.getFirstChild();
-    //     LocatableToken keywordToken = null;
-    //     if (continueKeyword != null) {
-    //         keywordToken = createToken(continueKeyword, JavaTokenTypes.LITERAL_continue);
-    //     }
+         // Get continue keyword
+         PsiElement continueKeyword = continueExpr.getFirstChild();
+         LocatableToken keywordToken = null;
+         if (continueKeyword != null) {
+             keywordToken = createToken(continueKeyword, JavaTokenTypes.LITERAL_continue);
+         }
         
-    //     // Get label if present
-    //     LocatableToken labelToken = null;
-    //     String labelName = continueExpr.getLabelName();
-    //     if (labelName != null) {
-    //         // Create token for label (label appears after @)
-    //         labelToken = createTokenWithText(continueExpr, labelName, JavaTokenTypes.IDENT);
-    //     }
+         // Get label if present
+         LocatableToken labelToken = null;
+         String labelName = continueExpr.getLabelName();
+         if (labelName != null) {
+             // Create token for label (label appears after @)
+             labelToken = createTokenWithText(continueExpr, labelName, JavaTokenTypes.IDENT);
+         }
         
-    //     callbacks.gotBreakContinue(keywordToken, labelToken);
-    // }
+         callbacks.gotBreakContinue(keywordToken, labelToken);
+     }
     
-    // /**
-    //  * Visits a for loop expression (for-in loop).
-    //  *
-    //  * <p>Kotlin for loops are for-each style only:</p>
-    //  * <pre>{@code
-    //  * for (item in collection) {
-    //  *     println(item)
-    //  * }
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.2 Task 1: For Loop Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginForLoop(forToken)} - Begin for loop</li>
-    //  *   <li>{@code beginForInitDecl(forToken)} - Begin loop variable declaration</li>
-    //  *   <li>{@code gotTypeSpec()} - Loop variable type (if specified)</li>
-    //  *   <li>{@code gotForInit(forToken, idToken)} - Loop variable name</li>
-    //  *   <li>{@code endForInit(idToken, true)} - End variable declaration</li>
-    //  *   <li>{@code endForInitDecls(idToken, true)} - End declarations</li>
-    //  *   <li>{@code gotForTest(true)} - Test expression marker (always present for in)</li>
-    //  *   <li>Range expression traversal</li>
-    //  *   <li>{@code gotForIncrement(false)} - No increment in for-in loops</li>
-    //  *   <li>{@code beginForLoopBody(bodyToken)} - Begin body</li>
-    //  *   <li>Body traversal</li>
-    //  *   <li>{@code endForLoopBody(bodyToken, true)} - End body</li>
-    //  *   <li>{@code endForLoop(endToken, true)} - End for loop</li>
-    //  * </ol>
-    //  *
-    //  * @param forExpr The for loop expression PSI element
-    //  */
-    // @Override
-    // public void visitForExpression(@NotNull KtForExpression forExpr) {
-    //     if (forExpr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a for loop expression (for-in loop).
+      *
+      * <p>Kotlin for loops are for-each style only:</p>
+      * <pre>{@code
+      * for (item in collection) {
+      *     println(item)
+      * }
+      * }</pre>
+      *
+      * <h3>Phase 6.2 Task 1: For Loop Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginForLoop(forToken)} - Begin for loop</li>
+      *   <li>{@code beginForInitDecl(forToken)} - Begin loop variable declaration</li>
+      *   <li>{@code gotTypeSpec()} - Loop variable type (if specified)</li>
+      *   <li>{@code gotForInit(forToken, idToken)} - Loop variable name</li>
+      *   <li>{@code endForInit(idToken, true)} - End variable declaration</li>
+      *   <li>{@code endForInitDecls(idToken, true)} - End declarations</li>
+      *   <li>{@code gotForTest(true)} - Test expression marker (always present for in)</li>
+      *   <li>Range expression traversal</li>
+      *   <li>{@code gotForIncrement(false)} - No increment in for-in loops</li>
+      *   <li>{@code beginForLoopBody(bodyToken)} - Begin body</li>
+      *   <li>Body traversal</li>
+      *   <li>{@code endForLoopBody(bodyToken, true)} - End body</li>
+      *   <li>{@code endForLoop(endToken, true)} - End for loop</li>
+      * </ol>
+      *
+      * @param forExpr The for loop expression PSI element
+      */
+     @Override
+     public void visitForExpression(@NotNull KtForExpression forExpr) {
+         if (forExpr == null || callbacks == null) {
+             return;
+         }
         
-    //     // 1. Begin for loop
-    //     PsiElement forKeyword = forExpr.getFirstChild();
-    //     LocatableToken forToken = createToken(forKeyword != null ? forKeyword : forExpr, JavaTokenTypes.LITERAL_for);
-    //     callbacks.beginForLoop(forToken);
+         // 1. Begin for loop
+         PsiElement forKeyword = forExpr.getFirstChild();
+         LocatableToken forToken = createToken(forKeyword != null ? forKeyword : forExpr, JavaTokenTypes.LITERAL_for);
+         callbacks.beginForLoop(forToken);
         
-    //     // 2. Process loop parameter (variable declaration)
-    //     KtParameter loopParam = forExpr.getLoopParameter();
-    //     if (loopParam != null) {
-    //         callbacks.beginForInitDecl(forToken);
+         // 2. Process loop parameter (variable declaration)
+         KtParameter loopParam = forExpr.getLoopParameter();
+         if (loopParam != null) {
+             callbacks.beginForInitDecl(forToken);
             
-    //         // Type if specified
-    //         KtTypeReference paramType = loopParam.getTypeReference();
-    //         if (paramType != null) {
-    //             List<LocatableToken> typeTokens = extractTypeTokens(paramType);
-    //             callbacks.gotTypeSpec(typeTokens);
-    //         }
+             // Type if specified
+             KtTypeReference paramType = loopParam.getTypeReference();
+             if (paramType != null) {
+                 List<LocatableToken> typeTokens = extractTypeTokens(paramType);
+                 callbacks.gotTypeSpec(typeTokens);
+             }
             
-    //         // Variable name
-    //         PsiElement nameIdentifier = loopParam.getNameIdentifier();
-    //         if (nameIdentifier != null) {
-    //             LocatableToken idToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
-    //             callbacks.gotForInit(forToken, idToken);
-    //             callbacks.endForInit(idToken, true);
-    //         }
+             // Variable name
+             PsiElement nameIdentifier = loopParam.getNameIdentifier();
+             if (nameIdentifier != null) {
+                 LocatableToken idToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
+                 callbacks.gotForInit(forToken, idToken);
+                 callbacks.endForInit(idToken, true);
+             }
             
-    //         callbacks.endForInitDecls(forToken, true);
-    //         callbacks.modifiersConsumed();
-    //     }
+             callbacks.endForInitDecls(forToken, true);
+             callbacks.modifiersConsumed();
+         }
+
+         // TODO: should we treat range loops differently? I'm not sure
+         callbacks.determinedForLoop(true, false);
         
-    //     // 3. For-in always has a test expression (the range/collection)
-    //     callbacks.gotForTest(true);
-    //     KtExpression loopRange = forExpr.getLoopRange();
-    //     if (loopRange != null) {
-    //         loopRange.accept(this);
-    //     }
+         // 3. For-in always has a test expression (the range/collection)
+//         callbacks.gotForTest(true);
+//         KtExpression loopRange = forExpr.getLoopRange();
+//         if (loopRange != null) {
+//             loopRange.accept(this);
+//         }
         
-    //     // 4. Kotlin for-in has no increment expression
-    //     callbacks.gotForIncrement(false);
+         // 4. Kotlin for-in has no increment expression
+//         callbacks.gotForIncrement(false);
         
-    //     // 5. Parse loop body
-    //     KtExpression body = forExpr.getBody();
-    //     if (body != null) {
-    //         LocatableToken bodyToken = createToken(body);
-    //         callbacks.beginForLoopBody(bodyToken);
-    //         body.accept(this);
-    //         callbacks.endForLoopBody(bodyToken, true);
-    //     }
+         // 5. Parse loop body
+         KtExpression body = forExpr.getBody();
+         if (body != null) {
+             LocatableToken openToken = createToken(body.getFirstChild());
+             callbacks.beginForLoopBody(openToken);
+
+             body.accept(this);
+
+             LocatableToken closeToken = createToken(body.getLastChild());
+             callbacks.endForLoopBody(closeToken, true);
+         }
         
-    //     // 6. End for loop
-    //     LocatableToken endToken = createToken(forExpr.getLastChild());
-    //     callbacks.endForLoop(endToken, true);
-    // }
+         // 6. End for loop
+         LocatableToken endToken = createToken(forExpr.getLastChild());
+         callbacks.endForLoop(endToken, true);
+     }
     
-    // /**
-    //  * Visits a while loop expression.
-    //  *
-    //  * <p>Kotlin while loops have standard while syntax:</p>
-    //  * <pre>{@code
-    //  * while (x > 0) {
-    //  *     x--
-    //  * }
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.2 Task 2: While Loop Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginWhileLoop(whileToken)} - Begin while loop</li>
-    //  *   <li>Condition expression traversal</li>
-    //  *   <li>{@code beginWhileLoopBody(bodyToken)} - Begin body</li>
-    //  *   <li>Body traversal</li>
-    //  *   <li>{@code endWhileLoopBody(bodyToken, true)} - End body</li>
-    //  *   <li>{@code endWhileLoop(endToken, true)} - End while loop</li>
-    //  * </ol>
-    //  *
-    //  * @param whileExpr The while loop expression PSI element
-    //  */
-    // @Override
-    // public void visitWhileExpression(@NotNull KtWhileExpression whileExpr) {
-    //     if (whileExpr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a while loop expression.
+      *
+      * <p>Kotlin while loops have standard while syntax:</p>
+      * <pre>{@code
+      * while (x > 0) {
+      *     x--
+      * }
+      * }</pre>
+      *
+      * <h3>Phase 6.2 Task 2: While Loop Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginWhileLoop(whileToken)} - Begin while loop</li>
+      *   <li>Condition expression traversal</li>
+      *   <li>{@code beginWhileLoopBody(bodyToken)} - Begin body</li>
+      *   <li>Body traversal</li>
+      *   <li>{@code endWhileLoopBody(bodyToken, true)} - End body</li>
+      *   <li>{@code endWhileLoop(endToken, true)} - End while loop</li>
+      * </ol>
+      *
+      * @param whileExpr The while loop expression PSI element
+      */
+     @Override
+     public void visitWhileExpression(@NotNull KtWhileExpression whileExpr) {
+         if (whileExpr == null || callbacks == null) {
+             return;
+         }
         
-    //     // 1. Begin while loop
-    //     PsiElement whileKeyword = whileExpr.getFirstChild();
-    //     LocatableToken whileToken = createToken(whileKeyword != null ? whileKeyword : whileExpr, JavaTokenTypes.LITERAL_while);
-    //     callbacks.beginWhileLoop(whileToken);
+         // 1. Begin while loop
+         PsiElement whileKeyword = whileExpr.getFirstChild();
+         LocatableToken whileToken = createToken(whileKeyword != null ? whileKeyword : whileExpr, JavaTokenTypes.LITERAL_while);
+         callbacks.beginWhileLoop(whileToken);
         
-    //     // 2. Parse condition
-    //     KtExpression condition = whileExpr.getCondition();
-    //     if (condition != null) {
-    //         condition.accept(this);
-    //     }
+         // 2. Parse condition
+         KtExpression condition = whileExpr.getCondition();
+         if (condition != null) {
+             condition.accept(this);
+         }
         
-    //     // 3. Parse body
-    //     KtExpression body = whileExpr.getBody();
-    //     if (body != null) {
-    //         LocatableToken bodyToken = createToken(body);
-    //         callbacks.beginWhileLoopBody(bodyToken);
-    //         body.accept(this);
-    //         callbacks.endWhileLoopBody(bodyToken, true);
-    //     }
+         // 3. Parse body
+         KtExpression body = whileExpr.getBody();
+         if (body != null) {
+             LocatableToken bodyToken = createToken(body);
+             callbacks.beginWhileLoopBody(bodyToken);
+             body.accept(this);
+             callbacks.endWhileLoopBody(bodyToken, true);
+         }
         
-    //     // 4. End while loop
-    //     LocatableToken endToken = createToken(whileExpr.getLastChild());
-    //     callbacks.endWhileLoop(endToken, true);
-    // }
+         // 4. End while loop
+         LocatableToken endToken = createToken(whileExpr.getLastChild());
+         callbacks.endWhileLoop(endToken, true);
+     }
     
-    // /**
-    //  * Visits a do-while loop expression.
-    //  *
-    //  * <p>Kotlin do-while loops have standard do-while syntax:</p>
-    //  * <pre>{@code
-    //  * do {
-    //  *     x--
-    //  * } while (x > 0)
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.2 Task 3: Do-While Loop Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginDoWhile(doToken)} - Begin do-while loop</li>
-    //  *   <li>{@code beginDoWhileBody(bodyToken)} - Begin body</li>
-    //  *   <li>Body traversal</li>
-    //  *   <li>{@code endDoWhileBody(bodyToken, true)} - End body</li>
-    //  *   <li>Condition expression traversal</li>
-    //  *   <li>{@code endDoWhile(endToken, true)} - End do-while loop</li>
-    //  * </ol>
-    //  *
-    //  * @param doWhileExpr The do-while loop expression PSI element
-    //  */
-    // @Override
-    // public void visitDoWhileExpression(@NotNull KtDoWhileExpression doWhileExpr) {
-    //     if (doWhileExpr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a do-while loop expression.
+      *
+      * <p>Kotlin do-while loops have standard do-while syntax:</p>
+      * <pre>{@code
+      * do {
+      *     x--
+      * } while (x > 0)
+      * }</pre>
+      *
+      * <h3>Phase 6.2 Task 3: Do-While Loop Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginDoWhile(doToken)} - Begin do-while loop</li>
+      *   <li>{@code beginDoWhileBody(bodyToken)} - Begin body</li>
+      *   <li>Body traversal</li>
+      *   <li>{@code endDoWhileBody(bodyToken, true)} - End body</li>
+      *   <li>Condition expression traversal</li>
+      *   <li>{@code endDoWhile(endToken, true)} - End do-while loop</li>
+      * </ol>
+      *
+      * @param doWhileExpr The do-while loop expression PSI element
+      */
+     @Override
+     public void visitDoWhileExpression(@NotNull KtDoWhileExpression doWhileExpr) {
+         if (doWhileExpr == null || callbacks == null) {
+             return;
+         }
         
-    //     // 1. Begin do-while loop
-    //     PsiElement doKeyword = doWhileExpr.getFirstChild();
-    //     LocatableToken doToken = createToken(doKeyword != null ? doKeyword : doWhileExpr, JavaTokenTypes.LITERAL_do);
-    //     callbacks.beginDoWhile(doToken);
+         // 1. Begin do-while loop
+         PsiElement doKeyword = doWhileExpr.getFirstChild();
+         LocatableToken doToken = createToken(doKeyword != null ? doKeyword : doWhileExpr, JavaTokenTypes.LITERAL_do);
+         callbacks.beginDoWhile(doToken);
         
-    //     // 2. Parse body first (do-while executes body before condition)
-    //     KtExpression body = doWhileExpr.getBody();
-    //     if (body != null) {
-    //         LocatableToken bodyToken = createToken(body);
-    //         callbacks.beginDoWhileBody(bodyToken);
-    //         body.accept(this);
-    //         callbacks.endDoWhileBody(bodyToken, true);
-    //     }
+         // 2. Parse body first (do-while executes body before condition)
+         KtExpression body = doWhileExpr.getBody();
+         if (body != null) {
+             LocatableToken bodyToken = createToken(body);
+             callbacks.beginDoWhileBody(bodyToken);
+             body.accept(this);
+             callbacks.endDoWhileBody(bodyToken, true);
+         }
         
-    //     // 3. Parse condition
-    //     KtExpression condition = doWhileExpr.getCondition();
-    //     if (condition != null) {
-    //         condition.accept(this);
-    //     }
+         // 3. Parse condition
+         KtExpression condition = doWhileExpr.getCondition();
+         if (condition != null) {
+             condition.accept(this);
+         }
         
-    //     // 4. End do-while loop
-    //     LocatableToken endToken = createToken(doWhileExpr.getLastChild());
-    //     callbacks.endDoWhile(endToken, true);
-    // }
-    // /**
-    //  * Visits a when expression (Kotlin's enhanced switch).
-    //  *
-    //  * <p>Kotlin when expressions are more powerful than Java switch statements:</p>
-    //  * <pre>{@code
-    //  * when (x) {
-    //  *     1, 2 -> println("one or two")      // Multi-condition
-    //  *     in 3..10 -> println("range")       // Range check
-    //  *     is String -> println("string")     // Type check
-    //  *     else -> println("other")           // Else clause
-    //  * }
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.3 Tasks 1-3: When Expression Callback Sequence</h3>
-    //  * <p>Maps Kotlin when to Java switch callbacks:</p>
-    //  * <ol>
-    //  *   <li>{@code beginSwitchStmt(whenToken, false)} - Begin switch (not switch expression)</li>
-    //  *   <li>Subject expression traversal (if present)</li>
-    //  *   <li>{@code beginSwitchBlock(lBrace)} - Begin switch block</li>
-    //  *   <li>For each when entry:
-    //  *     <ul>
-    //  *       <li>{@code beginSwitchCase(entryToken)} - Begin case</li>
-    //  *       <li>Condition expression(s) traversal</li>
-    //  *       <li>{@code gotSwitchCaseType(arrow, true)} - Arrow syntax marker</li>
-    //  *       <li>Case body traversal</li>
-    //  *       <li>{@code endSwitchCase(arrow, true)} - End case</li>
-    //  *     </ul>
-    //  *   </li>
-    //  *   <li>For else entry: {@code gotSwitchDefault()} - Default case</li>
-    //  *   <li>{@code endSwitchBlock(rBrace)} - End switch block</li>
-    //  *   <li>{@code endSwitchStmt(rBrace, true)} - End switch</li>
-    //  * </ol>
-    //  *
-    //  * @param whenExpr The when expression PSI element
-    //  */
-    // @Override
-    // public void visitWhenExpression(@NotNull KtWhenExpression whenExpr) {
-    //     if (whenExpr == null || callbacks == null) {
-    //         return;
-    //     }
+         // 4. End do-while loop
+         LocatableToken endToken = createToken(doWhileExpr.getLastChild());
+         callbacks.endDoWhile(endToken, true);
+     }
+     /**
+      * Visits a when expression (Kotlin's enhanced switch).
+      *
+      * <p>Kotlin when expressions are more powerful than Java switch statements:</p>
+      * <pre>{@code
+      * when (x) {
+      *     1, 2 -> println("one or two")      // Multi-condition
+      *     in 3..10 -> println("range")       // Range check
+      *     is String -> println("string")     // Type check
+      *     else -> println("other")           // Else clause
+      * }
+      * }</pre>
+      *
+      * <h3>Phase 6.3 Tasks 1-3: When Expression Callback Sequence</h3>
+      * <p>Maps Kotlin when to Java switch callbacks:</p>
+      * <ol>
+      *   <li>{@code beginSwitchStmt(whenToken, false)} - Begin switch (not switch expression)</li>
+      *   <li>Subject expression traversal (if present)</li>
+      *   <li>{@code beginSwitchBlock(lBrace)} - Begin switch block</li>
+      *   <li>For each when entry:
+      *     <ul>
+      *       <li>{@code beginSwitchCase(entryToken)} - Begin case</li>
+      *       <li>Condition expression(s) traversal</li>
+      *       <li>{@code gotSwitchCaseType(arrow, true)} - Arrow syntax marker</li>
+      *       <li>Case body traversal</li>
+      *       <li>{@code endSwitchCase(arrow, true)} - End case</li>
+      *     </ul>
+      *   </li>
+      *   <li>For else entry: {@code gotSwitchDefault()} - Default case</li>
+      *   <li>{@code endSwitchBlock(rBrace)} - End switch block</li>
+      *   <li>{@code endSwitchStmt(rBrace, true)} - End switch</li>
+      * </ol>
+      *
+      * @param whenExpr The when expression PSI element
+      */
+     @Override
+     public void visitWhenExpression(@NotNull KtWhenExpression whenExpr) {
+         if (whenExpr == null || callbacks == null) {
+             return;
+         }
         
-    //     // 1. Begin switch statement (when maps to switch)
-    //     PsiElement whenKeyword = whenExpr.getFirstChild();
-    //     LocatableToken whenToken = createToken(whenKeyword != null ? whenKeyword : whenExpr, JavaTokenTypes.LITERAL_switch);
-    //     callbacks.beginSwitchStmt(whenToken, false);
+         // 1. Begin switch statement (when maps to switch)
+         PsiElement whenKeyword = whenExpr.getFirstChild();
+         LocatableToken whenToken = createToken(whenKeyword != null ? whenKeyword : whenExpr, JavaTokenTypes.LITERAL_switch);
+         callbacks.beginSwitchStmt(whenToken, false);
         
-    //     // 2. Parse subject expression (if present)
-    //     KtExpression subject = whenExpr.getSubjectExpression();
-    //     if (subject != null) {
-    //         subject.accept(this);
-    //     }
+         // 2. Parse subject expression (if present)
+         KtExpression subject = whenExpr.getSubjectExpression();
+         if (subject != null) {
+             subject.accept(this);
+         }
         
-    //     // 3. Begin switch block
-    //     LocatableToken lBraceToken = createToken(whenExpr, JavaTokenTypes.LCURLY);
-    //     callbacks.beginSwitchBlock(lBraceToken);
+         // 3. Begin switch block
+         LocatableToken lBraceToken = createToken(whenExpr, JavaTokenTypes.LCURLY);
+         callbacks.beginSwitchBlock(lBraceToken);
         
-    //     // 4. Parse when entries
-    //     for (KtWhenEntry entry : whenExpr.getEntries()) {
-    //         if (entry.isElse()) {
-    //             // Else clause
-    //             callbacks.gotSwitchDefault();
-    //         } else {
-    //             // Regular case with conditions
-    //             LocatableToken entryToken = createToken(entry);
-    //             callbacks.beginSwitchCase(entryToken);
+         // 4. Parse when entries
+         for (KtWhenEntry entry : whenExpr.getEntries()) {
+             if (entry.isElse()) {
+                 // Else clause
+                 callbacks.gotSwitchDefault();
+             } else {
+                 // Regular case with conditions
+                 LocatableToken entryToken = createToken(entry);
+                 callbacks.beginSwitchCase(entryToken);
                 
-    //             // Parse all conditions for this entry (multi-condition support)
-    //             for (KtWhenCondition condition : entry.getConditions()) {
-    //                 // Traverse the condition expression
-    //                 if (condition instanceof KtWhenConditionWithExpression) {
-    //                     KtExpression condExpr = ((KtWhenConditionWithExpression) condition).getExpression();
-    //                     if (condExpr != null) {
-    //                         condExpr.accept(this);
-    //                     }
-    //                 } else if (condition instanceof KtWhenConditionInRange) {
-    //                     KtExpression rangeExpr = ((KtWhenConditionInRange) condition).getRangeExpression();
-    //                     if (rangeExpr != null) {
-    //                         rangeExpr.accept(this);
-    //                     }
-    //                 } else if (condition instanceof KtWhenConditionIsPattern) {
-    //                     KtTypeReference typeRef = ((KtWhenConditionIsPattern) condition).getTypeReference();
-    //                     if (typeRef != null) {
-    //                         List<LocatableToken> typeTokens = extractTypeTokens(typeRef);
-    //                         callbacks.gotTypeSpec(typeTokens);
-    //                     }
-    //                 }
-    //             }
+                 // Parse all conditions for this entry (multi-condition support)
+                 for (KtWhenCondition condition : entry.getConditions()) {
+                     // Traverse the condition expression
+                     if (condition instanceof KtWhenConditionWithExpression) {
+                         KtExpression condExpr = ((KtWhenConditionWithExpression) condition).getExpression();
+                         if (condExpr != null) {
+                             condExpr.accept(this);
+                         }
+                     } else if (condition instanceof KtWhenConditionInRange) {
+                         KtExpression rangeExpr = ((KtWhenConditionInRange) condition).getRangeExpression();
+                         if (rangeExpr != null) {
+                             rangeExpr.accept(this);
+                         }
+                     } else if (condition instanceof KtWhenConditionIsPattern) {
+                         KtTypeReference typeRef = ((KtWhenConditionIsPattern) condition).getTypeReference();
+                         if (typeRef != null) {
+                             List<LocatableToken> typeTokens = extractTypeTokens(typeRef);
+                             callbacks.gotTypeSpec(typeTokens);
+                         }
+                     }
+                 }
                 
-    //             // Mark arrow syntax (Kotlin always uses ->)
-    //             PsiElement arrow = findArrowElement(entry);
-    //             LocatableToken arrowToken = createToken(arrow != null ? arrow : entry, JavaTokenTypes.LAMBDA);
-    //             callbacks.gotSwitchCaseType(arrowToken, true);
-    //         }
+                 // Mark arrow syntax (Kotlin always uses ->)
+                 PsiElement arrow = findArrowElement(entry);
+                 LocatableToken arrowToken = createToken(arrow != null ? arrow : entry, JavaTokenTypes.LAMBDA);
+                 callbacks.gotSwitchCaseType(arrowToken, true);
+             }
             
-    //         // Parse entry body
-    //         KtExpression entryExpr = entry.getExpression();
-    //         if (entryExpr != null) {
-    //             entryExpr.accept(this);
-    //         }
+             // Parse entry body
+             KtExpression entryExpr = entry.getExpression();
+             if (entryExpr != null) {
+                 entryExpr.accept(this);
+             }
             
-    //         // End case
-    //         if (!entry.isElse()) {
-    //             LocatableToken endToken = createToken(entry.getLastChild());
-    //             callbacks.endSwitchCase(endToken, true);
-    //         }
-    //     }
+             // End case
+             if (!entry.isElse()) {
+                 LocatableToken endToken = createToken(entry.getLastChild());
+                 callbacks.endSwitchCase(endToken, true);
+             }
+         }
         
-    //     // 5. End switch block
-    //     LocatableToken rBraceToken = createToken(whenExpr.getLastChild(), JavaTokenTypes.RCURLY);
-    //     callbacks.endSwitchBlock(rBraceToken);
+         // 5. End switch block
+         LocatableToken rBraceToken = createToken(whenExpr.getLastChild(), JavaTokenTypes.RCURLY);
+         callbacks.endSwitchBlock(rBraceToken);
         
-    //     // 6. End switch statement
-    //     callbacks.endSwitchStmt(rBraceToken, true);
-    // }
+         // 6. End switch statement
+         callbacks.endSwitchStmt(rBraceToken, true);
+     }
     
-    // /**
-    //  * Helper method to find the arrow element in a when entry.
-    //  * The arrow (->) is a child of the when entry.
-    //  */
-    // private PsiElement findArrowElement(KtWhenEntry entry) {
-    //     for (PsiElement child : entry.getChildren()) {
-    //         if (child.getText().equals("->")) {
-    //             return child;
-    //         }
-    //     }
-    //     return null;
-    // }
+     /**
+      * Helper method to find the arrow element in a when entry.
+      * The arrow (->) is a child of the when entry.
+      */
+     private PsiElement findArrowElement(KtWhenEntry entry) {
+         for (PsiElement child : entry.getChildren()) {
+             if (child.getText().equals("->")) {
+                 return child;
+             }
+         }
+         return null;
+     }
     
-    // /**
-    //  * Visits a try expression (try-catch-finally).
-    //  *
-    //  * <p>Kotlin try expressions handle exceptions:</p>
-    //  * <pre>{@code
-    //  * try {
-    //  *     riskyOperation()
-    //  * } catch (e: IOException) {
-    //  *     handleError(e)
-    //  * } finally {
-    //  *     cleanup()
-    //  * }
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.4 Tasks 1-4: Try-Catch-Finally Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginTryCatchSmt(tryToken, false)} - Begin try (no resource)</li>
-    //  *   <li>{@code beginTryBlock(lBrace)} - Begin try block</li>
-    //  *   <li>Try block body traversal</li>
-    //  *   <li>{@code endTryBlock(rBrace, true)} - End try block</li>
-    //  *   <li>For each catch clause:
-    //  *     <ul>
-    //  *       <li>{@code gotCatchFinally(catchToken)} - Catch marker</li>
-    //  *       <li>{@code gotTypeSpec(exceptionType)} - Exception type</li>
-    //  *       <li>{@code gotCatchVarName(varNameToken)} - Exception variable</li>
-    //  *       <li>Catch block body traversal</li>
-    //  *     </ul>
-    //  *   </li>
-    //  *   <li>For finally block:
-    //  *     <ul>
-    //  *       <li>{@code gotCatchFinally(finallyToken)} - Finally marker</li>
-    //  *       <li>Finally block body traversal</li>
-    //  *     </ul>
-    //  *   </li>
-    //  *   <li>{@code endTryCatchStmt(endToken, true)} - End try statement</li>
-    //  * </ol>
-    //  *
-    //  * @param tryExpr The try expression PSI element
-    //  */
-    // @Override
-    // public void visitTryExpression(@NotNull KtTryExpression tryExpr) {
-    //     if (tryExpr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a try expression (try-catch-finally).
+      *
+      * <p>Kotlin try expressions handle exceptions:</p>
+      * <pre>{@code
+      * try {
+      *     riskyOperation()
+      * } catch (e: IOException) {
+      *     handleError(e)
+      * } finally {
+      *     cleanup()
+      * }
+      * }</pre>
+      *
+      * <h3>Phase 6.4 Tasks 1-4: Try-Catch-Finally Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginTryCatchSmt(tryToken, false)} - Begin try (no resource)</li>
+      *   <li>{@code beginTryBlock(lBrace)} - Begin try block</li>
+      *   <li>Try block body traversal</li>
+      *   <li>{@code endTryBlock(rBrace, true)} - End try block</li>
+      *   <li>For each catch clause:
+      *     <ul>
+      *       <li>{@code gotCatchFinally(catchToken)} - Catch marker</li>
+      *       <li>{@code gotTypeSpec(exceptionType)} - Exception type</li>
+      *       <li>{@code gotCatchVarName(varNameToken)} - Exception variable</li>
+      *       <li>Catch block body traversal</li>
+      *     </ul>
+      *   </li>
+      *   <li>For finally block:
+      *     <ul>
+      *       <li>{@code gotCatchFinally(finallyToken)} - Finally marker</li>
+      *       <li>Finally block body traversal</li>
+      *     </ul>
+      *   </li>
+      *   <li>{@code endTryCatchStmt(endToken, true)} - End try statement</li>
+      * </ol>
+      *
+      * @param tryExpr The try expression PSI element
+      */
+     @Override
+     public void visitTryExpression(@NotNull KtTryExpression tryExpr) {
+         if (tryExpr == null || callbacks == null) {
+             return;
+         }
         
-    //     // 1. Begin try-catch statement (Kotlin doesn't have try-with-resources)
-    //     PsiElement tryKeyword = tryExpr.getTryKeyword();
-    //     LocatableToken tryToken = createToken(tryKeyword != null ? tryKeyword : tryExpr, JavaTokenTypes.LITERAL_try);
-    //     callbacks.beginTryCatchSmt(tryToken, false);
+         // 1. Begin try-catch statement (Kotlin doesn't have try-with-resources)
+         PsiElement tryKeyword = tryExpr.getTryKeyword();
+         LocatableToken tryToken = createToken(tryKeyword != null ? tryKeyword : tryExpr, JavaTokenTypes.LITERAL_try);
+         callbacks.beginTryCatchSmt(tryToken, false);
         
-    //     // 2. Parse try block
-    //     KtBlockExpression tryBlock = tryExpr.getTryBlock();
-    //     if (tryBlock != null) {
-    //         PsiElement lBrace = tryBlock.getLBrace();
-    //         if (lBrace != null) {
-    //             LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-    //             callbacks.beginTryBlock(lBraceToken);
-    //         }
+         // 2. Parse try block
+         KtBlockExpression tryBlock = tryExpr.getTryBlock();
+         if (tryBlock != null) {
+             PsiElement lBrace = tryBlock.getLBrace();
+             if (lBrace != null) {
+                 LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+                 callbacks.beginTryBlock(lBraceToken);
+             }
             
-    //         // Traverse try block body
-    //         tryBlock.accept(this);
+             // Traverse try block statements directly (not the block itself to avoid double wrapping)
+             List<KtExpression> statements = tryBlock.getStatements();
+             for (KtExpression statement : statements) {
+                 callbacks.beginElement(createToken(statement));
+                 statement.accept(this);
+                 callbacks.endElement(createToken(statement), true);
+             }
             
-    //         PsiElement rBrace = tryBlock.getRBrace();
-    //         if (rBrace != null) {
-    //             LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-    //             callbacks.endTryBlock(rBraceToken, true);
-    //         }
-    //     }
+             PsiElement rBrace = tryBlock.getRBrace();
+             if (rBrace != null) {
+                 LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+                 callbacks.endTryBlock(rBraceToken, true);
+             }
+         }
         
-    //     // 3. Parse catch clauses
-    //     for (KtCatchClause catchClause : tryExpr.getCatchClauses()) {
-    //         visitCatchClause(catchClause);
-    //     }
+         // 3. Parse catch clauses
+         for (KtCatchClause catchClause : tryExpr.getCatchClauses()) {
+             visitCatchClause(catchClause);
+         }
         
-    //     // 4. Parse finally block (if present)
-    //     KtFinallySection finallySection = tryExpr.getFinallyBlock();
-    //     if (finallySection != null) {
-    //         // Get finally keyword from children
-    //         PsiElement finallyKeyword = findChildByText(finallySection, "finally");
-    //         if (finallyKeyword != null) {
-    //             LocatableToken finallyToken = createToken(finallyKeyword, JavaTokenTypes.LITERAL_finally);
-    //             callbacks.gotCatchFinally(finallyToken);
-    //         }
+         // 4. Parse finally block (if present)
+         KtFinallySection finallySection = tryExpr.getFinallyBlock();
+         if (finallySection != null) {
+             // Get finally keyword from children
+             PsiElement finallyKeyword = findChildByText(finallySection, "finally");
+             if (finallyKeyword != null) {
+                 LocatableToken finallyToken = createToken(finallyKeyword, JavaTokenTypes.LITERAL_finally);
+                 callbacks.gotCatchFinally(finallyToken);
+             }
             
-    //         // Get finally block expression
-    //         KtBlockExpression finallyBlock = finallySection.getFinalExpression();
-    //         if (finallyBlock != null) {
-    //             finallyBlock.accept(this);
-    //         }
-    //     }
+             // Get finally block expression
+             KtBlockExpression finallyBlock = finallySection.getFinalExpression();
+             if (finallyBlock != null) {
+                 finallyBlock.accept(this);
+             }
+         }
         
-    //     // 5. End try-catch statement
-    //     LocatableToken endToken = createToken(tryExpr.getLastChild());
-    //     callbacks.endTryCatchStmt(endToken, true);
-    // }
+         // 5. End try-catch statement
+         LocatableToken endToken = createToken(tryExpr.getLastChild());
+         callbacks.endTryCatchStmt(endToken, true);
+     }
     
-    // /**
-    //  * Visits a catch clause within a try expression.
-    //  *
-    //  * <p>Processes catch clause structure:</p>
-    //  * <pre>{@code
-    //  * catch (e: IOException) {
-    //  *     handleError(e)
-    //  * }
-    //  * }</pre>
-    //  *
-    //  * <h3>Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code gotCatchFinally(catchToken)} - Catch marker</li>
-    //  *   <li>{@code gotTypeSpec(exceptionType)} - Exception type</li>
-    //  *   <li>{@code gotCatchVarName(varNameToken)} - Exception variable name</li>
-    //  *   <li>Catch block body traversal</li>
-    //  * </ol>
-    //  *
-    //  * @param catchClause The catch clause PSI element
-    //  */
-    // private void visitCatchClause(KtCatchClause catchClause) {
-    //     if (catchClause == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a catch clause within a try expression.
+      *
+      * <p>Processes catch clause structure:</p>
+      * <pre>{@code
+      * catch (e: IOException) {
+      *     handleError(e)
+      * }
+      * }</pre>
+      *
+      * <h3>Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code gotCatchFinally(catchToken)} - Catch marker</li>
+      *   <li>{@code gotTypeSpec(exceptionType)} - Exception type</li>
+      *   <li>{@code gotCatchVarName(varNameToken)} - Exception variable name</li>
+      *   <li>Catch block body traversal</li>
+      * </ol>
+      *
+      * @param catchClause The catch clause PSI element
+      */
+     private void visitCatchClause(KtCatchClause catchClause) {
+         if (catchClause == null || callbacks == null) {
+             return;
+         }
         
-    //     // 1. Emit catch marker
-    //     PsiElement catchKeyword = findChildByText(catchClause, "catch");
-    //     if (catchKeyword != null) {
-    //         LocatableToken catchToken = createToken(catchKeyword, JavaTokenTypes.LITERAL_catch);
-    //         callbacks.gotCatchFinally(catchToken);
-    //     }
+         // 1. Emit catch marker
+         PsiElement catchKeyword = findChildByText(catchClause, "catch");
+         if (catchKeyword != null) {
+             LocatableToken catchToken = createToken(catchKeyword, JavaTokenTypes.LITERAL_catch);
+             callbacks.gotCatchFinally(catchToken);
+         }
         
-    //     // 2. Parse exception parameter
-    //     KtParameter parameter = catchClause.getCatchParameter();
-    //     if (parameter != null) {
-    //         // Exception type
-    //         KtTypeReference typeRef = parameter.getTypeReference();
-    //         if (typeRef != null) {
-    //             List<LocatableToken> typeTokens = extractTypeTokens(typeRef);
-    //             callbacks.gotTypeSpec(typeTokens);
-    //         }
+         // 2. Parse exception parameter
+         KtParameter parameter = catchClause.getCatchParameter();
+         if (parameter != null) {
+             // Exception type
+             KtTypeReference typeRef = parameter.getTypeReference();
+             if (typeRef != null) {
+                 List<LocatableToken> typeTokens = extractTypeTokens(typeRef);
+                 callbacks.gotTypeSpec(typeTokens);
+             }
             
-    //         // Exception variable name
-    //         PsiElement nameIdentifier = parameter.getNameIdentifier();
-    //         if (nameIdentifier != null) {
-    //             LocatableToken varToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
-    //             callbacks.gotCatchVarName(varToken);
-    //         }
-    //     }
+             // Exception variable name
+             PsiElement nameIdentifier = parameter.getNameIdentifier();
+             if (nameIdentifier != null) {
+                 LocatableToken varToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
+                 callbacks.gotCatchVarName(varToken);
+             }
+         }
         
-    //     // 3. Parse catch block body
-    //     KtExpression catchBody = catchClause.getCatchBody();
-    //     if (catchBody != null) {
-    //         catchBody.accept(this);
-    //     }
-    // }
+         // 3. Parse catch block body
+         KtExpression catchBody = catchClause.getCatchBody();
+         if (catchBody != null) {
+             // If it's a block, traverse statements directly
+             if (catchBody instanceof KtBlockExpression) {
+                 KtBlockExpression block = (KtBlockExpression) catchBody;
+                 List<KtExpression> statements = block.getStatements();
+                 for (KtExpression statement : statements) {
+                     callbacks.beginElement(createToken(statement));
+                     statement.accept(this);
+                     callbacks.endElement(createToken(statement), true);
+                 }
+             } else {
+                 // Single expression (unlikely but possible)
+                 catchBody.accept(this);
+             }
+         }
+     }
     
-    // // ==================== Phase 6.5 & 6.6: Expression Visitor Methods ====================
+     // ==================== Phase 6.5 & 6.6: Expression Visitor Methods ====================
     
-    // /**
-    //  * Visits a constant expression (literal).
-    //  *
-    //  * <p>Handles all Kotlin literal types:</p>
-    //  * <ul>
-    //  *   <li>Integer: {@code 42}, {@code 0xFF}, {@code 0b1010}</li>
-    //  *   <li>Float: {@code 3.14}, {@code 1.0f}</li>
-    //  *   <li>Boolean: {@code true}, {@code false}</li>
-    //  *   <li>Character: {@code 'a'}</li>
-    //  *   <li>String: {@code "text"} (simple, not templates)</li>
-    //  *   <li>Null: {@code null}</li>
-    //  * </ul>
-    //  *
-    //  * <h3>Phase 6.5 Task 1: Literal Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginExpression(token, false)} - Begin expression</li>
-    //  *   <li>{@code gotLiteral(token)} - Literal value</li>
-    //  *   <li>{@code endExpression(token, false)} - End expression</li>
-    //  * </ol>
-    //  *
-    //  * @param expr The constant expression PSI element
-    //  */
-    // @Override
-    // public void visitConstantExpression(@NotNull KtConstantExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a constant expression (literal).
+      *
+      * <p>Handles all Kotlin literal types:</p>
+      * <ul>
+      *   <li>Integer: {@code 42}, {@code 0xFF}, {@code 0b1010}</li>
+      *   <li>Float: {@code 3.14}, {@code 1.0f}</li>
+      *   <li>Boolean: {@code true}, {@code false}</li>
+      *   <li>Character: {@code 'a'}</li>
+      *   <li>String: {@code "text"} (simple, not templates)</li>
+      *   <li>Null: {@code null}</li>
+      * </ul>
+      *
+      * <h3>Phase 6.5 Task 1: Literal Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginExpression(token, false)} - Begin expression</li>
+      *   <li>{@code gotLiteral(token)} - Literal value</li>
+      *   <li>{@code endExpression(token, false)} - End expression</li>
+      * </ol>
+      *
+      * @param expr The constant expression PSI element
+      */
+     @Override
+     public void visitConstantExpression(@NotNull KtConstantExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     LocatableToken token = createToken(expr);
-    //     callbacks.beginExpression(token, false);
-    //     callbacks.gotLiteral(token);
-    //     callbacks.endExpression(token, false);
-    // }
+         LocatableToken token = createToken(expr);
+         callbacks.beginExpression(token, false);
+         callbacks.gotLiteral(token);
+         callbacks.endExpression(token, false);
+     }
     
-    // /**
-    //  * Visits a simple name expression (identifier reference).
-    //  *
-    //  * <p>Handles simple name references:</p>
-    //  * <pre>{@code
-    //  * x           // Variable reference
-    //  * myVar       // Variable reference
-    //  * myFunction  // Function reference (without call)
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.5 Task 1: Identifier Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginExpression(token, false)} - Begin expression</li>
-    //  *   <li>{@code gotIdentifier(token)} - Identifier</li>
-    //  *   <li>{@code endExpression(token, false)} - End expression</li>
-    //  * </ol>
-    //  *
-    //  * @param expr The simple name expression PSI element
-    //  */
-    // @Override
-    // public void visitSimpleNameExpression(@NotNull KtSimpleNameExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a simple name expression (identifier reference).
+      *
+      * <p>Handles simple name references:</p>
+      * <pre>{@code
+      * x           // Variable reference
+      * myVar       // Variable reference
+      * myFunction  // Function reference (without call)
+      * }</pre>
+      *
+      * <h3>Phase 6.5 Task 1: Identifier Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginExpression(token, false)} - Begin expression</li>
+      *   <li>{@code gotIdentifier(token)} - Identifier</li>
+      *   <li>{@code endExpression(token, false)} - End expression</li>
+      * </ol>
+      *
+      * @param expr The simple name expression PSI element
+      */
+     @Override
+     public void visitSimpleNameExpression(@NotNull KtSimpleNameExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     LocatableToken token = createToken(expr);
-    //     callbacks.beginExpression(token, false);
-    //     callbacks.gotIdentifier(token);
-    //     callbacks.endExpression(token, false);
-    // }
+         LocatableToken token = createToken(expr);
+         callbacks.beginExpression(token, false);
+         callbacks.gotIdentifier(token);
+         callbacks.endExpression(token, false);
+     }
     
-    // /**
-    //  * Visits a binary expression (binary operator).
-    //  *
-    //  * <p>Handles all binary operations:</p>
-    //  * <ul>
-    //  *   <li>Arithmetic: {@code +, -, *, /, %}</li>
-    //  *   <li>Comparison: {@code ==, !=, <, >, <=, >=}</li>
-    //  *   <li>Logical: {@code &&, ||}</li>
-    //  *   <li>Bitwise: {@code and, or, xor, shl, shr, ushr}</li>
-    //  *   <li>Assignment: {@code =, +=, -=, *=, /=, %=}</li>
-    //  *   <li>Elvis: {@code ?:} (null coalescing)</li>
-    //  *   <li>Range: {@code .., ..<}</li>
-    //  * </ul>
-    //  *
-    //  * <h3>Phase 6.5 Task 2: Binary Operator Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginExpression(token, false)} - Begin expression</li>
-    //  *   <li>Left operand traversal</li>
-    //  *   <li>{@code gotBinaryOperator(opToken)} - Operator</li>
-    //  *   <li>Right operand traversal</li>
-    //  *   <li>{@code endExpression(token, false)} - End expression</li>
-    //  * </ol>
-    //  *
-    //  * @param expr The binary expression PSI element
-    //  */
-    // @Override
-    // public void visitBinaryExpression(@NotNull KtBinaryExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a binary expression (binary operator).
+      *
+      * <p>Handles all binary operations:</p>
+      * <ul>
+      *   <li>Arithmetic: {@code +, -, *, /, %}</li>
+      *   <li>Comparison: {@code ==, !=, <, >, <=, >=}</li>
+      *   <li>Logical: {@code &&, ||}</li>
+      *   <li>Bitwise: {@code and, or, xor, shl, shr, ushr}</li>
+      *   <li>Assignment: {@code =, +=, -=, *=, /=, %=}</li>
+      *   <li>Elvis: {@code ?:} (null coalescing)</li>
+      *   <li>Range: {@code .., ..<}</li>
+      * </ul>
+      *
+      * <h3>Phase 6.5 Task 2: Binary Operator Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginExpression(token, false)} - Begin expression</li>
+      *   <li>Left operand traversal</li>
+      *   <li>{@code gotBinaryOperator(opToken)} - Operator</li>
+      *   <li>Right operand traversal</li>
+      *   <li>{@code endExpression(token, false)} - End expression</li>
+      * </ol>
+      *
+      * @param expr The binary expression PSI element
+      */
+     @Override
+     public void visitBinaryExpression(@NotNull KtBinaryExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     LocatableToken token = createToken(expr);
-    //     callbacks.beginExpression(token, false);
+         LocatableToken token = createToken(expr);
+         callbacks.beginExpression(token, false);
         
-    //     // 1. Left operand
-    //     KtExpression left = expr.getLeft();
-    //     if (left != null) {
-    //         left.accept(this);
-    //     }
+         // 1. Left operand
+         KtExpression left = expr.getLeft();
+         if (left != null) {
+             left.accept(this);
+         }
         
-    //     // 2. Operator
-    //     PsiElement operationRef = expr.getOperationReference();
-    //     if (operationRef != null) {
-    //         LocatableToken opToken = createToken(operationRef);
-    //         callbacks.gotBinaryOperator(opToken);
-    //     }
+         // 2. Operator
+         PsiElement operationRef = expr.getOperationReference();
+         if (operationRef != null) {
+             LocatableToken opToken = createToken(operationRef);
+             callbacks.gotBinaryOperator(opToken);
+         }
         
-    //     // 3. Right operand
-    //     KtExpression right = expr.getRight();
-    //     if (right != null) {
-    //         right.accept(this);
-    //     }
+         // 3. Right operand
+         KtExpression right = expr.getRight();
+         if (right != null) {
+             right.accept(this);
+         }
         
-    //     callbacks.endExpression(token, false);
-    // }
+         callbacks.endExpression(token, false);
+     }
     
-    // /**
-    //  * Visits a unary expression (prefix or postfix operator).
-    //  *
-    //  * <p>Handles unary operations:</p>
-    //  * <ul>
-    //  *   <li>Prefix: {@code +x, -x, !x, ++x, --x}</li>
-    //  *   <li>Postfix: {@code x++, x--}</li>
-    //  *   <li>Kotlin-specific: {@code x!!} (not-null assertion)</li>
-    //  * </ul>
-    //  *
-    //  * <h3>Phase 6.5 Task 3: Unary Operator Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginExpression(token, false)} - Begin expression</li>
-    //  *   <li>{@code gotUnaryOperator(opToken)} or {@code gotPostOperator(opToken)}</li>
-    //  *   <li>Operand traversal</li>
-    //  *   <li>{@code endExpression(token, false)} - End expression</li>
-    //  * </ol>
-    //  *
-    //  * @param expr The unary expression PSI element
-    //  */
-    // @Override
-    // public void visitUnaryExpression(@NotNull KtUnaryExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a unary expression (prefix or postfix operator).
+      *
+      * <p>Handles unary operations:</p>
+      * <ul>
+      *   <li>Prefix: {@code +x, -x, !x, ++x, --x}</li>
+      *   <li>Postfix: {@code x++, x--}</li>
+      *   <li>Kotlin-specific: {@code x!!} (not-null assertion)</li>
+      * </ul>
+      *
+      * <h3>Phase 6.5 Task 3: Unary Operator Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginExpression(token, false)} - Begin expression</li>
+      *   <li>{@code gotUnaryOperator(opToken)} or {@code gotPostOperator(opToken)}</li>
+      *   <li>Operand traversal</li>
+      *   <li>{@code endExpression(token, false)} - End expression</li>
+      * </ol>
+      *
+      * @param expr The unary expression PSI element
+      */
+     @Override
+     public void visitUnaryExpression(@NotNull KtUnaryExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     LocatableToken token = createToken(expr);
-    //     callbacks.beginExpression(token, false);
+         LocatableToken token = createToken(expr);
+         callbacks.beginExpression(token, false);
         
-    //     // Get operator reference
-    //     PsiElement operationRef = expr.getOperationReference();
-    //     if (operationRef != null) {
-    //         LocatableToken opToken = createToken(operationRef);
+         // Get operator reference
+         PsiElement operationRef = expr.getOperationReference();
+         if (operationRef != null) {
+             LocatableToken opToken = createToken(operationRef);
             
-    //         // Determine if prefix or postfix
-    //         if (expr instanceof KtPrefixExpression) {
-    //             callbacks.gotUnaryOperator(opToken);
-    //         } else if (expr instanceof KtPostfixExpression) {
-    //             callbacks.gotPostOperator(opToken);
-    //         }
-    //     }
+             // Determine if prefix or postfix
+             if (expr instanceof KtPrefixExpression) {
+                 callbacks.gotUnaryOperator(opToken);
+             } else if (expr instanceof KtPostfixExpression) {
+                 callbacks.gotPostOperator(opToken);
+             }
+         }
         
-    //     // Operand
-    //     KtExpression baseExpr = expr.getBaseExpression();
-    //     if (baseExpr != null) {
-    //         baseExpr.accept(this);
-    //     }
+         // Operand
+         KtExpression baseExpr = expr.getBaseExpression();
+         if (baseExpr != null) {
+             baseExpr.accept(this);
+         }
         
-    //     callbacks.endExpression(token, false);
-    // }
+         callbacks.endExpression(token, false);
+     }
     
-    // /**
-    //  * Visits a prefix expression (prefix unary operator).
-    //  * Delegates to {@link #visitUnaryExpression(KtUnaryExpression)}.
-    //  */
-    // @Override
-    // public void visitPrefixExpression(@NotNull KtPrefixExpression expr) {
-    //     visitUnaryExpression(expr);
-    // }
+     /**
+      * Visits a prefix expression (prefix unary operator).
+      * Delegates to {@link #visitUnaryExpression(KtUnaryExpression)}.
+      */
+     @Override
+     public void visitPrefixExpression(@NotNull KtPrefixExpression expr) {
+         visitUnaryExpression(expr);
+     }
     
-    // /**
-    //  * Visits a postfix expression (postfix unary operator).
-    //  * Delegates to {@link #visitUnaryExpression(KtUnaryExpression)}.
-    //  */
-    // @Override
-    // public void visitPostfixExpression(@NotNull KtPostfixExpression expr) {
-    //     visitUnaryExpression(expr);
-    // }
+     /**
+      * Visits a postfix expression (postfix unary operator).
+      * Delegates to {@link #visitUnaryExpression(KtUnaryExpression)}.
+      */
+     @Override
+     public void visitPostfixExpression(@NotNull KtPostfixExpression expr) {
+         visitUnaryExpression(expr);
+     }
     
-    // /**
-    //  * Visits a call expression (method or constructor call).
-    //  *
-    //  * <p>Handles function calls with arguments:</p>
-    //  * <pre>{@code
-    //  * myFunction()
-    //  * myFunction(arg1, arg2)
-    //  * myFunction(x = 1, y = 2)  // Named arguments
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.5 Task 4: Method Call Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginExpression(token, false)} - Begin expression</li>
-    //  *   <li>{@code gotMethodCall(nameToken)} - Method name</li>
-    //  *   <li>{@code beginArgumentList(lParen)} - Begin arguments</li>
-    //  *   <li>For each argument:
-    //  *     <ul>
-    //  *       <li>Argument expression traversal</li>
-    //  *       <li>{@code endArgument()} - End argument</li>
-    //  *     </ul>
-    //  *   </li>
-    //  *   <li>{@code endArgumentList(rParen)} - End arguments</li>
-    //  *   <li>{@code endExpression(token, false)} - End expression</li>
-    //  * </ol>
-    //  *
-    //  * @param expr The call expression PSI element
-    //  */
-    // @Override
-    // public void visitCallExpression(@NotNull KtCallExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a call expression (method or constructor call).
+      *
+      * <p>Handles function calls with arguments:</p>
+      * <pre>{@code
+      * myFunction()
+      * myFunction(arg1, arg2)
+      * myFunction(x = 1, y = 2)  // Named arguments
+      * }</pre>
+      *
+      * <h3>Phase 6.5 Task 4: Method Call Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginExpression(token, false)} - Begin expression</li>
+      *   <li>{@code gotMethodCall(nameToken)} - Method name</li>
+      *   <li>{@code beginArgumentList(lParen)} - Begin arguments</li>
+      *   <li>For each argument:
+      *     <ul>
+      *       <li>Argument expression traversal</li>
+      *       <li>{@code endArgument()} - End argument</li>
+      *     </ul>
+      *   </li>
+      *   <li>{@code endArgumentList(rParen)} - End arguments</li>
+      *   <li>{@code endExpression(token, false)} - End expression</li>
+      * </ol>
+      *
+      * @param expr The call expression PSI element
+      */
+     @Override
+     public void visitCallExpression(@NotNull KtCallExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     LocatableToken token = createToken(expr);
-    //     callbacks.beginExpression(token, false);
+         LocatableToken token = createToken(expr);
+         callbacks.beginExpression(token, false);
         
-    //     // 1. Method name (from call's callee expression)
-    //     KtExpression calleeExpr = expr.getCalleeExpression();
-    //     if (calleeExpr != null) {
-    //         LocatableToken nameToken = createToken(calleeExpr);
-    //         callbacks.gotMethodCall(nameToken);
-    //     }
+         // 1. Method name (from call's callee expression)
+         KtExpression calleeExpr = expr.getCalleeExpression();
+         if (calleeExpr != null) {
+             LocatableToken nameToken = createToken(calleeExpr);
+             callbacks.gotMethodCall(nameToken);
+         }
         
-    //     // 2. Parse argument list
-    //     KtValueArgumentList argList = expr.getValueArgumentList();
-    //     if (argList != null) {
-    //         PsiElement lParen = argList.getLeftParenthesis();
-    //         if (lParen != null) {
-    //             LocatableToken lParenToken = createToken(lParen, JavaTokenTypes.LPAREN);
-    //             callbacks.beginArgumentList(lParenToken);
-    //         }
+         // 2. Parse argument list
+         KtValueArgumentList argList = expr.getValueArgumentList();
+         if (argList != null) {
+             PsiElement lParen = argList.getLeftParenthesis();
+             if (lParen != null) {
+                 LocatableToken lParenToken = createToken(lParen, JavaTokenTypes.LPAREN);
+                 callbacks.beginArgumentList(lParenToken);
+             }
             
-    //         // Parse each argument
-    //         for (KtValueArgument arg : argList.getArguments()) {
-    //             KtExpression argExpr = arg.getArgumentExpression();
-    //             if (argExpr != null) {
-    //                 argExpr.accept(this);
-    //             }
-    //             callbacks.endArgument();
-    //         }
+             // Parse each argument
+             for (KtValueArgument arg : argList.getArguments()) {
+                 KtExpression argExpr = arg.getArgumentExpression();
+                 if (argExpr != null) {
+                     argExpr.accept(this);
+                 }
+                 // No endArgument() needed - arguments are just expressions within the list
+             }
             
-    //         PsiElement rParen = argList.getRightParenthesis();
-    //         if (rParen != null) {
-    //             LocatableToken rParenToken = createToken(rParen, JavaTokenTypes.RPAREN);
-    //             callbacks.endArgumentList(rParenToken);
-    //         }
-    //     }
+             PsiElement rParen = argList.getRightParenthesis();
+             if (rParen != null) {
+                 LocatableToken rParenToken = createToken(rParen, JavaTokenTypes.RPAREN);
+                 callbacks.endArgumentList(rParenToken);
+             }
+         }
         
-    //     callbacks.endExpression(token, false);
-    // }
+         callbacks.endExpression(token, false);
+     }
     
-    // /**
-    //  * Visits a qualified expression (member access with dot operator).
-    //  *
-    //  * <p>Handles member access operations:</p>
-    //  * <pre>{@code
-    //  * object.property
-    //  * object.method()
-    //  * object?.safeProperty  // Safe call
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.5 Task 5: Member Access Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginExpression(token, false)} - Begin expression</li>
-    //  *   <li>Receiver expression traversal</li>
-    //  *   <li>{@code gotMemberAccess(memberToken)} - Member access</li>
-    //  *   <li>Selector expression traversal</li>
-    //  *   <li>{@code endExpression(token, false)} - End expression</li>
-    //  * </ol>
-    //  *
-    //  * <p><b>Safe Call Operator:</b> Kotlin's {@code ?.} operator is mapped to
-    //  * member access with a special token type to indicate safe navigation.</p>
-    //  *
-    //  * @param expr The qualified expression PSI element
-    //  */
-    // @Override
-    // public void visitQualifiedExpression(@NotNull KtQualifiedExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a qualified expression (member access with dot operator).
+      *
+      * <p>Handles member access operations:</p>
+      * <pre>{@code
+      * object.property
+      * object.method()
+      * object?.safeProperty  // Safe call
+      * }</pre>
+      *
+      * <h3>Phase 6.5 Task 5: Member Access Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginExpression(token, false)} - Begin expression</li>
+      *   <li>Receiver expression traversal</li>
+      *   <li>{@code gotMemberAccess(memberToken)} - Member access</li>
+      *   <li>Selector expression traversal</li>
+      *   <li>{@code endExpression(token, false)} - End expression</li>
+      * </ol>
+      *
+      * <p><b>Safe Call Operator:</b> Kotlin's {@code ?.} operator is mapped to
+      * member access with a special token type to indicate safe navigation.</p>
+      *
+      * @param expr The qualified expression PSI element
+      */
+     @Override
+     public void visitQualifiedExpression(@NotNull KtQualifiedExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     LocatableToken token = createToken(expr);
-    //     callbacks.beginExpression(token, false);
+         LocatableToken token = createToken(expr);
+         callbacks.beginExpression(token, false);
         
-    //     // 1. Receiver expression
-    //     KtExpression receiver = expr.getReceiverExpression();
-    //     if (receiver != null) {
-    //         receiver.accept(this);
-    //     }
+         // 1. Receiver expression
+         KtExpression receiver = expr.getReceiverExpression();
+         if (receiver != null) {
+             receiver.accept(this);
+         }
         
-    //     // 2. Member access (dot or safe call operator)
-    //     PsiElement operationSign = expr.getOperationTokenNode().getPsi();
-    //     if (operationSign != null) {
-    //         LocatableToken memberToken = createToken(operationSign, JavaTokenTypes.DOT);
-    //         callbacks.gotMemberAccess(memberToken);
-    //     }
+         // 2. Member access (dot or safe call operator)
+         PsiElement operationSign = expr.getOperationTokenNode().getPsi();
+         if (operationSign != null) {
+             LocatableToken memberToken = createToken(operationSign, JavaTokenTypes.DOT);
+             callbacks.gotMemberAccess(memberToken);
+         }
         
-    //     // 3. Selector expression
-    //     KtExpression selector = expr.getSelectorExpression();
-    //     if (selector != null) {
-    //         selector.accept(this);
-    //     }
+         // 3. Selector expression
+         KtExpression selector = expr.getSelectorExpression();
+         if (selector != null) {
+             selector.accept(this);
+         }
         
-    //     callbacks.endExpression(token, false);
-    // }
+         callbacks.endExpression(token, false);
+     }
     
-    // /**
-    //  * Visits a dot qualified expression.
-    //  * Delegates to {@link #visitQualifiedExpression(KtQualifiedExpression)}.
-    //  */
-    // @Override
-    // public void visitDotQualifiedExpression(@NotNull KtDotQualifiedExpression expr) {
-    //     visitQualifiedExpression(expr);
-    // }
+     /**
+      * Visits a dot qualified expression.
+      * Delegates to {@link #visitQualifiedExpression(KtQualifiedExpression)}.
+      */
+     @Override
+     public void visitDotQualifiedExpression(@NotNull KtDotQualifiedExpression expr) {
+         visitQualifiedExpression(expr);
+     }
     
-    // /**
-    //  * Visits a safe qualified expression (safe call operator ?.).
-    //  * Delegates to {@link #visitQualifiedExpression(KtQualifiedExpression)}.
-    //  */
-    // @Override
-    // public void visitSafeQualifiedExpression(@NotNull KtSafeQualifiedExpression expr) {
-    //     visitQualifiedExpression(expr);
-    // }
+     /**
+      * Visits a safe qualified expression (safe call operator ?.).
+      * Delegates to {@link #visitQualifiedExpression(KtQualifiedExpression)}.
+      */
+     @Override
+     public void visitSafeQualifiedExpression(@NotNull KtSafeQualifiedExpression expr) {
+         visitQualifiedExpression(expr);
+     }
     
-    // /**
-    //  * Visits an array access expression (subscript operator).
-    //  *
-    //  * <p>Handles array element access:</p>
-    //  * <pre>{@code
-    //  * array[0]
-    //  * matrix[i][j]
-    //  * map["key"]
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.5 Task 6: Array Access Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginExpression(token, false)} - Begin expression</li>
-    //  *   <li>Array expression traversal</li>
-    //  *   <li>Index expression traversal</li>
-    //  *   <li>{@code gotArrayElementAccess()} - Array access marker</li>
-    //  *   <li>{@code endExpression(token, false)} - End expression</li>
-    //  * </ol>
-    //  *
-    //  * @param expr The array access expression PSI element
-    //  */
-    // @Override
-    // public void visitArrayAccessExpression(@NotNull KtArrayAccessExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits an array access expression (subscript operator).
+      *
+      * <p>Handles array element access:</p>
+      * <pre>{@code
+      * array[0]
+      * matrix[i][j]
+      * map["key"]
+      * }</pre>
+      *
+      * <h3>Phase 6.5 Task 6: Array Access Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginExpression(token, false)} - Begin expression</li>
+      *   <li>Array expression traversal</li>
+      *   <li>Index expression traversal</li>
+      *   <li>{@code gotArrayElementAccess()} - Array access marker</li>
+      *   <li>{@code endExpression(token, false)} - End expression</li>
+      * </ol>
+      *
+      * @param expr The array access expression PSI element
+      */
+     @Override
+     public void visitArrayAccessExpression(@NotNull KtArrayAccessExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     LocatableToken token = createToken(expr);
-    //     callbacks.beginExpression(token, false);
+         LocatableToken token = createToken(expr);
+         callbacks.beginExpression(token, false);
         
-    //     // 1. Array expression
-    //     KtExpression arrayExpr = expr.getArrayExpression();
-    //     if (arrayExpr != null) {
-    //         arrayExpr.accept(this);
-    //     }
+         // 1. Array expression
+         KtExpression arrayExpr = expr.getArrayExpression();
+         if (arrayExpr != null) {
+             arrayExpr.accept(this);
+         }
         
-    //     // 2. Index expressions (can be multiple for multi-dimensional)
-    //     for (KtExpression indexExpr : expr.getIndexExpressions()) {
-    //         indexExpr.accept(this);
-    //     }
+         // 2. Index expressions (can be multiple for multi-dimensional)
+         for (KtExpression indexExpr : expr.getIndexExpressions()) {
+             indexExpr.accept(this);
+         }
         
-    //     // 3. Mark array element access
-    //     callbacks.gotArrayElementAccess();
+         // 3. Mark array element access
+         callbacks.gotArrayElementAccess();
         
-    //     callbacks.endExpression(token, false);
-    // }
+         callbacks.endExpression(token, false);
+     }
     
-    // /**
-    //  * Visits a lambda expression.
-    //  *
-    //  * <p>Kotlin lambda expressions:</p>
-    //  * <pre>{@code
-    //  * { x -> x * 2 }                    // Single parameter
-    //  * { x, y -> x + y }                 // Multiple parameters
-    //  * { it * 2 }                        // Implicit 'it' parameter
-    //  * { x: Int, y: Int -> x + y }       // Typed parameters
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.6 Task 1: Lambda Expression Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginExpression(token, true)} - Begin expression (isLambdaBody=true)</li>
-    //  *   <li>{@code beginLambdaBody(true, lBrace)} - Begin lambda body</li>
-    //  *   <li>For each parameter:
-    //  *     <ul>
-    //  *       <li>{@code gotLambdaFormalParam()} - Parameter marker</li>
-    //  *       <li>{@code gotLambdaFormalName(nameToken)} - Parameter name</li>
-    //  *       <li>{@code gotLambdaFormalType(typeTokens)} - Parameter type (if specified)</li>
-    //  *     </ul>
-    //  *   </li>
-    //  *   <li>Lambda body traversal</li>
-    //  *   <li>{@code endLambdaBody(rBrace)} - End lambda body</li>
-    //  *   <li>{@code endExpression(token, false)} - End expression</li>
-    //  * </ol>
-    //  *
-    //  * @param expr The lambda expression PSI element
-    //  */
-    // @Override
-    // public void visitLambdaExpression(@NotNull KtLambdaExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a lambda expression.
+      *
+      * <p>Kotlin lambda expressions:</p>
+      * <pre>{@code
+      * { x -> x * 2 }                    // Single parameter
+      * { x, y -> x + y }                 // Multiple parameters
+      * { it * 2 }                        // Implicit 'it' parameter
+      * { x: Int, y: Int -> x + y }       // Typed parameters
+      * }</pre>
+      *
+      * <h3>Phase 6.6 Task 1: Lambda Expression Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginExpression(token, true)} - Begin expression (isLambdaBody=true)</li>
+      *   <li>{@code beginLambdaBody(true, lBrace)} - Begin lambda body</li>
+      *   <li>For each parameter:
+      *     <ul>
+      *       <li>{@code gotLambdaFormalParam()} - Parameter marker</li>
+      *       <li>{@code gotLambdaFormalName(nameToken)} - Parameter name</li>
+      *       <li>{@code gotLambdaFormalType(typeTokens)} - Parameter type (if specified)</li>
+      *     </ul>
+      *   </li>
+      *   <li>Lambda body traversal</li>
+      *   <li>{@code endLambdaBody(rBrace)} - End lambda body</li>
+      *   <li>{@code endExpression(token, false)} - End expression</li>
+      * </ol>
+      *
+      * @param expr The lambda expression PSI element
+      */
+     @Override
+     public void visitLambdaExpression(@NotNull KtLambdaExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     LocatableToken token = createToken(expr);
-    //     callbacks.beginExpression(token, true);
+         LocatableToken token = createToken(expr);
+         callbacks.beginExpression(token, true);
         
-    //     // Get lambda literal (contains parameters and body)
-    //     KtFunctionLiteral literal = expr.getFunctionLiteral();
-    //     if (literal != null) {
-    //         PsiElement lBrace = literal.getLBrace();
-    //         LocatableToken lBraceToken = lBrace != null ? createToken(lBrace, JavaTokenTypes.LCURLY) : token;
-    //         callbacks.beginLambdaBody(true, lBraceToken);
+         // Get lambda literal (contains parameters and body)
+         KtFunctionLiteral literal = expr.getFunctionLiteral();
+         if (literal != null) {
+             PsiElement lBrace = literal.getLBrace();
+             LocatableToken lBraceToken = lBrace != null ? createToken(lBrace, JavaTokenTypes.LCURLY) : token;
+             callbacks.beginLambdaBody(true, lBraceToken);
             
-    //         // Process parameters
-    //         KtParameterList paramList = literal.getValueParameterList();
-    //         if (paramList != null) {
-    //             for (KtParameter param : paramList.getParameters()) {
-    //                 callbacks.gotLambdaFormalParam();
+             // Process parameters
+             KtParameterList paramList = literal.getValueParameterList();
+             if (paramList != null) {
+                 for (KtParameter param : paramList.getParameters()) {
+                     callbacks.gotLambdaFormalParam();
                     
-    //                 // Parameter name
-    //                 PsiElement nameId = param.getNameIdentifier();
-    //                 if (nameId != null) {
-    //                     LocatableToken nameToken = createToken(nameId, JavaTokenTypes.IDENT);
-    //                     callbacks.gotLambdaFormalName(nameToken);
-    //                 }
+                     // Parameter name
+                     PsiElement nameId = param.getNameIdentifier();
+                     if (nameId != null) {
+                         LocatableToken nameToken = createToken(nameId, JavaTokenTypes.IDENT);
+                         callbacks.gotLambdaFormalName(nameToken);
+                     }
                     
-    //                 // Parameter type (if specified)
-    //                 KtTypeReference typeRef = param.getTypeReference();
-    //                 if (typeRef != null) {
-    //                     List<LocatableToken> typeTokens = extractTypeTokens(typeRef);
-    //                     callbacks.gotLambdaFormalType(typeTokens);
-    //                 }
-    //             }
-    //         }
+                     // Parameter type (if specified)
+                     KtTypeReference typeRef = param.getTypeReference();
+                     if (typeRef != null) {
+                         List<LocatableToken> typeTokens = extractTypeTokens(typeRef);
+                         callbacks.gotLambdaFormalType(typeTokens);
+                     }
+                 }
+             }
             
-    //         // Process lambda body
-    //         KtBlockExpression bodyBlock = literal.getBodyExpression();
-    //         if (bodyBlock != null) {
-    //             // Visit statements in lambda body
-    //             for (KtExpression statement : bodyBlock.getStatements()) {
-    //                 statement.accept(this);
-    //             }
-    //         }
+             // Process lambda body
+             KtBlockExpression bodyBlock = literal.getBodyExpression();
+             if (bodyBlock != null) {
+                 // Visit statements in lambda body
+                 for (KtExpression statement : bodyBlock.getStatements()) {
+                     statement.accept(this);
+                 }
+             }
             
-    //         PsiElement rBrace = literal.getRBrace();
-    //         LocatableToken rBraceToken = rBrace != null ? createToken(rBrace, JavaTokenTypes.RCURLY) : token;
-    //         callbacks.endLambdaBody(rBraceToken);
-    //     }
+             PsiElement rBrace = literal.getRBrace();
+             LocatableToken rBraceToken = rBrace != null ? createToken(rBrace, JavaTokenTypes.RCURLY) : token;
+             callbacks.endLambdaBody(rBraceToken);
+         }
         
-    //     callbacks.endExpression(token, false);
-    // }
+         callbacks.endExpression(token, false);
+     }
     
-    // /**
-    //  * Visits a string template expression (string with interpolation).
-    //  *
-    //  * <p>Kotlin string templates support interpolation:</p>
-    //  * <pre>{@code
-    //  * "Hello $name"                    // Simple interpolation
-    //  * "Sum: ${x + y}"                  // Expression interpolation
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.6 Task 2: String Template Handling</h3>
-    //  * <p>In Phase 6, we treat string templates as opaque string literals.
-    //  * Future enhancement may parse template expressions separately.</p>
-    //  *
-    //  * @param expr The string template expression PSI element
-    //  */
-    // @Override
-    // public void visitStringTemplateExpression(@NotNull KtStringTemplateExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a string template expression (string with interpolation).
+      *
+      * <p>Kotlin string templates support interpolation:</p>
+      * <pre>{@code
+      * "Hello $name"                    // Simple interpolation
+      * "Sum: ${x + y}"                  // Expression interpolation
+      * }</pre>
+      *
+      * <h3>Phase 6.6 Task 2: String Template Handling</h3>
+      * <p>In Phase 6, we treat string templates as opaque string literals.
+      * Future enhancement may parse template expressions separately.</p>
+      *
+      * @param expr The string template expression PSI element
+      */
+     @Override
+     public void visitStringTemplateExpression(@NotNull KtStringTemplateExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     // Treat as string literal for Phase 6
-    //     LocatableToken token = createToken(expr);
-    //     callbacks.beginExpression(token, false);
-    //     callbacks.gotLiteral(token);
-    //     callbacks.endExpression(token, false);
-    // }
+         // Treat as string literal for Phase 6
+         LocatableToken token = createToken(expr);
+         callbacks.beginExpression(token, false);
+         callbacks.gotLiteral(token);
+         callbacks.endExpression(token, false);
+     }
     
-    // /**
-    //  * Visits a this expression (this reference).
-    //  *
-    //  * <p>Kotlin this expressions:</p>
-    //  * <pre>{@code
-    //  * this            // Current class instance
-    //  * this@Outer      // Outer class instance (labeled this)
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.6 Task 4: This Expression Callback</h3>
-    //  * <p>Treated as a special literal.</p>
-    //  *
-    //  * @param expr The this expression PSI element
-    //  */
-    // @Override
-    // public void visitThisExpression(@NotNull KtThisExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a this expression (this reference).
+      *
+      * <p>Kotlin this expressions:</p>
+      * <pre>{@code
+      * this            // Current class instance
+      * this@Outer      // Outer class instance (labeled this)
+      * }</pre>
+      *
+      * <h3>Phase 6.6 Task 4: This Expression Callback</h3>
+      * <p>Treated as a special literal.</p>
+      *
+      * @param expr The this expression PSI element
+      */
+     @Override
+     public void visitThisExpression(@NotNull KtThisExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     LocatableToken token = createToken(expr);
-    //     callbacks.beginExpression(token, false);
-    //     callbacks.gotLiteral(token);  // "this" treated as literal
-    //     callbacks.endExpression(token, false);
-    // }
+         LocatableToken token = createToken(expr);
+         callbacks.beginExpression(token, false);
+         callbacks.gotLiteral(token);  // "this" treated as literal
+         callbacks.endExpression(token, false);
+     }
     
-    // /**
-    //  * Visits a super expression (super reference).
-    //  *
-    //  * <p>Kotlin super expressions:</p>
-    //  * <pre>{@code
-    //  * super.method()       // Superclass method call
-    //  * super<Base>.method() // Qualified super (multiple inheritance)
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.6 Task 4: Super Expression Callback</h3>
-    //  * <p>Treated as a special literal.</p>
-    //  *
-    //  * @param expr The super expression PSI element
-    //  */
-    // @Override
-    // public void visitSuperExpression(@NotNull KtSuperExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a super expression (super reference).
+      *
+      * <p>Kotlin super expressions:</p>
+      * <pre>{@code
+      * super.method()       // Superclass method call
+      * super<Base>.method() // Qualified super (multiple inheritance)
+      * }</pre>
+      *
+      * <h3>Phase 6.6 Task 4: Super Expression Callback</h3>
+      * <p>Treated as a special literal.</p>
+      *
+      * @param expr The super expression PSI element
+      */
+     @Override
+     public void visitSuperExpression(@NotNull KtSuperExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     LocatableToken token = createToken(expr);
-    //     callbacks.beginExpression(token, false);
-    //     callbacks.gotLiteral(token);  // "super" treated as literal
-    //     callbacks.endExpression(token, false);
-    // }
+         LocatableToken token = createToken(expr);
+         callbacks.beginExpression(token, false);
+         callbacks.gotLiteral(token);  // "super" treated as literal
+         callbacks.endExpression(token, false);
+     }
     
-    // /**
-    //  * Visits a binary expression with type RHS (type operations).
-    //  *
-    //  * <p>Handles Kotlin type operations:</p>
-    //  * <ul>
-    //  *   <li>{@code as} - Type cast: {@code x as String}</li>
-    //  *   <li>{@code as?} - Safe cast: {@code x as? String}</li>
-    //  *   <li>{@code is} - Type check: {@code x is String}</li>
-    //  *   <li>{@code !is} - Negated type check: {@code x !is String}</li>
-    //  * </ul>
-    //  *
-    //  * <h3>Phase 6.6 Task 5: Type Operation Callback Sequence</h3>
-    //  * <ol>
-    //  *   <li>{@code beginExpression(token, false)} - Begin expression</li>
-    //  *   <li>Left operand traversal</li>
-    //  *   <li>{@code gotTypeCast(typeTokens)} or {@code gotInstanceOfOperator(opToken)}</li>
-    //  *   <li>{@code endExpression(token, false)} - End expression</li>
-    //  * </ol>
-    //  *
-    //  * @param expr The binary with type RHS expression PSI element
-    //  */
-    // @Override
-    // public void visitBinaryWithTypeRHSExpression(@NotNull KtBinaryExpressionWithTypeRHS expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a binary expression with type RHS (type operations).
+      *
+      * <p>Handles Kotlin type operations:</p>
+      * <ul>
+      *   <li>{@code as} - Type cast: {@code x as String}</li>
+      *   <li>{@code as?} - Safe cast: {@code x as? String}</li>
+      *   <li>{@code is} - Type check: {@code x is String}</li>
+      *   <li>{@code !is} - Negated type check: {@code x !is String}</li>
+      * </ul>
+      *
+      * <h3>Phase 6.6 Task 5: Type Operation Callback Sequence</h3>
+      * <ol>
+      *   <li>{@code beginExpression(token, false)} - Begin expression</li>
+      *   <li>Left operand traversal</li>
+      *   <li>{@code gotTypeCast(typeTokens)} or {@code gotInstanceOfOperator(opToken)}</li>
+      *   <li>{@code endExpression(token, false)} - End expression</li>
+      * </ol>
+      *
+      * @param expr The binary with type RHS expression PSI element
+      */
+     @Override
+     public void visitBinaryWithTypeRHSExpression(@NotNull KtBinaryExpressionWithTypeRHS expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     LocatableToken token = createToken(expr);
-    //     callbacks.beginExpression(token, false);
+         LocatableToken token = createToken(expr);
+         callbacks.beginExpression(token, false);
         
-    //     // 1. Left operand
-    //     KtExpression left = expr.getLeft();
-    //     if (left != null) {
-    //         left.accept(this);
-    //     }
+         // 1. Left operand
+         KtExpression left = expr.getLeft();
+         if (left != null) {
+             left.accept(this);
+         }
         
-    //     // 2. Operator and type
-    //     PsiElement operationRef = expr.getOperationReference();
-    //     KtTypeReference typeRef = expr.getRight();
+         // 2. Operator and type
+         PsiElement operationRef = expr.getOperationReference();
+         KtTypeReference typeRef = expr.getRight();
         
-    //     if (operationRef != null && typeRef != null) {
-    //         String opText = operationRef.getText();
-    //         List<LocatableToken> typeTokens = extractTypeTokens(typeRef);
+         if (operationRef != null && typeRef != null) {
+             String opText = operationRef.getText();
+             List<LocatableToken> typeTokens = extractTypeTokens(typeRef);
             
-    //         if ("as".equals(opText) || "as?".equals(opText)) {
-    //             // Type cast
-    //             callbacks.gotTypeCast(typeTokens);
-    //         } else if ("is".equals(opText) || "!is".equals(opText)) {
-    //             // Type check (instanceof)
-    //             LocatableToken opToken = createToken(operationRef, JavaTokenTypes.LITERAL_instanceof);
-    //             callbacks.gotInstanceOfOperator(opToken);
-    //             callbacks.gotTypeSpec(typeTokens);
-    //         }
-    //     }
+             if ("as".equals(opText) || "as?".equals(opText)) {
+                 // Type cast
+                 callbacks.gotTypeCast(typeTokens);
+             } else if ("is".equals(opText) || "!is".equals(opText)) {
+                 // Type check (instanceof)
+                 LocatableToken opToken = createToken(operationRef, JavaTokenTypes.LITERAL_instanceof);
+                 callbacks.gotInstanceOfOperator(opToken);
+                 callbacks.gotTypeSpec(typeTokens);
+             }
+         }
         
-    //     callbacks.endExpression(token, false);
-    // }
+         callbacks.endExpression(token, false);
+     }
     
-    // /**
-    //  * Visits an object literal expression (anonymous object).
-    //  *
-    //  * <p>Kotlin object expressions create anonymous instances:</p>
-    //  * <pre>{@code
-    //  * object : MyInterface {
-    //  *     override fun method() = "impl"
-    //  * }
-    //  * }</pre>
-    //  *
-    //  * <h3>Phase 6.6 Task 3: Object Literal Callback Sequence</h3>
-    //  * <p>Mapped to anonymous class body callbacks.</p>
-    //  *
-    //  * @param expr The object literal expression PSI element
-    //  */
-    // @Override
-    // public void visitObjectLiteralExpression(@NotNull KtObjectLiteralExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits an object literal expression (anonymous object).
+      *
+      * <p>Kotlin object expressions create anonymous instances:</p>
+      * <pre>{@code
+      * object : MyInterface {
+      *     override fun method() = "impl"
+      * }
+      * }</pre>
+      *
+      * <h3>Phase 6.6 Task 3: Object Literal Callback Sequence</h3>
+      * <p>Mapped to anonymous class body callbacks.</p>
+      *
+      * @param expr The object literal expression PSI element
+      */
+     @Override
+     public void visitObjectLiteralExpression(@NotNull KtObjectLiteralExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     // Get the object declaration within the literal
-    //     KtObjectDeclaration objDecl = expr.getObjectDeclaration();
-    //     if (objDecl != null) {
-    //         KtClassBody body = objDecl.getBody();
-    //         if (body != null) {
-    //             PsiElement lBrace = body.getLBrace();
-    //             if (lBrace != null) {
-    //                 LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-    //                 callbacks.beginAnonClassBody(lBraceToken, false);
-    //             }
+         // Get the object declaration within the literal
+         KtObjectDeclaration objDecl = expr.getObjectDeclaration();
+         if (objDecl != null) {
+             KtClassBody body = objDecl.getBody();
+             if (body != null) {
+                 PsiElement lBrace = body.getLBrace();
+                 if (lBrace != null) {
+                     LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+                     callbacks.beginAnonClassBody(lBraceToken, false);
+                 }
                 
-    //             // Visit object members
-    //             for (KtDeclaration decl : body.getDeclarations()) {
-    //                 decl.accept(this);
-    //             }
+                 // Visit object members
+                 for (KtDeclaration decl : body.getDeclarations()) {
+                     decl.accept(this);
+                 }
                 
-    //             PsiElement rBrace = body.getRBrace();
-    //             if (rBrace != null) {
-    //                 LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-    //                 callbacks.endAnonClassBody(rBraceToken, true);
-    //             }
-    //         }
-    //     }
-    // }
+                 PsiElement rBrace = body.getRBrace();
+                 if (rBrace != null) {
+                     LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+                     callbacks.endAnonClassBody(rBraceToken, true);
+                 }
+             }
+         }
+     }
     
-    // /**
-    //  * Visits a parenthesized expression.
-    //  *
-    //  * <p>Handles expressions in parentheses:</p>
-    //  * <pre>{@code
-    //  * (x + y)
-    //  * ((nested))
-    //  * }</pre>
-    //  *
-    //  * <p>Simply traverses the inner expression.</p>
-    //  *
-    //  * @param expr The parenthesized expression PSI element
-    //  */
-    // @Override
-    // public void visitParenthesizedExpression(@NotNull KtParenthesizedExpression expr) {
-    //     if (expr == null || callbacks == null) {
-    //         return;
-    //     }
+     /**
+      * Visits a parenthesized expression.
+      *
+      * <p>Handles expressions in parentheses:</p>
+      * <pre>{@code
+      * (x + y)
+      * ((nested))
+      * }</pre>
+      *
+      * <p>Simply traverses the inner expression.</p>
+      *
+      * @param expr The parenthesized expression PSI element
+      */
+     @Override
+     public void visitParenthesizedExpression(@NotNull KtParenthesizedExpression expr) {
+         if (expr == null || callbacks == null) {
+             return;
+         }
         
-    //     // Simply traverse the inner expression
-    //     KtExpression innerExpr = expr.getExpression();
-    //     if (innerExpr != null) {
-    //         innerExpr.accept(this);
-    //     }
-    // }
+         // Simply traverse the inner expression
+         KtExpression innerExpr = expr.getExpression();
+         if (innerExpr != null) {
+             innerExpr.accept(this);
+         }
+     }
     
-    // /**
-    //  * Helper method to create a token from PSI element with automatic type detection.
-    //  * Used for expressions where we don't need a specific token type.
-    //  */
-    // private LocatableToken createToken(PsiElement element) {
-    //     return createToken(element, JavaTokenTypes.LITERAL_void);
-    // }
-    // /**
-    //  * Helper method to find a child element by its text content.
-    //  * Used for finding keyword elements like "catch", "finally", etc.
-    //  *
-    //  * @param parent The parent element to search in
-    //  * @param text The text to match
-    //  * @return The first child matching the text, or null if not found
-    //  */
-    // private PsiElement findChildByText(PsiElement parent, String text) {
-    //     if (parent == null || text == null) {
-    //         return null;
-    //     }
+     /**
+      * Helper method to create a token from PSI element with automatic type detection.
+      * Used for expressions where we don't need a specific token type.
+      */
+     private LocatableToken createToken(PsiElement element) {
+         return createToken(element, JavaTokenTypes.LITERAL_void);
+     }
+     /**
+      * Helper method to find a child element by its text content.
+      * Used for finding keyword elements like "catch", "finally", etc.
+      *
+      * @param parent The parent element to search in
+      * @param text The text to match
+      * @return The first child matching the text, or null if not found
+      */
+     private PsiElement findChildByText(PsiElement parent, String text) {
+         if (parent == null || text == null) {
+             return null;
+         }
         
-    //     for (PsiElement child : parent.getChildren()) {
-    //         if (text.equals(child.getText())) {
-    //             return child;
-    //         }
-    //     }
-    //     return null;
-    // }
+         for (PsiElement child : parent.getChildren()) {
+             if (text.equals(child.getText())) {
+                 return child;
+             }
+         }
+         return null;
+     }
 
 
 

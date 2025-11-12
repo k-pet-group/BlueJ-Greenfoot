@@ -50,7 +50,7 @@ import static org.junit.Assert.*;
  * @see PsiCallbackVisitor
  * @see CallbackRecorder
  */
-@Ignore("Statement parsing disabled for now")
+//@Ignore("Statement parsing disabled for now")
 public class StatementExpressionCallbackTest {
     
     private PsiEnvironment env;
