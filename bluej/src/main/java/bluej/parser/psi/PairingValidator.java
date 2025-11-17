@@ -209,6 +209,11 @@ public class PairingValidator {
         callbackRoles.put("endTypeDefExtends", CallbackRole.INFORMATIONAL);
         callbackRoles.put("beginTypeDefImplements", CallbackRole.INFORMATIONAL);
         callbackRoles.put("endTypeDefImplements", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("endForInitDecls", CallbackRole.INFORMATIONAL);  // Marker for end of all for-init declarations
+        callbackRoles.put("beginForInitDecl", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endForInitDecl", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginTryCatchStmt", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endTryCatchStmt", CallbackRole.PAIRED_END);
     }
     
     /**

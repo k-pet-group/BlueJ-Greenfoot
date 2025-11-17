@@ -182,6 +182,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     private final MethodHandle mhGotForInit;
     private final MethodHandle mhGotSubsequentForInit;
     private final MethodHandle mhEndForInit;
+    private final MethodHandle mhEndForInitDecl;
     private final MethodHandle mhEndForInitDecls;
     
     // Field declarations
@@ -308,7 +309,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
             mhEndDoWhile = findAndBind(lookup, targetClass, "endDoWhile", void.class, LocatableToken.class, boolean.class);
             
             // Exception handling
-            mhBeginTryCatchSmt = findAndBind(lookup, targetClass, "beginTryCatchSmt", void.class, LocatableToken.class, boolean.class);
+            mhBeginTryCatchSmt = findAndBind(lookup, targetClass, "beginTryCatchStmt", void.class, LocatableToken.class, boolean.class);
             mhBeginTryBlock = findAndBind(lookup, targetClass, "beginTryBlock", void.class, LocatableToken.class);
             mhEndTryBlock = findAndBind(lookup, targetClass, "endTryBlock", void.class, LocatableToken.class, boolean.class);
             mhEndTryCatchStmt = findAndBind(lookup, targetClass, "endTryCatchStmt", void.class, LocatableToken.class, boolean.class);
@@ -397,6 +398,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
             mhGotForInit = findAndBind(lookup, targetClass, "gotForInit", void.class, LocatableToken.class, LocatableToken.class);
             mhGotSubsequentForInit = findAndBind(lookup, targetClass, "gotSubsequentForInit", void.class, LocatableToken.class, LocatableToken.class, boolean.class);
             mhEndForInit = findAndBind(lookup, targetClass, "endForInit", void.class, LocatableToken.class, boolean.class);
+            mhEndForInitDecl = findAndBind(lookup, targetClass, "endForInitDecl", void.class, LocatableToken.class, boolean.class);
             mhEndForInitDecls = findAndBind(lookup, targetClass, "endForInitDecls", void.class, LocatableToken.class, boolean.class);
             
             // Field declarations
@@ -1093,7 +1095,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
 
     // Exception handling
     @Override
-    public void beginTryCatchSmt(LocatableToken token, boolean hasResource) {
+    public void beginTryCatchStmt(LocatableToken token, boolean hasResource) {
         try {
             if (isInEmitRange(token)) {
                 mhBeginTryCatchSmt.invokeExact(token, hasResource);
@@ -1969,6 +1971,18 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
         try {
             if (isInEmitRange(token)) {
                 mhEndForInit.invokeExact(token, included);
+            }
+            skipToToken(token, included);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void endForInitDecl(LocatableToken token, boolean included) {
+        try {
+            if (isInEmitRange(token)) {
+                mhEndForInitDecl.invokeExact(token, included);
             }
             skipToToken(token, included);
         } catch (Throwable t) {

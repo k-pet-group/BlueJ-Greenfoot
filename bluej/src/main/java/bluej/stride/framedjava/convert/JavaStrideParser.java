@@ -1202,9 +1202,9 @@ public class JavaStrideParser extends SourceParser
     }
 
     @Override
-    protected void beginTryCatchSmt(LocatableToken token, boolean hasResource)
+    protected void beginTryCatchStmt(LocatableToken token, boolean hasResource)
     {
-        super.beginTryCatchSmt(token, hasResource);
+        super.beginTryCatchStmt(token, hasResource);
         if (hasResource)
             warnings.add(new ConversionWarning.UnsupportedFeature("try-with-resource"));
         tries.push(new TryBuilder());

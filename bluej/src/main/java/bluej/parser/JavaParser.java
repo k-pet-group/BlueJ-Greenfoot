@@ -1370,7 +1370,7 @@ public class JavaParser implements ParserBehavior
      */
     public final LocatableToken parseTryCatchStmt(LocatableToken token)
     {
-        parser.beginTryCatchSmt(token, getTokenStream().LA(1).getType() == JavaTokenTypes.LPAREN);
+        parser.beginTryCatchStmt(token, getTokenStream().LA(1).getType() == JavaTokenTypes.LPAREN);
         token = nextToken();
         if (token.getType() == JavaTokenTypes.LPAREN) {
             // Java 7 try-with-resource

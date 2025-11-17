@@ -128,7 +128,7 @@ public interface JavaParserCallbacks {
 
     void endDoWhile(LocatableToken token, boolean included);
 
-    void beginTryCatchSmt(LocatableToken token, boolean hasResource);
+    void beginTryCatchStmt(LocatableToken token, boolean hasResource);
 
     void beginTryBlock(LocatableToken token);
 
@@ -303,6 +303,8 @@ public interface JavaParserCallbacks {
     void gotSubsequentForInit(LocatableToken first, LocatableToken idToken, boolean initFollows);
 
     void endForInit(LocatableToken token, boolean included);
+
+    void endForInitDecl(LocatableToken token, boolean included);
 
     void endForInitDecls(LocatableToken token, boolean included);
 

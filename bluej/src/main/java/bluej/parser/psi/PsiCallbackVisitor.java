@@ -31,6 +31,8 @@ import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.*;
 
 import org.jetbrains.annotations.NotNull;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -2467,7 +2469,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
       *   <li>{@code beginForInitDecl(forToken)} - Begin loop variable declaration</li>
       *   <li>{@code gotTypeSpec()} - Loop variable type (if specified)</li>
       *   <li>{@code gotForInit(forToken, idToken)} - Loop variable name</li>
-      *   <li>{@code endForInit(idToken, true)} - End variable declaration</li>
+      *   <li>{@code endForInitDecl(idToken, true)} - End variable declaration</li>
       *   <li>{@code endForInitDecls(idToken, true)} - End declarations</li>
       *   <li>{@code gotForTest(true)} - Test expression marker (always present for in)</li>
       *   <li>Range expression traversal</li>
@@ -2505,11 +2507,15 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             
              // Variable name
              PsiElement nameIdentifier = loopParam.getNameIdentifier();
+             LocatableToken idToken;
              if (nameIdentifier != null) {
-                 LocatableToken idToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
+                 idToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
                  callbacks.gotForInit(forToken, idToken);
-                 callbacks.endForInit(idToken, true);
+             } else {
+                 // Destructuring declaration - use loop parameter as token
+                 idToken = createToken(loopParam, JavaTokenTypes.IDENT);
              }
+             callbacks.endForInitDecl(idToken, true);
             
              callbacks.endForInitDecls(forToken, true);
              callbacks.modifiersConsumed();
@@ -2794,7 +2800,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
       *
       * <h3>Phase 6.4 Tasks 1-4: Try-Catch-Finally Callback Sequence</h3>
       * <ol>
-      *   <li>{@code beginTryCatchSmt(tryToken, false)} - Begin try (no resource)</li>
+      *   <li>{@code beginTryCatchStmt(tryToken, false)} - Begin try (no resource)</li>
       *   <li>{@code beginTryBlock(lBrace)} - Begin try block</li>
       *   <li>Try block body traversal</li>
       *   <li>{@code endTryBlock(rBrace, true)} - End try block</li>
@@ -2826,8 +2832,8 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
          // 1. Begin try-catch statement (Kotlin doesn't have try-with-resources)
          PsiElement tryKeyword = tryExpr.getTryKeyword();
          LocatableToken tryToken = createToken(tryKeyword != null ? tryKeyword : tryExpr, JavaTokenTypes.LITERAL_try);
-         callbacks.beginTryCatchSmt(tryToken, false);
-        
+         callbacks.beginTryCatchStmt(tryToken, false);
+
          // 2. Parse try block
          KtBlockExpression tryBlock = tryExpr.getTryBlock();
          if (tryBlock != null) {

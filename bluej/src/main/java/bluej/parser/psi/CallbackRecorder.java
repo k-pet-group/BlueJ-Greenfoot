@@ -824,11 +824,11 @@ public class CallbackRecorder implements JavaParserCallbacksAdapter {
     // ==================== Exception Handling Callbacks ====================
     
     @Override
-    public void beginTryCatchSmt(LocatableToken token, boolean hasResource) {
+    public void beginTryCatchStmt(LocatableToken token, boolean hasResource) {
         Map<String, Object> params = new HashMap<>();
         params.put("token", token);
         params.put("hasResource", hasResource);
-        record("beginTryCatchSmt", params);
+        record("beginTryCatchStmt", params);
     }
     
     @Override
@@ -1009,6 +1009,14 @@ public class CallbackRecorder implements JavaParserCallbacksAdapter {
         params.put("token", token);
         params.put("included", included);
         record("endForInit", params);
+    }
+    
+    @Override
+    public void endForInitDecl(LocatableToken token, boolean included) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("token", token);
+        params.put("included", included);
+        record("endForInitDecl", params);
     }
     
     @Override

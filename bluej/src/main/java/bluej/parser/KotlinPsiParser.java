@@ -23,6 +23,7 @@ package bluej.parser;
 
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.psi.*;
+import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement;
 import org.jetbrains.kotlin.psi.KtFile;
 
 import java.io.IOException;
@@ -277,7 +278,7 @@ public class KotlinPsiParser implements ParserBehavior {
             case PSI_VISITOR:
                 // PSI visitor mode: Parse using PSI and call real JavaParserCallbacks
 //                System.err.println("[PSI-DEBUG] PSI_VISITOR mode: parsing with PsiCallbackVisitor");
-                parseWithPsiVisitor();
+                parseWithPsi();
                 break;
         }
 //        this.parseWithPsi();
@@ -423,7 +424,17 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     @Override
     public LocatableToken parseStatement(LocatableToken token, boolean allowComma) {
-        return delegate.parseStatement(token, allowComma);
+//        return delegate.parseStatement(token, allowComma);
+        return switch (parsingMode) {
+            case DELEGATION ->
+                // Phase 1: Token-based parsing (existing behavior)
+                    delegate.parseStatement(token, allowComma);
+            case PSI_VISITOR -> {
+                this.parseWithPsi(token);
+
+                yield this.sourceParser.getLastToken();
+            }
+        };
     }
     
     /**
@@ -516,9 +527,13 @@ public class KotlinPsiParser implements ParserBehavior {
             return;
         }
 
-        var startElement = offset == 0
+        var startElement = offset == 0x
             ? psiTree.getContainingKtFile()
-            : psiTree.findElementAt(offset).getParent();
+            : (
+                psiTree.findElementAt(offset).getParent() instanceof PsiErrorElement
+                ? psiTree.findElementAt(offset)
+                : psiTree.findElementAt(offset).getParent()
+              );
 
         startElement.accept(this.psiVisitor);
     }

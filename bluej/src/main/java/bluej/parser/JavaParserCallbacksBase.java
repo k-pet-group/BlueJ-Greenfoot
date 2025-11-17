@@ -136,7 +136,7 @@ public class JavaParserCallbacksBase { //  implements JavaParserCallbacks {
     protected void endDoWhile(LocatableToken token, boolean included) { }
 
     // @Override
-    protected void beginTryCatchSmt(LocatableToken token, boolean hasResource) { }
+    protected void beginTryCatchStmt(LocatableToken token, boolean hasResource) { }
 
     // @Override
     protected void beginTryBlock(LocatableToken token) { }
@@ -266,6 +266,11 @@ public class JavaParserCallbacksBase { //  implements JavaParserCallbacks {
 
     // @Override
     protected void endForInit(LocatableToken token, boolean included) { }
+
+    // @Override
+    protected void endForInitDecl(LocatableToken token, boolean included) {
+        endForInit(token, included);
+    }
 
     // @Override
     protected void endForInitDecls(LocatableToken token, boolean included) { }

@@ -28,6 +28,7 @@ import bluej.pkgmgr.Package;
 import javafx.application.Platform;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.com.intellij.pom.core.impl.PomModelImpl;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

@@ -1314,7 +1314,7 @@ class TCScanner extends TreePathScanner<Void, Void>
             System.err.println("  >> Tag on lambda parameter definition: " + lambdaAnn);
         if (lambdaAnn != null) {
             // Apparently we need that applyToAllSubclas
-            lambdaAnn = new LocatedTag(lambdaAnn.tag, lambdaAnn.ignoreParent(), true, lambdaAnn.info);
+            lambdaAnn = new LocatedTag(lambdaAnn.tag, true, true, lambdaAnn.info);
 
             return Optional.of(lambdaAnn);
         }
