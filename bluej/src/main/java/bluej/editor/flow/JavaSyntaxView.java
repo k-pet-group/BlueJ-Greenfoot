@@ -2271,6 +2271,18 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         return document.getLength();
     }
 
+    @Override
+    public int getLineFromPosition(int position) {
+        return this.getDefaultRootElement().getElementIndex(position) + 1;
+    }
+
+    @Override
+    public int getColumnFromPosition(int position) {
+        var line = this.getLineFromPosition(position);
+
+        return position - this.getDefaultRootElement().getElement(line - 1).getStartOffset() + 1;
+    }
+
     /**
      * Mark a portion of the document as having been parsed. This removes any
      * scheduled re-parses as appropriate and repaints the appropriate area.

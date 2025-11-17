@@ -33,6 +33,7 @@ import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.lexer.LineColPos;
 import bluej.parser.lexer.LocatableToken;
 
 /**
@@ -83,9 +84,9 @@ public class CompletionParser extends TextParser
      * @param  col     The source column where the expression begins
      */
     public CompletionParser(EntityResolver resolver, Reader reader,
-            JavaEntity defaultEnt, int line, int col, int pos)
+                            JavaEntity defaultEnt, LineColPos position)
     {
-        super(resolver, reader, defaultEnt, false, line, col, pos);
+        super(resolver, reader, defaultEnt, false, position);
         suggestionEntity = defaultEnt;
     }
 

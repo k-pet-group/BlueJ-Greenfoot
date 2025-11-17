@@ -33,16 +33,21 @@ public class SourceParser extends JavaParserCallbacksBase {
     protected JavaTokenFilter tokenStream;
     protected LocatableToken lastToken;
     protected final SourceType sourceType;
+    protected boolean handleComments = true;
+    protected boolean handleMultilineStrings = true;
+    protected TokenStream lexer;
     
     /** Source input for file-based parsing (null for Reader-based parsing) */
     private final SourceInput sourceInput;
 
-    ParserBehavior parser;
+    private ParserBehavior parser;
+    private LineColPos position = new LineColPos(1, 1, 0);
 
     LineColPos getOffset() {
         return this.tokenStream.getOffset();
     }
 
+    /*
     public static TokenStream getLexer(Reader r)
     {
         return new JavaLexer(r);
@@ -94,71 +99,160 @@ public class SourceParser extends JavaParserCallbacksBase {
         return lexer;
     }
 
+     */
+    
+    public SourceParser setStartPosition(LineColPos position) {
+        this.lexer = null;
+        this.tokenStream = null;
+        this.position = position;
+
+        return this;
+    }
+
+    protected TokenStream getLexer() {
+        if (lexer != null) { return lexer; }
+
+        try {
+            Keywords kws = sourceType == SourceType.Kotlin ? new KotlinKeywords() : new JavaKeywords();
+            Reader reader =  getSourceInput().createReader();
+
+            var lexer = new JavaLexer(reader, kws, handleComments, handleMultilineStrings);
+
+            if (sourceType == SourceType.Kotlin) {
+                lexer.setGenerateWhitespaceTokens(true);
+            }
+
+            return lexer;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean isHandleComments() {
+        return handleComments;
+    }
+
+    public SourceParser setHandleComments(boolean handleComments) {
+        this.handleComments = handleComments;
+        return this;
+    }
+
+    public boolean isHandleMultilineStrings() {
+        return handleMultilineStrings;
+    }
+
+    public SourceParser setHandleMultilineStrings(boolean handleMultilineStrings) {
+        this.handleMultilineStrings = handleMultilineStrings;
+        return this;
+    }
+
     /**
      * Creates parser from SourceInput (recommended for file-based parsing).
      *
      * @param input Source input encapsulating file and metadata
-     * @throws IOException if source cannot be read
      */
-    public SourceParser(SourceInput input) throws IOException {
+    public SourceParser(SourceInput input) {
         if (input == null) {
             throw new NullPointerException("input cannot be null");
         }
         
         this.sourceInput = input;
         this.sourceType = input.sourceType();
-        
-        // Create Reader from input (consumed by lexer)
-        Reader r = input.createReader();
-        TokenStream lexer = getLexer(r, sourceType);
-        tokenStream = new JavaTokenFilter(lexer, this);
-        parser = sourceType == SourceType.Kotlin
-            ? new KotlinPsiParser(this)
-            : new JavaParser(this);
     }
 
-    public SourceParser(Reader r) {
-        this.sourceInput = null;  // No source input available
-        TokenStream lexer = getLexer(r);
-        tokenStream = new JavaTokenFilter(lexer, this);
-        parser = new JavaParser(this);
-        this.sourceType = SourceType.Java;
+//    public SourceParser(SourceInput input, boolean handleComments)
+//    {
+//        this(input);
+//
+//        this.handleComments = handleComments;
+//
+//        // Create Reader from input (consumed by lexer)
+////        Reader r = input.createReader();
+////        TokenStream lexer = getLexer(r, sourceType);
+////        tokenStream = new JavaTokenFilter(lexer, this);
+////        parser = sourceType == SourceType.Kotlin
+////                ? new KotlinPsiParser(this)
+////                : new JavaParser(this);
+////        this.sourceInput = null;  // No source input available
+////
+////        TokenStream lexer = getLexer(r, sourceType, handleComments, true);
+////        tokenStream = new JavaTokenFilter(lexer, this);
+////        parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
+////        this.sourceType = sourceType;
+//    }
+
+    public SourceParser(SourceInput input, int line, int col, int pos) {
+        this(input);
+
+//        try {
+//            this.sourceInput = SourceInput.fromReader(r, sourceType);  // No source input available
+//
+//            TokenStream lexer = getLexer(r, sourceType, line, col, pos);
+//            tokenStream = new JavaTokenFilter(lexer, this);
+//            parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
+//            this.sourceType = sourceType;
+//        }
+//        catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
-    public SourceParser(Reader r, SourceType sourceType) {
-        this.sourceInput = null;  // No source input available
-        
-        TokenStream lexer = getLexer(r, sourceType);
-        tokenStream = new JavaTokenFilter(lexer, this);
-        parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
-        this.sourceType = sourceType;
-    }
+//    public SourceParser(Reader r) {
+//        this.sourceInput = null;  // No source input available
+//        TokenStream lexer = getLexer(r);
+//        tokenStream = new JavaTokenFilter(lexer, this);
+//        parser = new JavaParser(this);
+//        this.sourceType = SourceType.Java;
+//    }
+//
+//    public SourceParser(Reader r, SourceType sourceType) {
+//        this.sourceInput = null;  // No source input available
+//
+//        TokenStream lexer = getLexer(r, sourceType);
+//        tokenStream = new JavaTokenFilter(lexer, this);
+//        parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
+//        this.sourceType = sourceType;
+//    }
 
-    public SourceParser(Reader r, SourceType sourceType, boolean handleComments)
-    {
-        this.sourceInput = null;  // No source input available
-        
-        TokenStream lexer = getLexer(r, sourceType, handleComments, true);
-        tokenStream = new JavaTokenFilter(lexer, this);
-        parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
-        this.sourceType = sourceType;
-    }
+//    public SourceParser(Reader r, SourceType sourceType, boolean handleComments)
+//    {
+//        this.sourceInput = null;  // No source input available
+//
+//        TokenStream lexer = getLexer(r, sourceType, handleComments, true);
+//        tokenStream = new JavaTokenFilter(lexer, this);
+//        parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
+//        this.sourceType = sourceType;
+//    }
+//
+//    public SourceParser(Reader r, SourceType sourceType, int line, int col, int pos) {
+//        try {
+//            this.sourceInput = SourceInput.fromReader(r, sourceType);  // No source input available
+//
+//            TokenStream lexer = getLexer(r, sourceType, line, col, pos);
+//            tokenStream = new JavaTokenFilter(lexer, this);
+//            parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
+//            this.sourceType = sourceType;
+//        }
+//        catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
-    public SourceParser(Reader r, SourceType sourceType, int line, int col, int pos) {
-        try {
-            this.sourceInput = SourceInput.fromReader(r, sourceType);  // No source input available
+    protected ParserBehavior getParserImplementation() {
+        if (parser != null) { return parser; }
 
-            TokenStream lexer = getLexer(r, sourceType, line, col, pos);
-            tokenStream = new JavaTokenFilter(lexer, this);
-            parser = sourceType == SourceType.Kotlin ? new KotlinPsiParser(this) : new JavaParser(this);
-            this.sourceType = sourceType;
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return parser = sourceType == SourceType.Kotlin
+                ? new KotlinPsiParser(this)
+                : new JavaParser(this);
     }
 
     public JavaTokenFilter getTokenStream() {
+        if (tokenStream != null) { return tokenStream; }
+
+        TokenStream lexer = getLexer();
+
+        tokenStream = new JavaTokenFilter(lexer, this);
+
         return tokenStream;
     }
 

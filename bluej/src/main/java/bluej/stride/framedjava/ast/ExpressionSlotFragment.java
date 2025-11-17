@@ -36,6 +36,7 @@ import bluej.editor.stride.FrameEditor;
 import bluej.extensions2.SourceType;
 import bluej.parser.SourceParser;
 import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.psi.SourceInput;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.errors.*;
 import bluej.stride.framedjava.frames.MethodFrameWithBody;
@@ -71,7 +72,8 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
         super(content, javaCode);
         this.slot = slot;
 
-        SourceParser parser = new SourceParser(new StringReader(wrapForParse(this.getJavaCode())), SourceType.Java, false) {
+        SourceInput input = SourceInput.fromString(wrapForParse(this.getJavaCode()), SourceType.Java);
+        SourceParser parser = new SourceParser(input) {
             // Used to ignore the method name following the "::" method reference operator:
             boolean ignoreNext = false;
 
@@ -166,9 +168,9 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
             {
                 types.add(Utility.mapList(tokens, ExpressionSlotFragment.this::unwrapForParse));
             }
-
-
         };
+
+        parser.setHandleComments(false);
 
         Parser.parseAsExpression(parser);
     }

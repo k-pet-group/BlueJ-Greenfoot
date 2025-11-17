@@ -31,6 +31,7 @@ import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.lexer.LocatableToken;
+import bluej.parser.psi.SourceInput;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -55,7 +56,7 @@ public class CodepadImportParser extends SourceParser
     */
     public CodepadImportParser(EntityResolver resolver, Reader r)
     {
-        super(r, SourceType.Java); // TODO SourceType should be inferred somehow
+        super(SourceInput.fromReader(r, SourceType.Java)); // TODO SourceType should be inferred somehow
         this.resolver = resolver;
     }
 

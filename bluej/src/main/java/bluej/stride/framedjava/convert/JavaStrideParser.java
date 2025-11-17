@@ -37,6 +37,7 @@ import bluej.extensions2.SourceType;
 import bluej.parser.ParseFailure;
 import bluej.parser.SourceParser;
 import bluej.parser.lexer.*;
+import bluej.parser.psi.SourceInput;
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
@@ -229,7 +230,7 @@ public class JavaStrideParser extends SourceParser
      */
     public JavaStrideParser(String java, boolean testing)
     {
-        super(new StringReader(java), SourceType.Java);
+        super(SourceInput.fromString(java, SourceType.Java));
         this.source = java;
         this.testing = testing;
         statementHandlers.push(result);

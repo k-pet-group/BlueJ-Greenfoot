@@ -24,6 +24,7 @@ package bluej.parser;
 import bluej.debugger.gentype.Reflective;
 import bluej.extensions2.SourceType;
 import bluej.parser.entity.*;
+import bluej.parser.lexer.LineColPos;
 import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
@@ -130,40 +131,51 @@ public class EditorParser extends SourceParser
         pcuNode = new ParsedCUNode(resolver);
     }
 
-    /**
-     * Constructor for use by subclasses (InfoReader).
-     */
-    protected EditorParser(Reader r, EntityResolver resolver, SourceType sourceType)
+//    /**
+//     * Constructor for use by subclasses (InfoReader).
+//     */
+//    protected EditorParser(Reader r, EntityResolver resolver, SourceType sourceType)
+//    {
+//        super(r, sourceType);
+//        nodeStructureListener = new NodeStructureListener()
+//        {
+//            @Override
+//            public void nodeAdded(NodeAndPosition<ParsedNode> node)
+//            {
+//            }
+//
+//            @Override
+//            public void nodeRemoved(NodeAndPosition<ParsedNode> node)
+//            {
+//            }
+//
+//            @Override
+//            public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize)
+//            {
+//            }
+//        };
+//        pcuNode = new ParsedCUNode(resolver);
+//    }
+
+    public EditorParser(SourceInput input, Stack<JavaParentNode> scopeStack, NodeStructureListener nodeStructureListener)
     {
-        super(r, sourceType);
-        nodeStructureListener = new NodeStructureListener()
-        {
-            @Override
-            public void nodeAdded(NodeAndPosition<ParsedNode> node)
-            {
-            }
+        super(input);
 
-            @Override
-            public void nodeRemoved(NodeAndPosition<ParsedNode> node)
-            {
-            }
-
-            @Override
-            public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize)
-            {
-            }
-        };
-        pcuNode = new ParsedCUNode(resolver);
-    }
-
-    public EditorParser(ReparseableDocument document, Reader r, int line, int col, int pos, Stack<JavaParentNode> scopeStack, NodeStructureListener nodeStructureListener)
-    {
-        super(r, document.getSourceType(), line, col, pos);
         this.document = document;
         this.scopeStack = scopeStack;
         this.nodeStructureListener = nodeStructureListener;
         pcuNode = (ParsedCUNode) scopeStack.get(0);
     }
+
+
+//    public EditorParser(ReparseableDocument document, Reader r, int line, int col, int pos, Stack<JavaParentNode> scopeStack, NodeStructureListener nodeStructureListener)
+//    {
+//        super(r, document.getSourceType(), line, col, pos);
+//        this.document = document;
+//        this.scopeStack = scopeStack;
+//        this.nodeStructureListener = nodeStructureListener;
+//        pcuNode = (ParsedCUNode) scopeStack.get(0);
+//    }
 
     /**
      * Get the types following the "extends" keyword, if we have some. Used in incremental parsing.

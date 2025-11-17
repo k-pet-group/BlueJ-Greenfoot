@@ -31,6 +31,7 @@ import java.util.Stack;
 import bluej.extensions2.SourceType;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.parser.psi.SourceInput;
 
 /**
  * A parser which extracts certain information needed for BlueJ's unit test
@@ -56,7 +57,7 @@ public class UnitTestParser extends SourceParser
 
     public UnitTestParser(Reader r)
     {
-        super(r, SourceType.Java); // TODO SourceType To be decided later
+        super(SourceInput.fromReader(r, SourceType.Java)); // TODO SourceType To be decided later
         try {
             parseCU();
         }

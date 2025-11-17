@@ -527,7 +527,7 @@ public class KotlinPsiParser implements ParserBehavior {
             return;
         }
 
-        var startElement = offset == 0x
+        var startElement = offset == 0
             ? psiTree.getContainingKtFile()
             : (
                 psiTree.findElementAt(offset).getParent() instanceof PsiErrorElement
@@ -749,7 +749,9 @@ public class KotlinPsiParser implements ParserBehavior {
                     Files.readString(fs.file().toPath(), fs.charset());
                 case SourceInput.ReaderSource rs ->
                     rs.content();
-                case SourceInput.StringSource ss ->
+                case SourceInput.UnnamedStringSource ss ->
+                    ss.content();
+                case SourceInput.NamedStringSource ss ->
                     ss.content();
             };
         } catch (IOException e) {

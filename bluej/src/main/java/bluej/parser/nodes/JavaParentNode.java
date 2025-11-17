@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
+import bluej.extensions2.SourceType;
 import bluej.parser.*;
 import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.parser.Token.TokenType;
@@ -47,6 +48,7 @@ import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.parser.psi.SourceInput;
 import bluej.utility.GeneralCache;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -457,8 +459,10 @@ public abstract class JavaParentNode extends ParentParsedNode
     protected static Token tokenizeText(ReparseableDocument document, int pos, int length)
     {
         Reader dr = document.makeReader(pos, pos+length);
-        TokenStream lexer = SourceParser.getLexer(dr, true, false);
-        TokenStream tokenStream = new JavaTokenFilter(lexer, null);
+        SourceInput input = SourceInput.fromReader(dr, SourceType.Java);
+        // TODO: check what the defaults should be
+        SourceParser parser = new SourceParser(input).setHandleComments(true).setHandleMultilineStrings(false);
+        TokenStream tokenStream = parser.getTokenStream();
 
         Token dummyTok = new Token(0, TokenType.END);
         Token token = dummyTok;

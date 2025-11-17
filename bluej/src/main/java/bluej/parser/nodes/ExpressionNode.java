@@ -25,6 +25,7 @@ import java.io.Reader;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeSolid;
+import bluej.parser.lexer.LineColPos;
 import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.CompletionParser;
@@ -87,8 +88,9 @@ public class ExpressionNode extends JavaParentNode
         Element map = document.getDefaultRootElement();
         int line = map.getElementIndex(nodePos) + 1;
         int col = nodePos - map.getElement(line - 1).getStartOffset() + 1;
+        LineColPos position = new LineColPos(line, col, nodePos);
 
-        CompletionParser parser = new CompletionParser(resolver, r, defaultType, line, col, nodePos);
+        CompletionParser parser = new CompletionParser(resolver, r, defaultType, position);
         parser.parseExpression();
 
         GenTypeSolid stype = parser.getSuggestionType();

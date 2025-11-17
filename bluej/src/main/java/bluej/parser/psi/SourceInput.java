@@ -21,23 +21,20 @@
  */
 package bluej.parser.psi;
 
+import bluej.editor.flow.Document;
 import bluej.extensions2.SourceType;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
+import bluej.parser.lexer.LineColPos;
+import bluej.parser.nodes.ReparseableDocument;
 import bluej.pkgmgr.Package;
-import javafx.application.Platform;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.com.intellij.pom.core.impl.PomModelImpl;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
 import static bluej.parser.psi.Utils.onPlatformThread;
 
@@ -45,11 +42,12 @@ import static bluej.parser.psi.Utils.onPlatformThread;
 /**
  * Sealed interface representing a source input for parsing.
  * 
- * <p>Provides three explicit modes via record variants:
+ * <p>Provides four explicit modes via record variants:
  * <ul>
  *   <li>{@link FileSource} - On-demand file reading without caching</li>
  *   <li>{@link ReaderSource} - Content consumed from Reader during construction</li>
- *   <li>{@link StringSource} - Direct string content</li>
+ *   <li>{@link NamedStringSource} - Named string-based source (in-memory with explicit filename)</li>
+ *   <li>{@link UnnamedStringSource} - Unnamed synthetic string-based source (test code, REPL)</li>
  * </ul>
  * 
  * <p><b>Pattern Matching Example</b>:
@@ -61,8 +59,9 @@ import static bluej.parser.psi.Utils.onPlatformThread;
  *             // ... process file
  *         }
  *         case SourceInput.ReaderSource rs,
- *              SourceInput.StringSource ss -> {
- *             // Both are in-memory, handle similarly
+ *              SourceInput.NamedSource ns,
+ *              SourceInput.UnnamedSource us -> {
+ *             // All are in-memory, handle similarly
  *             // ... process memory content
  *         }
  *     }
@@ -72,13 +71,14 @@ import static bluej.parser.psi.Utils.onPlatformThread;
  * <p><b>Factory Methods</b>: Use static factory methods for construction:
  * <ul>
  *   <li>{@link #fromFile(File, SourceType, Charset, Package)} - File with package</li>
- *   <li>{@link #fromString(String, SourceType, Package)} - String with package</li>
+ *   <li>{@link #fromString(String, SourceType, Package)} - Unnamed synthetic content</li>
+ *   <li>{@link #fromNamedString(String, SourceType, Charset, String, String, Package)} - Named content</li>
  *   <li>{@link #fromReader(Reader, SourceType)} - Reader consumption</li>
  * </ul>
  */
 public sealed interface SourceInput 
-    permits SourceInput.FileSource, SourceInput.ReaderSource, SourceInput.StringSource {
-    
+    permits SourceInput.FileSource, SourceInput.ReaderSource, SourceInput.NamedStringSource, SourceInput.UnnamedStringSource, SourceInput.DocumentSource {
+
     // Common interface methods
     
     /**
@@ -153,31 +153,39 @@ public sealed interface SourceInput
     }
     
     /**
-     * Factory for in-memory content with UTF-8, deriving virtual path from package and type.
+     * Factory for unnamed synthetic content with UTF-8.
+     * Use for test code, REPL input, or temporary snippets.
      */
-    static StringSource fromString(@NotNull String content, @NotNull SourceType sourceType, 
-                                   @NotNull Package pkg) {
-        String ext = sourceType == SourceType.Kotlin ? ".kt" : ".java";
-        String base = "InMemory" + ext;
-        String path = pkg.getQualifiedName().replace('.', '/') + "/" + base;
-        return new StringSource(content, sourceType, StandardCharsets.UTF_8, path, pkg, null);
+    static UnnamedStringSource fromString(@NotNull String content, @NotNull SourceType sourceType,
+                                          @NotNull Package pkg) {
+        return new UnnamedStringSource(content, sourceType, StandardCharsets.UTF_8, pkg, null);
     }
     
     /**
-     * Full-control factory for in-memory content, specifying charset and virtual path.
+     * Factory for unnamed synthetic content without package.
      */
-    static StringSource fromString(@NotNull String content, @NotNull SourceType sourceType, 
-                                   @NotNull Charset charset, @Nullable Package pkg, 
-                                   @NotNull String virtualPath) {
-        return new StringSource(content, sourceType, charset, virtualPath, pkg, null);
+    static UnnamedStringSource fromString(@NotNull String content, @NotNull SourceType sourceType) {
+        return new UnnamedStringSource(content, sourceType, StandardCharsets.UTF_8, null, null);
+    }
+    
+    /**
+     * Factory for named string content with explicit filename and path.
+     * Use when the content corresponds to a real file.
+     * 
+     * @param filename The actual filename (e.g., "MyClass.java")
+     * @param virtualPath Full virtual path (must contain filename)
+     */
+    static NamedStringSource fromNamedString(@NotNull String content, @NotNull SourceType sourceType,
+                                             @NotNull Charset charset, @NotNull String filename,
+                                             @NotNull String virtualPath, @Nullable Package pkg) {
+        return new NamedStringSource(content, sourceType, charset, filename, virtualPath, pkg, null);
     }
     
     /**
      * Factory for in-memory content sourced from Reader. The reader is fully consumed into memory.
      * The reader is not closed by this method.
      */
-    static ReaderSource fromReader(@NotNull Reader reader, @NotNull SourceType sourceType) 
-            throws IOException {
+    static ReaderSource fromReader(@NotNull Reader reader, @NotNull SourceType sourceType) {
         String ext = sourceType == SourceType.Kotlin ? ".kt" : ".java";
         String path = "/<memory>/InMemory" + ext;
         return fromReader(reader, sourceType, path);
@@ -262,6 +270,10 @@ public sealed interface SourceInput
 
         return new ReaderSource(sb.toString(), sourceType, StandardCharsets.UTF_8, 
                                virtualPath, null, resolver);
+    }
+
+    static SourceInput fromDocument(ReparseableDocument document) {
+
     }
     
     /**
@@ -447,25 +459,124 @@ public sealed interface SourceInput
                    "charset=" + charset + ']';
         }
     }
+
+    /**
+     * Reader-based source input (consumed into memory).
+     * Content is read once during construction and cached.
+     */
+    record DocumentSource(
+            @NotNull Document document,
+            @NotNull SourceType sourceType,
+            @NotNull Charset charset,
+            @NotNull String virtualPath,
+            @Nullable Package pkg,
+            @Nullable EntityResolver directResolver
+    ) implements SourceInput {
+
+        public DocumentSource {
+            Objects.requireNonNull(document, "document must not be null");
+            Objects.requireNonNull(sourceType, "sourceType must not be null");
+            Objects.requireNonNull(charset, "charset must not be null");
+            Objects.requireNonNull(virtualPath, "virtualPath must not be null");
+        }
+
+        @Override
+        public Reader createReader() {
+            return document.makeReader(0, document.getLength());
+        }
+
+        @Override
+        public @NotNull String path() {
+            return virtualPath;
+        }
+
+        @Override
+        public @NotNull String filename() {
+            int slash = Math.max(virtualPath.lastIndexOf('/'), virtualPath.lastIndexOf('\\'));
+            return slash >= 0 ? virtualPath.substring(slash + 1) : virtualPath;
+        }
+
+        @Override
+        public @NotNull EntityResolver getEntityResolver() {
+            if (directResolver != null) {
+                return directResolver;
+            }
+
+            if (pkg == null) {
+                throw new IllegalStateException("No Package or direct resolver available");
+            }
+
+            return onPlatformThread(() -> new PackageResolver(
+                    pkg.getProject().getEntityResolver(),
+                    pkg.getQualifiedName()
+            ));
+        }
+
+        @Override
+        public @NotNull Package getPackage() {
+            if (pkg == null) {
+                throw new IllegalStateException("No Package associated with this SourceInput");
+            }
+            return pkg;
+        }
+
+        @Override
+        public boolean hasPackage() {
+            return pkg != null;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (DocumentSource) obj;
+            return Objects.equals(this.virtualPath, that.virtualPath) &&
+                    Objects.equals(this.sourceType, that.sourceType) &&
+                    Objects.equals(this.charset, that.charset) &&
+                    Objects.equals(this.document, that.document);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(virtualPath, sourceType, charset, document);
+        }
+
+        @Override
+        public String toString() {
+            return "SourceInput.DocumentSource[" +
+                    "path=" + virtualPath + ", " +
+                    "sourceType=" + sourceType + ", " +
+                    "charset=" + charset + ']';
+        }
+    }
     
     /**
-     * String-based source input (in-memory).
-     * Content is provided directly as String.
+     * Named string-based source input (in-memory with explicit filename).
+     * Used when the source corresponds to a real file with a meaningful name.
      */
-    record StringSource(
+    record NamedStringSource(
         @NotNull String content,
         @NotNull SourceType sourceType,
         @NotNull Charset charset,
+        @NotNull String filename,
         @NotNull String virtualPath,
         @Nullable Package pkg,
         @Nullable EntityResolver directResolver
     ) implements SourceInput {
         
-        public StringSource {
+        public NamedStringSource {
             Objects.requireNonNull(content, "content must not be null");
             Objects.requireNonNull(sourceType, "sourceType must not be null");
             Objects.requireNonNull(charset, "charset must not be null");
+            Objects.requireNonNull(filename, "filename must not be null");
             Objects.requireNonNull(virtualPath, "virtualPath must not be null");
+            
+            // Validate filename appears in path
+            if (!virtualPath.contains(filename)) {
+                throw new IllegalArgumentException(
+                    "filename '" + filename + "' must appear in virtualPath '" + virtualPath + "'"
+                );
+            }
         }
         
         @Override
@@ -480,8 +591,7 @@ public sealed interface SourceInput
         
         @Override
         public @NotNull String filename() {
-            int slash = Math.max(virtualPath.lastIndexOf('/'), virtualPath.lastIndexOf('\\'));
-            return slash >= 0 ? virtualPath.substring(slash + 1) : virtualPath;
+            return filename;
         }
         
         @Override
@@ -515,8 +625,9 @@ public sealed interface SourceInput
         public boolean equals(Object obj) {
             if (obj == this) return true;
             if (obj == null || obj.getClass() != this.getClass()) return false;
-            var that = (StringSource) obj;
+            var that = (NamedStringSource) obj;
             return Objects.equals(this.virtualPath, that.virtualPath) &&
+                   Objects.equals(this.filename, that.filename) &&
                    Objects.equals(this.sourceType, that.sourceType) &&
                    Objects.equals(this.charset, that.charset) &&
                    Objects.equals(this.content, that.content);
@@ -524,15 +635,104 @@ public sealed interface SourceInput
         
         @Override
         public int hashCode() {
-            return Objects.hash(virtualPath, sourceType, charset, content);
+            return Objects.hash(virtualPath, filename, sourceType, charset, content);
         }
         
         @Override
         public String toString() {
-            return "SourceInput.StringSource[" +
+            return "SourceInput.NamedSource[" +
+                   "filename=" + filename + ", " +
                    "path=" + virtualPath + ", " +
                    "sourceType=" + sourceType + ", " +
                    "charset=" + charset + ']';
+        }
+    }
+    
+    /**
+     * Unnamed string-based source input (synthetic in-memory content).
+     * Used for test code, REPL input, or temporary code snippets that don't correspond to files.
+     */
+    record UnnamedStringSource(
+        @NotNull String content,
+        @NotNull SourceType sourceType,
+        @NotNull Charset charset,
+        @Nullable Package pkg,
+        @Nullable EntityResolver directResolver
+    ) implements SourceInput {
+        
+        public UnnamedStringSource {
+            Objects.requireNonNull(content, "content must not be null");
+            Objects.requireNonNull(sourceType, "sourceType must not be null");
+            Objects.requireNonNull(charset, "charset must not be null");
+        }
+        
+        @Override
+        public Reader createReader() {
+            return new BufferedReader(new StringReader(content));
+        }
+        
+        @Override
+        public @NotNull String path() {
+            // Generate synthetic path to prevent accidental reliance
+            String ext = sourceType == SourceType.Kotlin ? ".kt" : ".java";
+            return "/<synthetic>/" + System.identityHashCode(this) + ext;
+        }
+        
+        @Override
+        public @NotNull String filename() {
+            // Generate synthetic filename
+            String ext = sourceType == SourceType.Kotlin ? ".kt" : ".java";
+            return "<synthetic-" + System.identityHashCode(this) + ">" + ext;
+        }
+        
+        @Override
+        public @NotNull EntityResolver getEntityResolver() {
+            if (directResolver != null) {
+                return directResolver;
+            }
+            if (pkg == null) {
+                throw new IllegalStateException("No Package or direct resolver available");
+            }
+            return onPlatformThread(() -> new PackageResolver(
+                pkg.getProject().getEntityResolver(),
+                pkg.getQualifiedName()
+            ));
+        }
+        
+        @Override
+        public @NotNull Package getPackage() {
+            if (pkg == null) {
+                throw new IllegalStateException("No Package associated with this SourceInput");
+            }
+            return pkg;
+        }
+        
+        @Override
+        public boolean hasPackage() {
+            return pkg != null;
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (UnnamedStringSource) obj;
+            return Objects.equals(this.sourceType, that.sourceType) &&
+                   Objects.equals(this.charset, that.charset) &&
+                   Objects.equals(this.content, that.content);
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(sourceType, charset, content);
+        }
+        
+        @Override
+        public String toString() {
+            return "SourceInput.UnnamedSource[" +
+                   "sourceType=" + sourceType + ", " +
+                   "charset=" + charset + ", " +
+                   "contentLength=" + content.length() + ']';
         }
     }
 }

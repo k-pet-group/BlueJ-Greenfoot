@@ -24,8 +24,10 @@ package bluej.parser.nodes;
 import bluej.parser.EditorParser;
 import bluej.parser.EscapedUnicodeReader;
 import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LineColPos;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.parser.psi.SourceInput;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -179,10 +181,14 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         NodeAndPosition<ParsedNode> nextChild = childQueue.peek();
 
         // Make a reader and parser
-        int pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
-        int pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
-        Reader r = document.makeReader(offset, parseEnd);
-        EditorParser parser = new EditorParser(document, r, pline, pcol, offset, buildScopeStack(), listener);
+//        int pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
+//        int pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
+//        Reader r = document.makeReader(offset, parseEnd);
+        LineColPos position = document.getPosition(offset);
+        SourceInput input = SourceInput.fromDocument(document);
+        EditorParser parser = new EditorParser(input, document, buildScopeStack(), listener);
+
+        parser.setStartPosition(position);
 
         LocatableToken laToken = parser.getTokenStream().LA(1);
         int ttype = laToken.getType();
