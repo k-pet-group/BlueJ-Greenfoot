@@ -647,10 +647,16 @@ public sealed interface SourceInput
             Objects.requireNonNull(filename, "filename must not be null");
             Objects.requireNonNull(virtualPath, "virtualPath must not be null");
             
-            // Validate filename appears in path
-            if (!virtualPath.contains(filename)) {
+            // Extract basename from filename for validation - handles both full paths and basenames
+            String fileBasename = filename.contains("/") || filename.contains("\\")
+                ? filename.substring(Math.max(filename.lastIndexOf('/'), filename.lastIndexOf('\\')) + 1)
+                : filename;
+            
+            // Validate basename appears in virtualPath
+            if (!virtualPath.contains(fileBasename)) {
                 throw new IllegalArgumentException(
-                    "filename '" + filename + "' must appear in virtualPath '" + virtualPath + "'"
+                    "basename '" + fileBasename + "' (from filename '" + filename +
+                    "') must appear in virtualPath '" + virtualPath + "'"
                 );
             }
         }
