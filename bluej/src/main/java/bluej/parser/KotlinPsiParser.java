@@ -21,6 +21,7 @@
  */
 package bluej.parser;
 
+import bluej.parser.lexer.LineColPos;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.psi.*;
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement;
@@ -31,6 +32,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Facade for Kotlin parsing that delegates to existing {@link KotlinParser} while
@@ -73,6 +76,9 @@ public class KotlinPsiParser implements ParserBehavior {
 //    private final JavaParserCallbacksAdapter callbackAdapter;
     private final PsiCallbackVisitor psiVisitor;
     private KtFile _psiTree;
+
+    // TODO: this probably needs to be reset on project load?
+    private static ConcurrentHashMap<String, String> UGLY_SOURCE_CACHE = new ConcurrentHashMap<String, String>();
 
     /**
      * Defines the parsing strategy for Kotlin source code.
@@ -267,12 +273,6 @@ public class KotlinPsiParser implements ParserBehavior {
             case DELEGATION:
                 // Phase 1: Token-based parsing (existing behavior)
                 delegate.parseCU();
-
-                // Phase 2: PSI enhancement (optional .psi file output)
-                if (ENABLE_PSI_OUTPUT) {
-//                    System.err.println("[PSI-DEBUG] PSI output enabled, calling enhanceWithPSI()");
-                    enhanceWithPSI();
-                }
                 break;
 
             case PSI_VISITOR:
@@ -538,7 +538,6 @@ public class KotlinPsiParser implements ParserBehavior {
         startElement.accept(this.psiVisitor);
     }
 
-    
     /**
      * Parse source using PSI visitor and call real {@link JavaParserCallbacksBase}.
      * 
@@ -564,6 +563,7 @@ public class KotlinPsiParser implements ParserBehavior {
      * @see PsiCallbackVisitor
      * @see JavaParserCallbacksBase
      */
+    /*
     private void parseWithPsiVisitor() {
         System.err.println("[PSI-DEBUG] === parseWithPsiVisitor() ENTRY ===");
         try {
@@ -626,98 +626,11 @@ public class KotlinPsiParser implements ParserBehavior {
             // Compilation continues despite PSI failure
         }
     }
+
+    */
     
     // ==================== PSI ENHANCEMENT ====================
-    
-    /**
-     * Enhance parsing with PSI-based features.
-     * 
-     * <p><b>MVP Implementation</b>: Parse source into PSI tree and serialize to .psi file.</p>
-     * 
-     * <p><b>Enhancement Flow</b>:</p>
-     * <ol>
-     *   <li>Extract source code from {@link SourceParser} (TODO: Task 04)</li>
-     *   <li>Determine filename for PSI parsing (TODO: Task 04)</li>
-     *   <li>Initialize {@link PsiEnvironment} (singleton, lazy)</li>
-     *   <li>Parse source with PSI using {@link PsiEnvironment#parseFile}</li>
-     *   <li>Serialize PSI tree using {@link PsiTreeSerializer#serialize}</li>
-     *   <li>Determine output path for .psi file</li>
-     *   <li>Write .psi file using {@link PsiTreeSerializer#writeToFile}</li>
-     * </ol>
-     * 
-     * <p><b>Error Handling</b>: All failures are caught, logged (if {@link #LOG_PSI_ERRORS}),
-     * and suppressed. Compilation continues normally regardless of PSI outcome.</p>
-     * 
-     * <p><b>Performance</b>: Adds ~10-50ms overhead per file. Future versions may
-     * implement async serialization to eliminate compilation impact.</p>
-     */
-    private void enhanceWithPSI() {
-        System.err.println("[PSI-DEBUG] === enhanceWithPSI() ENTRY ===");
-        try {
-            // Step 1: Get source code from SourceParser
-            String sourceCode = getSourceCode();
-//            System.err.println("[PSI-DEBUG] Source code length: " + (sourceCode != null ? sourceCode.length() : "NULL"));
-            if (sourceCode == null || sourceCode.isEmpty()) {
-                if (LOG_PSI_ERRORS) {
-                    System.err.println("PSI: No source code available for enhancement");
-                }
-                return;
-            }
-            
-            // Step 2: Determine file path
-            String filePath = getFilePath();
-//            System.err.println("[PSI-DEBUG] File path: " + filePath);
-            
-            // Step 3: Initialize PSI environment (singleton, lazy)
-            PsiEnvironment env = PsiEnvironment.getInstance();
-//            System.err.println("[PSI-DEBUG] PsiEnvironment initialized: " + env.isInitialized());
-            if (!env.isInitialized()) {
-                if (LOG_PSI_ERRORS) {
-                    System.err.println("PSI: Environment not initialized, skipping enhancement");
-                }
-                return;
-            }
-            
-            // Step 4: Parse with PSI
-//            System.err.println("[PSI-DEBUG] Calling env.parseFile()...");
-            KtFile ktFile = env.parseFile(filePath, sourceCode);
-//            System.err.println("[PSI-DEBUG] KtFile result: SUCCESS");
-            
-            // Step 5: Serialize PSI tree
-//            System.err.println("[PSI-DEBUG] Calling PsiTreeSerializer.serialize()...");
-            String serialized = PsiTreeSerializer.serialize(ktFile);
-//            System.err.println("[PSI-DEBUG] Serialized length: " + (serialized != null ? serialized.length() : "NULL"));
-            
-            // Step 6: Determine output path
-            Path outputPath = determinePsiOutputPath(filePath);
-//            System.err.println("[PSI-DEBUG] Output path: " + outputPath.toAbsolutePath());
-            
-            // Step 7: Write .psi file
-//            System.err.println("[PSI-DEBUG] Writing to file...");
-            PsiTreeSerializer.writeToFile(serialized, outputPath);
-//            System.err.println("[PSI-DEBUG] === SUCCESS: .psi file written ===");
-            
-        } catch (PsiParseException e) {
-            // PSI parsing failures MUST NOT break compilation
-//            System.err.println("[PSI-DEBUG] === PSI PARSE EXCEPTION ===");
-            if (LOG_PSI_ERRORS) {
-                System.err.println("PSI parsing failed: " + e.getMessage());
-                if (e.getCause() != null) {
-                    System.err.println("Caused by: " + e.getCause().getMessage());
-                }
-            }
-            // Compilation continues despite PSI parsing failure
-        } catch (Exception e) {
-            // Other PSI enhancement failures (I/O, serialization) also don't break compilation
-//            System.err.println("[PSI-DEBUG] === GENERIC EXCEPTION ===");
-            if (LOG_PSI_ERRORS) {
-                System.err.println("PSI enhancement failed: " + e.getMessage());
-                e.printStackTrace();
-            }
-            // Compilation continues despite PSI failure
-        }
-    }
-    
+
     /**
      * Extract source code from SourceInput.
      *
@@ -735,26 +648,55 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     private String getSourceCode() {
         SourceInput input = sourceParser.getSourceInput();
+
         if (input == null) {
             if (LOG_PSI_ERRORS) {
                 System.err.println("PSI: No source input available");
             }
             return null;
         }
-        
+
+
         try {
             // Handle all SourceInput variants using pattern matching
-            return switch (input) {
+            var source = switch (input) {
                 case SourceInput.FileSource fs ->
-                    Files.readString(fs.file().toPath(), fs.charset());
+                    fs.content();
                 case SourceInput.ReaderSource rs ->
                     rs.content();
-                case SourceInput.UnnamedStringSource ss ->
-                    ss.content();
-                case SourceInput.NamedStringSource ss ->
-                    ss.content();
+                case SourceInput.UnnamedStringSource uss ->
+                    uss.content();
+                case SourceInput.NamedStringSource nss ->
+                    nss.content();
+                case SourceInput.DocumentSource ds ->
+                    ds.content();
             };
-        } catch (IOException e) {
+            var filePath = input.path();
+            var inputRange = input.range();
+
+            return UGLY_SOURCE_CACHE.compute(filePath, (__, existingSource) -> {
+                if (existingSource == null || inputRange.isEmpty()) { return source; }
+
+                var range = inputRange.get();
+                var start = range.start();
+                var end = range.end();
+
+                var builder = new StringBuilder(existingSource.length());
+
+                start.ifPresent(lineColPos ->
+                    builder.append(existingSource, 0, lineColPos.position())
+                );
+
+                builder.append(source);
+
+                end.ifPresent(lineColPos ->
+                    builder.append(existingSource.substring(lineColPos.position()))
+                );
+
+                return builder.toString();
+            });
+        }
+        catch (Exception e) {
             if (LOG_PSI_ERRORS) {
                 System.err.println("PSI: Failed to read source: " + e.getMessage());
             }

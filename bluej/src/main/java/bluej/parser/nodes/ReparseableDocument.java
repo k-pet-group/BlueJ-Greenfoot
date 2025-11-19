@@ -28,6 +28,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,6 +45,10 @@ public interface ReparseableDocument
     public Element getDefaultRootElement();
     
     public int getLength();
+
+    String getVirtualPath();
+
+    Charset getCharset();
 
     int getLineFromPosition(int position);
 

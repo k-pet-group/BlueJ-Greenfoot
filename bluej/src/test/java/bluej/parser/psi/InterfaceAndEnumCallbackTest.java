@@ -93,13 +93,6 @@ public class InterfaceAndEnumCallbackTest {
                   recorder.hasCallback("endTypeBody"));
         assertTrue("Should have gotTypeDefEnd callback", 
                   recorder.hasCallback("gotTypeDefEnd"));
-        
-        // Validate pairing
-        CallbackRecorder.ValidationResult result = recorder.getValidationResult();
-        assertTrue("Callback pairing should be balanced: " + result.getValidationSummary(), 
-                  result.isBalanced());
-        assertFalse("Should have no validation errors: " + result.getValidationSummary(), 
-                   result.hasErrors());
     }
     
     /**
@@ -502,9 +495,12 @@ public class InterfaceAndEnumCallbackTest {
         // Visit the file (triggers class visitation)
         ktFile.accept(visitor);
         
-        // Validate state is balanced after traversal
-        assertTrue("Visitor state should be balanced after traversal", 
-                  visitor.validateState());
+        // Validate callback pairing is balanced after traversal
+        CallbackRecorder.ValidationResult result = recorder.getValidationResult();
+        assertTrue("Callback pairing should be balanced after traversal: " + result.getValidationSummary(),
+                  result.isBalanced());
+        assertFalse("Should have no validation errors after traversal: " + result.getValidationSummary(),
+                   result.hasErrors());
         
         return recorder;
     }

@@ -39,10 +39,8 @@ public class MethodDebugTest {
         }
         System.out.println("===== TOTAL: " + recorder.getRecords().size() + " =====");
         
-        // DEBUG: Print traversal log
-        System.out.println("===== TRAVERSAL LOG =====");
-        for (String entry : visitor.getTraversalLog()) {
-            System.out.println(entry);
-        }
+        // DEBUG: Validation result
+        System.out.println("===== VALIDATION RESULT =====");
+        System.out.println(recorder.getValidationResult().getValidationSummary());
     }
 }

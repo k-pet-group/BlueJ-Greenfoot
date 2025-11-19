@@ -34,6 +34,7 @@ import threadchecker.Tag;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Stack;
 
 /**
@@ -184,11 +185,24 @@ public abstract class IncrementalParsingNode extends JavaParentNode
 //        int pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
 //        int pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
 //        Reader r = document.makeReader(offset, parseEnd);
-        LineColPos position = document.getPosition(offset);
-        SourceInput input = SourceInput.fromDocument(document);
-        EditorParser parser = new EditorParser(input, document, buildScopeStack(), listener);
+        LineColPos startPosition = document.getPosition(offset);
+        LineColPos endPosition = document.getPosition(parseEnd);
+        Optional<SourceInput.Range> range = Optional.empty();
 
-        parser.setStartPosition(position);
+        if (startPosition != null || endPosition != null) {
+            range = Optional.of(
+                new SourceInput.Range(
+                    Optional.ofNullable(startPosition),
+                    Optional.ofNullable(endPosition))
+            );
+        }
+
+        SourceInput input = SourceInput.fromDocument(document).withRange(range);
+
+        EditorParser parser = new EditorParser(input, buildScopeStack(), listener);
+
+        // TODO: we _probably_ could get it from the SourceInput now
+        parser.setStartPosition(startPosition);
 
         LocatableToken laToken = parser.getTokenStream().LA(1);
         int ttype = laToken.getType();
@@ -259,10 +273,30 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                         return ALL_OK;
                     }
                     offset = nap.getPosition() + nap.getNode().getSize();
-                    pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
-                    pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
-                    r = document.makeReader(offset, parseEnd);
-                    parser = new EditorParser(document, r, pline, pcol, offset, buildScopeStack(), listener);
+
+                    startPosition = document.getPosition(offset);
+                    endPosition = document.getPosition(parseEnd);
+                    range = Optional.empty();
+
+                    if (startPosition != null || endPosition != null) {
+                        range = Optional.of(
+                                new SourceInput.Range(
+                                        Optional.ofNullable(startPosition),
+                                        Optional.ofNullable(endPosition))
+                        );
+                    }
+
+                    input = SourceInput.fromDocument(document).withRange(range);
+                    parser = new EditorParser(input, buildScopeStack(), listener);
+
+                    parser.setStartPosition(startPosition);
+
+//                    pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
+//                    pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
+//                    r = document.makeReader(offset, parseEnd);
+//                    parser = new EditorParser(document, r, pline, pcol, offset, buildScopeStack(), listener);
+
+
                     laToken = parser.getTokenStream().LA(1);
                     tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
                 }

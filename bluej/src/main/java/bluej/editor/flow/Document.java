@@ -25,7 +25,10 @@ package bluej.editor.flow;
 import bluej.extensions2.editor.DocumentListener;
 import bluej.parser.SourceLocation;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.List;
 
 /**
@@ -93,6 +96,12 @@ public interface Document
     {
         return new SourceLocation(getLineFromPosition(position) + 1, getColumnFromPosition(position) + 1);
     }
+
+    void loadFromFile(File file, Charset charset) throws IOException;
+
+    String getVirtualPath();
+
+    Charset getCharset();
 
     /**
      * Given a line index (first line is zero), get the character offset within

@@ -26,6 +26,7 @@ import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LineColPos;
 import bluej.parser.lexer.LocatableToken;
+import bluej.parser.psi.SourceInput;
 import com.google.common.collect.LinkedListMultimap;
 
 import java.io.StringReader;
@@ -46,13 +47,18 @@ public class KotlinLexerTest extends junit.framework.TestCase
 {
     private TokenStream getLexerFor(String s)
     {
-        TokenStream lexer = SourceParser.getLexer(new StringReader(s), SourceType.Kotlin);
-        return new JavaTokenFilter(lexer, null);
+        SourceInput input = SourceInput.fromString(s, SourceType.Kotlin);
+        SourceParser parser = new SourceParser(input);
+
+        return parser.getTokenStream();
     }
 
     private TokenStream getNonfilteringLexerFor(String s)
     {
-        return SourceParser.getLexer(new StringReader(s), SourceType.Kotlin);
+        SourceInput input = SourceInput.fromString(s, SourceType.Kotlin);
+        SourceParser parser = new SourceParser(input);
+
+        return parser.getLexer();
     }
 
     public void testKeywordParse()

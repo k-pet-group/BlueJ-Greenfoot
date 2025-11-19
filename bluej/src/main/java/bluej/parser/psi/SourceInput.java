@@ -32,9 +32,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Objects;
+import java.util.Optional;
 
 import static bluej.parser.psi.Utils.onPlatformThread;
 
@@ -76,8 +80,13 @@ import static bluej.parser.psi.Utils.onPlatformThread;
  *   <li>{@link #fromReader(Reader, SourceType)} - Reader consumption</li>
  * </ul>
  */
-public sealed interface SourceInput 
+
+public sealed interface SourceInput
     permits SourceInput.FileSource, SourceInput.ReaderSource, SourceInput.NamedStringSource, SourceInput.UnnamedStringSource, SourceInput.DocumentSource {
+
+    record Range(Optional<LineColPos> start, Optional<LineColPos> end) {
+
+    }
 
     // Common interface methods
     
@@ -127,7 +136,11 @@ public sealed interface SourceInput
      * @throws IOException if file cannot be read
      */
     Reader createReader() throws IOException;
-    
+
+    default @NotNull Optional<Range> range() {
+        return Optional.empty();
+    }
+
     // Static factory methods
     
     /**
@@ -247,14 +260,14 @@ public sealed interface SourceInput
      * Variant of fromReader with virtual path and explicit resolver.
      * The reader is fully consumed into memory. The reader is not closed by this method.
      */
-    static ReaderSource fromReader(@NotNull Reader reader, @NotNull SourceType sourceType, 
+    static ReaderSource fromReader(@NotNull Reader reader, @NotNull SourceType sourceType,
                                    @NotNull EntityResolver resolver, @NotNull String virtualPath) {
         char[] buf = new char[8192];
         StringBuilder sb = new StringBuilder();
         int n;
 
         try {
-//            reader.mark(Integer.MAX_VALUE);
+            // reader.mark(Integer.MAX_VALUE);
             // TODO: dumb workaround for tests, should be fixed properly
             reader.mark(65535);
 
@@ -272,8 +285,16 @@ public sealed interface SourceInput
                                virtualPath, null, resolver);
     }
 
-    static SourceInput fromDocument(ReparseableDocument document) {
-
+    static DocumentSource fromDocument(@NotNull ReparseableDocument document) {
+        return new DocumentSource(
+            document,
+            document.getSourceType(),
+            document.getCharset(),
+            document.getVirtualPath(),
+            null,
+            null,
+            Optional.empty()
+        );
     }
     
     /**
@@ -293,6 +314,17 @@ public sealed interface SourceInput
             Objects.requireNonNull(file, "file must not be null");
             Objects.requireNonNull(sourceType, "sourceType must not be null");
             Objects.requireNonNull(charset, "charset must not be null");
+        }
+
+        public String content() {
+            try {
+                return Files.readString(file().toPath(), charset());
+            }
+            catch (IOException e) {
+//                throw new UncheckedIOException(e);
+            }
+
+            return null;
         }
         
         @Override
@@ -465,12 +497,13 @@ public sealed interface SourceInput
      * Content is read once during construction and cached.
      */
     record DocumentSource(
-            @NotNull Document document,
+            @NotNull ReparseableDocument document,
             @NotNull SourceType sourceType,
             @NotNull Charset charset,
             @NotNull String virtualPath,
             @Nullable Package pkg,
-            @Nullable EntityResolver directResolver
+            @Nullable EntityResolver directResolver,
+            @NotNull Optional<Range> range
     ) implements SourceInput {
 
         public DocumentSource {
@@ -478,11 +511,54 @@ public sealed interface SourceInput
             Objects.requireNonNull(sourceType, "sourceType must not be null");
             Objects.requireNonNull(charset, "charset must not be null");
             Objects.requireNonNull(virtualPath, "virtualPath must not be null");
+
+            if (range == null) {
+                range = Optional.empty();
+            }
+        }
+
+        public DocumentSource withRange(@NotNull Optional<Range> range) {
+            return new DocumentSource(document, sourceType, charset, virtualPath, pkg, directResolver, range);
+        }
+
+        public String content() {
+            StringBuilder sb = new StringBuilder();
+
+            try (Reader reader = createReader()) {
+                char[] buffer = new char[4096];
+                int n = -1;
+
+                while ((n = reader.read(buffer)) != -1) {
+                    sb.append(buffer, 0, n);
+                }
+
+                return sb.toString();
+            }
+            catch (IOException e) {
+                //
+            }
+
+            return null;
         }
 
         @Override
         public Reader createReader() {
-            return document.makeReader(0, document.getLength());
+            var parseStart = 0;
+            var parseEnd = document.getLength();
+
+            if (range.isPresent()) {
+                var range = this.range.get();
+
+                if (range.start().isPresent()) {
+                    parseStart = range.start().get().position();
+                }
+
+                if (range.end().isPresent()) {
+                    parseEnd = range.end().get().position();
+                }
+            }
+
+            return document.makeReader(parseStart, parseEnd);
         }
 
         @Override
@@ -659,13 +735,13 @@ public sealed interface SourceInput
         @Nullable Package pkg,
         @Nullable EntityResolver directResolver
     ) implements SourceInput {
-        
+
         public UnnamedStringSource {
             Objects.requireNonNull(content, "content must not be null");
             Objects.requireNonNull(sourceType, "sourceType must not be null");
             Objects.requireNonNull(charset, "charset must not be null");
         }
-        
+
         @Override
         public Reader createReader() {
             return new BufferedReader(new StringReader(content));

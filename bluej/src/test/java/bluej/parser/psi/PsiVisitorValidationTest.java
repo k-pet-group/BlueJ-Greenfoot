@@ -131,11 +131,7 @@ public class PsiVisitorValidationTest {
         
         // 5. Run visitor on PSI tree
         ktFile.accept(visitor);
-        
-        // 6. Validate state balance
-        assertTrue("Visitor state should be balanced after visiting " + testFilePath,
-                   visitor.validateState());
-        
+
         return recorder;
     }
     

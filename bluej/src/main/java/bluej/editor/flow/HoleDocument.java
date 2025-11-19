@@ -22,11 +22,17 @@
 package bluej.editor.flow;
 
 import bluej.extensions2.editor.DocumentListener;
+import org.jetbrains.annotations.NotNull;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Reader;
 import java.lang.ref.WeakReference;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,6 +63,8 @@ public class HoleDocument implements Document
      */
     private final ArrayList<WeakReference<TrackedPosition>> trackedPositions = new ArrayList<>();
     private final List<DocumentListener> listeners = new ArrayList<>();
+    private Charset fileCharset;
+    private Path filePath;
 
     public HoleDocument()
     {
@@ -64,6 +72,32 @@ public class HoleDocument implements Document
         holeStart = 0;
         holeEnd = content.length;
         lineInformation.add(new LineInformation(null));
+    }
+
+    @Override
+    public void loadFromFile(File file, Charset charset) throws IOException {
+        Path path = file.toPath();
+        String contents = Files.readString(path, charset)
+                               .replace("\r", "")
+                               .replace("\t", "    ");
+
+        replaceText(0, getLength(), contents);
+
+        this.fileCharset = charset;
+        this.filePath = path;
+    }
+
+    @Override
+    public @NotNull String getVirtualPath() {
+        return filePath != null
+                ? filePath.toString()
+                : "";
+    }
+
+    public @NotNull Charset getCharset() {
+        return fileCharset != null
+                 ? fileCharset
+                 : Charset.defaultCharset();
     }
 
     @Override

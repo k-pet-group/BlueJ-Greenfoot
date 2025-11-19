@@ -56,10 +56,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import org.jetbrains.annotations.NotNull;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -2282,6 +2284,17 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
         return position - this.getDefaultRootElement().getElement(line - 1).getStartOffset() + 1;
     }
+
+    @Override
+    public @NotNull String getVirtualPath() {
+        return document.getVirtualPath();
+    }
+
+    @Override
+    public @NotNull Charset getCharset() {
+        return document.getCharset();
+    }
+
 
     /**
      * Mark a portion of the document as having been parsed. This removes any

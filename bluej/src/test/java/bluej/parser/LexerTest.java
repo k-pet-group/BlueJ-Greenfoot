@@ -21,6 +21,8 @@
  */
 package bluej.parser;
 
+import bluej.extensions2.SourceType;
+import bluej.parser.psi.SourceInput;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -48,13 +50,18 @@ public class LexerTest
 {
     private TokenStream getLexerFor(String s)
     {
-        TokenStream lexer = SourceParser.getLexer(new StringReader(s));
-        return new JavaTokenFilter(lexer, null);
+        SourceInput input = SourceInput.fromString(s, SourceType.Java);
+        SourceParser parser = new SourceParser(input);
+
+        return parser.getTokenStream();
     }
     
     private TokenStream getNonfilteringLexerFor(String s)
     {
-        return SourceParser.getLexer(new StringReader(s));
+        SourceInput input = SourceInput.fromString(s, SourceType.Java);
+        SourceParser parser = new SourceParser(input);
+
+        return parser.getLexer();
     }
     
     @Test

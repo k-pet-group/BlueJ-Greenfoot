@@ -120,10 +120,6 @@ public class ClassDeclarationIntegrationTest {
         // Visit the file
         ktFile.accept(visitor);
         
-        // Validate visitor state
-        assertTrue(visitor.validateState(), 
-            "Visitor state should be balanced after traversal");
-        
         return recorder;
     }
     

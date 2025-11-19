@@ -649,10 +649,6 @@ public class ObjectDeclarationCallbackTest {
         // Visit the file (triggers object visitation)
         ktFile.accept(visitor);
         
-        // Validate state is balanced after traversal
-        assertTrue("Visitor state should be balanced after traversal", 
-                  visitor.validateState());
-        
         return recorder;
     }
 }

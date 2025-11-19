@@ -48,13 +48,14 @@ public class SourceInputTestUtils {
      * @param resolver EntityResolver for symbol resolution
      * @return StringSource instance
      */
-    public static SourceInput.StringSource createFromString(@NotNull String content,
-                                                            @NotNull SourceType sourceType,
-                                                            @NotNull EntityResolver resolver) {
+    public static SourceInput.NamedStringSource createFromString(@NotNull String content,
+                                                                 @NotNull SourceType sourceType,
+                                                                 @NotNull EntityResolver resolver) {
         String ext = sourceType == SourceType.Kotlin ? ".kt" : ".java";
-        String virtualPath = "/test/TestFile" + ext;
-        return new SourceInput.StringSource(content, sourceType, StandardCharsets.UTF_8, 
-                                           virtualPath, null, resolver);
+        String fileName = "TestFile" + ext;
+        String virtualPath = "/test/" + fileName;
+        return new SourceInput.NamedStringSource(content, sourceType, StandardCharsets.UTF_8,
+                                                 virtualPath, fileName, null, resolver);
     }
     
     /**
@@ -65,8 +66,8 @@ public class SourceInputTestUtils {
      * @param resolver EntityResolver for symbol resolution
      * @return StringSource instance
      */
-    public static SourceInput.StringSource createFromString(@NotNull String content,
-                                                            @NotNull EntityResolver resolver) {
+    public static SourceInput.NamedStringSource createFromString(@NotNull String content,
+                                                                 @NotNull EntityResolver resolver) {
         return createFromString(content, SourceType.Java, resolver);
     }
     
@@ -78,8 +79,8 @@ public class SourceInputTestUtils {
      * @param sourceType Java or Kotlin
      * @return StringSource instance
      */
-    public static SourceInput.StringSource createFromString(@NotNull String content,
-                                                            @NotNull SourceType sourceType) {
+    public static SourceInput.NamedStringSource createFromString(@NotNull String content,
+                                                                 @NotNull SourceType sourceType) {
         return createFromString(content, sourceType, 
                                new ClassLoaderResolver(SourceInputTestUtils.class.getClassLoader()));
     }
@@ -90,7 +91,7 @@ public class SourceInputTestUtils {
      * @param content String source code
      * @return StringSource instance
      */
-    public static SourceInput.StringSource createFromString(@NotNull String content) {
+    public static SourceInput.NamedStringSource createFromString(@NotNull String content) {
         return createFromString(content, SourceType.Java);
     }
     

@@ -27,6 +27,7 @@ import java.util.List;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.lexer.LocatableToken;
+import bluej.parser.psi.SourceInput;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -45,7 +46,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "LinkedList<String[]>"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         List<LocatableToken> ll = new LinkedList<LocatableToken>();
         assertTrue(ip.parseTypeSpec(false, true, ll));
         // 6 tokens: LinkedList, '<', String, '[', ']', '>'
@@ -61,7 +63,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "LinkedList<List<String[]>>"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         List<LocatableToken> ll = new LinkedList<LocatableToken>();
         assertTrue(ip.parseTypeSpec(false, true, ll));
         // 8 tokens: LinkedList, '<', List, '<', String, '[', ']', '>>'
@@ -77,7 +80,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "Map<String,Integer> v1; "
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -90,7 +94,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "Outer<String>.Inner<String> v8; "
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -105,7 +110,8 @@ public class NewParserTest
                 "A<? extends String> v9; " +
                 "A<? super String> v10;"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
         ip.parseStatement();
         ip.parseStatement();
@@ -120,7 +126,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "b = (i < j);"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -133,7 +140,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "boolean.class.equals(T.class);"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -146,7 +154,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "class A<T>{}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseTypeDef();
     }
 
@@ -159,7 +168,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "class A{;}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseTypeDef();
     }
 
@@ -175,7 +185,8 @@ public class NewParserTest
                 "    private int x;" +
                 "}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseTypeDef();
     }
 
@@ -188,7 +199,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "int a[] = {1, 2, 3};"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -201,7 +213,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "int a[], int[] b);"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseMethodParamsBody();
     }
 
@@ -214,7 +227,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "class A { int x[] = {1,2,3}, y = 5; }"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseTypeDef();
     }
 
@@ -227,7 +241,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "class A { private int x, y; }"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseTypeDef();
     }
 
@@ -240,7 +255,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "int x[], y = 3, z, q;"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -253,7 +269,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "public @interface Copyright{  String value();}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseTypeDef();
     }
 
@@ -266,7 +283,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "@Preliminary public class TimeTravel { }"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseTypeDef();
     }
 
@@ -280,7 +298,8 @@ public class NewParserTest
                 "@Copyright(\"2002 Yoyodyne Propulsion Systems\")"+
                 "public class NewParserTest { }"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseTypeDef();
     }
 
@@ -293,7 +312,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "Object g = (x<y) ? null : null;"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -306,7 +326,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "AAA.bbb(1,2,3);"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -324,7 +345,8 @@ public class NewParserTest
                 "String date()      default \"[unimplemented]\"; "+
                 "}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseTypeDef();
     }
 
@@ -344,7 +366,8 @@ public class NewParserTest
                 ")"+
                 "static void travelThroughTime(Date destination) { } }"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseClassBody();
     }
 
@@ -357,7 +380,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "@Test public static void m1() { } }"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseClassBody();
     }
 
@@ -370,7 +394,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "@Test.RequestForEnhancement int req;"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -383,7 +408,8 @@ public class NewParserTest
                 "@Expression(\"execution(* com.mypackage.Target.*(..))\") "+
                 "Pointcut pc1; "
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
 
     }
@@ -395,7 +421,8 @@ public class NewParserTest
                 "@Expression(\"execution(* com.mypackage.Target.*(..))\") "+
                 "volatile Pointcut pc1; "
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -405,7 +432,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "(byte)++(bb)"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseExpression();
     }
 
@@ -415,7 +443,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "new String[]{\"hello\", \"goodbye\",}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseExpression();
     }
 
@@ -424,17 +453,20 @@ public class NewParserTest
     {
         // test when parenthesized:
         StringReader sr = new StringReader("(" + s + ")");
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseExpression();
 
         // test when used in assigment:
         sr = new StringReader("Runnable r = " + s + ";");
-        ip = new SourceParser(sr);
+        input = SourceInput.fromReader(sr, SourceType.Java);
+        ip = new SourceParser(input);
         ip.parseStatement();
 
         // test when used as method parameter:
         sr = new StringReader("doSomething(" + s + ");");
-        ip = new SourceParser(sr);
+        input = SourceInput.fromReader(sr, SourceType.Java);
+        ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -596,7 +628,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "this.<String>someMethod(\"hello\")"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseExpression();
     }
 
@@ -606,7 +639,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "(byte)(a + 1)"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseExpression();
     }
 
@@ -618,15 +652,18 @@ public class NewParserTest
                 "synchronized int someMethod();" +
                 "}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseTypeDef();
 
         sr = new StringReader("synchronized { throw new Exception(); }");
-        ip = new SourceParser(sr);
+        input = SourceInput.fromReader(sr, SourceType.Java);
+        ip = new SourceParser(input);
         ip.parseStatement();
 
         sr = new StringReader("synchronized(getSomeValue()) { throw new Exception(); }");
-        ip = new SourceParser(sr);
+        input = SourceInput.fromReader(sr, SourceType.Java);
+        ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -637,7 +674,8 @@ public class NewParserTest
                 "synchronized int someMethod(int ... a);" +
                 "}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseTypeDef();
     }
 
@@ -651,7 +689,8 @@ public class NewParserTest
                 "for (int i = 8, j; ; ) {" +
                 "}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -665,7 +704,8 @@ public class NewParserTest
                 "for (final int i : intArray) {" +
                 "}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -680,7 +720,8 @@ public class NewParserTest
                 "for (i = 0, j = 8; i++; i < 10) {" +
                 "}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -693,7 +734,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "for (int[][] lesser : multidimArray) {}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -706,7 +748,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "for (int lesser[][] : multidimArray) {}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -717,7 +760,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "return (Insets)((ContainerPeer)peer).insets().clone();"
                 );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -729,7 +773,8 @@ public class NewParserTest
                 "void someMethod(final String argument);" +
                 "}"
                 );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -739,7 +784,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "new int[] { 1, 2 + (someValue), 3 }"
                 );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseExpression();
     }
 
@@ -751,7 +797,8 @@ public class NewParserTest
                 "interface A {" +
                 "};"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseCU();
     }
 
@@ -761,7 +808,8 @@ public class NewParserTest
         StringReader sr = new StringReader(
                 "sb.append((isFilled) ? \"yes\": \"no\");"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseStatement();
     }
 
@@ -773,100 +821,101 @@ public class NewParserTest
                 "  default int someMethod() { return 3; }\n" +
                 "}"
         );
-        SourceParser ip = new SourceParser(sr);
+        SourceInput input = SourceInput.fromReader(sr, SourceType.Java);
+        SourceParser ip = new SourceParser(input);
         ip.parseCU();
     }
 
     @Test
     public void testConstructor1()
     {
-        new SourceParser(new StringReader("Foo() { return; } }")).parseClassBody();
+        new SourceParser(SourceInput.fromReader(new StringReader("Foo() { return; } }"), SourceType.Java)).parseClassBody();
     }
 
     @Test
     public void testConstructor2()
     {
-        new SourceParser(new StringReader("public Foo() { return; } }")).parseClassBody();
+        new SourceParser(SourceInput.fromReader(new StringReader("public Foo() { return; } }"), SourceType.Java)).parseClassBody();
     }
 
     @Test
     public void testConstructor3()
     {
-        new SourceParser(new StringReader("<T> Foo(T t) { return; } }")).parseClassBody();
+        new SourceParser(SourceInput.fromReader(new StringReader("<T> Foo(T t) { return; } }"), SourceType.Java)).parseClassBody();
     }
 
     @Test
     public void testConstructor4()
     {
-        new SourceParser(new StringReader("public <T, U> Foo() { return; } }")).parseClassBody();
+        new SourceParser(SourceInput.fromReader(new StringReader("public <T, U> Foo() { return; } }"), SourceType.Java)).parseClassBody();
     }
 
     @Test
     public void testMethod1()
     {
-        new SourceParser(new StringReader("void foo() { return; } }")).parseClassBody();
+        new SourceParser(SourceInput.fromReader(new StringReader("void foo() { return; } }"), SourceType.Java)).parseClassBody();
     }
 
     @Test
     public void testMethod2()
     {
-        new SourceParser(new StringReader("<T, U> void foo() { return; } }")).parseClassBody();
+        new SourceParser(SourceInput.fromReader(new StringReader("<T, U> void foo() { return; } }"), SourceType.Java)).parseClassBody();
     }
 
     @Test
     public void testMethod3()
     {
-        new SourceParser(new StringReader("public <T, U> void foo() { return; } }")).parseClassBody();
+        new SourceParser(SourceInput.fromReader(new StringReader("public <T, U> void foo() { return; } }"), SourceType.Java)).parseClassBody();
     }
 
     @Test
     public void testMethod4()
     {
-        new SourceParser(new StringReader("public <T, U> java.lang.String[] foo() { return; } }")).parseClassBody();
+        new SourceParser(SourceInput.fromReader(new StringReader("public <T, U> java.lang.String[] foo() { return; } }"), SourceType.Java)).parseClassBody();
     }
 
     @Test
     public void testField1()
     {
-        new SourceParser(new StringReader("int foo; }")).parseClassBody();
+        new SourceParser(SourceInput.fromReader(new StringReader("int foo; }"), SourceType.Java)).parseClassBody();
     }
 
     @Test
     public void testField2()
     {
-        new SourceParser(new StringReader("int foo[]; }")).parseClassBody();
+        new SourceParser(SourceInput.fromReader(new StringReader("int foo[]; }"), SourceType.Java)).parseClassBody();
     }
 
     @Test
     public void testField3()
     {
-        new SourceParser(new StringReader("int foo = 0; }")).parseClassBody();
+        new SourceParser(SourceInput.fromReader(new StringReader("int foo = 0; }"), SourceType.Java)).parseClassBody();
     }
 
     @Test
     public void testTopLevelRecord1()
     {
-        new SourceParser(new StringReader("""
+        new SourceParser(SourceInput.fromReader(new StringReader("""
             record Foo(int x) {}
             """
-        )).parseCU();
+        ), SourceType.Java)).parseCU();
     }
     @Test
     public void testTopLevelRecord2()
     {
-        new SourceParser(new StringReader("""
+        new SourceParser(SourceInput.fromReader(new StringReader("""
             public record R(int x, String s, double t)
             {
                 public void foo() {return 6;}
             }
             """
-        )).parseCU();
+        ), SourceType.Java)).parseCU();
     }
 
     @Test
     public void testTopLevelRecord3()
     {
-        new SourceParser(new StringReader("""
+        new SourceParser(SourceInput.fromReader(new StringReader("""
             public record GenericR<T>(T a, T b)
             {
                 public GenericR(T both)
@@ -876,61 +925,61 @@ public class NewParserTest
                 public T foo() {return a;}
             }
             """
-        )).parseCU();
+        ), SourceType.Java)).parseCU();
     }
 
     @Test
     public void testTopLevelRecord4()
     {
-        new SourceParser(new StringReader("""
+        new SourceParser(SourceInput.fromReader(new StringReader("""
             public record GenericR<T, U>(T a, U b)
             {
                 public T foo() {return a;}
             }
             """
-        )).parseCU();
+        ), SourceType.Java)).parseCU();
     }
 
     @Test
     public void testTopLevelRecord5()
     {
-        new SourceParser(new StringReader("""
+        new SourceParser(SourceInput.fromReader(new StringReader("""
             public record GenericR<T, U>(T a, U b) implements Cloneable
             {
                 public T foo() {return a;}
             }
             """
-        )).parseCU();
+        ), SourceType.Java)).parseCU();
     }
 
     @Test
     public void testTopLevelRecord6()
     {
-        new SourceParser(new StringReader("""
+        new SourceParser(SourceInput.fromReader(new StringReader("""
             public record GenericR<T, U>(T a, U... b) implements Cloneable
             {
                 public T foo() {return a;}
                 private record Point(int x, Double y) {}
             }
             """
-        )).parseCU();
+        ), SourceType.Java)).parseCU();
     }
 
     @Test
     public void testTopLevelRecord7()
     {
-        new SourceParser(new StringReader("""
+        new SourceParser(SourceInput.fromReader(new StringReader("""
             record Foo() {}
             """
-        )).parseCU();
+        ), SourceType.Java)).parseCU();
     }
     @Test
     public void testTopLevelRecord8()
     {
-        new SourceParser(new StringReader("""
+        new SourceParser(SourceInput.fromReader(new StringReader("""
             record Foo(int... is) {}
             """
-        )).parseCU();
+        ), SourceType.Java)).parseCU();
     }
 
 }

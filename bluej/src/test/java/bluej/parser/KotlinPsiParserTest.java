@@ -122,18 +122,19 @@ public class KotlinPsiParserTest {
     public void testParseCUpart_Delegates() throws IOException {
         // Arrange
         String source = "class Test";
-        SourceInput input = SourceInput.fromString(
+        SourceInput input = SourceInput.fromNamedString(
             source,
             SourceType.Kotlin,
             StandardCharsets.UTF_8,
-            null,
-            "Test.kt"
+            "Test.kt",
+            "Test.kt",
+            null
         );
         
         // Act
         SourceParser parser = new SourceParser(input);
         int state = 0;
-        int result = parser.parser.parseCUpart(state);
+        int result = parser.parseCUpart(state);
         
         // Assert: Method completes without exception (delegation successful)
         assertTrue("parseCUpart should return valid state", result >= 0);
@@ -149,12 +150,13 @@ public class KotlinPsiParserTest {
     public void testParsePackageStmt_Delegates() throws IOException {
         // Arrange
         String source = "package com.example\nclass Test";
-        SourceInput input = SourceInput.fromString(
+        SourceInput input = SourceInput.fromNamedString(
             source,
             SourceType.Kotlin,
             StandardCharsets.UTF_8,
-            null,
-            "Test.kt"
+            "Test.kt",
+            "Test.kt",
+            null
         );
         
         // Act
@@ -162,7 +164,7 @@ public class KotlinPsiParserTest {
         LocatableToken token = parser.getTokenStream().nextToken();
         
         if (token != null && token.getType() == 1) { // PACKAGE token
-            LocatableToken result = parser.parser.parsePackageStmt(token);
+            LocatableToken result = parser.parsePackageStmt(token);
             // Assert: Method returns non-null token
             assertNotNull("parsePackageStmt should return token", result);
         }
@@ -178,13 +180,7 @@ public class KotlinPsiParserTest {
     public void testParseImportStatement_Delegates() throws IOException {
         // Arrange
         String source = "import kotlin.collections.List;\nclass Test";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Test.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act & Assert: Method completes without exception
         SourceParser parser = new SourceParser(input);
@@ -202,20 +198,14 @@ public class KotlinPsiParserTest {
     public void testParseImportStatementWithToken_Delegates() throws IOException {
         // Arrange
         String source = "import kotlin.collections.List;\nclass Test";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Test.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act
         SourceParser parser = new SourceParser(input);
         LocatableToken token = parser.getTokenStream().nextToken();
         
         if (token != null) {
-            parser.parser.parseImportStatement(token);
+            parser.parseImportStatement(token);
             // Assert: Method completes without exception
             assertNotNull("Parser should handle import with token", parser);
         }
@@ -231,13 +221,7 @@ public class KotlinPsiParserTest {
     public void testParseTypeDef_Delegates() throws IOException {
         // Arrange
         String source = "class Example { val x = 1; }";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Example.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act & Assert: Method completes without exception
         SourceParser parser = new SourceParser(input);
@@ -255,20 +239,14 @@ public class KotlinPsiParserTest {
     public void testParseTypeDefWithToken_Delegates() throws IOException {
         // Arrange
         String source = "class Example { val x = 1 }";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Example.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act
         SourceParser parser = new SourceParser(input);
         LocatableToken token = parser.getTokenStream().nextToken();
         
         if (token != null) {
-            parser.parser.parseTypeDef(token);
+            parser.parseTypeDef(token);
             // Assert: Method completes without exception
             assertNotNull("Parser should handle type definition with token", parser);
         }
@@ -285,20 +263,14 @@ public class KotlinPsiParserTest {
     public void testParseTypeBody_Delegates() throws IOException {
         // Arrange
         String source = "class Example { val x = 1; }";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Example.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act
         SourceParser parser = new SourceParser(input);
         LocatableToken token = parser.getTokenStream().nextToken();
         
         if (token != null) {
-            LocatableToken result = parser.parser.parseTypeBody(0, token);
+            LocatableToken result = parser.parseTypeBody(0, token);
             // Assert: Method returns token
             assertNotNull("parseTypeBody should handle body parsing", result);
         }
@@ -314,13 +286,7 @@ public class KotlinPsiParserTest {
     public void testParseTypeDefBegin_Delegates() throws IOException {
         // Arrange
         String source = "class Example";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Example.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act
         SourceParser parser = new SourceParser(input);
@@ -341,13 +307,7 @@ public class KotlinPsiParserTest {
     public void testParseTypeDefPart2_Delegates() throws IOException {
         // Arrange
         String source = "class Example";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Example.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act
         SourceParser parser = new SourceParser(input);
@@ -367,13 +327,7 @@ public class KotlinPsiParserTest {
     public void testParseClassElement_Delegates() throws IOException {
         // Arrange
         String source = "class Example { val x = 1; }";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Example.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act
         SourceParser parser = new SourceParser(input);
@@ -396,13 +350,7 @@ public class KotlinPsiParserTest {
     public void testParseStatement_Delegates() throws IOException {
         // Arrange
         String source = "val x = 1";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Test.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act
         SourceParser parser = new SourceParser(input);
@@ -425,13 +373,7 @@ public class KotlinPsiParserTest {
     public void testParseTypeSpecWithList_Delegates() throws IOException {
         // Arrange
         String source = "val x: String = \"test\"";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Test.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act
         SourceParser parser = new SourceParser(input);
@@ -453,13 +395,7 @@ public class KotlinPsiParserTest {
     public void testParseClassBody_Delegates() throws IOException {
         // Arrange
         String source = "class Example { val x = 1; }";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Example.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act & Assert: Method completes without exception
         SourceParser parser = new SourceParser(input);
@@ -477,13 +413,7 @@ public class KotlinPsiParserTest {
     public void testParseExpression_Delegates() throws IOException {
         // Arrange
         String source = "1 + 2";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Test.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act & Assert: Method completes without exception
         SourceParser parser = new SourceParser(input);
@@ -501,13 +431,7 @@ public class KotlinPsiParserTest {
     public void testParseVariableDeclarations_Delegates() throws IOException {
         // Arrange
         String source = "val x = 1";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Test.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act
         SourceParser parser = new SourceParser(input);
@@ -527,13 +451,7 @@ public class KotlinPsiParserTest {
     public void testParseTypeSpec_Delegates() throws IOException {
         // Arrange
         String source = "val x: String";
-        SourceInput input = SourceInput.fromString(
-            source,
-            SourceType.Kotlin,
-            StandardCharsets.UTF_8,
-            null,
-            "Test.kt"
-        );
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
         
         // Act
         SourceParser parser = new SourceParser(input);
@@ -553,12 +471,13 @@ public class KotlinPsiParserTest {
     public void testParseMethodParamsBody_Delegates() throws IOException {
         // Arrange
         String source = "fun test(x: Int) { }";
-        SourceInput input = SourceInput.fromString(
+        SourceInput input = SourceInput.fromNamedString(
             source,
             SourceType.Kotlin,
             StandardCharsets.UTF_8,
-            null,
-            "Test.kt"
+            "Test.kt",
+            "Test.kt",
+            null
         );
         
         // Act & Assert: Method completes without exception
@@ -646,12 +565,13 @@ public class KotlinPsiParserTest {
     public void testFaultIsolation_PsiFailureDoesNotBreakParsing() throws IOException {
         // Arrange: Source with syntax error that PSI might reject
         String source = "fun broken( ";  // Incomplete function
-        SourceInput input = SourceInput.fromString(
+        SourceInput input = SourceInput.fromNamedString(
             source,
             SourceType.Kotlin,
             StandardCharsets.UTF_8,
-            null,
-            "Broken.kt"
+            "Broken.kt",
+            "Broken.kt",
+            null
         );
         
         // Act: Parse should complete despite PSI issues
@@ -672,12 +592,13 @@ public class KotlinPsiParserTest {
     public void testFaultIsolation_CompilationContinues() throws IOException {
         // Arrange: Create source that might cause PSI issues
         String source = "// Empty file with just comment";
-        SourceInput input = SourceInput.fromString(
+        SourceInput input = SourceInput.fromNamedString(
             source,
             SourceType.Kotlin,
             StandardCharsets.UTF_8,
-            null,
-            "Empty.kt"
+            "Empty.kt",
+            "Empty.kt",
+            null
         );
         
         // Act: Parse should succeed
@@ -772,12 +693,13 @@ public class KotlinPsiParserTest {
     public void testSourceExtraction_StringSource() throws IOException {
         // Arrange: Create StringSource
         String source = "fun test() = \"string source\"";
-        SourceInput input = SourceInput.fromString(
+        SourceInput input = SourceInput.fromNamedString(
             source,
             SourceType.Kotlin,
             StandardCharsets.UTF_8,
-            null,
-            "StringTest.kt"
+            "StringTest.kt",
+            "StringTest.kt",
+            null
         );
         
         // Act: Parse
@@ -798,7 +720,8 @@ public class KotlinPsiParserTest {
     public void testSourceExtraction_NullSource() throws IOException {
         // Arrange: Create parser with Reader (no SourceInput)
         String source = "class Test";
-        SourceParser parser = new SourceParser(new StringReader(source), SourceType.Kotlin);
+        SourceInput input = SourceInput.fromString(source, SourceType.Kotlin);
+        SourceParser parser = new SourceParser(input);
         
         // Act: Parse should succeed despite no SourceInput
         parser.parseCU();
@@ -816,12 +739,13 @@ public class KotlinPsiParserTest {
     @Test
     public void testSourceExtraction_EmptySource() throws IOException {
         // Arrange: Create empty source
-        SourceInput input = SourceInput.fromString(
+        SourceInput input = SourceInput.fromNamedString(
             "",
             SourceType.Kotlin,
             StandardCharsets.UTF_8,
-            null,
-            "Empty.kt"
+            "Empty.kt",
+            "Empty.kt",
+            null
         );
         
         // Act: Parse should handle empty source

@@ -1083,9 +1083,12 @@ public class StatementExpressionCallbackTest {
         // Visit the file (triggers traversal)
         ktFile.accept(visitor);
         
-        // Validate state is balanced after traversal
-        assertTrue("Visitor state should be balanced after traversal", 
-                  visitor.validateState());
+        // Validate callback pairing is balanced after traversal
+        CallbackRecorder.ValidationResult result = recorder.getValidationResult();
+        assertTrue("Callback pairing should be balanced after traversal: " + result.getValidationSummary(),
+                  result.isBalanced());
+        assertFalse("Should have no validation errors after traversal: " + result.getValidationSummary(),
+                   result.hasErrors());
         
         return recorder;
     }

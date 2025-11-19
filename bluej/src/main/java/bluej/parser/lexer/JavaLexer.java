@@ -48,6 +48,15 @@ public final class JavaLexer implements TokenStream
     private LineColPos end;
     private LineColPos offset;
     private boolean generateWhitespaceTokens = false;
+
+    public boolean isHandleComments() {
+        return handleComments;
+    }
+
+    public void setHandleComments(boolean handleComments) {
+        this.handleComments = handleComments;
+    }
+
     private boolean handleComments = true; // When false, doesn't recognise /*..*/ or //..\n as comments (for frames)
     private boolean handleMultilineStrings = true; // When false, treats """ as a single token rather than trying to match start/end
     private Keywords keywords;

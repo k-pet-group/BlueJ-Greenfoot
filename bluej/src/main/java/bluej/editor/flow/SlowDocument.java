@@ -22,9 +22,15 @@
 package bluej.editor.flow;
 
 import bluej.extensions2.editor.DocumentListener;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +45,34 @@ public class SlowDocument implements Document
     // We keep a strong reference, since this class is just for testing:
     private final List<TrackedPosition> trackedPositions = new ArrayList<>();
     private final List<DocumentListener> listeners = new ArrayList<>();
+    private Charset fileCharset;
+    private Path filePath;
+
+    @Override
+    public void loadFromFile(File file, Charset charset) throws IOException {
+        Path path = file.toPath();
+        String contents = Files.readString(path, charset)
+                .replace("\r", "")
+                .replace("\t", "    ");
+
+        replaceText(0, getLength(), contents);
+
+        this.fileCharset = charset;
+        this.filePath = path;
+    }
+
+    @Override
+    public @NotNull String getVirtualPath() {
+        return filePath != null
+                ? filePath.toString()
+                : "";
+    }
+
+    public @NotNull Charset getCharset() {
+        return fileCharset != null
+                ? fileCharset
+                : Charset.defaultCharset();
+    }
 
     @Override
     public void replaceText(int startCharIncl, int endCharExcl, String text)

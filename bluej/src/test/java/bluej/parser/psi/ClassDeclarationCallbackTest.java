@@ -105,10 +105,6 @@ public class ClassDeclarationCallbackTest {
         assertEquals("Callback 5: beginTypeBody", "beginTypeBody", sequence.get(4));
         assertEquals("Callback 6: endTypeBody", "endTypeBody", sequence.get(5));
         assertEquals("Callback 7: gotTypeDefEnd", "gotTypeDefEnd", sequence.get(6));
-        
-        // Validate pairing
-        assertTrue("Callback pairing should be balanced", 
-                  recorder.validatePairing());
     }
     
     /**
@@ -359,7 +355,6 @@ public class ClassDeclarationCallbackTest {
         // Should still complete sequence even if name extraction might have issues
         assertTrue("Should have gotDeclBegin", recorder.hasCallback("gotDeclBegin"));
         assertTrue("Should have gotTypeDefEnd", recorder.hasCallback("gotTypeDefEnd"));
-        assertTrue("Callbacks should be balanced", recorder.validatePairing());
     }
     
     // ==================== PAIRING VALIDATION ====================
@@ -375,14 +370,6 @@ public class ClassDeclarationCallbackTest {
         String kotlinCode = "class BalancedClass { }";
         
         CallbackRecorder recorder = parseAndVisit(kotlinCode);
-        
-        // Validate pairing with detailed error message
-        CallbackRecorder.ValidationResult result = recorder.getValidationResult();
-        
-        assertTrue("Callbacks should be balanced: " + result.getValidationSummary(), 
-                  result.isBalanced());
-        assertFalse("Should have no validation errors: " + result.getValidationSummary(), 
-                   result.hasErrors());
     }
     
     /**
@@ -418,9 +405,6 @@ public class ClassDeclarationCallbackTest {
         
         assertEquals("First class name", "FirstClass", name1.getText());
         assertEquals("Second class name", "SecondClass", name2.getText());
-        
-        // Validate overall pairing
-        assertTrue("Multi-class pairing should be balanced", recorder.validatePairing());
     }
     
     // ==================== TOKEN TYPE VALIDATION ====================
@@ -1114,10 +1098,6 @@ public class ClassDeclarationCallbackTest {
         
         assertEquals("Should have 2 inner class declarations within outer body", 
                     2, innerCount);
-        
-        // Validate overall pairing
-        assertTrue("Multiple nested classes should be balanced", 
-                  recorder.validatePairing());
     }
     
     /**
@@ -1156,8 +1136,6 @@ public class ClassDeclarationCallbackTest {
         System.out.println("DEBUG TEST: Validation summary: " + result.getValidationSummary());
         System.out.println("DEBUG TEST: Is balanced: " + result.isBalanced());
         System.out.println("DEBUG TEST: Has errors: " + result.hasErrors());
-        assertTrue("Nested class with modifiers should be balanced: " + result.getValidationSummary(),
-                  recorder.validatePairing());
     }
     
     /**
@@ -1284,11 +1262,16 @@ public class ClassDeclarationCallbackTest {
         
         // Visit the file (triggers class visitation)
         ktFile.accept(visitor);
-        
-        // Validate state is balanced after traversal
-        assertTrue("Visitor state should be balanced after traversal", 
-                  visitor.validateState());
-        
+
+        // Validate pairing
+        CallbackRecorder.ValidationResult result = recorder.getValidationResult();
+        var summary = result.getValidationSummary();
+
+        assertTrue("Callback pairing should be balanced: " + summary,
+                result.isBalanced());
+        assertFalse("Should have no validation errors: " + summary,
+                result.hasErrors());
+
         return recorder;
     }
 }

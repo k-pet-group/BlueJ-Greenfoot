@@ -170,40 +170,15 @@ import java.util.List;
  * @see <a href="file:///docs/planning/visitor-foundation/implementation-strategy.md">Implementation Strategy</a>
  */
 public class PsiCallbackVisitor extends KtVisitorVoid {
-    
-    /**
-     * Traversal log for Phase 2 validation.
-     * 
-     * <p>Records each declaration visit in format: "VISIT: &lt;Type&gt;: &lt;Name&gt;"</p>
-     * 
-     * <p><b>Phase 2 Only:</b> This log is the primary output of Phase 2 visitor.
-     * In Phase 3, this will be removed or made optional for debugging.</p>
-     */
-    private final List<String> traversalLog = new ArrayList<>();
-    
+
     /**
      * Optional callback adapter for invoking parser callbacks.
      * Null in Phase 2 traversal-only mode, set for Phase 3 callback integration.
      * Uses adapter pattern to access protected JavaParserCallbacks methods.
      */
     private final JavaParserCallbacksAdapter callbacks;
-    
-    /**
-     * Visitor state for scope tracking and modifier management.V
-     *
-     * <p>Tracks scope stack for context queries, accumulates modifiers for
-     * declarations, and provides nesting depth information. Each visit method
-     * uses push/pop pattern to maintain balanced state.</p>
-     *
-     * <p><b>Phase 2:</b> State tracking enabled for traversal validation.</p>
-     * <p><b>Phase 3:</b> State will provide context for callback invocation.</p>
-     *
-     * @see VisitorState for detailed state management documentation
-     */
-    private final VisitorState state = new VisitorState();
 
     private LocatableToken tokenBase = null;
-    private int psiStartOffset = 0;
 
     /**
      * Creates a new PSI callback visitor for Phase 2 traversal validation.
@@ -230,19 +205,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
     public PsiCallbackVisitor(JavaParserCallbacksAdapter callbacks) {
         this.callbacks = callbacks;
     }
-    
-    /**
-     * Returns the traversal log for Phase 2 validation.
-     * 
-     * <p>The log contains entries for each declaration visited, allowing tests to
-     * verify traversal completeness and order.</p>
-     * 
-     * @return Unmodifiable view of traversal log entries
-     */
-    public List<String> getTraversalLog() {
-        return List.copyOf(traversalLog);
-    }
-    
+
     /**
      * Entry point for PSI traversal - visits a Kotlin file.
      *
@@ -271,8 +234,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         
         // Phase 2: Log file visit
         String fileName = file.getName();
-        traversalLog.add("VISIT: FILE: " + fileName);
-        
+
         // Explicitly visit all declarations in the file
         // Note: Kotlin PSI visitor requires explicit iteration over children
         for (KtDeclaration declaration : file.getDeclarations()) {
@@ -322,69 +284,65 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         
         // Phase 2: Log class visit (retained for debugging)
         String className = ktClass.getName();
-        traversalLog.add("VISIT: CLASS: " + (className != null ? className : "<anonymous>"));
-        
-        // State management with try-finally
-        state.pushScope(ktClass);
-        try {
-            // Skip if no callbacks configured
-            if (callbacks == null) {
-                super.visitClass(ktClass);
-                return;
-            }
 
-            // 1. Begin declaration
-            int tdType = determineTypeDefType(ktClass);
-            LocatableToken classToken = createToken(ktClass.getClassOrInterfaceKeyword(), tdType);
+        // Skip if no callbacks configured
+        if (callbacks == null) {
+            super.visitClass(ktClass);
+            return;
+        }
 
-            callbacks.gotDeclBegin(classToken);
-            
-            // 2. Process modifiers
-            KtModifierList modifierList = ktClass.getModifierList();
-            if (modifierList != null) {
-                processModifiers(modifierList);
-            }
-            callbacks.modifiersConsumed();
-            
-            // 3. Type definition
-            callbacks.gotTypeDef(classToken, tdType);
+        // 1. Begin declaration
+        int tdType = determineTypeDefType(ktClass);
+        LocatableToken classToken = createToken(ktClass.getClassOrInterfaceKeyword(), tdType);
 
-            // 4. Type name
-            if (className != null && ktClass.getNameIdentifier() != null) {
-                LocatableToken nameToken = createToken(ktClass.getNameIdentifier(), JavaTokenTypes.IDENT);
-                callbacks.gotTypeDefName(nameToken);
-            }
-            
-            // 5. Process supertypes
-            processSuperTypes(ktClass);
-            
-            // Phase 4.2: Process primary constructor BEFORE type body (class header element)
-            KtPrimaryConstructor primaryConstructor = ktClass.getPrimaryConstructor();
-            if (primaryConstructor != null) {
-                visitPrimaryConstructor(primaryConstructor);
-            }
+        callbacks.gotDeclBegin(classToken);
 
-            LocatableToken finalToken = null;
-            
-            // 6. Begin type body
-            KtClassBody body = ktClass.getBody();
-            if (body != null) {
-                // Extract separate opening and closing brace elements
-                PsiElement lBrace = body.getLBrace();
-                PsiElement rBrace = body.getRBrace();
-                
-                if (lBrace != null && rBrace != null) {
-                    // Create separate tokens for opening and closing braces
-                    LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-                    LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-                    
-                    callbacks.beginTypeBody(lBraceToken);
-                    
-                    // 7. Visit nested declarations explicitly
-                    // Note: Kotlin PSI visitor requires explicit iteration over body declarations
-                    // super.visitClass() does NOT automatically recurse into nested classes/objects/members
-                    // CRITICAL: Filter to KtClass AND exclude KtEnumEntry (enum constants, not classes)
-                    for (KtDeclaration declaration : body.getDeclarations()) {
+        // 2. Process modifiers
+        KtModifierList modifierList = ktClass.getModifierList();
+        if (modifierList != null) {
+            processModifiers(modifierList);
+        }
+        callbacks.modifiersConsumed();
+
+        // 3. Type definition
+        callbacks.gotTypeDef(classToken, tdType);
+
+        // 4. Type name
+        if (className != null && ktClass.getNameIdentifier() != null) {
+            LocatableToken nameToken = createToken(ktClass.getNameIdentifier(), JavaTokenTypes.IDENT);
+            callbacks.gotTypeDefName(nameToken);
+        }
+
+        // 5. Process supertypes
+        processSuperTypes(ktClass);
+
+        // Phase 4.2: Process primary constructor BEFORE type body (class header element)
+        KtPrimaryConstructor primaryConstructor = ktClass.getPrimaryConstructor();
+        if (primaryConstructor != null) {
+            visitPrimaryConstructor(primaryConstructor);
+        }
+
+        LocatableToken finalToken = null;
+
+        // 6. Begin type body
+        KtClassBody body = ktClass.getBody();
+        if (body != null) {
+            // Extract separate opening and closing brace elements
+            PsiElement lBrace = body.getLBrace();
+            PsiElement rBrace = body.getRBrace();
+
+            if (lBrace != null && rBrace != null) {
+                // Create separate tokens for opening and closing braces
+                LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+                LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+
+                callbacks.beginTypeBody(lBraceToken);
+
+                // 7. Visit nested declarations explicitly
+                // Note: Kotlin PSI visitor requires explicit iteration over body declarations
+                // super.visitClass() does NOT automatically recurse into nested classes/objects/members
+                // CRITICAL: Filter to KtClass AND exclude KtEnumEntry (enum constants, not classes)
+                for (KtDeclaration declaration : body.getDeclarations()) {
 //                        if (declaration instanceof KtClass && !(declaration instanceof KtEnumEntry)) {
 //                            declaration.accept(this);  // Triggers visitClass() for nested classes
 //                        } else if (declaration instanceof KtObjectDeclaration) {
@@ -398,30 +356,26 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
 //                        } else if (declaration instanceof KtProperty) {
 //                            declaration.accept(this);  // Phase 4.3: Visit properties
 //                        }
-                        declaration.accept(this);
-                        // Note: Enum entries handled separately
-                    }
-                    
-                    // 8. End type body with separate closing brace token
-                    callbacks.endTypeBody(rBraceToken, true);
-
-                    finalToken = rBraceToken;
+                    declaration.accept(this);
+                    // Note: Enum entries handled separately
                 }
-                // Note: If braces missing (malformed code), no nested declarations to visit
+
+                // 8. End type body with separate closing brace token
+                callbacks.endTypeBody(rBraceToken, true);
+
+                finalToken = rBraceToken;
             }
-
-            if (finalToken == null) {
-                var lastChild = ktClass.getLastChild();
-
-                finalToken = createToken(lastChild, JavaTokenTypes.EOF); // TODO: figure out how to get proper token type
-            }
-            
-            // 9. End declaration
-            callbacks.gotTypeDefEnd(finalToken, true);
-
-        } finally {
-            state.popScope();  // ALWAYS cleanup
+            // Note: If braces missing (malformed code), no nested declarations to visit
         }
+
+        if (finalToken == null) {
+            var lastChild = ktClass.getLastChild();
+
+            finalToken = createToken(lastChild, JavaTokenTypes.EOF); // TODO: figure out how to get proper token type
+        }
+
+        // 9. End declaration
+        callbacks.gotTypeDefEnd(finalToken, true);
     }
 
     @Override
@@ -497,79 +451,70 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         
         // Phase 2: Log function visit (retained for debugging)
         String functionName = function.getName();
-        traversalLog.add("VISIT: FUNCTION: " + (functionName != null ? functionName : "<anonymous>"));
-        
-        // State management with try-finally
-        state.pushScope(function);
-        try {
-            // Skip if no callbacks configured
-            if (callbacks == null) {
-                // Phase 2 mode: no callback invocation
-                return;
-            }
-            
-            // 1. Begin declaration
-            LocatableToken declToken = createToken(function.getFunKeyword(), JavaTokenTypes.LITERAL_fun);
-            callbacks.gotDeclBegin(declToken);
-            
-            // 2. Process modifiers (visibility, operator, infix, suspend, etc.)
-            KtModifierList modifierList = function.getModifierList();
-            if (modifierList != null) {
-                processModifiers(modifierList);
-                processMethodSpecificModifiers(function);
-            }
-            
-            // 3. Return type (before method declaration as per callback protocol)
-            KtTypeReference returnTypeRef = function.getTypeReference();
-            if (returnTypeRef != null) {
-                List<LocatableToken> returnTypeTokens = extractTypeTokens(returnTypeRef);
-                callbacks.gotTypeSpec(returnTypeTokens);
-            }
-            else {
-                // This will be interpreted as unit and hopefully not blow up anything
-                callbacks.gotTypeSpec(null);
-            }
 
-            // 4. Method declaration (name + javadoc)
-            PsiElement nameIdentifier = function.getNameIdentifier();
-            if (nameIdentifier != null && functionName != null) {
-                LocatableToken nameToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
-                
-                // TODO Phase 4.4: Extract KDoc comments as javadocToken
-                // KDoc format: /** ... */ above function declaration
-                // Use KtDeclaration.getDocComment() for extraction
-                // Map KDoc structure to LocatableToken (requires KDoc→JavaDoc conversion)
-                LocatableToken javadocToken = null;  // Intentionally null until Phase 4.4
-                
-                callbacks.gotMethodDeclaration(nameToken, javadocToken);
-            }
-            
-            // 5. Modifiers consumed
-            callbacks.modifiersConsumed();
-            
-            // 6. Generic type parameters (if present)
-            KtTypeParameterList typeParams = function.getTypeParameterList();
-            if (typeParams != null && !typeParams.getParameters().isEmpty()) {
-                processMethodTypeParameters(typeParams);
-            }
-            
-            // 7. Parameters
-            processMethodParameters(function);
-            
-            // 8. Throws clause (rare in Kotlin - skip for Phase 4)
-            // Kotlin uses @Throws annotation instead of throws clause
-            
-            // 9. Method body (mark boundaries but don't traverse - Phase 6)
-            LocatableToken endToken = processMethodBody(function);
-            
-            // 10. End declaration
-            callbacks.endMethodDecl(endToken, true);
-            
-        } finally {
-            // Clear modifier state to prevent leakage into next declaration
-            clearModifierState();
-            state.popScope();  // ALWAYS cleanup
+        // Skip if no callbacks configured
+        if (callbacks == null) {
+            // Phase 2 mode: no callback invocation
+            return;
         }
+
+        // 1. Begin declaration
+        LocatableToken declToken = createToken(function.getFunKeyword(), JavaTokenTypes.LITERAL_fun);
+        callbacks.gotDeclBegin(declToken);
+
+        // 2. Process modifiers (visibility, operator, infix, suspend, etc.)
+        KtModifierList modifierList = function.getModifierList();
+        if (modifierList != null) {
+            processModifiers(modifierList);
+            processMethodSpecificModifiers(function);
+        }
+
+        // 3. Return type (before method declaration as per callback protocol)
+        KtTypeReference returnTypeRef = function.getTypeReference();
+        if (returnTypeRef != null) {
+            List<LocatableToken> returnTypeTokens = extractTypeTokens(returnTypeRef);
+            callbacks.gotTypeSpec(returnTypeTokens);
+        }
+        else {
+            // This will be interpreted as unit and hopefully not blow up anything
+            callbacks.gotTypeSpec(null);
+        }
+
+        // 4. Method declaration (name + javadoc)
+        PsiElement nameIdentifier = function.getNameIdentifier();
+        if (nameIdentifier != null && functionName != null) {
+            LocatableToken nameToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
+
+            // TODO Phase 4.4: Extract KDoc comments as javadocToken
+            // KDoc format: /** ... */ above function declaration
+            // Use KtDeclaration.getDocComment() for extraction
+            // Map KDoc structure to LocatableToken (requires KDoc→JavaDoc conversion)
+            LocatableToken javadocToken = null;  // Intentionally null until Phase 4.4
+
+            callbacks.gotMethodDeclaration(nameToken, javadocToken);
+        }
+
+        // 5. Modifiers consumed
+        callbacks.modifiersConsumed();
+
+        // 6. Generic type parameters (if present)
+        KtTypeParameterList typeParams = function.getTypeParameterList();
+        if (typeParams != null && !typeParams.getParameters().isEmpty()) {
+            processMethodTypeParameters(typeParams);
+        }
+
+        // 7. Parameters
+        processMethodParameters(function);
+
+        // 8. Throws clause (rare in Kotlin - skip for Phase 4)
+        // Kotlin uses @Throws annotation instead of throws clause
+
+        // 9. Method body (mark boundaries but don't traverse - Phase 6)
+        LocatableToken endToken = processMethodBody(function);
+
+        // 10. End declaration
+        callbacks.endMethodDecl(endToken, true);
+//        clearModifierState();
     }
     
     /**
@@ -623,9 +568,6 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             return;
         }
 
-        // State management with try-finally
-        state.pushScope(constructor);
-        try {
             // Skip if no callbacks configured
             if (callbacks == null) {
                 // Phase 2 mode: no callback invocation
@@ -679,11 +621,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             // Visit children for any nested declarations
             super.visitPrimaryConstructor(constructor);
 
-        } finally {
-            // Clear modifier state to prevent leakage (learned from M4.1 review issue M3)
-            clearModifierState();
-            state.popScope();  // ALWAYS cleanup
-        }
+//            clearModifierState();
     }
     
     /**
@@ -734,85 +672,78 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             return;
         }
         
-        // State management with try-finally
-        state.pushScope(constructor);
-        try {
-            // Skip if no callbacks configured
-            if (callbacks == null) {
-                super.visitSecondaryConstructor(constructor);
-                return;
-            }
-            
-            // 1. Begin declaration
-            LocatableToken declToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
-            callbacks.gotDeclBegin(declToken);
-            
-            // 2. Process modifiers (visibility modifiers for constructors)
-            KtModifierList modifierList = constructor.getModifierList();
-            if (modifierList != null) {
-                processModifiers(modifierList);
-            }
-            
-            // 3. Constructor declaration (use "constructor" keyword as name indicator)
-            PsiElement constructorKeyword = constructor.getConstructorKeyword();
-            LocatableToken nameToken;
-            if (constructorKeyword != null) {
-                nameToken = createToken(constructorKeyword, JavaTokenTypes.IDENT);
-            } else {
-                // Fallback: use constructor element itself
-                nameToken = createToken(constructor, JavaTokenTypes.IDENT);
-            }
-            
-            // TODO Phase 4.4: Extract KDoc for secondary constructor
-            LocatableToken javadocToken = null;  // Intentionally null until Phase 4.4
-            
-            callbacks.gotConstructorDecl(nameToken, javadocToken);
-            
-            // 4. Modifiers consumed
-            callbacks.modifiersConsumed();
-            
-            // 5. Parameters
-            processConstructorParameters(constructor);
-            
-            // 6. Constructor delegation (: this(...) or : super(...))
-            // Phase 4: Note delegation exists but skip expression parsing (Phase 6)
-            KtConstructorDelegationCall delegation = constructor.getDelegationCall();
-            if (delegation != null) {
-                // Delegation call present (this() or super())
-                // Delegation expression parsing deferred to Phase 6
-            }
-            
-            // 7. Constructor body (if present)
-            KtBlockExpression body = constructor.getBodyExpression();
-            if (body != null) {
-                PsiElement lBrace = body.getLBrace();
-                if (lBrace != null) {
-                    LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-                    callbacks.beginMethodBody(lBraceToken);
-                }
-                
-                // Phase 6: Traverse constructor body via visitor
-                body.accept(this);
-                
-                PsiElement rBrace = body.getRBrace();
-                if (rBrace != null) {
-                    LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-                    callbacks.endMethodBody(rBraceToken, true);
-                }
-            }
-            
-            // 8. End declaration
-            LocatableToken endToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
-            callbacks.endMethodDecl(endToken, true);
-            
-            // Visit children for any nested declarations
+        // Skip if no callbacks configured
+        if (callbacks == null) {
             super.visitSecondaryConstructor(constructor);
-            
-        } finally {
-            // Clear modifier state to prevent leakage (learned from M4.1 review issue M3)
-            clearModifierState();
-            state.popScope();  // ALWAYS cleanup
+            return;
         }
+
+        // 1. Begin declaration
+        LocatableToken declToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
+        callbacks.gotDeclBegin(declToken);
+
+        // 2. Process modifiers (visibility modifiers for constructors)
+        KtModifierList modifierList = constructor.getModifierList();
+        if (modifierList != null) {
+            processModifiers(modifierList);
+        }
+
+        // 3. Constructor declaration (use "constructor" keyword as name indicator)
+        PsiElement constructorKeyword = constructor.getConstructorKeyword();
+        LocatableToken nameToken;
+        if (constructorKeyword != null) {
+            nameToken = createToken(constructorKeyword, JavaTokenTypes.IDENT);
+        } else {
+            // Fallback: use constructor element itself
+            nameToken = createToken(constructor, JavaTokenTypes.IDENT);
+        }
+
+        // TODO Phase 4.4: Extract KDoc for secondary constructor
+        LocatableToken javadocToken = null;  // Intentionally null until Phase 4.4
+
+        callbacks.gotConstructorDecl(nameToken, javadocToken);
+
+        // 4. Modifiers consumed
+        callbacks.modifiersConsumed();
+
+        // 5. Parameters
+        processConstructorParameters(constructor);
+
+        // 6. Constructor delegation (: this(...) or : super(...))
+        // Phase 4: Note delegation exists but skip expression parsing (Phase 6)
+        KtConstructorDelegationCall delegation = constructor.getDelegationCall();
+        if (delegation != null) {
+            // Delegation call present (this() or super())
+            // Delegation expression parsing deferred to Phase 6
+        }
+
+        // 7. Constructor body (if present)
+        KtBlockExpression body = constructor.getBodyExpression();
+        if (body != null) {
+            PsiElement lBrace = body.getLBrace();
+            if (lBrace != null) {
+                LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+                callbacks.beginMethodBody(lBraceToken);
+            }
+
+            // Phase 6: Traverse constructor body via visitor
+            body.accept(this);
+
+            PsiElement rBrace = body.getRBrace();
+            if (rBrace != null) {
+                LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+                callbacks.endMethodBody(rBraceToken, true);
+            }
+        }
+
+        // 8. End declaration
+        LocatableToken endToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
+        callbacks.endMethodDecl(endToken, true);
+
+        // Visit children for any nested declarations
+        super.visitSecondaryConstructor(constructor);
+
+//            clearModifierState();
     }
     
     /**
@@ -856,52 +787,45 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         if (initializer == null) {
             return;
         }
-        
-        // State management with try-finally
-        state.pushScope(initializer);
-        try {
-            // Skip if no callbacks configured
-            if (callbacks == null) {
-                super.visitAnonymousInitializer(initializer);
-                return;
-            }
-            
-            // 1. Begin init block
-            // First token is the "init" keyword, second is the block itself
-            PsiElement initKeyword = initializer.getFirstChild();  // "init" keyword
-            KtExpression bodyExpr = initializer.getBody();
 
-            if (initKeyword != null && bodyExpr instanceof KtBlockExpression) {
-                KtBlockExpression body = (KtBlockExpression) bodyExpr;
-                LocatableToken initToken = createToken(initKeyword, JavaTokenTypes.LITERAL_init);
-
-                callbacks.gotDeclBegin(initToken);
-
-                PsiElement lBrace = body.getLBrace();
-                PsiElement rBrace = body.getRBrace();
-
-                if (lBrace != null && rBrace != null) {
-                    LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-                    callbacks.beginInitBlock(initToken, lBraceToken);
-
-                    // Phase 6: Traverse init block body via visitor
-                    body.accept(this);
-
-                    // 2. End init block
-                    LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-                    callbacks.endInitBlock(rBraceToken, true);
-                }
-                else {
-                    callbacks.endDecl(initToken);
-                }
-            }
-            
-            // Visit children for any nested declarations (unlikely in init blocks)
+        // Skip if no callbacks configured
+        if (callbacks == null) {
             super.visitAnonymousInitializer(initializer);
-            
-        } finally {
-            state.popScope();  // ALWAYS cleanup
+            return;
         }
+
+        // 1. Begin init block
+        // First token is the "init" keyword, second is the block itself
+        PsiElement initKeyword = initializer.getFirstChild();  // "init" keyword
+        KtExpression bodyExpr = initializer.getBody();
+
+        if (initKeyword != null && bodyExpr instanceof KtBlockExpression) {
+            KtBlockExpression body = (KtBlockExpression) bodyExpr;
+            LocatableToken initToken = createToken(initKeyword, JavaTokenTypes.LITERAL_init);
+
+            callbacks.gotDeclBegin(initToken);
+
+            PsiElement lBrace = body.getLBrace();
+            PsiElement rBrace = body.getRBrace();
+
+            if (lBrace != null && rBrace != null) {
+                LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+                callbacks.beginInitBlock(initToken, lBraceToken);
+
+                // Phase 6: Traverse init block body via visitor
+                body.accept(this);
+
+                // 2. End init block
+                LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+                callbacks.endInitBlock(rBraceToken, true);
+            }
+            else {
+                callbacks.endDecl(initToken);
+            }
+        }
+
+        // Visit children for any nested declarations (unlikely in init blocks)
+        super.visitAnonymousInitializer(initializer);
     }
     
     /**
@@ -960,60 +884,53 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         
         // Phase 2: Log property visit (retained for debugging)
         String propertyName = property.getName();
-        traversalLog.add("VISIT: PROPERTY: " + (propertyName != null ? propertyName : "<anonymous>"));
-        
-        // State management with try-finally
-        state.pushScope(property);
-        try {
-            // Skip if no callbacks configured
-            if (callbacks == null) {
-                super.visitProperty(property);
-                return;
-            }
-            
-            // 1. Begin field declarations
-            LocatableToken propertyToken = createToken( property.getValOrVarKeyword(), property.isVar() ? JavaTokenTypes.LITERAL_var : JavaTokenTypes.LITERAL_val);
-            callbacks.gotDeclBegin(propertyToken);
-            callbacks.beginFieldDeclarations(propertyToken);
-            
-            // 2. Process modifiers
-            KtModifierList modifierList = property.getModifierList();
-            if (modifierList != null) {
-                processModifiers(modifierList);
-            }
-            
-            // 3. Property type
-            LocatableToken typeToken = processPropertyType(property);
-            if (typeToken != null) {
-                List<LocatableToken> typeTokens = List.of(typeToken);
-                 callbacks.gotTypeSpec(typeTokens);
-            }
-            
-            // 4. Field declaration
-            PsiElement nameIdentifier = property.getNameIdentifier();
-            if (nameIdentifier != null && propertyName != null) {
-                LocatableToken nameToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
-                boolean hasInitializer = property.hasInitializer();
-                callbacks.gotField(propertyToken, nameToken, hasInitializer);
-            }
-            
-            // 5. End field
-            callbacks.endField(propertyToken, true);
-            
-            // 6. End field declarations
-            callbacks.endFieldDeclarations(propertyToken, true);
 
-            // TODO: that needs to be done only on failure
-            // callbacks.endDecl(propertyToken);
-
-            // Visit custom accessors if present (custom getter/setter bodies)
-            // TODO?
+        // Skip if no callbacks configured
+        if (callbacks == null) {
             super.visitProperty(property);
-            
-        } finally {
-            clearModifierState();
-            state.popScope();  // ALWAYS cleanup
+            return;
         }
+
+        // 1. Begin field declarations
+        LocatableToken propertyToken = createToken( property.getValOrVarKeyword(), property.isVar() ? JavaTokenTypes.LITERAL_var : JavaTokenTypes.LITERAL_val);
+        callbacks.gotDeclBegin(propertyToken);
+        callbacks.beginFieldDeclarations(propertyToken);
+
+        // 2. Process modifiers
+        KtModifierList modifierList = property.getModifierList();
+        if (modifierList != null) {
+            processModifiers(modifierList);
+        }
+
+        // 3. Property type
+        LocatableToken typeToken = processPropertyType(property);
+        if (typeToken != null) {
+            List<LocatableToken> typeTokens = List.of(typeToken);
+             callbacks.gotTypeSpec(typeTokens);
+        }
+
+        // 4. Field declaration
+        PsiElement nameIdentifier = property.getNameIdentifier();
+        if (nameIdentifier != null && propertyName != null) {
+            LocatableToken nameToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
+            boolean hasInitializer = property.hasInitializer();
+            callbacks.gotField(propertyToken, nameToken, hasInitializer);
+        }
+
+        // 5. End field
+        callbacks.endField(propertyToken, true);
+
+        // 6. End field declarations
+        callbacks.endFieldDeclarations(propertyToken, true);
+
+        // TODO: that needs to be done only on failure
+        // callbacks.endDecl(propertyToken);
+
+        // Visit custom accessors if present (custom getter/setter bodies)
+        // TODO?
+        super.visitProperty(property);
+
+//        clearModifierState();
     }
     
     /**
@@ -1104,125 +1021,75 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         if (objectName == null && declaration.isCompanion()) {
             objectName = "Companion";
         }
-        traversalLog.add("VISIT: OBJECT: " + (objectName != null ? objectName : "<anonymous>"));
-        
-        // State management with try-finally
-        state.pushScope(declaration);
-        try {
-            // Skip if no callbacks configured
-            if (callbacks == null) {
-                super.visitObjectDeclaration(declaration);
-                return;
-            }
-            
-            // 1. Begin declaration
-            LocatableToken objectToken = createToken(declaration.getObjectKeyword(), JavaTokenTypes.LITERAL_object);
-            callbacks.gotDeclBegin(objectToken);
-            
-            // 2. Process modifiers (objects can have visibility modifiers)
-            KtModifierList modifierList = declaration.getModifierList();
-            if (modifierList != null) {
-                processModifiers(modifierList);
-            }
-            callbacks.modifiersConsumed();
-            
-            // 3. Type definition - objects are mapped to classes
-            callbacks.gotTypeDef(objectToken, JavaTokenTypes.LITERAL_class);
-            
-            // 4. Object name (or "Companion" for companion objects)
-            String name = declaration.getName();
-            if (name != null && declaration.getNameIdentifier() != null) {
-                // Named object or named companion
-                LocatableToken nameToken = createToken(declaration.getNameIdentifier(), JavaTokenTypes.IDENT);
-                callbacks.gotTypeDefName(nameToken);
-            } else if (declaration.isCompanion()) {
-                // Companion object without explicit name - use "Companion" as synthetic name
-                LocatableToken nameToken = createTokenWithText(declaration, "Companion", JavaTokenTypes.IDENT);
-                callbacks.gotTypeDefName(nameToken);
-            }
-            
-            // 5. Process supertypes (objects can implement interfaces)
-            processSuperTypes(declaration);
-            
-            // 6. Begin type body
-            KtClassBody body = declaration.getBody();
-            if (body != null) {
-                PsiElement lBrace = body.getLBrace();
-                PsiElement rBrace = body.getRBrace();
-                
-                if (lBrace != null && rBrace != null) {
-                    LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-                    callbacks.beginTypeBody(lBraceToken);
-                    
-                    // 7. Visit nested declarations (objects can contain nested classes/objects/functions/properties)
-                    for (KtDeclaration decl : body.getDeclarations()) {
-                        if (decl instanceof KtClass && !(decl instanceof KtEnumEntry)) {
-                            decl.accept(this);
-                        } else if (decl instanceof KtObjectDeclaration) {
-                            decl.accept(this);
-                        } else if (decl instanceof KtNamedFunction) {
-                            decl.accept(this);  // Phase 4.1: Visit methods
-                        } else if (decl instanceof KtProperty) {
-                            decl.accept(this);  // Phase 4.3: Visit properties
-                        }
+
+        // Skip if no callbacks configured
+        if (callbacks == null) {
+            super.visitObjectDeclaration(declaration);
+            return;
+        }
+
+        // 1. Begin declaration
+        LocatableToken objectToken = createToken(declaration.getObjectKeyword(), JavaTokenTypes.LITERAL_object);
+        callbacks.gotDeclBegin(objectToken);
+
+        // 2. Process modifiers (objects can have visibility modifiers)
+        KtModifierList modifierList = declaration.getModifierList();
+        if (modifierList != null) {
+            processModifiers(modifierList);
+        }
+        callbacks.modifiersConsumed();
+
+        // 3. Type definition - objects are mapped to classes
+        callbacks.gotTypeDef(objectToken, JavaTokenTypes.LITERAL_class);
+
+        // 4. Object name (or "Companion" for companion objects)
+        String name = declaration.getName();
+        if (name != null && declaration.getNameIdentifier() != null) {
+            // Named object or named companion
+            LocatableToken nameToken = createToken(declaration.getNameIdentifier(), JavaTokenTypes.IDENT);
+            callbacks.gotTypeDefName(nameToken);
+        } else if (declaration.isCompanion()) {
+            // Companion object without explicit name - use "Companion" as synthetic name
+            LocatableToken nameToken = createTokenWithText(declaration, "Companion", JavaTokenTypes.IDENT);
+            callbacks.gotTypeDefName(nameToken);
+        }
+
+        // 5. Process supertypes (objects can implement interfaces)
+        processSuperTypes(declaration);
+
+        // 6. Begin type body
+        KtClassBody body = declaration.getBody();
+        if (body != null) {
+            PsiElement lBrace = body.getLBrace();
+            PsiElement rBrace = body.getRBrace();
+
+            if (lBrace != null && rBrace != null) {
+                LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+                callbacks.beginTypeBody(lBraceToken);
+
+                // 7. Visit nested declarations (objects can contain nested classes/objects/functions/properties)
+                for (KtDeclaration decl : body.getDeclarations()) {
+                    if (decl instanceof KtClass && !(decl instanceof KtEnumEntry)) {
+                        decl.accept(this);
+                    } else if (decl instanceof KtObjectDeclaration) {
+                        decl.accept(this);
+                    } else if (decl instanceof KtNamedFunction) {
+                        decl.accept(this);  // Phase 4.1: Visit methods
+                    } else if (decl instanceof KtProperty) {
+                        decl.accept(this);  // Phase 4.3: Visit properties
                     }
-                    
-                    // 8. End type body
-                    LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-                    callbacks.endTypeBody(rBraceToken, true);
                 }
+
+                // 8. End type body
+                LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+                callbacks.endTypeBody(rBraceToken, true);
             }
-            
-            // 9. End declaration
-            callbacks.gotTypeDefEnd(objectToken, true);
-            
-        } finally {
-            state.popScope();  // ALWAYS cleanup
         }
+
+        // 9. End declaration
+        callbacks.gotTypeDefEnd(objectToken, true);
     }
-    
-    /**
-     * Verify that state stack is balanced after traversal.
-     *
-     * <p>MUST be called after {@link #visitKtFile(KtFile)} completes to ensure
-     * all push/pop operations were properly balanced. An unbalanced stack indicates
-     * a bug in the visitor implementation (missing finally block or exception during
-     * traversal).</p>
-     *
-     * <p><b>Usage Pattern:</b></p>
-     * <pre>{@code
-     * ktFile.accept(visitor);
-     * if (!visitor.validateState()) {
-     *     throw new IllegalStateException("Visitor state unbalanced!");
-     * }
-     * }</pre>
-     *
-     * @return true if state is valid (stack empty), false otherwise
-     * @throws IllegalStateException if state is unbalanced with detailed error message
-     */
-    public boolean validateState() {
-        if (!state.isStackBalanced()) {
-            throw new IllegalStateException(
-                "State stack unbalanced: " + state.getStackSize() + " elements remaining");
-        }
-        return true;
-    }
-    
-    /**
-     * Get current visitor state (for testing).
-     *
-     * <p>Public to allow test access from bluej.parser.psi package.
-     * Tests can use this to verify state management during traversal, check
-     * nesting depth, or validate modifier accumulation.</p>
-     *
-     * <p><b>Not for production use</b> - only for testing visitor behavior.</p>
-     *
-     * @return The visitor state instance
-     */
-    public VisitorState getState() {
-        return state;
-    }
-    
+
     // ==================== Phase 3 Helper Methods ====================
     
     /**
@@ -1336,15 +1203,15 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         int endLine = endLineCol[0];
         int endColumn = endLineCol[1];
 
-        if (tokenBase != null) {
-            if (startLine == 1) { startColumn += tokenBase.getColumn() - 1; };
-            if (endLine == 1) { endColumn += tokenBase.getColumn() - 1; };
-
-            startLine += tokenBase.getLine() - 1;
-            endLine += tokenBase.getLine() - 1;
-            startOffset += tokenBase.getPosition();
-            endOffset += tokenBase.getPosition();
-        }
+//        if (tokenBase != null) {
+//            if (startLine == 1) { startColumn += tokenBase.getColumn() - 1; };
+//            if (endLine == 1) { endColumn += tokenBase.getColumn() - 1; };
+//
+//            startLine += tokenBase.getLine() - 1;
+//            endLine += tokenBase.getLine() - 1;
+//            startOffset += tokenBase.getPosition();
+//            endOffset += tokenBase.getPosition();
+//        }
         
         // Return positions array
         return new LineColPos[] {
@@ -1542,22 +1409,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         // Note: Static modifier handling for companion objects deferred to Task 3.2
         // Kotlin doesn't have static classes, only companion objects
     }
-    
-    /**
-     * Clear modifier state after processing declaration (Phase 3).
-     *
-     * <p>This method MUST be called after invoking end* callbacks to reset
-     * modifier state for the next declaration. Failing to clear modifiers will
-     * cause them to leak into subsequent declarations.</p>
-     *
-     * <p><b>Phase 2:</b> Stub method - not implemented yet.</p>
-     * <p><b>Phase 3:</b> Will call {@link VisitorState#clearModifiers()} after
-     * each declaration is fully processed.</p>
-     */
-    private void clearModifierState() {
-        state.clearModifiers();
-    }
-    
+
     /**
      * Processes superclass and implemented interfaces.
      *
@@ -2111,16 +1963,16 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
 
     public void setEmitRangeStart(LocatableToken currentToken) {
         this.callbacks.setEmitRangeStart(currentToken);
-        var offset = this.getTokenBase().getPosition();
-
-        if (offset > 0) {
-            this.psiStartOffset = currentToken.getPosition() - offset;
-        }
+//        var offset = this.getTokenBase().getPosition();
+//
+//        if (offset > 0) {
+//            this.psiStartOffset = currentToken.getPosition() - offset;
+//        }
     }
 
     public int getPsiStartOffset() {
-        return this.psiStartOffset;
-//        return this.getTokenBase().getPosition();
+//        return this.psiStartOffset;
+        return this.getTokenBase().getPosition();
     }
 
      // ==================== Phase 6 Statement and Expression Visitor Methods ====================
@@ -2176,13 +2028,13 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
          List<KtExpression> statements = block.getStatements();
          for (KtExpression statement : statements) {
              // Wrap each statement with beginElement/endElement
-             callbacks.beginElement(createToken(statement));
+             callbacks.beginElement(createToken(statement.getFirstChild()));
             
              // Recursively visit the statement
              statement.accept(this);
             
              // End statement successfully
-             callbacks.endElement(createToken(statement), true);
+             callbacks.endElement(createToken(statement.getLastChild()), true);
          }
         
          // 3. End statement block
@@ -3179,13 +3031,14 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
              return;
          }
         
-         LocatableToken token = createToken(expr);
-         callbacks.beginExpression(token, false);
+//         LocatableToken token = createToken(expr.getFirstChild(), JavaTokenTypes.IDENT);
+//         callbacks.beginExpression(token, false);
         
          // 1. Method name (from call's callee expression)
          KtExpression calleeExpr = expr.getCalleeExpression();
          if (calleeExpr != null) {
              LocatableToken nameToken = createToken(calleeExpr);
+             callbacks.beginExpression(nameToken, false);
              callbacks.gotMethodCall(nameToken);
          }
         
@@ -3211,10 +3064,13 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
              if (rParen != null) {
                  LocatableToken rParenToken = createToken(rParen, JavaTokenTypes.RPAREN);
                  callbacks.endArgumentList(rParenToken);
+                 callbacks.endExpression(rParenToken, false);
              }
          }
-        
-         callbacks.endExpression(token, false);
+
+//         LocatableToken endToken = createToken(expr.getValueArgumentList().getLeftParenthesis(), JavaTokenTypes.LPAREN);
+//
+//         callbacks.endExpression(endToken, false);
      }
     
      /**

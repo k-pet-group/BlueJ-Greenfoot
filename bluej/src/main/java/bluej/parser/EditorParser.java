@@ -161,10 +161,14 @@ public class EditorParser extends SourceParser
     {
         super(input);
 
-        this.document = document;
-        this.scopeStack = scopeStack;
-        this.nodeStructureListener = nodeStructureListener;
-        pcuNode = (ParsedCUNode) scopeStack.get(0);
+        if (input instanceof SourceInput.DocumentSource source) {
+            this.document = source.document();
+            this.scopeStack = scopeStack;
+            this.nodeStructureListener = nodeStructureListener;
+            pcuNode = (ParsedCUNode) scopeStack.get(0);
+        } else {
+            throw new IllegalArgumentException("Invalid SourceInput type: " + input);
+        }
     }
 
 
