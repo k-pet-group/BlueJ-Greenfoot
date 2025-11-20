@@ -392,7 +392,7 @@ public class InfoParser extends EditorParser
         lastTypespecToks = tokens;
         super.gotTypeSpec(tokens);
 
-        if (lastTypespecToks == null)
+        if (lastTypespecToks == null || lastTypespecToks.isEmpty())
             return;
 
         // Dependency tracking

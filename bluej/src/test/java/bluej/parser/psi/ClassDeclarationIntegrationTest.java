@@ -21,6 +21,8 @@
  */
 package bluej.parser.psi;
 
+import bluej.parser.psi.visitor.BaseVisitor;
+import bluej.parser.psi.visitor.FileVisitor;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.junit.jupiter.api.*;
 
@@ -115,7 +117,7 @@ public class ClassDeclarationIntegrationTest {
         
         // Create recorder and visitor
         CallbackRecorder recorder = new CallbackRecorder();
-        PsiCallbackVisitor visitor = new PsiCallbackVisitor(recorder);
+        BaseVisitor visitor = new FileVisitor(recorder);
         
         // Visit the file
         ktFile.accept(visitor);

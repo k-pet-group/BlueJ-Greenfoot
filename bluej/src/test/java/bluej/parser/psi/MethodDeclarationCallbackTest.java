@@ -23,6 +23,8 @@ package bluej.parser.psi;
 
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.parser.psi.visitor.BaseVisitor;
+import bluej.parser.psi.visitor.FileVisitor;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.junit.Before;
 import org.junit.Test;
@@ -1319,8 +1321,11 @@ public class MethodDeclarationCallbackTest {
         assertTrue("Should have gotMethodDeclaration", recorder.hasCallback("gotMethodDeclaration"));
         
         List<CallbackRecord> methodDecls = recorder.getCallbacksByName("gotMethodDeclaration");
-        assertEquals("Should have exactly 1 method (outer only, inner deferred to Phase 6)", 
-                    1, methodDecls.size());
+//        assertEquals("Should have exactly 1 method (outer only, inner deferred to Phase 6)",
+//                    1, methodDecls.size());
+
+        assertEquals("Should have 2 methods",
+                2, methodDecls.size());
         
         Map<String, Object> params = methodDecls.get(0).getParameters();
         LocatableToken nameToken = (LocatableToken) params.get("token");
@@ -1346,7 +1351,7 @@ public class MethodDeclarationCallbackTest {
         
         // Create recorder and visitor
         CallbackRecorder recorder = new CallbackRecorder();
-        PsiCallbackVisitor visitor = new PsiCallbackVisitor(recorder);
+        BaseVisitor visitor = new FileVisitor(recorder);
         
         // Visit the file (triggers class and method visitation)
         ktFile.accept(visitor);

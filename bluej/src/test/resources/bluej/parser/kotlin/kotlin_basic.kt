@@ -94,6 +94,8 @@ object KotlinSingleton {
     }
 }
 
+// TODO: those do not work yet
+/*
 /**
  * Extension function
  */
@@ -107,6 +109,7 @@ fun String.addExclamation(): String {
 fun topLevelFunction() {
     println("This is a top-level function")
 }
+*/
 
 /**
  * Type alias

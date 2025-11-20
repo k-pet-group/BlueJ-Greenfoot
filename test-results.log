@@ -1,0 +1,2994 @@
+> Task :anns-threadchecker:compileJava UP-TO-DATE
+> Task :anns-threadchecker:processResources NO-SOURCE
+> Task :anns-threadchecker:classes UP-TO-DATE
+> Task :anns-threadchecker:jar UP-TO-DATE
+> Task :bluej:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :threadchecker:compileJava UP-TO-DATE
+> Task :threadchecker:processResources UP-TO-DATE
+> Task :threadchecker:classes UP-TO-DATE
+> Task :threadchecker:jar UP-TO-DATE
+> Task :boot:compileJava UP-TO-DATE
+> Task :boot:processResources NO-SOURCE
+> Task :boot:classes UP-TO-DATE
+> Task :boot:compileSplashJava UP-TO-DATE
+> Task :boot:processSplashResources NO-SOURCE
+> Task :boot:splashClasses UP-TO-DATE
+> Task :boot:drawBlueJSplashVersion
+> Task :boot:drawBlueJSplashVersion2x
+> Task :boot:drawGreenfootSplashVersion
+> Task :boot:drawGreenfootSplashVersion2x
+> Task :boot:updateVersionNumber
+> Task :boot:jar UP-TO-DATE
+> Task :lang-stride:compileJava UP-TO-DATE
+> Task :bluej:compileKotlin NO-SOURCE
+> Task :bluej:compileJava UP-TO-DATE
+> Task :bluej:blueJCoreJar UP-TO-DATE
+> Task :bluej:processResources NO-SOURCE
+> Task :bluej:classes UP-TO-DATE
+> Task :bluej:jar UP-TO-DATE
+> Task :bluej:compileTestKotlin NO-SOURCE
+> Task :bluej:recordCommitID
+> Task :lang-stride:processResources NO-SOURCE
+> Task :lang-stride:classes UP-TO-DATE
+> Task :lang-stride:jar UP-TO-DATE
+> Task :bluej:copyToLib UP-TO-DATE
+> Task :bluej:compileTestJava UP-TO-DATE
+> Task :bluej:copyLibToTestBuild UP-TO-DATE
+> Task :bluej:processTestResources UP-TO-DATE
+> Task :bluej:testClasses UP-TO-DATE
+
+> Task :bluej:test
+
+bluej.collect.TestAnonymisation > test3B PASSED
+
+bluej.collect.TestAnonymisation > test1 PASSED
+
+bluej.collect.TestAnonymisation > test2 PASSED
+
+bluej.collect.TestAnonymisation > test3 PASSED
+
+bluej.collect.TestAnonymisation > test4 PASSED
+
+bluej.collect.TestAnonymisation > test5 PASSED
+
+bluej.collect.TestAnonymisation > test6 PASSED
+
+bluej.editor.flow.TestDocument STANDARD_ERROR
+    SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+    SLF4J: Defaulting to no-operation (NOP) logger implementation
+    SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+
+bluej.parser.Java14ParseTest > testStandardAssertion PASSED
+
+bluej.parser.entity.EntityTests > testValueSuperclassFieldAccess PASSED
+
+bluej.parser.BasicParseTest > testNewSwitch1 PASSED
+
+bluej.parser.entity.EntityTests > testTypeSuperclassFieldAccess PASSED
+
+bluej.parser.BasicParseTest > testSwitchExpression1 PASSED
+
+bluej.parser.BasicParseTest > testSwitchExpression2 PASSED
+
+bluej.parser.BasicParseTest > testParseBroken PASSED
+
+bluej.parser.BasicParseTest > testPatternInstanceof1 PASSED
+
+bluej.parser.BasicParseTest > testPatternInstanceof2 PASSED
+
+bluej.parser.BasicParseTest > testPatternInstanceof3 PASSED
+
+bluej.parser.BasicParseTest > testPatternInstanceof4 PASSED
+
+bluej.parser.BasicParseTest > testPatternInstanceof5 PASSED
+
+bluej.parser.BasicParseTest > testPatternInstanceof6 PASSED
+
+bluej.debugger.gentype.GenTypeTests > test1 PASSED
+
+bluej.debugger.gentype.GenTypeTests > test2 PASSED
+
+bluej.debugger.gentype.GenTypeTests > test3 PASSED
+
+bluej.debugger.gentype.GenTypeTests > test4 PASSED
+
+bluej.debugger.gentype.GenTypeTests > test5 PASSED
+
+bluej.debugger.gentype.GenTypeTests > test6 PASSED
+
+bluej.parser.BasicParseTest > testPatternInstanceof7 PASSED
+
+bluej.parser.BasicParseTest > testPatternInstanceof8 PASSED
+
+bluej.parser.psi.TokenFactoryTest > testWhitespaceOnlyLine STANDARD_ERROR
+    Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+
+bluej.parser.BasicParseTest > testPatternInstanceof9 PASSED
+
+bluej.editor.flow.TestBasicEditorInteraction STANDARD_ERROR
+    SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+    SLF4J: Defaulting to no-operation (NOP) logger implementation
+    SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+
+bluej.parser.BasicParseTest > testAnnotation1 PASSED
+
+bluej.collect.TestDiff > testInsert PASSED
+
+bluej.editor.flow.TestBasicEditorDisplay STANDARD_ERROR
+    SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+    SLF4J: Defaulting to no-operation (NOP) logger implementation
+    SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+
+bluej.parser.BasicParseTest > testCode PASSED
+
+bluej.parser.BasicParseTest > testClassTpars PASSED
+
+bluej.parser.IncrementalParseTest > test10 PASSED
+
+bluej.parser.IncrementalParseTest > test11 PASSED
+
+bluej.parser.IncrementalParseTest > test12 PASSED
+
+bluej.editor.flow.TestBasicEditorInteraction > testAutoIndent STANDARD_ERROR
+    Nov 19, 2025 7:03:47 PM com.sun.javafx.application.PlatformImpl startup
+    WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @59309333'
+
+bluej.parser.IncrementalParseTest > test13 PASSED
+
+bluej.parser.IncrementalParseTest > testRegression331p2 PASSED
+
+bluej.parser.IncrementalParseTest > test1 PASSED
+
+bluej.parser.BasicParseTest > testNoParseExceptionsOnGenerics PASSED
+
+bluej.parser.IncrementalParseTest > test2 PASSED
+
+bluej.parser.BasicParseTest > testCommentExtraction2 PASSED
+
+bluej.parser.BasicParseTest > testCommentExtraction3 PASSED
+
+bluej.parser.BasicParseTest > testCommentExtraction4 PASSED
+
+bluej.parser.IncrementalParseTest > test3 PASSED
+
+bluej.parser.BasicParseTest > testRecordPatternFail1 PASSED
+
+bluej.parser.BasicParseTest > testRecordPatternFail2 PASSED
+
+bluej.parser.BasicParseTest > testRecordPatternFail3 PASSED
+
+bluej.parser.IncrementalParseTest > test4 PASSED
+
+bluej.parser.BasicParseTest > testRecordPatternFail4 PASSED
+
+bluej.parser.BasicParseTest > testRecordPatternFail5 PASSED
+
+bluej.parser.KotlinEditorParserTest > testKotlinClassWithVarProperty SKIPPED
+
+bluej.parser.IncrementalParseTest > test5 PASSED
+
+bluej.editor.flow.TestBasicEditorDisplay > testSyntaxStrings STANDARD_ERROR
+    Nov 19, 2025 7:03:48 PM com.sun.javafx.application.PlatformImpl startup
+    WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @59309333'
+
+bluej.parser.IncrementalParseTest > test6 PASSED
+
+bluej.parser.IncrementalParseTest > test7 PASSED
+
+bluej.parser.IncrementalParseTest > test8 PASSED
+
+bluej.classmgr.TestClassFileReader > testCompileSimpleKotlinClass PASSED
+
+bluej.parser.IncrementalParseTest > test9 PASSED
+
+bluej.parser.IncrementalParseTest > testRegression317 PASSED
+
+bluej.parser.IncrementalParseTest > testRegression331 PASSED
+
+bluej.parser.Java11BasicParseTest > testVarDecl1 PASSED
+
+bluej.parser.Java11BasicParseTest > testVarDecl2 PASSED
+
+bluej.parser.Java11BasicParseTest > testVarDecl3 PASSED
+
+bluej.parser.IncrementalParseTest > testRegression393 PASSED
+
+bluej.parser.IncrementalParseTest > testRegression440 PASSED
+
+bluej.parser.IncrementalParseTest > testImportStmt2 PASSED
+
+bluej.parser.IncrementalParseTest > testImportStmt PASSED
+
+bluej.parser.IncrementalParseTest > testNewStmt PASSED
+
+bluej.parser.IncrementalParseTest > testChangeSuper PASSED
+
+bluej.parser.psi.TokenFactoryTest > testWhitespaceOnlyLine STANDARD_ERROR
+    WARNING: A Java agent has been loaded dynamically (/home/jaen/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.17.7/fbf3d6d649ed37fc9e9c59480a05be0a26e3c2da/byte-buddy-agent-1.17.7.jar)
+    WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+    WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+    WARNING: Dynamic loading of agents will be disallowed by default in a future release
+
+bluej.parser.IncrementalParseTest > testMultipleDeclaration PASSED
+
+bluej.parser.context.CtxtFileCompatibilityTest > testEmptyParamsHandling PASSED
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :bluej:test
+
+bluej.parser.EditorParserTest > testTryCatch PASSED
+
+bluej.parser.EditorParserTest > testWhile PASSED
+
+bluej.parser.EditorParserTest > test1a PASSED
+
+bluej.parser.context.CtxtFileCompatibilityTest > testReadActualBlueJFormat PASSED
+
+bluej.parser.EditorParserTest > test1 PASSED
+
+bluej.parser.context.CtxtFileCompatibilityTest > testFileHeaderCompatibility PASSED
+
+bluej.parser.context.CtxtFileCompatibilityTest > testWriteCorrectFormat PASSED
+
+bluej.parser.context.CtxtFileCompatibilityTest > testEscapeSequenceHandling PASSED
+
+bluej.editor.flow.TestAutoIndent > testCommentedString PASSED
+
+bluej.parser.EditorParserTest > test2 PASSED
+
+bluej.parser.EditorParserTest > test3 PASSED
+
+bluej.parser.EditorParserTest > testRecursiveTypedef PASSED
+
+bluej.parser.EditorParserTest > testTicket467 PASSED
+
+bluej.parser.EditorParserTest > testIfNesting PASSED
+
+bluej.parser.EditorParserTest > testSLComment PASSED
+
+bluej.parser.EditorParserTest > testClassModifiers PASSED
+
+bluej.parser.CompletionTest3 > testParamsInConstructor PASSED
+
+bluej.parser.EditorParserTest > testBroken PASSED
+
+bluej.editor.flow.TestAutoIndent > testSelf PASSED
+
+bluej.parser.EditorParserTest > testImport PASSED
+
+bluej.parser.EditorParserTest > testLambda PASSED
+
+bluej.parser.EditorParserTest > testSuperclass PASSED
+
+bluej.parser.CompletionTest3 > testOverlappingFieldsAndLocals PASSED
+
+bluej.parser.CompletionTest3 > testLocalVarsInMethod PASSED
+
+bluej.editor.flow.TestAutoIndent > testSimple PASSED
+
+bluej.parser.CompletionTest3 > testArrayTypes PASSED
+
+bluej.parser.CompletionTest3 > testSwitchRecordVar2 PASSED
+
+bluej.parser.CompletionTest3 > testSwitchRecordVar3 PASSED
+
+bluej.parser.LexerTest > testSymbols PASSED
+
+bluej.parser.LexerTest > testSymbols2 PASSED
+
+bluej.parser.LexerTest > testOther PASSED
+
+bluej.parser.LexerTest > testJava7NumLiterals PASSED
+
+bluej.parser.LexerTest > testKeywordParse PASSED
+
+bluej.parser.CompletionTest3 > testSwitchRecordVar4 PASSED
+
+bluej.parser.LexerTest > testTextBlock PASSED
+
+bluej.parser.LexerTest > testPositionTracking2 PASSED
+
+bluej.parser.LexerTest > testPositionTracking3 PASSED
+
+bluej.parser.CompletionTest3 > testSwitchRecordVar5 PASSED
+
+bluej.parser.context.CompilationUnitContextIntegrationTest > testViewLibraryClassLoading PASSED
+
+bluej.parser.LexerTest > testPositionTracking4 PASSED
+
+bluej.parser.context.CompilationUnitContextIntegrationTest > testUnicodeAndSpecialCharacters PASSED
+
+bluej.parser.CompletionTest3 > testSwitchRecordVar6 PASSED
+
+bluej.parser.LexerTest > testPositionTracking5 PASSED
+
+bluej.parser.CompletionTest3 > testSwitchRecordVar7 PASSED
+
+bluej.parser.CompletionTest3 > testLoopVars PASSED
+
+bluej.parser.CompletionTest3 > testFieldsInInitialiser PASSED
+
+bluej.parser.CompletionTest > testCompletionResolution PASSED
+
+bluej.parser.LexerTest > testPositionTracking6 PASSED
+
+bluej.parser.CompletionTest > testThisDot PASSED
+
+bluej.parser.context.CompilationUnitContextIntegrationTest > testLargeCtxtFilePerformance PASSED
+
+bluej.parser.CompletionTest3 > testNoLocalsOnThisDot PASSED
+
+bluej.parser.context.CompilationUnitContextIntegrationTest > testRoundTripCompatibility PASSED
+
+bluej.parser.CompletionTest3 > testVarRelativePositionAndNested PASSED
+
+bluej.parser.context.CompilationUnitContextIntegrationTest > testMalformedCtxtFileHandling PASSED
+
+bluej.parser.CompletionTest > test360 PASSED
+
+bluej.parser.CompletionTest3 > testVarRelativePosition PASSED
+
+bluej.parser.context.CompilationUnitContextIntegrationTest > testPackageSaveContext PASSED
+
+bluej.parser.context.CompilationUnitContextIntegrationTest > testClassTargetGetCompilationContext PASSED
+
+bluej.parser.context.CompilationUnitContextIntegrationTest > testClassInfoToContextFlow PASSED
+
+bluej.parser.CompletionTest3 > testLocalVarsInConstructor PASSED
+
+bluej.parser.context.CompilationUnitContextLoaderTest > contextForClassWithClassObjectUsesPackageRoot STANDARD_ERROR
+    SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+    SLF4J: Defaulting to no-operation (NOP) logger implementation
+    SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+
+bluej.parser.CompletionTest3 > testSwitchInstanceofVar PASSED
+
+bluej.parser.CompletionTest3 > testSwitchInstanceofVar2 PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis PASSED
+
+bluej.parser.CompletionTest3 > testSwitchInstanceofVar3 PASSED
+
+bluej.parser.CompletionTest3 > testSwitchInstanceofVar4 PASSED
+
+bluej.parser.BasicParseTest > testRecordPattern1 PASSED
+
+bluej.parser.CompletionTest3 > testSwitchInstanceofVar5 PASSED
+
+bluej.parser.BasicParseTest > testRecordPattern2 PASSED
+
+bluej.parser.CompletionTest3 > testSwitchInstanceofVar6 PASSED
+
+bluej.parser.BasicParseTest > testRecordPattern3 PASSED
+
+bluej.parser.CompletionTest3 > testInstanceofVar PASSED
+
+bluej.parser.BasicParseTest > testRecordPattern4 PASSED
+
+bluej.parser.BasicParseTest > testRecordPattern5 PASSED
+
+bluej.parser.CompletionTest3 > testSwitchRecordVar PASSED
+
+bluej.parser.CompletionTest2 > testIfInstanceofLambdas PASSED
+
+bluej.parser.BasicParseTest > testRecordPattern6 PASSED
+
+bluej.parser.CompletionTest3 > testNoIncorrectVars PASSED
+
+bluej.parser.BasicParseTest > testRecordPattern7 PASSED
+
+bluej.parser.BasicParseTest > testRecordPattern8 PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis2 PASSED
+
+bluej.parser.CompletionTest > testCompletionOnGenericType PASSED
+
+bluej.parser.CompletionTest3 > testParamsInMethod PASSED
+
+bluej.parser.CompletionTest2 > testInner PASSED
+
+bluej.parser.CompletionTest > testForInitializerVar PASSED
+
+bluej.parser.UnitTestAnalyzerTest > testFindingVariables PASSED
+
+bluej.parser.UnitTestAnalyzerTest > testMethodInsertion PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis3 PASSED
+
+bluej.parser.UnitTestAnalyzerTest > testFixtureInsertion PASSED
+
+bluej.parser.CompletionTest > testInnerClasses PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis4 PASSED
+
+bluej.parser.UnitTestAnalyzerTest > testFindingMethods PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis5 PASSED
+
+bluej.parser.CompletionTest > testCompletionOnKeyword1 PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis6 PASSED
+
+bluej.parser.CompletionTest2 > testLocations PASSED
+
+bluej.parser.CompletionTest > testCompletionOnKeyword2 PASSED
+
+bluej.parser.CompletionTest > testCompletionOnKeyword3 PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis7 PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis8 PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis9 PASSED
+
+bluej.parser.BasicParseTest > testInterfaceSelections PASSED
+
+bluej.parser.CompletionTest > testCompletionOnKeyword4 PASSED
+
+bluej.parser.BasicParseTest > testPatternInstanceof10 PASSED
+
+bluej.parser.CompletionTest2 > testIfInstanceofNestedScopes PASSED
+
+bluej.parser.CompletionTest > testPartial PASSED
+
+bluej.parser.BasicParseTest > testPatternInstanceof11 PASSED
+
+bluej.parser.BasicParseTest > testPatternInstanceof12 PASSED
+
+bluej.parser.BasicParseTest > testPatternInstanceof13 PASSED
+
+bluej.parser.CompletionTest > test3var PASSED
+
+bluej.parser.CompletionTest > test4var PASSED
+
+bluej.parser.CompletionTest > test5var PASSED
+
+bluej.parser.CompletionTest > testMultiFieldAccess PASSED
+
+bluej.parser.LexerTest > testStressLexer PASSED
+
+bluej.parser.LexerTest > testIdentifiers PASSED
+
+bluej.parser.LexerTest > testPositionTracking PASSED
+
+bluej.parser.LexerTest > testBroken PASSED
+
+bluej.parser.LexerTest > testOther2 PASSED
+
+bluej.parser.LexerTest > testOther3 PASSED
+
+bluej.parser.CompletionTest2 > testIfInstanceofApproximate PASSED
+
+bluej.parser.CompletionTest > testTparCompletion2 PASSED
+
+bluej.parser.CompletionTest2 > testStaticInner PASSED
+
+bluej.parser.CompletionTest > testTparCompletion3 PASSED
+
+bluej.parser.CompletionTest > testTparCompletion4 PASSED
+
+bluej.parser.CompletionTest > testTparCompletion5 PASSED
+
+bluej.parser.CompletionTest > testFieldAccess PASSED
+
+bluej.parser.CompletionTest > testCompletionResolution2 PASSED
+
+bluej.parser.BasicParseTest > testNoParseExceptionsOnStandardCode PASSED
+
+bluej.parser.BasicParseTest > testClassModifiers PASSED
+
+bluej.parser.CompletionTest > testPartialExpressionCompletion PASSED
+
+bluej.parser.BasicParseTest > testValidClassInfo2 PASSED
+
+bluej.parser.BasicParseTest > testValidClassInfo3 PASSED
+
+bluej.parser.BasicParseTest > testValidClassInfo4 PASSED
+
+bluej.parser.BasicParseTest > testValidClassInfo5 PASSED
+
+bluej.parser.CompletionTest > testNoBwardVarRef PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis10 PASSED
+
+bluej.parser.CompletionTest > testTparCompletion PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis11 PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis12 PASSED
+
+bluej.parser.CompletionTest > testMultiFieldDecWithInner PASSED
+
+bluej.parser.CompletionTest > testCompletionInArrayElement PASSED
+
+bluej.parser.CompletionTest > test2 PASSED
+
+bluej.parser.CompletionTest > test3 PASSED
+
+bluej.parser.BasicParseTest > testDependencyAnalysis13 PASSED
+
+bluej.parser.BasicParseTest > testValidClassInfo PASSED
+
+bluej.parser.BasicParseTest > testCommentExtraction PASSED
+
+bluej.parser.BasicParseTest > testMultipleInterfaceExtends PASSED
+
+bluej.parser.CompletionTest2 > testIfInstanceofExact PASSED
+
+bluej.parser.BasicParseTest > testSealedClasses1 PASSED
+
+bluej.parser.BasicParseTest > testSealedClasses2 PASSED
+
+bluej.parser.BasicParseTest > testSealedClasses3 PASSED
+
+bluej.parser.CompletionTest2 > testCastLiteral PASSED
+
+bluej.parser.BasicParseTest > testSealedClasses4 PASSED
+
+bluej.parser.BasicParseTest > testSealedClasses5 PASSED
+
+bluej.parser.BasicParseTest > testSealedClasses6 PASSED
+
+bluej.parser.BasicParseTest > testSealedClasses7 PASSED
+
+bluej.parser.CompletionTest2 > testIfInstanceofArrays PASSED
+
+bluej.parser.BasicParseTest > testMultiDimensionalArrayParam PASSED
+
+bluej.parser.CompletionTest2 > testKeywords PASSED
+
+bluej.parser.SwitchExpressionTest > testSwitchExpression1 PASSED
+
+bluej.parser.SwitchExpressionTest > testSwitchExpression2 PASSED
+
+bluej.parser.SwitchExpressionTest > testSwitchExpression3 PASSED
+
+bluej.parser.SwitchExpressionTest > testSwitchExpression4 PASSED
+
+bluej.parser.SwitchExpressionTest > testSwitchExpression5 PASSED
+
+bluej.parser.SwitchExpressionTest > testStandardSwitch PASSED
+
+bluej.parser.CompletionTest2 > testLambda PASSED
+
+bluej.parser.SwitchExpressionTest > testNewSimpleSwitch1 PASSED
+
+bluej.parser.SwitchExpressionTest > testNewSimpleSwitch2 PASSED
+
+bluej.parser.CompletionTest2 > testRecord PASSED
+
+bluej.parser.CompletionTest2 > testSwitch PASSED
+
+bluej.parser.CompletionTest > testRegression312 PASSED
+
+bluej.parser.CompletionTest > testRegression340 PASSED
+
+bluej.parser.CompletionTest > testRegression571 PASSED
+
+bluej.parser.CompletionTest > testInnerClasses2 PASSED
+
+bluej.parser.CompletionTest > testInnerClasses3 PASSED
+
+bluej.parser.CompletionTest > testInnerClasses4 PASSED
+
+bluej.parser.TextParserTest > testCastToWildcard PASSED
+
+bluej.parser.CompletionTest > testCompletionAfterAnonClass PASSED
+
+bluej.parser.CompletionTest > testArrayFieldAccess PASSED
+
+bluej.parser.TextParserTest > testObjectBench PASSED
+
+bluej.parser.CompletionTest > testCompletionAfterArrayElement PASSED
+
+bluej.parser.CompletionTest > testForInitializer PASSED
+
+bluej.parser.TextParserTest > testOperators PASSED
+
+bluej.parser.CompletionTest > testAfterStatement PASSED
+
+bluej.parser.TextParserTest > testParenthesizedExpression PASSED
+
+bluej.parser.CompletionTest > testSelfRef PASSED
+
+bluej.parser.TextParserTest > testMethodResolution2 PASSED
+
+bluej.parser.CompletionTest > testInterNewCompletion PASSED
+
+bluej.parser.TextParserTest > testMethodResolution3 PASSED
+
+bluej.parser.CompletionTest > testVariableRef PASSED
+
+bluej.parser.TextParserTest > testMethodResolution4 PASSED
+
+bluej.parser.CompletionTest > testAfterArrayInitList PASSED
+
+bluej.parser.CompletionTest > testVarargsParam PASSED
+
+bluej.parser.TextParserTest > testMethodResolution5 PASSED
+
+bluej.parser.TextAnalyserTest > testEagerReturnTypeResolutionA1 PASSED
+
+bluej.parser.TextAnalyserTest > test1 PASSED
+
+bluej.parser.TextAnalyserTest > test2 PASSED
+
+bluej.parser.TextParserTest > testMethodResolution6 PASSED
+
+bluej.parser.TextParserTest > testVoidResult PASSED
+
+bluej.parser.TextParserTest > testEagerReturnTypeResolutionBsimple SKIPPED
+
+bluej.parser.TextAnalyserTest > test3 PASSED
+
+bluej.parser.TextParserTest > test560 PASSED
+
+bluej.parser.TextParserTest > testNull PASSED
+
+bluej.parser.TextParserTest > testArrayDeclaration PASSED
+
+bluej.parser.TextParserTest > testConstantExpressions2 PASSED
+
+bluej.parser.TextParserTest > testConstantExpressions3 PASSED
+
+bluej.parser.TextParserTest > testNewInnerClass PASSED
+
+bluej.parser.KotlinBasicParseTest > testEmptyClass STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+
+bluej.parser.TextParserTest > testOperators2 PASSED
+
+bluej.parser.TextParserTest > testOperators3 PASSED
+
+bluej.parser.TextParserTest > testOperators4 PASSED
+
+bluej.parser.TextParserTest > testUnboxingNumericComparison PASSED
+
+bluej.parser.TextParserTest > testEagerReturnTypeResolutionA1 PASSED
+
+bluej.parser.TextParserTest > testEagerReturnTypeResolutionA4 PASSED
+
+bluej.parser.KotlinPsiParserTest > testFaultIsolation_CompilationContinues STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+
+bluej.parser.TextParserTest > testNewExpression2 PASSED
+
+bluej.parser.TextParserTest > testNewExpression3 PASSED
+
+bluej.parser.TextParserTest > testParenthesizedVar PASSED
+
+bluej.parser.TextParserTest > testStaticVariable PASSED
+
+bluej.parser.KotlinBasicParseTest > testEmptyClass STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+
+bluej.parser.TextParserTest > testEqualityReferenceOperators PASSED
+
+bluej.parser.TextParserTest > testArrayLength PASSED
+
+bluej.parser.TextParserTest > testAnonymousInnerClass PASSED
+
+bluej.parser.TextParserTest > testClassLiteral2 PASSED
+
+bluej.parser.TextParserTest > testCasting PASSED
+
+bluej.parser.TextParserTest > testInstanceof PASSED
+
+bluej.parser.TextParserTest > testUnboxing PASSED
+
+bluej.parser.TextParserTest > testConstantExpressions PASSED
+
+bluej.parser.TextParserTest > testMethodResolution PASSED
+
+bluej.parser.TextParserTest > testStringConcat PASSED
+
+bluej.parser.TextParserTest > testCasting2 PASSED
+
+bluej.parser.TextParserTest > testCasting3 PASSED
+
+bluej.parser.TextParserTest > testCasting4 PASSED
+
+bluej.parser.TextParserTest > testCasting5 PASSED
+
+bluej.parser.TextParserTest > testNewExpression PASSED
+
+bluej.parser.TextParserTest > testStaticWildcardImport PASSED
+
+bluej.parser.TextParserTest > testClassLiteral PASSED
+
+bluej.parser.TextParserTest > testImport PASSED
+
+bluej.parser.TextParserTest > testConstantStrings PASSED
+
+bluej.parser.TextParserTest > testWcImport PASSED
+
+bluej.parser.KotlinPsiParserTest > testFaultIsolation_CompilationContinues STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=32, position=31], end=LineColPos[line=1, column=32, position=31], hiddenBefore=null, type=1, text='null'}
+
+bluej.parser.TextParserTest > testArithmeticPromotion PASSED
+
+bluej.parser.TextParserTest > testLiterals PASSED
+
+bluej.parser.TextParserTest > testStaticImport PASSED
+
+bluej.parser.KotlinBasicParseTest > testEmptyClass STANDARD_ERROR
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.TextParserTest > testStaticMethodCall PASSED
+
+bluej.parser.KotlinPsiParserTest > testFaultIsolation_CompilationContinues STANDARD_ERROR
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.PsiTreeSerializerTest > testSerializeNullFile PASSED
+
+bluej.parser.KotlinEditorParserTest > testComplexKotlinClass STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=1, position=0], hiddenBefore=null, type=1, text='null'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.PsiTreeSerializerTest > testSerializeComplexFile PASSED
+
+bluej.parser.KotlinBasicParseTest > testEmptyClass PASSED
+
+bluej.parser.KotlinBasicParseTest > testTopLevelFun SKIPPED
+
+bluej.parser.psi.PsiTreeSerializerTest > testSerializeWithLocation PASSED
+
+bluej.parser.psi.PsiTreeSerializerTest > testSerializeClassWithInheritance PASSED
+
+bluej.parser.KotlinBasicParseTest > testSealedClasses STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+
+bluej.parser.KotlinEditorParserTest > testComplexKotlinClass STANDARD_ERROR
+    PSI: No source code available for parsing
+    [PSI-DEBUG] PSI tree is null, skipping parsing
+
+bluej.parser.KotlinBasicParseTest > testSealedClasses STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=7, position=6], hiddenBefore=null, type=177, text='sealed'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.PsiTreeSerializerTest > testSerializeEmptyFile PASSED
+
+bluej.parser.psi.PsiTreeSerializerTest > testSerializeFunctionModifiers PASSED
+
+bluej.parser.psi.PsiTreeSerializerTest > testSerializePropertyModifiers PASSED
+
+bluej.parser.KotlinEditorParserTest > testComplexKotlinClass STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=6, column=4, position=134], end=LineColPos[line=7, column=1, position=135], hiddenBefore=LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=6, column=4, position=134], hiddenBefore=null, type=61, text='/**
+     * Write a description of class YetAnotherKotlinClass here.
+     *
+     * @author (your name)
+     * @version (a version number or a date)
+     */'}, type=167, text='
+    '}
+
+bluej.parser.psi.PsiTreeSerializerTest > testSerializeCompanionObject PASSED
+
+bluej.parser.psi.PsiTreeSerializerTest > testWriteToFileNullContent PASSED
+
+bluej.parser.KotlinEditorParserTest > testComplexKotlinClass STANDARD_ERROR
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.PsiTreeSerializerTest > testSerializeDataClass PASSED
+
+bluej.parser.psi.PsiTreeSerializerTest > testSerializeSingletonObject PASSED
+
+bluej.parser.psi.PsiTreeSerializerTest > testWriteToFile PASSED
+
+bluej.parser.KotlinBasicParseTest > testSealedClasses PASSED
+
+bluej.parser.KotlinBasicParseTest > testParseSimpleKotlinString STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+
+bluej.parser.psi.PsiTreeSerializerTest > testWriteToFileCreatesDirectories PASSED
+
+bluej.parser.KotlinBasicParseTest > testParseSimpleKotlinString STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.PsiTreeSerializerTest > testSerializeSimpleFunction PASSED
+
+bluej.parser.psi.PsiTreeSerializerTest > testWriteToFileNullPath PASSED
+
+bluej.parser.psi.PsiTreeSerializerTest > testSerializePropertyWithAccessors PASSED
+
+bluej.parser.KotlinBasicParseTest > testParseSimpleKotlinString PASSED
+
+bluej.parser.KotlinBasicParseTest > testPublicClassDetection PASSED
+
+bluej.parser.KotlinBasicParseTest > testYetAnotherKotlinClass STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=2, column=1, position=1], hiddenBefore=null, type=167, text='
+    '}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.context.CompilationUnitContextLoaderTest > contextForClassWithClassObjectUsesPackageRoot PASSED
+
+bluej.parser.context.CompilationUnitContextLoaderTest > contextForClassLoadsFromPackageRoot STANDARD_ERROR
+    Warning: Kotlin metadata processing failed for example.app.Sample: Cannot invoke "java.net.URL.getFile()" because "resource" is null
+    Warning: Kotlin metadata processing failed for example.app.Sample: Cannot invoke "java.net.URL.getFile()" because "resource" is null
+
+bluej.parser.context.CompilationUnitContextLoaderTest > contextForClassLoadsFromPackageRoot PASSED
+
+bluej.parser.context.CompilationUnitContextLoaderTest > contextForClassFallsBackToResource STANDARD_ERROR
+    Warning: Kotlin metadata processing failed for cache.demo.List: Cannot invoke "java.net.URL.getFile()" because "resource" is null
+    Warning: Kotlin metadata processing failed for cache.demo.List: Cannot invoke "java.net.URL.getFile()" because "resource" is null
+
+bluej.parser.context.CompilationUnitContextLoaderTest > contextForClassFallsBackToResource PASSED
+
+bluej.parser.psi.PsiTreeSerializerDebugTest > debugComplexFileOutput STANDARD_OUT
+    === DEBUG: Complex File Output ===
+    PSI Tree: Complex.kt
+    ================================================================================
+    KtFile: Complex.kt
+      Package: com.example
+      Imports:
+        - kotlin.collections.List
+
+      Data Class: Person (line 5, col 12)
+        Modifiers: data
+        Primary Constructor Parameters:
+          Property: name (line 5, col 23)
+            Modifiers: val
+            Type: String
+            Initializer: absent
+            Getter: implicit
+            Setter: absent
+          Property: age (line 5, col 41)
+            Modifiers: var
+            Type: Int
+            Initializer: absent
+            Getter: implicit
+            Setter: implicit
+
+      Object: Logger (line 7, col 8)
+
+        Function: log (line 8, col 9)
+          Return Type: Unit
+          Parameters: [message: String]
+          Body: present
+
+      Function: main (line 11, col 5)
+        Return Type: Unit
+        Parameters: [args: Array<String>]
+        Body: present
+
+
+    === END DEBUG ===
+
+bluej.parser.psi.PsiTreeSerializerDebugTest > debugComplexFileOutput PASSED
+
+bluej.compiler.TestKotlinCompiler > testCompileSimpleKotlinClass STANDARD_ERROR
+    SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+    SLF4J: Defaulting to no-operation (NOP) logger implementation
+    SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+
+bluej.parser.psi.PsiTreeSerializerDebugTest > debugDataClassOutput STANDARD_OUT
+    === DEBUG: Data Class Output ===
+    PSI Tree: User.kt
+    ================================================================================
+    KtFile: User.kt
+
+      Data Class: User (line 1, col 12)
+        Modifiers: data
+        Primary Constructor Parameters:
+          Property: name (line 1, col 21)
+            Modifiers: val
+            Type: String
+            Initializer: absent
+            Getter: implicit
+            Setter: absent
+          Property: age (line 1, col 39)
+            Modifiers: var
+            Type: Int
+            Initializer: absent
+            Getter: implicit
+            Setter: implicit
+
+
+    === END DEBUG ===
+
+bluej.parser.psi.PsiTreeSerializerDebugTest > debugDataClassOutput PASSED
+
+bluej.parser.KotlinBasicParseTest > testYetAnotherKotlinClass PASSED
+
+bluej.parser.KotlinBasicParseTest > testTopLevelFunctionDetection SKIPPED
+
+bluej.parser.KotlinBasicParseTest > testKotlinParserExists STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinBasicParseTest > testKotlinParserExists PASSED
+
+bluej.parser.KotlinBasicParseTest > testParseKotlinSimpleFile STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=8, position=7], hiddenBefore=null, type=62, text='package'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinPsiParserTest > testFaultIsolation_CompilationContinues PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseCU_DelegatesAndEnhances STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+
+bluej.parser.KotlinBasicParseTest > testParseKotlinSimpleFile PASSED
+
+bluej.parser.KotlinBasicParseTest > testClassFieldUsage SKIPPED
+
+bluej.parser.KotlinBasicParseTest > testParseHelloKotlin STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=8, position=7], hiddenBefore=null, type=62, text='package'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinPsiParserTest > testParseCU_DelegatesAndEnhances STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=4, position=3], hiddenBefore=null, type=200, text='fun'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinBasicParseTest > testParseHelloKotlin PASSED
+
+bluej.parser.KotlinBasicParseTest > testEmptyClassWithInheritance STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=5, position=4], hiddenBefore=null, type=245, text='open'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinBasicParseTest > testEmptyClassWithInheritance PASSED
+
+bluej.parser.KotlinBasicParseTest > testParseKotlinBasicFile STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=8, position=7], hiddenBefore=null, type=62, text='package'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinPsiParserTest > testParseCU_DelegatesAndEnhances PASSED
+
+bluej.parser.KotlinPsiParserTest > testFaultIsolation_PsiFailureDoesNotBreakParsing STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=4, position=3], hiddenBefore=null, type=200, text='fun'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.TokenFactoryIntegrationTest > testUnicodeTokenPositions STANDARD_ERROR
+    Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+
+bluej.parser.KotlinBasicParseTest > testParseKotlinBasicFile PASSED
+
+bluej.parser.KotlinBasicParseTest > testClassWithTwoFuns STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=5, position=4], hiddenBefore=null, type=167, text='    '}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinBasicParseTest > testClassWithTwoFuns PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testInterfaceToken_hasCorrectText PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testFinalModifier_extractedCorrectly PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testMultipleModifiers_extractedInOrder PASSED
+
+bluej.parser.KotlinPsiParserTest > testFaultIsolation_PsiFailureDoesNotBreakParsing FAILED
+    java.lang.IllegalArgumentException at KotlinPsiParserTest.java:579
+
+bluej.parser.KotlinPsiParserTest > testSourceExtraction_EmptySource STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=1, position=0], hiddenBefore=null, type=1, text='null'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+    PSI: No source code available for parsing
+    [PSI-DEBUG] PSI tree is null, skipping parsing
+
+bluej.parser.KotlinPsiParserTest > testSourceExtraction_EmptySource PASSED
+
+bluej.parser.KotlinPsiParserTest > testIntegration_FileWithoutExtension STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinPsiParserTest > testIntegration_FileWithoutExtension PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseClassElement_Delegates STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testNestedClass_maintainsProperNesting PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testInterface_hasInterfaceType PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testDeclBegin_hasClassToken PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseClassElement_Delegates PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testPrivateModifier_extractedCorrectly PASSED
+
+bluej.parser.KotlinPsiParserTest > testPsiEnhancement_OutputLocation STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=8, position=7], hiddenBefore=null, type=62, text='package'}
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testTypeDefEnd_correctParameters PASSED
+
+bluej.parser.KotlinPsiParserTest > testPsiEnhancement_OutputLocation STANDARD_ERROR
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinPsiParserTest > testPsiEnhancement_OutputLocation PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testClassImplementingInterface_invokesBeginTypeDefImplements PASSED
+
+bluej.parser.KotlinPsiParserTest > testConstructor_NullSourceParserThrowsException PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testSimpleEmptyClass_invokesCorrectSequence PASSED
+
+bluej.parser.KotlinPsiParserTest > testSourceExtraction_FileSource STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=4, position=3], hiddenBefore=null, type=200, text='fun'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinPsiParserTest > testSourceExtraction_FileSource PASSED
+
+bluej.parser.KotlinPsiParserTest > testSourceExtraction_NullSource STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testNestedClassWithModifiers_handledCorrectly STANDARD_OUT
+    DEBUG TEST: Validation summary: Sequence Validation Summary:
+      Total pairings: 4
+      Matched: 4
+      Unmatched: 0
+      Errors: 0
+      Balanced: true
+
+    Pairings:
+      beginTypeBody[13] ← → endTypeBody[14]
+      gotDeclBegin[5] ← → gotTypeDefEnd[15]
+      beginTypeBody[4] ← → endTypeBody[16]
+      gotDeclBegin[0] ← → gotTypeDefEnd[17]
+    Nested Callback Sequence:
+
+    + gotDeclBegin[0] (token = LocatableToken(line=1, col=1, text='class'))
+      * modifiersConsumed[1]
+      > gotTypeDef[2]
+      * gotTypeDefName[3]
+      + beginTypeBody[4]
+        + gotDeclBegin[5] (token = LocatableToken(line=2, col=22, text='class'))
+          * gotModifier[6] (token = LocatableToken(line=2, col=5, text='private'))
+          * gotModifier[7] (token = LocatableToken(line=2, col=13, text='abstract'))
+          * modifiersConsumed[8]
+          > gotTypeDef[9]
+          * gotTypeDefName[10]
+          * beginTypeDefExtends[11]
+          * endTypeDefExtends[12]
+          + beginTypeBody[13]
+          - endTypeBody[14]
+        - gotTypeDefEnd[15] (token = LocatableToken(line=2, col=47, text='}'))
+      - endTypeBody[16]
+    - gotTypeDefEnd[17] (token = LocatableToken(line=3, col=1, text='}'))
+
+    DEBUG TEST: Is balanced: true
+    DEBUG TEST: Has errors: false
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testNestedClassWithModifiers_handledCorrectly PASSED
+
+bluej.parser.KotlinPsiParserTest > testSourceExtraction_NullSource PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseTypeDef_Delegates PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testClassWithSuperclassAndInterfaces_invokesBothCallbacks PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseImportStatement_Delegates PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseCUpart_Delegates STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testAbstractModifier_extractedCorrectly PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testMultipleInterfacesOnly_invokesImplementsOnce PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseCUpart_Delegates PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseTypeSpecWithList_Delegates PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testDeeplyNestedClasses_maintainCorrectScope PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseTypeBody_Delegates SKIPPED
+
+bluej.parser.KotlinPsiParserTest > testSourceExtraction_ReaderSource STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=4, position=3], hiddenBefore=null, type=200, text='fun'}
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testMixedNesting_handledCorrectly PASSED
+
+bluej.parser.KotlinPsiParserTest > testSourceExtraction_ReaderSource STANDARD_ERROR
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinPsiParserTest > testSourceExtraction_ReaderSource PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testProtectedModifier_extractedCorrectly PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseMethodParamsBody_Delegates PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseVariableDeclarations_Delegates PASSED
+
+bluej.parser.KotlinPsiParserTest > testIntegration_ComplexKotlinFile STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testSealedClass_sameCallbackSequence PASSED
+
+bluej.parser.KotlinPsiParserTest > testIntegration_ComplexKotlinFile STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=8, position=7], hiddenBefore=null, type=62, text='package'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testStateManagement_tracksNestedScopeCorrectly PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testTypeBody_delimitersCorrect PASSED
+
+bluej.parser.psi.PsiEnvironmentTest > testShutdownIdempotent PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testPublicModifier_extractedCorrectly PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testMultipleClasses_eachGetSequence PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testInternalModifier_usesKotlinToken PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testModifiersConsumed_calledWithoutModifiers PASSED
+
+bluej.parser.KotlinPsiParserTest > testIntegration_ComplexKotlinFile PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseTypeSpec_Delegates PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseTypeDefBegin_Delegates PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testPublicClass_modifierInSequence PASSED
+
+bluej.parser.KotlinPsiParserTest > testFaultIsolation_ErrorLoggingIsSafe STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testClassWithSuperclass_invokesBeginTypeDefExtends PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testRegularClass_hasClassType PASSED
+
+bluej.parser.KotlinPsiParserTest > testFaultIsolation_ErrorLoggingIsSafe STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testEnumClass_hasEnumType PASSED
+
+bluej.parser.KotlinPsiParserTest > testFaultIsolation_ErrorLoggingIsSafe STANDARD_ERROR
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testAnonymousClass_handlesGracefully PASSED
+
+bluej.parser.KotlinPsiParserTest > testFaultIsolation_ErrorLoggingIsSafe PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testMultipleNestedClasses_sameLevelHandled PASSED
+
+bluej.parser.KotlinPsiParserTest > testParsePackageStmt_Delegates PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseExpression_Delegates PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testSuperclassToken_hasCorrectText PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testNestedClassNames_extractedCorrectly PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseStatement_Delegates STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=4, position=3], hiddenBefore=null, type=201, text='val'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinPsiParserTest > testParseStatement_Delegates PASSED
+
+bluej.parser.KotlinPsiParserTest > testSourceExtraction_StringSource STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testCallbackPairing_balanced PASSED
+
+bluej.parser.KotlinPsiParserTest > testSourceExtraction_StringSource STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=4, position=3], hiddenBefore=null, type=200, text='fun'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinPsiParserTest > testSourceExtraction_StringSource PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseImportStatementWithToken_Delegates PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testNoSupertypes_noExtendsOrImplementsCallbacks PASSED
+
+bluej.parser.KotlinPsiParserTest > testIntegration_PsiOutputPathGeneration STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testNestedClass_producesCompleteSequences PASSED
+
+bluej.parser.KotlinPsiParserTest > testIntegration_PsiOutputPathGeneration PASSED
+
+bluej.parser.KotlinPsiParserTest > testParseTypeDefPart2_Delegates SKIPPED
+
+bluej.parser.KotlinPsiParserTest > testParseClassBody_Delegates SKIPPED
+
+bluej.parser.KotlinPsiParserTest > testIntegration_FilePathDetermination STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinPsiParserTest > testIntegration_FilePathDetermination PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testClassName_extractedCorrectly PASSED
+
+bluej.parser.KotlinPsiParserTest > testIntegration_KotlinScriptFile SKIPPED
+
+bluej.parser.KotlinPsiParserTest > testParseTypeDefWithToken_Delegates PASSED
+
+bluej.parser.KotlinPsiParserTest > testIntegration_SimpleKotlinFile STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=8, position=7], hiddenBefore=null, type=62, text='package'}
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testNoModifiers_noGotModifierCallbacks PASSED
+
+bluej.parser.KotlinPsiParserTest > testIntegration_SimpleKotlinFile STANDARD_ERROR
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinPsiParserTest > testIntegration_SimpleKotlinFile PASSED
+
+bluej.parser.KotlinPsiParserTest > testPsiEnhancement_TriggersWhenEnabled STANDARD_ERROR
+    [PSI-DEBUG] parseCU() called with mode: PSI_VISITOR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=4, position=3], hiddenBefore=null, type=200, text='fun'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinPsiParserTest > testPsiEnhancement_TriggersWhenEnabled PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testSupertypeCallbackSequence_isCorrect PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testSimpleInterface_invokesCorrectSequence PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testDataClass_sameCallbackSequence PASSED
+
+bluej.parser.psi.ClassDeclarationCallbackTest > testOpenModifier_usesKotlinToken PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testInterfaceMultipleSupers_usesImplements PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testEnumCallbackSequence_isComplete PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testInterfaceWithModifiers_extractsModifiers PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testEmptyInterface_hasCompleteStructure PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testInterfaceExtends_invokesCorrectCallback PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testEnumType_isCorrect PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testInterfaceAndEnum_inSameFile PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testRightBrace STANDARD_ERROR
+    Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testEnumWithModifiers_extractsModifiers PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testEmptyEnum_hasCompleteStructure PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testSimpleEnum_invokesCorrectSequence PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testEnumImplementsInterface_invokesCorrectCallback PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testInterfaceType_isCorrect PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testEnumName_extractedCorrectly PASSED
+
+bluej.parser.psi.InterfaceAndEnumCallbackTest > testInterfaceName_extractedCorrectly PASSED
+
+bluej.parser.psi.PropertyDebugTest > debugPropertyCallbacks STANDARD_OUT
+
+    === CALLBACK SEQUENCE ===
+    gotDeclBegin → modifiersConsumed → gotTypeDef → gotTypeDefName → beginTypeBody → gotDeclBegin → beginFieldDeclarations → gotTypeSpec → gotField → endField → endFieldDeclarations → endTypeBody → gotTypeDefEnd
+
+    === ALL CALLBACKS ===
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_nestedInClassSequence PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testValProperty_explicitType PASSED
+
+bluej.parser.psi.TokenFactoryIntegrationTest > testUnicodeTokenPositions STANDARD_ERROR
+    WARNING: A Java agent has been loaded dynamically (/home/jaen/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.17.7/fbf3d6d649ed37fc9e9c59480a05be0a26e3c2da/byte-buddy-agent-1.17.7.jar)
+    WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+    WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+    WARNING: Dynamic loading of agents will be disallowed by default in a future release
+
+bluej.parser.psi.MethodDebugTest > debugSimpleMethod STANDARD_OUT
+    ===== ALL CALLBACKS =====
+    gotDeclBegin
+    modifiersConsumed
+    gotTypeDef
+    gotTypeDefName
+    beginTypeBody
+    gotDeclBegin
+    gotTypeSpec
+    gotMethodDeclaration
+    modifiersConsumed
+    gotAllMethodParameters
+    endMethodDecl
+    endTypeBody
+    gotTypeDefEnd
+    ===== TOTAL: 13 =====
+    ===== VALIDATION RESULT =====
+
+bluej.parser.psi.PropertyDebugTest > debugPropertyCallbacks STANDARD_OUT
+    gotDeclBegin: {token=LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}}
+    modifiersConsumed: {}
+    gotTypeDef: {firstToken=LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}, tdType=101}
+    gotTypeDefName: {nameToken=LocatableToken{begin=LineColPos[line=1, column=7, position=6], end=LineColPos[line=1, column=16, position=15], hiddenBefore=null, type=69, text='TestClass'}}
+    beginTypeBody: {leftCurlyToken=LocatableToken{begin=LineColPos[line=1, column=17, position=16], end=LineColPos[line=1, column=18, position=17], hiddenBefore=null, type=99, text='{'}}
+    gotDeclBegin: {token=LocatableToken{begin=LineColPos[line=2, column=5, position=22], end=LineColPos[line=2, column=8, position=25], hiddenBefore=null, type=201, text='val'}}
+    beginFieldDeclarations: {first=LocatableToken{begin=LineColPos[line=2, column=5, position=22], end=LineColPos[line=2, column=8, position=25], hiddenBefore=null, type=201, text='val'}}
+    gotTypeSpec: {tokens=[LocatableToken{begin=LineColPos[line=2, column=15, position=32], end=LineColPos[line=2, column=21, position=38], hiddenBefore=null, type=69, text='String'}]}
+    gotField: {idToken=LocatableToken{begin=LineColPos[line=2, column=9, position=26], end=LineColPos[line=2, column=13, position=30], hiddenBefore=null, type=69, text='name'}, first=LocatableToken{begin=LineColPos[line=2, column=5, position=22], end=LineColPos[line=2, column=8, position=25], hiddenBefore=null, type=201, text='val'}, initExpressionFollows=true}
+    endField: {included=true, token=LocatableToken{begin=LineColPos[line=2, column=5, position=22], end=LineColPos[line=2, column=8, position=25], hiddenBefore=null, type=201, text='val'}}
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_override PASSED
+
+bluej.parser.psi.PropertyDebugTest > debugPropertyCallbacks STANDARD_OUT
+    endFieldDeclarations: {included=true, token=LocatableToken{begin=LineColPos[line=2, column=5, position=22], end=LineColPos[line=2, column=8, position=25], hiddenBefore=null, type=201, text='val'}}
+    endTypeBody: {included=true, endCurlyToken=LocatableToken{begin=LineColPos[line=3, column=1, position=48], end=LineColPos[line=3, column=2, position=49], hiddenBefore=null, type=100, text='}'}}
+    gotTypeDefEnd: {included=true, token=LocatableToken{begin=LineColPos[line=3, column=1, position=48], end=LineColPos[line=3, column=2, position=49], hiddenBefore=null, type=100, text='}'}}
+
+    === VALIDATION ===
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :bluej:test
+
+bluej.parser.psi.MethodDebugTest > debugSimpleMethod STANDARD_OUT
+    Sequence Validation Summary:
+      Total pairings: 3
+      Matched: 3
+      Unmatched: 0
+      Errors: 0
+      Balanced: true
+
+    Pairings:
+      gotDeclBegin[5] ← → endMethodDecl[10]
+      beginTypeBody[4] ← → endTypeBody[11]
+      gotDeclBegin[0] ← → gotTypeDefEnd[12]
+    Nested Callback Sequence:
+
+    + gotDeclBegin[0] (token = LocatableToken(line=1, col=1, text='class'))
+      * modifiersConsumed[1]
+      > gotTypeDef[2]
+      * gotTypeDefName[3]
+      + beginTypeBody[4]
+        + gotDeclBegin[5] (token = LocatableToken(line=2, col=5, text='fun'))
+          * gotTypeSpec[6]
+          > gotMethodDeclaration[7] (token = LocatableToken(line=2, col=9, text='simpleMethod'))
+          * modifiersConsumed[8]
+          * gotAllMethodParameters[9]
+        - endMethodDecl[10] (token = LocatableToken(line=2, col=22, text=')'))
+      - endTypeBody[11]
+    - gotTypeDefEnd[12] (token = LocatableToken(line=4, col=1, text='}'))
+
+
+bluej.parser.psi.MethodDebugTest > debugSimpleMethod PASSED
+
+bluej.parser.KotlinEditorParserTest > testComplexKotlinClass STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=29, column=2, position=683], end=LineColPos[line=30, column=1, position=684], hiddenBefore=null, type=167, text='
+    '}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.PropertyDebugTest > debugPropertyCallbacks STANDARD_OUT
+    Sequence Validation Summary:
+      Total pairings: 4
+      Matched: 4
+      Unmatched: 0
+      Errors: 0
+      Balanced: true
+
+    Pairings:
+      gotField[8] ← → endField[9]
+      gotDeclBegin[5] ← → endFieldDeclarations[10]
+      beginTypeBody[4] ← → endTypeBody[11]
+      gotDeclBegin[0] ← → gotTypeDefEnd[12]
+    Nested Callback Sequence:
+
+    + gotDeclBegin[0] (token = LocatableToken(line=1, col=1, text='class'))
+      * modifiersConsumed[1]
+      > gotTypeDef[2]
+      * gotTypeDefName[3]
+      + beginTypeBody[4]
+        + gotDeclBegin[5] (token = LocatableToken(line=2, col=5, text='val'))
+          > beginFieldDeclarations[6]
+          * gotTypeSpec[7]
+          + gotField[8]
+          - endField[9] (token = LocatableToken(line=2, col=5, text='val'))
+        - endFieldDeclarations[10] (token = LocatableToken(line=2, col=5, text='val'))
+      - endTypeBody[11]
+    - gotTypeDefEnd[12] (token = LocatableToken(line=3, col=1, text='}'))
+
+
+bluej.parser.psi.PropertyDebugTest > debugPropertyCallbacks PASSED
+
+bluej.parser.KotlinEditorParserTest > testComplexKotlinClass PASSED
+
+bluej.parser.KotlinEditorParserTest > testNestedClassParsing STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=1, position=0], hiddenBefore=null, type=1, text='null'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+    PSI: No source code available for parsing
+    [PSI-DEBUG] PSI tree is null, skipping parsing
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=6, column=2, position=34], end=LineColPos[line=7, column=1, position=35], hiddenBefore=null, type=167, text='
+    '}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinEditorParserTest > testNestedClassParsing PASSED
+
+bluej.parser.KotlinEditorParserTest > testKotlinClassWithReadPropertyAndMethod STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=1, position=0], hiddenBefore=null, type=1, text='null'}
+
+bluej.utility.JavaReflectiveTests > testPrimitiveFieldAccess PASSED
+
+bluej.parser.KotlinEditorParserTest > testKotlinClassWithReadPropertyAndMethod STANDARD_ERROR
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+    PSI: No source code available for parsing
+    [PSI-DEBUG] PSI tree is null, skipping parsing
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_inCompanionObject PASSED
+
+bluej.utility.JavaReflectiveTests > testGetMethods PASSED
+
+bluej.utility.JavaReflectiveTests > testNestedClass PASSED
+
+bluej.parser.psi.PsiEnvironmentTest > testParseSyntaxError PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testCaretPosMap STANDARD_ERROR
+    Nov 19, 2025 7:03:52 PM com.sun.javafx.application.PlatformImpl startup
+    WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @3023df74'
+
+bluej.parser.psi.TokenTypeMapperTest > testRightBrace STANDARD_ERROR
+    WARNING: A Java agent has been loaded dynamically (/home/jaen/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.17.7/fbf3d6d649ed37fc9e9c59480a05be0a26e3c2da/byte-buddy-agent-1.17.7.jar)
+    WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+    WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+    WARNING: Dynamic loading of agents will be disallowed by default in a future release
+
+bluej.parser.KotlinEditorParserTest > testKotlinClassWithReadPropertyAndMethod STANDARD_OUT
+    Exception during incremental parsing. Recent edits:
+    insert offset=0 length=265
+    --- Source code ---
+    class Dog {
+        val name: String
+          get() {
+              return "sparky"
+          }
+
+        fun bark() {
+              var i = 0;
+              while (i < 5) {
+                  print(name)
+              }
+              for (x in 1..5) {
+                  print(name + "!");
+              }
+        }
+    }
+
+    --- Source ends ---
+    An unexpected exception occurred:
+    java.lang.ClassCastException: class bluej.parser.nodes.FieldNode cannot be cast to class bluej.parser.nodes.MethodNode (bluej.parser.nodes.FieldNode and bluej.parser.nodes.MethodNode are in unnamed module of loader 'app')
+    	at bluej.parser.EditorParser.endMethodDecl(EditorParser.java:1118)
+    	at bluej.parser.psi.JavaParserCallbacksAdapterImpl.endMethodDecl(JavaParserCallbacksAdapterImpl.java:616)
+    	at bluej.parser.psi.visitor.FileVisitor.visitNamedFunction(FileVisitor.java:477)
+    	at org.jetbrains.kotlin.psi.KtVisitorVoid.visitNamedFunction(KtVisitorVoid.java:491)
+    	at org.jetbrains.kotlin.psi.KtVisitorVoid.visitNamedFunction(KtVisitorVoid.java:21)
+    	at org.jetbrains.kotlin.psi.KtNamedFunction.accept(KtNamedFunction.java:39)
+    	at org.jetbrains.kotlin.psi.KtElementImplStub.accept(KtElementImplStub.java:49)
+    	at bluej.parser.psi.visitor.FileVisitor.visitClass(FileVisitor.java:315)
+    	at org.jetbrains.kotlin.psi.KtVisitorVoid.visitClass(KtVisitorVoid.java:467)
+    	at org.jetbrains.kotlin.psi.KtVisitorVoid.visitClass(KtVisitorVoid.java:21)
+    	at org.jetbrains.kotlin.psi.KtClass.accept(KtClass.kt:22)
+    	at org.jetbrains.kotlin.psi.KtElementImplStub.accept(KtElementImplStub.java:49)
+    	at bluej.parser.psi.visitor.BaseVisitor.visitKtFile(BaseVisitor.java:69)
+    	at org.jetbrains.kotlin.psi.KtVisitorVoid.visitKtFile(KtVisitorVoid.java:521)
+    	at org.jetbrains.kotlin.psi.KtVisitorVoid.visitKtFile(KtVisitorVoid.java:21)
+    	at org.jetbrains.kotlin.psi.KtFile.accept(KtFile.kt:41)
+    	at org.jetbrains.kotlin.psi.KtCommonFile.accept(KtCommonFile.kt:244)
+    	at bluej.parser.KotlinPsiParser.parseWithPsi(KotlinPsiParser.java:540)
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_primaryConstructorParameter FAILED
+    java.lang.AssertionError at PropertyDeclarationCallbackTest.java:641
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperties_multiple PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testVarProperty_explicitType PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_privateModifier PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_callbackSequenceOrder PASSED
+
+bluej.parser.KotlinEditorParserTest > testKotlinClassWithReadPropertyAndMethod STANDARD_OUT
+    	at bluej.parser.KotlinPsiParser.parseWithPsi(KotlinPsiParser.java:553)
+    	at bluej.parser.KotlinPsiParser.parseWithPsi(KotlinPsiParser.java:518)
+    	at bluej.parser.KotlinPsiParser.parseCUpart(KotlinPsiParser.java:313)
+    	at bluej.parser.SourceParser.parseCUpart(SourceParser.java:212)
+    	at bluej.parser.nodes.ParsedCUNode.doPartialParse(ParsedCUNode.java:99)
+    	at bluej.parser.nodes.IncrementalParsingNode.reparseNode(IncrementalParsingNode.java:320)
+    	at bluej.parser.nodes.ParsedNode.reparse(ParsedNode.java:340)
+    	at bluej.editor.flow.JavaSyntaxView.pollReparseQueue(JavaSyntaxView.java:2155)
+    	at bluej.editor.flow.JavaSyntaxView.flushReparseQueue(JavaSyntaxView.java:2060)
+    	at bluej.parser.TestableDocument.flushReparseQueue(TestableDocument.java:85)
+    	at bluej.editor.flow.JavaSyntaxView.scheduleReparseRunner(JavaSyntaxView.java:2414)
+    	at bluej.editor.flow.JavaSyntaxView.lambda$enableParser$9(JavaSyntaxView.java:415)
+    	at bluej.editor.flow.HoleDocument.replaceText(HoleDocument.java:204)
+    	at bluej.parser.TestableDocument.insertString(TestableDocument.java:73)
+    	at bluej.parser.KotlinEditorParserTest.cuForSource(KotlinEditorParserTest.java:69)
+    	at bluej.parser.KotlinEditorParserTest.parseAndResolveClass(KotlinEditorParserTest.java:96)
+    	at bluej.parser.KotlinEditorParserTest.testKotlinClassWithReadPropertyAndMethod(KotlinEditorParserTest.java:320)
+    	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+    	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+    	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+    	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+    	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+    	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+    	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+    	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+    	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+    	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+    	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+    	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+    	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+    	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+    	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+    	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+    	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+    	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+    	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+    	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+    	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:112)
+    	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+    	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:40)
+    	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:60)
+    	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:52)
+    	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+    	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+    	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+    	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+    	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+    	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+    	at jdk.proxy1/jdk.proxy1.$Proxy2.processTestClass(Unknown Source)
+    	at org.gradle.api.internal.tasks.testing.worker.TestWorker$2.run(TestWorker.java:176)
+    	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:129)
+    	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:100)
+    	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:60)
+    	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+    	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:113)
+    	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:65)
+    	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+    	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+
+bluej.parser.psi.PsiEnvironmentTest > testParseComplexCode PASSED
+
+bluej.parser.psi.PsiEnvironmentTest > testSingletonBehavior PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_customGetterAndSetter PASSED
+
+bluej.parser.psi.PsiEnvironmentTest > testParseEmptySource PASSED
+
+bluej.parser.psi.PsiEnvironmentTest > testParseDataClass PASSED
+
+bluej.parser.psi.PsiEnvironmentTest > testParseSimpleFunction PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_typeInference PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_topLevelVar PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_lazyDelegation PASSED
+
+bluej.parser.psi.PsiEnvironmentTest > testThreadSafeInitialization PASSED
+
+bluej.parser.psi.PsiEnvironmentTest > testIdeaHomePathSet PASSED
+
+bluej.parser.psi.PsiEnvironmentTest > testParseNullSource PASSED
+
+bluej.parser.psi.PsiEnvironmentTest > testMultipleParseCalls PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testExtensionProperty_onGenericType PASSED
+
+bluej.parser.psi.PsiEnvironmentTest > testInitializationSuccess PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_complexType PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_lateinit PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_customGetter PASSED
+
+bluej.parser.KotlinEditorParserTest > testKotlinClassWithReadPropertyAndMethod FAILED
+    java.lang.ClassCastException at KotlinEditorParserTest.java:69
+
+bluej.parser.KotlinEditorParserTest > testMethodRecognition STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=1, position=0], hiddenBefore=null, type=1, text='null'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+    PSI: No source code available for parsing
+    [PSI-DEBUG] PSI tree is null, skipping parsing
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=8, column=2, position=102], end=LineColPos[line=9, column=1, position=103], hiddenBefore=null, type=167, text='
+    '}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinEditorParserTest > testMethodRecognition PASSED
+
+bluej.parser.KotlinEditorParserTest > testKotlinClassWithPackage STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=1, position=0], hiddenBefore=null, type=1, text='null'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+    PSI: No source code available for parsing
+    [PSI-DEBUG] PSI tree is null, skipping parsing
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testExtensionProperty_simple PASSED
+
+bluej.parser.KotlinEditorParserTest > testKotlinClassWithPackage STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=8, position=7], hiddenBefore=null, type=62, text='package'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_customSetter PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_topLevel PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_const PASSED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_noInitializer PASSED
+
+bluej.parser.KotlinEditorParserTest > testKotlinClassWithPackage STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=35, column=2, position=873], end=LineColPos[line=36, column=1, position=874], hiddenBefore=null, type=167, text='
+    '}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testExtensionProperty_var PASSED
+
+bluej.parser.KotlinEditorParserTest > testKotlinClassWithPackage PASSED
+
+bluej.parser.KotlinEditorParserTest > testKotlinClassWithReadPropertyAndMethod2 SKIPPED
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_backingFieldReference PASSED
+
+bluej.parser.KotlinEditorParserTest > testNestedLoops STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=1, position=0], hiddenBefore=null, type=1, text='null'}
+
+bluej.parser.psi.PropertyDeclarationCallbackTest > testProperty_nullableType PASSED
+
+bluej.parser.KotlinEditorParserTest > testNestedLoops STANDARD_ERROR
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+    PSI: No source code available for parsing
+    [PSI-DEBUG] PSI tree is null, skipping parsing
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.utility.JavaUtilTests > testSignatures PASSED
+
+bluej.utility.JavaUtilTests > testAccessCheck2 PASSED
+
+bluej.utility.JavaUtilTests > testAccessCheck3 PASSED
+
+bluej.utility.JavaUtilTests > testAccessCheck PASSED
+
+bluej.utility.JavaUtilTests > testEnumInfiniteRecursion PASSED
+
+bluej.utility.JavaUtilTests > testTparReturn PASSED
+
+bluej.parser.KotlinEditorParserTest > testNestedLoops STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=11, column=2, position=190], end=LineColPos[line=12, column=1, position=191], hiddenBefore=null, type=167, text='
+    '}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=1, position=0], hiddenBefore=null, type=1, text='null'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.utility.JavaUtilTests > testReplacement PASSED
+
+bluej.parser.KotlinEditorParserTest > testNestedLoops STANDARD_ERROR
+    PSI: No source code available for parsing
+    [PSI-DEBUG] PSI tree is null, skipping parsing
+
+bluej.utility.JavaUtilTests > testRecursiveTpar PASSED
+
+bluej.parser.KotlinEditorParserTest > testNestedLoops STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=11, column=2, position=190], end=LineColPos[line=12, column=1, position=191], hiddenBefore=null, type=167, text='
+    '}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinEditorParserTest > testNestedLoops FAILED
+    java.lang.AssertionError at KotlinEditorParserTest.java:417
+
+bluej.parser.KotlinEditorParserTest > testWhileWithoutBlock STANDARD_ERROR
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=1, position=0], hiddenBefore=null, type=1, text='null'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+    PSI: No source code available for parsing
+    [PSI-DEBUG] PSI tree is null, skipping parsing
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=1, column=1, position=0], end=LineColPos[line=1, column=6, position=5], hiddenBefore=null, type=101, text='class'}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+    [PSI-DEBUG] Starting at token: LocatableToken{begin=LineColPos[line=6, column=2, position=70], end=LineColPos[line=7, column=1, position=71], hiddenBefore=null, type=167, text='
+    '}
+    [PSI-DEBUG] === parseWithPsi() ENTRY ===
+
+bluej.parser.KotlinEditorParserTest > testWhileWithoutBlock PASSED
+
+bluej.utility.TestHangingFlowPane > testRowsNoHang STANDARD_ERROR
+    Nov 19, 2025 7:03:53 PM com.sun.javafx.application.PlatformImpl startup
+    WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @3023df74'
+
+bluej.parser.InternationalParseTest > testInternationalization PASSED
+
+bluej.parser.context.CompilationUnitContextTest > testEmptyFile PASSED
+
+bluej.parser.context.CompilationUnitContextTest > testBackwardsCompatibilityWrite PASSED
+
+bluej.parser.context.CompilationUnitContextTest > testNonExistentFile PASSED
+
+bluej.parser.context.CompilationUnitContextTest > testBackwardsCompatibilityRead PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testEdgeCase_stringTemplate PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testComplexNesting_whenWithComplexBranches PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testSafeCast PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testIfExpression_noElse PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testTryCatch FAILED
+    java.lang.AssertionError at StatementExpressionCallbackTest.java:497
+
+bluej.parser.psi.StatementExpressionCallbackTest > testComplexNesting_loopWithTryCatch FAILED
+    java.lang.AssertionError at StatementExpressionCallbackTest.java:893
+
+bluej.parser.psi.StatementExpressionCallbackTest > testMethodCall PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testWhileLoop PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testEdgeCase_singleLineIf PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testReturnStatement_noValue PASSED
+
+bluej.parser.psi.TokenFactoryTest > testWhitespaceOnlyLine PASSED
+
+bluej.utility.TestHangingFlowPane > testRowsNoHang PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testWhenExpression_noSubject PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testCoroutines PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testComplexNesting_ifElseWithExpressions PASSED
+
+bluej.parser.psi.TokenFactoryTest > testNegativeStartOffsetThrowsException PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testTryCatchFinally FAILED
+    java.lang.AssertionError at StatementExpressionCallbackTest.java:533
+
+bluej.parser.psi.StatementExpressionCallbackTest > testBlockExpression_multipleStatements FAILED
+    java.lang.AssertionError at StatementExpressionCallbackTest.java:84
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testCaretPosMap PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testComplexExpression_methodCallWithLambda PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testArrayAccess PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testComplexExpression_chainedAccess PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testLambdaExpression PASSED
+
+bluej.parser.psi.TokenFactoryTest > testMultipleTokensOnSameLine PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testBreakStatement PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testEdgeCase_emptyBlocks PASSED
+
+bluej.parser.psi.TokenFactoryTest > testTokenLengthCalculation PASSED
+
+bluej.utility.TestHangingFlowPane > testRightAlign PASSED
+
+bluej.parser.psi.TokenFactoryTest > testTokenTypeMappingForKeyword PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testBasicKtFile PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testWhenExpression_simple PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testDeeplyNested PASSED
+
+bluej.parser.psi.TokenFactoryTest > testCreateRejectsElementWithNullRange PASSED
+
+bluej.parser.psi.TokenFactoryTest > testConstructorRejectsNullDocument PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testDoWhileLoop PASSED
+
+bluej.parser.psi.TokenFactoryTest > testEmptyLinesHandled PASSED
+
+bluej.parser.psi.TokenFactoryTest > testEmptyFile PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testDSLBuilder PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testMultiplatformExpectActual PASSED
+
+bluej.parser.psi.TokenFactoryTest > testEndOffsetBeforeStartThrowsException PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testUnaryOperators PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testInterfaceImplementation PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testContinueStatement PASSED
+
+bluej.parser.psi.TokenFactoryTest > testDelimiterTokenTypes PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testTypeCast PASSED
+
+bluej.parser.psi.TokenFactoryTest > testConstructorAcceptsValidParameters PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testOperatorOverload PASSED
+
+bluej.utility.TestHangingFlowPane > testFixedNoBreak PASSED
+
+bluej.parser.psi.TokenFactoryTest > testNullTextHandledGracefully PASSED
+
+bluej.parser.psi.TokenFactoryTest > testTokenAtEndOfFile PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testSealedClass PASSED
+
+bluej.parser.psi.TokenFactoryTest > testTokenAtLineStartOnLine2 PASSED
+
+bluej.parser.psi.TokenFactoryTest > testMultiLineTokenSpanningThreeLines PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testDog PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testBinaryOperators PASSED
+
+bluej.parser.psi.TokenFactoryTest > testConstructorRejectsNullSourceText PASSED
+
+bluej.parser.psi.TokenFactoryTest > testUnicodeCharactersHandled PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testMemberAccess PASSED
+
+bluej.parser.psi.TokenFactoryTest > testStartOffsetBeyondLengthThrowsException PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testSealedClassHierarchy PASSED
+
+bluej.parser.psi.TokenFactoryTest > testSingleLineTokenAtFileStart PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testBreak_withLabel FAILED
+    java.lang.AssertionError at StatementExpressionCallbackTest.java:383
+
+bluej.parser.psi.PsiVisitorValidationTest > testLongFile PASSED
+
+bluej.parser.psi.TokenFactoryTest > testCreateRejectsNullElement PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testWhenExpression_multipleConditions PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testTailrecFunction PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testTryCatch_multipleCatches FAILED
+    java.lang.AssertionError at StatementExpressionCallbackTest.java:562
+
+bluej.parser.psi.TokenFactoryTest > testTokensAcrossMultipleLines PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testLambda_multipleParameters PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testReturnStatement_withValue PASSED
+
+bluej.parser.psi.TokenFactoryTest > testOffsetConversionAccuracy PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testPrimaryConstructorProperties PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testForLoop_withRange FAILED
+    java.lang.AssertionError at StatementExpressionCallbackTest.java:252
+
+bluej.parser.psi.StatementExpressionCallbackTest > testTypeCheck FAILED
+    java.lang.AssertionError at StatementExpressionCallbackTest.java:818
+
+bluej.parser.psi.StatementExpressionCallbackTest > testEdgeCase_deeplyNestedExpressions PASSED
+
+bluej.parser.psi.TokenFactoryTest > testSingleLineTokenMiddleOfLine PASSED
+
+bluej.utility.TestHangingFlowPane > testRowsHang PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testScopeFunctions PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testEdgeCase_expressionStatement PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testLateinitProperty PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testDataClassDeclaration PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testIfExpression_withElse PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testSimpleProperty PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testObjectDeclaration PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testIfExpression_elseIfChain PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testDestructuringDeclarations PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testThrowStatement PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testTypeAliases PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testEmptyFile PASSED
+
+bluej.parser.psi.StatementExpressionCallbackTest > testLiterals PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testExtensionFunction PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testHigherOrderFunctions PASSED
+
+bluej.utility.TestHangingFlowPane > testTripleFixedBaseline PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testVarianceAnnotations PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testInlineClasses PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testClassWithMethods PASSED
+
+bluej.utility.TestHangingFlowPane > testHeight PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testAllModerateTestsBalanced PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testInfixFunction PASSED
+
+bluej.utility.TestHangingFlowPane > testTripleFixed PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testOperators PASSED
+
+bluej.parser.psi.TokenFactoryIntegrationTest > testUnicodeTokenPositions PASSED
+
+bluej.parser.psi.TokenFactoryIntegrationTest > testTokenFactorySmoke PASSED
+
+bluej.parser.psi.TokenFactoryIntegrationTest > testExactTokenPositions PASSED
+
+bluej.parser.psi.TokenFactoryIntegrationTest > testMultilineTokenPositions PASSED
+
+bluej.utility.TestHangingFlowPane > testNoBreak PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testRightBrace PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testPackageKeyword PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testRightParen PASSED
+
+bluej.utility.TestHangingFlowPane > testSingleFixed PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testFloating PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testEntireCorpusValidation STANDARD_OUT
+    ===== VALIDATION SUMMARY =====
+    Total files tested: 67
+    Passed: 67
+    Failed: 0
+    ==============================
+
+bluej.parser.psi.PsiVisitorValidationTest > testEntireCorpusValidation PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testSimpleClassDeclaration PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testClassInheritance PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testSingleLineFile PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testContracts PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testCompanionObject PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testBackingField PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testDot PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testGenericClasses PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testInitBlock PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testClassWithProperties PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testNestedClasses PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testEnumClass PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testLambdaExpressions PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testUnicodeIdentifiers PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testInterface PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testSimpleFunction PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testAnnotationClass PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testAllSimpleTestsBalanced PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testReifiedTypeParameters PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testPropertyAccessors PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testDelegatedProperty PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testCommentsOnly PASSED
+
+bluej.utility.TestRange > testRange PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testClassWithConstructor PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testNew PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testDeleteSelection PASSED
+
+bluej.parser.psi.PsiVisitorValidationTest > testAllComplexTestsBalanced PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testNameReferenceExpression PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testLeftBrace PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testIfKeyword PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testLeftParen PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testExceptionKeywords PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testPlusOperator PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testSpecialKotlinKeywords PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testKotlinSpecificPunctuation PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testPrecedence PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testTypeKeywords PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testWhenKeyword PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testValKeyword PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testIncrementDecrementOperators PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testSemicolon STANDARD_OUT
+    Could not find position for: 1
+    Could not find position for: 6
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testSemicolon PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testEnumDeclaration PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testReturnKeyword PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testDotPunctuation PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testComparisonOperators PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testObjectDeclaration PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testFunKeyword PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testFalseLiteral PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testBrackets PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testNamedFunctionIdentifier PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testNullElement PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testTryKeyword PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testLogicalOperators PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testImportKeyword PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testPropertyIdentifier PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testAssignmentOperator PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testOvertype PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testInterfaceDeclaration PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testLoopKeywords PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testClassDeclaration PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testEqualityOperator PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testArithmeticOperators PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testUnmappedElementReturnsIdent PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testClassKeyword PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testCatchKeyword PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testVarKeyword PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testElvisOperator PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testBrackets PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testTypeAlias PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testTrueLiteral PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testNullLiteral PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testArrowOperator PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testSafeAccessOperator PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testElementWithNoNodeReturnsIdent PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testCommaPunctuation PASSED
+
+bluej.parser.psi.TokenTypeMapperTest > testCommonPunctuation PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testSelectionOperation PASSED
+
+bluej.editor.flow.TestBasicEditorDisplay > testSyntaxStrings STANDARD_ERROR
+    java.lang.AssertionError:         """ class; expected:<4> but was:<1>
+    	at org.junit.Assert.fail(Assert.java:89)
+    	at org.junit.Assert.failNotEquals(Assert.java:835)
+    	at org.junit.Assert.assertEquals(Assert.java:647)
+    	at bluej.editor.flow.TestBasicEditorDisplay.checkTokens(TestBasicEditorDisplay.java:1150)
+    	at bluej.editor.flow.TestBasicEditorDisplay.testSyntaxStrings(TestBasicEditorDisplay.java:1065)
+    	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+    	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+    	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+    	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+    	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+    	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+    	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+    	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27)
+    	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:61)
+    	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+    	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+    	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+    	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+    	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+    	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+    	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+    	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+    	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+    	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+    	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+    	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+    	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:112)
+    	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+    	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:40)
+    	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:60)
+    	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:52)
+    	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+    	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+    	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+    	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+    	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+    	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+    	at jdk.proxy1/jdk.proxy1.$Proxy2.processTestClass(Unknown Source)
+    	at org.gradle.api.internal.tasks.testing.worker.TestWorker$2.run(TestWorker.java:176)
+    	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:129)
+    	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:100)
+    	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:60)
+    	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+    	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:113)
+    	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:65)
+    	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+    	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+    Screenshot of failure:
+    --- Exception in Async Thread ---
+    java.lang.reflect.InvocationTargetException: null
+    	java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:118)
+    	java.base/java.lang.reflect.Method.invoke(Method.java:580)
+    	org.testfx.service.adapter.impl.PublicGlassRobotAdapter.lambda$getScreenCapture$8(PublicGlassRobotAdapter.java:120)
+    	java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+    	org.testfx.util.WaitForAsyncUtils.runOnFxThread(WaitForAsyncUtils.java:536)
+    	org.testfx.util.WaitForAsyncUtils.asyncFx(WaitForAsyncUtils.java:259)
+    	org.testfx.util.WaitForAsyncUtils.waitForAsyncFx(WaitForAsyncUtils.java:443)
+    	org.testfx.service.adapter.impl.PublicGlassRobotAdapter.getScreenCapture(PublicGlassRobotAdapter.java:118)
+    	org.testfx.service.adapter.impl.GlassRobotAdapter.getCaptureRegion(GlassRobotAdapter.java:72)
+    	org.testfx.robot.impl.BaseRobotImpl.captureRegion(BaseRobotImpl.java:107)
+    	org.testfx.service.support.impl.CaptureSupportImpl.captureRegion(CaptureSupportImpl.java:61)
+    	org.testfx.api.FxRobot.lambda$capture$6(FxRobot.java:378)
+    	bluej.editor.flow.FXTest.lambda$dumpScreenshot$0(FXTest.java:88)
+    	bluej.editor.flow.FXTest.lambda$fx_$2(FXTest.java:138)
+    	com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:456)
+    	java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+    	com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:455)
+    	com.sun.glass.ui.monocle.RunnableProcessor.runLoop(RunnableProcessor.java:92)
+    	com.sun.glass.ui.monocle.RunnableProcessor.run(RunnableProcessor.java:51)
+    	java.base/java.lang.Thread.run(Thread.java:1583)
+    java.lang.UnsupportedOperationException: null
+    	java.base/java.nio.IntBuffer.array(IntBuffer.java:1505)
+    	com.sun.glass.ui.monocle.MonocleRobot.getScreenCapture(MonocleRobot.java:223)
+    	com.sun.glass.ui.GlassRobot.getScreenCapture(GlassRobot.java:207)
+    	javafx.scene.robot.Robot.getScreenCapture(Robot.java:314)
+    	java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+    	java.base/java.lang.reflect.Method.invoke(Method.java:580)
+    	org.testfx.service.adapter.impl.PublicGlassRobotAdapter.lambda$getScreenCapture$8(PublicGlassRobotAdapter.java:120)
+    	java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+    	org.testfx.util.WaitForAsyncUtils.runOnFxThread(WaitForAsyncUtils.java:536)
+    	org.testfx.util.WaitForAsyncUtils.asyncFx(WaitForAsyncUtils.java:259)
+    	org.testfx.util.WaitForAsyncUtils.waitForAsyncFx(WaitForAsyncUtils.java:443)
+    	org.testfx.service.adapter.impl.PublicGlassRobotAdapter.getScreenCapture(PublicGlassRobotAdapter.java:118)
+    	org.testfx.service.adapter.impl.GlassRobotAdapter.getCaptureRegion(GlassRobotAdapter.java:72)
+    	org.testfx.robot.impl.BaseRobotImpl.captureRegion(BaseRobotImpl.java:107)
+    	org.testfx.service.support.impl.CaptureSupportImpl.captureRegion(CaptureSupportImpl.java:61)
+    	org.testfx.api.FxRobot.lambda$capture$6(FxRobot.java:378)
+    	bluej.editor.flow.FXTest.lambda$dumpScreenshot$0(FXTest.java:88)
+    	bluej.editor.flow.FXTest.lambda$fx_$2(FXTest.java:138)
+    	com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:456)
+    	java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+    	com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:455)
+    	com.sun.glass.ui.monocle.RunnableProcessor.runLoop(RunnableProcessor.java:92)
+    	com.sun.glass.ui.monocle.RunnableProcessor.run(RunnableProcessor.java:51)
+    	java.base/java.lang.Thread.run(Thread.java:1583)
+    --- Trace of caller of unhandled exception in Async Thread ---
+    	java.base/java.lang.Thread.getStackTrace(Thread.java:2451)
+    	org.testfx.util.WaitForAsyncUtils$ASyncFXCallable.<init>(WaitForAsyncUtils.java:650)
+    	org.testfx.util.WaitForAsyncUtils.asyncFx(WaitForAsyncUtils.java:258)
+    	org.testfx.util.WaitForAsyncUtils.waitForAsyncFx(WaitForAsyncUtils.java:443)
+    	org.testfx.service.adapter.impl.PublicGlassRobotAdapter.getScreenCapture(PublicGlassRobotAdapter.java:118)
+    	org.testfx.service.adapter.impl.GlassRobotAdapter.getCaptureRegion(GlassRobotAdapter.java:72)
+    	org.testfx.robot.impl.BaseRobotImpl.captureRegion(BaseRobotImpl.java:107)
+    	org.testfx.service.support.impl.CaptureSupportImpl.captureRegion(CaptureSupportImpl.java:61)
+    	org.testfx.api.FxRobot.lambda$capture$6(FxRobot.java:378)
+    	bluej.editor.flow.FXTest.lambda$dumpScreenshot$0(FXTest.java:88)
+    	bluej.editor.flow.FXTest.lambda$fx_$2(FXTest.java:138)
+    	com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:456)
+    	java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+    	com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:455)
+    	com.sun.glass.ui.monocle.RunnableProcessor.runLoop(RunnableProcessor.java:92)
+    	com.sun.glass.ui.monocle.RunnableProcessor.run(RunnableProcessor.java:51)
+    	java.base/java.lang.Thread.run(Thread.java:1583)
+
+    java.lang.RuntimeException: java.lang.reflect.InvocationTargetException
+    	at org.testfx.util.WaitForAsyncUtils.waitFor(WaitForAsyncUtils.java:302)
+    	at org.testfx.util.WaitForAsyncUtils.waitForMillis(WaitForAsyncUtils.java:527)
+    	at org.testfx.util.WaitForAsyncUtils.waitForAsyncFx(WaitForAsyncUtils.java:444)
+    	at org.testfx.service.adapter.impl.PublicGlassRobotAdapter.getScreenCapture(PublicGlassRobotAdapter.java:118)
+    	at org.testfx.service.adapter.impl.GlassRobotAdapter.getCaptureRegion(GlassRobotAdapter.java:72)
+    	at org.testfx.robot.impl.BaseRobotImpl.captureRegion(BaseRobotImpl.java:107)
+    	at org.testfx.service.support.impl.CaptureSupportImpl.captureRegion(CaptureSupportImpl.java:61)
+    	at org.testfx.api.FxRobot.lambda$capture$6(FxRobot.java:378)
+    	at bluej.editor.flow.FXTest.lambda$dumpScreenshot$0(FXTest.java:88)
+    	at bluej.editor.flow.FXTest.lambda$fx_$2(FXTest.java:138)
+    	at com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:456)
+    	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+    	at com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:455)
+    	at com.sun.glass.ui.monocle.RunnableProcessor.runLoop(RunnableProcessor.java:92)
+    	at com.sun.glass.ui.monocle.RunnableProcessor.run(RunnableProcessor.java:51)
+    	at java.base/java.lang.Thread.run(Thread.java:1583)
+    Caused by: java.lang.reflect.InvocationTargetException
+    	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:118)
+    	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+    	at org.testfx.service.adapter.impl.PublicGlassRobotAdapter.lambda$getScreenCapture$8(PublicGlassRobotAdapter.java:120)
+    	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+    	at org.testfx.util.WaitForAsyncUtils.runOnFxThread(WaitForAsyncUtils.java:536)
+    	at org.testfx.util.WaitForAsyncUtils.asyncFx(WaitForAsyncUtils.java:259)
+    	at org.testfx.util.WaitForAsyncUtils.waitForAsyncFx(WaitForAsyncUtils.java:443)
+    	... 13 more
+    Caused by: java.lang.UnsupportedOperationException
+    	at java.base/java.nio.IntBuffer.array(IntBuffer.java:1505)
+    	at com.sun.glass.ui.monocle.MonocleRobot.getScreenCapture(MonocleRobot.java:223)
+    	at com.sun.glass.ui.GlassRobot.getScreenCapture(GlassRobot.java:207)
+    	at javafx.scene.robot.Robot.getScreenCapture(Robot.java:314)
+    	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+    	... 19 more
+
+bluej.editor.flow.TestBasicEditorDisplay > testSyntaxStrings FAILED
+    java.lang.AssertionError at TestBasicEditorDisplay.java:1150
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testDeleteBracket PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testStrings STANDARD_OUT
+    Could not find position for: 25
+    Could not find position for: 26
+    Could not find position for: 27
+    Could not find position for: 28
+    Could not find position for: 29
+    Could not find position for: 30
+    Could not find position for: 31
+    Could not find position for: 32
+    Could not find position for: 33
+    Could not find position for: 34
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testStrings PASSED
+
+bluej.stride.framedjava.slots.TestExpressionSlot > testBackspace PASSED
+
+bluej.compiler.TestKotlinCompiler > testCompileSimpleKotlinClass PASSED
+
+bluej.parser.KotlinLexerTest > testOther PASSED
+
+bluej.parser.KotlinLexerTest > testKeywordParse PASSED
+
+bluej.parser.KotlinLexerTest > testIdentifiers PASSED
+
+bluej.parser.KotlinLexerTest > testKotlinSpecificSymbols PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testPrimaryConstructor_empty FAILED
+    java.lang.AssertionError at ConstructorDeclarationCallbackTest.java:87
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testPrimaryConstructor_privateModifier FAILED
+    java.lang.AssertionError at ConstructorDeclarationCallbackTest.java:221
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testConstructor_private PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testPrimaryConstructor_withAnnotations FAILED
+    java.lang.AssertionError at ConstructorDeclarationCallbackTest.java:265
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testSecondaryConstructor_thisDelegation PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testSecondaryConstructor_simple PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testInitBlocks_multiple PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testPrimaryConstructor_defaultParameterValues FAILED
+    java.lang.AssertionError at ConstructorDeclarationCallbackTest.java:243
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testConstructor_varargParameter FAILED
+    java.lang.AssertionError at ConstructorDeclarationCallbackTest.java:494
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testConstructor_callbackSequenceOrder PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testSecondaryConstructor_superDelegation PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testSecondaryConstructor_withBody PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testConstructor_implicitDefault PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testInitBlock_noExplicitConstructor PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testConstructor_delegationChain PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testSecondaryConstructor_multipleParameters PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testPrimaryConstructor_withParameters FAILED
+    java.lang.AssertionError at ConstructorDeclarationCallbackTest.java:128
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testPrimaryConstructor_mixedParameters FAILED
+    java.lang.AssertionError at ConstructorDeclarationCallbackTest.java:188
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testPrimaryConstructor_propertyParameters FAILED
+    java.lang.AssertionError at ConstructorDeclarationCallbackTest.java:164
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testConstructors_primaryAndSecondary PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testConstructor_genericParameter FAILED
+    java.lang.AssertionError at ConstructorDeclarationCallbackTest.java:520
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testPrimaryConstructor_withInitBlock PASSED
+
+bluej.parser.psi.ConstructorDeclarationCallbackTest > testSecondaryConstructors_multiple PASSED
+
+bluej.parser.psi.VisitorStateTest > isStackBalanced_falseWhenNotEmpty STANDARD_ERROR
+    Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+    WARNING: A Java agent has been loaded dynamically (/home/jaen/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.17.7/fbf3d6d649ed37fc9e9c59480a05be0a26e3c2da/byte-buddy-agent-1.17.7.jar)
+    WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+    WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+    WARNING: Dynamic loading of agents will be disallowed by default in a future release
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :bluej:test
+
+bluej.parser.psi.VisitorStateTest > isStackBalanced_falseWhenNotEmpty PASSED
+
+bluej.parser.psi.VisitorStateTest > deepNesting_handlesCorrectly PASSED
+
+bluej.parser.psi.VisitorStateTest > getModifiers_returnsImmutableCopy PASSED
+
+bluej.parser.psi.VisitorStateTest > popScope_whenEmpty_doesNotThrow PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testRandomStatement PASSED
+
+bluej.parser.psi.VisitorStateTest > isInsideClass_withNestedClasses_returnsTrue PASSED
+
+bluej.editor.flow.TestBasicEditorInteraction > testAutoIndent PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testWhole PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testCall PASSED
+
+bluej.parser.psi.VisitorStateTest > contextQueries_duringTraversal_returnCorrectValues PASSED
+
+bluej.parser.psi.VisitorStateTest > addModifier_withNull_throwsException PASSED
+
+bluej.parser.psi.VisitorStateTest > isStackBalanced_trueWhenEmpty PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testStatements PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testIf PASSED
+
+bluej.parser.psi.VisitorStateTest > isInsideObject_detectsObjectScope PASSED
+
+bluej.parser.psi.VisitorStateTest > popScope_removesFromStack PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testFieldAndVar PASSED
+
+bluej.parser.psi.VisitorStateTest > modifierAccumulation_withMultipleModifiers PASSED
+
+bluej.parser.psi.VisitorStateTest > getContainingClass_returnsNullWhenNoClass PASSED
+
+bluej.parser.psi.VisitorStateTest > pushScope_withNull_throwsException PASSED
+
+bluej.parser.psi.VisitorStateTest > hasModifier_checksPresence PASSED
+
+bluej.parser.psi.VisitorStateTest > addModifier_emptyString_stillAdds PASSED
+
+bluej.parser.psi.VisitorStateTest > addModifier_withDuplicates_storesOnce PASSED
+
+bluej.parser.psi.VisitorStateTest > getNestingDepth_tracksStackSize PASSED
+
+bluej.parser.psi.VisitorStateTest > nestedScopes_pushPopBalance PASSED
+
+bluej.parser.psi.VisitorStateTest > getContainingClass_withNestedClasses_returnsMostRecent PASSED
+
+bluej.parser.psi.VisitorStateTest > pushScope_addsToStack PASSED
+
+bluej.parser.psi.VisitorStateTest > getCurrentScope_whenEmpty_returnsNull PASSED
+
+bluej.parser.psi.VisitorStateTest > pushScope_exceedsMaxDepth_throwsException PASSED
+
+bluej.parser.psi.VisitorStateTest > clearModifiers_removesAllModifiers PASSED
+
+bluej.parser.psi.VisitorStateTest > isInsideClass_detectsClassScope PASSED
+
+bluej.parser.psi.VisitorStateTest > addModifier_addsModifier PASSED
+
+bluej.parser.psi.VisitorStateTest > getContainingClass_findsEnclosingClass PASSED
+
+bluej.parser.psi.VisitorStateTest > getStackSize_returnsCorrectSize PASSED
+
+bluej.parser.psi.VisitorStateTest > mixedOperations_workTogether PASSED
+
+bluej.parser.psi.VisitorStateTest > getCurrentScope_returnsTopElement PASSED
+
+bluej.editor.flow.TestBasicEditorInteraction > testAddMethod PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testRandomTopLevel PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testComments PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testInstanceof PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testAssign PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testIncDec PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testMethod PASSED
+
+bluej.stride.framedjava.convert.JavaToStrideTest > testExpression PASSED
+
+bluej.editor.flow.TestBasicEditorInteraction > testAddComment PASSED
+
+bluej.editor.flow.TestBasicEditorDisplay > testScope PASSED
+
+bluej.editor.flow.TestBasicEditorDisplay > testScope2 PASSED
+
+bluej.editor.flow.TestBasicEditorDisplay > testScope3 PASSED
+
+bluej.editor.flow.TestBasicEditorInteraction > testWordActions PASSED
+
+bluej.editor.flow.TestBasicEditorDisplay > testScope4 PASSED
+
+bluej.editor.flow.TestBasicEditorDisplay > testSyntax PASSED
+
+bluej.editor.flow.TestBasicEditorDisplay > testEditor SKIPPED
+
+bluej.parser.NewParserTest > testTopLevelExtraSemis PASSED
+
+bluej.parser.NewParserTest > testTopLevelRecord1 PASSED
+
+bluej.parser.NewParserTest > testTopLevelRecord2 PASSED
+
+bluej.parser.NewParserTest > testTopLevelRecord3 PASSED
+
+bluej.parser.NewParserTest > testTopLevelRecord4 PASSED
+
+bluej.parser.NewParserTest > testTopLevelRecord5 PASSED
+
+bluej.parser.NewParserTest > testTopLevelRecord6 PASSED
+
+bluej.parser.NewParserTest > testTopLevelRecord7 PASSED
+
+bluej.parser.NewParserTest > testTopLevelRecord8 PASSED
+
+bluej.parser.NewParserTest > testMethodRef2 PASSED
+
+bluej.parser.NewParserTest > testMethodRef3 PASSED
+
+bluej.parser.NewParserTest > testMethodRef4 PASSED
+
+bluej.parser.NewParserTest > testParenthesizedValue PASSED
+
+bluej.parser.NewParserTest > testPrimitiveCast PASSED
+
+bluej.parser.NewParserTest > testQuestionOperator PASSED
+
+bluej.parser.NewParserTest > test13p2 PASSED
+
+bluej.parser.NewParserTest > testForLoop PASSED
+
+bluej.parser.NewParserTest > testConstructor1 PASSED
+
+bluej.parser.NewParserTest > testConstructor2 PASSED
+
+bluej.parser.NewParserTest > testConstructor3 PASSED
+
+bluej.parser.NewParserTest > testConstructor4 PASSED
+
+bluej.parser.NewParserTest > testLambdaMultipleParameters1 PASSED
+
+bluej.parser.NewParserTest > testLambdaMultipleParameters2 PASSED
+
+bluej.parser.NewParserTest > testLambdaSingleParameter1 PASSED
+
+bluej.parser.NewParserTest > testLambdaSingleParameter2 PASSED
+
+bluej.parser.NewParserTest > testLambdaSingleParameter3 PASSED
+
+bluej.parser.NewParserTest > testLambdaSingleParameter4 PASSED
+
+bluej.parser.NewParserTest > testLambdaSingleParameter5 PASSED
+
+bluej.parser.NewParserTest > testLambdaSingleParameter6 PASSED
+
+bluej.parser.NewParserTest > testLambdaSingleParameter7 PASSED
+
+bluej.parser.NewParserTest > test10 PASSED
+
+bluej.parser.NewParserTest > test11 PASSED
+
+bluej.parser.NewParserTest > test12 PASSED
+
+bluej.parser.NewParserTest > test13 PASSED
+
+bluej.parser.NewParserTest > test14 PASSED
+
+bluej.parser.NewParserTest > test15 PASSED
+
+bluej.parser.NewParserTest > test16 PASSED
+
+bluej.parser.NewParserTest > test17 PASSED
+
+bluej.parser.NewParserTest > test18 PASSED
+
+bluej.parser.NewParserTest > test19 PASSED
+
+bluej.parser.NewParserTest > test20 PASSED
+
+bluej.parser.NewParserTest > test21 PASSED
+
+bluej.parser.NewParserTest > test22 PASSED
+
+bluej.parser.NewParserTest > test23 PASSED
+
+bluej.parser.NewParserTest > test24 PASSED
+
+bluej.parser.NewParserTest > test25 PASSED
+
+bluej.parser.NewParserTest > testGenericMethodCall PASSED
+
+bluej.parser.NewParserTest > testSynchronizedModifier PASSED
+
+bluej.parser.NewParserTest > testLambdaNoParameters1 PASSED
+
+bluej.parser.NewParserTest > testLambdaNoParameters2 PASSED
+
+bluej.parser.NewParserTest > testLambdaNoParameters3 PASSED
+
+bluej.parser.NewParserTest > testLambdaNoParameters4 PASSED
+
+bluej.parser.NewParserTest > testLambdaNoParameters5 PASSED
+
+bluej.parser.NewParserTest > testLambdaNoParameters6 PASSED
+
+bluej.parser.NewParserTest > test1 PASSED
+
+bluej.parser.NewParserTest > test2 PASSED
+
+bluej.parser.NewParserTest > test3 PASSED
+
+bluej.parser.NewParserTest > test4 PASSED
+
+bluej.parser.NewParserTest > test5 PASSED
+
+bluej.parser.NewParserTest > test6 PASSED
+
+bluej.parser.NewParserTest > test7 PASSED
+
+bluej.parser.NewParserTest > test8 PASSED
+
+bluej.parser.NewParserTest > test9 PASSED
+
+bluej.parser.NewParserTest > testMethod1 PASSED
+
+bluej.parser.NewParserTest > testMethod2 PASSED
+
+bluej.parser.NewParserTest > testMethod3 PASSED
+
+bluej.parser.NewParserTest > testMethod4 PASSED
+
+bluej.parser.NewParserTest > testLambdaVarParameter1 PASSED
+
+bluej.parser.NewParserTest > testLambdaVarParameter2 PASSED
+
+bluej.parser.NewParserTest > testLambdaVarParameter3 PASSED
+
+bluej.parser.NewParserTest > testLambdaVarParameter4 PASSED
+
+bluej.parser.NewParserTest > testLambdaVarParameter5 PASSED
+
+bluej.parser.NewParserTest > testFunkyCast PASSED
+
+bluej.parser.NewParserTest > testParenthesizedInTrinary PASSED
+
+bluej.parser.NewParserTest > testDefaultMethodModifier PASSED
+
+bluej.parser.NewParserTest > testForLoop2 PASSED
+
+bluej.parser.NewParserTest > testForLoop3 PASSED
+
+bluej.parser.NewParserTest > testForLoop4 PASSED
+
+bluej.parser.NewParserTest > testForLoop5 PASSED
+
+bluej.parser.NewParserTest > testField1 PASSED
+
+bluej.parser.NewParserTest > testField2 PASSED
+
+bluej.parser.NewParserTest > testField3 PASSED
+
+bluej.parser.NewParserTest > testMethodParamModifier PASSED
+
+bluej.parser.NewParserTest > testStaticMethodCall PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_withMultipleParameters PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_boundedTypeParameter PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testSimpleMethod_noParamsNoReturn PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_callbackSequenceOrder PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testExtensionFunction_withParameters PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_complexReturnType PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_explicitEmptyParamList PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_nullableParameter PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_abstractNoBody PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testExtensionFunction_simple PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testExtensionFunction_withReturnType PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testExtensionFunction_onGenericType PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_withReturnType PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_varargParameter PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_blockBody FAILED
+    java.lang.AssertionError at MethodDeclarationCallbackTest.java:260
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testModifierState_clearedBetweenMethods PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testOperatorFunction PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_withSingleParameter PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_multipleTypeParameters PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testInfixFunction PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_privateModifier PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testInlineFunction PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_expressionBody FAILED
+    java.lang.AssertionError at MethodDeclarationCallbackTest.java:236
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_withAnnotations PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_withGenericTypeParameter PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_pairingValidation PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testExtensionFunctions_multiple PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testSuspendFunction PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_implicitUnitReturn PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_regularAndVarargParameters PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_protectedModifier PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_inNestedClass PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_overrideModifier PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_nestedLocalFunction FAILED
+    java.lang.AssertionError at MethodDeclarationCallbackTest.java:1327
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_publicModifier PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testCombinedModifiers_operatorInline PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testInterfaceMethod_withDefaultImpl FAILED
+    java.lang.AssertionError at MethodDeclarationCallbackTest.java:1106
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_allFeaturesCombined PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_nestedInClassSequence PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_multipleModifiers PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_genericParameterType PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testMethod_functionTypeParameter PASSED
+
+bluej.parser.psi.MethodDeclarationCallbackTest > testClass_multipleMethods PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testCaretPosMap PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testOperators STANDARD_OUT
+    Could not find position for: 3
+    Could not find position for: 4
+    Could not find position for: 5
+    Could not find position for: 3
+    Could not find position for: 4
+    Could not find position for: 3
+    Could not find position for: 4
+    Could not find position for: 5
+    Could not find position for: 6
+    Could not find position for: 7
+    Could not find position for: 8
+    Could not find position for: 8
+
+bluej.stride.framedjava.slots.TestTypeSlot > testOperators PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testFloating STANDARD_OUT
+    Could not find position for: 2
+    Could not find position for: 4
+    Could not find position for: 6
+    Could not find position for: 5
+    Could not find position for: 6
+    Could not find position for: 7
+    Could not find position for: 6
+    Could not find position for: 7
+    Could not find position for: 3
+    Could not find position for: 5
+    Could not find position for: 7
+    Could not find position for: 7
+    Could not find position for: 8
+    Could not find position for: 7
+    Could not find position for: 8
+    Could not find position for: 4
+    Could not find position for: 6
+    Could not find position for: 6
+
+bluej.stride.framedjava.slots.TestTypeSlot > testFloating PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testNew STANDARD_OUT
+    Could not find position for: 7
+
+bluej.stride.framedjava.slots.TestTypeSlot > testNew PASSED
+
+bluej.editor.flow.TestBasicEditorInteraction > testCutCopyPaste PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testComma PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testDeleteSelection PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testBracket STANDARD_OUT
+    Could not find position for: 1
+    Could not find position for: 4
+    Could not find position for: 5
+
+bluej.stride.framedjava.slots.TestTypeSlot > testBracket PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testBrackets STANDARD_OUT
+    Could not find position for: 4
+    Could not find position for: 5
+    Could not find position for: 6
+    Could not find position for: 7
+    Could not find position for: 5
+    Could not find position for: 6
+    Could not find position for: 7
+    Could not find position for: 8
+    Could not find position for: 9
+    Could not find position for: 10
+    Could not find position for: 11
+    Could not find position for: 1
+    Could not find position for: 2
+    Could not find position for: 3
+
+bluej.stride.framedjava.slots.TestTypeSlot > testBrackets PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testOvertype PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testSelectionOperation PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testNoString STANDARD_OUT
+    Could not find position for: 3
+    Could not find position for: 3
+
+bluej.stride.framedjava.slots.TestTypeSlot > testNoString PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testDeleteBracket PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testStrings STANDARD_OUT
+    Could not find position for: 6
+    Could not find position for: 7
+    Could not find position for: 6
+    Could not find position for: 1
+    Could not find position for: 2
+    Could not find position for: 3
+    Could not find position for: 4
+
+bluej.stride.framedjava.slots.TestTypeSlot > testStrings PASSED
+
+bluej.stride.framedjava.slots.TestTypeSlot > testBackspace PASSED
+
+bluej.editor.flow.TestDocument > propDocumentStringReplace PASSED
+
+bluej.editor.flow.TestDocument > propDocumentTripleQuotes PASSED
+
+bluej.parser.Parse15Test > testNoParseExceptions PASSED
+
+bluej.parser.Parse15Test > testSelections PASSED
+
+bluej.parser.Parse15Test > testStaticImport PASSED
+
+bluej.parser.psi.PairingValidatorTest > realisticCallbackSequence PASSED
+
+bluej.parser.psi.PairingValidatorTest > emptyValidator_isValid PASSED
+
+bluej.parser.psi.PairingValidatorTest > multipleErrors_accumulate PASSED
+
+bluej.parser.psi.PairingValidatorTest > errorRecovery_continuesAfterError PASSED
+
+bluej.parser.psi.PairingValidatorTest > errorMessages_showPairingAttempt PASSED
+
+bluej.parser.psi.PairingValidatorTest > hasErrors_detectsErrors PASSED
+
+bluej.parser.psi.PairingValidatorTest > unmatchedBegin_detected PASSED
+
+bluej.parser.psi.PairingValidatorTest > hasErrors_considersUnmatchedAsErrors PASSED
+
+bluej.parser.psi.PairingValidatorTest > unmatchedCallbacks_preservesOrder PASSED
+
+bluej.parser.psi.PairingValidatorTest > alternatingBeginEnd_handlesCorrectly PASSED
+
+bluej.parser.psi.PairingValidatorTest > getDetailedSummary_withNoIssues_formatsCorrectly PASSED
+
+bluej.parser.psi.PairingValidatorTest > getDetailedSummary_withErrors_formatsCorrectly PASSED
+
+bluej.parser.psi.PairingValidatorTest > errorMessages_includeContextInfo PASSED
+
+bluej.parser.psi.PairingValidatorTest > recordEnd_callbackWithEndInMiddle_handlesCorrectly PASSED
+
+bluej.parser.psi.PairingValidatorTest > nestedCallbacks_correctlyBalanced PASSED
+
+bluej.parser.psi.PairingValidatorTest > getUnmatchedCallbacks_returnsCorrectList PASSED
+
+bluej.parser.psi.PairingValidatorTest > nullCallbackName_detected PASSED
+
+bluej.parser.psi.PairingValidatorTest > getUnmatchedCount_returnsCorrectCount PASSED
+
+bluej.parser.psi.PairingValidatorTest > matchingPair_succeeds PASSED
+
+bluej.parser.psi.PairingValidatorTest > isBalanced_falseWhenUnmatched PASSED
+
+bluej.parser.psi.PairingValidatorTest > callbackNameConversion_worksCorrectly PASSED
+
+bluej.parser.psi.PairingValidatorTest > isBalanced_trueWhenNoUnmatched PASSED
+
+bluej.parser.psi.PairingValidatorTest > pairingToString_providesDebugInfo PASSED
+
+bluej.parser.psi.PairingValidatorTest > deeplyNestedCallbacks_handlesCorrectly PASSED
+
+bluej.parser.psi.PairingValidatorTest > nestedCallbacks_incorrectNesting_fails PASSED
+
+bluej.parser.psi.PairingValidatorTest > mismatchedPair_detected PASSED
+
+bluej.parser.psi.PairingValidatorTest > recordEnd_multipleCallbacksWithEndSubstring_allHandleCorrectly PASSED
+
+bluej.parser.psi.PairingValidatorTest > errorMessages_includePositionInfo PASSED
+
+bluej.parser.psi.PairingValidatorTest > recordEnd_callbackEndingWithEnd_handlesCorrectly PASSED
+
+bluej.parser.psi.PairingValidatorTest > validatorWithErrorsAndUnmatched PASSED
+
+bluej.parser.psi.PairingValidatorTest > getDetailedSummary_withUnmatched_formatsCorrectly PASSED
+
+bluej.parser.psi.PairingValidatorTest > multipleNestedCallbacks_complexNesting PASSED
+
+bluej.parser.psi.PairingValidatorTest > unpairedEnd_detected PASSED
+
+bluej.parser.psi.PairingValidatorTest > emptyCallbackName_detected PASSED
+
+bluej.parser.psi.PairingValidatorTest > getPairings_returnsAllRelationships PASSED
+
+bluej.parser.psi.PairingValidatorTest > mixedValidAndInvalidPairs PASSED
+
+bluej.utility.EditDistanceTest > testEditDistance PASSED
+
+bluej.editor.flow.TestBasicEditorInteraction > testKeyboardMovement PASSED
+
+bluej.editor.flow.TestBasicEditorInteraction > testIndentAddRemove PASSED
+
+bluej.editor.flow.TestBasicEditorInteraction > testKeyboardDelete PASSED
+
+bluej.editor.flow.TestBasicEditorInteraction > testCommentUncomment PASSED
+
+bluej.parser.NodeTreeTest > testBasic PASSED
+
+bluej.parser.NodeTreeTest > testRotation1 PASSED
+
+bluej.parser.NodeTreeTest > testRemoval2 PASSED
+
+bluej.parser.NodeTreeTest > testRemoval3 PASSED
+
+bluej.parser.NodeTreeTest > testRemoval PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testSimpleObject_invokesCorrectSequence PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testNestedObject_insideClass PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testObjectMultipleInterfaces_singleCallback PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testUnnamedCompanion_usesDefaultName PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testDeclBegin_hasClassToken SKIPPED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testStateManagement_tracksObjectScopeCorrectly PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testObjectWithModifier_invokesGotModifier PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testMultipleObjects_eachGetSequence PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testObjectInsideObject_nestedCorrectly PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testObject_hasClassType PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testObjectMultipleModifiers_processedInOrder PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testCompanionObject_maintainsProperNesting PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testCompanionObject_insideClass PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testObjectEmptyBody_handledGracefully PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testObjectWithInterface_correctSequence PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testObjectName_extractedCorrectly PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testObjectCallbackSequence_correctOrder PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testNamedCompanion_nameExtracted PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testObjectImplementsInterface_invokesCallback PASSED
+
+bluej.parser.psi.ObjectDeclarationCallbackTest > testObjectInterfaceToken_hasCorrectText PASSED
+
+bluej.testmgr.record.MethodInvokerRecordTest > testMethodInvokerWithBenchTypecast PASSED
+
+bluej.testmgr.record.MethodInvokerRecordTest > testMethodInvokerWithBench PASSED
+
+987 tests completed, 26 failed, 12 skipped
+
+> Task :bluej:test FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':bluej:test'.
+> There were failing tests. See the report at: file:///home/jaen/Projects/scratchpad/work/jetbrains/bluej/repos/BlueJ-Greenfoot/psi-visitor-foundation/bluej/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.5/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 1m 50s
+23 actionable tasks: 6 executed, 17 up-to-date

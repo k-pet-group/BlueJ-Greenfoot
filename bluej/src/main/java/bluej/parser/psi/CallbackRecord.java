@@ -9,17 +9,40 @@ public class CallbackRecord {
     private final String callbackName;
     private final Map<String, Object> parameters;
     private final long timestamp;
+    private final StackTraceElement[] callStackTrace;
 
     /**
-     * Creates a new callback record.
+     * Creates a new callback record with explicit stacktrace.
+     *
+     * <p>This constructor is used by {@link CallbackRecorder} during actual parsing
+     * to capture the real parsing code path.
+     *
+     * @param callbackName The name of the callback that was invoked
+     * @param parameters   Map of parameter names to values
+     * @param callStackTrace The execution stacktrace at callback invocation time (for debugging)
+     */
+    public CallbackRecord(String callbackName, Map<String, Object> parameters, StackTraceElement[] callStackTrace) {
+        if (callStackTrace == null) {
+            throw new IllegalArgumentException("callStackTrace cannot be null");
+        }
+        this.callbackName = callbackName;
+        this.parameters = new HashMap<>(parameters); // Defensive copy
+        this.timestamp = System.currentTimeMillis();
+        this.callStackTrace = callStackTrace;
+    }
+
+    /**
+     * Creates a new callback record with automatically captured stacktrace.
+     *
+     * <p>This convenience constructor is primarily for test code that manually creates
+     * CallbackRecord objects. It automatically captures the current stacktrace at the
+     * point of construction.
      *
      * @param callbackName The name of the callback that was invoked
      * @param parameters   Map of parameter names to values
      */
     public CallbackRecord(String callbackName, Map<String, Object> parameters) {
-        this.callbackName = callbackName;
-        this.parameters = new HashMap<>(parameters); // Defensive copy
-        this.timestamp = System.currentTimeMillis();
+        this(callbackName, parameters, Thread.currentThread().getStackTrace());
     }
 
     /**
@@ -62,6 +85,19 @@ public class CallbackRecord {
      */
     public long getTimestamp() {
         return timestamp;
+    }
+
+    /**
+     * Returns the execution stacktrace captured when this callback was invoked.
+     *
+     * <p>This stacktrace captures the actual parsing code path, showing where the
+     * callback was recorded during PSI traversal. This is critical for debugging
+     * as it shows the real invocation site, not the validation site.
+     *
+     * @return The stacktrace at callback invocation time
+     */
+    public StackTraceElement[] getCallStackTrace() {
+        return callStackTrace;
     }
 
     @Override

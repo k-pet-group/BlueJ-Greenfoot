@@ -449,6 +449,11 @@ public class CallbackRecorder implements JavaParserCallbacksAdapter {
      * It creates a {@link CallbackRecord} with the callback name and parameters,
      * then adds it to the records list.</p>
      *
+     * <p><b>Stacktrace Capture:</b> This method captures the execution stacktrace
+     * at the point where the callback is invoked during parsing. This stacktrace
+     * shows the actual parsing code path, which is critical for debugging - it
+     * reveals where the callback was recorded, not where it was validated.</p>
+     *
      * <p><b>Deferred Validation:</b> This method NO LONGER performs incremental
      * validation. Instead, validation happens when {@link #getValidationResult()}
      * is called, allowing for much better error messages with full context.</p>
@@ -457,7 +462,9 @@ public class CallbackRecorder implements JavaParserCallbacksAdapter {
      * @param parameters Map of parameter names to values
      */
     private void record(String callbackName, Map<String, Object> parameters) {
-        records.add(new CallbackRecord(callbackName, parameters));
+        // Capture stacktrace at parsing time (NOT at validation time)
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        records.add(new CallbackRecord(callbackName, parameters, stackTrace));
         cachedValidator = null;
     }
     

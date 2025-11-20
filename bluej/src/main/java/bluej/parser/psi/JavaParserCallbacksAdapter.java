@@ -1,6 +1,7 @@
 package bluej.parser.psi;
 
 import bluej.parser.lexer.JavaTokenFilter;
+import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 
 import java.util.List;
@@ -121,6 +122,11 @@ public interface JavaParserCallbacksAdapter extends JavaParserCallbacks {
 
         // Keep consuming tokens until we reach or pass the target token's position
         while ((currentToken = tokenStream.nextToken()) != null) {
+            if (currentToken.getType() == JavaTokenTypes.EOF) {
+                System.out.println("Reached EOF while skipping to token " + targetToken);
+                break;
+            }
+
             // Check if we've reached the target token by comparing positions
             if (currentToken.getPosition() >= targetToken.getPosition()) {
                 if (!included) {

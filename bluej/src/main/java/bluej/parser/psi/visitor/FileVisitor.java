@@ -19,14 +19,16 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.parser.psi;
+package bluej.parser.psi.visitor;
 
 import bluej.parser.JavaParserCallbacksBase;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.lexer.LineColPos;
+import bluej.parser.psi.JavaParserCallbacksAdapter;
 import kotlin.jvm.internal.Lambda;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
+import org.jetbrains.kotlin.com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.kotlin.com.intellij.psi.PsiFile;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.*;
@@ -39,30 +41,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * PSI visitor that traverses Kotlin PSI tree structure for parser integration.
+ * PSI visitor for file-level and type-level traversal.
  *
- * <p><b>DEPRECATED:</b> This class is deprecated and will be removed after migration is complete.
- * Use {@link bluej.parser.psi.visitor.FileVisitor} for file-level and type-level parsing,
- * and {@link bluej.parser.psi.visitor.MethodBodyVisitor} for method body parsing instead.</p>
+ * <p>This visitor handles top-level file parsing, type declarations, and member signatures.
+ * It delegates method/constructor bodies to {@link MethodBodyVisitor} for statement parsing.</p>
  *
- * <h2>Migration Guide</h2>
- * <p>Replace:</p>
- * <pre>{@code
- * PsiCallbackVisitor visitor = new PsiCallbackVisitor(callbacks);
- * ktFile.accept(visitor);
- * }</pre>
+ * <h2>Delegation Pattern</h2>
+ * <p>FileVisitor parses method signatures but delegates body traversal to MethodBodyVisitor.</p>
  *
- * <p>With:</p>
- * <pre>{@code
- * FileVisitor visitor = new FileVisitor(callbacks);
- * ktFile.accept(visitor);
- * }</pre>
+ * <h2>Key Responsibilities</h2>
+ * <ul>
+ *   <li><b>File Traversal:</b> visitKtFile, package declarations, imports</li>
+ *   <li><b>Type Declarations:</b> Classes, interfaces, enums, objects</li>
+ *   <li><b>Member Signatures:</b> Methods, constructors, properties (CLASS-LEVEL)</li>
+ *   <li><b>Body Delegation:</b> Creates MethodBodyVisitor for executable code</li>
+ * </ul>
  *
- * <p>The new visitor hierarchy provides better separation of concerns with
- * FileVisitor handling file/type/member signatures and MethodBodyVisitor handling
- * method bodies through simple delegation.</p>
+ * <h2>Critical: KtProperty Context Handling</h2>
+ * <p><b>In FileVisitor:</b> KtProperty represents CLASS-LEVEL FIELDS.</p>
  *
- * <p><b>PHASE 2 IMPLEMENTATION - TRAVERSAL WITH STATE MANAGEMENT</b></p>
+ * <p><b>PHASE 2 IMPLEMENTATION - TRAVERSAL WITH STATE MANAGEMENT (from PsiCallbackVisitor)</b></p>
  *
  * <p>This visitor is part of Phase 2 (Foundation) of the PSI parser integration.
  * In Phase 2, the visitor focuses on correct PSI tree traversal, state management,
@@ -190,84 +188,18 @@ import java.util.List;
  * @see VisitorState State management for scope tracking
  * @see TokenFactory Token creation for callback parameters (Phase 3)
  * @see <a href="file:///docs/planning/visitor-foundation/implementation-strategy.md">Implementation Strategy</a>
- * @deprecated Use {@link bluej.parser.psi.visitor.FileVisitor} instead. This class will be removed after migration.
+ * @see MethodBodyVisitor Visitor for method/constructor bodies
  */
-@Deprecated
-public class PsiCallbackVisitor extends KtVisitorVoid {
-
+public class FileVisitor extends BaseVisitor {
     /**
-     * Optional callback adapter for invoking parser callbacks.
-     * Null in Phase 2 traversal-only mode, set for Phase 3 callback integration.
-     * Uses adapter pattern to access protected JavaParserCallbacks methods.
+     * Creates a new file visitor.
+     *
+     * @param callbacks The callback adapter for parser integration (must not be null)
      */
-    private final JavaParserCallbacksAdapter callbacks;
-
-    private LocatableToken tokenBase = null;
-
-    /**
-     * Creates a new PSI callback visitor for Phase 2 traversal validation.
-     *
-     * <p><b>Phase 2:</b> No parameters needed - visitor only logs traversal.</p>
-     *
-     * <p><b>Phase 3:</b> Constructor will accept {@code JavaParserCallbacks} and
-     * other dependencies for callback invocation.</p>
-     */
-    public PsiCallbackVisitor() {
-        this.callbacks = null;
-    }
-    
-    /**
-     * Creates a new PSI callback visitor with callbacks for validation testing.
-     *
-     * <p><b>Phase 3:</b> This constructor enables callback integration by accepting
-     * any {@link JavaParserCallbacks} instance wrapped in an adapter. The adapter
-     * provides public methods to invoke protected callback methods from the
-     * bluej.parser.psi package.</p>
-     *
-     * @param callbacks The JavaParserCallbacks instance (will be wrapped in adapter)
-     */
-    public PsiCallbackVisitor(JavaParserCallbacksAdapter callbacks) {
-        this.callbacks = callbacks;
+    public FileVisitor(JavaParserCallbacksAdapter callbacks) {
+        super(callbacks);
     }
 
-    /**
-     * Entry point for PSI traversal - visits a Kotlin file.
-     *
-     * <p>This method is the starting point for traversing a Kotlin PSI tree.
-     * It logs the file visit and then explicitly visits all declarations in the file.</p>
-     *
-     * <p><b>Critical:</b> Unlike some visitor patterns, Kotlin's {@link KtVisitorVoid}
-     * does NOT automatically traverse children when calling super. We must explicitly
-     * iterate over and visit each declaration.</p>
-     *
-     * <h3>Phase 2 Behavior</h3>
-     * <p>Logs: "VISIT: FILE: &lt;fileName&gt;"</p>
-     * <p>Then explicitly visits all top-level declarations (classes, functions, properties).</p>
-     *
-     * <h3>Phase 3 Migration</h3>
-     * <p>Will invoke {@code callbacks.beginParsing()} before traversal and
-     * {@code callbacks.endParsing()} after traversal.</p>
-     *
-     * @param file The Kotlin file PSI element to traverse
-     */
-    @Override
-    public void visitKtFile(@NotNull KtFile file) {
-        if (file == null) {
-            return; // Gracefully handle null
-        }
-        
-        // Phase 2: Log file visit
-        String fileName = file.getName();
-
-        // Explicitly visit all declarations in the file
-        // Note: Kotlin PSI visitor requires explicit iteration over children
-        for (KtDeclaration declaration : file.getDeclarations()) {
-            declaration.accept(this);
-        }
-
-        // callbacks.finishedCU(2); /// who the hell knows what that means xD
-    }
-    
     /**
      * Visits a class declaration (class, interface, or enum).
      *
@@ -331,22 +263,19 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         // 3. Type definition
         callbacks.gotTypeDef(classToken, tdType);
 
+        LocatableToken nameToken = null;
+
         // 4. Type name
         if (className != null && ktClass.getNameIdentifier() != null) {
-            LocatableToken nameToken = createToken(ktClass.getNameIdentifier(), JavaTokenTypes.IDENT);
+            nameToken = createToken(ktClass.getNameIdentifier(), JavaTokenTypes.IDENT);
             callbacks.gotTypeDefName(nameToken);
         }
 
         // 5. Process supertypes
         processSuperTypes(ktClass);
 
-        // Phase 4.2: Process primary constructor BEFORE type body (class header element)
-        KtPrimaryConstructor primaryConstructor = ktClass.getPrimaryConstructor();
-        if (primaryConstructor != null) {
-            visitPrimaryConstructor(primaryConstructor);
-        }
-
         LocatableToken finalToken = null;
+        boolean hadBody = false;
 
         // 6. Begin type body
         KtClassBody body = ktClass.getBody();
@@ -356,11 +285,18 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             PsiElement rBrace = body.getRBrace();
 
             if (lBrace != null && rBrace != null) {
+                hadBody = true;
                 // Create separate tokens for opening and closing braces
                 LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
                 LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
 
                 callbacks.beginTypeBody(lBraceToken);
+
+                // TODO: Java treats primary constructors as part of type body, so we have to do it here?
+                KtPrimaryConstructor primaryConstructor = ktClass.getPrimaryConstructor();
+                if (primaryConstructor != null) {
+                    visitPrimaryConstructor(primaryConstructor);
+                }
 
                 // 7. Visit nested declarations explicitly
                 // Note: Kotlin PSI visitor requires explicit iteration over body declarations
@@ -390,6 +326,22 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 finalToken = rBraceToken;
             }
             // Note: If braces missing (malformed code), no nested declarations to visit
+        }
+
+        // TODO: Java (and thus BlueJ) treats primary constructors as a part of type body, so let's pretend we had one
+        if (!hadBody) {
+            KtPrimaryConstructor primaryConstructor = ktClass.getPrimaryConstructor();
+            if (primaryConstructor != null) {
+                callbacks.beginTypeBody(nameToken);
+
+                visitPrimaryConstructor(primaryConstructor);
+
+                LocatableToken lastToken = createToken(primaryConstructor.getValueParameterList().getRightParenthesis());
+
+                callbacks.endTypeBody(lastToken, true);
+
+                finalToken = lastToken;
+            }
         }
 
         if (finalToken == null) {
@@ -535,6 +487,15 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
 
         // 9. Method body (mark boundaries but don't traverse - Phase 6)
         LocatableToken endToken = processMethodBody(function);
+
+        if (endToken == null) {
+            // HACK so it's not null for interfaces
+            PsiElement rParen = function.getValueParameterList().getRightParenthesis();
+
+            if (rParen != null) {
+                endToken = createToken(rParen, JavaTokenTypes.RPAREN);
+            }
+        }
 
         // 10. End declaration
         callbacks.endMethodDecl(endToken, true);
@@ -750,8 +711,9 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 callbacks.beginMethodBody(lBraceToken);
             }
 
-            // Phase 6: Traverse constructor body via visitor
-            body.accept(this);
+            // DELEGATION: Create MethodBodyVisitor for constructor body traversal
+            MethodBodyVisitor bodyVisitor = new MethodBodyVisitor(callbacks);
+            body.accept(bodyVisitor);
 
             PsiElement rBrace = body.getRBrace();
             if (rBrace != null) {
@@ -836,8 +798,9 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                 LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
                 callbacks.beginInitBlock(initToken, lBraceToken);
 
-                // Phase 6: Traverse init block body via visitor
-                body.accept(this);
+                // DELEGATION: Create MethodBodyVisitor for init block body traversal
+                MethodBodyVisitor bodyVisitor = new MethodBodyVisitor(callbacks);
+                body.accept(bodyVisitor);
 
                 // 2. End init block
                 LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
@@ -927,11 +890,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         }
 
         // 3. Property type
-        LocatableToken typeToken = processPropertyType(property);
-        if (typeToken != null) {
-            List<LocatableToken> typeTokens = List.of(typeToken);
-             callbacks.gotTypeSpec(typeTokens);
-        }
+         callbacks.gotTypeSpec(processPropertyType(property));
 
         // 4. Field declaration
         PsiElement nameIdentifier = property.getNameIdentifier();
@@ -950,9 +909,10 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         // TODO: that needs to be done only on failure
         // callbacks.endDecl(propertyToken);
 
-        // Visit custom accessors if present (custom getter/setter bodies)
-        // TODO?
-        super.visitProperty(property);
+        // Don't recursively visit property accessors here to avoid ClassCastException
+        // when accessors trigger method callbacks while FieldNode is on scope stack.
+        // Accessor bodies will be handled in a later phase if needed.
+         super.visitProperty(property);
 
 //        clearModifierState();
     }
@@ -970,35 +930,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
         }
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
-    
-    /**
-     * Processes the property type and returns a type token.
-     *
-     * <p>Handles both explicit types and type inference:</p>
-     * <ul>
-     *   <li>Explicit type: {@code val name: String} → "String" token</li>
-     *   <li>Inferred type: {@code val count = 0} → "inferred" token</li>
-     * </ul>
-     *
-     * <h3>Type Inference Limitation</h3>
-     * <p>Phase 4 cannot resolve inferred types without Kotlin compiler integration.
-     * Properties without explicit types are marked as "inferred" type.</p>
-     *
-     * @param property The property to extract type from
-     * @return LocatableToken representing the property type, or null if unavailable
-     */
-    private LocatableToken processPropertyType(KtProperty property) {
-        KtTypeReference typeRef = property.getTypeReference();
-        if (typeRef != null) {
-            // Explicit type annotation
-            return createToken(typeRef, JavaTokenTypes.IDENT);
-        } else {
-            // Type inference - mark as inferred
-            // Phase 4 limitation: Cannot resolve inferred types without compiler integration
-            return createTokenWithText(property, "inferred", JavaTokenTypes.IDENT);
-        }
-    }
-    
+
     /**
      * Visits an object declaration.
      *
@@ -1115,201 +1047,7 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
     }
 
     // ==================== Phase 3 Helper Methods ====================
-    
-    /**
-     * Creates a LocatableToken from a PSI element with proper line/column positions.
-     *
-     * <p>This helper method converts a PSI element into a token suitable for callback
-     * invocation. It calculates accurate line and column positions by accessing the
-     * Document via PsiDocumentManager.</p>
-     *
-     * <p><b>Position Calculation:</b> Uses IntelliJ Platform's Document API to convert
-     * text offsets into line/column coordinates:</p>
-     * <ol>
-     *   <li>Get containing file from element</li>
-     *   <li>Access Project from file</li>
-     *   <li>Get Document via PsiDocumentManager</li>
-     *   <li>Convert offsets to line numbers (0-based → 1-based)</li>
-     *   <li>Calculate columns as offset from line start</li>
-     * </ol>
-     *
-     * <p><b>Fallback Strategy:</b> If Document is unavailable (rare edge case), falls back
-     * to placeholder positions to ensure graceful degradation.</p>
-     *
-     * @param element The PSI element to convert to a token
-     * @param type The token type from {@link JavaTokenTypes}
-     * @return LocatableToken with accurate line/column positions
-     * @throws IllegalArgumentException if element is null
-     */
-    private LocatableToken createToken(PsiElement element, int type) {
-        if (element == null) {
-            throw new IllegalArgumentException("PSI element must not be null");
-        }
-        
-        // Extract text from element
-        String text = element.getText();
-        if (text == null) {
-            text = "";
-        }
-        
-        return createTokenWithText(element, text, type);
-    }
-    
-    /**
-     * Creates a LocatableToken with custom text at the position of a PSI element.
-     *
-     * <p>This is used for synthesized tokens where we need to provide specific text
-     * (like "Companion" for unnamed companion objects) while maintaining proper
-     * position information from the PSI element.</p>
-     *
-     * @param element The PSI element to get position from
-     * @param customText The text to use in the token
-     * @param type The token type from {@link JavaTokenTypes}
-     * @return LocatableToken with custom text and element's position
-     * @throws IllegalArgumentException if element is null
-     */
-    private LocatableToken createTokenWithText(PsiElement element, String customText, int type) {
-        if (element == null) {
-            throw new IllegalArgumentException("PSI element must not be null");
-        }
-        
-        int startOffset = element.getTextOffset();
-        int endOffset = startOffset + customText.length();
-        
-        // Calculate positions using shared helper
-        LineColPos[] positions = calculatePositions(element, startOffset, endOffset);
-        
-        return new LocatableToken(type, customText, positions[0], positions[1]);
-    }
-    
-    /**
-     * Calculates begin and end positions for a token.
-     *
-     * <p>This helper method centralizes the position calculation logic to eliminate
-     * duplication between {@link #createToken(PsiElement, int)} and
-     * {@link #createTokenWithText(PsiElement, String, int)}.</p>
-     *
-     * <p><b>Algorithm:</b></p>
-     * <ol>
-     *   <li>Get containing file from element</li>
-     *   <li>If no file available, use fallback positions (offset as line/column)</li>
-     *   <li>Otherwise, calculate actual line/column from file text and offsets</li>
-     *   <li>Return array of [begin, end] positions</li>
-     * </ol>
-     *
-     * @param element The PSI element to get position from
-     * @param startOffset The start offset in the file (0-based)
-     * @param endOffset The end offset in the file (0-based)
-     * @return Array containing [begin, end] LineColPos
-     */
-    private LineColPos[] calculatePositions(PsiElement element, int startOffset, int endOffset) {
-        // Get source file text for line/column calculation
-        // Note: Document API (PsiDocumentManager) is unavailable in lightweight test PSI environments,
-        // so we calculate positions directly from source text
-        PsiFile psiFile = element.getContainingFile();
-        if (psiFile == null) {
-            // Fallback if no containing file (shouldn't happen)
-            return new LineColPos[] {
-                new LineColPos(1, startOffset, startOffset),
-                new LineColPos(1, endOffset, endOffset)
-            };
-        }
-        
-        String fileText = psiFile.getText();
-        
-        // Calculate start position
-        int[] startLineCol = calculateLineColumn(fileText, startOffset);
-        int startLine = startLineCol[0];
-        int startColumn = startLineCol[1];
-        
-        // Calculate end position
-        int[] endLineCol = calculateLineColumn(fileText, endOffset);
-        int endLine = endLineCol[0];
-        int endColumn = endLineCol[1];
 
-//        if (tokenBase != null) {
-//            if (startLine == 1) { startColumn += tokenBase.getColumn() - 1; };
-//            if (endLine == 1) { endColumn += tokenBase.getColumn() - 1; };
-//
-//            startLine += tokenBase.getLine() - 1;
-//            endLine += tokenBase.getLine() - 1;
-//            startOffset += tokenBase.getPosition();
-//            endOffset += tokenBase.getPosition();
-//        }
-        
-        // Return positions array
-        return new LineColPos[] {
-            new LineColPos(startLine, startColumn, startOffset),
-            new LineColPos(endLine, endColumn, endOffset)
-        };
-    }
-    
-    /**
-     * Calculate line and column numbers from file text and offset.
-     *
-     * <p>Counts newlines from file start to offset to determine line number (1-based).
-     * Then scans backwards to find line start and calculates column position (1-based).</p>
-     *
-     * <p><b>Algorithm:</b></p>
-     * <ol>
-     *   <li>Start at line 1, lineStartOffset = 0</li>
-     *   <li>Scan through text from 0 to offset</li>
-     *   <li>Each newline increments line, updates lineStartOffset to position after newline</li>
-     *   <li>Column = (offset - lineStartOffset) + 1 to convert to 1-based</li>
-     * </ol>
-     *
-     * <p><b>Position Conventions:</b> Both line and column are 1-based to match BlueJ
-     * parser conventions. The first character on a line is column 1.</p>
-     *
-     * @param fileText The complete source file text
-     * @param offset The character offset in the file (0-based)
-     * @return Array of [line, column] where both are 1-based
-     */
-    private int[] calculateLineColumn(String fileText, int offset) {
-        int line = 1;  // 1-based line number
-        int lineStartOffset = 0;
-        
-        // Count newlines before offset to determine line number
-        for (int i = 0; i < Math.min(offset, fileText.length()); i++) {
-            if (fileText.charAt(i) == '\n') {
-                line++;
-                lineStartOffset = i + 1;  // Next line starts after newline
-            }
-        }
-        
-        // Column is offset from line start, converted to 1-based
-        int column = (offset - lineStartOffset) + 1;
-        
-        return new int[] { line, column };
-    }
-    
-    /**
-     * Determines the typedef type constant for a Kotlin class.
-     *
-     * <p>Maps Kotlin class declarations to their JavaTokenTypes typedef constants:</p>
-     * <ul>
-     *   <li>Interfaces → {@link JavaTokenTypes#LITERAL_interface}</li>
-     *   <li>Enum classes → {@link JavaTokenTypes#LITERAL_enum}</li>
-     *   <li>Regular classes (including data, sealed, etc.) → {@link JavaTokenTypes#LITERAL_class}</li>
-     * </ul>
-     *
-     * <p>This classification is used by {@code JavaParserCallbacks.gotTypeDef(LocatableToken, int)}
-     * to inform the parser infrastructure about the type of declaration being processed.</p>
-     *
-     * @param ktClass The Kotlin class PSI element to classify
-     * @return The appropriate TYPEDEF_* constant from {@link JavaTokenTypes}
-     */
-    private int determineTypeDefType(KtClass ktClass) {
-        if (ktClass.isInterface()) {
-            return JavaTokenTypes.LITERAL_interface;
-        } else if (ktClass.isEnum()) {
-            return JavaTokenTypes.LITERAL_enum;
-        } else {
-            // Regular class (includes data classes, sealed classes, etc.)
-            return JavaTokenTypes.LITERAL_class;
-        }
-    }
-    
     /**
      * Processes Kotlin modifiers and invokes corresponding callbacks.
      *
@@ -1769,10 +1507,14 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             return null;
         }
 
+        // DELEGATION: Create MethodBodyVisitor for method body traversal
+        MethodBodyVisitor bodyVisitor = new MethodBodyVisitor(callbacks);
         LocatableToken lastToken = null;
-        
-        if (function.hasBlockBody()) {
-            // Block body: fun method() { ... }
+
+        // TODO: apparently interfaces say they have block body but return nothing.
+        if (function.hasBlockBody() && function.getBodyBlockExpression() != null) {
+
+            // TODO: this should be shifted to the child visitor
             KtBlockExpression body = function.getBodyBlockExpression();
             if (body != null) {
                 PsiElement lBrace = body.getLBrace();
@@ -1780,10 +1522,9 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                     LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
                     callbacks.beginMethodBody(lBraceToken);
                 }
-                
-                // Phase 6: Traverse body statements via visitor
-                body.accept(this);
-                
+
+                body.accept(bodyVisitor);
+
                 PsiElement rBrace = body.getRBrace();
                 if (rBrace != null) {
                     LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
@@ -1791,28 +1532,58 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
                     callbacks.endMethodBody(rBraceToken, true);
                 }
             }
-        } else if (function.hasBody()) {
-            // Expression body: fun method() = expr
+
+        }
+        else if (function.hasBody()) {
             KtExpression body = function.getBodyExpression();
-            if (body != null) {
-                // Mark expression body boundaries
-                LocatableToken bodyToken = createToken(body, JavaTokenTypes.ASSIGN);
-                callbacks.beginMethodBody(bodyToken);
-                
-                // Phase 6: Traverse expression via visitor
-                body.accept(this);
 
-                lastToken = createToken(body.getLastChild(), JavaTokenTypes.LITERAL_void);
-
-                callbacks.endMethodBody(bodyToken, true);
-            }
-        }
-        else {
-            // else: Abstract method or interface method - no body
-            lastToken = createToken(function.getLastChild(), JavaTokenTypes.LITERAL_void);
+            body.accept(bodyVisitor);
         }
 
-        return lastToken;
+//        if (function.hasBlockBody()) {
+//            // Block body: fun method() { ... }
+//            KtBlockExpression body = function.getBodyBlockExpression();
+//            if (body != null) {
+//                PsiElement lBrace = body.getLBrace();
+//                if (lBrace != null) {
+//                    LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+//                    callbacks.beginMethodBody(lBraceToken);
+//                }
+//
+//                // DELEGATION: Create MethodBodyVisitor for method body traversal
+//                MethodBodyVisitor bodyVisitor = new MethodBodyVisitor(callbacks);
+//                body.accept(bodyVisitor);
+//
+//                PsiElement rBrace = body.getRBrace();
+//                if (rBrace != null) {
+//                    LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+//                    lastToken = rBraceToken;
+//                    callbacks.endMethodBody(rBraceToken, true);
+//                }
+//            }
+//        } else if (function.hasBody()) {
+//            // Expression body: fun method() = expr
+//            KtExpression body = function.getBodyExpression();
+//            if (body != null) {
+//                // Mark expression body boundaries
+//                LocatableToken bodyToken = createToken(body, JavaTokenTypes.ASSIGN);
+//                callbacks.beginMethodBody(bodyToken);
+//
+//                // DELEGATION: Expression body also uses MethodBodyVisitor
+//                MethodBodyVisitor bodyVisitor = new MethodBodyVisitor(callbacks);
+//                body.accept(bodyVisitor);
+//
+//                lastToken = createToken(body.getLastChild(), JavaTokenTypes.LITERAL_void);
+//
+//                callbacks.endMethodBody(bodyToken, true);
+//            }
+//        }
+//        else {
+//            // else: Abstract method or interface method - no body
+//            lastToken = createToken(function.getLastChild(), JavaTokenTypes.LITERAL_void);
+//        }
+
+        return lastToken != null ? lastToken : bodyVisitor.getLastToken();
     }
     /**
      * Processes constructor parameter list.
@@ -1951,52 +1722,6 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
             callbacks.endTypeDefImplements();
             // Note: No individual type processing between begin/end
         }
-    }
-
-    public void setTokenBase(LocatableToken currentToken) {
-        if (currentToken.getHiddenBefore() != null) {
-            currentToken = currentToken.getHiddenBefore();
-        }
-
-        if (currentToken.getPosition() > 0) {
-            this.tokenBase = currentToken;
-        }
-    }
-
-    public void setTokenBase(LineColPos position) {
-        if (position.position() > 0) {
-            this.tokenBase = new LocatableToken(
-                JavaTokenTypes.LITERAL_void,
-                "",
-                position,
-                position
-            );
-        }
-    }
-
-    public LocatableToken getTokenBase() {
-        if (this.tokenBase != null) { return this.tokenBase; }
-
-        return new LocatableToken(
-            JavaTokenTypes.LITERAL_void,
-            "",
-            new LineColPos(1, 1, 0),
-            new LineColPos(1, 1, 0)
-        );
-    }
-
-    public void setEmitRangeStart(LocatableToken currentToken) {
-        this.callbacks.setEmitRangeStart(currentToken);
-//        var offset = this.getTokenBase().getPosition();
-//
-//        if (offset > 0) {
-//            this.psiStartOffset = currentToken.getPosition() - offset;
-//        }
-    }
-
-    public int getPsiStartOffset() {
-//        return this.psiStartOffset;
-        return this.getTokenBase().getPosition();
     }
 
      // ==================== Phase 6 Statement and Expression Visitor Methods ====================
@@ -3549,13 +3274,13 @@ public class PsiCallbackVisitor extends KtVisitorVoid {
          }
      }
     
-     /**
-      * Helper method to create a token from PSI element with automatic type detection.
-      * Used for expressions where we don't need a specific token type.
-      */
-     private LocatableToken createToken(PsiElement element) {
-         return createToken(element, JavaTokenTypes.LITERAL_void);
-     }
+//     /**
+//      * Helper method to create a token from PSI element with automatic type detection.
+//      * Used for expressions where we don't need a specific token type.
+//      */
+//     private LocatableToken createToken(PsiElement element) {
+//         return createToken(element, JavaTokenTypes.LITERAL_void);
+//     }
      /**
       * Helper method to find a child element by its text content.
       * Used for finding keyword elements like "catch", "finally", etc.

@@ -3,6 +3,7 @@ package bluej.parser.psi;
 import bluej.parser.lexer.LineColPos;
 import bluej.parser.lexer.LocatableToken;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Validates pairing of parser callbacks using hybrid state machine.
@@ -33,6 +34,9 @@ public class PairingValidator {
     // Special pairing map for callbacks that don't follow begin*/end* convention
     private final Map<String, String> specialPairings;
     
+    // Callback sequence storage for visualization
+    private final List<CallbackRecord> callbacks;
+    
     // Validation results (immutable after construction)
     private final List<CallbackPairing> pairings;
     private final List<String> errors;
@@ -47,6 +51,9 @@ public class PairingValidator {
      * @param callbacks The complete sequence of callback records to validate
      */
     public PairingValidator(List<CallbackRecord> callbacks) {
+        // Store defensive copy of callbacks for visualization
+        this.callbacks = new ArrayList<>(callbacks);
+        
         this.callbackRoles = new HashMap<>();
         this.stateRules = new ArrayList<>();
         this.specialPairings = new HashMap<>();
@@ -76,6 +83,8 @@ public class PairingValidator {
         callbackRoles.put("endFieldDeclarations", CallbackRole.CONTEXT_CLOSER);
         callbackRoles.put("beginInitBlock", CallbackRole.CONTEXT_REFINER);
         callbackRoles.put("endInitBlock", CallbackRole.CONTEXT_CLOSER);
+        callbackRoles.put("beginVariableDecl", CallbackRole.CONTEXT_REFINER);
+        callbackRoles.put("endVariableDecls", CallbackRole.CONTEXT_CLOSER);
 
         // Simple paired callbacks
         callbackRoles.put("beginMethodBody", CallbackRole.PAIRED_BEGIN);
@@ -116,9 +125,15 @@ public class PairingValidator {
         callbackRoles.put("endArrayInitExpression", CallbackRole.PAIRED_END);
 //        callbackRoles.put("beginFieldDeclarations", CallbackRole.PAIRED_BEGIN);
 //        callbackRoles.put("endFieldDeclarations", CallbackRole.PAIRED_END);
+
         callbackRoles.put("gotField", CallbackRole.PAIRED_BEGIN);          // First field opener
         callbackRoles.put("gotSubsequentField", CallbackRole.PAIRED_BEGIN); // 2nd+ field opener
         callbackRoles.put("endField", CallbackRole.PAIRED_END);             // Field closer (reused!)
+
+        callbackRoles.put("gotVariableDecl", CallbackRole.PAIRED_BEGIN);  // First field opener
+        callbackRoles.put("gotSubsequentVar", CallbackRole.PAIRED_BEGIN); // 2nd+ field opener
+        callbackRoles.put("endVariable", CallbackRole.PAIRED_END);        // Field closer (reused!)
+
         callbackRoles.put("beginConstructor", CallbackRole.PAIRED_BEGIN);
         callbackRoles.put("endConstructor", CallbackRole.PAIRED_END);
         callbackRoles.put("beginMethodParam", CallbackRole.PAIRED_BEGIN);
@@ -225,6 +240,9 @@ public class PairingValidator {
         // We'll store the primary one and check others via logic
         specialPairings.put("gotField", "endField");
         specialPairings.put("gotSubsequentField", "endField");
+        // Variables also have specific pairing
+        specialPairings.put("gotVariableDecl", "endVariable");
+        specialPairings.put("gotSubsequentVar", "endVariable");
     }
     
     /**
@@ -234,13 +252,14 @@ public class PairingValidator {
         // Declaration rule: gotDeclBegin can be refined to method or type
         StateTransitionRule declRule = new StateTransitionRule(
             "gotDeclBegin",
-            List.of("gotMethodDeclaration", "gotConstructorDecl", "gotTypeDef",  "beginFieldDeclarations", "beginInitBlock"),
+            List.of("gotMethodDeclaration", "gotConstructorDecl", "gotTypeDef",  "beginFieldDeclarations", "beginInitBlock", "beginVariableDecl"),
             Map.of(
                 "gotMethodDeclaration", "endMethodDecl",
                 "gotConstructorDecl", "endMethodDecl",
                 "gotTypeDef", "gotTypeDefEnd",
                 "beginFieldDeclarations", "endFieldDeclarations",
-                "beginInitBlock", "endInitBlock"
+                "beginInitBlock", "endInitBlock",
+                "beginVariableDecl","endVariableDecls"
             )
         );
         stateRules.add(declRule);
@@ -317,7 +336,7 @@ public class PairingValidator {
      * Handle CONTEXT_INITIATOR role.
      */
     private void handleContextInitiator(
-        String callback, 
+        String callback,
         int index,
         Stack<StackEntry> contextStack,
         List<String> errors
@@ -330,8 +349,10 @@ public class PairingValidator {
             return;
         }
         
+        // Get stacktrace from CallbackRecord (captured during parsing)
+        StackTraceElement[] stackTrace = callbacks.get(index).getCallStackTrace();
         ValidationContext context = new ValidationContext(
-            callback, index, null, -1, ContextState.INITIATED
+            callback, index, null, -1, ContextState.INITIATED, stackTrace
         );
         contextStack.push(context);
     }
@@ -460,7 +481,9 @@ public class PairingValidator {
         // Create dummy token for now (will be enhanced later if needed)
         LineColPos dummyPos = new LineColPos(1, 1, 0);
         LocatableToken dummyToken = new LocatableToken(0, "", dummyPos, dummyPos);
-        PendingBegin pending = new PendingBegin(callback, dummyToken, index);
+        // Get stacktrace from CallbackRecord (captured during parsing)
+        StackTraceElement[] stackTrace = callbacks.get(index).getCallStackTrace();
+        PendingBegin pending = new PendingBegin(callback, dummyToken, index, stackTrace);
         contextStack.push(pending);
     }
     
@@ -595,6 +618,166 @@ public class PairingValidator {
             .orElse(null);
     }
     
+    // ==================== Nested Visualization Helper Methods ====================
+    
+    /**
+     * Determines the role of a callback with fallback for unregistered callbacks.
+     * Extracted from validation logic for reuse in visualization.
+     */
+    private CallbackRole determineRole(String callbackName) {
+        // Handle null or empty callback names
+        if (callbackName == null || callbackName.isEmpty()) {
+            return CallbackRole.INFORMATIONAL;
+        }
+        
+        if (callbackRoles.containsKey(callbackName)) {
+            return callbackRoles.get(callbackName);
+        } else if (callbackName.startsWith("begin")) {
+            return CallbackRole.PAIRED_BEGIN;
+        } else if (callbackName.startsWith("end")) {
+            return CallbackRole.PAIRED_END;
+        } else {
+            return CallbackRole.INFORMATIONAL;
+        }
+    }
+    
+    /**
+     * Determines if a callback opens a new scope (increases depth).
+     */
+    private boolean isOpener(String callbackName) {
+        CallbackRole role = determineRole(callbackName);
+        return role == CallbackRole.CONTEXT_INITIATOR || role == CallbackRole.PAIRED_BEGIN;
+    }
+    
+    /**
+     * Determines if a callback closes a scope (decreases depth).
+     */
+    private boolean isCloser(String callbackName) {
+        CallbackRole role = determineRole(callbackName);
+        return role == CallbackRole.CONTEXT_CLOSER || role == CallbackRole.PAIRED_END;
+    }
+    
+    /**
+     * Finds error message for a specific callback at given index.
+     * Checks both the errors list and unmatched pairings.
+     */
+    private String findErrorForCallback(int index) {
+        String callbackName = callbacks.get(index).getCallbackName();
+        
+        // Check errors list for mentions of this callback at this index
+        // Handle null callback names safely
+        for (String error : errors) {
+            if (callbackName != null && error.contains(callbackName) && error.contains("" + index)) {
+                return error;
+            } else if (callbackName == null && error.contains("null") && error.contains("" + index)) {
+                return error;
+            }
+        }
+        
+        // Check if this is an unmatched begin in pairings
+        for (CallbackPairing pairing : pairings) {
+            if (pairing.getBeginIndex() == index && !pairing.isMatched()) {
+                String expectedEnd = pairing.getBeginCallback().replace("begin", "end");
+                // Check special pairings
+                if (specialPairings.containsKey(pairing.getBeginCallback())) {
+                    expectedEnd = specialPairings.get(pairing.getBeginCallback());
+                }
+                return "UNPAIRED: expected " + expectedEnd;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Determines the symbol character for a callback based on its role and error status.
+     *
+     * @param record The callback record
+     * @param pairedMap Map of begin indices to their matched ends (for paired detection)
+     * @param errorMap Map of indices to error messages
+     * @return Symbol character: +, >, *, !, or -
+     */
+    private String determineSymbol(CallbackRecord record,
+                                   Map<Integer, CallbackRecord> pairedMap,
+                                   Map<Integer, String> errorMap) {
+        int index = callbacks.indexOf(record);
+        String callbackName = record.getCallbackName();
+        
+        // Error takes precedence
+        if (errorMap.containsKey(index)) {
+            return "!";
+        }
+        
+        CallbackRole role = determineRole(callbackName);
+        return switch (role) {
+            case CONTEXT_INITIATOR, PAIRED_BEGIN -> "+";
+            case CONTEXT_REFINER -> ">";
+            case CONTEXT_CLOSER, PAIRED_END -> "-";
+            case INFORMATIONAL -> "*";
+        };
+    }
+    
+    /**
+     * Formats a single callback line with indentation, symbol, and details.
+     */
+    private String formatCallbackLine(int depth, String symbol,
+                                      CallbackRecord record, String errorDetails) {
+        StringBuilder line = new StringBuilder();
+        
+        // Add indentation (2 spaces per level)
+        line.append("  ".repeat(Math.max(0, depth)));
+        
+        // Add symbol
+        line.append(symbol).append(" ");
+        
+        // Add callback name and index (handle null callback name)
+        int index = callbacks.indexOf(record);
+        String callbackName = record.getCallbackName();
+        line.append(callbackName != null ? callbackName : "<null>").append("[").append(index).append("]");
+        
+        // Add token information if available
+        Object token = record.getParameter("token");
+        if (token != null) {
+            line.append(" (token = ").append(formatToken(token)).append(")");
+        }
+        
+        // Add error details if present
+        if (errorDetails != null && !errorDetails.isEmpty()) {
+            var indent = "  ".repeat(Math.max(0, depth));
+
+            line.append("\n");
+            line.append(indent);
+
+            var indentedError = errorDetails.lines()
+                .flatMap (errorLine -> List.of(indent, "  |", errorLine, "\n").stream())
+                .skip(2)  // don't indent and prefix the first line
+                .collect(Collectors.joining(""));
+
+            // and drop the last newline (yes, ugly)
+            line.append("  ERROR: ").append(indentedError.substring(0, indentedError.length() - 1));
+        }
+        
+        return line.toString();
+    }
+    
+    /**
+     * Formats token information for display.
+     * Handles LocatableToken and generic objects.
+     */
+    private String formatToken(Object token) {
+        if (token == null) {
+            return "null";
+        }
+        
+        if (token instanceof LocatableToken lt) {
+            return String.format("LocatableToken(line=%d, col=%d, text='%s')",
+                lt.getLine(), lt.getColumn(),
+                (lt.getText() != null ? lt.getText() : "")).replaceAll("\n", "\\\\n");
+        }
+        
+        return token.toString();
+    }
+    
     // ==================== Query Methods ====================
     
     /**
@@ -688,6 +871,8 @@ public class PairingValidator {
                 sb.append("  ").append(error).append("\n");
             }
         }
+
+        sb.append(getNestedSummary());
         
         return sb.toString();
     }
@@ -699,6 +884,107 @@ public class PairingValidator {
      */
     public String getValidationSummary() {
         return getDetailedSummary();
+    }
+    
+    /**
+     * Generates a nested visualization of the callback sequence.
+     * 
+     * <p>This method provides a hierarchical tree-like view of callbacks, showing
+     * nesting relationships through indentation. Each callback is prefixed with a
+     * symbol indicating its role:
+     * <ul>
+     *   <li>{@code +} - Opens new scope (CONTEXT_INITIATOR, PAIRED_BEGIN)</li>
+     *   <li>{@code >} - Refines current scope (CONTEXT_REFINER)</li>
+     *   <li>{@code *} - Informational, no validation (INFORMATIONAL)</li>
+     *   <li>{@code !} - Error or unpaired callback</li>
+     *   <li>{@code -} - Closes scope (CONTEXT_CLOSER, PAIRED_END)</li>
+     * </ul>
+     * 
+     * <p>Example output:
+     * <pre>
+     * Nested Callback Sequence:
+     * 
+     * + gotDeclBegin[0] (token = LocatableToken(...))
+     * &gt; gotMethodDecl[1]
+     *   + beginMethodBody[2]
+     *     * gotIdentifier[3]
+     *   - endMethodBody[5]
+     * - endMethodDecl[6]
+     * </pre>
+     * 
+     * <p><strong>Complexity:</strong> O(n) where n is the number of callbacks,
+     * as we traverse the list once building visualization data.
+     * 
+     * <p><strong>Thread Safety:</strong> Safe to call concurrently as it only
+     * reads immutable state.
+     * 
+     * @return Formatted nested visualization showing callback hierarchy
+     */
+    public String getNestedSummary() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Nested Callback Sequence:\n\n");
+        
+        // Handle empty callbacks
+        if (callbacks.isEmpty()) {
+            sb.append("(no callbacks)\n");
+            return sb.toString();
+        }
+        
+        // Build lookup maps for quick access during traversal
+        Map<Integer, CallbackRecord> pairedMap = new HashMap<>();
+        Map<Integer, String> errorMap = new HashMap<>();
+        
+        // Populate error map
+        for (int i = 0; i < callbacks.size(); i++) {
+            String error = findErrorForCallback(i);
+            if (error != null) {
+                errorMap.put(i, error);
+            }
+        }
+        
+        // Track current nesting depth
+        int currentDepth = 0;
+        
+        // Maximum depth safety check
+        final int MAX_DEPTH = 100;
+        
+        // Traverse callbacks and build nested visualization
+        for (int i = 0; i < callbacks.size(); i++) {
+            CallbackRecord record = callbacks.get(i);
+            String callbackName = record.getCallbackName();
+            
+            // Determine symbol for this callback
+            String symbol = determineSymbol(record, pairedMap, errorMap);
+            
+            // Get error details if present
+            String errorDetails = errorMap.get(i);
+            
+            // Adjust depth BEFORE printing for closers
+            // This ensures the closing brace appears at the same level as the opening
+            if (isCloser(callbackName)) {
+                currentDepth = Math.max(0, currentDepth - 1);
+            }
+            
+            // Safety check for excessive nesting
+            if (currentDepth > MAX_DEPTH) {
+                sb.append("  ".repeat(MAX_DEPTH));
+                sb.append("! WARNING: Maximum nesting depth exceeded at callback ")
+                  .append(i).append("\n");
+                break;
+            }
+            
+            // Format and append line
+            String line = formatCallbackLine(currentDepth, symbol, record, errorDetails);
+            sb.append(line).append("\n");
+            
+            // Adjust depth AFTER printing for openers
+            // This increases depth for subsequent callbacks inside this scope
+            if (isOpener(callbackName)) {
+                currentDepth++;
+            }
+        }
+        
+        return sb.toString();
     }
     
     // ==================== Data Classes ====================

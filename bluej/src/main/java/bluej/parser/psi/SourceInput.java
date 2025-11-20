@@ -104,7 +104,10 @@ public sealed interface SourceInput
      * Returns the virtual path for PSI and display purposes.
      */
     @NotNull String path();
-    
+
+//    @NotNull String content();
+    String content();
+
     /**
      * Returns just the filename for display.
      */
@@ -269,13 +272,13 @@ public sealed interface SourceInput
         try {
             // reader.mark(Integer.MAX_VALUE);
             // TODO: dumb workaround for tests, should be fixed properly
-            reader.mark(65535);
+//            reader.mark(65535);
 
             while ((n = reader.read(buf)) != -1) {
                 sb.append(buf, 0, n);
             }
 
-            reader.reset();
+//            reader.reset();
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -30,8 +30,10 @@ import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.ReparseableDocument;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class TestableDocument extends JavaSyntaxView implements ReparseableDocument
 {
@@ -42,6 +44,18 @@ public class TestableDocument extends JavaSyntaxView implements ReparseableDocum
     public TestableDocument(EntityResolver entityResolver, SourceType sourceType)
     {
         super(new HoleDocument(), null, ScopeColors.dummy(), entityResolver, new ReadOnlyBooleanWrapper(true), sourceType);
+    }
+
+    @Override
+    public String getVirtualPath() {
+        UUID uuid = UUID.randomUUID();
+
+        return uuid.toString() + "." + getSourceType().getExtension();
+    }
+
+    @Override
+    public Charset getCharset() {
+        return Charset.defaultCharset();
     }
 
     public TestableDocument(EntityResolver entityResolver)

@@ -23,6 +23,8 @@ package bluej.parser.psi;
 
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.parser.psi.visitor.BaseVisitor;
+import bluej.parser.psi.visitor.FileVisitor;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -1078,7 +1080,7 @@ public class StatementExpressionCallbackTest {
         
         // Create recorder and visitor
         CallbackRecorder recorder = new CallbackRecorder();
-        PsiCallbackVisitor visitor = new PsiCallbackVisitor(recorder);
+        BaseVisitor visitor = new FileVisitor(recorder);
         
         // Visit the file (triggers traversal)
         ktFile.accept(visitor);

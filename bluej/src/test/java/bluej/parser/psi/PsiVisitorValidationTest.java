@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import bluej.parser.psi.visitor.BaseVisitor;
+import bluej.parser.psi.visitor.FileVisitor;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static bluej.utility.ResourceFileReader.getResourceFile;
 import static org.junit.Assert.*;
 
 /**
@@ -127,8 +130,28 @@ public class PsiVisitorValidationTest {
         
         // 4. Create recorder and visitor
         CallbackRecorder recorder = new CallbackRecorder();
-        PsiCallbackVisitor visitor = new PsiCallbackVisitor(recorder);
+        BaseVisitor visitor = new FileVisitor(recorder);
         
+        // 5. Run visitor on PSI tree
+        ktFile.accept(visitor);
+
+        return recorder;
+    }
+
+    private CallbackRecorder runVisitorOnSourceInput(SourceInput sourceInput) throws IOException, PsiParseException {
+        // 1. Load file content
+        String content = sourceInput.content();
+
+        // 2. Extract filename from path (e.g., "/path/to/BasicClass.kt" -> "BasicClass.kt")
+        String fileName = sourceInput.filename();
+
+        // 3. Parse Kotlin code to PSI using PsiEnvironment singleton
+        KtFile ktFile = environment.parseFile(fileName, content);
+
+        // 4. Create recorder and visitor
+        CallbackRecorder recorder = new CallbackRecorder();
+        BaseVisitor visitor = new FileVisitor(recorder);
+
         // 5. Run visitor on PSI tree
         ktFile.accept(visitor);
 
@@ -875,6 +898,31 @@ public class PsiVisitorValidationTest {
         assertTrue("All complex tests should have balanced callbacks. Failures:\n" + String.join("\n", failures),
                    failures.isEmpty());
     }
+
+    @Test
+    public void testDog() throws IOException, PsiParseException {
+        String filePath = TestCorpus.getModerateTests().stream()
+                .filter(f -> f.contains("ClassWithPropertyAndMethod"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Inheritance file not found in test corpus"));
+
+        CallbackRecorder recorder = runVisitorOnFile(filePath);
+
+        // Should have multiple type definitions (parent and child)
+        assertValidPairing(recorder);
+    }
+
+    @Test
+    public void testBasicKtFile() throws IOException, PsiParseException {
+        SourceInput input = getResourceFile(getClass(), "/bluej/parser/kotlin/kotlin_basic.kt");
+
+        CallbackRecorder recorder = runVisitorOnSourceInput(input);
+
+        // Should have multiple type definitions (parent and child)
+        assertValidPairing(recorder);
+    }
+
+
     
     @Test
     public void testEntireCorpusValidation() {

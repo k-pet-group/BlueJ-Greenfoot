@@ -1,5 +1,7 @@
 package bluej.parser.psi;
 
+import bluej.parser.psi.visitor.BaseVisitor;
+import bluej.parser.psi.visitor.FileVisitor;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +29,7 @@ public class MethodDebugTest {
         
         // Create recorder
         CallbackRecorder recorder = new CallbackRecorder();
-        PsiCallbackVisitor visitor = new PsiCallbackVisitor(recorder);
+        BaseVisitor visitor = new FileVisitor(recorder);
         
         // Visit
         ktFile.accept(visitor);
