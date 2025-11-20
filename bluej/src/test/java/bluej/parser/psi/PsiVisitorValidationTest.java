@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 /**
  * Comprehensive validation test suite for PSI visitor traversal infrastructure.
  *
- * <p><b>Milestone 2.3 Task 2.3.5:</b> This test suite validates that {@link PsiCallbackVisitor}
+ * <p><b>Milestone 2.3 Task 2.3.5:</b> This test suite validates that {@link bluej.parser.psi.visitor.FileVisitor}
  * correctly traverses PSI structures using {@link CallbackRecorder} to verify callback sequences
  * and pairing. This is the culmination of Milestone 2.3 (Validation Infrastructure), proving
  * the visitor infrastructure works correctly before Phase 3 callback implementation.</p>
@@ -55,7 +55,7 @@ import static org.junit.Assert.*;
  *   <li>{@link PairingValidator} - Validates callback pairing</li>
  * </ul>
  *
- * @see PsiCallbackVisitor
+ * @see bluej.parser.psi.visitor.FileVisitor
  * @see CallbackRecorder
  * @see TestCorpus
  * @see PairingValidator
@@ -99,7 +99,7 @@ public class PsiVisitorValidationTest {
      *   <li>Load the test file content using {@link TestCorpus}</li>
      *   <li>Parse it into a KtFile PSI tree using {@link PsiEnvironment}</li>
      *   <li>Create a {@link CallbackRecorder} to capture callbacks</li>
-     *   <li>Create a {@link PsiCallbackVisitor} with the recorder</li>
+     *   <li>Create a {@link bluej.parser.psi.visitor.FileVisitor} with the recorder</li>
      *   <li>Run the visitor on the PSI tree</li>
      *   <li>Validate that the visitor state is balanced</li>
      * </ol>

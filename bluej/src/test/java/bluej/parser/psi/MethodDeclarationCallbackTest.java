@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 /**
  * Tests for Phase 4 Milestone 4.1: Method declaration callback sequence.
  * 
- * <p>Validates that {@link PsiCallbackVisitor#visitNamedFunction(org.jetbrains.kotlin.psi.KtNamedFunction)}
+ * <p>Validates that {@link bluej.parser.psi.visitor.FileVisitor#visitNamedFunction(org.jetbrains.kotlin.psi.KtNamedFunction)}
  * invokes the complete callback sequence for method declarations:</p>
  * <ol>
  *   <li>{@code gotDeclBegin(token)} - Begin declaration</li>
@@ -54,13 +54,11 @@ import static org.junit.Assert.*;
  *   <li>{@code endMethodDecl(token, true)} - End declaration</li>
  * </ol>
  * 
- * @see PsiCallbackVisitor
+ * @see bluej.parser.psi.visitor.FileVisitor
  * @see CallbackRecorder
  */
-public class MethodDeclarationCallbackTest {
-    
-    private PsiEnvironment env;
-    
+public class MethodDeclarationCallbackTest extends BasePsiTest {
+
     @Before
     public void setUp() {
         env = PsiEnvironment.getInstance();
@@ -1333,36 +1331,5 @@ public class MethodDeclarationCallbackTest {
         
         // Validate pairing
         assertTrue("Callbacks should be balanced", recorder.validatePairing());
-    }
-
-    // ==================== HELPER METHODS ====================
-    
-    /**
-     * Helper method to parse Kotlin code and visit with CallbackRecorder.
-     * 
-     * @param kotlinCode The Kotlin source code to parse
-     * @return CallbackRecorder with captured callbacks
-     * @throws PsiParseException if parsing fails
-     */
-    private CallbackRecorder parseAndVisit(String kotlinCode) throws PsiParseException {
-        // Parse Kotlin code to KtFile
-        KtFile ktFile = env.parseFile("Test.kt", kotlinCode);
-        assertNotNull("File should parse successfully", ktFile);
-        
-        // Create recorder and visitor
-        CallbackRecorder recorder = new CallbackRecorder();
-        BaseVisitor visitor = new FileVisitor(recorder);
-        
-        // Visit the file (triggers class and method visitation)
-        ktFile.accept(visitor);
-        
-        // Validate callback pairing is balanced after traversal
-        CallbackRecorder.ValidationResult result = recorder.getValidationResult();
-        assertTrue("Callback pairing should be balanced after traversal: " + result.getValidationSummary(),
-                  result.isBalanced());
-        assertFalse("Should have no validation errors after traversal: " + result.getValidationSummary(),
-                   result.hasErrors());
-        
-        return recorder;
     }
 }

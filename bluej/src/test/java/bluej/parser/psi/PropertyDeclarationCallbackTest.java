@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 /**
  * Tests for Phase 4 Milestone 4.3: Property declaration callback sequence.
  * 
- * <p>Validates that {@link PsiCallbackVisitor#visitProperty(org.jetbrains.kotlin.psi.KtProperty)}
+ * <p>Validates that {@link bluej.parser.psi.visitor.FileVisitor#visitProperty(org.jetbrains.kotlin.psi.KtProperty)}
  * invokes the complete callback sequence for property declarations:</p>
  * <ol>
  *   <li>{@code beginFieldDeclarations(token)} - Begin field declarations</li>
@@ -59,15 +59,13 @@ import static org.junit.Assert.*;
  *   <li><b>Edge Cases (Tests 16-20):</b> lateinit, const, delegation, backing fields</li>
  * </ul>
  * 
- * @see PsiCallbackVisitor
+ * @see bluej.parser.psi.visitor.FileVisitor
  * @see CallbackRecorder
  * @see MethodDeclarationCallbackTest Similar test pattern for M4.1
  * @see ConstructorDeclarationCallbackTest Similar test pattern for M4.2
  */
-public class PropertyDeclarationCallbackTest {
-    
-    private PsiEnvironment env;
-    
+public class PropertyDeclarationCallbackTest extends BasePsiTest {
+
     @Before
     public void setUp() {
         env = PsiEnvironment.getInstance();
@@ -744,36 +742,5 @@ public class PropertyDeclarationCallbackTest {
         
         // Validate pairing
         assertTrue("Callbacks should be balanced", recorder.validatePairing());
-    }
-    
-    // ==================== HELPER METHODS ====================
-    
-    /**
-     * Helper method to parse Kotlin code and visit with CallbackRecorder.
-     * 
-     * @param kotlinCode The Kotlin source code to parse
-     * @return CallbackRecorder with captured callbacks
-     * @throws PsiParseException if parsing fails
-     */
-    private CallbackRecorder parseAndVisit(String kotlinCode) throws PsiParseException {
-        // Parse Kotlin code to KtFile
-        KtFile ktFile = env.parseFile("Test.kt", kotlinCode);
-        assertNotNull("File should parse successfully", ktFile);
-        
-        // Create recorder and visitor
-        CallbackRecorder recorder = new CallbackRecorder();
-        BaseVisitor visitor = new FileVisitor(recorder);
-        
-        // Visit the file (triggers class and property visitation)
-        ktFile.accept(visitor);
-        
-        // Validate callback pairing is balanced after traversal
-        CallbackRecorder.ValidationResult result = recorder.getValidationResult();
-        assertTrue("Callback pairing should be balanced after traversal: " + result.getValidationSummary(),
-                  result.isBalanced());
-        assertFalse("Should have no validation errors after traversal: " + result.getValidationSummary(),
-                   result.hasErrors());
-        
-        return recorder;
     }
 }

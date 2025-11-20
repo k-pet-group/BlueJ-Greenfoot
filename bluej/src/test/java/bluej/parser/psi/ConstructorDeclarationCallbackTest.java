@@ -40,9 +40,9 @@ import static org.junit.Assert.*;
  * <p>Validates that constructor-related visitor methods invoke the complete callback
  * sequences for Kotlin constructors:</p>
  * <ul>
- *   <li>{@link PsiCallbackVisitor#visitPrimaryConstructor} - Primary constructors in class header</li>
- *   <li>{@link PsiCallbackVisitor#visitSecondaryConstructor} - Secondary constructors in class body</li>
- *   <li>{@link PsiCallbackVisitor#visitAnonymousInitializer} - Init blocks for initialization</li>
+ *   <li>{@link bluej.parser.psi.visitor.FileVisitor#visitPrimaryConstructor} - Primary constructors in class header</li>
+ *   <li>{@link bluej.parser.psi.visitor.FileVisitor#visitSecondaryConstructor} - Secondary constructors in class body</li>
+ *   <li>{@link bluej.parser.psi.visitor.FileVisitor#visitAnonymousInitializer} - Init blocks for initialization</li>
  * </ul>
  * 
  * <h2>Test Coverage</h2>
@@ -56,14 +56,12 @@ import static org.junit.Assert.*;
  *       delegation chains, init blocks</li>
  * </ul>
  * 
- * @see PsiCallbackVisitor
+ * @see bluej.parser.psi.visitor.FileVisitor
  * @see CallbackRecorder
  * @see MethodDeclarationCallbackTest Similar test pattern for M4.1
  */
-public class ConstructorDeclarationCallbackTest {
-    
-    private PsiEnvironment env;
-    
+public class ConstructorDeclarationCallbackTest extends BasePsiTest {
+
     @Before
     public void setUp() {
         env = PsiEnvironment.getInstance();
@@ -719,36 +717,5 @@ public class ConstructorDeclarationCallbackTest {
         
         // Validate pairing
         assertTrue("Callbacks should be balanced", recorder.validatePairing());
-    }
-    
-    // ==================== HELPER METHODS ====================
-    
-    /**
-     * Helper method to parse Kotlin code and visit with CallbackRecorder.
-     * 
-     * @param kotlinCode The Kotlin source code to parse
-     * @return CallbackRecorder with captured callbacks
-     * @throws PsiParseException if parsing fails
-     */
-    private CallbackRecorder parseAndVisit(String kotlinCode) throws PsiParseException {
-        // Parse Kotlin code to KtFile
-        KtFile ktFile = env.parseFile("Test.kt", kotlinCode);
-        assertNotNull("File should parse successfully", ktFile);
-        
-        // Create recorder and visitor
-        CallbackRecorder recorder = new CallbackRecorder();
-        BaseVisitor visitor = new FileVisitor(recorder);
-        
-        // Visit the file (triggers class and constructor visitation)
-        ktFile.accept(visitor);
-        
-        // Validate callback pairing is balanced after traversal
-        CallbackRecorder.ValidationResult result = recorder.getValidationResult();
-        assertTrue("Callback pairing should be balanced after traversal: " + result.getValidationSummary(),
-                  result.isBalanced());
-        assertFalse("Should have no validation errors after traversal: " + result.getValidationSummary(),
-                   result.hasErrors());
-        
-        return recorder;
     }
 }

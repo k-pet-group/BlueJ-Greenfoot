@@ -181,7 +181,7 @@ public class KotlinPsiParser implements ParserBehavior {
      * <p>Allows explicit control over parsing strategy:</p>
      * <ul>
      *   <li>{@link ParsingMode#DELEGATION}: Delegates to {@link KotlinParser} (default, production)</li>
-     *   <li>{@link ParsingMode#PSI_VISITOR}: Uses {@link PsiCallbackVisitor} for parsing (experimental)</li>
+     *   <li>{@link ParsingMode#PSI_VISITOR}: Uses {@link FileVisitor} for parsing (experimental)</li>
      * </ul>
      *
      * @param sourceParser The SourceParser instance for callbacks and source access
@@ -251,7 +251,7 @@ public class KotlinPsiParser implements ParserBehavior {
      * <ul>
      *   <li><b>DELEGATION</b>: Delegates to {@link KotlinParser#parseCU()}, then optionally
      *       enhances with PSI output if {@link #ENABLE_PSI_OUTPUT} is true</li>
-     *   <li><b>PSI_VISITOR</b>: Uses {@link PsiCallbackVisitor} to parse and call
+     *   <li><b>PSI_VISITOR</b>: Uses {@link bluej.parser.psi.visitor.FileVisitor} to parse and call
      *       {@link JavaParserCallbacksBase} directly, bypassing legacy parser</li>
      * </ul>
      *
@@ -563,97 +563,6 @@ public class KotlinPsiParser implements ParserBehavior {
         parseWithPsi(visitor);
     }
 
-    /**
-     * Parse source using PSI visitor and call real {@link JavaParserCallbacksBase}.
-     * 
-     * <p><b>PSI_VISITOR Mode Implementation</b>: Parse source into PSI tree and traverse
-     * using {@link PsiCallbackVisitor} to invoke callbacks from {@link #sourceParser}.</p>
-     * 
-     * <p><b>Parsing Flow</b>:</p>
-     * <ol>
-     *   <li>Extract source code from {@link SourceParser}</li>
-     *   <li>Determine filename for PSI parsing</li>
-     *   <li>Initialize {@link PsiEnvironment} (singleton, lazy)</li>
-     *   <li>Parse source with PSI using {@link PsiEnvironment#parseFile}</li>
-     *   <li>Create {@link PsiCallbackVisitor} with real callbacks from {@link #sourceParser}</li>
-     *   <li>Visit PSI tree using {@code ktFile.accept(visitor)}</li>
-     *   <li>Validate visitor state is balanced</li>
-     * </ol>
-     * 
-     * <p><b>Error Handling</b>: All failures are caught, logged (if {@link #LOG_PSI_ERRORS}),
-     * and suppressed. Compilation continues normally regardless of PSI outcome.</p>
-     * 
-     * <p><b>Performance</b>: PSI parsing adds ~10-50ms overhead per file.</p>
-     * 
-     * @see PsiCallbackVisitor
-     * @see JavaParserCallbacksBase
-     */
-    /*
-    private void parseWithPsiVisitor() {
-        System.err.println("[PSI-DEBUG] === parseWithPsiVisitor() ENTRY ===");
-        try {
-            // Step 1: Get source code from SourceParser
-            String sourceCode = getSourceCode();
-            if (sourceCode == null || sourceCode.isEmpty()) {
-                if (LOG_PSI_ERRORS) {
-                    System.err.println("PSI: No source code available for parsing");
-                }
-                return;
-            }
-            
-            // Step 2: Determine file path
-            String filePath = getFilePath();
-            
-            // Step 3: Initialize PSI environment (singleton, lazy)
-            PsiEnvironment env = PsiEnvironment.getInstance();
-            if (!env.isInitialized()) {
-                if (LOG_PSI_ERRORS) {
-                    System.err.println("PSI: Environment not initialized, skipping parsing");
-                }
-                return;
-            }
-            
-            // Step 4: Parse with PSI
-            KtFile ktFile = env.parseFile(filePath, sourceCode);
-            
-            // Step 5: Create visitor with real JavaParserCallbacks from sourceParser
-            // SourceParser extends JavaParserCallbacks, so we can pass it directly
-            JavaParserCallbacksAdapter callbackAdapter = new JavaParserCallbacksAdapterImpl(sourceParser);
-            PsiCallbackVisitor visitor = new PsiCallbackVisitor(callbackAdapter);
-            
-            // Step 6: Visit the PSI tree (triggers callback invocations)
-            ktFile.accept(visitor);
-            
-            // Step 7: Validate visitor state is balanced
-            if (!visitor.validateState()) {
-                if (LOG_PSI_ERRORS) {
-                    System.err.println("PSI: Visitor state validation failed - unbalanced stack");
-                }
-            }
-            
-            System.err.println("[PSI-DEBUG] === SUCCESS: PSI visitor parsing complete ===");
-            
-        } catch (PsiParseException e) {
-            // PSI parsing failures MUST NOT break compilation
-            if (LOG_PSI_ERRORS) {
-                System.err.println("PSI parsing failed: " + e.getMessage());
-                if (e.getCause() != null) {
-                    System.err.println("Caused by: " + e.getCause().getMessage());
-                }
-            }
-            // Compilation continues despite PSI parsing failure
-        } catch (Exception e) {
-            // Other PSI failures also don't break compilation
-            if (LOG_PSI_ERRORS) {
-                System.err.println("PSI visitor parsing failed: " + e.getMessage());
-                e.printStackTrace();
-            }
-            // Compilation continues despite PSI failure
-        }
-    }
-
-    */
-    
     // ==================== PSI ENHANCEMENT ====================
 
     /**

@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
 /**
  * Tests for Phase 3 Milestone 3.1 Task 1: Core visitClass() callback sequence.
  * 
- * <p>Validates that {@link PsiCallbackVisitor#visitClass(org.jetbrains.kotlin.psi.KtClass)}
+ * <p>Validates that {@link bluej.parser.psi.visitor.FileVisitor#visitClass(org.jetbrains.kotlin.psi.KtClass)}
  * invokes the complete callback sequence for simple class declarations:</p>
  * <ol>
  *   <li>{@code gotDeclBegin(token)} - Begin declaration</li>
@@ -54,13 +54,10 @@ import static org.junit.Assert.*;
  * <p><b>Scope:</b> Tests simple class declarations without modifiers, inheritance, or members.
  * Complex scenarios (modifiers, supertypes, nested classes) are deferred to later tasks.</p>
  * 
- * @see PsiCallbackVisitor
+ * @see bluej.parser.psi.visitor.FileVisitor
  * @see CallbackRecorder
  */
-public class ClassDeclarationCallbackTest {
-    
-    private PsiEnvironment env;
-    
+public class ClassDeclarationCallbackTest extends BasePsiTest {
     /**
      * Setup test environment before each test.
      */
@@ -1230,48 +1227,5 @@ public class ClassDeclarationCallbackTest {
                   result.isBalanced());
         assertFalse("Should have no scope imbalance errors: " + result.getValidationSummary(), 
                    result.hasErrors());
-    }
-    
-    
-    // ==================== HELPER METHODS ====================
-    
-    /**
-     * Helper method to parse Kotlin code and visit with CallbackRecorder.
-     * 
-     * <p>This encapsulates the common pattern:</p>
-     * <ol>
-     *   <li>Parse Kotlin code to {@link KtFile}</li>
-     *   <li>Create {@link CallbackRecorder}</li>
-     *   <li>Create {@link PsiCallbackVisitor} with recorder</li>
-     *   <li>Visit the parsed file</li>
-     *   <li>Return recorder for assertion</li>
-     * </ol>
-     * 
-     * @param kotlinCode The Kotlin source code to parse
-     * @return CallbackRecorder with captured callbacks
-     * @throws PsiParseException if parsing fails
-     */
-    private CallbackRecorder parseAndVisit(String kotlinCode) throws PsiParseException {
-        // Parse Kotlin code to KtFile
-        KtFile ktFile = env.parseFile("Test.kt", kotlinCode);
-        assertNotNull("File should parse successfully", ktFile);
-        
-        // Create recorder and visitor
-        CallbackRecorder recorder = new CallbackRecorder();
-        PsiCallbackVisitor visitor = new PsiCallbackVisitor(recorder);
-        
-        // Visit the file (triggers class visitation)
-        ktFile.accept(visitor);
-
-        // Validate pairing
-        CallbackRecorder.ValidationResult result = recorder.getValidationResult();
-        var summary = result.getValidationSummary();
-
-        assertTrue("Callback pairing should be balanced: " + summary,
-                result.isBalanced());
-        assertFalse("Should have no validation errors: " + summary,
-                result.hasErrors());
-
-        return recorder;
     }
 }

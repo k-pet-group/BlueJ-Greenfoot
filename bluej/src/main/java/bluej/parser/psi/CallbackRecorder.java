@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * recorder enables comparison testing between:
  * <ul>
  *   <li>Legacy token-based parser callback sequences</li>
- *   <li>New PSI-based {@link PsiCallbackVisitor} callback sequences</li>
+ *   <li>New PSI-based {@link bluej.parser.psi.visitor.BaseVisitor} callback sequences</li>
  * </ul>
  * 
  * <h2>Usage Pattern</h2>
@@ -95,7 +95,7 @@ import java.util.stream.Collectors;
  * designed for validation and debugging, not performance.
  * 
  * @see JavaParserCallbacksBase Base class with all callback method signatures
- * @see PsiCallbackVisitor PSI visitor that will invoke these callbacks in Phase 3
+ * @see bluej.parser.psi.visitor.BaseVisitor PSI visitor that will invoke these callbacks in Phase 3
  * @see PairingValidator Validator for begin/end callback pairing
  * @see CallbackRecord Individual callback invocation record
  */

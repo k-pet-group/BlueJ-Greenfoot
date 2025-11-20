@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
 /**
  * Tests for Phase 3 Milestone 3.2: Object and Companion Object Support.
  * 
- * <p>Validates that {@link PsiCallbackVisitor#visitObjectDeclaration(org.jetbrains.kotlin.psi.KtObjectDeclaration)}
+ * <p>Validates that {@link bluej.parser.psi.visitor.FileVisitor#visitObjectDeclaration(org.jetbrains.kotlin.psi.KtObjectDeclaration)}
  * invokes the complete callback sequence for Kotlin object declarations, mapping them to class callbacks
  * since BlueJ's ClassInfo model doesn't have special object types.</p>
  * 
@@ -65,13 +65,11 @@ import static org.junit.Assert.*;
  *   <li>{@code gotTypeDefEnd(token, true)} - End declaration</li>
  * </ol>
  * 
- * @see PsiCallbackVisitor
+ * @see bluej.parser.psi.visitor.FileVisitor
  * @see CallbackRecorder
  */
-public class ObjectDeclarationCallbackTest {
-    
-    private PsiEnvironment env;
-    
+public class ObjectDeclarationCallbackTest extends BasePsiTest {
+
     /**
      * Setup test environment before each test.
      */
@@ -619,38 +617,5 @@ public class ObjectDeclarationCallbackTest {
                   result.isBalanced());
         assertFalse("Should have no scope imbalance errors: " + result.getValidationSummary(), 
                    result.hasErrors());
-    }
-    
-    // ==================== HELPER METHODS ====================
-    
-    /**
-     * Helper method to parse Kotlin code and visit with CallbackRecorder.
-     * 
-     * <p>This encapsulates the common pattern:</p>
-     * <ol>
-     *   <li>Parse Kotlin code to {@link KtFile}</li>
-     *   <li>Create {@link CallbackRecorder}</li>
-     *   <li>Create {@link PsiCallbackVisitor} with recorder</li>
-     *   <li>Visit the parsed file</li>
-     *   <li>Return recorder for assertion</li>
-     * </ol>
-     * 
-     * @param kotlinCode The Kotlin source code to parse
-     * @return CallbackRecorder with captured callbacks
-     * @throws PsiParseException if parsing fails
-     */
-    private CallbackRecorder parseAndVisit(String kotlinCode) throws PsiParseException {
-        // Parse Kotlin code to KtFile
-        KtFile ktFile = env.parseFile("Test.kt", kotlinCode);
-        assertNotNull("File should parse successfully", ktFile);
-        
-        // Create recorder and visitor
-        CallbackRecorder recorder = new CallbackRecorder();
-        BaseVisitor visitor = new FileVisitor(recorder);
-        
-        // Visit the file (triggers object visitation)
-        ktFile.accept(visitor);
-        
-        return recorder;
     }
 }

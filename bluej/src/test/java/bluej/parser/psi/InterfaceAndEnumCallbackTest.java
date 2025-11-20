@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
  * Tests for Phase 3 Milestone 3.3: Interface and Enum Support Validation.
  * 
  * <p>Validates that interfaces and enums are correctly handled by the existing
- * {@link PsiCallbackVisitor#visitClass(org.jetbrains.kotlin.psi.KtClass)} implementation.</p>
+ * {@link bluej.parser.psi.visitor.FileVisitor#visitClass(org.jetbrains.kotlin.psi.KtClass)} implementation.</p>
  * 
  * <p><b>Key Insight:</b> Interfaces and enums in Kotlin are already implemented via visitClass()
  * because they are KtClass instances with specific type flags:</p>
@@ -50,13 +50,11 @@ import static org.junit.Assert.*;
  * correct callback sequences and type classifications. Out of scope: interface method
  * signatures, enum entry initialization, and member declarations (Phase 4).</p>
  * 
- * @see PsiCallbackVisitor
+ * @see bluej.parser.psi.visitor.FileVisitor
  * @see CallbackRecorder
  */
-public class InterfaceAndEnumCallbackTest {
-    
-    private PsiEnvironment env;
-    
+public class InterfaceAndEnumCallbackTest extends BasePsiTest {
+
     /**
      * Setup test environment before each test.
      */
@@ -463,45 +461,5 @@ public class InterfaceAndEnumCallbackTest {
         // Validate overall pairing
         assertTrue("Multi-type file should have balanced callbacks", 
                   recorder.validatePairing());
-    }
-    
-    // ==================== HELPER METHODS ====================
-    
-    /**
-     * Helper method to parse Kotlin code and visit with CallbackRecorder.
-     * 
-     * <p>This encapsulates the common pattern:</p>
-     * <ol>
-     *   <li>Parse Kotlin code to {@link KtFile}</li>
-     *   <li>Create {@link CallbackRecorder}</li>
-     *   <li>Create {@link PsiCallbackVisitor} with recorder</li>
-     *   <li>Visit the parsed file</li>
-     *   <li>Return recorder for assertion</li>
-     * </ol>
-     * 
-     * @param kotlinCode The Kotlin source code to parse
-     * @return CallbackRecorder with captured callbacks
-     * @throws PsiParseException if parsing fails
-     */
-    private CallbackRecorder parseAndVisit(String kotlinCode) throws PsiParseException {
-        // Parse Kotlin code to KtFile
-        KtFile ktFile = env.parseFile("Test.kt", kotlinCode);
-        assertNotNull("File should parse successfully", ktFile);
-        
-        // Create recorder and visitor
-        CallbackRecorder recorder = new CallbackRecorder();
-        PsiCallbackVisitor visitor = new PsiCallbackVisitor(recorder);
-        
-        // Visit the file (triggers class visitation)
-        ktFile.accept(visitor);
-        
-        // Validate callback pairing is balanced after traversal
-        CallbackRecorder.ValidationResult result = recorder.getValidationResult();
-        assertTrue("Callback pairing should be balanced after traversal: " + result.getValidationSummary(),
-                  result.isBalanced());
-        assertFalse("Should have no validation errors after traversal: " + result.getValidationSummary(),
-                   result.hasErrors());
-        
-        return recorder;
     }
 }

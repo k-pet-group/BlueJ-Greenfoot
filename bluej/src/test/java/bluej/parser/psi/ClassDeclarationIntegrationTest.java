@@ -69,7 +69,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * </ul>
  * 
  * @see ClassDeclarationCallbackTest Unit tests for class declarations
- * @see PsiCallbackVisitor PSI visitor implementation
+ * @see bluej.parser.psi.visitor.FileVisitor PSI visitor implementation
  * @see TestCorpus Test file management utility
  */
 @DisplayName("Class Declaration Integration Tests")

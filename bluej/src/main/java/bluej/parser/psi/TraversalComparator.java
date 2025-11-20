@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * Utility class for comparing callback sequences between PSI-based visitor and
  * token-based parser implementations.
  * 
- * <p>This comparator is critical for validating that the new PSI-based {@link PsiCallbackVisitor}
+ * <p>This comparator is critical for validating that the new PSI-based {@link bluej.parser.psi.visitor.BaseVisitor}
  * produces identical callback sequences to the existing token-based parser. During
  * Phase 2 (Validation Infrastructure), this enables automated testing to verify correctness
  * before replacing production code.
@@ -95,7 +95,7 @@ import java.util.stream.Collectors;
  * and complexity but remains acceptable for testing scenarios.
  * 
  * @see CallbackRecorder Records callback sequences for comparison
- * @see PsiCallbackVisitor PSI-based implementation being validated
+ * @see bluej.parser.psi.visitor.FileVisitor PSI-based implementation being validated
  * @see ComparisonResult Detailed comparison results
  */
 public final class TraversalComparator {
