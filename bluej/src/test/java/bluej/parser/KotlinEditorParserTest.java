@@ -25,11 +25,8 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.extensions2.SourceType;
 import bluej.parser.entity.*;
-import bluej.parser.nodes.ContainerNode;
-import bluej.parser.nodes.FieldNode;
+import bluej.parser.nodes.*;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
-import bluej.parser.nodes.ParsedCUNode;
-import bluej.parser.nodes.ParsedNode;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -378,49 +375,75 @@ public class KotlinEditorParserTest
     @Test
     public void testNestedLoops() throws ParseException {
         String source = """
-                class Dog {
-                    fun bark() {
-                          while(true) {
-                              break
-                              while(true) {
-                                  println("")
-                                  break
-                              }
-                          }
+            class Dog {
+                fun bark() {
+                    while(true) {
+                        break
+                        while(true) {
+                            println("")
+                            break
+                        }
                     }
                 }
-                """;
+            }
+            """;
 
-//        printLinesWithPositions(source);
+        // printLinesWithPositions(source);
         /*
-         1: class Dog {                   //from=0 to=10
-         2:     fun bark() {              //from=16 to=27
-         3:           while(true) {       //from=39 to=51
-         4:               break           //from=67 to=71
-         5:               while(true) {   //from=87 to=99
-         6:                   println("") //from=119 to=129
-         7:                   break       //from=149 to=153
-         8:               }               //from=169 to=169
-         9:           }                   //from=181 to=181
-        10:     }                         //from=187 to=187
-        11: }                             //from=189 to=189
+             1: class Dog {                 //from=0 to=10
+             2:     fun bark() {            //from=16 to=27
+             3:         while(true) {       //from=37 to=49
+             4:             break           //from=63 to=67
+             5:             while(true) {   //from=81 to=93
+             6:                 println("") //from=111 to=121
+             7:                 break       //from=139 to=143
+             8:             }               //from=157 to=157
+             9:         }                   //from=167 to=167
+            10:     }                       //from=173 to=173
+            11: }                           //from=175 to=175
+            12:
          */
         GenTypeClass aClass = parseAndResolveClass(source, "Dog", "", false, true);
         assertMethodExists(aClass, "bark", "kotlin.Unit");
 
         ParsedCUNode parsedNode = cuForSource(source, "", false);
-        NodeAndPosition<ParsedNode> nap = parsedNode.findNodeAt(87, 0);
-        nap = nap.getNode().findNodeAt(87, nap.getPosition());
-        nap = nap.getNode().findNodeAt(87, nap.getPosition());
-        nap = nap.getNode().findNodeAt(87, nap.getPosition());
-        nap = nap.getNode().findNodeAt(87, nap.getPosition());
-        assertTrue("Outer while node must be ContainerNode", nap.getNode() instanceof ContainerNode);
-        assertEquals("Outer while size is incorrect",181-39+1, nap.getSize());
+//        NodeAndPosition<ParsedNode> nap = parsedNode.findNodeAt(111, 0); // class
+//        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // class body
+//        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // method
+//        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // method body
+//        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // while loop node
+//        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // while loop body node
+//        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // while body contents node
+//        assertTrue("Outer while node must be ContainerNode", nap.getNode() instanceof ContainerNode);
+//        // End brace - start brace + 1
+//        var expectedOuterLoopSize = 167 - 49 + 1;
+//        assertEquals("Outer while size is incorrect",expectedOuterLoopSize, nap.getSize());
+//
+//        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // statement node (?)
+//        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // while loop node
+//        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // while body node
+//        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // while body node
+//        assertTrue("Inner while node must be ContainerNode", nap.getNode() instanceof ContainerNode);
+//        // End brace - start brace + 1
+//        var innerLoopSize = 157 - 93 + 1;
+//        assertEquals("Inner while size is incorrect", innerLoopSize, nap.getSize());
 
-        nap = nap.getNode().findNodeAt(87, nap.getPosition());
-        nap = nap.getNode().findNodeAt(87, nap.getPosition());
+        NodeTree.NodeAndPosition<ParsedNode> nap = parsedNode.findNodeAt(111, 0); // class
+        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // class body (it's internal span)
+        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // method
+        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // method body (it's internal span)
+        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // outer while loop node
+        assertTrue("Outer while node must be ContainerNode", nap.getNode() instanceof ContainerNode);
+        // End brace - start brace + 1
+        var expectedOuterLoopSize = 167 - 37 + 1;
+        assertEquals("Outer while size is incorrect",expectedOuterLoopSize, nap.getSize());
+
+        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // outer while loop body node (it's internal span)
+        nap = nap.getNode().findNodeAt(111, nap.getPosition()); // inner while loop node
         assertTrue("Inner while node must be ContainerNode", nap.getNode() instanceof ContainerNode);
-        assertEquals("Inner while size is incorrect",169-87+1, nap.getSize());
+        // End brace - start brace + 1
+        var innerLoopSize = 157 - 81 + 1;
+        assertEquals("Inner while size is incorrect", innerLoopSize, nap.getSize());
 
     }
 

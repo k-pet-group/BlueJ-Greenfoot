@@ -2,6 +2,8 @@ package bluej.parser.psi;
 
 import bluej.parser.lexer.LineColPos;
 import bluej.parser.lexer.LocatableToken;
+import org.jetbrains.kotlin.com.intellij.psi.JavaTokenType;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,20 +28,20 @@ import java.util.stream.Collectors;
  * @see StateTransitionRule
  */
 public class PairingValidator {
-    
+
     // Configuration maps and rules
     private final Map<String, CallbackRole> callbackRoles;
     private final List<StateTransitionRule> stateRules;
     
     // Special pairing map for callbacks that don't follow begin*/end* convention
-    private final Map<String, String> specialPairings;
+    private final Map<String, Set<String>> specialPairings;
     
     // Callback sequence storage for visualization
     private final List<CallbackRecord> callbacks;
     
     // Validation results (immutable after construction)
     private final List<CallbackPairing> pairings;
-    private final List<String> errors;
+    private final Map<Integer, String> errors;
     private final boolean balanced;
     
     /**
@@ -87,6 +89,8 @@ public class PairingValidator {
         callbackRoles.put("endVariableDecls", CallbackRole.CONTEXT_CLOSER);
 
         // Simple paired callbacks
+        callbackRoles.put("beginElement", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endElement", CallbackRole.PAIRED_END);
         callbackRoles.put("beginMethodBody", CallbackRole.PAIRED_BEGIN);
         callbackRoles.put("endMethodBody", CallbackRole.PAIRED_END);
         callbackRoles.put("beginTypeBody", CallbackRole.PAIRED_BEGIN);
@@ -123,8 +127,11 @@ public class PairingValidator {
         callbackRoles.put("endFinallyBlock", CallbackRole.PAIRED_END);
         callbackRoles.put("beginArrayInitExpression", CallbackRole.PAIRED_BEGIN);
         callbackRoles.put("endArrayInitExpression", CallbackRole.PAIRED_END);
-//        callbackRoles.put("beginFieldDeclarations", CallbackRole.PAIRED_BEGIN);
-//        callbackRoles.put("endFieldDeclarations", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginArgumentList", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endArgumentList", CallbackRole.PAIRED_END);
+//        callbackRoles.put("beginArgument", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endArgument", CallbackRole.INFORMATIONAL);
+
 
         callbackRoles.put("gotField", CallbackRole.PAIRED_BEGIN);          // First field opener
         callbackRoles.put("gotSubsequentField", CallbackRole.PAIRED_BEGIN); // 2nd+ field opener
@@ -133,6 +140,20 @@ public class PairingValidator {
         callbackRoles.put("gotVariableDecl", CallbackRole.PAIRED_BEGIN);  // First field opener
         callbackRoles.put("gotSubsequentVar", CallbackRole.PAIRED_BEGIN); // 2nd+ field opener
         callbackRoles.put("endVariable", CallbackRole.PAIRED_END);        // Field closer (reused!)
+
+        callbackRoles.put("beginFormalParameter", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("gotMethodParameter", CallbackRole.PAIRED_END);
+        callbackRoles.put("gotRecordParameter", CallbackRole.PAIRED_END);
+
+        callbackRoles.put("beginPackageStatement", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("gotPackageSemi", CallbackRole.PAIRED_END);
+
+
+
+        //        callbackRoles.put("gotAllMethodParameters", CallbackRole.PAIRED_END);
+
+        callbackRoles.put("gotExprNew", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endExprNew", CallbackRole.PAIRED_END);
 
         callbackRoles.put("beginConstructor", CallbackRole.PAIRED_BEGIN);
         callbackRoles.put("endConstructor", CallbackRole.PAIRED_END);
@@ -150,6 +171,8 @@ public class PairingValidator {
         callbackRoles.put("endElseClause", CallbackRole.PAIRED_END);
         callbackRoles.put("beginBlock", CallbackRole.PAIRED_BEGIN);
         callbackRoles.put("endBlock", CallbackRole.PAIRED_END);
+        callbackRoles.put("beginRecordParameters", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endRecordParameters", CallbackRole.PAIRED_END);
         
         // Additional begin/end pairs from existing tests
         callbackRoles.put("beginClass", CallbackRole.PAIRED_BEGIN);
@@ -210,11 +233,11 @@ public class PairingValidator {
         callbackRoles.put("gotIdentifier", CallbackRole.INFORMATIONAL);
         callbackRoles.put("gotTypeSpec", CallbackRole.INFORMATIONAL);
         callbackRoles.put("gotFieldType", CallbackRole.INFORMATIONAL);
-        callbackRoles.put("gotMethodParameter", CallbackRole.INFORMATIONAL);
+//        callbackRoles.put("gotMethodParameter", CallbackRole.INFORMATIONAL);
+        callbackRoles.put("gotAllMethodParameters", CallbackRole.INFORMATIONAL);
         callbackRoles.put("gotConstructorParameter", CallbackRole.INFORMATIONAL);
         callbackRoles.put("gotArrayDeclarator", CallbackRole.INFORMATIONAL);
         callbackRoles.put("modifiersConsumed", CallbackRole.INFORMATIONAL);
-        callbackRoles.put("gotAllMethodParameters", CallbackRole.INFORMATIONAL);
         callbackRoles.put("gotMethodTypeParamsBegin", CallbackRole.INFORMATIONAL);
         callbackRoles.put("endMethodTypeParams", CallbackRole.INFORMATIONAL);
         callbackRoles.put("gotTypeParam", CallbackRole.INFORMATIONAL);
@@ -224,9 +247,12 @@ public class PairingValidator {
         callbackRoles.put("endTypeDefExtends", CallbackRole.INFORMATIONAL);
         callbackRoles.put("beginTypeDefImplements", CallbackRole.INFORMATIONAL);
         callbackRoles.put("endTypeDefImplements", CallbackRole.INFORMATIONAL);
-        callbackRoles.put("endForInitDecls", CallbackRole.INFORMATIONAL);  // Marker for end of all for-init declarations
+//        callbackRoles.put("endForInitDecls", CallbackRole.INFORMATIONAL);  // Marker for end of all for-init declarations
         callbackRoles.put("beginForInitDecl", CallbackRole.PAIRED_BEGIN);
-        callbackRoles.put("endForInitDecl", CallbackRole.PAIRED_END);
+        callbackRoles.put("endForInitDecls", CallbackRole.PAIRED_END);  // Marker for end of all for-init declarations
+        callbackRoles.put("gotForInit", CallbackRole.PAIRED_BEGIN);
+        callbackRoles.put("endForInit", CallbackRole.PAIRED_END);
+//        callbackRoles.put("endForInitDecl", CallbackRole.PAIRED_END);
         callbackRoles.put("beginTryCatchStmt", CallbackRole.PAIRED_BEGIN);
         callbackRoles.put("endTryCatchStmt", CallbackRole.PAIRED_END);
     }
@@ -238,11 +264,16 @@ public class PairingValidator {
     private void initializeSpecialPairings() {
         // Field callbacks: gotField and gotSubsequentField both pair with endField
         // We'll store the primary one and check others via logic
-        specialPairings.put("gotField", "endField");
-        specialPairings.put("gotSubsequentField", "endField");
+        specialPairings.put("gotField", Set.of("endField"));
+        specialPairings.put("gotSubsequentField", Set.of("endField"));
+        specialPairings.put("gotExprNew", Set.of("endExprNew"));
         // Variables also have specific pairing
-        specialPairings.put("gotVariableDecl", "endVariable");
-        specialPairings.put("gotSubsequentVar", "endVariable");
+        specialPairings.put("gotVariableDecl", Set.of("endVariable"));
+        specialPairings.put("gotSubsequentVar", Set.of("endVariable"));
+        specialPairings.put("beginFormalParameter", Set.of("gotMethodParameter", "gotRecordParameter"));
+        specialPairings.put("beginForInitDecl", Set.of("endForInitDecls"));
+        specialPairings.put("gotForInit", Set.of("endForInit"));
+        specialPairings.put("beginPackageStatement", Set.of("gotPackageSemi"));
     }
     
     /**
@@ -260,6 +291,7 @@ public class PairingValidator {
                 "beginFieldDeclarations", "endFieldDeclarations",
                 "beginInitBlock", "endInitBlock",
                 "beginVariableDecl","endVariableDecls"
+//                "gotForInit", "endForInit"
             )
         );
         stateRules.add(declRule);
@@ -273,7 +305,7 @@ public class PairingValidator {
      */
     private ValidationState validateSequence(List<CallbackRecord> callbacks) {
         List<CallbackPairing> pairings = new ArrayList<>();
-        List<String> sequenceErrors = new ArrayList<>();
+        Map<Integer, String> sequenceErrors = new HashMap<>();
         Stack<StackEntry> contextStack = new Stack<>();
         
         for (int i = 0; i < callbacks.size(); i++) {
@@ -282,7 +314,7 @@ public class PairingValidator {
             
             // Validate callback name
             if (callbackName == null || callbackName.isEmpty()) {
-                sequenceErrors.add(String.format(
+                sequenceErrors.put(i, String.format(
                     "Invalid callback at position %d: null or empty callback name", i));
                 continue;
             }
@@ -305,19 +337,19 @@ public class PairingValidator {
             // Dispatch based on role
             switch (role) {
                 case CONTEXT_INITIATOR -> 
-                    handleContextInitiator(callbackName, i, contextStack, sequenceErrors);
+                    handleContextInitiator(record, i, contextStack, sequenceErrors);
                     
                 case CONTEXT_REFINER -> 
-                    handleContextRefiner(callbackName, i, contextStack, sequenceErrors);
+                    handleContextRefiner(record, i, contextStack, sequenceErrors);
                     
                 case CONTEXT_CLOSER -> 
-                    handleContextCloser(callbackName, i, contextStack, sequenceErrors, pairings);
+                    handleContextCloser(record, i, contextStack, sequenceErrors, pairings);
                     
                 case PAIRED_BEGIN -> 
-                    handlePairedBegin(callbackName, i, contextStack);
+                    handlePairedBegin(record, i, contextStack);
                     
                 case PAIRED_END -> 
-                    handlePairedEnd(callbackName, i, contextStack, sequenceErrors, pairings);
+                    handlePairedEnd(record, i, contextStack, sequenceErrors, pairings);
                     
                 case INFORMATIONAL -> { 
                     /* No validation */ 
@@ -336,15 +368,16 @@ public class PairingValidator {
      * Handle CONTEXT_INITIATOR role.
      */
     private void handleContextInitiator(
-        String callback,
+        CallbackRecord callback,
         int index,
         Stack<StackEntry> contextStack,
-        List<String> errors
+        Map<Integer, String> errors
     ) {
-        StateTransitionRule rule = findRuleForInitiator(callback);
+        String callbackName = callback.getCallbackName();
+        StateTransitionRule rule = findRuleForInitiator(callbackName);
         
         if (rule == null) {
-            errors.add(String.format(
+            errors.put(index, String.format(
                 "No state transition rule for initiator: %s at position %d", callback, index));
             return;
         }
@@ -361,13 +394,13 @@ public class PairingValidator {
      * Handle CONTEXT_REFINER role.
      */
     private void handleContextRefiner(
-        String callback,
+        CallbackRecord callback,
         int index,
         Stack<StackEntry> contextStack,
-        List<String> errors
+        Map<Integer, String> errors
     ) {
         if (contextStack.isEmpty()) {
-            errors.add(String.format(
+            errors.put(index, String.format(
                 "Refiner without initiator: %s at position %d", callback, index));
             return;
         }
@@ -376,7 +409,7 @@ public class PairingValidator {
         
         switch (top) {
             case PendingBegin pending -> {
-                errors.add(String.format(
+                errors.put(index, String.format(
                     "Cannot refine simple pair '%s' at index %d with refiner: %s at index %d",
                     pending.callbackType(), pending.index(), callback, index
                 ));
@@ -384,19 +417,22 @@ public class PairingValidator {
             
             case ValidationContext ctx -> {
                 if (ctx.state() != ContextState.INITIATED) {
-                    errors.add(String.format(
+                    errors.put(index, String.format(
                         "Cannot refine context in state: %s at position %d", ctx.state(), index
                     ));
                     return;
                 }
+
+                CallbackRecord initiator = ctx.initiator();
                 
-                StateTransitionRule rule = findRuleForInitiator(ctx.initiator());
+                StateTransitionRule rule = findRuleForInitiator(initiator.getCallbackName());
                 
-                if (rule == null || !rule.validRefiners.contains(callback)) {
-                    errors.add(String.format(
+                if (rule == null || !rule.validRefiners.contains(callback.getCallbackName())) {
+                    errors.put(index, String.format(
                         "Invalid refiner '%s' for initiator '%s' at position %d",
-                        callback, ctx.initiator(), index
+                        callback, initiator, index
                     ));
+                
                     return;
                 }
                 
@@ -412,14 +448,14 @@ public class PairingValidator {
      * Handle CONTEXT_CLOSER role.
      */
     private void handleContextCloser(
-        String callback,
+        CallbackRecord callback,
         int index,
         Stack<StackEntry> contextStack,
-        List<String> errors,
+        Map<Integer, String> errors,
         List<CallbackPairing> pairings
     ) {
         if (contextStack.isEmpty()) {
-            errors.add(String.format(
+            errors.put(index, String.format(
                 "Closer without context: %s at position %d", callback, index));
             return;
         }
@@ -428,7 +464,7 @@ public class PairingValidator {
         
         switch (top) {
             case PendingBegin pending -> {
-                errors.add(String.format(
+                errors.put(index, String.format(
                     "Expected end for '%s' at index %d but got closer: %s at index %d",
                     pending.callbackType(), pending.index(), callback, index
                 ));
@@ -436,26 +472,31 @@ public class PairingValidator {
             
             case ValidationContext ctx -> {
                 if (ctx.state() != ContextState.REFINED) {
-                    errors.add(String.format(
+                    errors.put(index, String.format(
                         "Cannot close context in state: %s at position %d", ctx.state(), index
                     ));
                     return;
                 }
-                
-                StateTransitionRule rule = findRuleForInitiator(ctx.initiator());
+
+                CallbackRecord initiator = ctx.initiator();
+
+                StateTransitionRule rule = findRuleForInitiator(initiator.getCallbackName());
+
                 if (rule == null) {
-                    errors.add(String.format(
-                        "No rule found for initiator: %s at position %d", ctx.initiator(), index
+                    errors.put(index, String.format(
+                        "No rule found for initiator: %s at position %d", initiator, index
                     ));
                     return;
                 }
+
+                CallbackRecord refiner = ctx.refiner();
+
+                String expectedCloser = rule.getCloserFor(refiner.getCallbackName());
                 
-                String expectedCloser = rule.getCloserFor(ctx.refiner());
-                
-                if (!callback.equals(expectedCloser)) {
-                    errors.add(String.format(
+                if (!callback.getCallbackName().equals(expectedCloser)) {
+                    errors.put(index, String.format(
                         "Expected closer '%s' for refiner '%s', got '%s' at position %d",
-                        expectedCloser, ctx.refiner(), callback, index
+                        expectedCloser, refiner, callback, index
                     ));
                     return;
                 }
@@ -463,7 +504,7 @@ public class PairingValidator {
                 // Successfully closed - create pairing and remove
                 contextStack.pop();
                 pairings.add(new CallbackPairing(
-                    ctx.initiator(), ctx.initiatorIndex(),
+                    initiator, ctx.initiatorIndex(),
                     callback, index, true, null
                 ));
             }
@@ -474,16 +515,13 @@ public class PairingValidator {
      * Handle PAIRED_BEGIN role.
      */
     private void handlePairedBegin(
-        String callback,
+        CallbackRecord callback,
         int index,
         Stack<StackEntry> contextStack
     ) {
-        // Create dummy token for now (will be enhanced later if needed)
-        LineColPos dummyPos = new LineColPos(1, 1, 0);
-        LocatableToken dummyToken = new LocatableToken(0, "", dummyPos, dummyPos);
         // Get stacktrace from CallbackRecord (captured during parsing)
         StackTraceElement[] stackTrace = callbacks.get(index).getCallStackTrace();
-        PendingBegin pending = new PendingBegin(callback, dummyToken, index, stackTrace);
+        PendingBegin pending = new PendingBegin(callback, index, stackTrace);
         contextStack.push(pending);
     }
     
@@ -491,14 +529,16 @@ public class PairingValidator {
      * Handle PAIRED_END role.
      */
     private void handlePairedEnd(
-        String callback,
+        CallbackRecord callback,
         int index,
         Stack<StackEntry> contextStack,
-        List<String> errors,
+        Map<Integer, String> errors,
         List<CallbackPairing> pairings
     ) {
-        if (contextStack.isEmpty()) {
-            errors.add(String.format(
+        var isOptionallyOpened = callback.getCallbackName().equals("gotAllMethodParameters");
+
+        if (contextStack.isEmpty() && !isOptionallyOpened) {
+            errors.put(index, String.format(
                 "Unpaired end callback at position %d:\n" +
                 "  Callback: %s\n" +
                 "  Error: No matching begin callback found (stack is empty)",
@@ -516,15 +556,23 @@ public class PairingValidator {
                 
                 // Check for special pairings (e.g., gotField/gotSubsequentField ↔ endField)
                 if (specialPairings.containsKey(pending.callbackType())) {
-                    expectedEnd = specialPairings.get(pending.callbackType());
-                    isValidPair = callback.equals(expectedEnd);
+                    var potentialEnds = specialPairings.get(pending.callbackType());
+
+                    if (potentialEnds.contains(callback.getCallbackName())) {
+                        expectedEnd = callback.getCallbackName();
+                        isValidPair = true;
+                    }
+                    else {
+                        expectedEnd = "Set(" + potentialEnds.stream().collect(Collectors.joining(", ")) + ")";
+                        isValidPair = false;
+                    }
                 } else {
                     // Standard begin*/end* pairing
                     expectedEnd = pending.expectedEndType();
-                    isValidPair = callback.equals(expectedEnd);
+                    isValidPair = callback.getCallbackName().equals(expectedEnd);
                 }
                 
-                if (!isValidPair) {
+                if (!isValidPair && !isOptionallyOpened) {
                     int callbacksBetween = index - pending.index() - 1;
                     String contextInfo = callbacksBetween > 0
                         ? String.format(" (%d callback%s between begin and end)",
@@ -536,10 +584,10 @@ public class PairingValidator {
                         "  %s at index %d attempted to match %s at index %d\n" +
                         "  Expected: %s (to properly close %s)\n" +
                         "  Got: %s%s",
-                        index, callback, index, pending.callbackType(), pending.index(),
-                        expectedEnd, pending.callbackType(), callback, contextInfo);
+                        index, callback.getCallbackName(), index, pending.callbackType(), pending.index(),
+                        expectedEnd, pending.callbackType(), callback.getCallbackName(), contextInfo);
                     
-                    errors.add(detailedError);
+                    errors.put(index, detailedError);
                     // Don't pop - keep begin on stack as unmatched
                     return;
                 }
@@ -547,15 +595,20 @@ public class PairingValidator {
                 // Valid pair
                 contextStack.pop();
                 pairings.add(new CallbackPairing(
-                    pending.callbackType(), pending.index(),
+                    pending.callback(), pending.index(),
                     callback, index, true, null
                 ));
             }
             
             case ValidationContext ctx -> {
-                errors.add(String.format(
-                    "Expected ValidationContext closer but got end: %s at position %d", callback, index
-                ));
+                if (!isOptionallyOpened) {
+                    errors.put(index, String.format(
+                            "Expected ValidationContext closer but got end: %s at position %d", callback.getCallbackName(), index
+                    ));
+                }
+                else {
+                    contextStack.pop();
+                }
             }
         }
     }
@@ -565,7 +618,7 @@ public class PairingValidator {
      */
     private void validateAllContextsClosed(
         Stack<StackEntry> contextStack,
-        List<String> errors,
+        Map<Integer, String> errors,
         List<CallbackPairing> pairings
     ) {
         if (contextStack.isEmpty()) {
@@ -585,9 +638,9 @@ public class PairingValidator {
                         "  Context: This begin callback remains open at end of sequence",
                         pending.callbackType(), pending.index(), expectedEnd);
                     
-                    errors.add(detailedError);
+                    errors.put(pending.index(), detailedError);
                     pairings.add(new CallbackPairing(
-                        pending.callbackType(), pending.index(),
+                        pending.callback(), pending.index(),
                         null, -1, false, detailedError
                     ));
                 }
@@ -598,7 +651,7 @@ public class PairingValidator {
                         ctx.initiator(), ctx.initiatorIndex(), ctx.refiner(), ctx.state()
                     );
                     
-                    errors.add(detailedError);
+                    errors.put(ctx.initiatorIndex(), detailedError);
                     pairings.add(new CallbackPairing(
                         ctx.initiator(), ctx.initiatorIndex(),
                         null, -1, false, detailedError
@@ -664,28 +717,43 @@ public class PairingValidator {
     private String findErrorForCallback(int index) {
         String callbackName = callbacks.get(index).getCallbackName();
         
-        // Check errors list for mentions of this callback at this index
-        // Handle null callback names safely
-        for (String error : errors) {
-            if (callbackName != null && error.contains(callbackName) && error.contains("" + index)) {
-                return error;
-            } else if (callbackName == null && error.contains("null") && error.contains("" + index)) {
-                return error;
-            }
+//        // Check errors list for mentions of this callback at this index
+//        // Handle null callback names safely
+//        for (var entry : errors.keySet()) {
+//
+//            if (callbackName != null && error.contains(callbackName) && error.contains("" + index)) {
+//                return error;
+//            } else if (callbackName == null && error.contains("null") && error.contains("" + index)) {
+//                return error;
+//            }
+//        }
+
+        if (errors.containsKey(index)) {
+            return errors.get(index);
         }
         
         // Check if this is an unmatched begin in pairings
         for (CallbackPairing pairing : pairings) {
             if (pairing.getBeginIndex() == index && !pairing.isMatched()) {
-                String expectedEnd = pairing.getBeginCallback().replace("begin", "end");
+                CallbackRecord begin = pairing.getBeginCallback();
+                String beginCallbackName = begin.getCallbackName();
+                String expectedEnd = beginCallbackName.replace("begin", "end");
                 // Check special pairings
                 if (specialPairings.containsKey(pairing.getBeginCallback())) {
-                    expectedEnd = specialPairings.get(pairing.getBeginCallback());
+                    var potentialEnds = specialPairings.get(pairing.getBeginCallback());
+
+                    if (potentialEnds.size() == 1) {
+                        expectedEnd = potentialEnds.iterator().next();
+                    }
+                    else {
+                        expectedEnd = "Set(" + potentialEnds.stream().collect(Collectors.joining(", ")) + ")";
+                    }
                 }
+
                 return "UNPAIRED: expected " + expectedEnd;
             }
         }
-        
+
         return null;
     }
     
@@ -736,10 +804,29 @@ public class PairingValidator {
         line.append(callbackName != null ? callbackName : "<null>").append("[").append(index).append("]");
         
         // Add token information if available
-        Object token = record.getParameter("token");
-        if (token != null) {
-            line.append(" (token = ").append(formatToken(token)).append(")");
+//        Object token = record.getParameter("token");
+//        if (token != null) {
+//            line.append(" (token = ").append(formatToken(token)).append(")");
+//        }
+
+        line.append(" (");
+
+        for (var parameter : record.getParameters().entrySet()) {
+            line
+                .append(parameter.getKey())
+                .append(" = ");
+
+            switch (parameter.getValue()) {
+                case LocatableToken token -> line.append(formatToken(token));
+                case JavaTokenType tokenType -> line.append(tokenType.toString());
+                case Object other -> line.append(other.toString());
+                case null -> line.append("null");
+            }
+
+            line.append(", ");
         }
+
+        line.append(")");
         
         // Add error details if present
         if (errorDetails != null && !errorDetails.isEmpty()) {
@@ -816,7 +903,7 @@ public class PairingValidator {
      * @return Unmodifiable list of detailed error messages
      */
     public List<String> getErrors() {
-        return List.copyOf(errors);
+        return List.copyOf(errors.values());
     }
     
     /**
@@ -839,6 +926,7 @@ public class PairingValidator {
         return pairings.stream()
             .filter(p -> !p.isMatched())
             .map(CallbackPairing::getBeginCallback)
+            .map(CallbackRecord::getCallbackName)
             .toList();
     }
     
@@ -867,7 +955,7 @@ public class PairingValidator {
         
         if (!errors.isEmpty()) {
             sb.append("\nDetailed Errors:\n");
-            for (String error : errors) {
+            for (String error : errors.values()) {
                 sb.append("  ").append(error).append("\n");
             }
         }
@@ -932,15 +1020,15 @@ public class PairingValidator {
         
         // Build lookup maps for quick access during traversal
         Map<Integer, CallbackRecord> pairedMap = new HashMap<>();
-        Map<Integer, String> errorMap = new HashMap<>();
+//        Map<Integer, String> errorMap = new HashMap<>();
         
-        // Populate error map
-        for (int i = 0; i < callbacks.size(); i++) {
-            String error = findErrorForCallback(i);
-            if (error != null) {
-                errorMap.put(i, error);
-            }
-        }
+//        // Populate error map
+//        for (int i = 0; i < callbacks.size(); i++) {
+//            String error = findErrorForCallback(i);
+//            if (error != null) {
+//                errorMap.put(i, error);
+//            }
+//        }
         
         // Track current nesting depth
         int currentDepth = 0;
@@ -954,10 +1042,10 @@ public class PairingValidator {
             String callbackName = record.getCallbackName();
             
             // Determine symbol for this callback
-            String symbol = determineSymbol(record, pairedMap, errorMap);
+            String symbol = determineSymbol(record, pairedMap, this.errors);
             
             // Get error details if present
-            String errorDetails = errorMap.get(i);
+            String errorDetails = this.errors.get(i);
             
             // Adjust depth BEFORE printing for closers
             // This ensures the closing brace appears at the same level as the opening
@@ -994,10 +1082,10 @@ public class PairingValidator {
      */
     private static class ValidationState {
         final List<CallbackPairing> pairings;
-        final List<String> errors;
+        final Map<Integer, String> errors;
         final boolean balanced;
         
-        ValidationState(List<CallbackPairing> pairings, List<String> errors, boolean balanced) {
+        ValidationState(List<CallbackPairing> pairings, Map<Integer, String> errors, boolean balanced) {
             this.pairings = pairings;
             this.errors = errors;
             this.balanced = balanced;
@@ -1009,14 +1097,14 @@ public class PairingValidator {
      * Used to provide detailed error context in validation results.
      */
     public static class CallbackPairing {
-        private final String beginCallback;
+        private final CallbackRecord beginCallback;
         private final int beginIndex;
-        private final String endCallback; // null if unmatched
+        private final CallbackRecord endCallback; // null if unmatched
         private final int endIndex; // -1 if unmatched
         private final boolean matched;
         private final String errorMessage; // null if no error
         
-        private CallbackPairing(String beginCallback, int beginIndex, String endCallback, 
+        private CallbackPairing(CallbackRecord beginCallback, int beginIndex, CallbackRecord endCallback,
                                int endIndex, boolean matched, String errorMessage) {
             this.beginCallback = beginCallback;
             this.beginIndex = beginIndex;
@@ -1026,9 +1114,9 @@ public class PairingValidator {
             this.errorMessage = errorMessage;
         }
         
-        public String getBeginCallback() { return beginCallback; }
+        public CallbackRecord getBeginCallback() { return beginCallback; }
         public int getBeginIndex() { return beginIndex; }
-        public String getEndCallback() { return endCallback; }
+        public CallbackRecord getEndCallback() { return endCallback; }
         public int getEndIndex() { return endIndex; }
         public boolean isMatched() { return matched; }
         public String getErrorMessage() { return errorMessage; }
@@ -1036,11 +1124,11 @@ public class PairingValidator {
         @Override
         public String toString() {
             if (matched) {
-                return String.format("%s[%d] ← → %s[%d]", beginCallback, beginIndex, endCallback, endIndex);
+                return String.format("%s[%d] ← → %s[%d]", beginCallback.getCallbackName(), beginIndex, endCallback.getCallbackName(), endIndex);
             } else if (endCallback == null) {
-                return String.format("%s[%d] (unmatched)", beginCallback, beginIndex);
+                return String.format("%s[%d] (unmatched)", beginCallback.getCallbackName(), beginIndex);
             } else {
-                return String.format("%s[%d] ← X → %s[%d]: mismatch", beginCallback, beginIndex, endCallback, endIndex);
+                return String.format("%s[%d] ← X → %s[%d]: mismatch", beginCallback.getCallbackName(), beginIndex, endCallback.getCallbackName(), endIndex);
             }
         }
     }

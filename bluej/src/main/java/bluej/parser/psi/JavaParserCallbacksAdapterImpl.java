@@ -14,13 +14,9 @@ import java.util.List;
  * This adapter provides near-native performance by pre-binding method handles at construction time,
  * avoiding reflection overhead during parsing operations.
  */
-public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacksAdapter {
-    private final SourceParser target;
-    
-    // Emit range filtering - callbacks only triggered if position >= start
-    private int emitRangeStartLine = -1;
-    private int emitRangeStartColumn = -1;
-    
+public class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks {
+    protected final SourceParser target;
+
     // Method handles - organized by functional category
     // Package and imports
     private final MethodHandle mhBeginPackageStatement;
@@ -41,6 +37,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     private final MethodHandle mhEndMethodBody;
     private final MethodHandle mhEndMethodDecl;
     private final MethodHandle mhGotConstructorDecl;
+    private final MethodHandle mhGotConstructorDeclWithName;
     private final MethodHandle mhGotMethodDeclaration;
     private final MethodHandle mhGotMethodParameter;
     private final MethodHandle mhGotArrayDeclarator;
@@ -182,7 +179,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     private final MethodHandle mhGotForInit;
     private final MethodHandle mhGotSubsequentForInit;
     private final MethodHandle mhEndForInit;
-    private final MethodHandle mhEndForInitDecl;
+//    private final MethodHandle mhEndForInitDecl;
     private final MethodHandle mhEndForInitDecls;
     
     // Field declarations
@@ -257,6 +254,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
             mhEndMethodBody = findAndBind(lookup, targetClass, "endMethodBody", void.class, LocatableToken.class, boolean.class);
             mhEndMethodDecl = findAndBind(lookup, targetClass, "endMethodDecl", void.class, LocatableToken.class, boolean.class);
             mhGotConstructorDecl = findAndBind(lookup, targetClass, "gotConstructorDecl", void.class, LocatableToken.class, LocatableToken.class);
+            mhGotConstructorDeclWithName = findAndBind(lookup, targetClass, "gotConstructorDecl", void.class, LocatableToken.class, LocatableToken.class, String.class);
             mhGotMethodDeclaration = findAndBind(lookup, targetClass, "gotMethodDeclaration", void.class, LocatableToken.class, LocatableToken.class);
             mhGotMethodParameter = findAndBind(lookup, targetClass, "gotMethodParameter", void.class, LocatableToken.class, LocatableToken.class);
             mhGotArrayDeclarator = findAndBind(lookup, targetClass, "gotArrayDeclarator", void.class);
@@ -398,7 +396,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
             mhGotForInit = findAndBind(lookup, targetClass, "gotForInit", void.class, LocatableToken.class, LocatableToken.class);
             mhGotSubsequentForInit = findAndBind(lookup, targetClass, "gotSubsequentForInit", void.class, LocatableToken.class, LocatableToken.class, boolean.class);
             mhEndForInit = findAndBind(lookup, targetClass, "endForInit", void.class, LocatableToken.class, boolean.class);
-            mhEndForInitDecl = findAndBind(lookup, targetClass, "endForInitDecl", void.class, LocatableToken.class, boolean.class);
+//            mhEndForInitDecl = findAndBind(lookup, targetClass, "endForInitDecl", void.class, LocatableToken.class, boolean.class);
             mhEndForInitDecls = findAndBind(lookup, targetClass, "endForInitDecls", void.class, LocatableToken.class, boolean.class);
             
             // Field declarations
@@ -466,10 +464,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginPackageStatement(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginPackageStatement.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginPackageStatement.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -478,10 +473,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotPackage(List<LocatableToken> pkgTokens) {
         try {
-            if (isInEmitRange(pkgTokens)) {
-                mhGotPackage.invokeExact(pkgTokens);
-            }
-            skipToLastToken(pkgTokens);
+            mhGotPackage.invokeExact(pkgTokens);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -490,10 +482,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotPackageSemi(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotPackageSemi.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotPackageSemi.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -502,10 +491,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotImportStmtSemi(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotImportStmtSemi.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotImportStmtSemi.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -514,10 +500,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken) {
         try {
-            if (isInEmitRange(semiColonToken)) {
-                mhGotImport.invokeExact(tokens, isStatic, importToken, semiColonToken);
-            }
-            skipToToken(semiColonToken);
+            mhGotImport.invokeExact(tokens, isStatic, importToken, semiColonToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -526,10 +509,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic, LocatableToken importToken, LocatableToken semiColonToken) {
         try {
-            if (isInEmitRange(semiColonToken)) {
-                mhGotWildcardImport.invokeExact(tokens, isStatic, importToken, semiColonToken);
-            }
-            skipToToken(semiColonToken);
+            mhGotWildcardImport.invokeExact(tokens, isStatic, importToken, semiColonToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -539,10 +519,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotModifier(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotModifier.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotModifier.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -551,10 +528,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void modifiersConsumed() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhModifiersConsumed.invokeExact();
-            }
-            // No tokens to skip to
+            mhModifiersConsumed.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -563,10 +537,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginElement(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginElement.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginElement.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -575,10 +546,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endElement(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndElement.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndElement.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -588,10 +556,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginMethodBody(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginMethodBody.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginMethodBody.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -600,10 +565,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endMethodBody(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndMethodBody.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndMethodBody.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -612,10 +574,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endMethodDecl(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndMethodDecl.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndMethodDecl.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -624,10 +583,16 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotConstructorDecl.invokeExact(token, hiddenToken);
-            }
-            skipToToken(token);
+            mhGotConstructorDecl.invokeExact(token, hiddenToken);
+        } catch (Throwable t) {
+            throw sneakyThrow(t);
+        }
+    }
+
+    @Override
+    public void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, String name) {
+        try {
+            mhGotConstructorDeclWithName.invokeExact(token, hiddenToken, name);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -636,10 +601,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotMethodDeclaration.invokeExact(token, hiddenToken);
-            }
-            skipToToken(token);
+            mhGotMethodDeclaration.invokeExact(token, hiddenToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -648,10 +610,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotMethodParameter(LocatableToken token, LocatableToken ellipsisToken) {
         try {
-            if (isInEmitRange(ellipsisToken != null ? ellipsisToken : token)) {
-                mhGotMethodParameter.invokeExact(token, ellipsisToken);
-            }
-            skipToToken(ellipsisToken != null ? ellipsisToken : token);
+            mhGotMethodParameter.invokeExact(token, ellipsisToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -660,10 +619,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotArrayDeclarator() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotArrayDeclarator.invokeExact();
-            }
-            // No tokens to skip to
+            mhGotArrayDeclarator.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -672,10 +628,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotAllMethodParameters() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotAllMethodParameters.invokeExact();
-            }
-            // No tokens to skip to
+            mhGotAllMethodParameters.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -684,10 +637,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotMethodTypeParamsBegin() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotMethodTypeParamsBegin.invokeExact();
-            }
-            // No tokens to skip to
+            mhGotMethodTypeParamsBegin.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -696,10 +646,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endMethodTypeParams() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhEndMethodTypeParams.invokeExact();
-            }
-            // No tokens to skip to
+            mhEndMethodTypeParams.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -708,10 +655,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginThrows(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginThrows.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginThrows.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -720,10 +664,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endThrows() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhEndThrows.invokeExact();
-            }
-            // No tokens to skip to
+            mhEndThrows.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -733,9 +674,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void reachedCUstate(int i) {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhReachedCUstate.invokeExact(i);
-            }
+            mhReachedCUstate.invokeExact(i);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -744,9 +683,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void finishedCU(int state) {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhFinishedCU.invokeExact(state);
-            }
+            mhFinishedCU.invokeExact(state);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -756,10 +693,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginForLoop(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginForLoop.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginForLoop.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -768,10 +702,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginForLoopBody(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginForLoopBody.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginForLoopBody.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -780,10 +711,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endForLoopBody(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndForLoopBody.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndForLoopBody.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -792,10 +720,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endForLoop(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndForLoop.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndForLoop.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -804,10 +729,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotForTest(boolean isPresent) {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotForTest.invokeExact(isPresent);
-            }
-            // No tokens to skip to
+            mhGotForTest.invokeExact(isPresent);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -816,10 +738,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotForIncrement(boolean isPresent) {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotForIncrement.invokeExact(isPresent);
-            }
-            // No tokens to skip to
+            mhGotForIncrement.invokeExact(isPresent);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -828,10 +747,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void determinedForLoop(boolean forEachLoop, boolean initExpressionFollows) {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhDeterminedForLoop.invokeExact(forEachLoop, initExpressionFollows);
-            }
-            // No tokens to skip to
+            mhDeterminedForLoop.invokeExact(forEachLoop, initExpressionFollows);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -841,10 +757,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginWhileLoop(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginWhileLoop.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginWhileLoop.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -853,10 +766,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginWhileLoopBody(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginWhileLoopBody.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginWhileLoopBody.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -865,10 +775,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endWhileLoopBody(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndWhileLoopBody.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndWhileLoopBody.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -877,10 +784,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endWhileLoop(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndWhileLoop.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndWhileLoop.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -890,10 +794,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginIfStmt(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginIfStmt.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginIfStmt.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -902,10 +803,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginIfCondBlock(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginIfCondBlock.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginIfCondBlock.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -914,10 +812,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endIfCondBlock(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndIfCondBlock.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndIfCondBlock.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -926,10 +821,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotElseIf(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotElseIf.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotElseIf.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -938,10 +830,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endIfStmt(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndIfStmt.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndIfStmt.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -951,10 +840,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginSwitchStmt(LocatableToken token, boolean isSwitchExpression) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginSwitchStmt.invokeExact(token, isSwitchExpression);
-            }
-            skipToToken(token);
+            mhBeginSwitchStmt.invokeExact(token, isSwitchExpression);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -963,10 +849,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginSwitchBlock(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginSwitchBlock.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginSwitchBlock.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -975,10 +858,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endSwitchBlock(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndSwitchBlock.invokeExact(token);
-            }
-            skipToToken(token);
+            mhEndSwitchBlock.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -987,10 +867,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endSwitchStmt(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndSwitchStmt.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndSwitchStmt.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -999,10 +876,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginSwitchCase(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginSwitchCase.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginSwitchCase.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1011,10 +885,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotSwitchCaseType(LocatableToken token, boolean isArrowSyntax) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotSwitchCaseType.invokeExact(token, isArrowSyntax);
-            }
-            skipToToken(token);
+            mhGotSwitchCaseType.invokeExact(token, isArrowSyntax);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1023,10 +894,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endSwitchCase(LocatableToken token, boolean wasArrowSyntax) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndSwitchCase.invokeExact(token, wasArrowSyntax);
-            }
-            skipToToken(token, wasArrowSyntax);
+            mhEndSwitchCase.invokeExact(token, wasArrowSyntax);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1035,10 +903,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotSwitchDefault() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotSwitchDefault.invokeExact();
-            }
-            // No tokens to skip to
+            mhGotSwitchDefault.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1048,10 +913,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginDoWhile(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginDoWhile.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginDoWhile.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1060,10 +922,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginDoWhileBody(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginDoWhileBody.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginDoWhileBody.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1072,10 +931,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endDoWhileBody(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndDoWhileBody.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndDoWhileBody.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1084,10 +940,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endDoWhile(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndDoWhile.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndDoWhile.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1097,10 +950,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginTryCatchStmt(LocatableToken token, boolean hasResource) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginTryCatchSmt.invokeExact(token, hasResource);
-            }
-            skipToToken(token);
+            mhBeginTryCatchSmt.invokeExact(token, hasResource);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1109,10 +959,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginTryBlock(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginTryBlock.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginTryBlock.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1121,10 +968,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endTryBlock(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndTryBlock.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndTryBlock.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1133,10 +977,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endTryCatchStmt(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndTryCatchStmt.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndTryCatchStmt.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1145,10 +986,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotCatchFinally(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotCatchFinally.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotCatchFinally.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1157,10 +995,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotMultiCatch(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotMultiCatch.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotMultiCatch.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1169,10 +1004,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotCatchVarName(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotCatchVarName.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotCatchVarName.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1182,10 +1014,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginSynchronizedBlock(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginSynchronizedBlock.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginSynchronizedBlock.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1194,10 +1023,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endSynchronizedBlock(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndSynchronizedBlock.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndSynchronizedBlock.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1207,10 +1033,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginArgumentList(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginArgumentList.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginArgumentList.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1219,10 +1042,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endArgument() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhEndArgument.invokeExact();
-            }
-            // No tokens to skip to
+            mhEndArgument.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1231,10 +1051,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endArgumentList(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndArgumentList.invokeExact(token);
-            }
-            skipToToken(token);
+            mhEndArgumentList.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1244,10 +1061,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotExprNew(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotExprNew.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotExprNew.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1256,10 +1070,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endExprNew(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndExprNew.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndExprNew.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1268,10 +1079,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginArrayInitList(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginArrayInitList.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginArrayInitList.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1280,10 +1088,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endArrayInitList(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndArrayInitList.invokeExact(token);
-            }
-            skipToToken(token);
+            mhEndArrayInitList.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1292,10 +1097,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginExpression(LocatableToken token, boolean isLambdaBody) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginExpression.invokeExact(token, isLambdaBody);
-            }
-            skipToToken(token);
+            mhBeginExpression.invokeExact(token, isLambdaBody);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1304,10 +1106,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endExpression(LocatableToken token, boolean emptyExpression) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndExpression.invokeExact(token, emptyExpression);
-            }
-            skipToToken(token, emptyExpression);
+            mhEndExpression.invokeExact(token, emptyExpression);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1316,10 +1115,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotLiteral(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotLiteral.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotLiteral.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1328,10 +1124,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotPrimitiveTypeLiteral(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotPrimitiveTypeLiteral.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotPrimitiveTypeLiteral.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1340,10 +1133,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotIdentifier(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotIdentifier.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotIdentifier.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1352,10 +1142,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotIdentifierEOF(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotIdentifierEOF.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotIdentifierEOF.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1364,10 +1151,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotMemberAccessEOF(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotMemberAccessEOF.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotMemberAccessEOF.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1376,10 +1160,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotCompoundIdent(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotCompoundIdent.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotCompoundIdent.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1388,10 +1169,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotCompoundComponent(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotCompoundComponent.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotCompoundComponent.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1400,10 +1178,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void completeCompoundValue(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhCompleteCompoundValue.invokeExact(token);
-            }
-            skipToToken(token);
+            mhCompleteCompoundValue.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1412,10 +1187,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void completeCompoundValueEOF(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhCompleteCompoundValueEOF.invokeExact(token);
-            }
-            skipToToken(token);
+            mhCompleteCompoundValueEOF.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1424,10 +1196,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void completeCompoundClass(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhCompleteCompoundClass.invokeExact(token);
-            }
-            skipToToken(token);
+            mhCompleteCompoundClass.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1436,10 +1205,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotMemberAccess(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotMemberAccess.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotMemberAccess.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1448,10 +1214,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotMemberCall(LocatableToken token, List<LocatableToken> typeArgs) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotMemberCall.invokeExact(token, typeArgs);
-            }
-            skipToToken(token);
+            mhGotMemberCall.invokeExact(token, typeArgs);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1460,10 +1223,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotMethodCall(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotMethodCall.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotMethodCall.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1472,10 +1232,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotConstructorCall(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotConstructorCall.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotConstructorCall.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1484,10 +1241,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotDotEOF(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotDotEOF.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotDotEOF.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1496,10 +1250,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotStatementExpression() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotStatementExpression.invokeExact();
-            }
-            // No tokens to skip to
+            mhGotStatementExpression.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1508,10 +1259,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotClassLiteral(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotClassLiteral.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotClassLiteral.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1520,10 +1268,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotBinaryOperator(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotBinaryOperator.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotBinaryOperator.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1532,10 +1277,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotUnaryOperator(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotUnaryOperator.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotUnaryOperator.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1544,10 +1286,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotQuestionOperator(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotQuestionOperator.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotQuestionOperator.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1556,10 +1295,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotQuestionColon(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotQuestionColon.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotQuestionColon.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1568,10 +1304,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotInstanceOfOperator(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotInstanceOfOperator.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotInstanceOfOperator.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1580,10 +1313,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotInstanceOfVar(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotInstanceOfVar.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotInstanceOfVar.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1592,10 +1322,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotArrayElementAccess() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotArrayElementAccess.invokeExact();
-            }
-            // No tokens to skip to
+            mhGotArrayElementAccess.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1604,10 +1331,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotPostOperator(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotPostOperator.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotPostOperator.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1617,10 +1341,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginAnonClassBody(LocatableToken token, boolean isEnumMember) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginAnonClassBody.invokeExact(token, isEnumMember);
-            }
-            skipToToken(token);
+            mhBeginAnonClassBody.invokeExact(token, isEnumMember);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1629,10 +1350,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endAnonClassBody(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndAnonClassBody.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndAnonClassBody.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1642,10 +1360,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginStmtblockBody(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginStmtblockBody.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginStmtblockBody.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1654,10 +1369,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endStmtblockBody(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndStmtblockBody.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndStmtblockBody.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1667,10 +1379,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginInitBlock(LocatableToken first, LocatableToken lcurly) {
         try {
-            if (isInEmitRange(lcurly)) {
-                mhBeginInitBlock.invokeExact(first, lcurly);
-            }
-            skipToToken(lcurly);
+            mhBeginInitBlock.invokeExact(first, lcurly);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1679,10 +1388,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endInitBlock(LocatableToken rcurly, boolean included) {
         try {
-            if (isInEmitRange(rcurly)) {
-                mhEndInitBlock.invokeExact(rcurly, included);
-            }
-            skipToToken(rcurly, included);
+            mhEndInitBlock.invokeExact(rcurly, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1692,10 +1398,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginTypeBody(LocatableToken leftCurlyToken) {
         try {
-            if (isInEmitRange(leftCurlyToken)) {
-                mhBeginTypeBody.invokeExact(leftCurlyToken);
-            }
-            skipToToken(leftCurlyToken);
+            mhBeginTypeBody.invokeExact(leftCurlyToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1704,10 +1407,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endTypeBody(LocatableToken endCurlyToken, boolean included) {
         try {
-            if (isInEmitRange(endCurlyToken)) {
-                mhEndTypeBody.invokeExact(endCurlyToken, included);
-            }
-            skipToToken(endCurlyToken, included);
+            mhEndTypeBody.invokeExact(endCurlyToken, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1716,10 +1416,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotDeclBegin(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotDeclBegin.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotDeclBegin.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1728,10 +1425,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endDecl(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndDecl.invokeExact(token);
-            }
-            skipToToken(token);
+            mhEndDecl.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1740,10 +1434,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotTypeDef(LocatableToken firstToken, int tdType) {
         try {
-            if (isInEmitRange(firstToken)) {
-                mhGotTypeDef.invokeExact(firstToken, tdType);
-            }
-            skipToToken(firstToken);
+            mhGotTypeDef.invokeExact(firstToken, tdType);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1752,10 +1443,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotTypeDefName(LocatableToken nameToken) {
         try {
-            if (isInEmitRange(nameToken)) {
-                mhGotTypeDefName.invokeExact(nameToken);
-            }
-            skipToToken(nameToken);
+            mhGotTypeDefName.invokeExact(nameToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1764,10 +1452,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginTypeDefExtends(LocatableToken extendsToken) {
         try {
-            if (isInEmitRange(extendsToken)) {
-                mhBeginTypeDefExtends.invokeExact(extendsToken);
-            }
-            skipToToken(extendsToken);
+            mhBeginTypeDefExtends.invokeExact(extendsToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1776,10 +1461,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endTypeDefExtends() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhEndTypeDefExtends.invokeExact();
-            }
-            // No tokens to skip to
+            mhEndTypeDefExtends.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1788,10 +1470,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginTypeDefImplements(LocatableToken implementsToken) {
         try {
-            if (isInEmitRange(implementsToken)) {
-                mhBeginTypeDefImplements.invokeExact(implementsToken);
-            }
-            skipToToken(implementsToken);
+            mhBeginTypeDefImplements.invokeExact(implementsToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1800,10 +1479,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endTypeDefImplements() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhEndTypeDefImplements.invokeExact();
-            }
-            // No tokens to skip to
+            mhEndTypeDefImplements.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1812,10 +1488,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginTypeDefPermits(LocatableToken permitsToken) {
         try {
-            if (isInEmitRange(permitsToken)) {
-                mhBeginTypeDefPermits.invokeExact(permitsToken);
-            }
-            skipToToken(permitsToken);
+            mhBeginTypeDefPermits.invokeExact(permitsToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1824,10 +1497,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endTypeDefPermits() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhEndTypeDefPermits.invokeExact();
-            }
-            // No tokens to skip to
+            mhEndTypeDefPermits.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1836,10 +1506,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotTypeDefEnd(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotTypeDefEnd.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhGotTypeDefEnd.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1848,10 +1515,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotInnerType(LocatableToken start) {
         try {
-            if (isInEmitRange(start)) {
-                mhGotInnerType.invokeExact(start);
-            }
-            skipToToken(start);
+            mhGotInnerType.invokeExact(start);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1860,10 +1524,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotTopLevelDecl(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotTopLevelDecl.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotTopLevelDecl.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1873,10 +1534,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginVariableDecl(LocatableToken first) {
         try {
-            if (isInEmitRange(first)) {
-                mhBeginVariableDecl.invokeExact(first);
-            }
-            skipToToken(first);
+            mhBeginVariableDecl.invokeExact(first);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1885,10 +1543,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotVariableDecl(LocatableToken first, LocatableToken idToken, boolean inited) {
         try {
-            if (isInEmitRange(idToken)) {
-                mhGotVariableDecl.invokeExact(first, idToken, inited);
-            }
-            skipToToken(idToken);
+            mhGotVariableDecl.invokeExact(first, idToken, inited);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1897,10 +1552,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotSubsequentVar(LocatableToken first, LocatableToken idToken, boolean inited) {
         try {
-            if (isInEmitRange(idToken)) {
-                mhGotSubsequentVar.invokeExact(first, idToken, inited);
-            }
-            skipToToken(idToken);
+            mhGotSubsequentVar.invokeExact(first, idToken, inited);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1909,10 +1561,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endVariable(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndVariable.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndVariable.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1921,10 +1570,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endVariableDecls(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndVariableDecls.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndVariableDecls.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1933,10 +1579,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginForInitDecl(LocatableToken first) {
         try {
-            if (isInEmitRange(first)) {
-                mhBeginForInitDecl.invokeExact(first);
-            }
-            skipToToken(first);
+            mhBeginForInitDecl.invokeExact(first);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1945,10 +1588,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotForInit(LocatableToken first, LocatableToken idToken) {
         try {
-            if (isInEmitRange(idToken)) {
-                mhGotForInit.invokeExact(first, idToken);
-            }
-            skipToToken(idToken);
+            mhGotForInit.invokeExact(first, idToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1957,10 +1597,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotSubsequentForInit(LocatableToken first, LocatableToken idToken, boolean initFollows) {
         try {
-            if (isInEmitRange(idToken)) {
-                mhGotSubsequentForInit.invokeExact(first, idToken, initFollows);
-            }
-            skipToToken(idToken);
+            mhGotSubsequentForInit.invokeExact(first, idToken, initFollows);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -1969,34 +1606,25 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endForInit(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndForInit.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndForInit.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
     }
 
-    @Override
-    public void endForInitDecl(LocatableToken token, boolean included) {
-        try {
-            if (isInEmitRange(token)) {
-                mhEndForInitDecl.invokeExact(token, included);
-            }
-            skipToToken(token, included);
-        } catch (Throwable t) {
-            throw sneakyThrow(t);
-        }
-    }
+//    @Override
+//    public void endForInitDecl(LocatableToken token, boolean included) {
+//        try {
+//            mhEndForInitDecl.invokeExact(token, included);
+//        } catch (Throwable t) {
+//            throw sneakyThrow(t);
+//        }
+//    }
 
     @Override
     public void endForInitDecls(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndForInitDecls.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndForInitDecls.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2006,10 +1634,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginFieldDeclarations(LocatableToken first) {
         try {
-            if (isInEmitRange(first)) {
-                mhBeginFieldDeclarations.invokeExact(first);
-            }
-            skipToToken(first);
+            mhBeginFieldDeclarations.invokeExact(first);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2018,10 +1643,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotField(LocatableToken first, LocatableToken idToken, boolean initExpressionFollows) {
         try {
-            if (isInEmitRange(idToken)) {
-                mhGotField.invokeExact(first, idToken, initExpressionFollows);
-            }
-            skipToToken(idToken);
+            mhGotField.invokeExact(first, idToken, initExpressionFollows);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2030,10 +1652,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotSubsequentField(LocatableToken first, LocatableToken idToken, boolean initFollows) {
         try {
-            if (isInEmitRange(idToken)) {
-                mhGotSubsequentField.invokeExact(first, idToken, initFollows);
-            }
-            skipToToken(idToken);
+            mhGotSubsequentField.invokeExact(first, idToken, initFollows);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2042,10 +1661,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endField(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndField.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndField.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2054,10 +1670,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endFieldDeclarations(LocatableToken token, boolean included) {
         try {
-            if (isInEmitRange(token)) {
-                mhEndFieldDeclarations.invokeExact(token, included);
-            }
-            skipToToken(token, included);
+            mhEndFieldDeclarations.invokeExact(token, included);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2067,10 +1680,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotTypeSpec(List<LocatableToken> tokens) {
         try {
-            if (isInEmitRange(tokens)) {
-                mhGotTypeSpec.invokeExact(tokens);
-            }
-            skipToLastToken(tokens);
+            mhGotTypeSpec.invokeExact(tokens);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2079,10 +1689,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotTypeCast(List<LocatableToken> tokens) {
         try {
-            if (isInEmitRange(tokens)) {
-                mhGotTypeCast.invokeExact(tokens);
-            }
-            skipToLastToken(tokens);
+            mhGotTypeCast.invokeExact(tokens);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2091,10 +1698,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotNewArrayDeclarator(boolean withDimension) {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotNewArrayDeclarator.invokeExact(withDimension);
-            }
-            // No tokens to skip to
+            mhGotNewArrayDeclarator.invokeExact(withDimension);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2103,10 +1707,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotTypeParam(LocatableToken idToken) {
         try {
-            if (isInEmitRange(idToken)) {
-                mhGotTypeParam.invokeExact(idToken);
-            }
-            skipToToken(idToken);
+            mhGotTypeParam.invokeExact(idToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2115,10 +1716,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotTypeParamBound(List<LocatableToken> tokens) {
         try {
-            if (isInEmitRange(tokens)) {
-                mhGotTypeParamBound.invokeExact(tokens);
-            }
-            skipToLastToken(tokens);
+            mhGotTypeParamBound.invokeExact(tokens);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2128,10 +1726,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotThrow(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotThrow.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotThrow.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2140,10 +1735,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotBreakContinue(LocatableToken keywordToken, LocatableToken labelToken) {
         try {
-            if (isInEmitRange(labelToken != null ? labelToken : keywordToken)) {
-                mhGotBreakContinue.invokeExact(keywordToken, labelToken);
-            }
-            skipToToken(labelToken != null ? labelToken : keywordToken);
+            mhGotBreakContinue.invokeExact(keywordToken, labelToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2152,10 +1744,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotReturnStatement(boolean hasValue) {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotReturnStatement.invokeExact(hasValue);
-            }
-            // No tokens to skip to
+            mhGotReturnStatement.invokeExact(hasValue);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2164,10 +1753,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotYieldStatement() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotYieldStatement.invokeExact();
-            }
-            // No tokens to skip to
+            mhGotYieldStatement.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2176,10 +1762,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotEmptyStatement() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotEmptyStatement.invokeExact();
-            }
-            // No tokens to skip to
+            mhGotEmptyStatement.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2188,10 +1771,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotAssert() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotAssert.invokeExact();
-            }
-            // No tokens to skip to
+            mhGotAssert.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2201,10 +1781,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotAnnotation(List<LocatableToken> annName, boolean paramsFollow) {
         try {
-            if (isInEmitRange(annName)) {
-                mhGotAnnotation.invokeExact(annName, paramsFollow);
-            }
-            skipToLastToken(annName);
+            mhGotAnnotation.invokeExact(annName, paramsFollow);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2214,10 +1791,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginLambdaBody(boolean lambdaIsBlock, LocatableToken openCurly) {
         try {
-            if (isInEmitRange(openCurly)) {
-                mhBeginLambdaBody.invokeExact(lambdaIsBlock, openCurly);
-            }
-            skipToToken(openCurly);
+            mhBeginLambdaBody.invokeExact(lambdaIsBlock, openCurly);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2226,10 +1800,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endLambdaBody(LocatableToken closeCurly) {
         try {
-            if (isInEmitRange(closeCurly)) {
-                mhEndLambdaBody.invokeExact(closeCurly);
-            }
-            skipToToken(closeCurly);
+            mhEndLambdaBody.invokeExact(closeCurly);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2238,10 +1809,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotLambdaFormalParam() {
         try {
-            if (isInEmitRange((LocatableToken)null)) {
-                mhGotLambdaFormalParam.invokeExact();
-            }
-            // No tokens to skip to
+            mhGotLambdaFormalParam.invokeExact();
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2250,10 +1818,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotLambdaFormalName(LocatableToken name) {
         try {
-            if (isInEmitRange(name)) {
-                mhGotLambdaFormalName.invokeExact(name);
-            }
-            skipToToken(name);
+            mhGotLambdaFormalName.invokeExact(name);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2262,10 +1827,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotLambdaFormalType(List<LocatableToken> type) {
         try {
-            if (isInEmitRange(type)) {
-                mhGotLambdaFormalType.invokeExact(type);
-            }
-            skipToLastToken(type);
+            mhGotLambdaFormalType.invokeExact(type);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2275,10 +1837,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginFormalParameter(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhBeginFormalParameter.invokeExact(token);
-            }
-            skipToToken(token);
+            mhBeginFormalParameter.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2287,10 +1846,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotArrayTypeIdentifier(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotArrayTypeIdentifier.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotArrayTypeIdentifier.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2299,10 +1855,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotParentIdentifier(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotParentIdentifier.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotParentIdentifier.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2312,10 +1865,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void beginRecordParameters(LocatableToken parenToken) {
         try {
-            if (isInEmitRange(parenToken)) {
-                mhBeginRecordParameters.invokeExact(parenToken);
-            }
-            skipToToken(parenToken);
+            mhBeginRecordParameters.invokeExact(parenToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2324,10 +1874,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotRecordParameter(LocatableToken first, LocatableToken idToken, LocatableToken varargsToken) {
         try {
-            if (isInEmitRange(varargsToken != null ? varargsToken : idToken)) {
-                mhGotRecordParameter.invokeExact(first, idToken, varargsToken);
-            }
-            skipToToken(varargsToken != null ? varargsToken : idToken);
+            mhGotRecordParameter.invokeExact(first, idToken, varargsToken);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2336,10 +1883,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void endRecordParameters(LocatableToken closeParen) {
         try {
-            if (isInEmitRange(closeParen)) {
-                mhEndRecordParameters.invokeExact(closeParen);
-            }
-            skipToToken(closeParen);
+            mhEndRecordParameters.invokeExact(closeParen);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2349,10 +1893,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void gotComment(LocatableToken token) {
         try {
-            if (isInEmitRange(token)) {
-                mhGotComment.invokeExact(token);
-            }
-            skipToToken(token);
+            mhGotComment.invokeExact(token);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2362,9 +1903,7 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
     @Override
     public void error(String msg, int beginLine, int beginCol, int endLine, int endCol) {
         try {
-            if (isInEmitRange(beginLine, beginCol)) {
-                mhError.invokeExact(msg, beginLine, beginCol, endLine, endCol);
-            }
+            mhError.invokeExact(msg, beginLine, beginCol, endLine, endCol);
         } catch (Throwable t) {
             throw sneakyThrow(t);
         }
@@ -2378,44 +1917,6 @@ public final class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks
         if (t instanceof RuntimeException re) return re;
         if (t instanceof Error e) throw e;
         throw new RuntimeException(t);
-    }
-
-    // ***
-
-    @Override
-    public void setEmitRangeStart(int line, int column) {
-        this.emitRangeStartLine = line;
-        this.emitRangeStartColumn = column;
-    }
-
-    @Override
-    public void clearEmitRangeStart() {
-        this.emitRangeStartLine = -1;
-        this.emitRangeStartColumn = -1;
-    }
-
-    @Override
-    public JavaTokenFilter getTokenStream() {
-        return this.target.getTokenStream();
-    }
-
-    @Override
-    public LocatableToken getLastToken() {
-        return this.target.getLastToken();
-    }
-
-    @Override
-    public void setLastToken(LocatableToken token) {
-        this.target.setLastToken(token);
-    }
-
-    @Override
-    public boolean isInEmitRange(int line, int column) {
-        if (emitRangeStartLine < 0) {
-            return true; // No filter set
-        }
-        return line > emitRangeStartLine ||
-                (line == emitRangeStartLine && column >= emitRangeStartColumn);
     }
 }
     

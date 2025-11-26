@@ -367,7 +367,7 @@ public class MethodBodyVisitor extends BaseVisitor {
             } else {
                 idToken = createToken(loopParam, JavaTokenTypes.IDENT);
             }
-            callbacks.endForInitDecl(idToken, true);
+            callbacks.endForInit(idToken, true);
             
             callbacks.endForInitDecls(forToken, true);
             callbacks.modifiersConsumed();
@@ -376,14 +376,43 @@ public class MethodBodyVisitor extends BaseVisitor {
         callbacks.determinedForLoop(true, false);
         
         KtExpression body = forExpr.getBody();
+//        if (body != null) {
+//            LocatableToken openToken = createToken(body.getFirstChild());
+//            callbacks.beginForLoopBody(openToken);
+//
+//            body.accept(this);
+//
+//            LocatableToken closeToken = createToken(body.getLastChild());
+//            callbacks.endForLoopBody(closeToken, true);
+//        }
+
         if (body != null) {
-            LocatableToken openToken = createToken(body.getFirstChild());
-            callbacks.beginForLoopBody(openToken);
-            
-            body.accept(this);
-            
-            LocatableToken closeToken = createToken(body.getLastChild());
-            callbacks.endForLoopBody(closeToken, true);
+            KtBlockExpression bracedBody = (KtBlockExpression) body;
+            // Extract separate opening and closing brace elements
+            PsiElement lBrace = bracedBody.getLBrace();
+            PsiElement rBrace = bracedBody.getRBrace();
+
+            if (lBrace != null) {
+                // Create separate tokens for opening and closing braces
+                LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+
+                callbacks.beginForLoopBody(lBraceToken);
+
+                body.accept(this);
+
+                if (rBrace != null) {
+                    LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+
+                    // 8. End type body with separate closing brace token
+                    callbacks.endForLoopBody(rBraceToken, true);
+
+//                    finalToken = rBraceToken;
+                }
+                else {
+                    callbacks.endDecl(getLastToken());
+                    return;
+                }
+            }
         }
 
         callbacks.endForLoop(this.getLastToken(), true);
@@ -412,10 +441,16 @@ public class MethodBodyVisitor extends BaseVisitor {
         
         KtExpression body = whileExpr.getBody();
         if (body != null) {
-            LocatableToken bodyToken = createToken(body);
-            callbacks.beginWhileLoopBody(bodyToken);
+            LocatableToken openToken = createToken(body.getFirstChild());
+
+            // NOTE: this actually behaves differently whether that is a brace or not
+            callbacks.beginWhileLoopBody(openToken);
+
             body.accept(this);
-            callbacks.endWhileLoopBody(bodyToken, true);
+
+            LocatableToken closeToken = createToken(body.getLastChild());
+
+            callbacks.endWhileLoopBody(closeToken, true);
         }
 
         callbacks.endWhileLoop(this.getLastToken(), true);

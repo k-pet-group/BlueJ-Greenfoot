@@ -48,9 +48,9 @@ import java.util.Objects;
  * @see ContextState
  */
 public record ValidationContext(
-    String initiator,
+    CallbackRecord initiator,
     int initiatorIndex,
-    String refiner,
+    CallbackRecord refiner,
     int refinerIndex,
     ContextState state,
     StackTraceElement[] callStackTrace
@@ -66,10 +66,6 @@ public record ValidationContext(
         Objects.requireNonNull(initiator, "initiator must not be null");
         Objects.requireNonNull(state, "state must not be null");
         Objects.requireNonNull(callStackTrace, "callStackTrace must not be null");
-        
-        if (initiator.isEmpty()) {
-            throw new IllegalArgumentException("initiator must not be empty");
-        }
         
         if (initiatorIndex < 0) {
             throw new IllegalArgumentException("initiatorIndex must be non-negative");
@@ -92,7 +88,7 @@ public record ValidationContext(
     
     @Override
     public String callbackType() {
-        return initiator;
+        return initiator.getCallbackName();
     }
     
     @Override
@@ -105,18 +101,18 @@ public record ValidationContext(
      *
      * <p>Preserves the original stacktrace from the INITIATED state.
      *
-     * @param refinerType the refiner callback type
+     * @param refiner the refiner callback
      * @param refinerIdx the refiner position
      * @return new ValidationContext in REFINED state
      * @throws IllegalStateException if not in INITIATED state
      */
-    public ValidationContext refine(String refinerType, int refinerIdx) {
+    public ValidationContext refine(CallbackRecord refiner, int refinerIdx) {
         if (state != ContextState.INITIATED) {
             throw new IllegalStateException("Cannot refine context in state: " + state);
         }
         
         return new ValidationContext(
-            initiator, initiatorIndex, refinerType, refinerIdx, ContextState.REFINED, callStackTrace
+            initiator, initiatorIndex, refiner, refinerIdx, ContextState.REFINED, callStackTrace
         );
     }
     

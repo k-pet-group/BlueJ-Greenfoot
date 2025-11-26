@@ -775,7 +775,13 @@ public class JavaStrideParser extends SourceParser
     @Override
     protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken)
     {
-        super.gotConstructorDecl(token, hiddenToken);
+        gotConstructorDecl(token, hiddenToken, token.getText());
+    }
+
+    @Override
+    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, String name)
+    {
+        super.gotConstructorDecl(token, hiddenToken, name);
         methods.push(new MethodBuilder(null, null, modifiers.peek(), statementHandlers.peek().getJavadoc()));
     }
 

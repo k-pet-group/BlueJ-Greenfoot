@@ -1,5 +1,7 @@
 package bluej.parser.psi;
 
+import bluej.parser.lexer.LocatableToken;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,6 +78,10 @@ public class CallbackRecord {
      */
     public Object getParameter(String name) {
         return parameters.get(name);
+    }
+
+    public LocatableToken getParameterToken() {
+        return (LocatableToken) parameters.values().stream().filter(o -> o instanceof LocatableToken).findFirst().orElse(null);
     }
 
     /**

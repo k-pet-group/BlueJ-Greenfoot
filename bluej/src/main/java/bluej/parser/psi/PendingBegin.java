@@ -30,16 +30,14 @@ import java.util.Objects;
  * callback invocation paths. Note that stacktrace capture has moderate performance
  * overhead.
  *
- * @param callbackType the begin* callback type (e.g., "beginMethodBody")
- * @param beginToken the token for error location reporting
+ * @param callback the begin* callback type (e.g., "beginMethodBody")
  * @param index the position in the callback sequence (0-based)
  * @param callStackTrace the execution stacktrace at creation time (for debugging)
  *
  * @see StackEntry
  */
 public record PendingBegin(
-    String callbackType,
-    LocatableToken beginToken,
+    CallbackRecord callback,
     int index,
     StackTraceElement[] callStackTrace
 ) implements StackEntry {
@@ -59,17 +57,21 @@ public record PendingBegin(
      * @throws IllegalArgumentException if validation fails
      */
     public PendingBegin {
-        Objects.requireNonNull(callbackType, "callbackType must not be null");
-        Objects.requireNonNull(beginToken, "beginToken must not be null");
+        Objects.requireNonNull(callback, "callbackType must not be null");
         Objects.requireNonNull(callStackTrace, "callStackTrace must not be null");
-        
-        if (callbackType.isEmpty()) {
-            throw new IllegalArgumentException("callbackType must not be empty");
-        }
         
         if (index < 0) {
             throw new IllegalArgumentException("index must be non-negative");
         }
+    }
+
+    public LocatableToken beginToken() {
+        return callback.getParameterToken();
+    }
+
+    @Override
+    public String callbackType() {
+        return callback.getCallbackName();
     }
     
     /**
@@ -78,6 +80,6 @@ public record PendingBegin(
      * @return the expected end type (e.g., "beginMethodBody" → "endMethodBody")
      */
     public String expectedEndType() {
-        return callbackType.replace("begin", "end");
+        return callback.getCallbackName().replace("begin", "end");
     }
 }

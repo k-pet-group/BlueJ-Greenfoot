@@ -1,8 +1,12 @@
 package bluej.parser.psi;
 
+import bluej.extensions2.SourceType;
 import bluej.parser.psi.visitor.BaseVisitor;
 import bluej.parser.psi.visitor.FileVisitor;
 import org.jetbrains.kotlin.psi.KtFile;
+
+import java.nio.charset.Charset;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -17,6 +21,15 @@ public class BasePsiTest {
      * @throws PsiParseException if parsing fails
      */
     protected CallbackRecorder parseAndVisit(String kotlinCode) throws PsiParseException {
+        UUID uuid = UUID.randomUUID();
+        String name = uuid.toString() + ".kt";
+
+        return parseAndVisit(SourceInput.fromNamedString(kotlinCode, SourceType.Kotlin, Charset.defaultCharset(), name, name, null));
+    }
+
+    protected CallbackRecorder parseAndVisit(SourceInput sourceInput) throws PsiParseException {
+        String kotlinCode = sourceInput.content();
+
         // Parse Kotlin code to KtFile
         KtFile ktFile = env.parseFile("Test.kt", kotlinCode);
         assertNotNull("File should parse successfully", ktFile);

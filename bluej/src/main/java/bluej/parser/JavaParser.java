@@ -33,6 +33,11 @@ import java.util.ListIterator;
 import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.parser.psi.CallbackRecorder;
+import bluej.parser.psi.JavaParserCallbacks;
+import bluej.parser.psi.JavaParserCallbacksAdapterImpl;
+import bluej.parser.psi.visitor.ForwardingCallbackRecorder;
+import org.junit.Test;
 
 
 /**
@@ -52,11 +57,20 @@ import bluej.parser.lexer.LocatableToken;
  */
 public class JavaParser implements ParserBehavior
 {
+    private static boolean TEST_MODE = true;
+//    private static boolean TEST_MODE = false;
+
     private SourceParser parser;
+    private JavaParserCallbacks callbacks;
 
     public JavaParser(SourceParser parser)
     {
         this.parser = parser;
+        this.callbacks = new JavaParserCallbacksAdapterImpl(parser);
+
+        if (TEST_MODE) {
+            this.callbacks = new ForwardingCallbackRecorder(this.callbacks);
+        }
     }
 
     public final JavaTokenFilter getTokenStream()
@@ -72,6 +86,12 @@ public class JavaParser implements ParserBehavior
     public final LocatableToken getLastToken()
     {
         return parser.getLastToken();
+    }
+
+
+    public final LocatableToken setLastToken(LocatableToken token)
+    {
+        return parser.setLastToken(token);
     }
 
     /**
@@ -95,20 +115,38 @@ public class JavaParser implements ParserBehavior
      */
     private void error(String msg, LocatableToken token)
     {
-        parser.error(msg, token.getLine(), token.getColumn(), token.getEndLine(), token.getEndColumn());
+        callbacks.error(msg, token.getLine(), token.getColumn(), token.getEndLine(), token.getEndColumn());
     }
 
     private void errorBefore(String msg, LocatableToken token)
     {
-        parser.error(msg, token.getLine(), token.getColumn(), token.getLine(), token.getColumn());
+        callbacks.error(msg, token.getLine(), token.getColumn(), token.getLine(), token.getColumn());
     }
 
     private void errorBehind(String msg, LocatableToken token)
     {
-        parser.error(msg, token.getEndLine(), token.getEndColumn(), token.getEndLine(), token.getEndColumn());
+        callbacks.error(msg, token.getEndLine(), token.getEndColumn(), token.getEndLine(), token.getEndColumn());
     }
 
 
+    private void printTestSummary() {
+        if (!TEST_MODE) { return; }
+
+        CallbackRecorder recorder = (CallbackRecorder) callbacks;
+
+        // Validate callback pairing is balanced after traversal
+        CallbackRecorder.ValidationResult result = recorder.getValidationResult();
+
+        recorder.reset();
+
+        if (!result.isBalanced() || result.hasErrors()) {
+            System.err.println("Callback validation summary:\n\n" + result.getValidationSummary());
+        }
+        else {
+            System.out.println("Callback validation summary:\n\n" + result.getValidationSummary());
+        }
+
+    }
 
     /**
      * Parse a compilation unit (from the beginning).
@@ -123,7 +161,8 @@ public class JavaParser implements ParserBehavior
             }
             state = parseCUpart(state);
         }
-        parser.finishedCU(state);
+        callbacks.finishedCU(state);
+//        printTestSummary();
     }
 
     /**
@@ -169,7 +208,7 @@ public class JavaParser implements ParserBehavior
      */
     protected final LocatableToken nextToken()
     {
-        return parser.setLastToken(getTokenStream().nextToken());
+        return setLastToken(getTokenStream().nextToken());
     }
 
     public final int parseCUpart(int state)
@@ -180,28 +219,32 @@ public class JavaParser implements ParserBehavior
                 error("Only one 'package' statement is allowed", token);
             }
             token = parsePackageStmt(token);
-            parser.reachedCUstate(1); state = 1;
+            callbacks.reachedCUstate(1); state = 1;
         }
         else if (token.getType() == JavaTokenTypes.LITERAL_import) {
             parseImportStatement(token);
-            parser.reachedCUstate(1); state = 1;
+            callbacks.reachedCUstate(1); state = 1;
         }
         else if (isModifier(token) || isTypeDeclarator(token)) {
             // optional: class/interface/enum
-            parser.gotTopLevelDecl(token);
-            parser.gotDeclBegin(token);
+            callbacks.gotTopLevelDecl(token);
+            callbacks.gotDeclBegin(token);
             getTokenStream().pushBack(token);
             parseModifiers();
             parseTypeDef(token);
-            parser.reachedCUstate(2); state = 2;
+            callbacks.reachedCUstate(2); state = 2;
         }
         else if (token.getType() == JavaTokenTypes.EOF) {
+            printTestSummary();
+
             return state;
         }
         else {
             // TODO give different diagnostic depending on state
             error("Expected: Type definition (class, interface or enum)", token);
         }
+        printTestSummary();
+
         return state;
     }
 
@@ -211,24 +254,24 @@ public class JavaParser implements ParserBehavior
      */
     public final LocatableToken parsePackageStmt(LocatableToken token)
     {
-        parser.beginPackageStatement(token);
+        callbacks.beginPackageStatement(token);
         token = nextToken();
         if (token.getType() != JavaTokenTypes.IDENT) {
             error("Expected identifier after 'package'");
             return null;
         }
         List<LocatableToken> pkgTokens = parseDottedIdent(token);
-        parser.gotPackage(pkgTokens);
-        LocatableToken lastPkgToken = parser.getLastToken();
+        callbacks.gotPackage(pkgTokens);
+        LocatableToken lastPkgToken = getLastToken();
         token = nextToken();
         if (token.getType() != JavaTokenTypes.SEMI) {
             getTokenStream().pushBack(token);
-            parser.error(BJ003, lastPkgToken.getEndLine(), lastPkgToken.getEndColumn(),
+            callbacks.error(BJ003, lastPkgToken.getEndLine(), lastPkgToken.getEndColumn(),
                     lastPkgToken.getEndLine(), lastPkgToken.getEndColumn());
             return null;
         }
         else {
-            parser.gotPackageSemi(token);
+            callbacks.gotPackageSemi(token);
             return token;
         }
     }
@@ -250,7 +293,7 @@ public class JavaParser implements ParserBehavior
     public final void parseImportStatement(final LocatableToken importToken)
     {
         LocatableToken token = importToken;
-        parser.beginElement(token);
+        callbacks.beginElement(token);
         boolean isStatic = false;
         token = getTokenStream().nextToken();
         if (token.getType() == JavaTokenTypes.LITERAL_static) {
@@ -260,30 +303,30 @@ public class JavaParser implements ParserBehavior
         if (token.getType() != JavaTokenTypes.IDENT) {
             getTokenStream().pushBack(token);
             error("Expecting identifier (package containing element to be imported)");
-            parser.endElement(token, false);
             return;
         }
 
         List<LocatableToken> tokens = parseDottedIdent(token);
-        LocatableToken lastIdentToken = parser.getLastToken();
+        LocatableToken lastIdentToken = getLastToken();
         if (getTokenStream().LA(1).getType() == JavaTokenTypes.DOT) {
             LocatableToken lastToken = nextToken(); // DOT
             token = nextToken();
             if (token.getType() == JavaTokenTypes.SEMI) {
-                parser.error("Trailing '.' in import statement", lastToken.getLine(), lastToken.getColumn(),
+                callbacks.error("Trailing '.' in import statement", lastToken.getLine(), lastToken.getColumn(),
                         lastToken.getEndLine(), lastToken.getEndColumn());
+                callbacks.endElement(token, false);
             }
             else if (token.getType() == JavaTokenTypes.STAR) {
                 lastToken = token;
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.SEMI) {
                     getTokenStream().pushBack(token);
-                    parser.error("Expected ';' following import statement", lastToken.getEndLine(), lastToken.getEndColumn(),
+                    callbacks.error("Expected ';' following import statement", lastToken.getEndLine(), lastToken.getEndColumn(),
                             lastToken.getEndLine(), lastToken.getEndColumn());
                 }
                 else {
-                    parser.gotWildcardImport(tokens, isStatic, importToken, token);
-                    parser.gotImportStmtSemi(token);
+                    callbacks.gotWildcardImport(tokens, isStatic, importToken, token);
+                    callbacks.gotImportStmtSemi(token);
                 }
             }
             else {
@@ -297,12 +340,12 @@ public class JavaParser implements ParserBehavior
             token = nextToken();
             if (token.getType() != JavaTokenTypes.SEMI) {
                 getTokenStream().pushBack(token);
-                parser.error("Expected ';' following import statement", lastIdentToken.getEndLine(), lastIdentToken.getEndColumn(),
+                callbacks.error("Expected ';' following import statement", lastIdentToken.getEndLine(), lastIdentToken.getEndColumn(),
                         lastIdentToken.getEndLine(), lastIdentToken.getEndColumn());
             }
             else {
-                parser.gotImport(tokens, isStatic, importToken, token);
-                parser.gotImportStmtSemi(token);
+                callbacks.gotImport(tokens, isStatic, importToken, token);
+                callbacks.gotImportStmtSemi(token);
             }
         }
     }
@@ -328,11 +371,11 @@ public class JavaParser implements ParserBehavior
     {
         int tdType = parseTypeDefBegin();
         if (tdType != TYPEDEF_EPIC_FAIL) {
-            parser.gotTypeDef(firstToken, tdType);
+            callbacks.gotTypeDef(firstToken, tdType);
         }
-        parser.modifiersConsumed();
+        callbacks.modifiersConsumed();
         if (tdType == TYPEDEF_EPIC_FAIL) {
-            parser.endDecl(getTokenStream().LA(1));
+            callbacks.endDecl(getTokenStream().LA(1));
             return;
         }
 
@@ -340,22 +383,22 @@ public class JavaParser implements ParserBehavior
         LocatableToken token = getTokenStream().nextToken();
         if (token.getType() != JavaTokenTypes.IDENT) {
             getTokenStream().pushBack(token);
-            parser.gotTypeDefEnd(token, false);
+            callbacks.gotTypeDefEnd(token, false);
             error("Expected identifier (in type definition)");
             return;
         }
-        parser.gotTypeDefName(token);
+        callbacks.gotTypeDefName(token);
 
         token = parseTypeDefPart2(tdType == TYPEDEF_RECORD);
 
         // Body!
         if (token == null) {
-            parser.gotTypeDefEnd(getTokenStream().LA(1), false);
+            callbacks.gotTypeDefEnd(getTokenStream().LA(1), false);
             return;
         }
 
-        parser.setLastToken(parseTypeBody(tdType, token));
-        parser.gotTypeDefEnd(getLastToken(), getLastToken().getType() == JavaTokenTypes.RCURLY);
+        setLastToken(parseTypeBody(tdType, token));
+        callbacks.gotTypeDefEnd(getLastToken(), getLastToken().getType() == JavaTokenTypes.RCURLY);
     }
 
     /**
@@ -368,7 +411,7 @@ public class JavaParser implements ParserBehavior
      */
     public final LocatableToken parseTypeBody(int tdType, LocatableToken token)
     {
-        parser.beginTypeBody(token);
+        callbacks.beginTypeBody(token);
 
         if (tdType == TYPEDEF_ENUM) {
             parseEnumConstants();
@@ -380,7 +423,7 @@ public class JavaParser implements ParserBehavior
             error("Expected '}' (in class definition)");
         }
 
-        parser.endTypeBody(token, token.getType() == JavaTokenTypes.RCURLY);
+        callbacks.endTypeBody(token, token.getType() == JavaTokenTypes.RCURLY);
         return token;
     }
 
@@ -452,10 +495,10 @@ public class JavaParser implements ParserBehavior
         {
             if (token.getType() == JavaTokenTypes.LPAREN)
             {
-                parser.beginRecordParameters(token);
+                callbacks.beginRecordParameters(token);
                 parseParameterList(true);
                 token = nextToken();
-                parser.endRecordParameters(token);
+                callbacks.endRecordParameters(token);
                 if (token.getType() != JavaTokenTypes.RPAREN) {
                     error("Expected ')' at end of parameter list (in record declaration)");
                     getTokenStream().pushBack(token);
@@ -471,7 +514,7 @@ public class JavaParser implements ParserBehavior
 
         // extends...
         if (token.getType() == JavaTokenTypes.LITERAL_extends) {
-            parser.beginTypeDefExtends(token);
+            callbacks.beginTypeDefExtends(token);
             do {
                 parseTypeSpec(true);
                 token = nextToken();
@@ -484,12 +527,12 @@ public class JavaParser implements ParserBehavior
                 // Don't push the token back on the token stream - it really is part of the type
                 return null;
             }
-            parser.endTypeDefExtends();
+            callbacks.endTypeDefExtends();
         }
 
         // implements...
         if (token.getType() == JavaTokenTypes.LITERAL_implements) {
-            parser.beginTypeDefImplements(token);
+            callbacks.beginTypeDefImplements(token);
             do {
                 parseTypeSpec(true);
                 token = nextToken();
@@ -502,12 +545,12 @@ public class JavaParser implements ParserBehavior
                 // Don't push the token back on the token stream - it really is part of the type
                 return null;
             }
-            parser.endTypeDefImplements();
+            callbacks.endTypeDefImplements();
         }
 
         // permits...
         if (token.getType() == JavaTokenTypes.LITERAL_permits) {
-            parser.beginTypeDefPermits(token);
+            callbacks.beginTypeDefPermits(token);
             do {
                 parseTypeSpec(true);
                 token = nextToken();
@@ -520,7 +563,7 @@ public class JavaParser implements ParserBehavior
                 // Don't push the token back on the token stream - it really is part of the type
                 return null;
             }
-            parser.endTypeDefPermits();
+            callbacks.endTypeDefPermits();
         }
 
         if (token.getType() == JavaTokenTypes.LCURLY) {
@@ -546,15 +589,15 @@ public class JavaParser implements ParserBehavior
 
             // "body"
             if (token.getType() == JavaTokenTypes.LCURLY) {
-                parser.beginAnonClassBody(token, true);
+                callbacks.beginAnonClassBody(token, true);
                 parseClassBody();
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.RCURLY) {
                     error("Expected '}' at end of enum constant body");
-                    parser.endAnonClassBody(token, false);
+                    callbacks.endAnonClassBody(token, false);
                 }
                 else {
-                    parser.endAnonClassBody(token, true);
+                    callbacks.endAnonClassBody(token, true);
                     token = nextToken();
                 }
             }
@@ -593,14 +636,14 @@ public class JavaParser implements ParserBehavior
                 getTokenStream().pushBack(idToken);
                 return;
             }
-            parser.gotTypeParam(idToken);
+            callbacks.gotTypeParam(idToken);
 
             LocatableToken token = nextToken();
             if (token.getType() == JavaTokenTypes.LITERAL_extends) {
                 do {
                     LinkedList<LocatableToken> boundTokens = new LinkedList<LocatableToken>();
                     if (parseTargType(false, boundTokens, dr)) {
-                        parser.gotTypeParamBound(boundTokens);
+                        callbacks.gotTypeParamBound(boundTokens);
                     }
                     if (dr.depth <= 0) {
                         return;
@@ -654,7 +697,7 @@ public class JavaParser implements ParserBehavior
         while (isModifier(token)) {
             if (token.getType() == JavaTokenTypes.AT) {
                 if( getTokenStream().LA(1).getType() == JavaTokenTypes.IDENT) {
-                    parser.setLastToken(token);
+                    setLastToken(token);
                     parseAnnotation();
                 }
                 else {
@@ -663,9 +706,9 @@ public class JavaParser implements ParserBehavior
                 }
             }
             else {
-                parser.gotModifier(token);
+                callbacks.gotModifier(token);
             }
-            parser.setLastToken(token);
+            setLastToken(token);
             rval.add(token);
             token = nextToken();
         }                       
@@ -698,7 +741,7 @@ public class JavaParser implements ParserBehavior
             return;
         }
 
-        parser.gotDeclBegin(token);
+        callbacks.gotDeclBegin(token);
         getTokenStream().pushBack(token);
         LocatableToken hiddenToken = token.getHiddenBefore();
 
@@ -715,7 +758,7 @@ public class JavaParser implements ParserBehavior
                 || token.getType() == JavaTokenTypes.LITERAL_enum
                 || token.getType() == JavaTokenTypes.LITERAL_record
                 || token.getType() == JavaTokenTypes.AT) {
-            parser.gotInnerType(token);
+            callbacks.gotInnerType(token);
             getTokenStream().pushBack(token);
             parseTypeDef(firstMod != null ? firstMod : token);
         }
@@ -725,19 +768,19 @@ public class JavaParser implements ParserBehavior
             if (token.getType() == JavaTokenTypes.LCURLY) {
                 // initialisation block
                 LocatableToken firstToken = firstMod == null ? token : firstMod;
-                parser.beginInitBlock(firstToken, token);
-                parser.modifiersConsumed();
+                callbacks.beginInitBlock(firstToken, token);
+                callbacks.modifiersConsumed();
                 parseStmtBlock();
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.RCURLY) {
                     error("Expecting '}' (at end of initialisation block)");
                     getTokenStream().pushBack(token);
-                    parser.endInitBlock(token, false);
-                    parser.endElement(token, false);
+                    callbacks.endInitBlock(token, false);
+                    callbacks.endElement(token, false);
                 }
                 else {
-                    parser.endInitBlock(token, true);
-                    parser.endElement(token, true);
+                    callbacks.endInitBlock(token, true);
+                    callbacks.endElement(token, true);
                 }
             }
             else if (token.getType() == JavaTokenTypes.LT
@@ -747,9 +790,9 @@ public class JavaParser implements ParserBehavior
                 LocatableToken first = firstMod != null ? firstMod : token;
                 if (token.getType() == JavaTokenTypes.LT) {
                     // generic method
-                    parser.gotMethodTypeParamsBegin();
+                    callbacks.gotMethodTypeParamsBegin();
                     parseTypeParams();
-                    parser.endMethodTypeParams();
+                    callbacks.endMethodTypeParams();
                 }
                 else {
                     getTokenStream().pushBack(token);
@@ -758,15 +801,15 @@ public class JavaParser implements ParserBehavior
                 boolean isConstructor = getTokenStream().LA(1).getType() == JavaTokenTypes.IDENT
                         && getTokenStream().LA(2).getType() == JavaTokenTypes.LPAREN;
                 if (!isConstructor && !parseTypeSpec(true)) {
-                    parser.endDecl(getTokenStream().LA(1));
+                    callbacks.endDecl(getTokenStream().LA(1));
                     return;
                 }
                 LocatableToken idToken = getTokenStream().nextToken(); // identifier
                 if (idToken.getType() != JavaTokenTypes.IDENT) {
-                    parser.modifiersConsumed();
+                    callbacks.modifiersConsumed();
                     getTokenStream().pushBack(idToken);
                     errorBefore("Expected identifier (method or field name).", idToken);
-                    parser.endDecl(idToken);
+                    callbacks.endDecl(idToken);
                     return;
                 }
 
@@ -775,17 +818,17 @@ public class JavaParser implements ParserBehavior
                 if (ttype == JavaTokenTypes.LBRACK || ttype == JavaTokenTypes.SEMI
                         || ttype == JavaTokenTypes.ASSIGN || ttype == JavaTokenTypes.COMMA) {
                     // This must be a field declaration
-                    parser.beginFieldDeclarations(first);
+                    callbacks.beginFieldDeclarations(first);
                     if (ttype == JavaTokenTypes.LBRACK) {
                         getTokenStream().pushBack(token);
                         parseArrayDeclarators();
                         token = nextToken();
                         ttype = token.getType();
                     }
-                    parser.gotField(first, idToken, ttype == JavaTokenTypes.ASSIGN);
+                    callbacks.gotField(first, idToken, ttype == JavaTokenTypes.ASSIGN);
                     if (ttype == JavaTokenTypes.SEMI) {
-                        parser.endField(token, true);
-                        parser.endFieldDeclarations(token, true);
+                        callbacks.endField(token, true);
+                        callbacks.endFieldDeclarations(token, true);
                     }
                     else if (ttype == JavaTokenTypes.ASSIGN) {
                         parseExpression();
@@ -798,32 +841,32 @@ public class JavaParser implements ParserBehavior
                     else {
                         error("Expected ',', '=' or ';' after field declaration");
                         getTokenStream().pushBack(token);
-                        parser.endField(token, false);
-                        parser.endFieldDeclarations(token, false);
+                        callbacks.endField(token, false);
+                        callbacks.endFieldDeclarations(token, false);
                     }
-                    parser.modifiersConsumed();
+                    callbacks.modifiersConsumed();
                 }
                 else if (ttype == JavaTokenTypes.LPAREN) {
                     // method declaration
                     if (isConstructor) {
-                        parser.gotConstructorDecl(idToken, hiddenToken);
+                        callbacks.gotConstructorDecl(idToken, hiddenToken);
                     }
                     else {
-                        parser.gotMethodDeclaration(idToken, hiddenToken);
+                        callbacks.gotMethodDeclaration(idToken, hiddenToken);
                     }
-                    parser.modifiersConsumed();
+                    callbacks.modifiersConsumed();
                     parseMethodParamsBody();
                 }
                 else {
-                    parser.modifiersConsumed();
+                    callbacks.modifiersConsumed();
                     getTokenStream().pushBack(token);
                     error("Expected ';' or '=' or '(' (in field or method declaration).");
-                    parser.endDecl(token);
+                    callbacks.endDecl(token);
                 }
             }
             else {
                 error("Unexpected token \"" + token.getText() + "\" in type declaration body");
-                parser.endDecl(getTokenStream().LA(1));
+                callbacks.endDecl(getTokenStream().LA(1));
             }
         }
 
@@ -849,7 +892,7 @@ public class JavaParser implements ParserBehavior
                     return;
                 }
             }
-            parser.gotArrayDeclarator();
+            callbacks.gotArrayDeclarator();
             token = nextToken();
         }
         getTokenStream().pushBack(token);
@@ -862,37 +905,37 @@ public class JavaParser implements ParserBehavior
     public final void parseMethodParamsBody()
     {
         parseParameterList(false);
-        parser.gotAllMethodParameters();
+        callbacks.gotAllMethodParameters();
         LocatableToken token = nextToken();
         if (token.getType() != JavaTokenTypes.RPAREN) {
             error("Expected ')' at end of parameter list (in method declaration)");
             getTokenStream().pushBack(token);
-            parser.endMethodDecl(token, false);
+            callbacks.endMethodDecl(token, false);
             return;
         }
         token = nextToken();
         if (token.getType() == JavaTokenTypes.LITERAL_throws) {
-            parser.beginThrows(token);
+            callbacks.beginThrows(token);
             do {
                 parseTypeSpec(true);
                 token = nextToken();
             } while (token.getType() == JavaTokenTypes.COMMA);
-            parser.endThrows();
+            callbacks.endThrows();
         }
         if (token.getType() == JavaTokenTypes.LCURLY) {
             // method body
-            parser.beginMethodBody(token);
+            callbacks.beginMethodBody(token);
             parseStmtBlock();
             token = nextToken();
             if (token.getType() != JavaTokenTypes.RCURLY) {
                 error("Expected '}' at end of method body");
                 getTokenStream().pushBack(token);
-                parser.endMethodBody(token, false);
-                parser.endMethodDecl(token, false);
+                callbacks.endMethodBody(token, false);
+                callbacks.endMethodDecl(token, false);
             }
             else {
-                parser.endMethodBody(token, true);
-                parser.endMethodDecl(token, true);
+                callbacks.endMethodBody(token, true);
+                callbacks.endMethodDecl(token, true);
             }
             return;
         }
@@ -904,10 +947,10 @@ public class JavaParser implements ParserBehavior
         if (token.getType() != JavaTokenTypes.SEMI) {
             getTokenStream().pushBack(token);
             error(BJ000);
-            parser.endMethodDecl(token, false);
+            callbacks.endMethodDecl(token, false);
         }
         else {
-            parser.endMethodDecl(token, true);
+            callbacks.endMethodDecl(token, true);
         }
     }
 
@@ -924,14 +967,14 @@ public class JavaParser implements ParserBehavior
                 getTokenStream().pushBack(token);
                 return;
             }
-            parser.beginElement(token);
+            callbacks.beginElement(token);
             LocatableToken ntoken = parseStatement(token, false);
             if (ntoken != null) {
-                parser.endElement(ntoken, true);
+                callbacks.endElement(ntoken, true);
             }
             else {
                 ntoken = getTokenStream().LA(1);
-                parser.endElement(getTokenStream().LA(1), false);
+                callbacks.endElement(getTokenStream().LA(1), false);
                 if (ntoken == token) {
                     nextToken();
                     error("Invalid beginning of statement.", token);
@@ -1016,11 +1059,11 @@ public class JavaParser implements ParserBehavior
         while (true) {
             switch (statementTokenIndexes[token.getType()]) {
             case 1: // SEMI
-                parser.gotEmptyStatement();
+                callbacks.gotEmptyStatement();
                 return token; // empty statement
             case 2: // LITERAL_return
                 token = nextToken();
-                parser.gotReturnStatement(token.getType() != JavaTokenTypes.SEMI);
+                callbacks.gotReturnStatement(token.getType() != JavaTokenTypes.SEMI);
                 if (token.getType() != JavaTokenTypes.SEMI) {
                     getTokenStream().pushBack(token);
                     parseExpression();
@@ -1046,7 +1089,7 @@ public class JavaParser implements ParserBehavior
                 return parseSwitchStatement(token);
             case 9: // LITERAL_case
             {
-                parser.beginSwitchCase(getTokenStream().LA(1));
+                callbacks.beginSwitchCase(getTokenStream().LA(1));
                 boolean hadCommas = false;
                 // Special case: null, which can be followed by default:
                 if (getTokenStream().LA(1).getType() == JavaTokenTypes.LITERAL_null)
@@ -1081,7 +1124,7 @@ public class JavaParser implements ParserBehavior
                             {
                                 error("Failed to parse record pattern");
                                 getTokenStream().pushBack(token);
-                                parser.endSwitchCase(token, true);
+                                callbacks.endSwitchCase(token, true);
                                 return null;
                             }
                             token = nextToken();
@@ -1102,7 +1145,7 @@ public class JavaParser implements ParserBehavior
                         }
                     }
                 }
-                parser.gotSwitchCaseType(token, token.getType() == JavaTokenTypes.LAMBDA);
+                callbacks.gotSwitchCaseType(token, token.getType() == JavaTokenTypes.LAMBDA);
                 if (token.getType() == JavaTokenTypes.LAMBDA)
                 {
                     // Right-hand side can be a single expression, a block or a throw
@@ -1122,17 +1165,17 @@ public class JavaParser implements ParserBehavior
                         {
                             error("Expecting ';' after case body");
                             getTokenStream().pushBack(token);
-                            parser.endSwitchCase(token, true);
+                            callbacks.endSwitchCase(token, true);
                             return null;
                         }
                     }
-                    parser.endSwitchCase(token, true);
+                    callbacks.endSwitchCase(token, true);
                 }
                 else if (token.getType() != JavaTokenTypes.COLON)
                 {
                     error("Expecting ':' at end of case expression");
                     getTokenStream().pushBack(token);
-                    parser.endSwitchCase(token, false);
+                    callbacks.endSwitchCase(token, false);
                     return null;
                 }
                 else if (hadCommas)
@@ -1140,17 +1183,17 @@ public class JavaParser implements ParserBehavior
                     // COLON and hadCommas; incorrect:
                     error("Comma-separated expressions not valid before ':' in case expression");
                     getTokenStream().pushBack(token);
-                    parser.endSwitchCase(token, false);
+                    callbacks.endSwitchCase(token, false);
                     return null;
                 }
                 else
                 {
-                    parser.endSwitchCase(token, false);
+                    callbacks.endSwitchCase(token, false);
                 }
                 return token;
             }
             case 10: // LITERAL_default
-                parser.gotSwitchDefault();
+                callbacks.gotSwitchDefault();
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.COLON && token.getType() != JavaTokenTypes.LAMBDA) {
                     error("Expecting ':' or '->' at end of case expression");
@@ -1165,11 +1208,11 @@ public class JavaParser implements ParserBehavior
                 token = nextToken();
                 if (token.getType() == JavaTokenTypes.IDENT) {
                     token = nextToken();
-                    parser.gotBreakContinue(keywordToken, token);
+                    callbacks.gotBreakContinue(keywordToken, token);
                 }
                 else
                 {
-                    parser.gotBreakContinue(keywordToken, null);
+                    callbacks.gotBreakContinue(keywordToken, null);
                 }
                 if (token.getType() != JavaTokenTypes.SEMI) {
                     getTokenStream().pushBack(token);
@@ -1178,7 +1221,7 @@ public class JavaParser implements ParserBehavior
                 }
                 return token;
             case 13: // LITERAL_throw
-                parser.gotThrow(token);
+                callbacks.gotThrow(token);
                 parseExpression();
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.SEMI) {
@@ -1205,11 +1248,11 @@ public class JavaParser implements ParserBehavior
                 pushBackAll(tlist);
                 if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
                     token = tlist.get(0);
-                    parser.gotDeclBegin(token);
+                    callbacks.gotDeclBegin(token);
                     return parseVariableDeclarations(token, true);
                 }
                 else {
-                    parser.gotStatementExpression();
+                    callbacks.gotStatementExpression();
                     parseExpression();                                              
                     token = getTokenStream().nextToken();
                     if (token.getType() == JavaTokenTypes.COMMA && allowComma) {
@@ -1225,7 +1268,7 @@ public class JavaParser implements ParserBehavior
                 }
             case 16: // LITERAL_synchronized
                 // Synchronized block
-                parser.beginSynchronizedBlock(token);
+                callbacks.beginSynchronizedBlock(token);
                 token = nextToken();
                 if (token.getType() == JavaTokenTypes.LPAREN) {
                     parseExpression();
@@ -1233,34 +1276,34 @@ public class JavaParser implements ParserBehavior
                     if (token.getType() != JavaTokenTypes.RPAREN) {
                         errorBefore("Expecting ')' at end of expression", token);
                         getTokenStream().pushBack(token);
-                        parser.endSynchronizedBlock(token, false);
+                        callbacks.endSynchronizedBlock(token, false);
                         return null;
                     }
                     token = getTokenStream().nextToken();
                 }
                 if (token.getType() == JavaTokenTypes.LCURLY) {
-                    parser.beginStmtblockBody(token);
+                    callbacks.beginStmtblockBody(token);
                     parseStmtBlock();
                     token = nextToken();
                     if (token.getType() != JavaTokenTypes.RCURLY) {
                         error("Expecting '}' at end of synchronized block");
                         getTokenStream().pushBack(token);
-                        parser.endStmtblockBody(token, false);
-                        parser.endSynchronizedBlock(token, false);
+                        callbacks.endStmtblockBody(token, false);
+                        callbacks.endSynchronizedBlock(token, false);
                         return null;
                     }
-                    parser.endStmtblockBody(token, true);
-                    parser.endSynchronizedBlock(token, true);
+                    callbacks.endStmtblockBody(token, true);
+                    callbacks.endSynchronizedBlock(token, true);
                     return token;
                 }
                 else {
                     error("Expecting statement block after 'synchronized'");
                     getTokenStream().pushBack(token);
-                    parser.endSynchronizedBlock(token, false);
+                    callbacks.endSynchronizedBlock(token, false);
                     return null;
                 }
             case 116: // LITERAL_yield
-                parser.gotYieldStatement();
+                callbacks.gotYieldStatement();
                 parseExpression();
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.SEMI) {
@@ -1281,10 +1324,10 @@ public class JavaParser implements ParserBehavior
             case 26: // LITERAL_transient
             case 27: // AT
                 getTokenStream().pushBack(token);
-                parser.gotDeclBegin(token);
+                callbacks.gotDeclBegin(token);
                 parseModifiers();
                 if (isTypeDeclarator(getTokenStream().LA(1)) || getTokenStream().LA(1).getType() == JavaTokenTypes.AT) {
-                    parser.gotInnerType(getTokenStream().LA(1));
+                    callbacks.gotInnerType(getTokenStream().LA(1));
                     parseTypeDef(token);
                 }
                 else {
@@ -1295,7 +1338,7 @@ public class JavaParser implements ParserBehavior
             case 29: // LITERAL_enum
             case 30: // LITERAL_interface
                 getTokenStream().pushBack(token);
-                parser.gotDeclBegin(token);
+                callbacks.gotDeclBegin(token);
                 parseTypeDef(token);
                 return null;
             case 31: // LITERAL_void
@@ -1325,11 +1368,11 @@ public class JavaParser implements ParserBehavior
                 }
                 else {
                     pushBackAll(tlist);
-                    parser.gotDeclBegin(token);
+                    callbacks.gotDeclBegin(token);
                     return parseVariableDeclarations(token, true);
                 }
             case 40: // LCURLY
-                parser.beginStmtblockBody(token);
+                callbacks.beginStmtblockBody(token);
                 parseStmtBlock();
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.RCURLY) {
@@ -1337,10 +1380,10 @@ public class JavaParser implements ParserBehavior
                     if (token.getType() != JavaTokenTypes.RPAREN) {
                         getTokenStream().pushBack(token);
                     }
-                    parser.endStmtblockBody(token, false);
+                    callbacks.endStmtblockBody(token, false);
                     return null;
                 }
-                parser.endStmtblockBody(token, true);
+                callbacks.endStmtblockBody(token, true);
                 return token;
             }
 
@@ -1351,7 +1394,7 @@ public class JavaParser implements ParserBehavior
             }
 
             getTokenStream().pushBack(token);
-            parser.gotStatementExpression();
+            callbacks.gotStatementExpression();
             parseExpression();
             token = getTokenStream().nextToken();
             if (token.getType() != JavaTokenTypes.SEMI) {
@@ -1370,7 +1413,7 @@ public class JavaParser implements ParserBehavior
      */
     public final LocatableToken parseTryCatchStmt(LocatableToken token)
     {
-        parser.beginTryCatchStmt(token, getTokenStream().LA(1).getType() == JavaTokenTypes.LPAREN);
+        callbacks.beginTryCatchStmt(token, getTokenStream().LA(1).getType() == JavaTokenTypes.LPAREN);
         token = nextToken();
         if (token.getType() == JavaTokenTypes.LPAREN) {
             // Java 7 try-with-resource
@@ -1384,7 +1427,7 @@ public class JavaParser implements ParserBehavior
                     token = getTokenStream().LA(1);
                     pushBackAll(tlist);
                     if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
-                        parser.gotDeclBegin(tlist.get(0));
+                        callbacks.gotDeclBegin(tlist.get(0));
                         parseVariableDeclarations(tlist.get(0), false);
                     }
                     else {
@@ -1408,27 +1451,27 @@ public class JavaParser implements ParserBehavior
         if (token.getType() != JavaTokenTypes.LCURLY) {
             error ("Expecting '{' after 'try'");
             getTokenStream().pushBack(token);
-            parser.endTryCatchStmt(token, false);
+            callbacks.endTryCatchStmt(token, false);
             return null;
         }
-        parser.beginTryBlock(token);
+        callbacks.beginTryBlock(token);
         parseStmtBlock();
         token = nextToken();
         if (token.getType() == JavaTokenTypes.RCURLY) {
-            parser.endTryBlock(token, true);
+            callbacks.endTryBlock(token, true);
         }
         else if (token.getType() == JavaTokenTypes.LITERAL_catch
                 || token.getType() == JavaTokenTypes.LITERAL_finally) {
             // Invalid, but we can recover
             getTokenStream().pushBack(token);
             error("Missing '}' at end of 'try' block");
-            parser.endTryBlock(token, false);
+            callbacks.endTryBlock(token, false);
         }
         else {
             getTokenStream().pushBack(token);
             error("Missing '}' at end of 'try' block");
-            parser.endTryBlock(token, false);
-            parser.endTryCatchStmt(token, false);
+            callbacks.endTryBlock(token, false);
+            callbacks.endTryCatchStmt(token, false);
             return null;
         }
 
@@ -1436,13 +1479,13 @@ public class JavaParser implements ParserBehavior
         while (laType == JavaTokenTypes.LITERAL_catch
                 || laType == JavaTokenTypes.LITERAL_finally) {
             token = nextToken();
-            parser.gotCatchFinally(token);
+            callbacks.gotCatchFinally(token);
             if (laType == JavaTokenTypes.LITERAL_catch) {
                 token = nextToken();
                 if (token.getType() != JavaTokenTypes.LPAREN) {
                     error("Expecting '(' after 'catch'");
                     getTokenStream().pushBack(token);
-                    parser.endTryCatchStmt(token, false);
+                    callbacks.endTryCatchStmt(token, false);
                     return null;
                 }
 
@@ -1458,22 +1501,22 @@ public class JavaParser implements ParserBehavior
                         // Java 7 multi-catch
                         break;
                     }
-                    parser.gotMultiCatch(token);
+                    callbacks.gotMultiCatch(token);
                 }
 
                 if (token.getType() != JavaTokenTypes.IDENT) {
                     error("Expecting identifier after type (in 'catch' expression)");
                     getTokenStream().pushBack(token);
-                    parser.endTryCatchStmt(token, false);
+                    callbacks.endTryCatchStmt(token, false);
                     return null;
                 }
-                parser.gotCatchVarName(token);
+                callbacks.gotCatchVarName(token);
                 token = nextToken();
 
                 if (token.getType() != JavaTokenTypes.RPAREN) {
                     error("Expecting ')' after identifier (in 'catch' expression)");
                     getTokenStream().pushBack(token);
-                    parser.endTryCatchStmt(token, false);
+                    callbacks.endTryCatchStmt(token, false);
                     return null;
                 }
             }
@@ -1481,17 +1524,17 @@ public class JavaParser implements ParserBehavior
             if (token.getType() != JavaTokenTypes.LCURLY) {
                 error("Expecting '{' after 'catch'/'finally'");
                 getTokenStream().pushBack(token);
-                parser.endTryCatchStmt(token, false);
+                callbacks.endTryCatchStmt(token, false);
                 return null;
             }
             token = parseStatement(token, false); // parse as a statement block
             laType = getTokenStream().LA(1).getType();
         }
         if (token != null) {
-            parser.endTryCatchStmt(token, true);
+            callbacks.endTryCatchStmt(token, true);
         }
         else {
-            parser.endTryCatchStmt(getTokenStream().LA(1), false);
+            callbacks.endTryCatchStmt(getTokenStream().LA(1), false);
         }
         return token;
     }
@@ -1504,12 +1547,12 @@ public class JavaParser implements ParserBehavior
      */
     public final LocatableToken parseAssertStatement(LocatableToken token)
     {
-        parser.gotAssert();
+        callbacks.gotAssert();
         parseExpression();
         token = getTokenStream().nextToken();
         if (token.getType() == JavaTokenTypes.COLON) {
             // Should be followed by a string
-            parser.setLastToken(token);
+            setLastToken(token);
             parseExpression();
             token = getTokenStream().nextToken();
         }
@@ -1518,18 +1561,18 @@ public class JavaParser implements ParserBehavior
             getTokenStream().pushBack(token);
             return null;
         }
-        parser.setLastToken(token);
+        setLastToken(token);
         return token;
     }
 
     public final LocatableToken parseSwitchExpression(LocatableToken token)
     {
-        parser.beginSwitchStmt(token, true);
+        callbacks.beginSwitchStmt(token, true);
         token = nextToken();
         if (token.getType() != JavaTokenTypes.LPAREN) {
             error("Expected '(' after 'switch'");
             getTokenStream().pushBack(token);
-            parser.endSwitchStmt(token, false);
+            callbacks.endSwitchStmt(token, false);
             return null;
         }
         parseExpression();
@@ -1537,40 +1580,40 @@ public class JavaParser implements ParserBehavior
         if (token.getType() != JavaTokenTypes.RPAREN) {
             error("Expected ')' at end of expression (in 'switch(...)')");
             getTokenStream().pushBack(token);
-            parser.endSwitchStmt(token, false);
+            callbacks.endSwitchStmt(token, false);
             return null;
         }
         token = getTokenStream().nextToken();
         if (token.getType() != JavaTokenTypes.LCURLY) {
             error("Expected '{' after 'switch(...)'");
             getTokenStream().pushBack(token);
-            parser.endSwitchStmt(token, false);
+            callbacks.endSwitchStmt(token, false);
             return null;
         }
-        parser.beginSwitchBlock(token);
+        callbacks.beginSwitchBlock(token);
         parseStmtBlock();
         token = nextToken();
         if (token.getType() != JavaTokenTypes.RCURLY) {
             error("Missing '}' at end of 'switch' statement block");
             getTokenStream().pushBack(token);
-            parser.endSwitchBlock(token);
-            parser.endSwitchStmt(token, false);
+            callbacks.endSwitchBlock(token);
+            callbacks.endSwitchStmt(token, false);
             return null;
         }
-        parser.endSwitchBlock(token);
-        parser.endSwitchStmt(token, true);
+        callbacks.endSwitchBlock(token);
+        callbacks.endSwitchStmt(token, true);
         return token;
     }
 
     /** Parse a "switch(...) {  }" statement. */
     public final LocatableToken parseSwitchStatement(LocatableToken token)
     {
-        parser.beginSwitchStmt(token, false);
+        callbacks.beginSwitchStmt(token, false);
         token = nextToken();
         if (token.getType() != JavaTokenTypes.LPAREN) {
             error("Expected '(' after 'switch'");
             getTokenStream().pushBack(token);
-            parser.endSwitchStmt(token, false);
+            callbacks.endSwitchStmt(token, false);
             return null;
         }
         parseExpression();
@@ -1578,43 +1621,43 @@ public class JavaParser implements ParserBehavior
         if (token.getType() != JavaTokenTypes.RPAREN) {
             error("Expected ')' at end of expression (in 'switch(...)')");
             getTokenStream().pushBack(token);
-            parser.endSwitchStmt(token, false);
+            callbacks.endSwitchStmt(token, false);
             return null;
         }
         token = getTokenStream().nextToken();
         if (token.getType() != JavaTokenTypes.LCURLY) {
             error("Expected '{' after 'switch(...)'");
             getTokenStream().pushBack(token);
-            parser.endSwitchStmt(token, false);
+            callbacks.endSwitchStmt(token, false);
             return null;
         }
-        parser.beginSwitchBlock(token);
+        callbacks.beginSwitchBlock(token);
         parseStmtBlock();
         token = nextToken();
         if (token.getType() != JavaTokenTypes.RCURLY) {
             error("Missing '}' at end of 'switch' statement block");
             getTokenStream().pushBack(token);
-            parser.endSwitchBlock(token);
-            parser.endSwitchStmt(token, false);
+            callbacks.endSwitchBlock(token);
+            callbacks.endSwitchStmt(token, false);
             return null;
         }
-        parser.endSwitchBlock(token);
-        parser.endSwitchStmt(token, true);
+        callbacks.endSwitchBlock(token);
+        callbacks.endSwitchStmt(token, true);
         return token;
     }
 
     public final LocatableToken parseDoWhileStatement(LocatableToken token)
     {
-        parser.beginDoWhile(token);
+        callbacks.beginDoWhile(token);
         token = nextToken(); // '{' or a statement
         LocatableToken ntoken = parseStatement(token, false);
         if (ntoken != null || token != getTokenStream().LA(1)) {
-            parser.beginDoWhileBody(token);
+            callbacks.beginDoWhileBody(token);
             if (ntoken == null) {
-                parser.endDoWhileBody(getTokenStream().LA(1), false);
+                callbacks.endDoWhileBody(getTokenStream().LA(1), false);
             }
             else {
-                parser.endDoWhileBody(ntoken, true);
+                callbacks.endDoWhileBody(ntoken, true);
             }
         }
 
@@ -1622,14 +1665,14 @@ public class JavaParser implements ParserBehavior
         if (token.getType() != JavaTokenTypes.LITERAL_while) {
             error("Expecting 'while' after statement block (in 'do ... while')");
             getTokenStream().pushBack(token);
-            parser.endDoWhile(token, false);
+            callbacks.endDoWhile(token, false);
             return null;
         }
         token = nextToken();
         if (token.getType() != JavaTokenTypes.LPAREN) {
             error("Expecting '(' after 'while'");
             getTokenStream().pushBack(token);
-            parser.endDoWhile(token, false);
+            callbacks.endDoWhile(token, false);
             return null;
         }
         parseExpression();
@@ -1637,22 +1680,22 @@ public class JavaParser implements ParserBehavior
         if (token.getType() != JavaTokenTypes.RPAREN) {
             error("Expecting ')' after conditional expression (in 'while' statement)");
             getTokenStream().pushBack(token);
-            parser.endDoWhile(token, false);
+            callbacks.endDoWhile(token, false);
             return null;
         }
         token = nextToken(); // should be ';'
-        parser.endDoWhile(token, true);
+        callbacks.endDoWhile(token, true);
         return token;
     }
 
     public final LocatableToken parseWhileStatement(LocatableToken token)
     {
-        parser.beginWhileLoop(token);
+        callbacks.beginWhileLoop(token);
         token = nextToken();
         if (token.getType() != JavaTokenTypes.LPAREN) {
             error("Expecting '(' after 'while'");
             getTokenStream().pushBack(token);
-            parser.endWhileLoop(token, false);
+            callbacks.endWhileLoop(token, false);
             return null;
         }
         parseExpression();
@@ -1660,20 +1703,20 @@ public class JavaParser implements ParserBehavior
         if (token.getType() != JavaTokenTypes.RPAREN) {
             error("Expecting ')' after conditional expression (in 'while' statement)");
             getTokenStream().pushBack(token);
-            parser.endWhileLoop(token, false);
+            callbacks.endWhileLoop(token, false);
             return null;
         }
         token = nextToken();
-        parser.beginWhileLoopBody(token);
+        callbacks.beginWhileLoopBody(token);
         token = parseStatement(token, false);
         if (token != null) {
-            parser.endWhileLoopBody(token, true);
-            parser.endWhileLoop(token, true);
+            callbacks.endWhileLoopBody(token, true);
+            callbacks.endWhileLoop(token, true);
         }
         else {
             token = getTokenStream().LA(1);
-            parser.endWhileLoopBody(token, false);
-            parser.endWhileLoop(token, false);
+            callbacks.endWhileLoopBody(token, false);
+            callbacks.endWhileLoop(token, false);
             token = null;
         }
         return token;
@@ -1688,12 +1731,12 @@ public class JavaParser implements ParserBehavior
     {
         // TODO: if we get an unexpected token in the part between '(' and ')' check
         // if it is ')'. If so we might still expect a loop body to follow.
-        parser.beginForLoop(forToken);
+        callbacks.beginForLoop(forToken);
         LocatableToken token = nextToken();
         if (token.getType() != JavaTokenTypes.LPAREN) {
             error("Expecting '(' after 'for'");
             getTokenStream().pushBack(token);
-            parser.endForLoop(token, false);
+            callbacks.endForLoop(token, false);
             return null;
         }
         if (getTokenStream().LA(1).getType() != JavaTokenTypes.SEMI) {
@@ -1713,37 +1756,37 @@ public class JavaParser implements ParserBehavior
 
             if (isTypeSpec && getTokenStream().LA(1).getType() == JavaTokenTypes.IDENT) {
                 // for (type var ...
-                parser.beginForInitDecl(first);
-                parser.gotTypeSpec(tlist);
+                callbacks.beginForInitDecl(first);
+                callbacks.gotTypeSpec(tlist);
                 LocatableToken idToken = nextToken(); // identifier
-                parser.gotForInit(first, idToken);
+                callbacks.gotForInit(first, idToken);
                 // Array declarators can follow name
                 parseArrayDeclarators();
 
                 token = nextToken();
                 if (token.getType() == JavaTokenTypes.COLON) {
-                    parser.determinedForLoop(true, false);
+                    callbacks.determinedForLoop(true, false);
                     // This is a "new" for loop (Java 5)
-                    parser.endForInit(idToken, true);
-                    parser.endForInitDecls(idToken, true);
-                    parser.modifiersConsumed();
+                    callbacks.endForInit(idToken, true);
+                    callbacks.endForInitDecls(idToken, true);
+                    callbacks.modifiersConsumed();
                     parseExpression();
                     token = nextToken();
                     if (token.getType() != JavaTokenTypes.RPAREN) {
                         error("Expecting ')' (in for statement)");
                         getTokenStream().pushBack(token);
-                        parser.endForLoop(token, false);
+                        callbacks.endForLoop(token, false);
                         return null;
                     }
                     token = nextToken();
-                    parser.beginForLoopBody(token);
+                    callbacks.beginForLoopBody(token);
                     token = parseStatement(token, false); // loop body
                     endForLoopBody(token);
                     endForLoop(token);
                     return token;
                 }
                 else {
-                    parser.determinedForLoop(false, token.getType() == JavaTokenTypes.ASSIGN);
+                    callbacks.determinedForLoop(false, token.getType() == JavaTokenTypes.ASSIGN);
                     // Old style loop with initialiser
                     if (token.getType() == JavaTokenTypes.ASSIGN) {
                         parseExpression();
@@ -1752,11 +1795,11 @@ public class JavaParser implements ParserBehavior
                         getTokenStream().pushBack(token);
                     }
                     if (parseSubsequentDeclarations(DECL_TYPE_FORINIT, true) == null) {
-                        parser.endForLoop(getTokenStream().LA(1), false);
-                        parser.modifiersConsumed();
+                        callbacks.endForLoop(getTokenStream().LA(1), false);
+                        callbacks.modifiersConsumed();
                         return null;
                     }
-                    parser.modifiersConsumed();
+                    callbacks.modifiersConsumed();
                 }
             }
             else {
@@ -1772,7 +1815,7 @@ public class JavaParser implements ParserBehavior
 
         // We're expecting a regular (old-style) statement at this point
         boolean semiFollows = getTokenStream().LA(1).getType() == JavaTokenTypes.SEMI;
-        parser.gotForTest(!semiFollows);
+        callbacks.gotForTest(!semiFollows);
         if (!semiFollows) {
             // test expression
             parseExpression();
@@ -1786,11 +1829,11 @@ public class JavaParser implements ParserBehavior
             else {
                 error(BJ003);
             }
-            parser.endForLoop(token, false);
+            callbacks.endForLoop(token, false);
             return null;
         }
         boolean bracketFollows = getTokenStream().LA(1).getType() == JavaTokenTypes.RPAREN;
-        parser.gotForIncrement(!bracketFollows);
+        callbacks.gotForIncrement(!bracketFollows);
         if (!bracketFollows) {
             // loop increment expression
             parseExpression();
@@ -1803,7 +1846,7 @@ public class JavaParser implements ParserBehavior
         if (token.getType() != JavaTokenTypes.RPAREN) {
             error("Expecting ')' (or ',') after 'for(...'");
             getTokenStream().pushBack(token);
-            parser.endForLoop(token, false);
+            callbacks.endForLoop(token, false);
             return null;
         }
         token = nextToken();
@@ -1811,10 +1854,10 @@ public class JavaParser implements ParserBehavior
                 || token.getType() == JavaTokenTypes.EOF) {
             error("Expecting statement after 'for(...)'");
             getTokenStream().pushBack(token);
-            parser.endForLoop(token, false);
+            callbacks.endForLoop(token, false);
             return null;
         }
-        parser.beginForLoopBody(token);
+        callbacks.beginForLoopBody(token);
         token = parseStatement(token, false);
         endForLoopBody(token);
         endForLoop(token);
@@ -1824,20 +1867,20 @@ public class JavaParser implements ParserBehavior
     private void endForLoop(LocatableToken token)
     {
         if (token == null) {
-            parser.endForLoop(getTokenStream().LA(1), false);
+            callbacks.endForLoop(getTokenStream().LA(1), false);
         }
         else {
-            parser.endForLoop(token, true);
+            callbacks.endForLoop(token, true);
         }
     }
 
     private void endForLoopBody(LocatableToken token)
     {
         if (token == null) {
-            parser.endForLoopBody(getTokenStream().LA(1), false);
+            callbacks.endForLoopBody(getTokenStream().LA(1), false);
         }
         else {
-            parser.endForLoopBody(token, true);
+            callbacks.endForLoopBody(token, true);
         }
     }
 
@@ -1847,7 +1890,7 @@ public class JavaParser implements ParserBehavior
      */
     public final LocatableToken parseIfStatement(LocatableToken token)
     {
-        parser.beginIfStmt(token);
+        callbacks.beginIfStmt(token);
 
         mainLoop:
         while(true) {
@@ -1860,7 +1903,7 @@ public class JavaParser implements ParserBehavior
                 else {
                     errorBefore(BJ001, token);
                 }
-                parser.endIfStmt(token, false);
+                callbacks.endIfStmt(token, false);
                 return null;
             }
             parseExpression();
@@ -1869,23 +1912,23 @@ public class JavaParser implements ParserBehavior
                 error("Expecting ')' after conditional expression (in 'if' statement)");
                 getTokenStream().pushBack(token);
                 if (token.getType() != JavaTokenTypes.LCURLY) {
-                    parser.endIfStmt(token, false);
+                    callbacks.endIfStmt(token, false);
                     return null;
                 }
             }
             token = nextToken();
-            parser.beginIfCondBlock(token);
+            callbacks.beginIfCondBlock(token);
             token = parseStatement(token, false);
             endIfCondBlock(token);
             if (getTokenStream().LA(1).getType() == JavaTokenTypes.LITERAL_else) {
                 getTokenStream().nextToken(); // "else"
                 if (getTokenStream().LA(1).getType() == JavaTokenTypes.LITERAL_if) {
-                    parser.gotElseIf(token);
+                    callbacks.gotElseIf(token);
                     nextToken(); // "if"
                     continue mainLoop;
                 }
                 token = nextToken();
-                parser.beginIfCondBlock(token);
+                callbacks.beginIfCondBlock(token);
                 token = parseStatement(token, false);
                 endIfCondBlock(token);
             }
@@ -1897,27 +1940,27 @@ public class JavaParser implements ParserBehavior
     private void endIfCondBlock(LocatableToken token)
     {
         if (token != null) {
-            parser.endIfCondBlock(token, true);
+            callbacks.endIfCondBlock(token, true);
         }
         else {
-            parser.endIfCondBlock(getTokenStream().LA(1), false);
+            callbacks.endIfCondBlock(getTokenStream().LA(1), false);
         }
     }
 
     private void endIfStmt(LocatableToken token)
     {
         if (token != null) {
-            parser.endIfStmt(token, true);
+            callbacks.endIfStmt(token, true);
         }
         else {
-            parser.endIfStmt(getTokenStream().LA(1), false);
+            callbacks.endIfStmt(getTokenStream().LA(1), false);
         }
     }
 
     public final LocatableToken parseVariableDeclarations()
     {
         LocatableToken first = getTokenStream().LA(1);
-        parser.gotDeclBegin(first);
+        callbacks.gotDeclBegin(first);
         return parseVariableDeclarations(first, true);
     }
 
@@ -1932,7 +1975,7 @@ public class JavaParser implements ParserBehavior
      */
     public final LocatableToken parseVariableDeclarations(LocatableToken first, boolean mustEndWithSemi)
     {
-        parser.beginVariableDecl(first);
+        callbacks.beginVariableDecl(first);
         parseModifiers();
         boolean r = parseVariableDeclaration(first);
         // parseVariableDeclaration calls modifiersConsumed(); i.e. we act as if
@@ -1943,7 +1986,7 @@ public class JavaParser implements ParserBehavior
             return parseSubsequentDeclarations(DECL_TYPE_VAR, mustEndWithSemi);
         }
         else {
-            parser.endVariableDecls(getTokenStream().LA(1), false);
+            callbacks.endVariableDecls(getTokenStream().LA(1), false);
             return null;
         }
     }
@@ -2012,26 +2055,26 @@ public class JavaParser implements ParserBehavior
     private void endDeclaration(int type, LocatableToken token, boolean included)
     {
         if (type == DECL_TYPE_FIELD) {
-            parser.endField(token, included);
+            callbacks.endField(token, included);
         }
         else if (type == DECL_TYPE_VAR) {
-            parser.endVariable(token, included);
+            callbacks.endVariable(token, included);
         }
         else {
-            parser.endForInit(token, included);
+            callbacks.endForInit(token, included);
         }
     }
 
     private void endDeclarationStmt(int type, LocatableToken token, boolean included)
     {
         if (type == DECL_TYPE_FIELD) {
-            parser.endFieldDeclarations(token, included);
+            callbacks.endFieldDeclarations(token, included);
         }
         else if (type == DECL_TYPE_VAR) {
-            parser.endVariableDecls(token, included);
+            callbacks.endVariableDecls(token, included);
         }
         else {
-            parser.endForInitDecls(token, included);
+            callbacks.endForInitDecls(token, included);
         }
     }
 
@@ -2039,13 +2082,13 @@ public class JavaParser implements ParserBehavior
             LocatableToken nameToken, boolean inited)
     {
         if (type == DECL_TYPE_FIELD) {
-            parser.gotSubsequentField(firstToken, nameToken, inited);
+            callbacks.gotSubsequentField(firstToken, nameToken, inited);
         }
         else if (type == DECL_TYPE_VAR) {
-            parser.gotSubsequentVar(firstToken, nameToken, inited);
+            callbacks.gotSubsequentVar(firstToken, nameToken, inited);
         }
         else {
-            parser.gotSubsequentForInit(firstToken, nameToken, inited);
+            callbacks.gotSubsequentForInit(firstToken, nameToken, inited);
         }
     }
 
@@ -2059,7 +2102,7 @@ public class JavaParser implements ParserBehavior
         if (!parseTypeSpec(false, true, typeSpecTokens)) {
             return false;
         }
-        parser.gotTypeSpec(typeSpecTokens);
+        callbacks.gotTypeSpec(typeSpecTokens);
 
         LocatableToken token = nextToken();
         if (token.getType() != JavaTokenTypes.IDENT) {
@@ -2073,8 +2116,8 @@ public class JavaParser implements ParserBehavior
 
         LocatableToken idToken = token;
         token = nextToken();
-        parser.gotVariableDecl(first, idToken, token.getType() == JavaTokenTypes.ASSIGN);
-        parser.modifiersConsumed();
+        callbacks.gotVariableDecl(first, idToken, token.getType() == JavaTokenTypes.ASSIGN);
+        callbacks.modifiersConsumed();
 
         if (token.getType() == JavaTokenTypes.ASSIGN) {
             parseExpression();
@@ -2092,7 +2135,7 @@ public class JavaParser implements ParserBehavior
         if (!parseTypeSpec(false, partOfInstanceof, typeSpecTokens)) {
             return false;
         }
-        parser.gotTypeSpec(typeSpecTokens);
+        callbacks.gotTypeSpec(typeSpecTokens);
 
         LocatableToken token = nextToken();
         // Instanceof parses the array declarations as part of the type, whereas case parses
@@ -2136,12 +2179,12 @@ public class JavaParser implements ParserBehavior
                 // Have to treat instanceof differently, because it has different scope rules:
                 if (partOfInstanceof)
                 {
-                    parser.gotInstanceOfVar(token);
+                    callbacks.gotInstanceOfVar(token);
                 }
                 else
                 {
-                    parser.gotVariableDecl(typeSpecTokens.get(0), token, false);
-                    parser.endVariable(token, true);
+                    callbacks.gotVariableDecl(typeSpecTokens.get(0), token, false);
+                    callbacks.endVariable(token, true);
                 }
             }
         }
@@ -2164,7 +2207,7 @@ public class JavaParser implements ParserBehavior
         List<LocatableToken> tokens = new LinkedList<LocatableToken>();
         boolean rval = parseTypeSpec(false, processArray, tokens);
         if (rval) {
-            parser.gotTypeSpec(tokens);
+            callbacks.gotTypeSpec(tokens);
         }
         return rval;
     }
@@ -2545,7 +2588,7 @@ public class JavaParser implements ParserBehavior
         LocatableToken token = nextToken(); // IDENT
         List<LocatableToken> annName = parseDottedIdent(token);
         boolean paramsFollow = getTokenStream().LA(1).getType() == JavaTokenTypes.LPAREN;
-        parser.gotAnnotation(annName, paramsFollow);
+        callbacks.gotAnnotation(annName, paramsFollow);
         if (paramsFollow) {
             // arguments
             token = getTokenStream().nextToken(); // LPAREN
@@ -2656,25 +2699,25 @@ public class JavaParser implements ParserBehavior
     private void parseLambdaBody()
     {
         boolean blockFollows = getTokenStream().LA(1).getType() == JavaTokenTypes.LCURLY;
-        parser.beginLambdaBody(blockFollows, blockFollows ? getTokenStream().LA(1) : null);
+        callbacks.beginLambdaBody(blockFollows, blockFollows ? getTokenStream().LA(1) : null);
         if (blockFollows) {
-            parser.beginStmtblockBody(nextToken()); // consume the curly
+            callbacks.beginStmtblockBody(nextToken()); // consume the curly
             parseStmtBlock();
             LocatableToken token = nextToken();
             if (token.getType() != JavaTokenTypes.RCURLY) {
                 error("Expecting '}' at end of lambda block");
                 getTokenStream().pushBack(token);
-                parser.endStmtblockBody(token, false);
-                parser.endLambdaBody(token);
+                callbacks.endStmtblockBody(token, false);
+                callbacks.endLambdaBody(token);
             }
             else {
-                parser.endStmtblockBody(token, true);
-                parser.endLambdaBody(token);
+                callbacks.endStmtblockBody(token, true);
+                callbacks.endLambdaBody(token);
             }
         }
         else {
             parseExpression(true, true);
-            parser.endLambdaBody(null);
+            callbacks.endLambdaBody(null);
         }
     }
 
@@ -2689,7 +2732,7 @@ public class JavaParser implements ParserBehavior
     private final void parseExpression(boolean isLambdaBody, boolean lambdaAllowed)
     {
         LocatableToken token = nextToken();
-        parser.beginExpression(token, isLambdaBody);
+        callbacks.beginExpression(token, isLambdaBody);
 
         exprLoop:
         while (true) {
@@ -2698,8 +2741,8 @@ public class JavaParser implements ParserBehavior
             case 1: // LITERAL_new
                 // new XYZ(...)
                 if (getTokenStream().LA(1).getType() == JavaTokenTypes.EOF) {
-                    parser.gotIdentifierEOF(token);
-                    parser.endExpression(getTokenStream().LA(1), true);
+                    callbacks.gotIdentifierEOF(token);
+                    callbacks.endExpression(getTokenStream().LA(1), true);
                     return;
                 }
                 parseNewExpression(token);
@@ -2722,7 +2765,7 @@ public class JavaParser implements ParserBehavior
             case 3: // IDENT
                 if (getTokenStream().LA(1).getType() == JavaTokenTypes.LPAREN) {
                     // Method call
-                    parser.gotMethodCall(token);
+                    callbacks.gotMethodCall(token);
                     parseArgumentList(nextToken());
                 }
                 else if (getTokenStream().LA(1).getType() == JavaTokenTypes.LAMBDA && lambdaAllowed) {
@@ -2732,7 +2775,7 @@ public class JavaParser implements ParserBehavior
                 else if (getTokenStream().LA(1).getType() == JavaTokenTypes.DOT &&
                         getTokenStream().LA(2).getType() == JavaTokenTypes.IDENT &&
                         getTokenStream().LA(3).getType() != JavaTokenTypes.LPAREN) {
-                    parser.gotCompoundIdent(token);
+                    callbacks.gotCompoundIdent(token);
                     nextToken(); // dot
                     token = getTokenStream().nextToken();
                     while (getTokenStream().LA(1).getType() == JavaTokenTypes.DOT &&
@@ -2740,7 +2783,7 @@ public class JavaParser implements ParserBehavior
                             getTokenStream().LA(3).getType() != JavaTokenTypes.LPAREN &&
                             getTokenStream().LA(3).getType() != JavaTokenTypes.EOF)
                     {
-                        parser.gotCompoundComponent(token);
+                        callbacks.gotCompoundComponent(token);
                         nextToken(); // dot
                         token = getTokenStream().nextToken();
                     }
@@ -2751,19 +2794,19 @@ public class JavaParser implements ParserBehavior
                         LocatableToken dotToken = nextToken();
                         LocatableToken ntoken = nextToken();
                         if (ntoken.getType() == JavaTokenTypes.LITERAL_class) {
-                            parser.completeCompoundClass(token);
-                            parser.gotClassLiteral(ntoken);
+                            callbacks.completeCompoundClass(token);
+                            callbacks.gotClassLiteral(ntoken);
                         }
                         else if (ntoken.getType() == JavaTokenTypes.LITERAL_this) {
-                            parser.completeCompoundClass(token);
+                            callbacks.completeCompoundClass(token);
                             // TODO gotThisAccessor
                         }
                         else if (ntoken.getType() == JavaTokenTypes.LITERAL_super) {
-                            parser.completeCompoundClass(token);
+                            callbacks.completeCompoundClass(token);
                             // TODO gotSuperAccessor
                         }
                         else {
-                            parser.completeCompoundValue(token);
+                            callbacks.completeCompoundValue(token);
                             // Treat dot as an operator (below)
                             getTokenStream().pushBack(ntoken);
                             getTokenStream().pushBack(dotToken);
@@ -2772,65 +2815,65 @@ public class JavaParser implements ParserBehavior
                     else {
                         // No dot follows; last member
                         if (getTokenStream().LA(1).getType() == JavaTokenTypes.EOF) {
-                            parser.completeCompoundValueEOF(token);
+                            callbacks.completeCompoundValueEOF(token);
                         }
                         else {
                             if (getTokenStream().LA(1).getType() == JavaTokenTypes.LBRACK
                                     && getTokenStream().LA(2).getType() == JavaTokenTypes.RBRACK) {
-                                parser.completeCompoundClass(token);
+                                callbacks.completeCompoundClass(token);
                                 parseArrayDeclarators();
                                 if (getTokenStream().LA(1).getType() == JavaTokenTypes.DOT &&
                                         getTokenStream().LA(2).getType() == JavaTokenTypes.LITERAL_class) {
                                     token = nextToken();
                                     token = nextToken();
-                                    parser.gotClassLiteral(token);
+                                    callbacks.gotClassLiteral(token);
                                 }
                                 else {
                                     error("Expecting \".class\"");
                                 }
                             }
-                            parser.completeCompoundValue(token);
+                            callbacks.completeCompoundValue(token);
                         }
                     }
                 }
                 else if (getTokenStream().LA(1).getType() == JavaTokenTypes.DOT) {
-                    parser.gotParentIdentifier(token);
+                    callbacks.gotParentIdentifier(token);
                     if (getTokenStream().LA(2).getType() == JavaTokenTypes.LITERAL_class) {
                         token = nextToken(); // dot
                         token = nextToken(); // class
-                        parser.gotClassLiteral(token);
+                        callbacks.gotClassLiteral(token);
                     }
                 }
                 else if (getTokenStream().LA(1).getType() == JavaTokenTypes.LBRACK
                         && getTokenStream().LA(2).getType() == JavaTokenTypes.RBRACK) {
-                    parser.gotArrayTypeIdentifier(token);
+                    callbacks.gotArrayTypeIdentifier(token);
                     parseArrayDeclarators();
                     if (getTokenStream().LA(1).getType() == JavaTokenTypes.DOT &&
                             getTokenStream().LA(2).getType() == JavaTokenTypes.LITERAL_class) {
                         token = nextToken();
                         token = nextToken();
-                        parser.gotClassLiteral(token);
+                        callbacks.gotClassLiteral(token);
                     }
                     else {
                         error("Expecting \".class\"");
                     }
                 }
                 else if (getTokenStream().LA(1).getType() == JavaTokenTypes.EOF) {
-                    parser.gotIdentifierEOF(token);
+                    callbacks.gotIdentifierEOF(token);
                 }
                 else {
-                    parser.gotIdentifier(token);
+                    callbacks.gotIdentifier(token);
                 }
                 break;
             case 4: // LITERAL_this
             case 5: // LITERAL_super
                 if (getTokenStream().LA(1).getType() == JavaTokenTypes.LPAREN) {
                     // call to constructor or superclass constructor
-                    parser.gotConstructorCall(token);
+                    callbacks.gotConstructorCall(token);
                     parseArgumentList(nextToken());
                 }
                 else {
-                    parser.gotLiteral(token);
+                    callbacks.gotLiteral(token);
                 }
                 break;
             case 6: // STRING_LITERAL
@@ -2843,7 +2886,7 @@ public class JavaParser implements ParserBehavior
             case 13: // LITERAL_true
             case 14: // LITERAL_false
                 // Literals need no further processing
-                parser.gotLiteral(token);
+                callbacks.gotLiteral(token);
                 break;
             case 15: // LPAREN
                 // Either a parenthesised expression, or a type cast
@@ -2876,7 +2919,7 @@ public class JavaParser implements ParserBehavior
 
                 if (isCast) {
                     // This surely must be type cast
-                    parser.gotTypeCast(tlist);
+                    callbacks.gotTypeCast(tlist);
                     token = nextToken(); // RPAREN
                     token = nextToken();
                     continue exprLoop;
@@ -2922,7 +2965,7 @@ public class JavaParser implements ParserBehavior
                         //Now we are expecting the lambda symbol.
                         if (token.getType() != JavaTokenTypes.LAMBDA){
                             error("Lambda identifier misplaced or not found");
-                            parser.endExpression(token, false);
+                            callbacks.endExpression(token, false);
                             return;
                         }
                         parseLambdaBody();
@@ -2934,7 +2977,7 @@ public class JavaParser implements ParserBehavior
                         if (token.getType() != JavaTokenTypes.RPAREN) {
                             getTokenStream().pushBack(token);
                             error("Unmatched '(' in expression; expecting ')'");
-                            parser.endExpression(token, false);
+                            callbacks.endExpression(token, false);
                             return;
                         }
                     }
@@ -2951,13 +2994,13 @@ public class JavaParser implements ParserBehavior
             case 24: // LITERAL_double
                 // Not really part of an expression, but may be followed by
                 // .class or [].class  (eg int.class, int[][].class)
-                parser.gotPrimitiveTypeLiteral(token);
+                callbacks.gotPrimitiveTypeLiteral(token);
                 parseArrayDeclarators();
                 if (getTokenStream().LA(1).getType() == JavaTokenTypes.DOT &&
                         getTokenStream().LA(2).getType() == JavaTokenTypes.LITERAL_class) {
                     token = nextToken();
                     token = nextToken();
-                    parser.gotClassLiteral(token);
+                    callbacks.gotClassLiteral(token);
                 }
                 else {
                     error("Expecting \".class\"");
@@ -2970,7 +3013,7 @@ public class JavaParser implements ParserBehavior
             case 29: // INC
             case 30: // DEC
                 // Unary operator
-                parser.gotUnaryOperator(token);
+                callbacks.gotUnaryOperator(token);
                 token = nextToken();
                 continue exprLoop;
             case 31: // LITERAL_switch
@@ -2980,7 +3023,7 @@ public class JavaParser implements ParserBehavior
             default:
                 getTokenStream().pushBack(token);
                 error("Invalid expression token: " + token.getText());
-                parser.endExpression(token, true);
+                callbacks.endExpression(token, true);
                 return;
             }
 
@@ -2998,7 +3041,7 @@ public class JavaParser implements ParserBehavior
                 case 7: // RCURLY
                     // These are all legitimate expression endings
                     getTokenStream().pushBack(token);
-                    parser.endExpression(token, false);
+                    callbacks.endExpression(token, false);
                     return;
                 case 8: // LBRACK
                     // Array subscript?
@@ -3014,10 +3057,10 @@ public class JavaParser implements ParserBehavior
                         error("Expected ']' after array subscript expression");
                         getTokenStream().pushBack(token);
                     }
-                    parser.gotArrayElementAccess();
+                    callbacks.gotArrayElementAccess();
                     break;
                 case 9: // LITERAL_instanceof
-                    parser.gotInstanceOfOperator(token);
+                    callbacks.gotInstanceOfOperator(token);
                     switch (lookAheadParsePattern())
                     {
                         case PatternParse.TypeThenVariableName, PatternParse.RecordPattern -> {
@@ -3037,7 +3080,7 @@ public class JavaParser implements ParserBehavior
                     token = nextToken();
                     if (token.getType() == JavaTokenTypes.EOF) {
                         // Not valid, but may be useful for subclasses
-                        parser.gotDotEOF(opToken);
+                        callbacks.gotDotEOF(opToken);
                         break opLoop;
                     }
                     LocatableToken la1 = getTokenStream().LA(1);
@@ -3049,7 +3092,7 @@ public class JavaParser implements ParserBehavior
                         String tokText = token.getText();
                         if (tokText != null && tokText.length() > 0) {
                             if (Character.isJavaIdentifierStart(tokText.charAt(0))) {
-                                parser.gotMemberAccessEOF(token);
+                                callbacks.gotMemberAccessEOF(token);
                                 // break opLoop;
                                 continue;
                             }
@@ -3063,11 +3106,11 @@ public class JavaParser implements ParserBehavior
                     else if (token.getType() == JavaTokenTypes.IDENT) {
                         if (getTokenStream().LA(1).getType() == JavaTokenTypes.LPAREN) {
                             // Method call
-                            parser.gotMemberCall(token, Collections.<LocatableToken>emptyList());
+                            callbacks.gotMemberCall(token, Collections.<LocatableToken>emptyList());
                             parseArgumentList(nextToken());
                         }
                         else {
-                            parser.gotMemberAccess(token);
+                            callbacks.gotMemberAccess(token);
                         }
                         continue;
                     }
@@ -3085,7 +3128,7 @@ public class JavaParser implements ParserBehavior
                             error("Expecting method name (in call to generic method)");
                             continue;
                         }
-                        parser.gotMemberCall(token, ttokens);
+                        callbacks.gotMemberCall(token, ttokens);
                         token = nextToken();
                         if (token.getType() != JavaTokenTypes.LPAREN) {
                             error("Expecting '(' after method name");
@@ -3094,7 +3137,7 @@ public class JavaParser implements ParserBehavior
                         parseArgumentList(token);
                         continue;
                     }
-                    parser.gotBinaryOperator(opToken);
+                    callbacks.gotBinaryOperator(opToken);
                     break opLoop;
                 case 11: // binary operator
                     if (token.getType() == JavaTokenTypes.METHOD_REFERENCE &&
@@ -3104,7 +3147,7 @@ public class JavaParser implements ParserBehavior
                     }
                     else {
                         // Binary operators - need another operand
-                        parser.gotBinaryOperator(token);
+                        callbacks.gotBinaryOperator(token);
                         token = nextToken();
                     }
                     break opLoop;
@@ -3113,26 +3156,26 @@ public class JavaParser implements ParserBehavior
                     if (token.getType() == JavaTokenTypes.INC
                             || token.getType() == JavaTokenTypes.DEC) {
                         // post operators (unary)
-                        parser.gotPostOperator(token);
+                        callbacks.gotPostOperator(token);
                         continue;
                     }
                     else if (token.getType() == JavaTokenTypes.QUESTION) {
-                        parser.gotQuestionOperator(token);
+                        callbacks.gotQuestionOperator(token);
                         parseExpression();
                         token = nextToken();
                         if (token.getType() != JavaTokenTypes.COLON) {
                             error("Expecting ':' (in ?: operator)");
                             getTokenStream().pushBack(token);
-                            parser.endExpression(token, true);
+                            callbacks.endExpression(token, true);
                             return;
                         }
-                        parser.gotQuestionColon(token);
+                        callbacks.gotQuestionColon(token);
                         token = nextToken();
                         break opLoop;
                     }
                     else {
                         getTokenStream().pushBack(token);
-                        parser.endExpression(token, false);
+                        callbacks.endExpression(token, false);
                         return;
                     }
                 }
@@ -3141,7 +3184,7 @@ public class JavaParser implements ParserBehavior
     }
 
     public void gotComment(LocatableToken t) {
-        parser.gotComment(t);
+        callbacks.gotComment(t);
     }
 
     // Java now has the notion of patterns, which can occur in instanceof:
@@ -3216,12 +3259,12 @@ public class JavaParser implements ParserBehavior
     public final void parseNewExpression(LocatableToken token)
     {
         // new XYZ(...)
-        parser.gotExprNew(token);
+        callbacks.gotExprNew(token);
         token = nextToken();
         if (token.getType() != JavaTokenTypes.IDENT && !isPrimitiveType(token)) {
             getTokenStream().pushBack(token);
             error("Expected type identifier after \"new\" (in expression)");
-            parser.endExprNew(token, false);
+            callbacks.endExprNew(token, false);
             return;
         }
         getTokenStream().pushBack(token);
@@ -3240,11 +3283,11 @@ public class JavaParser implements ParserBehavior
                 if (token.getType() != JavaTokenTypes.RBRACK) {
                     getTokenStream().pushBack(token);
                     errorBefore("Expecting ']' after array dimension (in new ... expression)", token);
-                    parser.endExprNew(token, false);
+                    callbacks.endExprNew(token, false);
                     return;
                 }
                 else {
-                    parser.gotNewArrayDeclarator(withDimension);
+                    callbacks.gotNewArrayDeclarator(withDimension);
                 }
                 if (getTokenStream().LA(1).getType() != JavaTokenTypes.LBRACK) {
                     break;
@@ -3255,21 +3298,21 @@ public class JavaParser implements ParserBehavior
             if (getTokenStream().LA(1).getType() == JavaTokenTypes.LCURLY) {
                 // Array initialiser list
                 token = nextToken();
-                parser.beginArrayInitList(token);
+                callbacks.beginArrayInitList(token);
                 token = parseArrayInitializerList(token);
-                parser.endArrayInitList(token);
-                parser.endExprNew(token, token.getType() == JavaTokenTypes.RCURLY);
+                callbacks.endArrayInitList(token);
+                callbacks.endExprNew(token, token.getType() == JavaTokenTypes.RCURLY);
                 return;
             }
 
-            parser.endExprNew(token, true);
+            callbacks.endExprNew(token, true);
             return;
         }
 
         if (token.getType() != JavaTokenTypes.LPAREN) {
             getTokenStream().pushBack(token);
             error("Expected '(' or '[' after type name (in 'new ...' expression)");
-            parser.endExprNew(token, false);
+            callbacks.endExprNew(token, false);
             return;
         }
         parseArgumentList(token);
@@ -3277,20 +3320,20 @@ public class JavaParser implements ParserBehavior
         if (getTokenStream().LA(1).getType() == JavaTokenTypes.LCURLY) {
             // a class body (anonymous inner class)
             token = nextToken(); // LCURLY
-            parser.beginAnonClassBody(token, false);
+            callbacks.beginAnonClassBody(token, false);
             parseClassBody();
             token = nextToken();
             if (token.getType() != JavaTokenTypes.RCURLY) {
                 error("Expected '}' at end of inner class body");
                 getTokenStream().pushBack(token);
                 getTokenStream().pushBack(token);
-                parser.endAnonClassBody(token, false);
-                parser.endExprNew(token, false);
+                callbacks.endAnonClassBody(token, false);
+                callbacks.endExprNew(token, false);
                 return;
             }
-            parser.endAnonClassBody(token, true);
+            callbacks.endAnonClassBody(token, true);
         }
-        parser.endExprNew(token, true);
+        callbacks.endExprNew(token, true);
     }
 
     /**
@@ -3300,21 +3343,21 @@ public class JavaParser implements ParserBehavior
      */
     public final void parseArgumentList(LocatableToken token)
     {
-        parser.beginArgumentList(token);
+        callbacks.beginArgumentList(token);
         token = nextToken();
         if (token.getType() != JavaTokenTypes.RPAREN) {
             getTokenStream().pushBack(token);
             do  {
                 parseExpression();
                 token = nextToken();
-                parser.endArgument();
+                callbacks.endArgument();
             } while (token.getType() == JavaTokenTypes.COMMA);
             if (token.getType() != JavaTokenTypes.RPAREN) {
                 errorBefore("Expecting ',' or ')' (in argument list)", token);
                 getTokenStream().pushBack(token);
             }
         }
-        parser.endArgumentList(token);
+        callbacks.endArgumentList(token);
         return;
     }
 
@@ -3328,7 +3371,7 @@ public class JavaParser implements ParserBehavior
         while (token.getType() != JavaTokenTypes.RPAREN
                 && token.getType() != JavaTokenTypes.RCURLY) {
             getTokenStream().pushBack(token);
-            parser.gotLambdaFormalParam();
+            callbacks.gotLambdaFormalParam();
             //parse modifiers if any
             List<LocatableToken> rval = parseModifiers();
 
@@ -3336,31 +3379,31 @@ public class JavaParser implements ParserBehavior
             int tt2 = getTokenStream().LA(2).getType();
             if (tt1 == JavaTokenTypes.IDENT && (tt2 == JavaTokenTypes.COMMA || tt2 == JavaTokenTypes.RPAREN)) {
                 token = nextToken(); // identifier
-                parser.gotLambdaFormalName(token);
+                callbacks.gotLambdaFormalName(token);
                 token = nextToken();
             }
             else {
                 if (! parseTypeSpec(false, true, rval)) {
-                    parser.modifiersConsumed();
+                    callbacks.modifiersConsumed();
                     error("Formal lambda parameter specified incorrectly");
                     return;
                 }
-                parser.gotLambdaFormalType(rval);
+                callbacks.gotLambdaFormalType(rval);
                 token = nextToken();
                 if (token.getType() == JavaTokenTypes.TRIPLE_DOT) {
                     token = nextToken();
                 }
                 if (token.getType() != JavaTokenTypes.IDENT) {
-                    parser.modifiersConsumed();
+                    callbacks.modifiersConsumed();
                     error("Formal lambda parameter lacks a name");
                     return;
                 }
-                parser.gotLambdaFormalName(token);
+                callbacks.gotLambdaFormalName(token);
                 parseArrayDeclarators();
                 token = nextToken();
             }
 
-            parser.modifiersConsumed();
+            callbacks.modifiersConsumed();
 
             if (token.getType() != JavaTokenTypes.COMMA) {
                 break;
@@ -3381,7 +3424,7 @@ public class JavaParser implements ParserBehavior
             getTokenStream().pushBack(token);
             LocatableToken first = token;
 
-            parser.beginFormalParameter(token);
+            callbacks.beginFormalParameter(token);
             parseModifiers();
             parseTypeSpec(true);
             LocatableToken idToken = nextToken(); // identifier
@@ -3399,11 +3442,11 @@ public class JavaParser implements ParserBehavior
             }
             parseArrayDeclarators();
             if (areRecordParameters)
-                parser.gotRecordParameter(first, idToken, varargsToken);
+                callbacks.gotRecordParameter(first, idToken, varargsToken);
             else
-                parser.gotMethodParameter(idToken, varargsToken);
+                callbacks.gotMethodParameter(idToken, varargsToken);
 
-            parser.modifiersConsumed();
+            callbacks.modifiersConsumed();
             token = nextToken();
             if (token.getType() != JavaTokenTypes.COMMA) {
                 break;

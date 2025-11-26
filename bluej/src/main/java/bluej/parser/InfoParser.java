@@ -560,10 +560,16 @@ public class InfoParser extends EditorParser
     @Override
     protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken)
     {
-        super.gotConstructorDecl(token, hiddenToken);
+        gotConstructorDecl(token, hiddenToken, token.getText());
+    }
+
+    @Override
+    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, String name)
+    {
+        super.gotConstructorDecl(token, hiddenToken, name);
         String lastComment = (hiddenToken != null) ? hiddenToken.getText() : null;
         currentMethod = new MethodDesc();
-        currentMethod.name = token.getText();
+        currentMethod.name = name;
         currentMethod.paramNames = "";
         currentMethod.paramTypes = new LinkedList<JavaEntity>();
         currentMethod.javadocText = lastComment;

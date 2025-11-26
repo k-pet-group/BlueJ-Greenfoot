@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.kotlin.com.intellij.psi.PsiFile;
+import org.jetbrains.kotlin.com.intellij.psi.TokenType;
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement;
+import org.jetbrains.kotlin.lexer.KotlinLexer;
 import org.jetbrains.kotlin.psi.*;
 
 import java.util.List;
@@ -177,7 +180,7 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
      * Used for expressions where we don't need a specific token type.
      */
     protected LocatableToken createToken(PsiElement element) {
-        return createToken(element, JavaTokenTypes.LITERAL_void);
+        return createToken(element, guessTokenType(element));
     }
 
     /**
@@ -363,5 +366,21 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
     public int getPsiStartOffset() {
 //        return this.psiStartOffset;
         return this.getTokenBase().getPosition();
+    }
+
+    protected int guessTokenType(PsiElement element) {
+        return switch (element) {
+            case LeafPsiElement leaf -> {
+                String name = leaf.getElementType().getDebugName();
+
+                yield switch (name) {
+                    case "LBRACE" -> JavaTokenTypes.LCURLY;
+                    case "RBRACE" -> JavaTokenTypes.RCURLY;
+                    default -> JavaTokenTypes.LITERAL_void;
+                };
+            }
+            default -> JavaTokenTypes.LITERAL_void;
+        };
+//        return JavaTokenTypes.LITERAL_void;
     }
 }

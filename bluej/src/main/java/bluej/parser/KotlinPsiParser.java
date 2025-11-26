@@ -77,6 +77,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class KotlinPsiParser implements ParserBehavior {
 
+
     private final PsiEnvironment psiEnvironment;
 //    private final JavaParserCallbacksAdapter callbackAdapter;
 //    private final PsiCallbackVisitor psiVisitor;
@@ -435,7 +436,7 @@ public class KotlinPsiParser implements ParserBehavior {
                 // Phase 1: Token-based parsing (existing behavior)
                     delegate.parseStatement(token, allowComma);
             case PSI_VISITOR -> {
-                var callbackAdapter = new JavaParserCallbacksAdapterImpl(sourceParser);
+                var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
                 var psiVisitor = new MethodBodyVisitor(callbackAdapter);
 
                 this.parseWithPsi(psiVisitor, token);
@@ -543,7 +544,7 @@ public class KotlinPsiParser implements ParserBehavior {
     private void parseWithPsi(LocatableToken currentToken) {
         System.err.println("[PSI-DEBUG] Starting at token: " + currentToken.toString());
 
-        var callbackAdapter = new JavaParserCallbacksAdapterImpl(sourceParser);
+        var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
         var psiVisitor = new FileVisitor(callbackAdapter);
 
         // This does not necessarily have to equal current token (e.g. when comments come into play)

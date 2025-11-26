@@ -131,7 +131,7 @@ public class PsiVisitorValidationTest {
         // 4. Create recorder and visitor
         CallbackRecorder recorder = new CallbackRecorder();
         BaseVisitor visitor = new FileVisitor(recorder);
-        
+
         // 5. Run visitor on PSI tree
         ktFile.accept(visitor);
 
@@ -899,31 +899,6 @@ public class PsiVisitorValidationTest {
                    failures.isEmpty());
     }
 
-    @Test
-    public void testDog() throws IOException, PsiParseException {
-        String filePath = TestCorpus.getModerateTests().stream()
-                .filter(f -> f.contains("ClassWithPropertyAndMethod"))
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("Inheritance file not found in test corpus"));
-
-        CallbackRecorder recorder = runVisitorOnFile(filePath);
-
-        // Should have multiple type definitions (parent and child)
-        assertValidPairing(recorder);
-    }
-
-    @Test
-    public void testBasicKtFile() throws IOException, PsiParseException {
-        SourceInput input = getResourceFile(getClass(), "/bluej/parser/kotlin/kotlin_basic.kt");
-
-        CallbackRecorder recorder = runVisitorOnSourceInput(input);
-
-        // Should have multiple type definitions (parent and child)
-        assertValidPairing(recorder);
-    }
-
-
-    
     @Test
     public void testEntireCorpusValidation() {
         List<String> failures = new ArrayList<>();

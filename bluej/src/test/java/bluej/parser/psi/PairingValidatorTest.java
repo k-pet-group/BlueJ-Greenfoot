@@ -110,7 +110,7 @@ public class PairingValidatorTest {
         assertTrue(validator.hasErrors());
         // Mismatch error + unmatched begin error = 2 total
         assertTrue(validator.getErrors().size() >= 1);
-        assertTrue(validator.getErrors().get(0).contains("mismatch"));
+        assertTrue(validator.getErrors().get(1).contains("mismatch"));
     }
     
     // ==================== Nested Pairing Tests ====================
@@ -675,7 +675,7 @@ public class PairingValidatorTest {
         
         PairingValidator validator = new PairingValidator(callbacks);
         
-        String error = validator.getErrors().get(0);
+        String error = validator.getErrors().get(1);
         assertTrue(error.contains("position"));
         assertTrue(error.contains("index 0"));
         assertTrue(error.contains("index 1"));
@@ -691,8 +691,8 @@ public class PairingValidatorTest {
         callbacks.add(new CallbackRecord("endMethod", Collections.emptyMap()));
         
         PairingValidator validator = new PairingValidator(callbacks);
-        
-        String error = validator.getErrors().get(0);
+
+        String error = validator.getErrors().get(1);
         assertTrue(error.contains("beginClass"));
         assertTrue(error.contains("endMethod"));
         assertTrue(error.contains("Expected: endClass"));
@@ -710,8 +710,8 @@ public class PairingValidatorTest {
         callbacks.add(new CallbackRecord("endMethod", Collections.emptyMap())); // 3 - mismatch
         
         PairingValidator validator = new PairingValidator(callbacks);
-        
-        String error = validator.getErrors().get(0);
+
+        String error = validator.getErrors().get(1);
         assertTrue(error.contains("2 callbacks between"));
     }
     
@@ -733,12 +733,12 @@ public class PairingValidatorTest {
         
         // First pairing should be matched
         assertTrue(pairings.get(0).isMatched());
-        assertEquals("beginClass", pairings.get(0).getBeginCallback());
-        assertEquals("endClass", pairings.get(0).getEndCallback());
+        assertEquals("beginClass", pairings.get(0).getBeginCallback().getCallbackName());
+        assertEquals("endClass", pairings.get(0).getEndCallback().getCallbackName());
         
         // Second pairing should be unmatched
         assertFalse(pairings.get(1).isMatched());
-        assertEquals("beginMethod", pairings.get(1).getBeginCallback());
+        assertEquals("beginMethod", pairings.get(1).getBeginCallback().getCallbackName());
         assertNull(pairings.get(1).getEndCallback());
     }
     

@@ -22,6 +22,7 @@
 package bluej.parser.psi;
 
 import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LineColPos;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.psi.visitor.BaseVisitor;
 import bluej.parser.psi.visitor.FileVisitor;
@@ -88,13 +89,21 @@ public class ConstructorDeclarationCallbackTest extends BasePsiTest {
         List<CallbackRecord> constructorDecls = recorder.getCallbacksByName("gotConstructorDecl");
         assertEquals("Should have exactly 1 gotConstructorDecl", 1, constructorDecls.size());
         
+        // Primary constructor: name = "BothConstructors"
         Map<String, Object> params = constructorDecls.get(0).getParameters();
-        LocatableToken nameToken = (LocatableToken) params.get("token");
-        
-        assertNotNull("Constructor name token should not be null", nameToken);
-        assertEquals("Constructor name should be class name 'EmptyConstructor'", 
-                    "EmptyConstructor", nameToken.getText());
-        
+        LocatableToken primaryNameToken = (LocatableToken) params.get("token");
+        String primaryName = (String) params.get("name");
+        assertEquals("Primary constructor uses class name", "EmptyConstructor", primaryName);
+        assertEquals("Primary constructor starts at the first paren",
+                new LocatableToken(
+                        JavaTokenTypes.LPAREN,
+                        "(",
+                        new LineColPos(1, 23, 22),
+                        new LineColPos(1, 24, 23)
+                ),
+                primaryNameToken
+        );
+
         // Verify no parameters
         List<CallbackRecord> paramRecords = recorder.getCallbacksByName("gotMethodParameter");
         assertEquals("Should have 0 parameters", 0, paramRecords.size());
@@ -707,14 +716,34 @@ public class ConstructorDeclarationCallbackTest extends BasePsiTest {
         
         // Primary constructor: name = "BothConstructors"
         Map<String, Object> primary = constructorDecls.get(0).getParameters();
-        LocatableToken primaryName = (LocatableToken) primary.get("token");
-        assertEquals("Primary constructor uses class name", "BothConstructors", primaryName.getText());
-        
+        LocatableToken primaryNameToken = (LocatableToken) primary.get("token");
+        String primaryName = (String) primary.get("name");
+        assertEquals("Primary constructor uses class name", "BothConstructors", primaryName);
+        assertEquals("Primary constructor starts at the first paren",
+            new LocatableToken(
+                JavaTokenTypes.LPAREN,
+                "(",
+                new LineColPos(1, 23, 22),
+                new LineColPos(1, 24, 23)
+            ),
+            primaryNameToken
+        );
+
         // Secondary constructor: name = "constructor" keyword
         Map<String, Object> secondary = constructorDecls.get(1).getParameters();
-        LocatableToken secondaryName = (LocatableToken) secondary.get("token");
-        assertEquals("Secondary constructor uses 'constructor' keyword", "constructor", secondaryName.getText());
-        
+        LocatableToken secondaryNameToken = (LocatableToken) secondary.get("token");
+        String secondaryName = (String) secondary.get("name");
+        assertEquals("Secondary constructor uses class name", "BothConstructors", secondaryName);
+        assertEquals("Secondary constructor starts at the 'constructor' keyword",
+            new LocatableToken(
+                JavaTokenTypes.LITERAL_constructor,
+                "constructor",
+                new LineColPos(2, 5, 47),
+                new LineColPos(2, 16, 58)
+            ),
+            secondaryNameToken
+        );
+
         // Validate pairing
         assertTrue("Callbacks should be balanced", recorder.validatePairing());
     }

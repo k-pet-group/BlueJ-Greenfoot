@@ -24,6 +24,8 @@ package bluej.parser.lexer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.Objects;
+
 @OnThread(Tag.Any)
 public class LocatableToken
 {
@@ -127,5 +129,17 @@ public class LocatableToken
             ", type=" + type +
             ", text='" + text + '\'' +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        LocatableToken that = (LocatableToken) o;
+        return getType() == that.getType() && Objects.equals(begin, that.begin) && Objects.equals(end, that.end) && Objects.equals(getHiddenBefore(), that.getHiddenBefore()) && Objects.equals(getText(), that.getText());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(begin, end, getHiddenBefore(), getType(), getText());
     }
 }

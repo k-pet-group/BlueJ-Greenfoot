@@ -1041,6 +1041,14 @@ public class EditorParser extends SourceParser
     protected void gotConstructorDecl(LocatableToken token,
                                       LocatableToken hiddenToken)
     {
+        gotConstructorDecl(token, hiddenToken, token.getText());
+    }
+
+    @Override
+    protected void gotConstructorDecl(LocatableToken token,
+                                      LocatableToken hiddenToken,
+                                      String name)
+    {
         endDecl(token); // remove placeholder
         LocatableToken start = pcuStmtBegin;
         String jdcomment = null;
@@ -1049,7 +1057,7 @@ public class EditorParser extends SourceParser
             jdcomment = hiddenToken.getText();
         }
 
-        MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), jdcomment);
+        MethodNode pnode = new MethodNode(scopeStack.peek(), name, jdcomment);
         pnode.setModifiers(currentModifiers);
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(start.getLine(), start.getColumn());

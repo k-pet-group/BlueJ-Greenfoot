@@ -268,9 +268,9 @@ public class JavaParserCallbacksBase { //  implements JavaParserCallbacks {
     protected void endForInit(LocatableToken token, boolean included) { }
 
     // @Override
-    protected void endForInitDecl(LocatableToken token, boolean included) {
-        endForInit(token, included);
-    }
+//    protected void endForInitDecl(LocatableToken token, boolean included) {
+//        endForInit(token, included);
+//    }
 
     // @Override
     protected void endForInitDecls(LocatableToken token, boolean included) { }
@@ -383,6 +383,9 @@ public class JavaParserCallbacksBase { //  implements JavaParserCallbacks {
 
     // @Override
     protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken) {}
+
+    // @Override
+    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, String name) {}
 
     // @Override
     protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken) {}

@@ -304,7 +304,7 @@ public interface JavaParserCallbacks {
 
     void endForInit(LocatableToken token, boolean included);
 
-    void endForInitDecl(LocatableToken token, boolean included);
+//    void endForInitDecl(LocatableToken token, boolean included);
 
     void endForInitDecls(LocatableToken token, boolean included);
 
@@ -457,6 +457,13 @@ public interface JavaParserCallbacks {
      * The hiddenToken is the comment before the constructor.
      */
     void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken);
+
+    /**
+     * We've seen a constructor declaration. The token supplied is the start (can be e.g. `constructor` keyword or
+     * an opening parent of argument list).
+     * The hiddenToken is the comment before the constructor.
+     */
+    void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken, String name);
 
     /**
      * We've seen a method declaration; the token parameter is the method name;

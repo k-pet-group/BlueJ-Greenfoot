@@ -284,11 +284,10 @@ public class FileVisitor extends BaseVisitor {
             PsiElement lBrace = body.getLBrace();
             PsiElement rBrace = body.getRBrace();
 
-            if (lBrace != null && rBrace != null) {
+            if (lBrace != null) {
                 hadBody = true;
                 // Create separate tokens for opening and closing braces
                 LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-                LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
 
                 callbacks.beginTypeBody(lBraceToken);
 
@@ -303,27 +302,21 @@ public class FileVisitor extends BaseVisitor {
                 // super.visitClass() does NOT automatically recurse into nested classes/objects/members
                 // CRITICAL: Filter to KtClass AND exclude KtEnumEntry (enum constants, not classes)
                 for (KtDeclaration declaration : body.getDeclarations()) {
-//                        if (declaration instanceof KtClass && !(declaration instanceof KtEnumEntry)) {
-//                            declaration.accept(this);  // Triggers visitClass() for nested classes
-//                        } else if (declaration instanceof KtObjectDeclaration) {
-//                            declaration.accept(this);  // Triggers visitObjectDeclaration() for companion/nested objects
-//                        } else if (declaration instanceof KtNamedFunction) {
-//                            declaration.accept(this);  // Phase 4.1: Visit member functions
-//                        } else if (declaration instanceof KtSecondaryConstructor) {
-//                            declaration.accept(this);  // Phase 4.2: Visit secondary constructors
-//                        } else if (declaration instanceof KtAnonymousInitializer) {
-//                            declaration.accept(this);  // Phase 4.2: Visit init blocks
-//                        } else if (declaration instanceof KtProperty) {
-//                            declaration.accept(this);  // Phase 4.3: Visit properties
-//                        }
                     declaration.accept(this);
-                    // Note: Enum entries handled separately
                 }
 
-                // 8. End type body with separate closing brace token
-                callbacks.endTypeBody(rBraceToken, true);
+                if (rBrace != null) {
+                    LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
 
-                finalToken = rBraceToken;
+                    // 8. End type body with separate closing brace token
+                    callbacks.endTypeBody(rBraceToken, true);
+
+                    finalToken = rBraceToken;
+                }
+                else {
+                    callbacks.endDecl(getLastToken());
+                    return;
+                }
             }
             // Note: If braces missing (malformed code), no nested declarations to visit
         }
@@ -332,7 +325,8 @@ public class FileVisitor extends BaseVisitor {
         if (!hadBody) {
             KtPrimaryConstructor primaryConstructor = ktClass.getPrimaryConstructor();
             if (primaryConstructor != null) {
-                callbacks.beginTypeBody(nameToken);
+                var constructorStart = primaryConstructor.getValueParameterList().getLeftParenthesis();
+                callbacks.beginTypeBody(createToken(constructorStart, JavaTokenTypes.LPAREN));
 
                 visitPrimaryConstructor(primaryConstructor);
 
@@ -347,7 +341,7 @@ public class FileVisitor extends BaseVisitor {
         if (finalToken == null) {
             var lastChild = ktClass.getLastChild();
 
-            finalToken = createToken(lastChild, JavaTokenTypes.EOF); // TODO: figure out how to get proper token type
+            finalToken = createToken(lastChild); // TODO: figure out how to get proper token type
         }
 
         // 9. End declaration
@@ -498,7 +492,9 @@ public class FileVisitor extends BaseVisitor {
         }
 
         // 10. End declaration
-        callbacks.endMethodDecl(endToken, true);
+        if (endToken != null) {
+            callbacks.endMethodDecl(endToken, true);
+        }
 //        clearModifierState();
     }
     
@@ -549,25 +545,29 @@ public class FileVisitor extends BaseVisitor {
      */
     @Override
     public void visitPrimaryConstructor(@NotNull KtPrimaryConstructor constructor) {
-        if (constructor == null) {
-            return;
-        }
+//            // 1. Begin declaration
+//            boolean startedDeclaration = false;
 
-            // Skip if no callbacks configured
-            if (callbacks == null) {
-                // Phase 2 mode: no callback invocation
-                super.visitPrimaryConstructor(constructor);
-                return;
-            }
-
-            // 1. Begin declaration
-            LocatableToken declToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
-            callbacks.gotDeclBegin(declToken);
+            LocatableToken declToken = null;
 
             // 2. Process modifiers (visibility modifiers only for constructors)
             KtModifierList modifierList = constructor.getModifierList();
             if (modifierList != null) {
+                // TODO: get the first modifier instead
+                declToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
+                callbacks.gotDeclBegin(declToken);
+
                 processModifiers(modifierList);
+            }
+            else if (constructor.getConstructorKeyword() != null) {
+                var constructorKeyword = constructor.getConstructorKeyword();
+                declToken = createToken(constructorKeyword, JavaTokenTypes.LITERAL_constructor);
+                callbacks.gotDeclBegin(declToken);
+            }
+            else {
+                var leftParen = constructor.getValueParameterList().getLeftParenthesis();
+                declToken = createToken(leftParen, JavaTokenTypes.LPAREN);
+                callbacks.gotDeclBegin(declToken);
             }
 
             // 3. Constructor declaration (use class name as constructor name)
@@ -591,7 +591,7 @@ public class FileVisitor extends BaseVisitor {
             // TODO Phase 4.4: Extract KDoc from parent class for primary constructor
             LocatableToken javadocToken = null;  // Intentionally null until Phase 4.4
 
-            callbacks.gotConstructorDecl(nameToken, javadocToken);
+            callbacks.gotConstructorDecl(declToken, javadocToken, nameToken.getText());
 
             // 4. Modifiers consumed
             callbacks.modifiersConsumed();
@@ -600,11 +600,18 @@ public class FileVisitor extends BaseVisitor {
             processConstructorParameters(constructor);
 
             // 6. End declaration (primary constructors have no explicit body)
-            LocatableToken endToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
+            var rightParen = constructor.getValueParameterList().getRightParenthesis();
+
+            if (rightParen == null) {
+                callbacks.endDecl(getLastToken());
+                return;
+            }
+
+            LocatableToken endToken = createToken(rightParen, JavaTokenTypes.RPAREN);
             callbacks.endMethodDecl(endToken, true);
 
             // Visit children for any nested declarations
-            super.visitPrimaryConstructor(constructor);
+//            super.visitPrimaryConstructor(constructor);
 
 //            clearModifierState();
     }
@@ -664,29 +671,61 @@ public class FileVisitor extends BaseVisitor {
         }
 
         // 1. Begin declaration
-        LocatableToken declToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
-        callbacks.gotDeclBegin(declToken);
+        LocatableToken declToken = null;
 
         // 2. Process modifiers (visibility modifiers for constructors)
         KtModifierList modifierList = constructor.getModifierList();
         if (modifierList != null) {
+            // TODO: get the first modifier instead
+            declToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
+            callbacks.gotDeclBegin(declToken);
+
             processModifiers(modifierList);
+        }
+        else if (constructor.getConstructorKeyword() != null) {
+            var constructorKeyword = constructor.getConstructorKeyword();
+            declToken = createToken(constructorKeyword, JavaTokenTypes.LITERAL_constructor);
+            callbacks.gotDeclBegin(declToken);
+        }
+        else {
+            var leftParen = constructor.getValueParameterList().getLeftParenthesis();
+            declToken = createToken(leftParen, JavaTokenTypes.LPAREN);
+            callbacks.gotDeclBegin(declToken);
         }
 
         // 3. Constructor declaration (use "constructor" keyword as name indicator)
         PsiElement constructorKeyword = constructor.getConstructorKeyword();
+        PsiElement parent = constructor.getParent();
         LocatableToken nameToken;
-        if (constructorKeyword != null) {
-            nameToken = createToken(constructorKeyword, JavaTokenTypes.IDENT);
+        if (parent instanceof KtClassBody) {
+            parent = parent.getParent();
+        }
+        if (parent instanceof KtClass) {
+            KtClass ktClass = (KtClass) parent;
+            PsiElement classNameId = ktClass.getNameIdentifier();
+            if (classNameId != null) {
+                nameToken = createToken(classNameId, JavaTokenTypes.IDENT);
+            } else {
+                // Fallback: use constructor element itself
+                nameToken = createToken(constructorKeyword, JavaTokenTypes.IDENT);
+            }
         } else {
             // Fallback: use constructor element itself
             nameToken = createToken(constructor, JavaTokenTypes.IDENT);
         }
 
+//        LocatableToken nameToken;
+//        if (constructorKeyword != null) {
+//            nameToken = createToken(constructorKeyword, JavaTokenTypes.IDENT);
+//        } else {
+//            // Fallback: use constructor element itself
+//            nameToken = createToken(constructor, JavaTokenTypes.IDENT);
+//        }
+
         // TODO Phase 4.4: Extract KDoc for secondary constructor
         LocatableToken javadocToken = null;  // Intentionally null until Phase 4.4
 
-        callbacks.gotConstructorDecl(nameToken, javadocToken);
+        callbacks.gotConstructorDecl(declToken, javadocToken, nameToken.getText());
 
         // 4. Modifiers consumed
         callbacks.modifiersConsumed();
@@ -704,6 +743,7 @@ public class FileVisitor extends BaseVisitor {
 
         // 7. Constructor body (if present)
         KtBlockExpression body = constructor.getBodyExpression();
+        LocatableToken endToken = null;
         if (body != null) {
             PsiElement lBrace = body.getLBrace();
             if (lBrace != null) {
@@ -719,15 +759,21 @@ public class FileVisitor extends BaseVisitor {
             if (rBrace != null) {
                 LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
                 callbacks.endMethodBody(rBraceToken, true);
+                endToken = rBraceToken;
             }
         }
 
         // 8. End declaration
-        LocatableToken endToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
+//        LocatableToken endToken = createToken(constructor, JavaTokenTypes.LITERAL_void);
+        if (endToken == null) {
+            var rightParen = constructor.getValueParameterList().getRightParenthesis();
+            endToken = createToken(rightParen, JavaTokenTypes.RPAREN);
+        }
+
         callbacks.endMethodDecl(endToken, true);
 
         // Visit children for any nested declarations
-        super.visitSecondaryConstructor(constructor);
+//        super.visitSecondaryConstructor(constructor);
 
 //            clearModifierState();
     }
@@ -883,14 +929,21 @@ public class FileVisitor extends BaseVisitor {
         callbacks.gotDeclBegin(propertyToken);
         callbacks.beginFieldDeclarations(propertyToken);
 
+        LocatableToken lastToken = null;
+
         // 2. Process modifiers
         KtModifierList modifierList = property.getModifierList();
         if (modifierList != null) {
             processModifiers(modifierList);
         }
 
-        // 3. Property type
-         callbacks.gotTypeSpec(processPropertyType(property));
+        // 3. Property tye
+        var typeTokens = processPropertyType(property);
+        callbacks.gotTypeSpec(typeTokens);
+
+        if (!typeTokens.isEmpty()) {
+            lastToken = typeTokens.getLast();
+        }
 
         // 4. Field declaration
         PsiElement nameIdentifier = property.getNameIdentifier();
@@ -898,13 +951,29 @@ public class FileVisitor extends BaseVisitor {
             LocatableToken nameToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
             boolean hasInitializer = property.hasInitializer();
             callbacks.gotField(propertyToken, nameToken, hasInitializer);
+            // TODO: handle initializer
+            if (lastToken == null) {
+                lastToken = nameToken;
+            }
         }
 
+
+
         // 5. End field
-        callbacks.endField(propertyToken, true);
+        callbacks.endField(lastToken, true);
+
+        var finalToken = lastToken;
+        try {
+            var possiblyLastToken = property.getLastChild().getLastChild().getLastChild();
+
+            finalToken = createToken(possiblyLastToken, JavaTokenTypes.RBRACK);
+        }
+        catch (Exception e) {
+            System.out.println("TODO: Error getting last token for property " + propertyName + ":\n" + e.toString());
+        }
 
         // 6. End field declarations
-        callbacks.endFieldDeclarations(propertyToken, true);
+        callbacks.endFieldDeclarations(finalToken, true);
 
         // TODO: that needs to be done only on failure
         // callbacks.endDecl(propertyToken);
@@ -912,7 +981,7 @@ public class FileVisitor extends BaseVisitor {
         // Don't recursively visit property accessors here to avoid ClassCastException
         // when accessors trigger method callbacks while FieldNode is on scope stack.
         // Accessor bodies will be handled in a later phase if needed.
-         super.visitProperty(property);
+//         super.visitProperty(property);
 
 //        clearModifierState();
     }
@@ -1079,7 +1148,7 @@ public class FileVisitor extends BaseVisitor {
         if (modifierList == null || callbacks == null) {
             return;
         }
-        
+
         // Process visibility modifiers
         if (modifierList.hasModifier(KtTokens.PUBLIC_KEYWORD)) {
             LocatableToken token = createToken(
@@ -1452,6 +1521,9 @@ public class FileVisitor extends BaseVisitor {
         
         // Process each parameter
         for (KtParameter param : params) {
+            LocatableToken openingToken = createToken(param.getFirstChild(), JavaTokenTypes.LITERAL_void);
+            callbacks.beginFormalParameter(openingToken);
+
             // Parameter type
             KtTypeReference paramType = param.getTypeReference();
             if (paramType != null) {
@@ -1526,10 +1598,15 @@ public class FileVisitor extends BaseVisitor {
                 body.accept(bodyVisitor);
 
                 PsiElement rBrace = body.getRBrace();
+
                 if (rBrace != null) {
                     LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
                     lastToken = rBraceToken;
                     callbacks.endMethodBody(rBraceToken, true);
+                }
+                else {
+                    callbacks.endDecl(bodyVisitor.getLastToken());
+                    return null;
                 }
             }
 
@@ -1619,6 +1696,9 @@ public class FileVisitor extends BaseVisitor {
         
         // Process each parameter
         for (KtParameter param : params) {
+            LocatableToken openingToken = createToken(param.getFirstChild(), JavaTokenTypes.LITERAL_void);
+            callbacks.beginFormalParameter(openingToken);
+
             // Parameter type
             KtTypeReference paramType = param.getTypeReference();
             if (paramType != null) {
@@ -2116,7 +2196,7 @@ public class FileVisitor extends BaseVisitor {
                  // Destructuring declaration - use loop parameter as token
                  idToken = createToken(loopParam, JavaTokenTypes.IDENT);
              }
-             callbacks.endForInitDecl(idToken, true);
+             callbacks.endForInit(idToken, true);
             
              callbacks.endForInitDecls(forToken, true);
              callbacks.modifiersConsumed();
