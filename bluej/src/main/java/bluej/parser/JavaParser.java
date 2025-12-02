@@ -57,8 +57,8 @@ import org.junit.Test;
  */
 public class JavaParser implements ParserBehavior
 {
-    private static boolean TEST_MODE = true;
-//    private static boolean TEST_MODE = false;
+//    private static boolean TEST_MODE = true;
+    private static boolean TEST_MODE = false;
 
     private SourceParser parser;
     private JavaParserCallbacks callbacks;

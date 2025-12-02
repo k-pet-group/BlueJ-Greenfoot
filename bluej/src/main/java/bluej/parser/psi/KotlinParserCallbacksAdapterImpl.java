@@ -18,6 +18,8 @@ public final class KotlinParserCallbacksAdapterImpl extends JavaParserCallbacksA
     // Emit range filtering - callbacks only triggered if position >= start
     private int emitRangeStartLine = -1;
     private int emitRangeStartColumn = -1;
+    private int emitRangeEndLine = 1;
+    private int emitRangeEndColumn = 1;
 
     public KotlinParserCallbacksAdapterImpl(SourceParser target) {
         super(target);
@@ -1968,6 +1970,18 @@ public final class KotlinParserCallbacksAdapterImpl extends JavaParserCallbacksA
     }
 
     @Override
+    public void setEmitRangeEnd(int line, int column) {
+        this.emitRangeEndLine = -line;
+        this.emitRangeEndColumn = -column;
+    }
+
+    @Override
+    public void clearEmitRangeEnd() {
+        this.emitRangeEndLine = 1;
+        this.emitRangeEndColumn = 1;
+    }
+
+    @Override
     public JavaTokenFilter getTokenStream() {
         return this.target.getTokenStream();
     }
@@ -1984,10 +1998,19 @@ public final class KotlinParserCallbacksAdapterImpl extends JavaParserCallbacksA
 
     @Override
     public boolean isInEmitRange(int line, int column) {
-        if (emitRangeStartLine < 0) {
-            return true; // No filter set
+        if (emitRangeStartLine > 0) {
+            if (line < emitRangeStartLine || (line <= emitRangeStartLine && column < emitRangeStartColumn)) {
+                return false;
+            }
         }
-        return line > emitRangeStartLine ||
-                (line == emitRangeStartLine && column >= emitRangeStartColumn);
+
+        // end range is non-inclusive
+        if (emitRangeEndLine < 0) {
+            if (-line < emitRangeEndLine || (-line <= emitRangeEndLine && -column <= emitRangeEndColumn)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

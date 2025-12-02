@@ -42,6 +42,7 @@ import bluej.editor.stride.FrameShelfStorage;
 import bluej.extensions2.BProject;
 import bluej.extensions2.ExternalFileLauncher;
 import bluej.extensions2.ExtensionBridge;
+import bluej.extensions2.SourceType;
 import bluej.extmgr.ExtensionsManager;
 import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettingsController;
@@ -2723,7 +2724,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     }
 
     public boolean hasKotlinSources() {
-        return hasKotlinSources;
+        return getProjectPackages().stream().flatMap(pkg -> pkg.getClassTargets().stream()).anyMatch(target -> target.getSourceType() == SourceType.Kotlin);
+//        return hasKotlinSources;
     }
 
     public void setHasKotlinSources(boolean hasKotlinSources) {

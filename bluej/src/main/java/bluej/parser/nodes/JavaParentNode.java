@@ -532,6 +532,7 @@ public abstract class JavaParentNode extends ParentParsedNode
                 case JavaTokenTypes.LITERAL_record:
                 case JavaTokenTypes.LITERAL_permits:
                 case JavaTokenTypes.LITERAL_implements:
+                case JavaTokenTypes.LITERAL_fun:
                     tokType = TokenType.KEYWORD2;
                     break;
 

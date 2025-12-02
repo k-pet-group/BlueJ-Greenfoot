@@ -132,7 +132,7 @@ public class SourceParser extends JavaParserCallbacksBase {
 //            handleMultilineStrings,
 
             if (sourceType == SourceType.Kotlin) {
-                lexer.setGenerateWhitespaceTokens(true);
+//                lexer.setGenerateWhitespaceTokens(true);
             }
 
             return lexer;

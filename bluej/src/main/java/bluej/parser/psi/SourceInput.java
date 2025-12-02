@@ -524,6 +524,10 @@ public sealed interface SourceInput
             return new DocumentSource(document, sourceType, charset, virtualPath, pkg, directResolver, range);
         }
 
+        public DocumentSource unranged() {
+            return withRange(Optional.empty());
+        }
+
         public String content() {
             StringBuilder sb = new StringBuilder();
 

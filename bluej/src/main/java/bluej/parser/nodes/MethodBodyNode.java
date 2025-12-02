@@ -70,9 +70,9 @@ public class MethodBodyNode extends IncrementalParsingNode
         last = params.parser.parseStatement(last, false);
         if (last == null) {
             last = params.tokenStream.LA(1);
-            if (last.getType() == JavaTokenTypes.EOF) {
-                return PP_INCOMPLETE;
-            }
+        }
+        if (last.getType() == JavaTokenTypes.EOF) {
+            return PP_INCOMPLETE;
         }
         return PP_OK;
     }

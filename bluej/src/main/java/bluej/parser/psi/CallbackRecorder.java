@@ -335,6 +335,16 @@ public class CallbackRecorder implements JavaParserCallbacksAdapter {
     }
 
     @Override
+    public void setEmitRangeEnd(int line, int column) {
+
+    }
+
+    @Override
+    public void clearEmitRangeEnd() {
+
+    }
+
+    @Override
     public boolean isInEmitRange(int line, int column) {
         return true;
     }

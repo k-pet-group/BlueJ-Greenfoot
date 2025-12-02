@@ -129,7 +129,6 @@ public class MethodBodyVisitor extends BaseVisitor {
         LocatableToken propertyToken = createToken( property.getValOrVarKeyword(), property.isVar() ? JavaTokenTypes.LITERAL_var : JavaTokenTypes.LITERAL_val);
 
         callbacks.gotDeclBegin(propertyToken);
-        callbacks.beginVariableDecl(propertyToken);
 
 //        LocatableToken typeToken = processPropertyType(property);
 //
@@ -138,9 +137,17 @@ public class MethodBodyVisitor extends BaseVisitor {
 //            callbacks.gotTypeSpec(typeTokens);
 //        }
 
-        callbacks.gotTypeSpec(processPropertyType(property));
 
         PsiElement nameIdentifier = property.getNameIdentifier();
+
+        if (nameIdentifier == null) {
+            callbacks.endDecl(propertyToken);
+            return;
+        }
+
+        callbacks.beginVariableDecl(propertyToken);
+        callbacks.gotTypeSpec(processPropertyType(property));
+
         LocatableToken nameToken = createToken(nameIdentifier, JavaTokenTypes.IDENT);
         boolean hasInitializer = property.hasInitializer();
 
@@ -374,6 +381,8 @@ public class MethodBodyVisitor extends BaseVisitor {
         }
         
         callbacks.determinedForLoop(true, false);
+
+        LocatableToken finalToken = null;
         
         KtExpression body = forExpr.getBody();
 //        if (body != null) {
@@ -385,6 +394,8 @@ public class MethodBodyVisitor extends BaseVisitor {
 //            LocatableToken closeToken = createToken(body.getLastChild());
 //            callbacks.endForLoopBody(closeToken, true);
 //        }
+
+        var includeLast = true;
 
         if (body != null) {
             KtBlockExpression bracedBody = (KtBlockExpression) body;
@@ -404,21 +415,27 @@ public class MethodBodyVisitor extends BaseVisitor {
                     LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
 
                     // 8. End type body with separate closing brace token
-                    callbacks.endForLoopBody(rBraceToken, true);
-
-//                    finalToken = rBraceToken;
+                    if (callbacks.isInEmitRange(rBraceToken)) {
+                        finalToken = rBraceToken;
+                    }
+                    else {
+                        finalToken = createEofToken(rBrace);
+                    }
                 }
                 else {
-                    callbacks.endDecl(getLastToken());
-                    return;
+                    finalToken = getLastToken();
                 }
+
+                callbacks.endForLoopBody(finalToken, includeLast);
             }
         }
 
-        callbacks.endForLoop(this.getLastToken(), true);
+        if (finalToken == null) {
+            finalToken = getTokenStream().LA(1);
+            includeLast = false;
+        }
 
-//        LocatableToken endToken = createToken(forExpr.getLastChild());
-//        callbacks.endForLoop(endToken, true);
+        callbacks.endForLoop(finalToken, includeLast);
     }
     
     /**
@@ -865,10 +882,15 @@ public class MethodBodyVisitor extends BaseVisitor {
 
                 selector.accept(this);
             }
-            else {
+            else if (selector instanceof KtSimpleNameExpression) {
                 LocatableToken fieldName = createToken(selector, JavaTokenTypes.IDENT);
 
                 callbacks.gotMemberAccess(fieldName);
+            }
+            else {
+                LocatableToken operator = createToken(expr.getNavigationElement(), JavaTokenTypes.IDENT);
+
+                callbacks.gotDotEOF(operator);
             }
         }
 //        if (operationSign != null) {

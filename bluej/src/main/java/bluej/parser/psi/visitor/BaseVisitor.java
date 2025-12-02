@@ -1,5 +1,6 @@
 package bluej.parser.psi.visitor;
 
+import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LineColPos;
 import bluej.parser.lexer.LocatableToken;
@@ -20,7 +21,8 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
     protected final JavaParserCallbacksAdapter callbacks;
 
     private LocatableToken tokenBase = null;
-    private LocatableToken lastToken;
+    private static LocatableToken lastToken;
+    private int psiStartOffset = 0;
 
     /**
      * Creates a new method body visitor.
@@ -31,8 +33,16 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
         this.callbacks = callbacks;
     }
 
-    LocatableToken getLastToken() {
+    public LocatableToken getLastToken() {
         return lastToken;
+    }
+
+    void clearLastToken() {
+        lastToken = null;
+    }
+
+    protected JavaTokenFilter getTokenStream() {
+        return this.callbacks.getTokenStream();
     }
 
 
@@ -66,13 +76,20 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
         // Phase 2: Log file visit
         String fileName = file.getName();
 
+        // TODO: no package statements, so let's assume 1
+        callbacks.reachedCUstate(1);
+
         // Explicitly visit all declarations in the file
         // Note: Kotlin PSI visitor requires explicit iteration over children
         for (KtDeclaration declaration : file.getDeclarations()) {
             declaration.accept(this);
         }
 
-        // callbacks.finishedCU(2); /// who the hell knows what that means xD
+        // TODO: hack
+        var lastToken = getLastToken();
+        if (lastToken != null && (lastToken.getType() != JavaTokenTypes.EOF && lastToken.getType() != JavaTokenTypes.LCURLY)) {
+            callbacks.finishedCU(2); /// who the hell knows what that means xD
+        }
     }
 
 
@@ -142,6 +159,14 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
         }
 
         return createTokenWithText(element, text, type);
+    }
+
+    protected LocatableToken createEofToken(PsiElement element) {
+        if (element == null) {
+            throw new IllegalArgumentException("PSI element must not be null");
+        }
+
+        return createTokenWithText(element, "", JavaTokenTypes.EOF);
     }
 
     /**
@@ -355,6 +380,16 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
     @Override
     public void setEmitRangeStart(LocatableToken currentToken) {
         this.callbacks.setEmitRangeStart(currentToken);
+        var offset = currentToken.getPosition();
+
+        if (offset > 0) {
+            this.psiStartOffset = offset;
+        }
+    }
+
+    @Override
+    public void setEmitRangeEnd(LocatableToken currentToken) {
+        this.callbacks.setEmitRangeEnd(currentToken);
 //        var offset = this.getTokenBase().getPosition();
 //
 //        if (offset > 0) {
@@ -362,10 +397,11 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
 //        }
     }
 
+
     @Override
     public int getPsiStartOffset() {
-//        return this.psiStartOffset;
-        return this.getTokenBase().getPosition();
+        return this.psiStartOffset;
+//        return this.getTokenBase().getPosition();
     }
 
     protected int guessTokenType(PsiElement element) {

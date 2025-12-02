@@ -2839,7 +2839,7 @@ public final class Package
                      * names)
                      */
                     try {
-                        ClassInfo info = t.getSourceInfo().getInfo(t.getJavaSourceFile(), t.getPackage());
+                        ClassInfo info = t.getSourceInfo().getInfo(t.getSourceFile(), t.getPackage());
 
                         if (info != null) {
                             // Use ClassTarget method to create and save context
