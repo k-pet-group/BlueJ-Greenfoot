@@ -27,6 +27,7 @@ import bluej.parser.psi.visitor.FileVisitor;
 import bluej.parser.psi.visitor.MethodBodyVisitor;
 import bluej.parser.psi.visitor.PsiVisitor;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
+import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.KtFile;
 
@@ -279,7 +280,16 @@ public class KotlinPsiParser implements ParserBehavior {
             case PSI_VISITOR:
                 // PSI visitor mode: Parse using PSI and call real JavaParserCallbacks
 //                System.err.println("[PSI-DEBUG] PSI_VISITOR mode: parsing with PsiCallbackVisitor");
-                parseWithPsi();
+//                parseWithPsi();
+                var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
+                var psiVisitor = new FileVisitor(callbackAdapter);
+
+                // This does not necessarily have to equal current token (e.g. when comments come into play)
+//                psiVisitor.setTokenBase(this.sourceParser.getOffset());
+//                this.sourceParser.getSourceInput().range().ifPresent((psiVisitor::setEmitRange));
+
+                parseWithPsi(psiVisitor);
+
                 break;
         }
 //        this.parseWithPsi();
@@ -306,7 +316,9 @@ public class KotlinPsiParser implements ParserBehavior {
                 // Phase 1: Token-based parsing (existing behavior)
                 delegate.parseCUpart(state);
             case PSI_VISITOR -> {
-                this.parseWithPsi();
+                var currentToken = this.sourceParser.getTokenStream().LA(1);
+
+                this.parseWithPsi(currentToken);
 
                 yield 2;
             }
@@ -454,11 +466,14 @@ public class KotlinPsiParser implements ParserBehavior {
         var psiVisitor = new FileVisitor(callbackAdapter);
 
         psiVisitor.parseTypeDefPart2(true);
+        psiVisitor.clearLastToken();
 
-        this.parseWithPsi(psiVisitor);
+        this.parseWithPsi(psiVisitor, this.sourceParser.getTokenStream().LA(1));
 
 //        return sourceParser.tokenStream.getMostRecent();
-        return psiVisitor.getLastToken();
+        var lastToken = psiVisitor.getLastToken();
+
+        return lastToken;
     }
     
     /**
@@ -568,11 +583,20 @@ public class KotlinPsiParser implements ParserBehavior {
     
     // ==================== PSI VISITOR PARSING ====================
 
-    private void parseWithPsi() {
-        var currentToken = this.sourceParser.getTokenStream().LA(1);
-
-        parseWithPsi(currentToken);
-    }
+//    private void parseWithPsi() {
+//        var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
+//        var psiVisitor = new FileVisitor(callbackAdapter);
+//
+//        // This does not necessarily have to equal current token (e.g. when comments come into play)
+//        visitor.setTokenBase(this.sourceParser.getOffset());
+//        this.sourceParser.getSourceInput().range().ifPresent((visitor::setEmitRange));
+//        visitor.setEmitRangeStart(currentToken);
+//
+//        parseWithPsi(visitor);
+//        var currentToken = this.sourceParser.getTokenStream().LA(1);
+//
+//        parseWithPsi(currentToken);
+//    }
 
     private void parseWithPsi(PsiVisitor visitor) {
         System.err.println("[PSI-DEBUG] === parseWithPsi() ENTRY ===");
@@ -605,6 +629,12 @@ public class KotlinPsiParser implements ParserBehavior {
         }
 
         if (startElement != null) {
+//            if (startElement instanceof PsiErrorElement) {
+//
+//
+//                return;
+//            }
+
             startElement.accept(visitor.asVisitor());
         }
     }

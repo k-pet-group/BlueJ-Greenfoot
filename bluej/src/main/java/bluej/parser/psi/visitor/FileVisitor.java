@@ -21,12 +21,15 @@
  */
 package bluej.parser.psi.visitor;
 
+import bluej.debugmgr.ParameterList;
 import bluej.parser.JavaParserCallbacksBase;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.psi.JavaParserCallbacksAdapter;
+import org.jetbrains.kotlin.com.intellij.psi.PsiComment;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement;
+import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace;
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.*;
@@ -277,6 +280,7 @@ public class FileVisitor extends BaseVisitor {
                     callbacks.gotTypeDefName(nameToken);
                 } else {
                     //                callbacks.gotTypeDefEnd(nameToken, false);
+                    callbacks.gotTypeDefEnd(getTokenStream().LA(1), false);
                     return;
                 }
             }
@@ -284,7 +288,7 @@ public class FileVisitor extends BaseVisitor {
             //       after the `class` keyword
             else if (ktClass.getLastChild() instanceof PsiErrorElement) {
                 if (callbacks.isInEmitRange(classToken)) {
-                    var nextToken = callbacks.getTokenStream().nextToken();
+                    var nextToken = getTokenStream().LA(1);
 
                     callbacks.gotTypeDefEnd(nextToken, false);
                 }
@@ -310,7 +314,31 @@ public class FileVisitor extends BaseVisitor {
                 else {
                     clearLastToken();
                 }
+            } else {
+                PsiElement lastElement = ktClass;
+                while (true) {
+//                    if (lastElement instanceof PsiErrorElement) { lastElement = lastElement.getPrevSibling(); continue; }
+                    if (lastElement.getChildren().length == 0) { break; }
+
+                    var children = lastElement.getChildren();
+                    var onlyErrors = true;
+                    for (int i = children.length - 1; i >= 0; i--) {
+                        var child = children[i];
+                        if (!(child instanceof PsiErrorElement)) {
+                            lastElement = child;
+                            onlyErrors = false;
+                            break;
+                        }
+                    }
+                    if (onlyErrors) { break; }
+                };
+                var lastToken = createToken(lastElement);
+
+                callbacks.skipToToken(lastToken);
+                clearLastToken();
             }
+
+            return;
         }
 
         if (!parseTypeDefPart2) {
@@ -330,14 +358,36 @@ public class FileVisitor extends BaseVisitor {
             if (!hadBody) {
                 KtPrimaryConstructor primaryConstructor = ktClass.getPrimaryConstructor();
                 if (primaryConstructor != null) {
-                    var constructorStart = primaryConstructor.getValueParameterList().getLeftParenthesis();
-                    callbacks.beginTypeBody(createToken(constructorStart, JavaTokenTypes.LPAREN));
+//                    var constructorStart = primaryConstructor.getValueParameterList().getLeftParenthesis();
+//                    callbacks.beginTypeBody(createToken(constructorStart, JavaTokenTypes.LPAREN));
+//
+//                    visitPrimaryConstructor(primaryConstructor);
+//
+////                    LocatableToken lastToken = createToken(primaryConstructor.getValueParameterList().getRightParenthesis());
+//                    LocatableToken lastToken = getTokenStream().getMostRecent();
+//
+//                    callbacks.endTypeBody(lastToken, true);
 
-                    visitPrimaryConstructor(primaryConstructor);
+                    PsiElement lastElement = ktClass;
+                    while (true) {
+//                    if (lastElement instanceof PsiErrorElement) { lastElement = lastElement.getPrevSibling(); continue; }
+                        if (lastElement.getChildren().length == 0) { break; }
 
-                    LocatableToken lastToken = createToken(primaryConstructor.getValueParameterList().getRightParenthesis());
+                        var children = lastElement.getChildren();
+                        var onlyErrors = true;
+                        for (int i = children.length - 1; i >= 0; i--) {
+                            var child = children[i];
+                            if (!(child instanceof PsiErrorElement)) {
+                                lastElement = child;
+                                onlyErrors = false;
+                                break;
+                            }
+                        }
+                        if (onlyErrors) { break; }
+                    };
+                    var lastToken = createToken(lastElement);
 
-                    callbacks.endTypeBody(lastToken, true);
+                    callbacks.skipToToken(lastToken);
 
                     finalToken = lastToken;
                 }
@@ -348,7 +398,10 @@ public class FileVisitor extends BaseVisitor {
                 //
                 //            finalToken = createToken(lastChild); // TODO: figure out how to get proper token type
                 finalToken = getLastToken();
-                finalTokenIncluded = !hadBody;
+                if (finalToken == null) {
+                    finalToken = getTokenStream().LA(1);
+                }
+                finalTokenIncluded = !hadBody && finalToken.getType() != JavaTokenTypes.EOF;
                 this.clearLastToken();
             }
 
@@ -361,47 +414,80 @@ public class FileVisitor extends BaseVisitor {
     }
 
     @Override
+    public void visitParameterList(@NotNull KtParameterList parameterList) {
+        if (parseTypeDefPart2) {
+            parameterList.getParent().accept(this);
+            return;
+        }
+        else {
+            super.visitParameterList(parameterList);
+        }
+    }
+
+    @Override
     public void visitClassBody(@NotNull KtClassBody classBody) {
+        if (parseTypeDefPart2) {
+            classBody.getParent().accept(this);
+            return;
+        }
+
         // Extract separate opening and closing brace elements
         PsiElement lBrace = classBody.getLBrace();
         PsiElement rBrace = classBody.getRBrace();
         KtClass ktClass = (KtClass) classBody.getParent();
+        boolean typeBodyStarted = false;
 
         if (lBrace != null) {
             // Create separate tokens for opening and closing braces
             LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
 
             callbacks.beginTypeBody(lBraceToken);
+            typeBodyStarted =  callbacks.isInEmitRange(lBraceToken);
         }
 
         // TODO: Java treats primary constructors as part of type body, so we have to do it here?
         KtPrimaryConstructor primaryConstructor = ktClass.getPrimaryConstructor();
-        if (primaryConstructor != null) {
-            visitPrimaryConstructor(primaryConstructor);
-        }
+//        if (primaryConstructor != null) {
+//            visitPrimaryConstructor(primaryConstructor);
+//        }
 
         for (KtDeclaration declaration : classBody.getDeclarations()) {
             declaration.accept(this);
         }
 
-        if (rBrace != null) {
-            LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+        if (typeBodyStarted) {
+            if (rBrace != null) {
+                LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
 
-            // 8. End type body with separate closing brace token
-            callbacks.endTypeBody(rBraceToken, true);
-        } else {
-            var token = this.getTokenStream().nextToken();
+                // 8. End type body with separate closing brace token
+                callbacks.endTypeBody(rBraceToken, true);
+            } else {
+                var token = this.getTokenStream().nextToken();
 
-            if (lBrace != null) {
-                callbacks.endTypeBody(token, false);
+                if (lBrace != null) {
+                    callbacks.endTypeBody(token, false);
+                }
+
+                //            callbacks.error();
+
+                //            callbacks.gotTypeDefEnd(token, false);
+                return;
             }
-
-//            callbacks.error();
-
-//            callbacks.gotTypeDefEnd(token, false);
-            return;
         }
         // Note: If braces missing (malformed code), no nested declarations to visit
+    }
+
+    @Override
+    public void visitModifierList(@NotNull KtModifierList list) {
+        // HACK
+        var parent = list.getParent();
+
+        if (parent instanceof KtClass || parent instanceof KtNamedFunction) {
+            parent.accept(this);
+        }
+        else {
+            super.visitModifierList(list);
+        }
     }
 
     @Override
@@ -485,7 +571,9 @@ public class FileVisitor extends BaseVisitor {
         }
 
         // 1. Begin declaration
-        LocatableToken declToken = createToken(function.getFunKeyword(), JavaTokenTypes.LITERAL_fun);
+        PsiElement declElement = function.getFirstChild(); // function.getFunKeyword();
+        while(declElement instanceof PsiComment || declElement instanceof PsiWhiteSpace) { declElement = declElement.getNextSibling(); }
+        LocatableToken declToken = createToken(declElement);
         callbacks.gotDeclBegin(declToken);
 
         // TODO: those probably should've been processed first
@@ -664,6 +752,10 @@ public class FileVisitor extends BaseVisitor {
      */
     @Override
     public void visitPrimaryConstructor(@NotNull KtPrimaryConstructor constructor) {
+        if (parseTypeDefPart2) {
+            constructor.getParent().accept(this);
+            return;
+        }
 //            // 1. Begin declaration
 //            boolean startedDeclaration = false;
 
@@ -1658,7 +1750,9 @@ public class FileVisitor extends BaseVisitor {
                 callbacks.skipToToken(createToken(paramList.getLeftParenthesis(), JavaTokenTypes.LPAREN));
 
                 callbacks.gotMethodDeclaration(nameToken, javadocToken);
-                didStartMethod = true;
+                if (callbacks.isInEmitRange(nameToken)) {
+                    didStartMethod = true;
+                }
             }
         }
         

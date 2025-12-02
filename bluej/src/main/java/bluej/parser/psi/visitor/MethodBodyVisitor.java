@@ -204,7 +204,7 @@ public class MethodBodyVisitor extends BaseVisitor {
             callbacks.endStmtblockBody(rBraceToken, true);
         }
     }
-    
+
     /**
      * Visits an if expression (if/else statement or expression).
      */
@@ -219,39 +219,54 @@ public class MethodBodyVisitor extends BaseVisitor {
             LocatableToken ifToken = createToken(ifKeyword, JavaTokenTypes.LITERAL_if);
             callbacks.beginIfStmt(ifToken);
         }
+//
+//        KtExpression condition = ifExpr.getCondition();
+//        if (condition != null) {
+//            condition.accept(this);
+//        }
         
-        KtExpression condition = ifExpr.getCondition();
-        if (condition != null) {
-            condition.accept(this);
-        }
+//        KtExpression thenBranch = ifExpr.getThen();
+//        if (thenBranch != null) {
+//            LocatableToken bodyToken = createToken(thenBranch.getFirstChild());
+//            callbacks.beginIfCondBlock(bodyToken);
+//            thenBranch.accept(this);
+//            callbacks.endIfCondBlock(getTokenStream().getMostRecent(), true);
+//        }
         
-        KtExpression thenBranch = ifExpr.getThen();
-        if (thenBranch != null) {
-            LocatableToken thenToken = createToken(thenBranch);
-            callbacks.beginIfCondBlock(thenToken);
-            thenBranch.accept(this);
-            callbacks.endIfCondBlock(thenToken, true);
-        }
-        
-        KtExpression elseBranch = ifExpr.getElse();
-        if (elseBranch != null) {
-            PsiElement elseKeyword = ifExpr.getElseKeyword();
-            
-            if (elseBranch instanceof KtIfExpression) {
-                if (elseKeyword != null) {
-                    LocatableToken elseToken = createToken(elseKeyword, JavaTokenTypes.LITERAL_else);
-                    callbacks.gotElseIf(elseToken);
-                }
-                elseBranch.accept(this);
-            } else {
-                LocatableToken elseToken = createToken(elseBranch);
-                callbacks.beginIfCondBlock(elseToken);
-                elseBranch.accept(this);
-                callbacks.endIfCondBlock(elseToken, true);
+        KtExpression expression = ifExpr;
+       while (expression instanceof KtIfExpression ifExpression) {
+           KtExpression condition = ifExpression.getCondition();
+           if (condition != null) {
+               condition.accept(this);
+           }
+
+            KtExpression thenBranch = ifExpression.getThen();
+            if (thenBranch != null) {
+                LocatableToken bodyToken = createToken(thenBranch.getFirstChild());
+                callbacks.beginIfCondBlock(bodyToken);
+                thenBranch.accept(this);
+                callbacks.endIfCondBlock(getTokenStream().getMostRecent(), true);
             }
+
+            KtExpression elseBranch = ifExpression.getElse();
+            PsiElement elseKeyword = ifExpression.getElseKeyword();
+
+            if (elseBranch instanceof KtIfExpression) {
+                LocatableToken elseToken = createToken(elseKeyword, JavaTokenTypes.LITERAL_else);
+                callbacks.gotElseIf(elseToken);
+            }
+
+            expression = elseBranch;
         }
-        
-        LocatableToken endToken = createToken(ifExpr.getLastChild());
+
+        if (expression != null) {
+            LocatableToken bodyToken = createToken(expression.getFirstChild());
+            callbacks.beginIfCondBlock(bodyToken);
+            expression.accept(this);
+            callbacks.endIfCondBlock(getTokenStream().getMostRecent(), true);
+        }
+
+        LocatableToken endToken = getTokenStream().getMostRecent();
         callbacks.endIfStmt(endToken, true);
     }
     
@@ -864,6 +879,8 @@ public class MethodBodyVisitor extends BaseVisitor {
         
         LocatableToken token = createToken(expr.getFirstChild());
         callbacks.beginExpression(token, false);
+
+        var expressionBegun = callbacks.isInEmitRange(token);
         
         KtExpression receiver = expr.getReceiverExpression();
         if (receiver != null) {
@@ -903,8 +920,10 @@ public class MethodBodyVisitor extends BaseVisitor {
 //        if (selector != null) {
 //            selector.accept(this);
 //        }
-        
-        callbacks.endExpression(getLastToken(), false);
+
+        if (expressionBegun) {
+            callbacks.endExpression(getTokenStream().LA(1), false);
+        }
     }
     
     @Override

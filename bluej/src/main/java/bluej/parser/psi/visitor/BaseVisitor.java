@@ -6,14 +6,12 @@ import bluej.parser.lexer.LineColPos;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.psi.JavaParserCallbacksAdapter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
-import org.jetbrains.kotlin.com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.kotlin.com.intellij.psi.PsiFile;
-import org.jetbrains.kotlin.com.intellij.psi.TokenType;
+import org.jetbrains.kotlin.com.intellij.psi.*;
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.kotlin.lexer.KotlinLexer;
 import org.jetbrains.kotlin.psi.*;
 
+import java.nio.file.Paths;
 import java.util.List;
 
 public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
@@ -37,7 +35,7 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
         return lastToken;
     }
 
-    void clearLastToken() {
+    public void clearLastToken() {
         lastToken = null;
     }
 
@@ -79,6 +77,15 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
         // TODO: no package statements, so let's assume 1
         callbacks.reachedCUstate(1);
 
+//        var facadeClassName = Paths.get(file.getName()).getFileName().toString().replace(".kt", "Kt");
+////
+//        var topLevelStart = createTokenWithText(file.getFirstChild(), facadeClassName, JavaTokenTypes.LITERAL_class);
+//
+//        callbacks.gotDeclBegin(topLevelStart);
+//        callbacks.gotTypeDef(topLevelStart, JavaTokenTypes.LITERAL_class);
+//        callbacks.gotTypeDefName(topLevelStart);
+//        callbacks.beginTypeBody(topLevelStart);
+
         // Explicitly visit all declarations in the file
         // Note: Kotlin PSI visitor requires explicit iteration over children
         for (KtDeclaration declaration : file.getDeclarations()) {
@@ -87,11 +94,24 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
 
         // TODO: hack
         var lastToken = getLastToken();
+
+//        var topLevelEnd = createEofToken(file.getLastChild());
+//
+//        callbacks.endTypeBody(topLevelEnd, true);
+//        callbacks.gotTypeDefEnd(topLevelEnd, true);
+
         if (lastToken != null && (lastToken.getType() != JavaTokenTypes.EOF && lastToken.getType() != JavaTokenTypes.LCURLY)) {
             callbacks.finishedCU(2); /// who the hell knows what that means xD
         }
     }
 
+    @Override
+    public void visitErrorElement(@NotNull PsiErrorElement error) {
+        var errorRange = error.getTextRange();
+        var positions = calculatePositions(error, errorRange.getStartOffset(), errorRange.getEndOffset());
+
+        callbacks.error(error.getErrorDescription(), positions[0].line(), positions[0].column(), positions[1].line(), positions[1].column());
+    }
 
     /**
      * Processes the property type and returns a type token.
@@ -195,7 +215,9 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
 
         var token = new LocatableToken(type, customText, positions[0], positions[1]);
 
-        this.lastToken = token;
+        if (callbacks.isInEmitRange(token)) {
+            this.lastToken = token;
+        }
 
         return token;
     }
@@ -412,6 +434,10 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
                 yield switch (name) {
                     case "LBRACE" -> JavaTokenTypes.LCURLY;
                     case "RBRACE" -> JavaTokenTypes.RCURLY;
+                    case "LPARENTH" -> JavaTokenTypes.LPAREN;
+                    case "RPARENTH" -> JavaTokenTypes.RPAREN;
+                    case "COLON" -> JavaTokenTypes.COLON;
+                    case "FUN" -> JavaTokenTypes.LITERAL_fun;
                     default -> JavaTokenTypes.LITERAL_void;
                 };
             }
