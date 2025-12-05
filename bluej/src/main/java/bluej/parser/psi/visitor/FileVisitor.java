@@ -1026,50 +1026,64 @@ public class FileVisitor extends BaseVisitor {
      * @param initializer The init block PSI element (KtAnonymousInitializer is the actual type)
      */
     @Override
-    public void visitAnonymousInitializer(@NotNull KtAnonymousInitializer initializer) {
+    public void visitClassInitializer(@NotNull KtClassInitializer initializer) {
         if (initializer == null) {
             return;
         }
 
         // Skip if no callbacks configured
         if (callbacks == null) {
-            super.visitAnonymousInitializer(initializer);
+            super.visitClassInitializer(initializer);
             return;
         }
 
         // 1. Begin init block
         // First token is the "init" keyword, second is the block itself
-        PsiElement initKeyword = initializer.getFirstChild();  // "init" keyword
-        KtExpression bodyExpr = initializer.getBody();
+        PsiElement initKeyword = initializer.getInitKeyword();
 
-        if (initKeyword != null && bodyExpr instanceof KtBlockExpression) {
-            KtBlockExpression body = (KtBlockExpression) bodyExpr;
+        if (initKeyword != null) {
             LocatableToken initToken = createToken(initKeyword, JavaTokenTypes.LITERAL_init);
 
             callbacks.gotDeclBegin(initToken);
 
-            PsiElement lBrace = body.getLBrace();
-            PsiElement rBrace = body.getRBrace();
+            boolean begunInit = false;
+            LocatableToken lastToken = null;
 
-            if (lBrace != null && rBrace != null) {
-                LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-                callbacks.beginInitBlock(initToken, lBraceToken);
+            if (initializer.getBody() instanceof KtBlockExpression bodyExpr) {
+                PsiElement lBrace = bodyExpr.getLBrace();
+
+                if (lBrace != null) {
+                    LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+                    callbacks.beginInitBlock(initToken, lBraceToken);
+                    begunInit = true;
+                }
 
                 // DELEGATION: Create MethodBodyVisitor for init block body traversal
                 MethodBodyVisitor bodyVisitor = new MethodBodyVisitor(callbacks);
-                body.accept(bodyVisitor);
+                bodyExpr.accept(bodyVisitor);
 
-                // 2. End init block
-                LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-                callbacks.endInitBlock(rBraceToken, true);
+                PsiElement rBrace = bodyExpr.getRBrace();
+                if (rBrace != null) {
+                    // 2. End init block
+                    LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+                    lastToken = rBraceToken;
+                }
             }
-            else {
-                callbacks.endDecl(initToken);
+
+            if (lastToken == null) {
+                lastToken = createToken(initializer.getLastChild());
             }
+
+            if (begunInit) {
+                callbacks.endInitBlock(lastToken, true);
+            } else {
+                callbacks.endDecl(lastToken);
+            }
+//            callbacks.endDecl(initToken);
         }
 
         // Visit children for any nested declarations (unlikely in init blocks)
-        super.visitAnonymousInitializer(initializer);
+//        super.visitAnonymousInitializer(initializer);
     }
     
     /**
@@ -1761,13 +1775,6 @@ public class FileVisitor extends BaseVisitor {
             LocatableToken openingToken = createToken(param.getFirstChild(), JavaTokenTypes.LITERAL_void);
             callbacks.beginFormalParameter(openingToken);
 
-            // Parameter type
-            KtTypeReference paramType = param.getTypeReference();
-            if (paramType != null) {
-                List<LocatableToken> typeTokens = extractTypeTokens(paramType);
-                callbacks.gotTypeSpec(typeTokens);
-            }
-            
             // Parameter name
             PsiElement nameIdentifier = param.getNameIdentifier();
             if (nameIdentifier != null) {
@@ -1785,7 +1792,16 @@ public class FileVisitor extends BaseVisitor {
                         }
                     }
                 }
-                
+
+                // Parameter type
+                KtTypeReference paramType = param.getTypeReference();
+                if (paramType != null) {
+                    callbacks.skipToToken(createToken(param.getColon(), JavaTokenTypes.COLON));
+
+                    List<LocatableToken> typeTokens = extractTypeTokens(paramType);
+                    callbacks.gotTypeSpec(typeTokens.isEmpty() ? null : typeTokens);
+                }
+
                 callbacks.gotMethodParameter(nameToken, ellipsisToken);
             }
         }

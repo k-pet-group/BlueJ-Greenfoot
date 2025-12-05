@@ -178,7 +178,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
     private final FlowEditorPane flowEditorPane;
     private final HoleDocument document;
-    private final JavaSyntaxView javaSyntaxView;
+    private final EntityResolver parentResolver;
+    private final @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting;
+    private JavaSyntaxView javaSyntaxView;
     private final FetchTabbedEditor fetchTabbedEditor;
     private final FlowFXTab fxTab;
     private final FlowActions actions;
@@ -249,6 +251,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final ContextMenu editorContextMenu;
     private int numGoToItemsInContextMenu = 0;
 
+    private boolean wasParserEnabled = false;
+
     public boolean containsSourceCode()
     {
         return flowSource != FlowSource.PlainText;
@@ -257,7 +261,24 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     // Used during testing
     public void enableParser(boolean force)
     {
-        javaSyntaxView.enableParser(force);
+        getJavaSyntaxView().enableParser(force);
+    }
+
+    synchronized public JavaSyntaxView getJavaSyntaxView() {
+        if (javaSyntaxView != null) { return javaSyntaxView; }
+
+        javaSyntaxView = new JavaSyntaxView(document, flowEditorPane, this, parentResolver, syntaxHighlighting, flowSource.toSourceType());
+
+        if (wasParserEnabled) {
+            javaSyntaxView.enableParser(true);
+        }
+
+        javaSyntaxView.setOnParseError(Optional.of(wasParserEnabled -> {
+            this.wasParserEnabled = wasParserEnabled;
+            javaSyntaxView = null;
+        }));
+
+        return javaSyntaxView;
     }
 
     @Override
@@ -380,7 +401,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
         flowEditorPane.setLineMarginGraphics(lineIndex, calculateMarginDisplay(lineIndex));
         // We also reapply scopes:
-        flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
+        flowEditorPane.applyScopeBackgrounds(getJavaSyntaxView().getScopeBackgrounds());
         return hasBreakpoint;
     }
 
@@ -538,7 +559,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.flowEditorPane = new FlowEditorPane("", this);
         this.document = flowEditorPane.getDocument();
         this.document.addListener(false, this);
-        this.javaSyntaxView = new JavaSyntaxView(document, flowEditorPane, this, parentResolver, syntaxHighlighting, flowSource.toSourceType());
+        this.parentResolver = parentResolver;
+        this.syntaxHighlighting = syntaxHighlighting;
         this.flowEditorPane.setErrorQuery(errorManager);
         this.undoManager = new UndoManager(document);
         this.fetchTabbedEditor = fetchTabbedEditor;
@@ -672,7 +694,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
 
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), s -> {
-            javaSyntaxView.fontSizeChanged();
+            getJavaSyntaxView().fontSizeChanged();
             flowEditorPane.fontSizeChanged();
         });
 
@@ -1283,7 +1305,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
                 if (flowSource == FlowSource.Java || flowSource == FlowSource.Kotlin)
                 {
-                    javaSyntaxView.enableParser(false);
+                    getJavaSyntaxView().enableParser(false);
                 }
                 loaded = true;
             }
@@ -1476,14 +1498,14 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public ParsedCUNode getParsedNode()
     {
-        javaSyntaxView.flushReparseQueue();
-        return javaSyntaxView.getParser();
+        getJavaSyntaxView().flushReparseQueue();
+        return getJavaSyntaxView().getParser();
     }
 
     @Override
     public ReparseableDocument getSourceDocument()
     {
-        return javaSyntaxView;
+        return getJavaSyntaxView();
     }
 
     @Override
@@ -1782,7 +1804,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void refresh()
     {
         checkBracketStatus();
-        javaSyntaxView.recalculateAndApplyAllScopes(); //whenever we change the scope highlighter, call scheduleReparseRunner to create a reparser to that file: if the scope highlighter is 0, it will do nothing. However, if it is not zero, it will ensure the editor is updated accordingly.
+        getJavaSyntaxView().recalculateAndApplyAllScopes(); //whenever we change the scope highlighter, call scheduleReparseRunner to create a reparser to that file: if the scope highlighter is 0, it will do nothing. However, if it is not zero, it will ensure the editor is updated accordingly.
     }
 
     @Override
@@ -2026,7 +2048,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         currentStepLineIndex = lineNumber - 1;
         flowEditorPane.setLineMarginGraphics(currentStepLineIndex, calculateMarginDisplay(currentStepLineIndex));
         // We also reapply scopes:
-        flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
+        flowEditorPane.applyScopeBackgrounds(getJavaSyntaxView().getScopeBackgrounds());
 
         // Scroll to the line:
         flowEditorPane.positionCaret(getOffsetFromLineColumn(new SourceLocation(lineNumber, 1)));
@@ -2077,7 +2099,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             currentStepLineIndex = -1;
             flowEditorPane.setLineMarginGraphics(oldStepLine, calculateMarginDisplay(oldStepLine));
             // We also reapply scopes:
-            flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
+            flowEditorPane.applyScopeBackgrounds(getJavaSyntaxView().getScopeBackgrounds());
         }
     }
 
@@ -2219,7 +2241,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 flowEditorPane.setLineMarginGraphics(lineIndex, calculateMarginDisplay(lineIndex));
             }
             // We also reapply scopes:
-            flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
+            flowEditorPane.applyScopeBackgrounds(getJavaSyntaxView().getScopeBackgrounds());
             mayHaveBreakpoints = false;
         }
     }
@@ -2247,7 +2269,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             }
         }
         // Reapply scopes:
-        flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
+        flowEditorPane.applyScopeBackgrounds(getJavaSyntaxView().getScopeBackgrounds());
     }
 
     /**
@@ -2539,7 +2561,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
     public MultilineStringTracker getMultilineStringTracker()
     {
-        return javaSyntaxView.getMultilineStringTracker();
+        return getJavaSyntaxView().getMultilineStringTracker();
     }
 
     @Override
@@ -3302,10 +3324,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     protected void createContentAssist()
     {
         //need to recreate the dialog each time it is pressed as the values may be different
-        javaSyntaxView.flushReparseQueue();
+        getJavaSyntaxView().flushReparseQueue();
         ParsedCUNode parser = getParsedNode();
         ExpressionTypeInfo suggests = parser == null ? null : parser.getExpressionType(flowEditorPane.getCaretPosition(),
-                javaSyntaxView);
+                getJavaSyntaxView());
         if (suggests != null)
         {
             List<AssistContent> completionCandidates = new ArrayList<>();
@@ -3665,8 +3687,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             {
                 return lineDisplay.calculateLineWidth(content);
             }
-        }, flowEditorPaneListener, this.javaSyntaxView.getEntityResolver(), PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), flowSource.toSourceType());
-        javaSyntaxView.enableParser(true);
+        }, flowEditorPaneListener, this.getJavaSyntaxView().getEntityResolver(), PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), flowSource.toSourceType());
+        getJavaSyntaxView().enableParser(true);
         StyledLines allLines = new StyledLines(doc, lineStylerWrapper[0]);
         lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true, null));
 

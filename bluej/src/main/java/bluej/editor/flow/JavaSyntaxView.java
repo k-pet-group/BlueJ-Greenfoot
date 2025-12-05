@@ -64,6 +64,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 /**
  * A Swing view implementation that does syntax colouring and adds some utility.
@@ -154,6 +155,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     {
         return parentResolver;
     }
+
+    public void setOnParseError(Optional<Consumer<Boolean>> onParseError) {
+        this.onParseError = onParseError;
+    }
+
+    private Optional<Consumer<Boolean>> onParseError = Optional.empty();
 
     public static enum ParagraphAttribute
     {
@@ -1023,6 +1030,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 // catch the exception and leave the editor in a (somewhat) usable state. We'll log
                 // the error, however:
                 Debug.reportError(e);
+
+//                onParseError.ifPresent(callback -> callback.run(rootNode != null));
             }
 
             // Not on screen, wider than any indent we have cached, nothing we can do:
@@ -1278,10 +1287,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             outer:
             while (curpos < napEnd) {
                 // Remove any nodes from the scope stack who we have now skipped over
-                NodeAndPosition<ParsedNode> top = scopeStack.get(scopeStack.size() - 1);
+                NodeAndPosition<ParsedNode> top = scopeStack.peek();
                 while (top.getEnd() <= curpos) {
-                    scopeStack.remove(scopeStack.size() - 1);
-                    top = scopeStack.get(scopeStack.size() - 1);
+                    scopeStack.pop();
+                    top = scopeStack.peek();
                 }
 
                 // Re-build the scope stack and skip inner nodes.
@@ -1327,7 +1336,23 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     curpos = lineEl.getEndOffset();
                 }
                 else if (nws == -1) {
-                    curpos = lineEl.getEndOffset();
+                    var newOffset = lineEl.getEndOffset();
+
+                    if (newOffset > curpos) {
+                        curpos = newOffset;
+                    } else if (newOffset == curpos) {
+                        scopeStack.pop();
+                    }
+                    else {
+                        return OptionalInt.empty();
+                    }
+
+//                    if (newOffset != curpos) {
+//                        curpos = newOffset;
+//                    }
+//                    else {
+//                        scopeStack.pop();
+//                    }
                 }
                 else {
                     // We need to check for inner nodes at the adjusted position
@@ -2600,20 +2625,38 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         public void run()
         {
             long begin = System.currentTimeMillis();
-            if (document != null && pollReparseQueue()) {
-                // Continue processing
-                while (System.currentTimeMillis() - begin < this.procTime) {
-                    if (! pollReparseQueue()) {
-                        break;
+            try {
+                if (document != null && pollReparseQueue()) {
+                    // Continue processing
+                    while (System.currentTimeMillis() - begin < this.procTime) {
+                        if (!pollReparseQueue()) {
+                            break;
+                        }
                     }
+                    JavaFXUtil.runPlatformLater(this);
+                } else {
+                    // Mark that we are no longer scheduled.  Reapply backgrounds and syntax highlighting:
+                    applyPendingScopeBackgrounds();
+                    display.repaint();
+                    reparseRunner = null;
                 }
-                JavaFXUtil.runPlatformLater(this);
             }
-            else {
-                // Mark that we are no longer scheduled.  Reapply backgrounds and syntax highlighting:
-                applyPendingScopeBackgrounds();
-                display.repaint();
+            catch (RuntimeException e) {
+                Debug.reportError(e);
+
+                var wasParsed = rootNode != null;
+
+                // Need to re-initialise this view
                 reparseRunner = null;
+                rootNode = null;
+                reparseRecordTree = null;
+                cachedSpaceSizes.clear();
+                linesToRecalculateAfterLayout.clear();
+
+//                enableParser(true);
+//                recalculateAndApplyAllScopes();
+
+                onParseError.ifPresent(callback -> callback.accept(wasParsed));
             }
         }
     }

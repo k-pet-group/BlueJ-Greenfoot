@@ -181,11 +181,12 @@ public class MethodBodyVisitor extends BaseVisitor {
         if (block == null) {
             return;
         }
-        
-        boolean isMethodBody = block.getParent() instanceof KtFunction;
+
+        var parent = block.getParent();
+        boolean skipBraces = parent instanceof KtFunction || parent instanceof KtAnonymousInitializer;
         
         PsiElement lBrace = block.getLBrace();
-        if (lBrace != null && !isMethodBody) {
+        if (lBrace != null && !skipBraces) {
             LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
             callbacks.beginStmtblockBody(lBraceToken);
         }
@@ -199,7 +200,7 @@ public class MethodBodyVisitor extends BaseVisitor {
         }
         
         PsiElement rBrace = block.getRBrace();
-        if (rBrace != null && !isMethodBody) {
+        if (rBrace != null && !skipBraces) {
             LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
             callbacks.endStmtblockBody(rBraceToken, true);
         }

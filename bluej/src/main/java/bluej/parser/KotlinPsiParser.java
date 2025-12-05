@@ -269,7 +269,7 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     @Override
     public void parseCU() {
-        System.err.println("[PSI-DEBUG] parseCU() called with mode: " + parsingMode);
+//        System.err.println("[PSI-DEBUG] parseCU() called with mode: " + parsingMode);
         
         switch (parsingMode) {
             case DELEGATION:
@@ -599,48 +599,54 @@ public class KotlinPsiParser implements ParserBehavior {
 //    }
 
     private void parseWithPsi(PsiVisitor visitor) {
-        System.err.println("[PSI-DEBUG] === parseWithPsi() ENTRY ===");
+//        System.err.println("[PSI-DEBUG] === parseWithPsi() ENTRY ===");
 
-        var offset = visitor.getPsiStartOffset();
-        var psiTree = this.getPsiTree();
+        try {
+            var offset = visitor.getPsiStartOffset();
+            var psiTree = this.getPsiTree();
 
-        if (psiTree == null) {
-            System.err.println("[PSI-DEBUG] PSI tree is null, skipping parsing");
-            return;
-        }
-
-        PsiElement startElement = null;
-
-        if (offset == 0) {
-            startElement = psiTree.getContainingKtFile();
-        }
-        else {
-            var element = psiTree.findElementAt(offset);
-
-            if (element != null) {
-                var parent = element.getParent();
-
-                if (parent != null) { startElement = parent; }
+            if (psiTree == null) {
+                System.err.println("[PSI-DEBUG] PSI tree is null, skipping parsing");
+                return;
             }
-            else {
-                // it's probably gonna complain if we don't move
-                sourceParser.tokenStream.nextToken();
+
+            PsiElement startElement = null;
+
+            if (offset == 0) {
+                startElement = psiTree.getContainingKtFile();
+            } else {
+                var element = psiTree.findElementAt(offset);
+
+                if (element != null) {
+                    var parent = element.getParent();
+
+                    if (parent != null) {
+                        startElement = parent;
+                    }
+                } else {
+                    // it's probably gonna complain if we don't move
+                    sourceParser.tokenStream.nextToken();
+                }
+            }
+
+            if (startElement != null) {
+                //            if (startElement instanceof PsiErrorElement) {
+                //
+                //
+                //                return;
+                //            }
+
+                startElement.accept(visitor.asVisitor());
             }
         }
-
-        if (startElement != null) {
-//            if (startElement instanceof PsiErrorElement) {
-//
-//
-//                return;
-//            }
-
-            startElement.accept(visitor.asVisitor());
+        catch (Exception e) {
+            System.err.println("PSI visitor parsing failed: " + e.getMessage());
+            throw e;
         }
     }
 
     private void parseWithPsi(LocatableToken currentToken) {
-        System.err.println("[PSI-DEBUG] Starting at token: " + currentToken.toString());
+//        System.err.println("[PSI-DEBUG] Starting at token: " + currentToken.toString());
 
         var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
         var psiVisitor = new FileVisitor(callbackAdapter);
@@ -654,7 +660,7 @@ public class KotlinPsiParser implements ParserBehavior {
     }
 
     private void parseWithPsi(PsiVisitor visitor, LocatableToken currentToken) {
-        System.err.println("[PSI-DEBUG] Starting at token: " + currentToken.toString());
+//        System.err.println("[PSI-DEBUG] Starting at token: " + currentToken.toString());
 
         // This does not necessarily have to equal current token (e.g. when comments come into play)
         visitor.setTokenBase(this.sourceParser.getOffset());

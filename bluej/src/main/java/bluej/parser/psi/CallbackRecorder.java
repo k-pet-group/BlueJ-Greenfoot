@@ -315,6 +315,11 @@ public class CallbackRecorder implements JavaParserCallbacksAdapter {
     }
 
     @Override
+    public void skipToToken(LocatableToken targetToken, boolean included) {
+        return;
+    }
+
+    @Override
     public LocatableToken getLastToken() {
         return null;
     }
