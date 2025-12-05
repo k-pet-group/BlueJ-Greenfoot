@@ -52,6 +52,11 @@ jar xf "$TOP_LEVEL"/Contents/Java/jna-*-jpms.jar com/sun/jna/darwin/libjnidispat
 codesign --verbose=4 --timestamp --options=runtime -s "Developer ID Application: $1" --entitlements entitlements.plist ./com/sun/jna/darwin/libjnidispatch.jnilib
 jar uf "$TOP_LEVEL"/Contents/Java/jna-*-jpms.jar com/sun/jna/darwin/libjnidispatch.jnilib
 rm com/sun/jna/darwin/libjnidispatch.jnilib
+jar xf "$TOP_LEVEL"/Contents/Java/kotlin-compiler-embeddable-*.jar org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac/x86/libjansi.jnilib
+codesign --verbose=4 --timestamp --options=runtime -s "Developer ID Application: $1" --entitlements entitlements.plist ./org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac/x86/libjansi.jnilib
+jar uf "$TOP_LEVEL"/Contents/Java/kotlin-compiler-embeddable-*.jar org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac/x86/libjansi.jnilib
+rm org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac/x86/libjansi.jnilib
+
 echo "Signing JNI lib - done"
 
 # Sign the executable:
