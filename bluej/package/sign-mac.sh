@@ -53,6 +53,14 @@ codesign --verbose=4 --timestamp --options=runtime -s "Developer ID Application:
 jar uf "$TOP_LEVEL"/Contents/Java/jna-*-jpms.jar com/sun/jna/darwin/libjnidispatch.jnilib
 rm com/sun/jna/darwin/libjnidispatch.jnilib
 
+# This seems to have three types of binaries in different directories
+jar xf "$TOP_LEVEL"/Contents/Java/kotlin-compiler-embeddable-*.jar org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac/x86/libjansi.jnilib || true
+if [ -f ./org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac/x86/libjansi.jnilib ]; then
+    codesign --verbose=4 --timestamp --options=runtime -s "Developer ID Application: $1" --entitlements entitlements.plist ./org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac/x86/libjansi.jnilib
+    jar uf "$TOP_LEVEL"/Contents/Java/kotlin-compiler-embeddable-*.jar org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac/x86/libjansi.jnilib
+    rm org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac/x86/libjansi.jnilib
+fi
+
 jar xf "$TOP_LEVEL"/Contents/Java/kotlin-compiler-embeddable-*.jar org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac/x86_64/libjansi.jnilib || true
 if [ -f ./org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac/x86_64/libjansi.jnilib ]; then
     codesign --verbose=4 --timestamp --options=runtime -s "Developer ID Application: $1" --entitlements entitlements.plist ./org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac/x86_64/libjansi.jnilib
