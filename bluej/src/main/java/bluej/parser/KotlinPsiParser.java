@@ -21,9 +21,8 @@
  */
 package bluej.parser;
 
-import bluej.parser.lexer.JavaTokenTypes;
-import bluej.parser.lexer.LineColPos;
-import bluej.parser.lexer.LocatableToken;
+import bluej.extensions2.SourceType;
+import bluej.parser.lexer.*;
 import bluej.parser.psi.*;
 import bluej.parser.psi.visitor.*;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
@@ -32,6 +31,8 @@ import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtilKt;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.*;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -975,5 +976,119 @@ public class KotlinPsiParser implements ParserBehavior {
                 || tokType == JavaTokenTypes.LITERAL_external
                 || tokType == JavaTokenTypes.LITERAL_operator
                 || tokType == JavaTokenTypes.LITERAL_inner);
+    }
+
+
+    public Token.TokenType classifyToken(LocatableToken token) {
+        Token.TokenType tokType = null; // Token.TokenType.DEFAULT;
+
+        if (isPrimitiveType(token)) {
+            tokType = Token.TokenType.PRIMITIVE;
+        }
+        else if (isModifier(token)) {
+            tokType = Token.TokenType.KEYWORD1;
+        }
+        else if (token.getType() == JavaTokenTypes.STRING_LITERAL || token.getType() == JavaTokenTypes.STRING_LITERAL_MULTILINE) {
+            tokType = Token.TokenType.STRING_LITERAL;
+        }
+        else if (token.getType() == JavaTokenTypes.CHAR_LITERAL) {
+            tokType = Token.TokenType.CHAR_LITERAL;
+        }
+        else {
+            switch (token.getType()) {
+                case JavaTokenTypes.LITERAL_assert:
+                case JavaTokenTypes.LITERAL_for:
+                case JavaTokenTypes.LITERAL_switch:
+                case JavaTokenTypes.LITERAL_while:
+                case JavaTokenTypes.LITERAL_do:
+                case JavaTokenTypes.LITERAL_try:
+                case JavaTokenTypes.LITERAL_catch:
+                case JavaTokenTypes.LITERAL_throw:
+                case JavaTokenTypes.LITERAL_throws:
+                case JavaTokenTypes.LITERAL_finally:
+                case JavaTokenTypes.LITERAL_return:
+                case JavaTokenTypes.LITERAL_case:
+                case JavaTokenTypes.LITERAL_default:
+                case JavaTokenTypes.LITERAL_break:
+                case JavaTokenTypes.LITERAL_continue:
+                case JavaTokenTypes.LITERAL_if:
+                case JavaTokenTypes.LITERAL_else:
+                case JavaTokenTypes.LITERAL_new:
+                case JavaTokenTypes.LITERAL_yield:
+                case JavaTokenTypes.LITERAL_instanceof:
+                case JavaTokenTypes.LITERAL_val:
+                case JavaTokenTypes.LITERAL_var:
+                    tokType = Token.TokenType.KEYWORD1;
+                    break;
+
+                case JavaTokenTypes.LITERAL_class:
+                case JavaTokenTypes.LITERAL_package:
+                case JavaTokenTypes.LITERAL_import:
+                case JavaTokenTypes.LITERAL_extends:
+                case JavaTokenTypes.LITERAL_interface:
+                case JavaTokenTypes.LITERAL_enum:
+                case JavaTokenTypes.LITERAL_record:
+                case JavaTokenTypes.LITERAL_permits:
+                case JavaTokenTypes.LITERAL_implements:
+                case JavaTokenTypes.LITERAL_fun:
+                    tokType = Token.TokenType.KEYWORD2;
+                    break;
+
+                case JavaTokenTypes.LITERAL_super:
+//                    if (lastWasWildcard)
+//                        tokType = Token.TokenType.KEYWORD2;
+//                    else
+                    tokType = Token.TokenType.KEYWORD3;
+                    break;
+                case JavaTokenTypes.LITERAL_this:
+                case JavaTokenTypes.LITERAL_null:
+
+                case JavaTokenTypes.LITERAL_true:
+                case JavaTokenTypes.LITERAL_false:
+                    tokType = Token.TokenType.KEYWORD3;
+                    break;
+
+                default:
+            }
+        }
+
+        if (tokType == null) {
+            var tree = getPsiTree();
+            var element = tree.findElementAt(token.getPosition());
+
+            if (element.getNode().getElementType() == KtTokens.IDENTIFIER && element.getText().equals("it")) {
+                if (PsiTreeUtil.getParentOfType(element, KtLambdaExpression.class) != null) {
+                    return Token.TokenType.KEYWORD1;
+                }
+            }
+
+            tokType = Token.TokenType.DEFAULT;
+        }
+
+        return tokType;
+    }
+
+    public BufferedTokenStream createTokenStream(SourceInput input, LineColPos position) {
+        assert input.sourceType() == SourceType.Kotlin;
+
+        try {
+            Keywords kws = new KotlinKeywords();
+            Reader reader = input.createReader();
+
+            var lexer = new JavaLexer(
+                    reader,
+                    kws,
+                    position.line(),
+                    position.column(),
+                    position.position()
+            );
+
+            var filteredStream = new JavaTokenFilter(lexer, sourceParser);
+
+            return filteredStream;
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

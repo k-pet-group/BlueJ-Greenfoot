@@ -202,7 +202,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         EditorParser parser = new EditorParser(input, buildScopeStack(), listener);
 
         // TODO: we _probably_ could get it from the SourceInput now
-        parser.setStartPosition(startPosition);
+//        parser.setStartPosition(startPosition);
 
         LocatableToken laToken = parser.getTokenStream().LA(1);
         int ttype = laToken.getType();
@@ -289,7 +289,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                     input = SourceInput.fromDocument(document).withRange(range);
                     parser = new EditorParser(input, buildScopeStack(), listener);
 
-                    parser.setStartPosition(startPosition);
+//                    parser.setStartPosition(startPosition);
 
 //                    pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
 //                    pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;

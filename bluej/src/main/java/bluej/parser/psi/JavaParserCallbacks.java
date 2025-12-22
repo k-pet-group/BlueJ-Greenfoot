@@ -1,5 +1,6 @@
 package bluej.parser.psi;
 
+import bluej.parser.JavaParserCallbacksBase;
 import bluej.parser.lexer.LocatableToken;
 
 import java.util.List;
@@ -628,4 +629,6 @@ public interface JavaParserCallbacks {
      * @param endCol    The column where the erroneous token ends
      */
     void error(String msg, int beginLine, int beginCol, int endLine, int endCol);
+
+    JavaParserCallbacksBase getTarget();
 }

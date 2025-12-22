@@ -34,13 +34,12 @@ import bluej.parser.TokenStream;
  * 
  * @author Davin McCall
  */
-public final class JavaTokenFilter implements TokenStream
-{
-    private TokenStream sourceStream;
+public final class JavaTokenFilter implements BufferedTokenStream {
+    private final TokenStream sourceStream;
     private LocatableToken lastComment;
     private LocatableToken cachedToken;
-    private List<LocatableToken> buffer = new LinkedList<LocatableToken>();
-    private LinkedList<LocatableToken> recent = new LinkedList<>();
+    private final List<LocatableToken> buffer = new LinkedList<LocatableToken>();
+    private final LinkedList<LocatableToken> recent = new LinkedList<>();
     private JavaParserCallbacksBase parser;
 
     public JavaTokenFilter(TokenStream source)
@@ -60,6 +59,12 @@ public final class JavaTokenFilter implements TokenStream
         return this.sourceStream.getOffset();
     }
 
+    @Override
+    public TokenStream getSourceStream() {
+        return sourceStream;
+    }
+
+    @Override
     public LocatableToken nextToken()
     {
         LocatableToken rval;
@@ -98,10 +103,7 @@ public final class JavaTokenFilter implements TokenStream
         return rval;
     }
 
-    /**
-     * Push a token on to the stream. The token will be returned by the next call
-     * to nextToken().
-     */
+    @Override
     public void pushBack(LocatableToken token)
     {
         buffer.add(token);
@@ -109,19 +111,13 @@ public final class JavaTokenFilter implements TokenStream
             recent.removeLast();
     }
 
-    /**
-     * Gets the most recent token returned by nextToken which has not been
-     * pushed back using pushBack.
-     */
+    @Override
     public LocatableToken getMostRecent()
     {
         return recent.isEmpty() ? null : recent.getLast();
     }
 
-    /**
-     * Look ahead a certain number of tokens (without actually consuming them).
-     * @param distance  The distance to look ahead (1 or greater).
-     */
+    @Override
     public LocatableToken LA(int distance)
     {
         if (cachedToken != null) {

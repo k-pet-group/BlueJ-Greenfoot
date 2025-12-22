@@ -452,10 +452,12 @@ public abstract class JavaParentNode extends ParentParsedNode
 
     protected static Token tokenizeText(ReparseableDocument document, int pos, int length)
     {
+        var startPosition = document.getPosition(pos);
         var range = Optional.of(
                 new SourceInput.Range(
-                        Optional.of(document.getPosition(pos)),
-                        Optional.of(document.getPosition(pos + length)))
+                        Optional.of(startPosition),
+//                        Optional.of(document.getPosition(pos + length)))
+                        Optional.empty())
         );
 
         SourceInput input = SourceInput.fromDocument(document).withRange(range);
@@ -468,11 +470,11 @@ public abstract class JavaParentNode extends ParentParsedNode
         Token token = dummyTok;
 
         boolean lastWasWildcard = false;
-        int curcol = 1;
+        int curcol = startPosition.column();
         while (length > 0) {
             LocatableToken lt = (LocatableToken) tokenStream.nextToken();
 
-            if (lt.getLine() > 1 || lt.getColumn() - curcol >= length) {
+            if (lt.getLine() > startPosition.line() || lt.getColumn() - curcol >= length) {
                 token.next = new Token(length, TokenType.DEFAULT);
                 token = token.next;
                 break;
@@ -485,79 +487,87 @@ public abstract class JavaParentNode extends ParentParsedNode
                 curcol += token.length;
             }
 
-            TokenType tokType = TokenType.DEFAULT;
-            if (parser.isPrimitiveType(lt)) {
-                tokType = TokenType.PRIMITIVE;
-            }
-            else if (parser.isModifier(lt)) {
-                tokType = TokenType.KEYWORD1;
-            }
-            else if (lt.getType() == JavaTokenTypes.STRING_LITERAL || lt.getType() == JavaTokenTypes.STRING_LITERAL_MULTILINE) {
-                tokType = TokenType.STRING_LITERAL;
-            }
-            else if (lt.getType() == JavaTokenTypes.CHAR_LITERAL) {
-                tokType = TokenType.CHAR_LITERAL;
-            }
-            else {
-                switch (lt.getType()) {
-                case JavaTokenTypes.LITERAL_assert:
-                case JavaTokenTypes.LITERAL_for:
-                case JavaTokenTypes.LITERAL_switch:
-                case JavaTokenTypes.LITERAL_while:
-                case JavaTokenTypes.LITERAL_do:
-                case JavaTokenTypes.LITERAL_try:
-                case JavaTokenTypes.LITERAL_catch:
-                case JavaTokenTypes.LITERAL_throw:
-                case JavaTokenTypes.LITERAL_throws:
-                case JavaTokenTypes.LITERAL_finally:
-                case JavaTokenTypes.LITERAL_return:
-                case JavaTokenTypes.LITERAL_case:
-                case JavaTokenTypes.LITERAL_default:
-                case JavaTokenTypes.LITERAL_break:
-                case JavaTokenTypes.LITERAL_continue:
-                case JavaTokenTypes.LITERAL_if:
-                case JavaTokenTypes.LITERAL_else:
-                case JavaTokenTypes.LITERAL_new:
-                case JavaTokenTypes.LITERAL_yield:
-                case JavaTokenTypes.LITERAL_instanceof:
-                case JavaTokenTypes.LITERAL_val:
-                case JavaTokenTypes.LITERAL_var:
-                    tokType = TokenType.KEYWORD1;
-                    break;
+//            TokenType tokType = TokenType.DEFAULT;
+//            if (parser.isPrimitiveType(lt)) {
+//                tokType = TokenType.PRIMITIVE;
+//            }
+//            else if (parser.isModifier(lt)) {
+//                tokType = TokenType.KEYWORD1;
+//            }
+//            else if (lt.getType() == JavaTokenTypes.STRING_LITERAL || lt.getType() == JavaTokenTypes.STRING_LITERAL_MULTILINE) {
+//                tokType = TokenType.STRING_LITERAL;
+//            }
+//            else if (lt.getType() == JavaTokenTypes.CHAR_LITERAL) {
+//                tokType = TokenType.CHAR_LITERAL;
+//            }
+//            else {
+//                switch (lt.getType()) {
+//                case JavaTokenTypes.LITERAL_assert:
+//                case JavaTokenTypes.LITERAL_for:
+//                case JavaTokenTypes.LITERAL_switch:
+//                case JavaTokenTypes.LITERAL_while:
+//                case JavaTokenTypes.LITERAL_do:
+//                case JavaTokenTypes.LITERAL_try:
+//                case JavaTokenTypes.LITERAL_catch:
+//                case JavaTokenTypes.LITERAL_throw:
+//                case JavaTokenTypes.LITERAL_throws:
+//                case JavaTokenTypes.LITERAL_finally:
+//                case JavaTokenTypes.LITERAL_return:
+//                case JavaTokenTypes.LITERAL_case:
+//                case JavaTokenTypes.LITERAL_default:
+//                case JavaTokenTypes.LITERAL_break:
+//                case JavaTokenTypes.LITERAL_continue:
+//                case JavaTokenTypes.LITERAL_if:
+//                case JavaTokenTypes.LITERAL_else:
+//                case JavaTokenTypes.LITERAL_new:
+//                case JavaTokenTypes.LITERAL_yield:
+//                case JavaTokenTypes.LITERAL_instanceof:
+//                case JavaTokenTypes.LITERAL_val:
+//                case JavaTokenTypes.LITERAL_var:
+//                    tokType = TokenType.KEYWORD1;
+//                    break;
+//
+//                case JavaTokenTypes.LITERAL_class:
+//                case JavaTokenTypes.LITERAL_package:
+//                case JavaTokenTypes.LITERAL_import:
+//                case JavaTokenTypes.LITERAL_extends:
+//                case JavaTokenTypes.LITERAL_interface:
+//                case JavaTokenTypes.LITERAL_enum:
+//                case JavaTokenTypes.LITERAL_record:
+//                case JavaTokenTypes.LITERAL_permits:
+//                case JavaTokenTypes.LITERAL_implements:
+//                case JavaTokenTypes.LITERAL_fun:
+//                    tokType = TokenType.KEYWORD2;
+//                    break;
+//
+//                case JavaTokenTypes.LITERAL_super:
+//                    if (lastWasWildcard)
+//                        tokType = TokenType.KEYWORD2;
+//                    else
+//                        tokType = TokenType.KEYWORD3;
+//                    break;
+//                case JavaTokenTypes.LITERAL_this:
+//                case JavaTokenTypes.LITERAL_null:
+//
+//                case JavaTokenTypes.LITERAL_true:
+//                case JavaTokenTypes.LITERAL_false:
+//                    tokType = TokenType.KEYWORD3;
+//                    break;
+//
+//                default:
+//                }
+//            }
 
-                case JavaTokenTypes.LITERAL_class:
-                case JavaTokenTypes.LITERAL_package:
-                case JavaTokenTypes.LITERAL_import:
-                case JavaTokenTypes.LITERAL_extends:
-                case JavaTokenTypes.LITERAL_interface:
-                case JavaTokenTypes.LITERAL_enum:
-                case JavaTokenTypes.LITERAL_record:
-                case JavaTokenTypes.LITERAL_permits:
-                case JavaTokenTypes.LITERAL_implements:
-                case JavaTokenTypes.LITERAL_fun:
-                    tokType = TokenType.KEYWORD2;
-                    break;
+            var tokType = parser.classifyToken(lt);
 
-                case JavaTokenTypes.LITERAL_super:
-                    if (lastWasWildcard)
-                        tokType = TokenType.KEYWORD2;
-                    else
-                        tokType = TokenType.KEYWORD3;
-                    break;
-                case JavaTokenTypes.LITERAL_this:
-                case JavaTokenTypes.LITERAL_null:
-
-                case JavaTokenTypes.LITERAL_true:
-                case JavaTokenTypes.LITERAL_false:
-                    tokType = TokenType.KEYWORD3;
-                    break;
-
-                default:
-                }
+            if (document.getSourceType() != SourceType.Kotlin && lastWasWildcard && lt.getType() == JavaTokenTypes.LITERAL_super) {
+                // workaround to recognise super as generic bound keyword for Java
+                tokType = TokenType.KEYWORD2;
             }
+
             lastWasWildcard = lt.getType() == JavaTokenTypes.QUESTION;
             int toklen = lt.getLength();
-            if (lt.getEndLine() > 1) {
+            if (lt.getEndLine() > startPosition.line()) {
                 toklen = length;
             }
             token.next = new Token(toklen, tokType);

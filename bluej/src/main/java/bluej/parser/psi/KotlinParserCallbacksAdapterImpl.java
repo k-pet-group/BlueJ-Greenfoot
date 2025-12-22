@@ -1,6 +1,7 @@
 package bluej.parser.psi;
 
 import bluej.parser.SourceParser;
+import bluej.parser.lexer.BufferedTokenStream;
 import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.lexer.LocatableToken;
 
@@ -1982,7 +1983,7 @@ public final class KotlinParserCallbacksAdapterImpl extends JavaParserCallbacksA
     }
 
     @Override
-    public JavaTokenFilter getTokenStream() {
+    public BufferedTokenStream getTokenStream() {
         return this.target.getTokenStream();
     }
 
@@ -2012,5 +2013,10 @@ public final class KotlinParserCallbacksAdapterImpl extends JavaParserCallbacksA
         }
 
         return true;
+    }
+
+    @Override
+    public SourceParser getTarget() {
+        return super.getTarget();
     }
 }

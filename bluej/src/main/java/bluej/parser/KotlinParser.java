@@ -21,10 +21,14 @@
  */
 package bluej.parser;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import bluej.extensions2.SourceType;
 import bluej.parser.lexer.*;
+import bluej.parser.psi.SourceInput;
 
 import static bluej.parser.lexer.JavaTokenTypes.*;
 
@@ -59,14 +63,14 @@ public class KotlinParser implements ParserBehavior
         this.parser = parser;
     }
 
-    public final JavaTokenFilter getTokenStream()
+    public final BufferedTokenStream getTokenStream()
     {
         var tokenStream = parser.getTokenStream();
 
-        // Skip whitespace – we had to enable it for the new parser, but the old parser didn't expect whitespace
-        while (tokenStream.LA(1).getType() == JavaTokenTypes.WHITESPACE) {
-            tokenStream.nextToken();
-        }
+//        // Skip whitespace – we had to enable it for the new parser, but the old parser didn't expect whitespace
+//        while (tokenStream.LA(1).getType() == JavaTokenTypes.WHITESPACE) {
+//            tokenStream.nextToken();
+//        }
 
         return tokenStream;
     }
@@ -202,7 +206,7 @@ public class KotlinParser implements ParserBehavior
 
     /**
      * Parse a part of a compilation unit, starting from the given state.
-     * 
+     *
      * @param state The state to start parsing from
      * @return The new state after parsing
      */
@@ -1848,5 +1852,104 @@ public class KotlinParser implements ParserBehavior
             return true;
         }
         return false;
+    }
+
+    public Token.TokenType classifyToken(LocatableToken token) {
+        Token.TokenType tokType = Token.TokenType.DEFAULT;
+        if (isPrimitiveType(token)) {
+            tokType = Token.TokenType.PRIMITIVE;
+        }
+        else if (isModifier(token)) {
+            tokType = Token.TokenType.KEYWORD1;
+        }
+        else if (token.getType() == JavaTokenTypes.STRING_LITERAL || token.getType() == JavaTokenTypes.STRING_LITERAL_MULTILINE) {
+            tokType = Token.TokenType.STRING_LITERAL;
+        }
+        else if (token.getType() == JavaTokenTypes.CHAR_LITERAL) {
+            tokType = Token.TokenType.CHAR_LITERAL;
+        }
+        else {
+            switch (token.getType()) {
+                case JavaTokenTypes.LITERAL_assert:
+                case JavaTokenTypes.LITERAL_for:
+                case JavaTokenTypes.LITERAL_switch:
+                case JavaTokenTypes.LITERAL_while:
+                case JavaTokenTypes.LITERAL_do:
+                case JavaTokenTypes.LITERAL_try:
+                case JavaTokenTypes.LITERAL_catch:
+                case JavaTokenTypes.LITERAL_throw:
+                case JavaTokenTypes.LITERAL_throws:
+                case JavaTokenTypes.LITERAL_finally:
+                case JavaTokenTypes.LITERAL_return:
+                case JavaTokenTypes.LITERAL_case:
+                case JavaTokenTypes.LITERAL_default:
+                case JavaTokenTypes.LITERAL_break:
+                case JavaTokenTypes.LITERAL_continue:
+                case JavaTokenTypes.LITERAL_if:
+                case JavaTokenTypes.LITERAL_else:
+                case JavaTokenTypes.LITERAL_new:
+                case JavaTokenTypes.LITERAL_yield:
+                case JavaTokenTypes.LITERAL_instanceof:
+                case JavaTokenTypes.LITERAL_val:
+                case JavaTokenTypes.LITERAL_var:
+                    tokType = Token.TokenType.KEYWORD1;
+                    break;
+
+                case JavaTokenTypes.LITERAL_class:
+                case JavaTokenTypes.LITERAL_package:
+                case JavaTokenTypes.LITERAL_import:
+                case JavaTokenTypes.LITERAL_extends:
+                case JavaTokenTypes.LITERAL_interface:
+                case JavaTokenTypes.LITERAL_enum:
+                case JavaTokenTypes.LITERAL_record:
+                case JavaTokenTypes.LITERAL_permits:
+                case JavaTokenTypes.LITERAL_implements:
+                case JavaTokenTypes.LITERAL_fun:
+                    tokType = Token.TokenType.KEYWORD2;
+                    break;
+
+                case JavaTokenTypes.LITERAL_super:
+//                    if (lastWasWildcard)
+//                        tokType = Token.TokenType.KEYWORD2;
+//                    else
+                    tokType = Token.TokenType.KEYWORD3;
+                    break;
+                case JavaTokenTypes.LITERAL_this:
+                case JavaTokenTypes.LITERAL_null:
+
+                case JavaTokenTypes.LITERAL_true:
+                case JavaTokenTypes.LITERAL_false:
+                    tokType = Token.TokenType.KEYWORD3;
+                    break;
+
+                default:
+            }
+        }
+
+        return tokType;
+    }
+
+    public BufferedTokenStream createTokenStream(SourceInput input, LineColPos position) {
+        assert input.sourceType() == SourceType.Kotlin;
+
+        try {
+            Keywords kws = new KotlinKeywords();
+            Reader reader = input.createReader();
+
+            var lexer = new JavaLexer(
+                    reader,
+                    kws,
+                    position.line(),
+                    position.column(),
+                    position.position()
+            );
+
+            var filteredStream = new JavaTokenFilter(lexer, this.parser);
+
+            return filteredStream;
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

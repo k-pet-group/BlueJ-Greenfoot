@@ -1918,5 +1918,10 @@ public class JavaParserCallbacksAdapterImpl implements JavaParserCallbacks {
         if (t instanceof Error e) throw e;
         throw new RuntimeException(t);
     }
+
+    @Override
+    public SourceParser getTarget() {
+        return target;
+    }
 }
     

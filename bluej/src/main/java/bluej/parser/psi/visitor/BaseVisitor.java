@@ -1,9 +1,6 @@
 package bluej.parser.psi.visitor;
 
-import bluej.parser.lexer.JavaTokenFilter;
-import bluej.parser.lexer.JavaTokenTypes;
-import bluej.parser.lexer.LineColPos;
-import bluej.parser.lexer.LocatableToken;
+import bluej.parser.lexer.*;
 import bluej.parser.psi.JavaParserCallbacksAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -310,7 +307,7 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
 //        return callbacks.clear
     }
 
-    protected JavaTokenFilter getTokenStream() {
+    protected BufferedTokenStream getTokenStream() {
         return this.callbacks.getTokenStream();
     }
 

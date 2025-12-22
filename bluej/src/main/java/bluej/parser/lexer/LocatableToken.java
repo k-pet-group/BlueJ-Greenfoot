@@ -58,6 +58,10 @@ public class LocatableToken
         return begin.line();
     }
 
+    public int getLineSpan() {
+        return end.line() - begin.line() + 1;
+    }
+
     public LocatableToken adjustStart(int offset)
     {
         // Assume same line:

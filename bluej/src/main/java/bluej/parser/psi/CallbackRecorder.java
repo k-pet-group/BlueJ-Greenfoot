@@ -1764,4 +1764,9 @@ public class CallbackRecorder implements JavaParserCallbacksAdapter {
     public void endClass() {
         record("endClass");
     }
+
+    @Override
+    public JavaParserCallbacksBase getTarget() {
+        return null;
+    }
 }

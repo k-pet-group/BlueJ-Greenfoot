@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiComment;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement;
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace;
+import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtilKt;
 import org.jetbrains.kotlin.psi.*;
 
 import java.util.ArrayList;
@@ -198,12 +199,12 @@ public class ClassVisitor extends BaseVisitor {
         // Find the final token for ending field declarations
         LocatableToken finalToken = lastToken;
         try {
-            PsiElement possiblyLast = property;
-            while (possiblyLast.getChildren().length > 0) {
-                PsiElement[] children = possiblyLast.getChildren();
-                possiblyLast = children[children.length - 1];
-            }
-            finalToken = createToken(possiblyLast);
+//            PsiElement possiblyLast = property;
+//            while (possiblyLast.getChildren().length > 0) {
+//                PsiElement[] children = possiblyLast.getChildren();
+//                possiblyLast = children[children.length - 1];
+//            }
+            finalToken = createToken(PsiTreeUtilKt.getLastLeaf(property));
         } catch (Exception e) {
             // Fallback to lastToken
         }
@@ -455,16 +456,6 @@ public class ClassVisitor extends BaseVisitor {
      */
     @Override
     public void visitObjectDeclaration(@NotNull KtObjectDeclaration declaration) {
-        if (declaration == null) {
-            return;
-        }
-
-        // Skip if no callbacks configured
-        if (callbacks == null) {
-            super.visitObjectDeclaration(declaration);
-            return;
-        }
-
         // 1. Begin declaration
         LocatableToken objectToken = createToken(declaration.getObjectKeyword(), JavaTokenTypes.LITERAL_object);
         callbacks.gotDeclBegin(objectToken);

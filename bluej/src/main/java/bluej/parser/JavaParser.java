@@ -24,18 +24,19 @@ package bluej.parser;
 import static bluej.parser.JavaErrorCodes.*;
 import static bluej.parser.lexer.JavaTokenTypes.*;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import bluej.parser.lexer.JavaTokenFilter;
-import bluej.parser.lexer.JavaTokenTypes;
-import bluej.parser.lexer.LocatableToken;
+import bluej.extensions2.SourceType;
+import bluej.parser.lexer.*;
 import bluej.parser.psi.CallbackRecorder;
 import bluej.parser.psi.JavaParserCallbacks;
 import bluej.parser.psi.JavaParserCallbacksAdapterImpl;
+import bluej.parser.psi.SourceInput;
 import bluej.parser.psi.visitor.ForwardingCallbackRecorder;
 import org.junit.Test;
 
@@ -73,7 +74,7 @@ public class JavaParser implements ParserBehavior
         }
     }
 
-    public final JavaTokenFilter getTokenStream()
+    public final BufferedTokenStream getTokenStream()
     {
         return parser.getTokenStream();
     }
@@ -180,7 +181,7 @@ public class JavaParser implements ParserBehavior
     /**
      * Check whether a token is a primitive type - "int" "float" etc
      */
-    public boolean isPrimitiveType(LocatableToken token)
+    public static boolean isPrimitiveType(LocatableToken token)
     {
         return ParseUtils.isPrimitiveJavaType(token);
     }
@@ -658,7 +659,7 @@ public class JavaParser implements ParserBehavior
      * Check whether a token represents a modifier (or an "at" symbol,
      * denoting an annotation).
      */
-    public boolean isModifier(LocatableToken token)
+    public static boolean isModifier(LocatableToken token)
     {
         int tokType = token.getType();
         return (tokType == JavaTokenTypes.LITERAL_public
@@ -3459,5 +3460,104 @@ public class JavaParser implements ParserBehavior
     private class DepthRef
     {
         int depth;
+    }
+
+    public Token.TokenType classifyToken(LocatableToken token) {
+        Token.TokenType tokType = Token.TokenType.DEFAULT;
+        if (isPrimitiveType(token)) {
+            tokType = Token.TokenType.PRIMITIVE;
+        }
+        else if (isModifier(token)) {
+            tokType = Token.TokenType.KEYWORD1;
+        }
+        else if (token.getType() == JavaTokenTypes.STRING_LITERAL || token.getType() == JavaTokenTypes.STRING_LITERAL_MULTILINE) {
+            tokType = Token.TokenType.STRING_LITERAL;
+        }
+        else if (token.getType() == JavaTokenTypes.CHAR_LITERAL) {
+            tokType = Token.TokenType.CHAR_LITERAL;
+        }
+        else {
+            switch (token.getType()) {
+                case JavaTokenTypes.LITERAL_assert:
+                case JavaTokenTypes.LITERAL_for:
+                case JavaTokenTypes.LITERAL_switch:
+                case JavaTokenTypes.LITERAL_while:
+                case JavaTokenTypes.LITERAL_do:
+                case JavaTokenTypes.LITERAL_try:
+                case JavaTokenTypes.LITERAL_catch:
+                case JavaTokenTypes.LITERAL_throw:
+                case JavaTokenTypes.LITERAL_throws:
+                case JavaTokenTypes.LITERAL_finally:
+                case JavaTokenTypes.LITERAL_return:
+                case JavaTokenTypes.LITERAL_case:
+                case JavaTokenTypes.LITERAL_default:
+                case JavaTokenTypes.LITERAL_break:
+                case JavaTokenTypes.LITERAL_continue:
+                case JavaTokenTypes.LITERAL_if:
+                case JavaTokenTypes.LITERAL_else:
+                case JavaTokenTypes.LITERAL_new:
+                case JavaTokenTypes.LITERAL_yield:
+                case JavaTokenTypes.LITERAL_instanceof:
+                case JavaTokenTypes.LITERAL_val:
+                case JavaTokenTypes.LITERAL_var:
+                    tokType = Token.TokenType.KEYWORD1;
+                    break;
+
+                case JavaTokenTypes.LITERAL_class:
+                case JavaTokenTypes.LITERAL_package:
+                case JavaTokenTypes.LITERAL_import:
+                case JavaTokenTypes.LITERAL_extends:
+                case JavaTokenTypes.LITERAL_interface:
+                case JavaTokenTypes.LITERAL_enum:
+                case JavaTokenTypes.LITERAL_record:
+                case JavaTokenTypes.LITERAL_permits:
+                case JavaTokenTypes.LITERAL_implements:
+                case JavaTokenTypes.LITERAL_fun:
+                    tokType = Token.TokenType.KEYWORD2;
+                    break;
+
+                case JavaTokenTypes.LITERAL_super:
+//                    if (lastWasWildcard)
+//                        tokType = Token.TokenType.KEYWORD2;
+//                    else
+                        tokType = Token.TokenType.KEYWORD3;
+                    break;
+                case JavaTokenTypes.LITERAL_this:
+                case JavaTokenTypes.LITERAL_null:
+
+                case JavaTokenTypes.LITERAL_true:
+                case JavaTokenTypes.LITERAL_false:
+                    tokType = Token.TokenType.KEYWORD3;
+                    break;
+
+                default:
+            }
+        }
+
+        return tokType;
+    }
+
+    public BufferedTokenStream createTokenStream(SourceInput input, LineColPos position) {
+        assert input.sourceType() != SourceType.Kotlin;
+
+        try {
+            Keywords kws = new JavaKeywords();
+            Reader reader = input.createReader();
+
+            var lexer = new JavaLexer(
+                    reader,
+                    kws,
+                    position.line(),
+                    position.column(),
+                    position.position()
+                );
+
+            var filteredStream = new JavaTokenFilter(lexer, callbacks.getTarget());
+
+            return filteredStream;
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

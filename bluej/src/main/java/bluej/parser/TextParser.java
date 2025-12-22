@@ -161,7 +161,8 @@ public class TextParser extends SourceParser
     {
         super(SourceInput.fromReader(r, SourceType.Java));
 
-        this.setStartPosition(position);
+        // TODO: re-implement this differently
+//        this.setStartPosition(position);
 
         this.resolver = resolver;
         this.accessType = accessType;

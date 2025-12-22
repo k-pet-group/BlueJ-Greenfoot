@@ -24,6 +24,7 @@ package bluej.parser.nodes;
 import java.util.LinkedList;
 
 import bluej.parser.EditorParser;
+import bluej.parser.lexer.BufferedTokenStream;
 import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
@@ -41,7 +42,7 @@ public class ParseParams
 
     public NodeStructureListener listener;
     public EditorParser parser;
-    public JavaTokenFilter tokenStream;
+    public BufferedTokenStream tokenStream;
     public ReparseableDocument document;
     public int nodePos;
     public LinkedList<NodeAndPosition<ParsedNode>> childQueue;

@@ -1,5 +1,6 @@
 package bluej.parser.psi;
 
+import bluej.parser.lexer.BufferedTokenStream;
 import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
@@ -7,7 +8,7 @@ import bluej.parser.lexer.LocatableToken;
 import java.util.List;
 
 public interface JavaParserCallbacksAdapter extends JavaParserCallbacks {
-    JavaTokenFilter getTokenStream();
+    BufferedTokenStream getTokenStream();
 
     LocatableToken getLastToken();
 
@@ -177,7 +178,7 @@ public interface JavaParserCallbacksAdapter extends JavaParserCallbacks {
             return;
         }
 
-        JavaTokenFilter tokenStream = getTokenStream();
+        BufferedTokenStream tokenStream = getTokenStream();
         LocatableToken currentToken;
         LocatableToken previousToken = tokenStream.getMostRecent();
 

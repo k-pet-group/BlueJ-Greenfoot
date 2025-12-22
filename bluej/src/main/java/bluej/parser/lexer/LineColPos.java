@@ -21,6 +21,7 @@
  */
 package bluej.parser.lexer;
 
+import org.jetbrains.annotations.NotNull;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -31,10 +32,14 @@ import threadchecker.Tag;
  * @param position The position in the overall String as a character index
  */
 @OnThread(Tag.Any)
-public record LineColPos(int line, int column, int position)
-{
+public record LineColPos(int line, int column, int position) implements Comparable<LineColPos> {
     public LineColPos offsetSameLineBy(int offset)
     {
         return new LineColPos(line, column + offset, position + offset);
+    }
+
+    @Override
+    public int compareTo(@NotNull LineColPos other) {
+        return this.position - other.position;
     }
 }

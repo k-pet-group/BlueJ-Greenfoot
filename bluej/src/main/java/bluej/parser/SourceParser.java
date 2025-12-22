@@ -30,7 +30,7 @@ import java.io.Reader;
 import java.util.List;
 
 public class SourceParser extends JavaParserCallbacksBase {
-    protected JavaTokenFilter tokenStream;
+    protected BufferedTokenStream tokenStream;
     protected LocatableToken lastToken;
     protected final SourceType sourceType;
     protected boolean handleComments = true;
@@ -101,45 +101,46 @@ public class SourceParser extends JavaParserCallbacksBase {
 
      */
     
-    public SourceParser setStartPosition(LineColPos position) {
-        this.lexer = null;
-        this.tokenStream = null;
-        this.position = position;
-
-        return this;
-    }
-
-    protected TokenStream getLexer() {
-        if (lexer != null) { return lexer; }
-
-        try {
-            Keywords kws = sourceType == SourceType.Kotlin ? new KotlinKeywords() : new JavaKeywords();
-            Reader reader =  getSourceInput().createReader();
-
-            var lexer = new JavaLexer(
-                reader,
-                kws,
-                this.position.line(),
-                this.position.column(),
-                this.position.position()
-            );
-
-            // TODO: handle that later
-
-//            lexer.setHandleComments(false);
-
-//            lexer.handleComments = handleComments,
-//            handleMultilineStrings,
-
-            if (sourceType == SourceType.Kotlin) {
-//                lexer.setGenerateWhitespaceTokens(true);
-            }
-
-            return lexer;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public SourceParser setStartPosition(LineColPos position) {
+////        this.lexer = null;
+//        this.tokenStream = null;
+//        this.position = position;
+//
+//        return this;
+//    }
+//
+//    protected TokenStream getLexer() {
+//        if (lexer != null) { return lexer; }
+//
+//        try {
+//            lexer = getParserImplementation().createLexer(getSourceInput());
+////            Keywords kws = sourceType == SourceType.Kotlin ? new KotlinKeywords() : new JavaKeywords();
+////            Reader reader =  getSourceInput().createReader();
+////
+////            var lexer = new JavaLexer(
+////                reader,
+////                kws,
+////                this.position.line(),
+////                this.position.column(),
+////                this.position.position()
+////            );
+////
+////            // TODO: handle that later
+////
+//////            lexer.setHandleComments(false);
+////
+//////            lexer.handleComments = handleComments,
+//////            handleMultilineStrings,
+////
+////            if (sourceType == SourceType.Kotlin) {
+//////                lexer.setGenerateWhitespaceTokens(true);
+////            }
+////
+//            return lexer;
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     public boolean isHandleComments() {
         return handleComments;
@@ -185,12 +186,10 @@ public class SourceParser extends JavaParserCallbacksBase {
                 : new JavaParser(this);
     }
 
-    public JavaTokenFilter getTokenStream() {
+    public BufferedTokenStream getTokenStream() {
         if (tokenStream != null) { return tokenStream; }
 
-        TokenStream lexer = getLexer();
-
-        tokenStream = new JavaTokenFilter(lexer, this);
+        tokenStream = getParserImplementation().createTokenStream(getSourceInput());
 
         return tokenStream;
     }
@@ -290,11 +289,15 @@ public class SourceParser extends JavaParserCallbacksBase {
         return sourceInput;
     }
 
-    public boolean isModifier(LocatableToken lt) {
-        return getParserImplementation().isModifier(lt);
-    }
+//    public boolean isModifier(LocatableToken lt) {
+//        return getParserImplementation().isModifier(lt);
+//    }
+//
+//    public boolean isPrimitiveType(LocatableToken lt) {
+//        return getParserImplementation().isPrimitiveType(lt);
+//    }
 
-    public boolean isPrimitiveType(LocatableToken lt) {
-        return getParserImplementation().isPrimitiveType(lt);
+    public Token.TokenType classifyToken(LocatableToken token) {
+        return getParserImplementation().classifyToken(token);
     }
 }
