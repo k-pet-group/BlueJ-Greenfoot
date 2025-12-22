@@ -187,7 +187,7 @@ public class KotlinParser implements ParserBehavior
     /**
      * Check whether a token is a primitive type - "int" "float" etc
      */
-    public static boolean isPrimitiveType(LocatableToken token)
+    public boolean isPrimitiveType(LocatableToken token)
     {
         return token.getType() == JavaTokenTypes.LITERAL_void
         || token.getType() == JavaTokenTypes.LITERAL_boolean
@@ -255,7 +255,7 @@ public class KotlinParser implements ParserBehavior
      * Check whether a token represents a modifier (or an "at" symbol,
      * denoting an annotation).
      */
-    public static boolean isModifier(LocatableToken token)
+    public boolean isModifier(LocatableToken token)
     {
         int tokType = token.getType();
         return (tokType == JavaTokenTypes.LITERAL_public

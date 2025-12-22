@@ -30,8 +30,7 @@ import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.utility.JavaNames;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -43,6 +42,8 @@ public class ParsedCUNode extends IncrementalParsingNode
 {
     private final EntityResolver parentResolver;
     private final ImportsCollection imports = new ImportsCollection();
+
+    private Map<String,Set<MethodNode>> topLevelFunctions = new HashMap<String,Set<MethodNode>>();
 
     private int size = 0;
 
@@ -204,5 +205,13 @@ public class ParsedCUNode extends IncrementalParsingNode
             NodeAndPosition<ParsedNode> nap = i.next();
             printTree(nap.getNode(), nap.getPosition(), indent+1);
         }
+    }
+
+    public void topLevelFunctionAdded(MethodNode method)
+    {
+        String name = method.getName();
+        Set<MethodNode> topLevelFunctionSet = topLevelFunctions.computeIfAbsent(name, k -> new HashSet<MethodNode>());
+
+        topLevelFunctionSet.add(method);
     }
 }

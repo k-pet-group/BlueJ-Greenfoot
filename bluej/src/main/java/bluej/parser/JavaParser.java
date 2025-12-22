@@ -180,17 +180,9 @@ public class JavaParser implements ParserBehavior
     /**
      * Check whether a token is a primitive type - "int" "float" etc
      */
-    public static boolean isPrimitiveType(LocatableToken token)
+    public boolean isPrimitiveType(LocatableToken token)
     {
-        return token.getType() == JavaTokenTypes.LITERAL_void
-        || token.getType() == JavaTokenTypes.LITERAL_boolean
-        || token.getType() == JavaTokenTypes.LITERAL_byte
-        || token.getType() == JavaTokenTypes.LITERAL_char
-        || token.getType() == JavaTokenTypes.LITERAL_short
-        || token.getType() == JavaTokenTypes.LITERAL_int
-        || token.getType() == JavaTokenTypes.LITERAL_long
-        || token.getType() == JavaTokenTypes.LITERAL_float
-        || token.getType() == JavaTokenTypes.LITERAL_double;
+        return ParseUtils.isPrimitiveJavaType(token);
     }
 
     public static final int TYPEDEF_CLASS = 0;
@@ -666,7 +658,7 @@ public class JavaParser implements ParserBehavior
      * Check whether a token represents a modifier (or an "at" symbol,
      * denoting an annotation).
      */
-    public static boolean isModifier(LocatableToken token)
+    public boolean isModifier(LocatableToken token)
     {
         int tokType = token.getType();
         return (tokType == JavaTokenTypes.LITERAL_public

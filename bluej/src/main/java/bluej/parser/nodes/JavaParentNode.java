@@ -22,13 +22,7 @@
 package bluej.parser.nodes;
 
 import java.io.Reader;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import bluej.debugger.gentype.GenTypeClass;
@@ -458,8 +452,14 @@ public abstract class JavaParentNode extends ParentParsedNode
 
     protected static Token tokenizeText(ReparseableDocument document, int pos, int length)
     {
-        Reader dr = document.makeReader(pos, pos+length);
-        SourceInput input = SourceInput.fromReader(dr, SourceType.Java);
+        var range = Optional.of(
+                new SourceInput.Range(
+                        Optional.of(document.getPosition(pos)),
+                        Optional.of(document.getPosition(pos + length)))
+        );
+
+        SourceInput input = SourceInput.fromDocument(document).withRange(range);
+
         // TODO: check what the defaults should be
         SourceParser parser = new SourceParser(input).setHandleComments(true).setHandleMultilineStrings(false);
         TokenStream tokenStream = parser.getTokenStream();
@@ -486,10 +486,10 @@ public abstract class JavaParentNode extends ParentParsedNode
             }
 
             TokenType tokType = TokenType.DEFAULT;
-            if (JavaParser.isPrimitiveType(lt)) {
+            if (parser.isPrimitiveType(lt)) {
                 tokType = TokenType.PRIMITIVE;
             }
-            else if (JavaParser.isModifier(lt)) {
+            else if (parser.isModifier(lt)) {
                 tokType = TokenType.KEYWORD1;
             }
             else if (lt.getType() == JavaTokenTypes.STRING_LITERAL || lt.getType() == JavaTokenTypes.STRING_LITERAL_MULTILINE) {
@@ -520,6 +520,8 @@ public abstract class JavaParentNode extends ParentParsedNode
                 case JavaTokenTypes.LITERAL_new:
                 case JavaTokenTypes.LITERAL_yield:
                 case JavaTokenTypes.LITERAL_instanceof:
+                case JavaTokenTypes.LITERAL_val:
+                case JavaTokenTypes.LITERAL_var:
                     tokType = TokenType.KEYWORD1;
                     break;
 

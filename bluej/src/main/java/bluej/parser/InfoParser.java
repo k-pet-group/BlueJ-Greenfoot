@@ -637,9 +637,9 @@ public class InfoParser extends EditorParser
                 info.setEnum(lastTdType == TYPEDEF_ENUM);
                 info.setInterface(lastTdType == TYPEDEF_INTERFACE);
                 info.setAbstract(isAbstract);
-                if (hasTopLevelFunction) {
-                    info.setHasTopLevelFunctions(true);
-                }
+//                if (hasTopLevelFunction) {
+//                    info.setHasTopLevelFunctions(true);
+//                }
                 info.addComment(info.getName(), comment, null);
                 Selection insertSelection = new Selection(nameToken.getLine(), nameToken.getEndColumn());
                 info.setExtendsInsertSelection(insertSelection);
@@ -746,23 +746,23 @@ public class InfoParser extends EditorParser
     }
 
     // Flag to track if we've seen a top-level function
-    private boolean hasTopLevelFunction = false;
+//    private boolean hasTopLevelFunction = false;
 
     @Override
     protected void gotTopLevelDecl(LocatableToken token)
     {
-        // Check if this is a top-level function declaration
-        if (token.getType() == JavaTokenTypes.LITERAL_fun) {
-            hasTopLevelFunction = true;
-            // If we already have a ClassInfo object, set the flag on it
-            if (info == null) {
-                info = new ClassInfo();
-                info.setName("", false);
-                info.setInterface(false);
-                info.setEnum(false);
-            }
-            info.setHasTopLevelFunctions(true);
-        }
+//        // Check if this is a top-level function declaration
+//        if (token.getType() == JavaTokenTypes.LITERAL_fun) {
+//            hasTopLevelFunction = true;
+//            // If we already have a ClassInfo object, set the flag on it
+//            if (info == null) {
+//                info = new ClassInfo();
+//                info.setName("", false);
+//                info.setInterface(false);
+//                info.setEnum(false);
+//            }
+//            info.setHasTopLevelFunctions(true);
+//        }
     }
 
     private Selection getSelection(LocatableToken token)

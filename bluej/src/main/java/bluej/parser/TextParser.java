@@ -67,7 +67,7 @@ import bluej.utility.JavaReflective;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import static bluej.parser.JavaParser.isPrimitiveType;
+import static bluej.parser.ParseUtils.isPrimitiveJavaType;
 
 /**
  * A parser for the codepad.
@@ -2006,7 +2006,7 @@ public class TextParser extends SourceParser
     {
         LocatableToken token = i.next();
 
-        if (isPrimitiveType(token)) {
+        if (isPrimitiveJavaType(token)) {
             if (token.getType() == JavaTokenTypes.LITERAL_void) {
                 return new TypeEntity(JavaPrimitiveType.getVoid());
             }

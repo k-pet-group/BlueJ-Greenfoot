@@ -105,4 +105,8 @@ public interface ParserBehavior {
     boolean parseTypeSpec(boolean processArray);
 
     void parseMethodParamsBody();
+
+    boolean isModifier(LocatableToken lt);
+
+    boolean isPrimitiveType(LocatableToken lt);
 }

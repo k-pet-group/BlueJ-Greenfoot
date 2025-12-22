@@ -416,7 +416,7 @@ public class BClass
         ClassTarget ct = classId.getClassTarget();
         if (ct != null && ! ct.isCompiled()) {
             // Class is not compiled: we can still know the superclass!
-            ClassInfo info = ct.getSourceInfo().getInfo(getJavaFile(), ct.getPackage());
+            ClassInfo info = ct.getClassInfo();
             if (info != null) {
                 String superClass = info.getSuperclass();
                 superClass = (superClass == null) ? "" : superClass;

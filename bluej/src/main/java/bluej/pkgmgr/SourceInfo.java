@@ -39,10 +39,12 @@ import bluej.parser.symtab.ClassInfo;
 public final class SourceInfo
 {
     private ClassInfo info;
+    private SourceInput inputFile;
 
-    public SourceInfo()
+    public SourceInfo(SourceInput inputFile)
     {
         info = null;
+        this.inputFile = inputFile;
     }
 
     public void setSourceModified()
@@ -50,26 +52,45 @@ public final class SourceInfo
         info = null;
     }
 
-    public ClassInfo getInfo(File sourceFile, Package pkg)
-    {
-        if(info == null)
-        {
-            String fileName = sourceFile.getName();
-            SourceType sourceType = fileName.endsWith("." + SourceType.Kotlin.getExtension() ) ? SourceType.Kotlin : SourceType.Java;
-            SourceInput input = SourceInput.fromFile(sourceFile, sourceType, pkg.getProject().getProjectCharset(), pkg);
-
-            info = InfoParser.parse(input).orElse(null);
+    private ClassInfo getInfo() {
+        if (info == null)  {
+            info = InfoParser.parse(inputFile).orElse(null);
         }
 
         return info;
     }
 
-    /**
-     * Similar to getInfo, but do not parse if info is not available.
-     * Instead, return null, if we got no info.
-     */
-    public ClassInfo getInfoIfAvailable()
-    {
-        return info;
+    public ClassInfo getClassInfo(String identifier) {
+        ClassInfo info = getInfo();
+
+        if (info.getName().equals(identifier)) {
+            return  info;
+        }
+        else {
+            return null;
+        }
     }
+
+//    public ClassInfo getInfo(File sourceFile, Package pkg)
+//    {
+//        if (info == null)
+//        {
+//            String fileName = sourceFile.getName();
+//            SourceType sourceType = fileName.endsWith("." + SourceType.Kotlin.getExtension() ) ? SourceType.Kotlin : SourceType.Java;
+//            SourceInput input = SourceInput.fromFile(sourceFile, sourceType, pkg.getProject().getProjectCharset(), pkg);
+//
+//            info = InfoParser.parse(input).orElse(null);
+//        }
+//
+//        return info;
+//    }
+
+//    /**
+//     * Similar to getInfo, but do not parse if info is not available.
+//     * Instead, return null, if we got no info.
+//     */
+//    public ClassInfo getInfoIfAvailable()
+//    {
+//        return info;
+//    }
 }

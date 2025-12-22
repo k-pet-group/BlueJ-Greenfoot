@@ -111,7 +111,7 @@ public class ParseUtils
             {
                 if (superType != null)
                 {
-                    ClassInfo info = ct.getSourceInfo().getInfoIfAvailable();
+                    ClassInfo info = ct.getClassInfo();
                     if (info == null)
                         return false;
                     // This code won't pick up the case where A extends B, and B has "superType"
@@ -488,9 +488,23 @@ public class ParseUtils
     public static JavaEntity getTypeEntity(EntityResolver resolver,
                                            Reflective querySource, List<LocatableToken> tokens)
     {
+        if (tokens == null) { return null; }
+
         DepthRef dr = new DepthRef();
         return getTypeEntity(resolver, querySource, tokens.listIterator(), dr);
     }
+
+    static boolean isPrimitiveJavaType(LocatableToken token)  {
+    return token.getType() == JavaTokenTypes.LITERAL_void
+            || token.getType() == JavaTokenTypes.LITERAL_boolean
+            || token.getType() == JavaTokenTypes.LITERAL_byte
+            || token.getType() == JavaTokenTypes.LITERAL_char
+            || token.getType() == JavaTokenTypes.LITERAL_short
+            || token.getType() == JavaTokenTypes.LITERAL_int
+            || token.getType() == JavaTokenTypes.LITERAL_long
+            || token.getType() == JavaTokenTypes.LITERAL_float
+            || token.getType() == JavaTokenTypes.LITERAL_double;
+}
 
     /**
      * Get an entity for a type specification. The returned entity may be unresolved.
@@ -501,7 +515,7 @@ public class ParseUtils
                                             ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         LocatableToken token = i.next();
-        if (JavaParser.isPrimitiveType(token))
+        if (isPrimitiveJavaType(token))
         {
             JavaType type = null;
             switch (token.getType())

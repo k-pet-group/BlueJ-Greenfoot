@@ -159,6 +159,8 @@ public final class FlowActions
             builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN), actions.get("caret-next-word"));
             builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-previous-word"));
             builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-next-word"));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCombination.CONTROL_DOWN), actions.get("delete-previous-word"));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.DELETE, KeyCombination.CONTROL_DOWN), actions.get("delete-next-word"));
         }
 
         builtInKeymap.put(new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), new FlowAbstractAction("select-all", Category.EDIT)

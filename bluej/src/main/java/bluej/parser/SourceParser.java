@@ -288,4 +288,12 @@ public class SourceParser extends JavaParserCallbacksBase {
     public SourceInput getSourceInput() {
         return sourceInput;
     }
+
+    public boolean isModifier(LocatableToken lt) {
+        return getParserImplementation().isModifier(lt);
+    }
+
+    public boolean isPrimitiveType(LocatableToken lt) {
+        return getParserImplementation().isPrimitiveType(lt);
+    }
 }

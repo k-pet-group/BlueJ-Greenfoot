@@ -257,7 +257,7 @@ public class EditorParser extends SourceParser
      */
     private boolean typeSpecIsVar(List<LocatableToken> typeSpec)
     {
-        if (typeSpec.size() == 1)
+        if (typeSpec != null && typeSpec.size() == 1)
         {
             if (typeSpec.get(0).getText().equals("var"))
             {
@@ -1126,8 +1126,11 @@ public class EditorParser extends SourceParser
         MethodNode mNode = (MethodNode) scopeStack.peek();
         mNode.setComplete(included);
         endTopNode(token, included);
-        TypeInnerNode topNode = (TypeInnerNode) scopeStack.peek();
-        topNode.methodAdded(mNode);
+        switch (scopeStack.peek()) {
+            case TypeInnerNode topNode -> topNode.methodAdded(mNode);
+            case ParsedCUNode topNode -> topNode.topLevelFunctionAdded(mNode);
+            default -> throw new UnsupportedOperationException("");
+        }
     }
 
     @Override
@@ -1467,6 +1470,9 @@ public class EditorParser extends SourceParser
     protected void gotLambdaFormalType(List<LocatableToken> type)
     {
         super.gotLambdaFormalType(type);
+
+        if (type == null) { return; }
+
         gotTypeSpec(type);
         lastLambdaParamType = type.get(0);
     }

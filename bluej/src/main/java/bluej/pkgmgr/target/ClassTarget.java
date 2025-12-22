@@ -54,6 +54,7 @@ import bluej.parser.entity.PackageResolver;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedTypeNode;
+import bluej.parser.psi.SourceInput;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.Package;
@@ -158,7 +159,7 @@ public class ClassTarget extends DependentTarget
     // cached information obtained by parsing the source code
     // automatically becomes invalidated when the source code is
     // edited
-    private SourceInfo sourceInfo = new SourceInfo();
+    private SourceInfo sourceInfo = null;
 
     // caches whether the class is abstract. Only accurate when the
     // classtarget state is normal (ie. the class is compiled).
@@ -433,12 +434,31 @@ public class ClassTarget extends DependentTarget
      *
      * @return The source info object.
      */
-    public SourceInfo getSourceInfo()
+    protected SourceInfo getSourceInfo()
     {
+        if (sourceInfo != null) return sourceInfo;
+
+        sourceInfo = new SourceInfo(getSourceInput());
+
         return sourceInfo;
     }
 
-    /**
+    public ClassInfo getClassInfo() {
+        return getSourceInfo().getClassInfo(getIdentifierName());
+    }
+
+    protected SourceInput getSourceInput() {
+        File sourceFile = getSourceFile();
+
+        if (sourceFile == null) return null;
+
+        String fileName = sourceFile.getAbsolutePath();
+        SourceType sourceType = fileName.endsWith("." + SourceType.Kotlin.getExtension() ) ? SourceType.Kotlin : SourceType.Java;
+
+        return SourceInput.fromFile(sourceFile, sourceType, getPackage().getProject().getProjectCharset(), getPackage());
+    }
+
+    /**(String ident
      * Get a reflective for the type represented by this target.
      *
      * @return A suitable reflective, or null.
@@ -813,7 +833,7 @@ public class ClassTarget extends DependentTarget
             isAbstract = false;
 
             // try the parsed source code
-            ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
+            ClassInfo classInfo = getClassInfo(); // sourceInfo.getInfoIfAvailable();
 
             if (classInfo != null) {
                 if (classInfo.isUnitTest()) {
@@ -1538,7 +1558,7 @@ public class ClassTarget extends DependentTarget
         {
             setState(State.NEEDS_COMPILE);
         }
-        sourceInfo.setSourceModified();
+        getSourceInfo().setSourceModified();
     }
 
     @Override
@@ -1734,7 +1754,7 @@ public class ClassTarget extends DependentTarget
             throw new IllegalArgumentException();
         }
 
-        ClassInfo info = sourceInfo.getInfo(getSourceFile(), getPackage());
+        ClassInfo info = getClassInfo();
         if (info == null) {
             return;
         }
@@ -1835,7 +1855,7 @@ public class ClassTarget extends DependentTarget
 
         analysing = true;
 
-        ClassInfo info = sourceInfo.getInfo(getSourceFile(), getPackage());
+        ClassInfo info = getClassInfo();
 
         // info will be null if the source was unparseable
         if (info != null) {

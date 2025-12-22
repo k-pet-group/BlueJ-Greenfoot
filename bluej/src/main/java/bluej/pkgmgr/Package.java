@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -707,20 +708,24 @@ public final class Package
                 // Parse the Kotlin file to get information about all public classes and top-level functions
                 EntityResolver resolver = new PackageResolver(project.getEntityResolver(), getQualifiedName());
 
-                // Get all public class names from the file
-                List<String> publicClassNames = List.of();
-
-                // TODO: Deal with  bluej.parser.InfoParser.getPublicClassNames(kotlinSrcFiles[i], resolver);
-
-                // Add all public class names to the set of targets and map them to the source file
-                for (String className : publicClassNames) {
-                    interestingSet.add(className);
-                    kotlinSourceFileMap.put(className, kotlinSrcFiles[i].getName());
-                }
 
                 // Check if the file has top-level functions
                 SourceInput input = SourceInput.fromFile(kotlinSrcFiles[i], SourceType.Kotlin, project.getProjectCharset(), this);
                 java.util.Optional<ClassInfo> info = bluej.parser.InfoParser.parse(input);
+
+                if (info.map(ClassInfo::foundPublicClass).orElse(false)) {
+                    // Get all public class names from the file
+                    List<String> publicClassNames = List.of(info.get().getName());
+
+                    // TODO: Deal with  bluej.parser.InfoParser.getPublicClassNames(kotlinSrcFiles[i], resolver);
+
+                    // Add all public class names to the set of targets and map them to the source file
+                    for (String className : publicClassNames) {
+                        interestingSet.add(className);
+                        kotlinSourceFileMap.put(className, kotlinSrcFiles[i].getName());
+                    }
+                }
+
                 if (info.map(ClassInfo::hasTopLevelFunctions).orElse(false)) {
                     // Add a file facade target with the name as file name + "Kt" suffix
                     String facadeName = kotlinFileName + "Kt";
@@ -732,10 +737,10 @@ public final class Package
                 String facadeName = kotlinFileName + "Kt";
                 interestingSet.add(facadeName);
                 kotlinSourceFileMap.put(facadeName, kotlinSrcFiles[i].getName());
-                Debug.message("Error parsing Kotlin file " + kotlinSrcFiles[i] + ": " + e);
+                var stacktrace = Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\n  "));
+                Debug.message("Error parsing Kotlin file " + kotlinSrcFiles[i] + ": " + e + "\n  " + stacktrace);
             }
         }
-
 
         // process all *.class files
         for (int i = 0; i < classFiles.length; i++) {
@@ -2053,7 +2058,8 @@ public final class Package
      */
     public void userAddImplementsClassDependency(ClassTarget from, ClassTarget to)
     {
-        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        ClassInfo info = from.getClassInfo();
+
         if (info != null) {
             from.getEditor().addImplements(to.getBaseName(), info);
             from.analyseSource();
@@ -2068,7 +2074,8 @@ public final class Package
      */
     public void userAddExtendsInterfaceDependency(ClassTarget from, ClassTarget to)
     {
-        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        ClassInfo info = from.getClassInfo();
+
         from.getEditor().addExtendsInterface(to.getBaseName(), info);
         from.analyseSource();
     }
@@ -2081,7 +2088,7 @@ public final class Package
      */
     public void userAddExtendsClassDependency(ClassTarget from, ClassTarget to)
     {
-        from.getEditor().setExtendsClass(to.getBaseName(), from.getSourceInfo().getInfo(from.getJavaSourceFile(), this));
+        from.getEditor().setExtendsClass(to.getBaseName(), from.getClassInfo());
         from.analyseSource();
     }
 
@@ -2098,7 +2105,8 @@ public final class Package
 
         ClassTarget from = (ClassTarget) d.getFrom();
         ClassTarget to = (ClassTarget) d.getTo();
-        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        ClassInfo info = from.getClassInfo();
+
         if (d instanceof ImplementsDependency) {
             from.getEditor().removeExtendsOrImplementsInterface(to.getBaseName(), info);
         }
@@ -2839,7 +2847,7 @@ public final class Package
                      * names)
                      */
                     try {
-                        ClassInfo info = t.getSourceInfo().getInfo(t.getSourceFile(), t.getPackage());
+                        ClassInfo info = t.getClassInfo();
 
                         if (info != null) {
                             // Use ClassTarget method to create and save context

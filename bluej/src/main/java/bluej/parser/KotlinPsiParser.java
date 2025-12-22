@@ -21,6 +21,7 @@
  */
 package bluej.parser;
 
+import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.psi.*;
 import bluej.parser.psi.visitor.FileVisitor;
@@ -30,6 +31,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.KtFile;
+import org.jetbrains.kotlin.psi.KtModifierList;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -324,7 +326,7 @@ public class KotlinPsiParser implements ParserBehavior {
             }
         };
     }
-    
+
     /**
      * Parse a package statement.
      * <p><b>PURE DELEGATION</b> - No PSI enhancement.</p>
@@ -612,22 +614,24 @@ public class KotlinPsiParser implements ParserBehavior {
 
             PsiElement startElement = null;
 
-            if (offset == 0) {
-                startElement = psiTree.getContainingKtFile();
-            } else {
-                var element = psiTree.findElementAt(offset);
+//            if (offset == 0) {
+//                startElement = psiTree.getContainingKtFile();
+//            } else {
+//                var element = psiTree.findElementAt(offset);
+//
+//                if (element != null) {
+//                    var parent = element.getParent();
+//
+//                    if (parent != null) {
+//                        startElement = parent;
+//                    }
+//                } else {
+//                    // it's probably gonna complain if we don't move
+//                    sourceParser.tokenStream.nextToken();
+//                }
+//            }
 
-                if (element != null) {
-                    var parent = element.getParent();
-
-                    if (parent != null) {
-                        startElement = parent;
-                    }
-                } else {
-                    // it's probably gonna complain if we don't move
-                    sourceParser.tokenStream.nextToken();
-                }
-            }
+            startElement = psiTree.getContainingKtFile();
 
             if (startElement != null) {
                 //            if (startElement instanceof PsiErrorElement) {
@@ -793,5 +797,68 @@ public class KotlinPsiParser implements ParserBehavior {
         
         // Return path in same directory as source
         return sourcePath.resolveSibling(psiFileName);
+    }
+
+    /**
+     * Check whether a token is a primitive type - "int" "float" etc
+     */
+    public boolean isPrimitiveType(LocatableToken token)
+    {
+        return token.getType() == JavaTokenTypes.LITERAL_void
+                || token.getType() == JavaTokenTypes.LITERAL_boolean
+                || token.getType() == JavaTokenTypes.LITERAL_byte
+                || token.getType() == JavaTokenTypes.LITERAL_char
+                || token.getType() == JavaTokenTypes.LITERAL_short
+                || token.getType() == JavaTokenTypes.LITERAL_int
+                || token.getType() == JavaTokenTypes.LITERAL_long
+                || token.getType() == JavaTokenTypes.LITERAL_float
+                || token.getType() == JavaTokenTypes.LITERAL_double;
+    }
+
+    /**
+     * Check whether a token represents a modifier (or an "at" symbol,
+     * denoting an annotation).
+     */
+    public boolean isModifier(LocatableToken token)
+    {
+        // TODO: hack hack hack — the issue here is that colouring works with lexer only, which does not have a Kotlin variant and it lexes only in small batches, hence this weird contortion (for now)
+        try {
+            return getPsiTree().findElementAt(token.getPosition() + this.sourceParser.getSourceInput().range().get().start().get().position()).getParent() instanceof KtModifierList;
+        } catch (Exception e) {
+            //
+        }
+
+        int tokType = token.getType();
+        return (tokType == JavaTokenTypes.LITERAL_public
+                || tokType == JavaTokenTypes.LITERAL_private
+                || tokType == JavaTokenTypes.LITERAL_protected
+                || tokType == JavaTokenTypes.LITERAL_internal
+                || tokType == JavaTokenTypes.ABSTRACT
+                || tokType == JavaTokenTypes.FINAL
+                || tokType == JavaTokenTypes.LITERAL_static
+                || tokType == JavaTokenTypes.LITERAL_volatile
+                || tokType == JavaTokenTypes.LITERAL_native
+                || tokType == JavaTokenTypes.STRICTFP
+                || tokType == JavaTokenTypes.LITERAL_transient
+                || tokType == JavaTokenTypes.LITERAL_synchronized
+                || tokType == JavaTokenTypes.AT
+                || tokType == JavaTokenTypes.LITERAL_default
+                || tokType == JavaTokenTypes.LITERAL_sealed
+                || tokType == JavaTokenTypes.LITERAL_non_sealed
+                || tokType == JavaTokenTypes.LITERAL_open
+                || tokType == JavaTokenTypes.LITERAL_data
+                || tokType == JavaTokenTypes.LITERAL_actual
+                || tokType == JavaTokenTypes.LITERAL_expect
+                || tokType == JavaTokenTypes.LITERAL_const
+                || tokType == JavaTokenTypes.LITERAL_lateinit
+                || tokType == JavaTokenTypes.LITERAL_override
+                || tokType == JavaTokenTypes.LITERAL_suspend
+                || tokType == JavaTokenTypes.LITERAL_tailrec
+                || tokType == JavaTokenTypes.LITERAL_vararg
+                || tokType == JavaTokenTypes.LITERAL_infix
+                || tokType == JavaTokenTypes.LITERAL_inline
+                || tokType == JavaTokenTypes.LITERAL_external
+                || tokType == JavaTokenTypes.LITERAL_operator
+                || tokType == JavaTokenTypes.LITERAL_inner);
     }
 }
