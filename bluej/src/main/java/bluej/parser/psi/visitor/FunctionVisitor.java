@@ -78,7 +78,7 @@ public class FunctionVisitor extends BaseVisitor {
         }
 
         // 5. Modifiers consumed
-        callbacks.modifiersConsumed();
+//        callbacks.modifiersConsumed();
 
         LocatableToken endToken = null;
         boolean didStartMethod = false;
@@ -137,6 +137,8 @@ public class FunctionVisitor extends BaseVisitor {
 
             endToken = params.lastToken();
         }
+
+        callbacks.modifiersConsumed();
 
         // 8. Process method body
         if (endToken != null && endToken.getType() == JavaTokenTypes.RPAREN) {

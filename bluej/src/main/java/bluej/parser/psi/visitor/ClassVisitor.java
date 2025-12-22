@@ -862,7 +862,7 @@ public class ClassVisitor extends BaseVisitor {
      * @param modifierList The Kotlin modifier list to process (must not be null)
      */
     private void processModifiers(KtModifierList modifierList) {
-        if (modifierList == null || callbacks == null) {
+        if (modifierList == null) {
             return;
         }
 

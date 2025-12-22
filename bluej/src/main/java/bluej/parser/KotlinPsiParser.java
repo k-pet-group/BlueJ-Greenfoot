@@ -937,15 +937,9 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     public boolean isModifier(LocatableToken token)
     {
-        // TODO: hack hack hack — the issue here is that colouring works with lexer only, which does not have a Kotlin variant and it lexes only in small batches, hence this weird contortion (for now)
-        try {
-            return getPsiTree().findElementAt(token.getPosition() + this.sourceParser.getSourceInput().range().get().start().get().position()).getParent() instanceof KtModifierList;
-        } catch (Exception e) {
-            //
-        }
-
         int tokType = token.getType();
-        return (tokType == JavaTokenTypes.LITERAL_public
+        var modifier = (
+            tokType == JavaTokenTypes.LITERAL_public
                 || tokType == JavaTokenTypes.LITERAL_private
                 || tokType == JavaTokenTypes.LITERAL_protected
                 || tokType == JavaTokenTypes.LITERAL_internal
@@ -975,7 +969,19 @@ public class KotlinPsiParser implements ParserBehavior {
                 || tokType == JavaTokenTypes.LITERAL_inline
                 || tokType == JavaTokenTypes.LITERAL_external
                 || tokType == JavaTokenTypes.LITERAL_operator
-                || tokType == JavaTokenTypes.LITERAL_inner);
+                || tokType == JavaTokenTypes.LITERAL_inner
+        );
+
+        if (!modifier) {
+            // TODO: hack hack hack — the issue here is that colouring works with lexer only, which does not have a Kotlin variant and it lexes only in small batches, hence this weird contortion (for now)
+            try {
+                return PsiTreeUtil.getParentOfType(getPsiTree().findElementAt(token.getPosition()), KtModifierList.class) != null;
+            } catch (Exception e) {
+                //
+            }
+        }
+
+        return modifier;
     }
 
 
