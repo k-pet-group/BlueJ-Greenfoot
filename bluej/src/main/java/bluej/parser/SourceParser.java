@@ -196,12 +196,13 @@ public class SourceParser extends JavaParserCallbacksBase {
     }
 
     public LocatableToken getLastToken() {
-        return lastToken;
+        return getTokenStream().getMostRecent();
     }
 
     public LocatableToken setLastToken(LocatableToken lastToken) {
-        this.lastToken = lastToken;
-        return lastToken;
+//        this.lastToken = lastToken;
+//        return lastToken;
+        return getLastToken();
     }
 
     public void parseCU() {

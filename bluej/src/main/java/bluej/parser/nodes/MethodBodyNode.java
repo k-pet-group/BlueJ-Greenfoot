@@ -22,6 +22,7 @@
 package bluej.parser.nodes;
 
 import bluej.debugger.gentype.Reflective;
+import bluej.parser.JavaParser;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
@@ -67,11 +68,13 @@ public class MethodBodyNode extends IncrementalParsingNode
             return PP_PULL_UP_CHILD;
         }
 
-        last = params.parser.parseStatement(last, false);
-        if (last == null) {
+        var token = params.parser.parseStatement(last, false);
+        if (token == null) {
             last = params.tokenStream.LA(1);
+            return PP_INCOMPLETE;
         }
-        if (last.getType() == JavaTokenTypes.EOF) {
+        if (token.getType() == JavaTokenTypes.EOF) {
+            last = token;
             return PP_INCOMPLETE;
         }
         return PP_OK;

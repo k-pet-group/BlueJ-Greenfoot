@@ -300,7 +300,8 @@ public class ClassVisitor extends BaseVisitor {
                 clearLastToken();
             }
 
-            return;
+//            return;
+            throw new ParseTypeDefPart2FinishedHackException();
         }
 
         if (!parseTypeDefPart2) {
@@ -312,7 +313,9 @@ public class ClassVisitor extends BaseVisitor {
             KtClassBody body = ktClass.getBody();
             if (body != null) {
                 hadBody = true;
-                processClassBody(body, ktClass);
+
+                body.accept(this);
+
                 finalToken = getLastToken();
             }
 
@@ -341,45 +344,45 @@ public class ClassVisitor extends BaseVisitor {
             callbacks.reachedCUstate(2);
         }
     }
-
-    /**
-     * Processes the class body by delegating member declarations to ClassVisitor.
-     *
-     * <p>This method handles the structural callbacks for the class body (braces),
-     * but delegates all member declaration processing to {@link ClassVisitor}.</p>
-     *
-     * @param classBody The class body to process
-     * @param ktClass The parent class (for accessing primary constructor)
-     */
-    private void processClassBody(KtClassBody classBody, KtClass ktClass) {
-        PsiElement lBrace = classBody.getLBrace();
-        PsiElement rBrace = classBody.getRBrace();
-        boolean typeBodyStarted = false;
-
-        if (lBrace != null) {
-            LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
-            callbacks.beginTypeBody(lBraceToken);
-            typeBodyStarted = callbacks.isInEmitRange(lBraceToken);
-        }
-
-        // DELEGATION: Use ClassVisitor for all member declarations
-        ClassVisitor classVisitor = new ClassVisitor(callbacks);
-        for (KtDeclaration declaration : classBody.getDeclarations()) {
-            declaration.accept(classVisitor);
-        }
-
-        if (typeBodyStarted) {
-            if (rBrace != null) {
-                LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
-                callbacks.endTypeBody(rBraceToken, true);
-            } else {
-                var token = this.getTokenStream().nextToken();
-                if (lBrace != null) {
-                    callbacks.endTypeBody(token, false);
-                }
-            }
-        }
-    }
+//
+//    /**
+//     * Processes the class body by delegating member declarations to ClassVisitor.
+//     *
+//     * <p>This method handles the structural callbacks for the class body (braces),
+//     * but delegates all member declaration processing to {@link ClassVisitor}.</p>
+//     *
+//     * @param classBody The class body to process
+//     * @param ktClass The parent class (for accessing primary constructor)
+//     */
+//    private void processClassBody(KtClassBody classBody, KtClass ktClass) {
+//        PsiElement lBrace = classBody.getLBrace();
+//        PsiElement rBrace = classBody.getRBrace();
+//        boolean typeBodyStarted = false;
+//
+//        if (lBrace != null) {
+//            LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+//            callbacks.beginTypeBody(lBraceToken);
+//            typeBodyStarted = callbacks.isInEmitRange(lBraceToken);
+//        }
+//
+//        // DELEGATION: Use ClassVisitor for all member declarations
+//        ClassVisitor classVisitor = new ClassVisitor(callbacks);
+//        for (KtDeclaration declaration : classBody.getDeclarations()) {
+//            declaration.accept(classVisitor);
+//        }
+//
+//        if (typeBodyStarted) {
+//            if (rBrace != null) {
+//                LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+//                callbacks.endTypeBody(rBraceToken, true);
+//            } else {
+//                var token = this.getTokenStream().nextToken();
+//                if (lBrace != null) {
+//                    callbacks.endTypeBody(token, false);
+//                }
+//            }
+//        }
+//    }
 
     /**
      * Helper method to process supertypes for nested classes.
@@ -814,13 +817,32 @@ public class ClassVisitor extends BaseVisitor {
      */
     @Override
     public void visitClassBody(@NotNull KtClassBody classBody) {
-        if (classBody == null || callbacks == null) {
-            return;
+        PsiElement lBrace = classBody.getLBrace();
+        PsiElement rBrace = classBody.getRBrace();
+        boolean typeBodyStarted = false;
+
+        if (lBrace != null) {
+            LocatableToken lBraceToken = createToken(lBrace, JavaTokenTypes.LCURLY);
+            callbacks.beginTypeBody(lBraceToken);
+            typeBodyStarted = callbacks.isInEmitRange(lBraceToken);
         }
 
-        // Process all declarations in the class body
+        // DELEGATION: Use ClassVisitor for all member declarations
+        ClassVisitor classVisitor = new ClassVisitor(callbacks);
         for (KtDeclaration declaration : classBody.getDeclarations()) {
-            declaration.accept(this);
+            declaration.accept(classVisitor);
+        }
+
+        if (typeBodyStarted) {
+            if (rBrace != null) {
+                LocatableToken rBraceToken = createToken(rBrace, JavaTokenTypes.RCURLY);
+                callbacks.endTypeBody(rBraceToken, true);
+            } else {
+                var token = this.getTokenStream().nextToken();
+                if (lBrace != null) {
+                    callbacks.endTypeBody(token, false);
+                }
+            }
         }
     }
 

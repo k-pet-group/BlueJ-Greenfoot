@@ -66,6 +66,7 @@ import java.util.Optional;
 public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
 
     protected boolean parseTypeDefPart2 = false;
+    protected String fileText = null;
 
     // ==================== Context-Agnostic Result Types ====================
 
@@ -520,20 +521,22 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
      * @param endOffset The end offset in the file (0-based)
      * @return Array containing [begin, end] LineColPos
      */
-    private LineColPos[] calculatePositions(PsiElement element, int startOffset, int endOffset) {
+    public LineColPos[] calculatePositions(PsiElement element, int startOffset, int endOffset) {
         // Get source file text for line/column calculation
         // Note: Document API (PsiDocumentManager) is unavailable in lightweight test PSI environments,
         // so we calculate positions directly from source text
-        PsiFile psiFile = element.getContainingFile();
-        if (psiFile == null) {
-            // Fallback if no containing file (shouldn't happen)
-            return new LineColPos[] {
-                    new LineColPos(1, startOffset, startOffset),
-                    new LineColPos(1, endOffset, endOffset)
-            };
-        }
+        if (fileText == null) {
+            PsiFile psiFile = element.getContainingFile();
+            if (psiFile == null) {
+                // Fallback if no containing file (shouldn't happen)
+                return new LineColPos[]{
+                        new LineColPos(1, startOffset, startOffset),
+                        new LineColPos(1, endOffset, endOffset)
+                };
+            }
 
-        String fileText = psiFile.getText();
+            fileText = psiFile.getText();
+        }
 
         // Calculate start position
         int[] startLineCol = calculateLineColumn(fileText, startOffset);
@@ -672,11 +675,11 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
     @Override
     public void setEmitRangeStart(LocatableToken currentToken) {
         this.callbacks.setEmitRangeStart(currentToken);
-        var offset = currentToken.getPosition();
-
-        if (offset > 0) {
-            this.psiStartOffset = offset;
-        }
+//        var offset = currentToken.getPosition();
+//
+////        if (offset > 0) {
+////            this.psiStartOffset = offset;
+////        }
     }
 
     @Override
@@ -696,6 +699,12 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
 //        return this.getTokenBase().getPosition();
     }
 
+    public void setPsiStartOffset(LocatableToken token) {
+        var offset = token.getPosition();
+
+        this.psiStartOffset = offset;
+    }
+
     protected int guessTokenType(PsiElement element) {
         return switch (element) {
             case LeafPsiElement leaf -> {
@@ -708,6 +717,13 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
                     case "RPARENTH" -> JavaTokenTypes.RPAREN;
                     case "COLON" -> JavaTokenTypes.COLON;
                     case "FUN" -> JavaTokenTypes.LITERAL_fun;
+                    case "PLUSPLUS" -> JavaTokenTypes.INC;
+                    case "MINUSMINUS" -> JavaTokenTypes.DEC;
+                    case "DOT" -> JavaTokenTypes.DOT;
+                    case "MINUS" -> JavaTokenTypes.MINUS;
+                    case "PLUS" -> JavaTokenTypes.PLUS;
+                    case "DIV" -> JavaTokenTypes.DIV;
+                    case "ASTERISK" -> JavaTokenTypes.STAR;
                     default -> JavaTokenTypes.LITERAL_void;
                 };
             }
@@ -1328,4 +1344,8 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
     public void parseTypeDefPart2(boolean value) {
         parseTypeDefPart2 = value;
     }
+
+    public class ParserHackException extends RuntimeException {}
+    public class ParseTypeDefPart2FinishedHackException extends ParserHackException {}
+    public class ParseClassBodyFinishedHackException extends ParserHackException {}
 }

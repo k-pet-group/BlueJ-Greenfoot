@@ -22,21 +22,24 @@
 package bluej.parser;
 
 import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LineColPos;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.psi.*;
-import bluej.parser.psi.visitor.FileVisitor;
-import bluej.parser.psi.visitor.MethodBodyVisitor;
-import bluej.parser.psi.visitor.PsiVisitor;
+import bluej.parser.psi.visitor.*;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
-import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement;
+import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil;
+import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtilKt;
 import org.jetbrains.kotlin.lexer.KtTokens;
-import org.jetbrains.kotlin.psi.KtFile;
-import org.jetbrains.kotlin.psi.KtModifierList;
+import org.jetbrains.kotlin.psi.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Facade for Kotlin parsing that delegates to existing {@link KotlinParser} while
@@ -250,7 +253,7 @@ public class KotlinPsiParser implements ParserBehavior {
      * <ul>
      *   <li><b>DELEGATION</b>: Delegates to {@link KotlinParser#parseCU()}, then optionally
      *       enhances with PSI output if {@link #ENABLE_PSI_OUTPUT} is true</li>
-     *   <li><b>PSI_VISITOR</b>: Uses {@link bluej.parser.psi.visitor.FileVisitor} to parse and call
+     *   <li><b>PSI_VISITOR</b>: Uses {@link FileVisitor} to parse and call
      *       {@link JavaParserCallbacksBase} directly, bypassing legacy parser</li>
      * </ul>
      *
@@ -320,7 +323,15 @@ public class KotlinPsiParser implements ParserBehavior {
             case PSI_VISITOR -> {
                 var currentToken = this.sourceParser.getTokenStream().LA(1);
 
-                this.parseWithPsi(currentToken);
+//                this.parseWithPsi(currentToken);
+
+                var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
+                var psiVisitor = new FileVisitor(callbackAdapter);
+
+                this.sourceParser.getSourceInput().range().ifPresent((psiVisitor::setEmitRange));
+                psiVisitor.setEmitRangeStart(currentToken);
+
+                this.parseWithPsi(psiVisitor);
 
                 yield 2;
             }
@@ -390,8 +401,15 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     @Override
     public void parseTypeDef(LocatableToken firstToken) {
-//        delegate.parseTypeDef(firstToken);
-        parseWithPsi(firstToken);
+        var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
+        var psiVisitor = new ClassVisitor(callbackAdapter);
+
+        psiVisitor.setTokenBase(this.sourceParser.getOffset());
+        this.sourceParser.getSourceInput().range().ifPresent((psiVisitor::setEmitRange));
+        psiVisitor.setEmitRangeStart(firstToken);
+        psiVisitor.setPsiStartOffset(firstToken);
+
+        parseWithPsi(psiVisitor);
     }
     
     /**
@@ -404,17 +422,16 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     @Override
     public LocatableToken parseTypeBody(int tdType, LocatableToken token) {
-//        return delegate.parseTypeBody(tdType, token);
-//        parseWithPsi(token);
-//        return sourceParser.tokenStream.getMostRecent();
         var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
-        var psiVisitor = new FileVisitor(callbackAdapter);
+        var psiVisitor = new ClassVisitor(callbackAdapter);
 
-//        psiVisitor.setEndClassParsingOnBraceBecauseThatsWhatBlueJIncrementalParsingWants(true);
+        psiVisitor.setTokenBase(this.sourceParser.getOffset());
+        this.sourceParser.getSourceInput().range().ifPresent((psiVisitor::setEmitRange));
+        psiVisitor.setEmitRangeStart(token);
+        psiVisitor.setPsiStartOffset(token);
 
-        this.parseWithPsi(psiVisitor, token);
+        parseWithPsi(psiVisitor);
 
-//        return sourceParser.tokenStream.getMostRecent();
         return psiVisitor.getLastToken();
     }
     
@@ -465,14 +482,53 @@ public class KotlinPsiParser implements ParserBehavior {
     public LocatableToken parseTypeDefPart2(boolean isRecord) {
 //        return delegate.parseTypeDefPart2(isRecord);
         var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
-        var psiVisitor = new FileVisitor(callbackAdapter);
+        var psiVisitor = new ClassVisitor(callbackAdapter);
 
         psiVisitor.parseTypeDefPart2(true);
         psiVisitor.clearLastToken();
 
-        this.parseWithPsi(psiVisitor, this.sourceParser.getTokenStream().LA(1));
+        // UGLY
+        var tree = getPsiTree();
+        var currentToken = this.sourceParser.getTokenStream().LA(1);
 
-//        return sourceParser.tokenStream.getMostRecent();
+        if (tree == null) { return currentToken; }
+
+        psiVisitor.setTokenBase(this.sourceParser.getOffset());
+        this.sourceParser.getSourceInput().range().ifPresent((psiVisitor::setEmitRange));
+        psiVisitor.setEmitRangeStart(currentToken);
+
+        PsiElement parent = PsiTreeUtil.getParentOfType(tree.findElementAt(currentToken.getPosition()), KtNamedDeclaration.class);
+
+        if (parent instanceof KtClassLikeDeclaration typedef) {
+            var element = switch (typedef) {
+                case KtPureClassOrObject withBody -> withBody.getBody().getFirstChild();
+//                case KtTypeAlias alias -> alias.getLastChild();
+                default -> typedef.getLastChild();
+            };
+
+            var position = psiVisitor.calculatePositions(element, element.getTextOffset(), element.getTextOffset() + element.getTextLength());
+            var positionToken = new LocatableToken(
+                    JavaTokenTypes.LITERAL_void,
+                    element.getText(),
+                    position[0],
+                    position[1]
+            );
+
+            psiVisitor.setEmitRangeEnd(positionToken);
+            psiVisitor.setPsiStartOffset(positionToken);
+        }
+        else {
+            return currentToken;
+        }
+
+        try {
+            PsiElement finalElement = parent;
+            this.parseWithPsi(psiVisitor, () -> finalElement);
+        }
+        catch (BaseVisitor.ParseTypeDefPart2FinishedHackException e) {
+            // ignore
+        }
+
         var lastToken = psiVisitor.getLastToken();
 
         return lastToken;
@@ -488,8 +544,27 @@ public class KotlinPsiParser implements ParserBehavior {
     public void parseClassElement(LocatableToken token) {
         // For some reason this token needs to be put back in the stream again
         this.sourceParser.getTokenStream().pushBack(token);
-        this.parseWithPsi(token);
+//        this.parseWithPsi(token);
 //        delegate.parseClassElement(token);
+
+        var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
+        var psiVisitor = new ClassVisitor(callbackAdapter);
+
+        psiVisitor.setTokenBase(this.sourceParser.getOffset());
+        this.sourceParser.getSourceInput().range().ifPresent((psiVisitor::setEmitRange));
+        psiVisitor.setEmitRangeStart(token);
+        psiVisitor.setPsiStartOffset(token);
+
+//        parseWithPsi(psiVisitor);
+
+
+        parseWithPsi(psiVisitor, () -> {
+            var tree = getPsiTree();
+
+            if (tree == null) { return null; }
+
+            return PsiTreeUtil.getParentOfType(tree.findElementAt(token.getPosition()), KtDeclaration.class);
+        });
     }
     
     /**
@@ -503,19 +578,42 @@ public class KotlinPsiParser implements ParserBehavior {
     @Override
     public LocatableToken parseStatement(LocatableToken token, boolean allowComma) {
 //        return delegate.parseStatement(token, allowComma);
-        return switch (parsingMode) {
-            case DELEGATION ->
-                // Phase 1: Token-based parsing (existing behavior)
-                    delegate.parseStatement(token, allowComma);
-            case PSI_VISITOR -> {
-                var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
-                var psiVisitor = new MethodBodyVisitor(callbackAdapter);
+//        return switch (parsingMode) {
+//            case DELEGATION ->
+//                // Phase 1: Token-based parsing (existing behavior)
+//                    delegate.parseStatement(token, allowComma);
+//            case PSI_VISITOR -> {
+//                var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
+//                var psiVisitor = new MethodBodyVisitor(callbackAdapter);
+//
+//
+//
+////                this.parseWithPsi(psiVisitor, token);
+////
+////                yield this.sourceParser.getTokenStream().getMostRecent();
+//            }
+//        };
+        var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
+        var psiVisitor = new MethodBodyVisitor(callbackAdapter);
 
-                this.parseWithPsi(psiVisitor, token);
+        psiVisitor.setTokenBase(this.sourceParser.getOffset());
+        this.sourceParser.getSourceInput().range().ifPresent((psiVisitor::setEmitRange));
+        psiVisitor.setEmitRangeStart(token);
+        psiVisitor.setPsiStartOffset(token);
 
-                yield this.sourceParser.getTokenStream().getMostRecent();
-            }
-        };
+//        parseWithPsi(psiVisitor);
+
+
+        parseWithPsi(psiVisitor, () -> {
+            var tree = getPsiTree();
+
+            if (tree == null) { return null; }
+
+//            return PsiTreeUtil.getParentOfType(tree.findElementAt(token.getPosition()), KtBlockExpression.class);
+            return PsiTreeUtil.getTopmostParentOfType(tree.findElementAt(token.getPosition()), KtExpression.class);
+        });
+
+        return psiVisitor.getLastToken();
     }
     
     /**
@@ -539,7 +637,23 @@ public class KotlinPsiParser implements ParserBehavior {
      */
     @Override
     public void parseClassBody() {
-        delegate.parseClassBody();
+//        delegate.parseClassBody();
+        var currentToken = this.sourceParser.getTokenStream().LA(1);
+        var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
+        var psiVisitor = new ClassVisitor(callbackAdapter);
+
+        psiVisitor.setTokenBase(this.sourceParser.getOffset());
+        this.sourceParser.getSourceInput().range().ifPresent((psiVisitor::setEmitRange));
+        psiVisitor.setEmitRangeStart(currentToken);
+        psiVisitor.setPsiStartOffset(currentToken);
+
+        parseWithPsi(psiVisitor, () -> {
+            var tree = getPsiTree();
+
+            if (tree == null) { return null; }
+
+            return PsiTreeUtil.getParentOfType(tree.findElementAt(currentToken.getPosition()), KtClassBody.class);
+        });
     }
     
     /**
@@ -600,11 +714,8 @@ public class KotlinPsiParser implements ParserBehavior {
 //        parseWithPsi(currentToken);
 //    }
 
-    private void parseWithPsi(PsiVisitor visitor) {
-//        System.err.println("[PSI-DEBUG] === parseWithPsi() ENTRY ===");
-
+    private <T extends PsiElement> void parseWithPsi(PsiVisitor visitor, Supplier<T> getStartElement) {
         try {
-            var offset = visitor.getPsiStartOffset();
             var psiTree = this.getPsiTree();
 
             if (psiTree == null) {
@@ -612,36 +723,14 @@ public class KotlinPsiParser implements ParserBehavior {
                 return;
             }
 
-            PsiElement startElement = null;
-
-//            if (offset == 0) {
-//                startElement = psiTree.getContainingKtFile();
-//            } else {
-//                var element = psiTree.findElementAt(offset);
-//
-//                if (element != null) {
-//                    var parent = element.getParent();
-//
-//                    if (parent != null) {
-//                        startElement = parent;
-//                    }
-//                } else {
-//                    // it's probably gonna complain if we don't move
-//                    sourceParser.tokenStream.nextToken();
-//                }
-//            }
-
-            startElement = psiTree.getContainingKtFile();
+            T startElement = getStartElement.get();
 
             if (startElement != null) {
-                //            if (startElement instanceof PsiErrorElement) {
-                //
-                //
-                //                return;
-                //            }
-
                 startElement.accept(visitor.asVisitor());
             }
+        }
+        catch (BaseVisitor.ParserHackException e) {
+            throw e;
         }
         catch (Exception e) {
             System.err.println("PSI visitor parsing failed: " + e.getMessage());
@@ -649,30 +738,56 @@ public class KotlinPsiParser implements ParserBehavior {
         }
     }
 
-    private void parseWithPsi(LocatableToken currentToken) {
-//        System.err.println("[PSI-DEBUG] Starting at token: " + currentToken.toString());
+    private void parseWithPsi(PsiVisitor visitor) {
+        parseWithPsi(visitor, () -> {
+            var psiTree = this.getPsiTree();
+            var offset = visitor.getPsiStartOffset();
 
-        var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
-        var psiVisitor = new FileVisitor(callbackAdapter);
+            if (offset == 0) {
+                return psiTree.getContainingKtFile();
+            } else {
+                var element = psiTree.findElementAt(offset);
 
-        // This does not necessarily have to equal current token (e.g. when comments come into play)
-        psiVisitor.setTokenBase(this.sourceParser.getOffset());
-        this.sourceParser.getSourceInput().range().ifPresent((psiVisitor::setEmitRange));
-        psiVisitor.setEmitRangeStart(currentToken);
+                if (element != null) {
+                    var parent = element.getParent();
 
-        parseWithPsi(psiVisitor);
+                    if (parent != null) {
+                        return parent;
+                    }
+                } else {
+                    // it's probably gonna complain if we don't move
+                    sourceParser.tokenStream.nextToken();
+                }
+            }
+
+            return null;
+        });
     }
 
-    private void parseWithPsi(PsiVisitor visitor, LocatableToken currentToken) {
-//        System.err.println("[PSI-DEBUG] Starting at token: " + currentToken.toString());
+//    private void parseWithPsi(LocatableToken currentToken) {
+////        System.err.println("[PSI-DEBUG] Starting at token: " + currentToken.toString());
+//
+//        var callbackAdapter = new KotlinParserCallbacksAdapterImpl(sourceParser);
+//        var psiVisitor = new FileVisitor(callbackAdapter);
+//
+//        // This does not necessarily have to equal current token (e.g. when comments come into play)
+//        psiVisitor.setTokenBase(this.sourceParser.getOffset());
+//        this.sourceParser.getSourceInput().range().ifPresent((psiVisitor::setEmitRange));
+//        psiVisitor.setEmitRangeStart(currentToken);
+//
+//        parseWithPsi(psiVisitor);
+//    }
 
-        // This does not necessarily have to equal current token (e.g. when comments come into play)
-        visitor.setTokenBase(this.sourceParser.getOffset());
-        this.sourceParser.getSourceInput().range().ifPresent((visitor::setEmitRange));
-        visitor.setEmitRangeStart(currentToken);
-
-        parseWithPsi(visitor);
-    }
+//    private void parseWithPsi(PsiVisitor visitor, LocatableToken currentToken) {
+////        System.err.println("[PSI-DEBUG] Starting at token: " + currentToken.toString());
+//
+//        // This does not necessarily have to equal current token (e.g. when comments come into play)
+//        visitor.setTokenBase(this.sourceParser.getOffset());
+//        this.sourceParser.getSourceInput().range().ifPresent((visitor::setEmitRange));
+//        visitor.setEmitRangeStart(currentToken);
+//
+//        parseWithPsi(visitor);
+//    }
 
     // ==================== PSI ENHANCEMENT ====================
 

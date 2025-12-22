@@ -107,9 +107,16 @@ public class FileVisitor extends BaseVisitor {
         for (KtDeclaration declaration : file.getDeclarations()) {
             // TODO: pick correct visitor
             var visitor = switch (declaration) {
-                case KtClass ignored -> new ClassVisitor(callbacks);
+                case KtClass ignored -> {
+                    var classVisitor = new ClassVisitor(callbacks);
+
+                    classVisitor.parseTypeDefPart2(parseTypeDefPart2);
+
+                    yield classVisitor;
+                }
+
                 case KtFunction ignored -> new FunctionVisitor(callbacks, true);
-                default -> new KtVisitorVoid();
+                default -> new BaseVisitor(callbacks);
 //                default -> throw new UnsupportedOperationException("Declaration " + declaration + " not supported yet");
             };
 

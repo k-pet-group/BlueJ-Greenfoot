@@ -212,15 +212,12 @@ public class MethodBodyVisitor extends BaseVisitor {
      */
     @Override
     public void visitIfExpression(@NotNull KtIfExpression ifExpr) {
-        if (ifExpr == null) {
-            return;
-        }
-
         PsiElement ifKeyword = ifExpr.getIfKeyword();
-        if (ifKeyword != null) {
-            LocatableToken ifToken = createToken(ifKeyword, JavaTokenTypes.LITERAL_if);
-            callbacks.beginIfStmt(ifToken);
-        }
+
+
+        LocatableToken ifToken = createToken(ifKeyword, JavaTokenTypes.LITERAL_if);
+        callbacks.beginIfStmt(ifToken);
+
 //
 //        KtExpression condition = ifExpr.getCondition();
 //        if (condition != null) {
@@ -699,11 +696,8 @@ public class MethodBodyVisitor extends BaseVisitor {
      */
     @Override
     public void visitConstantExpression(@NotNull KtConstantExpression expr) {
-        if (expr == null) {
-            return;
-        }
-
         LocatableToken token = createToken(expr);
+
         callbacks.beginExpression(token, false);
         callbacks.gotLiteral(token);
         callbacks.endExpression(token, false);
@@ -714,25 +708,23 @@ public class MethodBodyVisitor extends BaseVisitor {
      */
     @Override
     public void visitSimpleNameExpression(@NotNull KtSimpleNameExpression expr) {
-        if (expr == null) {
-            return;
-        }
-
         LocatableToken token = createToken(expr);
+
         callbacks.beginExpression(token, false);
         callbacks.gotIdentifier(token);
         callbacks.endExpression(token, false);
     }
+
+//    @Override
+//    public void visitReferenceExpression(@NotNull KtReferenceExpression expression) {
+//
+//    }
 
     /**
      * Visits a binary expression (binary operator).
      */
     @Override
     public void visitBinaryExpression(@NotNull KtBinaryExpression expr) {
-        if (expr == null) {
-            return;
-        }
-
         LocatableToken token = createToken(expr);
         callbacks.beginExpression(token, false);
 
@@ -742,10 +734,9 @@ public class MethodBodyVisitor extends BaseVisitor {
         }
 
         PsiElement operationRef = expr.getOperationReference();
-        if (operationRef != null) {
-            LocatableToken opToken = createToken(operationRef);
-            callbacks.gotBinaryOperator(opToken);
-        }
+
+        LocatableToken opToken = createToken(operationRef);
+        callbacks.gotBinaryOperator(opToken);
 
         KtExpression right = expr.getRight();
         if (right != null) {
@@ -760,27 +751,26 @@ public class MethodBodyVisitor extends BaseVisitor {
      */
     @Override
     public void visitUnaryExpression(@NotNull KtUnaryExpression expr) {
-        if (expr == null) {
-            return;
-        }
-
         LocatableToken token = createToken(expr);
         callbacks.beginExpression(token, false);
 
         PsiElement operationRef = expr.getOperationReference();
-        if (operationRef != null) {
+        KtExpression baseExpr = expr.getBaseExpression();
+
+        if (expr instanceof KtPrefixExpression) {
             LocatableToken opToken = createToken(operationRef);
 
-            if (expr instanceof KtPrefixExpression) {
-                callbacks.gotUnaryOperator(opToken);
-            } else if (expr instanceof KtPostfixExpression) {
-                callbacks.gotPostOperator(opToken);
-            }
+            callbacks.gotUnaryOperator(opToken);
         }
 
-        KtExpression baseExpr = expr.getBaseExpression();
         if (baseExpr != null) {
             baseExpr.accept(this);
+        }
+
+        if (expr instanceof KtPostfixExpression) {
+            LocatableToken opToken = createToken(operationRef);
+
+            callbacks.gotPostOperator(opToken);
         }
 
         callbacks.endExpression(token, false);
