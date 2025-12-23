@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.psi.SourceInput;
@@ -72,6 +73,8 @@ import static bluej.parser.JavaParser.TYPEDEF_INTERFACE;
  */
 public class InfoParser extends EditorParser
 {
+    private final Pattern FIRST_LETTER_REGEX = Pattern.compile("(?<first>^.)(?<rest>.+)\\.kt$");
+
     protected String targetPkg;
     protected ClassInfo info;
     private int classLevel = 0; // number of nested classes
@@ -546,6 +549,20 @@ public class InfoParser extends EditorParser
     @Override
     protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken)
     {
+        // TODO: we need to have a class to store top-level functions
+        if (classLevel == 0) {
+            // If we already have a ClassInfo object, set the flag on it
+            if (info == null) {
+                var generatedClassName = FIRST_LETTER_REGEX.matcher(getSourceInput().filename())
+                    .replaceFirst(result -> result.group("first").toUpperCase() + result.group("rest") + "Kt");
+                info = new ClassInfo();
+                info.setName(generatedClassName, false);
+                info.setInterface(false);
+                info.setEnum(false);
+                storeCurrentClassInfo = true;
+            }
+        }
+
         super.gotMethodDeclaration(token, hiddenToken);
         String lastComment = (hiddenToken != null) ? hiddenToken.getText() : null;
         currentMethod = new MethodDesc();
@@ -606,9 +623,13 @@ public class InfoParser extends EditorParser
     protected void gotAllMethodParameters()
     {
         super.gotAllMethodParameters();
-        if (storeCurrentClassInfo && classLevel == 1) {
+        if (storeCurrentClassInfo && classLevel <= 1) {
             methodDescs.add(currentMethod);
             currentMethod = null;
+
+            if (classLevel == 0) {
+                info.setHasTopLevelFunctions(true);
+            }
         }
     }
 

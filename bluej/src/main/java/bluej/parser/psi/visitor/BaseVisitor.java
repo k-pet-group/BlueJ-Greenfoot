@@ -721,6 +721,8 @@ public class BaseVisitor extends KtVisitorVoid implements PsiVisitor {
                     case "PLUS" -> JavaTokenTypes.PLUS;
                     case "DIV" -> JavaTokenTypes.DIV;
                     case "ASTERISK" -> JavaTokenTypes.STAR;
+                    case "data" -> JavaTokenTypes.LITERAL_data;
+                    case "override" -> JavaTokenTypes.LITERAL_override;
                     default -> JavaTokenTypes.LITERAL_void;
                 };
             }

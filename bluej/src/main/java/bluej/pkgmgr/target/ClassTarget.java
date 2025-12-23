@@ -150,7 +150,7 @@ public class ClassTarget extends DependentTarget
     // role should be accessed using getRole() and set using
     // setRole(). A role should not contain important state information
     // because role objects are thrown away at a whim.
-    private ClassRole role = new StdClassRole();
+    private ClassRole role; //  = new StdClassRole();
 
     // a flag indicating whether an editor, when opened for the first
     // time, should display the interface of this class
@@ -326,12 +326,13 @@ public class ClassTarget extends DependentTarget
             {
                 setRole(new KotlinFileFacadeRole());
             }
-            else
-            {
-                setRole(new StdClassRole());
-            }
-
         }
+
+        if (role == null) {
+            setRole(new StdClassRole());
+        }
+
+
         JavaFXUtil.addChangeListener(canvas.sceneProperty(), scene -> {
             JavaFXUtil.runNowOrLater(() -> {
                 nameLabel.applyCss();
@@ -613,7 +614,8 @@ public class ClassTarget extends DependentTarget
      */
     protected final void setRole(ClassRole newRole)
     {
-        if (role == null || role.getRoleName() != newRole.getRoleName()) {
+        // TODO: don't switch in the direction of the file facade role for now
+        if (role == null || (role.getRoleName() != newRole.getRoleName()) && !newRole.getRoleName().equals("KotlinFileFacadeTarget")) {
             role = newRole;
 
             String select = pseudoFor(role.getClass());
@@ -626,6 +628,11 @@ public class ClassTarget extends DependentTarget
             else
                 stereotypeLabel.setText("");
         }
+    }
+
+    protected final void forceSetRole(ClassRole newRole) {
+        role = null;
+        setRole(newRole);
     }
 
     @OnThread(Tag.Any)
@@ -823,7 +830,7 @@ public class ClassTarget extends DependentTarget
                 setRole(new UnitTestClassRole(UnitTestFramework.JUnit5));
             }
             else if (isKotlinFileFacadeClass(cl)) {
-                setRole(new KotlinFileFacadeRole());
+                forceSetRole(new KotlinFileFacadeRole());
             }
             else {
                 setRole(new StdClassRole());
@@ -847,8 +854,8 @@ public class ClassTarget extends DependentTarget
                 }
                 else if (classInfo.isAbstract()) {
                     setRole(new AbstractClassRole());
-                } else if (classInfo.hasTopLevelFunctions()) {
-                    setRole(new KotlinFileFacadeRole());
+                } else if (classInfo.hasTopLevelFunctions() && !classInfo.foundPublicClass()) {
+                    forceSetRole(new KotlinFileFacadeRole());
                 }
                 else {
                     // We shouldn't override applet/unit test class roles based only

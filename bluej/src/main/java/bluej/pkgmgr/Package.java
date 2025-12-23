@@ -697,21 +697,20 @@ public final class Package
         }
 
         // process all *.kt files
-        for (int i = 0; i < kotlinSrcFiles.length; i++) {
-            String kotlinFileName = JavaNames.stripSuffix(kotlinSrcFiles[i].getName(), "." + SourceType.Kotlin.getExtension());
-
-            // check if the name would be a valid java name
-            if (!JavaNames.isIdentifier(kotlinFileName))
-                continue;
+        for (File kotlinSrcFile : kotlinSrcFiles) {
+//            String kotlinFileName = JavaNames.stripSuffix(kotlinSrcFiles[i].getName(), "." + SourceType.Kotlin.getExtension());
+//
+//            // check if the name would be a valid java name
+//            if (!JavaNames.isIdentifier(kotlinFileName))
+//                continue;
 
             try {
                 // Parse the Kotlin file to get information about all public classes and top-level functions
                 EntityResolver resolver = new PackageResolver(project.getEntityResolver(), getQualifiedName());
 
-
                 // Check if the file has top-level functions
-                SourceInput input = SourceInput.fromFile(kotlinSrcFiles[i], SourceType.Kotlin, project.getProjectCharset(), this);
-                java.util.Optional<ClassInfo> info = bluej.parser.InfoParser.parse(input);
+                SourceInput input = SourceInput.fromFile(kotlinSrcFile, SourceType.Kotlin, project.getProjectCharset(), this);
+                Optional<ClassInfo> info = bluej.parser.InfoParser.parse(input);
 
                 if (info.map(ClassInfo::foundPublicClass).orElse(false)) {
                     // Get all public class names from the file
@@ -722,23 +721,25 @@ public final class Package
                     // Add all public class names to the set of targets and map them to the source file
                     for (String className : publicClassNames) {
                         interestingSet.add(className);
-                        kotlinSourceFileMap.put(className, kotlinSrcFiles[i].getName());
+                        kotlinSourceFileMap.put(className, kotlinSrcFile.getName());
                     }
                 }
 
                 if (info.map(ClassInfo::hasTopLevelFunctions).orElse(false)) {
                     // Add a file facade target with the name as file name + "Kt" suffix
-                    String facadeName = kotlinFileName + "Kt";
+                    String facadeName = info.get().getName();
                     interestingSet.add(facadeName);
-                    kotlinSourceFileMap.put(facadeName, kotlinSrcFiles[i].getName());
+                    kotlinSourceFileMap.put(facadeName, kotlinSrcFile.getName());
                 }
             } catch (Exception e) {
                 // If parsing fails, fall back to just using the file name + "Kt" suffix
+                String kotlinFileName = JavaNames.stripSuffix(kotlinSrcFile.getName(), "." + SourceType.Kotlin.getExtension());
                 String facadeName = kotlinFileName + "Kt";
+
                 interestingSet.add(facadeName);
-                kotlinSourceFileMap.put(facadeName, kotlinSrcFiles[i].getName());
+                kotlinSourceFileMap.put(facadeName, kotlinSrcFile.getName());
                 var stacktrace = Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\n  "));
-                Debug.message("Error parsing Kotlin file " + kotlinSrcFiles[i] + ": " + e + "\n  " + stacktrace);
+                Debug.message("Error parsing Kotlin file " + kotlinSrcFile + ": " + e + "\n  " + stacktrace);
             }
         }
 

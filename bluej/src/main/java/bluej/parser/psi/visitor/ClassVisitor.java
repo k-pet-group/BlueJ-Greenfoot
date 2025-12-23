@@ -244,8 +244,12 @@ public class ClassVisitor extends BaseVisitor {
 
             // 1. Begin declaration
             int tdType = determineTypeDefType(ktClass);
-            LocatableToken classToken = createToken(ktClass.getClassOrInterfaceKeyword(), tdType);
-            callbacks.gotDeclBegin(classToken);
+            PsiElement declElement = PsiTreeUtilKt.getFirstLeaf(ktClass.getFirstChild());
+            while (declElement instanceof PsiComment || declElement instanceof PsiWhiteSpace) {
+                declElement = PsiTreeUtilKt.getFirstLeaf(declElement.getNextSibling());
+            }
+            LocatableToken declToken = createToken(declElement);
+            callbacks.gotDeclBegin(declToken);
 
             // 2. Process modifiers
             KtModifierList modifierList = ktClass.getModifierList();
@@ -255,6 +259,8 @@ public class ClassVisitor extends BaseVisitor {
             callbacks.modifiersConsumed();
 
             // 3. Type definition
+            LocatableToken classToken = declToken; // createToken(ktClass.getClassOrInterfaceKeyword(), tdType);
+
             callbacks.gotTypeDef(classToken, tdType);
 
             LocatableToken nameToken = null;
