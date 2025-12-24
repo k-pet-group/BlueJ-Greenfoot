@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement;
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace;
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtilKt;
+import org.jetbrains.kotlin.kdoc.psi.api.KDoc;
 import org.jetbrains.kotlin.psi.*;
 
 import java.util.ArrayList;
@@ -244,11 +245,11 @@ public class ClassVisitor extends BaseVisitor {
 
             // 1. Begin declaration
             int tdType = determineTypeDefType(ktClass);
-            PsiElement declElement = PsiTreeUtilKt.getFirstLeaf(ktClass.getFirstChild());
-            while (declElement instanceof PsiComment || declElement instanceof PsiWhiteSpace) {
-                declElement = PsiTreeUtilKt.getFirstLeaf(declElement.getNextSibling());
+            PsiElement declElement = ktClass.getFirstChild();
+            while (declElement instanceof PsiComment || declElement instanceof PsiWhiteSpace || declElement instanceof KDoc) {
+                declElement = declElement.getNextSibling();
             }
-            LocatableToken declToken = createToken(declElement);
+            LocatableToken declToken = createToken(PsiTreeUtilKt.getFirstLeaf(declElement));
             callbacks.gotDeclBegin(declToken);
 
             // 2. Process modifiers
@@ -258,7 +259,7 @@ public class ClassVisitor extends BaseVisitor {
             }
             callbacks.modifiersConsumed();
 
-            // 3. Type definition
+            // 3. Type definitionPsiElement declElement = PsiTreeUtilKt
             LocatableToken classToken = declToken; // createToken(ktClass.getClassOrInterfaceKeyword(), tdType);
 
             callbacks.gotTypeDef(classToken, tdType);

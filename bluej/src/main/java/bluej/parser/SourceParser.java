@@ -28,135 +28,40 @@ import bluej.parser.psi.SourceInput;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
+import java.util.Optional;
 
 public class SourceParser extends JavaParserCallbacksBase {
     protected BufferedTokenStream tokenStream;
     protected LocatableToken lastToken;
     protected final SourceType sourceType;
-    protected boolean handleComments = true;
-    protected boolean handleMultilineStrings = true;
+    protected Optional<Boolean> handleComments = Optional.empty();
+    protected Optional<Boolean> handleMultilineStrings = Optional.empty();
     protected TokenStream lexer;
     
     /** Source input for file-based parsing (null for Reader-based parsing) */
     private final SourceInput sourceInput;
 
     private ParserBehavior parser;
-    private LineColPos position = new LineColPos(1, 1, 0);
 
     LineColPos getOffset() {
         return this.tokenStream.getOffset();
     }
 
-    /*
-    public static TokenStream getLexer(Reader r)
-    {
-        return new JavaLexer(r);
-    }
-
-    public static TokenStream getLexer(Reader r, boolean handleComments, boolean handleMultilineStrings)
-    {
-        return new JavaLexer(r, handleComments, handleMultilineStrings);
-    }
-
-    private static TokenStream getLexer(Reader r, int line, int col, int pos)
-    {
-        return new JavaLexer(r, line, col, pos);
-    }
-
-    public static TokenStream getLexer(Reader r, SourceType sourceType)
-    {
-        Keywords kws = sourceType == SourceType.Kotlin ? new KotlinKeywords() : new JavaKeywords();
-        var lexer = new JavaLexer(r, kws);
-
-        if (sourceType == SourceType.Kotlin) {
-            lexer.setGenerateWhitespaceTokens(true);
-        }
-
-        return lexer;
-    }
-
-    public static TokenStream getLexer(Reader r, SourceType sourceType, boolean handleComments, boolean handleMultilineStrings)
-    {
-        Keywords kws = sourceType == SourceType.Kotlin ? new KotlinKeywords() : new JavaKeywords();
-        var lexer = new JavaLexer(r, kws, handleComments, handleMultilineStrings);
-
-        if (sourceType == SourceType.Kotlin) {
-            lexer.setGenerateWhitespaceTokens(true);
-        }
-
-        return lexer;
-    }
-
-    private static TokenStream getLexer(Reader r, SourceType sourceType, int line, int col, int pos)
-    {
-        Keywords kws = sourceType == SourceType.Kotlin ? new KotlinKeywords() : new JavaKeywords();
-        var lexer = new JavaLexer(r, kws, line, col, pos);
-
-        if (sourceType == SourceType.Kotlin) {
-//            lexer.setGenerateWhitespaceTokens(true);
-        }
-
-        return lexer;
-    }
-
-     */
-    
-//    public SourceParser setStartPosition(LineColPos position) {
-////        this.lexer = null;
-//        this.tokenStream = null;
-//        this.position = position;
-//
-//        return this;
+//    public boolean isHandleComments() {
+//        return handleComments.orElseGet(() -> getTokenStream.ge);
 //    }
-//
-//    protected TokenStream getLexer() {
-//        if (lexer != null) { return lexer; }
-//
-//        try {
-//            lexer = getParserImplementation().createLexer(getSourceInput());
-////            Keywords kws = sourceType == SourceType.Kotlin ? new KotlinKeywords() : new JavaKeywords();
-////            Reader reader =  getSourceInput().createReader();
-////
-////            var lexer = new JavaLexer(
-////                reader,
-////                kws,
-////                this.position.line(),
-////                this.position.column(),
-////                this.position.position()
-////            );
-////
-////            // TODO: handle that later
-////
-//////            lexer.setHandleComments(false);
-////
-//////            lexer.handleComments = handleComments,
-//////            handleMultilineStrings,
-////
-////            if (sourceType == SourceType.Kotlin) {
-//////                lexer.setGenerateWhitespaceTokens(true);
-////            }
-////
-//            return lexer;
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-    public boolean isHandleComments() {
-        return handleComments;
-    }
 
     public SourceParser setHandleComments(boolean handleComments) {
-        this.handleComments = handleComments;
+        this.handleComments = Optional.of(handleComments);
         return this;
     }
 
-    public boolean isHandleMultilineStrings() {
-        return handleMultilineStrings;
-    }
+//    public boolean isHandleMultilineStrings() {
+//        return handleMultilineStrings;
+//    }
 
     public SourceParser setHandleMultilineStrings(boolean handleMultilineStrings) {
-        this.handleMultilineStrings = handleMultilineStrings;
+        this.handleMultilineStrings = Optional.of(handleMultilineStrings);
         return this;
     }
 
@@ -174,10 +79,6 @@ public class SourceParser extends JavaParserCallbacksBase {
         this.sourceType = input.sourceType();
     }
 
-    public SourceParser(SourceInput input, int line, int col, int pos) {
-        this(input);
-    }
-
     protected ParserBehavior getParserImplementation() {
         if (parser != null) { return parser; }
 
@@ -190,6 +91,11 @@ public class SourceParser extends JavaParserCallbacksBase {
         if (tokenStream != null) { return tokenStream; }
 
         tokenStream = getParserImplementation().createTokenStream(getSourceInput());
+
+        if (tokenStream.getSourceStream() instanceof JavaLexer lexer) {
+            handleMultilineStrings.ifPresent(lexer::setHandleMultilineStrings);
+            handleMultilineStrings.ifPresent(lexer::setHandleComments);
+        }
 
         return tokenStream;
     }

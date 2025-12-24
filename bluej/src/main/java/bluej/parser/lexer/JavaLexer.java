@@ -57,6 +57,14 @@ public final class JavaLexer implements TokenStream
         this.handleComments = handleComments;
     }
 
+    public boolean isHandleMultilineStrings() {
+        return handleMultilineStrings;
+    }
+
+    public void setHandleMultilineStrings(boolean handleMultilineStrings) {
+        this.handleMultilineStrings = handleMultilineStrings;
+    }
+
     private boolean handleComments = true; // When false, doesn't recognise /*..*/ or //..\n as comments (for frames)
     private boolean handleMultilineStrings = true; // When false, treats """ as a single token rather than trying to match start/end
     private Keywords keywords;
