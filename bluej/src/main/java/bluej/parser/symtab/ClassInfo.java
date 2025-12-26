@@ -23,8 +23,11 @@ package bluej.parser.symtab;
 
 import java.util.*;
 
+import bluej.parser.entity.JavaEntity;
 import bluej.utility.JavaUtils;
 import bluej.utility.SortedProperties;
+import bluej.utility.StreamUtils;
+import org.jetbrains.annotations.NotNull;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -51,16 +54,14 @@ public final class ClassInfo
 {
     private static final String[] unitTestClasses = { "junit.framework.TestCase" };
 
-    private boolean foundPublicClass = false;
-
     @OnThread(value = Tag.Any, ignoreParent = true)
     private String name;
     private String superclass;
 
-    private List<String> implemented = new ArrayList<String>();
-    private List<String> used = new ArrayList<String>();
+    private Set<String> implemented = new HashSet<>();
+    private Set<String> used = new HashSet<>();
 
-    private List<String> permits = new ArrayList<>();
+    private Set<String> permits = new HashSet<>();
     @OnThread(value = Tag.Any, ignoreParent = true)
     private List<SavedComment> comments = new LinkedList<SavedComment>();
 
@@ -71,13 +72,51 @@ public final class ClassInfo
     // how we would replace the superclass name in a class
     private Selection superReplaceSelection;
 
+    private Map<String, MethodDesc> methods = new HashMap<>();
+
+    /**
+     * Adds or updates a method description
+     *
+     * @param methodDesc The method description to add/update
+     */
+    public void addMethod(MethodDesc methodDesc) {
+        methods.put(methodDesc.name(), methodDesc);
+    }
+
+    /**
+     * Gets a method description by name
+     *
+     * @param name The method name
+     * @return Optional containing the method description if found
+     */
+    public Optional<MethodDesc> getMethod(String name) {
+        return Optional.ofNullable(methods.get(name));
+    }
+
+    public boolean hasMethod(String name) {
+        return methods.containsKey(name);
+    }
+
+    public boolean hasMethods() {
+        return ! methods.isEmpty();
+    }
+
     private boolean isInterface = false;
     private boolean isAbstract = false;
     private boolean isUnitTest = false;
+    private boolean isPublic = false;
     private boolean isEnum = false;
-    private boolean hasTopLevelFunctions = false;
+    private boolean isKotlinTopLevelFacade = false;
 
     private boolean hadParseError = false;
+
+    public boolean isKotlinTopLevelFacade() {
+        return isKotlinTopLevelFacade;
+    }
+
+    public void setKotlinTopLevelFacade(boolean kotlinTopLevelFacade) {
+        isKotlinTopLevelFacade = kotlinTopLevelFacade;
+    }
 
     public class SavedComment
     {
@@ -115,24 +154,20 @@ public final class ClassInfo
         }
     }
 
-    /**
-     * Check whether a public class (interface, enum) was found.
-     */
-    public boolean foundPublicClass()
-    {
-        return foundPublicClass;
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(boolean aPublic) {
+        isPublic = aPublic;
     }
 
     /**
      * Set the name of the class/interface/enum.
      */
-    public void setName(String name, boolean pub)
+    public void setName(String name)
     {
         this.name = name;
-
-        if(pub) {
-            foundPublicClass = true;
-        }
     }
 
     public void setSuperclass(String name)
@@ -164,9 +199,7 @@ public final class ClassInfo
             return;
         }
 
-        if(!implemented.contains(name)) {
-            implemented.add(name);
-        }
+        implemented.add(name);
     }
 
     public void addPermits(String name)
@@ -175,9 +208,7 @@ public final class ClassInfo
             return;
         }
 
-        if(!permits.contains(name)) {
-            permits.add(name);
-        }
+        permits.add(name);
     }
 
     public void addUsed(String name)
@@ -196,9 +227,7 @@ public final class ClassInfo
         }
 
         // don't add if already there
-        if(! used.contains(name)) {
-            used.add(name);
-        }
+        used.add(name);
     }
 
     /**
@@ -467,7 +496,7 @@ public final class ClassInfo
      */
     public List<String> getImplements()
     {
-        return implemented;
+        return List.copyOf(implemented);
     }
 
     public void setTypeParametersSelection(Selection s)
@@ -485,7 +514,7 @@ public final class ClassInfo
      */
     public List<String> getUsed()
     {
-        return used;
+        return List.copyOf(used);
     }
 
     /**
@@ -494,7 +523,7 @@ public final class ClassInfo
      */
     public List<String> getPermits()
     {
-        return permits;
+        return List.copyOf(permits);
     }
 
     @OnThread(value = Tag.Any, ignoreParent = true)
@@ -536,18 +565,72 @@ public final class ClassInfo
         return this.isEnum;
     }
 
-    public boolean hasTopLevelFunctions()
-    {
-        return this.hasTopLevelFunctions;
-    }
-
-    public void setHasTopLevelFunctions(boolean b)
-    {
-        this.hasTopLevelFunctions = b;
-    }
-
     public boolean hadParseError()
     {
         return hadParseError;
+    }
+
+    public boolean isEquivalentTo(Object other)
+    {
+        if (!(other instanceof ClassInfo)) { return false; }
+        ClassInfo otherClass = (ClassInfo) other;
+
+        if (!getFqdn().equals(otherClass.getFqdn())) { return false; }
+
+        var equivalentModifiers = isInterface() == otherClass.isInterface()
+            && isAbstract() == otherClass.isAbstract()
+            && isUnitTest() == otherClass.isUnitTest()
+            && isEnum() == otherClass.isEnum()
+            && isPublic() == otherClass.isPublic()
+            && isKotlinTopLevelFacade() == otherClass.isKotlinTopLevelFacade();
+
+        if (!equivalentModifiers) { return false; }
+
+        if (!implemented.equals(otherClass.implemented)) { return false; }
+        if (!permits.equals(otherClass.permits)) { return false; }
+        if (!used.equals(otherClass.used)) { return false; }
+        if (!typeParameterTexts.equals(otherClass.typeParameterTexts)) { return false; }
+
+        var methodsEquivalent = this.methods.keySet().stream().allMatch(key -> {
+            var thisMethod = this.methods.get(key);
+            var otherMethod = otherClass.methods.get(key);
+
+            return thisMethod.isEquivalentTo(otherMethod);
+        });
+
+        if (!methodsEquivalent) { return false; }
+
+        return true;
+    }
+
+    public String getFqdn() {
+        var packageName = getPackage();
+        var name = getName();
+
+        if (packageName != null && !packageName.isEmpty()) { return packageName + "." + name; }
+        return name;
+    }
+
+    /**
+     * Represents a method description
+     */
+    public record MethodDesc(
+            @NotNull String name,
+            @NotNull Optional<JavaEntity> returnType, // none for constructors
+            @NotNull List<JavaEntity> paramTypes,
+            @NotNull List<String> paramNames,
+            @NotNull Optional<String> javadocText
+    ) {
+        public boolean isEquivalentTo(Object other) {
+            if (!(other instanceof MethodDesc otherMethod)) { return false; }
+
+            if (!name().equals(otherMethod.name())) { return false; }
+            if (!returnType().flatMap(type -> otherMethod.returnType().map(type::isEquivalentTo)).orElse(false)) { return false; }
+            if (!StreamUtils.zip(paramTypes(), otherMethod.paramTypes()).allMatch(pair -> pair.getKey().isEquivalentTo(pair.getValue()))) { return false; }
+            if (!paramNames().equals(otherMethod.paramNames())) { return false; }
+            if (!javadocText().equals(otherMethod.javadocText())) { return false; }
+
+            return true;
+        }
     }
 }

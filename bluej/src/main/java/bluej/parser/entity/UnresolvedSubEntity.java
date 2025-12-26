@@ -153,4 +153,9 @@ public class UnresolvedSubEntity extends JavaEntity
         }
         return pocEnt;
     }
+
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        return false;
+    }
 }

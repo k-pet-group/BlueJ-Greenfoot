@@ -80,4 +80,9 @@ public class PackageEntity extends PackageOrClass
     {
         return null;
     }
+
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        return false;
+    }
 }

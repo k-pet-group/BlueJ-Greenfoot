@@ -59,6 +59,12 @@ public abstract class  EditableTarget extends Target
      */
     protected abstract File getSourceFile();
 
+    public boolean hasSourceFile() {
+        var file = getSourceFile();
+
+        return file != null && file.exists();
+    }
+
     /**
      * @return the editor object associated with this target
      */

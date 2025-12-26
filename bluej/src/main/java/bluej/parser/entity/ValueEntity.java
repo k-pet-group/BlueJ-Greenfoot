@@ -208,4 +208,16 @@ public class ValueEntity extends JavaEntity
         return ent.hasConstantBooleanValue() || ent.hasConstantIntValue()
                 || ent.hasConstantFloatValue() || ent.isConstantString();
     }
+
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        if (o instanceof ValueEntity other) {
+            var thisType = getType();
+            var otherType = other.getType();
+
+            return thisType.equals(otherType);
+        }
+
+        return false;
+    }
 }

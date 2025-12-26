@@ -33,6 +33,7 @@ import bluej.editor.base.LineDisplay.LineDisplayListener;
 import bluej.editor.base.MarginAndTextLine.MarginDisplay;
 import bluej.editor.base.TextLine.HighlightType;
 import bluej.editor.base.TextLine.StyledSegment;
+import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import com.sun.javafx.scene.input.ExtendedInputMethodRequests;
 import javafx.geometry.Bounds;
@@ -344,7 +345,13 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
             && character.charAt(0) != 0x7F
             && !event.isMetaDown()) { // Not sure about this one -- NCCB note this comment is from the original source
             // Replace selection will call nonIMEdit for us:
-            replaceSelection(character);
+            try {
+                replaceSelection(character);
+            }
+            catch (Exception e) {
+                Debug.log("Exception: " + e);
+                throw e;
+            }
             JavaFXUtil.runAfterCurrent(() -> scheduleCaretUpdate(true));
             // Must do this last, to avoid the cursor movement in textChanged()
             // from cancelling our memory that they added a curly bracket without moving:

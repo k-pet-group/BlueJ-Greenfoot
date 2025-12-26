@@ -38,6 +38,7 @@ import bluej.parser.psi.JavaParserCallbacks;
 import bluej.parser.psi.JavaParserCallbacksAdapterImpl;
 import bluej.parser.psi.SourceInput;
 import bluej.parser.psi.visitor.ForwardingCallbackRecorder;
+import bluej.parser.symtab.ClassInfo;
 import org.junit.Test;
 
 

@@ -116,4 +116,9 @@ public class ImportedEntity extends JavaEntity
 
         return poc;
     }
+
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        return false;
+    }
 }

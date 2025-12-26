@@ -74,4 +74,8 @@ public class UnresolvedArray extends JavaEntity
         return null;
     }
 
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        return false;
+    }
 }

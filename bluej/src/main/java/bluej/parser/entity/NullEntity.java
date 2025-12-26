@@ -22,6 +22,7 @@
 package bluej.parser.entity;
 
 import java.util.List;
+import java.util.Objects;
 
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
@@ -74,4 +75,11 @@ public class NullEntity extends ValueEntity
     {
         return this;
     }
+
+//    @Override
+//    public boolean equivalentTo(JavaEntity o) {
+//        if (!super.equivalentTo(o)) { return false; }
+//
+//        return (o instanceof ConstantBoolValue other) &&  Objects.equals(value, other.value);
+//    }
 }

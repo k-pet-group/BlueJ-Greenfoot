@@ -22,15 +22,11 @@
 package bluej.parser;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
+import java.util.*;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.psi.SourceInput;
+import bluej.parser.symtab.SourceInfo;
 import org.jetbrains.annotations.NotNull;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -42,7 +38,6 @@ import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PositionedResolver;
-import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedArray;
 import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.lexer.JavaTokenTypes;
@@ -73,40 +68,32 @@ import static bluej.parser.JavaParser.TYPEDEF_INTERFACE;
  */
 public class InfoParser extends EditorParser
 {
-    private final Pattern FIRST_LETTER_REGEX = Pattern.compile("(?<first>^.)(?<rest>.+)\\.kt$");
 
     protected String targetPkg;
-    protected ClassInfo info;
-    private int classLevel = 0; // number of nested classes
+    protected SourceInfo sourceInfo;
+//    protected ClassInfo currentClass;
+    private Stack<ClassInfo> classStack = new Stack<>();
+
+//    private int classLevel = 0; // number of nested classes
     private boolean isPublic;
     private boolean isAbstract;
     private String comment;
     private int lastTdType; // last typedef type (TYPEDEF_CLASS, _INTERFACE etc)
-    private boolean storeCurrentClassInfo;
+//    private boolean storeCurrentClassInfo;
     private int arrayCount = 0;
     private boolean methodTypeParams = false;  // Type parameters are for a method
 
     private List<LocatableToken> lastTypespecToks;
     private boolean modPublic = false;
     private boolean modAbstract = false;
-    private List<MethodDesc> methodDescs = new LinkedList<MethodDesc>();
-    private MethodDesc currentMethod;
+//    private List<MethodDesc> methodDescs = new LinkedList<MethodDesc>();
+    private ClassInfo.MethodDesc currentMethod;
 
     private JavaEntity superclassEntity;
 
     private List<JavaEntity> interfaceEntities;
     //private List<Selection> interfaceSelections;
     private List<JavaEntity> permitsEntities;
-
-    /** Represents a method description */
-    class MethodDesc
-    {
-        String name;
-        JavaEntity returnType; // null for constructors
-        List<JavaEntity> paramTypes;
-        String paramNames; // space separated list
-        String javadocText;
-    }
 
     /** Represents an unresolved value identifier expression */
     class UnresolvedVal
@@ -133,6 +120,26 @@ public class InfoParser extends EditorParser
     private List<LocatableToken> packageTokens;
     private LocatableToken pkgSemiToken;
 
+    protected ClassInfo getCurrentClass() {
+        return classStack.peek();
+    }
+
+    protected ClassInfo addClass(String className) {
+        ClassInfo classInfo = sourceInfo.getClassInfo(className).orElse(null);
+
+        if (classInfo == null) {
+            classInfo = new ClassInfo();
+
+            classInfo.setName(className);
+
+            sourceInfo.addClassInfo(classInfo);
+        }
+
+        classStack.push(classInfo);
+
+        return classInfo;
+    }
+
     /**
      * Constructor for SourceInput-based parsing.
      *
@@ -142,6 +149,7 @@ public class InfoParser extends EditorParser
     public InfoParser(SourceInput input) throws IOException
     {
         super(input, input.getEntityResolver());
+        sourceInfo = new SourceInfo(input);
     }
 
     /**
@@ -151,7 +159,7 @@ public class InfoParser extends EditorParser
      * @return Optional of ClassInfo if parsing succeeded, or Optional.empty() otherwise.
      */
     @OnThread(Tag.FXPlatform)
-    public static @NotNull Optional<ClassInfo> parse(@NotNull SourceInput input) {
+    public static @NotNull Optional<SourceInfo> parse(@NotNull SourceInput input) {
         try {
             InfoParser infoParser = new InfoParser(input);
             if (input.hasPackage()) {
@@ -162,148 +170,165 @@ public class InfoParser extends EditorParser
                 bluej.parser.entity.PackageResolver pkgr = (bluej.parser.entity.PackageResolver) input.getEntityResolver();
                 infoParser.targetPkg = pkgr.getPackageName();
             }
+
+            // TODO: we need to have a class to store top-level functions
+            if (input.sourceType() == SourceType.Kotlin) {
+                var generatedClassName = infoParser.sourceInfo.getTopLevelFacadeClassName();
+
+                var classInfo = infoParser.addClass(generatedClassName);
+
+                classInfo.setKotlinTopLevelFacade(true);
+//
+//                currentClass = new ClassInfo();
+//                getCurrentClass().setName(generatedClassName, false);
+//                getCurrentClass().setInterface(false);
+//                getCurrentClass().setEnum(false);
+//                storeCurrentClassInfo = true;
+            }
+
+
             infoParser.parseCU();
 
-            if (infoParser.info != null) {
-                infoParser.info.setParseError(infoParser.hadError);
-                infoParser.resolveComments();
-                return Optional.of(infoParser.info);
-            }
-            return Optional.empty();
+//            if (infoParser.currentClass != null) {
+//                infoParser.getCurrentClass().setParseError(infoParser.hadError);
+//                infoParser.resolveComments();
+//                return Optional.of(sourceInfo);
+//            }
+            return Optional.of(infoParser.sourceInfo);
         } catch (IOException e) {
             return Optional.empty();
         }
     }
 
-    /**
-     * Resolve the method parameter and return types to their fully qualified types.
-     */
-    @OnThread(Tag.FXPlatform)
-    protected void resolveMethodTypes()
-    {
-        methodLoop:
-        for (MethodDesc md : methodDescs) {
-            // Build the method signature
-            String methodSig;
-
-            if (md.returnType != null) {
-                md.returnType = md.returnType.resolveAsType();
-                if (md.returnType == null) {
-                    continue;
-                }
-                methodSig = getTypeString(md.returnType) + " " + md.name + "(";
-            }
-            else {
-                // constructor
-                methodSig = md.name + "(";
-            }
-
-            Iterator<JavaEntity> i = md.paramTypes.iterator();
-            while (i.hasNext()) {
-                JavaEntity paramEnt = i.next();
-                if (paramEnt == null) {
-                    continue methodLoop;
-                }
-                TypeEntity paramType = paramEnt.resolveAsType();
-                if (paramType == null) {
-                    continue methodLoop;
-                }
-                methodSig += getTypeString(paramType);
-                if (i.hasNext()) {
-                    methodSig += ", ";
-                }
-            }
-
-            methodSig += ")";
-            md.paramNames = md.paramNames.trim();
-            info.addComment(methodSig, md.javadocText, md.paramNames);
-        }
-    }
+//    /**
+//     * Resolve the method parameter and return types to their fully qualified types.
+//     */
+//    @OnThread(Tag.FXPlatform)
+//    protected void resolveMethodTypes()
+//    {
+//        methodLoop:
+//        for (MethodDesc md : methodDescs) {
+//            // Build the method signature
+//            String methodSig;
+//
+//            if (md.returnType != null) {
+//                md.returnType = md.returnType.resolveAsType();
+//                if (md.returnType == null) {
+//                    continue;
+//                }
+//                methodSig = getTypeString(md.returnType) + " " + md.name + "(";
+//            }
+//            else {
+//                // constructor
+//                methodSig = md.name + "(";
+//            }
+//
+//            Iterator<JavaEntity> i = md.paramTypes.iterator();
+//            while (i.hasNext()) {
+//                JavaEntity paramEnt = i.next();
+//                if (paramEnt == null) {
+//                    continue methodLoop;
+//                }
+//                TypeEntity paramType = paramEnt.resolveAsType();
+//                if (paramType == null) {
+//                    continue methodLoop;
+//                }
+//                methodSig += getTypeString(paramType);
+//                if (i.hasNext()) {
+//                    methodSig += ", ";
+//                }
+//            }
+//
+//            methodSig += ")";
+//            md.paramNames = md.paramNames.trim();
+//            getCurrentClass().addComment(methodSig, md.javadocText, md.paramNames);
+//        }
+//    }
 
     /**
      * All type references and method declarations are unresolved after parsing.
      * Call this method to resolve them.
      */
-    @OnThread(Tag.FXPlatform)
-    public void resolveComments()
-    {
-        resolveMethodTypes();
-
-        // Now also resolve references
-        for (JavaEntity entity: typeReferences) {
-            entity = entity.resolveAsType();
-            if (entity != null) {
-                JavaType etype = entity.getType();
-                if (! etype.isPrimitive()) {
-                    addTypeReference(etype);
-                }
-            }
-        }
-
-        refloop:
-        for (UnresolvedVal val: valueReferences) {
-            Iterator<LocatableToken> i = val.components.iterator();
-            String name = i.next().getText();
-            JavaEntity entity = val.resolver.getValueEntity(name, val.accessSource, val.accessPosition);
-            if (entity != null && entity.resolveAsValue() != null) {
-                continue refloop;
-            }
-            while (entity != null && i.hasNext()) {
-                TypeEntity typeEnt = entity.resolveAsType();
-                if (typeEnt != null && ! typeEnt.getType().isPrimitive()) {
-                    addTypeReference(entity.getType());
-                }
-                entity = entity.getSubentity(i.next().getText(), val.accessSource);
-                if (entity != null && entity.resolveAsValue() != null) {
-                    continue refloop;
-                }
-            }
-            if (! i.hasNext() && entity != null) {
-                TypeEntity typeEnt = entity.resolveAsType();
-                if (typeEnt != null && ! typeEnt.getType().isPrimitive()) {
-                    addTypeReference(entity.getType());
-                }
-            }
-        }
-
-        if (superclassEntity != null) {
-            superclassEntity = superclassEntity.resolveAsType();
-            if (superclassEntity != null) {
-                JavaType sceType = superclassEntity.getType();
-                GenTypeClass scecType = sceType.asClass();
-                if (scecType != null) {
-                    info.setSuperclass(scecType.getReflective().getName());
-                }
-            }
-        }
-
-        if (interfaceEntities != null && ! interfaceEntities.isEmpty()) {
-            for (JavaEntity ifaceEnt : interfaceEntities) {
-                TypeEntity iEnt = ifaceEnt.resolveAsType();
-                if (iEnt != null) {
-                    GenTypeClass iType = iEnt.getType().asClass();
-                    if (iType != null) {
-                        info.addImplements(iType.getReflective().getName());
-                        continue;
-                    }
-                }
-                info.addImplements(""); // gap filler
-            }
-        }
-        if (permitsEntities != null && !permitsEntities.isEmpty()) {
-            for (JavaEntity permitsEnt : permitsEntities) {
-                TypeEntity iEnt = permitsEnt.resolveAsType();
-                if (iEnt != null) {
-                    GenTypeClass iType = iEnt.getType().asClass();
-                    if (iType != null) {
-                        info.addPermits(iType.getReflective().getName());
-                        continue;
-                    }
-                }
-                info.addPermits(""); // gap filler
-            }
-        }
-    }
+//    @OnThread(Tag.FXPlatform)
+//    public void resolveComments()
+//    {
+//        resolveMethodTypes();
+//
+//        // Now also resolve references
+//        for (JavaEntity entity: typeReferences) {
+//            entity = entity.resolveAsType();
+//            if (entity != null) {
+//                JavaType etype = entity.getType();
+//                if (! etype.isPrimitive()) {
+//                    addTypeReference(etype);
+//                }
+//            }
+//        }
+//
+//        refloop:
+//        for (UnresolvedVal val: valueReferences) {
+//            Iterator<LocatableToken> i = val.components.iterator();
+//            String name = i.next().getText();
+//            JavaEntity entity = val.resolver.getValueEntity(name, val.accessSource, val.accessPosition);
+//            if (entity != null && entity.resolveAsValue() != null) {
+//                continue refloop;
+//            }
+//            while (entity != null && i.hasNext()) {
+//                TypeEntity typeEnt = entity.resolveAsType();
+//                if (typeEnt != null && ! typeEnt.getType().isPrimitive()) {
+//                    addTypeReference(entity.getType());
+//                }
+//                entity = entity.getSubentity(i.next().getText(), val.accessSource);
+//                if (entity != null && entity.resolveAsValue() != null) {
+//                    continue refloop;
+//                }
+//            }
+//            if (! i.hasNext() && entity != null) {
+//                TypeEntity typeEnt = entity.resolveAsType();
+//                if (typeEnt != null && ! typeEnt.getType().isPrimitive()) {
+//                    addTypeReference(entity.getType());
+//                }
+//            }
+//        }
+//
+//        if (superclassEntity != null) {
+//            superclassEntity = superclassEntity.resolveAsType();
+//            if (superclassEntity != null) {
+//                JavaType sceType = superclassEntity.getType();
+//                GenTypeClass scecType = sceType.asClass();
+//                if (scecType != null) {
+//                    getCurrentClass().setSuperclass(scecType.getReflective().getName());
+//                }
+//            }
+//        }
+//
+//        if (interfaceEntities != null && ! interfaceEntities.isEmpty()) {
+//            for (JavaEntity ifaceEnt : interfaceEntities) {
+//                TypeEntity iEnt = ifaceEnt.resolveAsType();
+//                if (iEnt != null) {
+//                    GenTypeClass iType = iEnt.getType().asClass();
+//                    if (iType != null) {
+//                        getCurrentClass().addImplements(iType.getReflective().getName());
+//                        continue;
+//                    }
+//                }
+//                getCurrentClass().addImplements(""); // gap filler
+//            }
+//        }
+//        if (permitsEntities != null && !permitsEntities.isEmpty()) {
+//            for (JavaEntity permitsEnt : permitsEntities) {
+//                TypeEntity iEnt = permitsEnt.resolveAsType();
+//                if (iEnt != null) {
+//                    GenTypeClass iType = iEnt.getType().asClass();
+//                    if (iType != null) {
+//                        getCurrentClass().addPermits(iType.getReflective().getName());
+//                        continue;
+//                    }
+//                }
+//                getCurrentClass().addPermits(""); // gap filler
+//            }
+//        }
+//    }
 
     /**
      * Add a reference to a type, and recursively process its type arguments (if any)
@@ -344,7 +369,7 @@ public class InfoParser extends EditorParser
             if (dollar != -1) {
                 name = name.substring(0, dollar);
             }
-            info.addUsed(name);
+            getCurrentClass().addUsed(name);
         }
     }
 
@@ -376,7 +401,7 @@ public class InfoParser extends EditorParser
     protected void beginTypeBody(LocatableToken token)
     {
         super.beginTypeBody(token);
-        classLevel++;
+//        classLevel++;
         gotExtends = false;
         gotImplements = false;
         gotPermits = false;
@@ -386,7 +411,7 @@ public class InfoParser extends EditorParser
     protected void endTypeBody(LocatableToken token, boolean included)
     {
         super.endTypeBody(token, included);
-        classLevel--;
+//        classLevel--;
     }
 
     @Override
@@ -408,17 +433,16 @@ public class InfoParser extends EditorParser
             typeReferences.add(tentity);
         }
 
-        boolean isSuper = storeCurrentClassInfo && gotExtends && !info.isInterface();
-        boolean isInterface = storeCurrentClassInfo && (gotImplements ||
-                (info.isInterface() && gotExtends));
+        boolean isSuper = gotExtends && !getCurrentClass().isInterface();
+        boolean isInterface = (gotImplements || (getCurrentClass().isInterface() && gotExtends));
 
         if (isSuper) {
             // The list of tokens gives us the name of the class that we extend
             superclassEntity = ParseUtils.getTypeEntity(scopeStack.get(0), null, tokens);
-            info.setSuperclass(""); // this will be corrected when the type is resolved
+            getCurrentClass().setSuperclass(""); // this will be corrected when the type is resolved
             Selection superClassSelection = getSelection(tokens);
-            info.setSuperReplaceSelection(superClassSelection);
-            info.setImplementsInsertSelection(new Selection(superClassSelection.getEndLine(),
+            getCurrentClass().setSuperReplaceSelection(superClassSelection);
+            getCurrentClass().setImplementsInsertSelection(new Selection(superClassSelection.getEndLine(),
                     superClassSelection.getEndColumn()));
         }
         else if (isInterface) {
@@ -437,13 +461,13 @@ public class InfoParser extends EditorParser
                 lastCommaSelection = getSelection(getTokenStream().LA(1));
             }
             else {
-                info.setInterfaceSelections(interfaceSelections);
-                if (! info.isInterface()) {
-                    info.setImplementsInsertSelection(new Selection(interfaceSel.getEndLine(),
+                getCurrentClass().setInterfaceSelections(interfaceSelections);
+                if (! getCurrentClass().isInterface()) {
+                    getCurrentClass().setImplementsInsertSelection(new Selection(interfaceSel.getEndLine(),
                             interfaceSel.getEndColumn()));
                 }
                 else {
-                    info.setExtendsInsertSelection(new Selection(interfaceSel.getEndLine(),
+                    getCurrentClass().setExtendsInsertSelection(new Selection(interfaceSel.getEndLine(),
                             interfaceSel.getEndColumn()));
                 }
             }
@@ -468,9 +492,9 @@ public class InfoParser extends EditorParser
     protected void gotTypeParam(LocatableToken idToken)
     {
         super.gotTypeParam(idToken);
-        if (storeCurrentClassInfo && !methodTypeParams && classLevel == 0) {
-            info.addTypeParameterText(idToken.getText());
-            info.setTypeParametersSelection(getSelection(idToken));
+        if (!methodTypeParams) {
+            getCurrentClass().addTypeParameterText(idToken.getText());
+            getCurrentClass().setTypeParametersSelection(getSelection(idToken));
         }
     }
 
@@ -549,28 +573,15 @@ public class InfoParser extends EditorParser
     @Override
     protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken)
     {
-        // TODO: we need to have a class to store top-level functions
-        if (classLevel == 0) {
-            // If we already have a ClassInfo object, set the flag on it
-            if (info == null) {
-                var generatedClassName = FIRST_LETTER_REGEX.matcher(getSourceInput().filename())
-                    .replaceFirst(result -> result.group("first").toUpperCase() + result.group("rest") + "Kt");
-                info = new ClassInfo();
-                info.setName(generatedClassName, false);
-                info.setInterface(false);
-                info.setEnum(false);
-                storeCurrentClassInfo = true;
-            }
-        }
-
         super.gotMethodDeclaration(token, hiddenToken);
         String lastComment = (hiddenToken != null) ? hiddenToken.getText() : null;
-        currentMethod = new MethodDesc();
-        currentMethod.returnType =  ((MethodNode) scopeStack.peek()).getReturnType();
-        currentMethod.name = token.getText();
-        currentMethod.paramNames = "";
-        currentMethod.paramTypes = new LinkedList<JavaEntity>();
-        currentMethod.javadocText = lastComment;
+        currentMethod = new ClassInfo.MethodDesc(
+            token.getText(),
+            Optional.of(((MethodNode) scopeStack.peek()).getReturnType()),
+            new LinkedList<>(),
+            new LinkedList<>(),
+            Optional.ofNullable(lastComment)
+        );
         arrayCount = 0;
     }
 
@@ -585,11 +596,13 @@ public class InfoParser extends EditorParser
     {
         super.gotConstructorDecl(token, hiddenToken, name);
         String lastComment = (hiddenToken != null) ? hiddenToken.getText() : null;
-        currentMethod = new MethodDesc();
-        currentMethod.name = name;
-        currentMethod.paramNames = "";
-        currentMethod.paramTypes = new LinkedList<JavaEntity>();
-        currentMethod.javadocText = lastComment;
+        currentMethod = new ClassInfo.MethodDesc(
+            token.getText(),
+        Optional.empty(),
+            new LinkedList<>(),
+            new LinkedList<>(),
+            Optional.ofNullable(lastComment)
+        );
         arrayCount = 0;
     }
 
@@ -598,7 +611,7 @@ public class InfoParser extends EditorParser
     {
         super.gotMethodParameter(token, ellipsisToken);
         if (currentMethod != null && lastTypespecToks != null) {
-            currentMethod.paramNames += token.getText() + " ";
+            currentMethod.paramNames().add(token.getText());
             JavaEntity ptype = ParseUtils.getTypeEntity(scopeStack.peek(),
                     currentQuerySource(), lastTypespecToks);
             while (arrayCount > 0) {
@@ -608,7 +621,7 @@ public class InfoParser extends EditorParser
             if (ellipsisToken != null) {
                 ptype = new UnresolvedArray(ptype);                
             }
-            currentMethod.paramTypes.add(ptype);
+            currentMethod.paramTypes().add(ptype);
         }
     }
 
@@ -623,14 +636,8 @@ public class InfoParser extends EditorParser
     protected void gotAllMethodParameters()
     {
         super.gotAllMethodParameters();
-        if (storeCurrentClassInfo && classLevel <= 1) {
-            methodDescs.add(currentMethod);
-            currentMethod = null;
-
-            if (classLevel == 0) {
-                info.setHasTopLevelFunctions(true);
-            }
-        }
+        getCurrentClass().addMethod(currentMethod);
+        currentMethod = null;
     }
 
     @Override
@@ -648,57 +655,58 @@ public class InfoParser extends EditorParser
     protected void gotTypeDefName(LocatableToken nameToken)
     {
         super.gotTypeDefName(nameToken);
+
         gotExtends = false; // haven't seen "extends ..." yet
         gotImplements = false;
         gotPermits = false;
-        if (classLevel == 0) {
-            if (info == null || isPublic && !info.foundPublicClass()) {
-                info = new ClassInfo();
-                info.setName(nameToken.getText(), isPublic);
-                info.setEnum(lastTdType == TYPEDEF_ENUM);
-                info.setInterface(lastTdType == TYPEDEF_INTERFACE);
-                info.setAbstract(isAbstract);
+
+        addClass(nameToken.getText());
+
+        getCurrentClass().setName(nameToken.getText());
+        getCurrentClass().setPublic(isPublic);
+        getCurrentClass().setEnum(lastTdType == TYPEDEF_ENUM);
+        getCurrentClass().setInterface(lastTdType == TYPEDEF_INTERFACE);
+        getCurrentClass().setAbstract(isAbstract);
 //                if (hasTopLevelFunction) {
 //                    info.setHasTopLevelFunctions(true);
 //                }
-                info.addComment(info.getName(), comment, null);
-                Selection insertSelection = new Selection(nameToken.getLine(), nameToken.getEndColumn());
-                info.setExtendsInsertSelection(insertSelection);
-                info.setImplementsInsertSelection(insertSelection);
-                if (pkgSemiToken != null) {
-                    info.setPackageSelections(getSelection(pkgLiteralToken), getSelection(packageTokens),
-                            joinTokens(packageTokens), getSelection(pkgSemiToken));
-                }
-                storeCurrentClassInfo = true;
-            }
-            else {
-                storeCurrentClassInfo = false;
-            }
+        getCurrentClass().addComment(getCurrentClass().getName(), comment, null);
+        Selection insertSelection = new Selection(nameToken.getLine(), nameToken.getEndColumn());
+        getCurrentClass().setExtendsInsertSelection(insertSelection);
+        getCurrentClass().setImplementsInsertSelection(insertSelection);
+        if (pkgSemiToken != null) {
+            getCurrentClass().setPackageSelections(getSelection(pkgLiteralToken), getSelection(packageTokens),
+                    joinTokens(packageTokens), getSelection(pkgSemiToken));
         }
+    }
+
+    @Override
+    protected void gotTypeDefEnd(LocatableToken token, boolean included) {
+        classStack.pop();
+
+        super.gotTypeDefEnd(token, included);
     }
 
     @Override
     protected void beginTypeDefExtends(LocatableToken extendsToken)
     {
         super.beginTypeDefExtends(extendsToken);
-        if (classLevel == 0 && storeCurrentClassInfo) {
-            gotExtends = true;
-            SourceLocation extendsStart = info.getExtendsInsertSelection().getStartLocation();
-            int extendsEndCol = getTokenStream().LA(1).getColumn();
-            int extendsEndLine = getTokenStream().LA(1).getLine();
-            if (extendsStart.getLine() == extendsEndLine) {
-                info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsEndCol - extendsStart.getColumn()));
-            }
-            else {
-                info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsToken.getEndColumn() - extendsStart.getColumn()));
-            }
-            info.setExtendsInsertSelection(null);
+        gotExtends = true;
+        SourceLocation extendsStart = getCurrentClass().getExtendsInsertSelection().getStartLocation();
+        int extendsEndCol = getTokenStream().LA(1).getColumn();
+        int extendsEndLine = getTokenStream().LA(1).getLine();
+        if (extendsStart.getLine() == extendsEndLine) {
+            getCurrentClass().setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsEndCol - extendsStart.getColumn()));
+        }
+        else {
+            getCurrentClass().setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsToken.getEndColumn() - extendsStart.getColumn()));
+        }
+        getCurrentClass().setExtendsInsertSelection(null);
 
-            if (info.isInterface()) {
-                interfaceSelections = new LinkedList<Selection>();
-                interfaceSelections.add(getSelection(extendsToken));
-                interfaceEntities = new LinkedList<JavaEntity>();
-            }
+        if (getCurrentClass().isInterface()) {
+            interfaceSelections = new LinkedList<Selection>();
+            interfaceSelections.add(getSelection(extendsToken));
+            interfaceEntities = new LinkedList<JavaEntity>();
         }
     }
 
@@ -706,14 +714,12 @@ public class InfoParser extends EditorParser
     protected void beginTypeDefImplements(LocatableToken implementsToken)
     {
         super.beginTypeDefImplements(implementsToken);
-        if (classLevel == 0 && storeCurrentClassInfo) {
-            gotExtends = false;
-            gotImplements = true;
-            gotPermits = false;
-            interfaceSelections = new LinkedList<Selection>();
-            interfaceSelections.add(getSelection(implementsToken));
-            interfaceEntities = new LinkedList<JavaEntity>();
-        }
+        gotExtends = false;
+        gotImplements = true;
+        gotPermits = false;
+        interfaceSelections = new LinkedList<Selection>();
+        interfaceSelections.add(getSelection(implementsToken));
+        interfaceEntities = new LinkedList<JavaEntity>();
     }
 
     @Override

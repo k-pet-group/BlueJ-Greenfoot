@@ -23,6 +23,8 @@ package bluej.parser.entity;
 
 import bluej.debugger.gentype.JavaType;
 
+import java.util.Objects;
+
 /**
  * An entity to represent a constant string value.
  * 
@@ -53,5 +55,12 @@ public class ConstantStringEntity extends ValueEntity
     public String getConstantString()
     {
         return value;
+    }
+
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        if (!super.isEquivalentTo(o)) { return false; }
+
+        return (o instanceof ConstantStringEntity other) &&  Objects.equals(value, other.value);
     }
 }

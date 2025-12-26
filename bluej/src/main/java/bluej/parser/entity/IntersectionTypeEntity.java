@@ -114,5 +114,16 @@ public class IntersectionTypeEntity extends JavaEntity
         }
         return new TypeEntity(type);
     }
-    
+
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        if (o instanceof IntersectionTypeEntity other) {
+            var thisIntersection = getType();
+            var otherIntersection = other.getType();
+
+            return thisIntersection.equals(otherIntersection);
+        }
+
+        return  false;
+    }
 }

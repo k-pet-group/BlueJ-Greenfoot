@@ -60,6 +60,11 @@ public class TargetCollection implements Iterable<Target>
         return (Target) targets.get(identifierName);
     }
 
+    public Set<String> getTargetNames()
+    {
+        return targets.keySet();
+    }
+
     public Target remove(String identifierName)
     {
         return (Target) targets.remove(identifierName);

@@ -61,11 +61,11 @@ public class JavadocParser extends InfoParser
             javadocParser.targetPkg = targetPkg;
             javadocParser.parseCU();
 
-            if (javadocParser.info != null) {
-                javadocParser.info.setParseError(javadocParser.hadError);
-                javadocParser.resolveMethodTypes();
-                return javadocParser.info;
-            }
+//            if (javadocParser.currentClass != null) {
+//                javadocParser.currentClass.setParseError(javadocParser.hadError);
+//                javadocParser.resolveMethodTypes();
+//                return javadocParser.currentClass;
+//            }
             return null;
         } catch (IOException e) {
             return null;

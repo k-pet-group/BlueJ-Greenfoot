@@ -57,4 +57,9 @@ public class ErrorEntity extends JavaEntity
     {
         return this;
     }
+
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        return false;
+    }
 }

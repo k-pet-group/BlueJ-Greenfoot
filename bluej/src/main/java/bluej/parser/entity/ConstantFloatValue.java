@@ -23,6 +23,8 @@ package bluej.parser.entity;
 
 import bluej.debugger.gentype.JavaType;
 
+import java.util.Objects;
+
 /**
  * Represents a value entity with a known (constant) floating point value (single or double precision).
  * 
@@ -53,5 +55,12 @@ public class ConstantFloatValue extends ValueEntity
     public double getConstantFloatValue()
     {
         return value;
+    }
+
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        if (!super.isEquivalentTo(o)) { return false; }
+
+        return (o instanceof ConstantFloatValue other) &&  Objects.equals(value, other.value);
     }
 }

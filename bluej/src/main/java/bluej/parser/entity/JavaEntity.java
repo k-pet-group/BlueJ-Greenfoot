@@ -120,4 +120,15 @@ public abstract class JavaEntity
      * @param tparams   A list of type parameters
      */
     public abstract JavaEntity setTypeArgs(List<TypeArgumentEntity> tparams);
+
+    /**
+     * Check whether the type or value represented by this entity is equal to that of another.
+     *
+     * Note, that this is separate from equals as I don't know whether we want all equal types to be equal JavaEntities yet
+     * TODO: verify that
+     *
+     * @param other
+     * @return
+     */
+    public abstract boolean isEquivalentTo(JavaEntity other);
 }

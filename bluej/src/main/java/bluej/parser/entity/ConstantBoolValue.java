@@ -23,6 +23,8 @@ package bluej.parser.entity;
 
 import bluej.debugger.gentype.JavaPrimitiveType;
 
+import java.util.Objects;
+
 /**
  * A value entity with a compile-time constant boolean value
  * 
@@ -48,5 +50,12 @@ public class ConstantBoolValue extends ValueEntity
     public boolean getConstantBooleanValue()
     {
         return value;
+    }
+
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        if (!super.isEquivalentTo(o)) { return false; }
+
+        return (o instanceof ConstantBoolValue other) &&  Objects.equals(value, other.value);
     }
 }

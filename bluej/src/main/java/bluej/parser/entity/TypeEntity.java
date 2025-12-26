@@ -181,4 +181,16 @@ public class TypeEntity extends PackageOrClass
     {
         return this;
     }
+
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        if (o instanceof TypeEntity other) {
+            var thisType = getType();
+            var otherType = other.getType();
+
+            return thisType.equals(otherType);
+        }
+
+        return  false;
+    }
 }

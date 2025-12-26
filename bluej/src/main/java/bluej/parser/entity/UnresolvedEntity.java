@@ -127,4 +127,9 @@ public class UnresolvedEntity extends JavaEntity
         }
         return ent;
     }
+
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        return false;
+    }
 }

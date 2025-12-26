@@ -21,12 +21,13 @@
  */
 package bluej.pkgmgr;
 
-import java.io.File;
-
-import bluej.extensions2.SourceType;
 import bluej.parser.InfoParser;
 import bluej.parser.psi.SourceInput;
 import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.SourceInfo;
+import javafx.util.Pair;
+
+import java.util.Optional;
 
 /**
  * A container holding information about a class's source file. The
@@ -36,39 +37,74 @@ import bluej.parser.symtab.ClassInfo;
  * @author  Michael Kolling
  * @version $Id: SourceInfo.java 16066 2016-06-21 20:19:57Z nccb $
  */
-public final class SourceInfo
+public final class CachedSourceInfo
 {
-    private ClassInfo info;
+    private Optional<SourceInfo> currentInfo;
+    private Optional<SourceInfo> lastInfo;
     private SourceInput inputFile;
 
-    public SourceInfo(SourceInput inputFile)
+    public CachedSourceInfo(SourceInput inputFile)
     {
-        info = null;
+        currentInfo = Optional.empty();
+        lastInfo = Optional.empty();
         this.inputFile = inputFile;
     }
 
     public void setSourceModified()
     {
-        info = null;
+        if (currentInfo.isEmpty()) { return; }
+
+        lastInfo = currentInfo;
+        currentInfo = Optional.empty();
     }
 
-    private ClassInfo getInfo() {
-        if (info == null)  {
-            info = InfoParser.parse(inputFile).orElse(null);
-        }
+    private Optional<SourceInfo> getInfo() {
+        if (currentInfo.isPresent()) { return currentInfo; }
 
-        return info;
+        return (currentInfo = InfoParser.parse(inputFile));
     }
 
-    public ClassInfo getClassInfo(String identifier) {
-        ClassInfo info = getInfo();
+    public Optional<ClassInfo> getClassInfo(String identifier) {
+        return getInfo().flatMap(i -> i.getClassInfo(identifier));
+    }
 
-        if (info.getName().equals(identifier)) {
-            return  info;
-        }
-        else {
-            return null;
-        }
+    public boolean hasClass(String identifier) {
+        return getInfo().map(i -> i.hasClass(identifier)).orElse(false);
+    }
+
+    public boolean didClassInfoChange() {
+        if (currentInfo.isPresent() != lastInfo.isPresent()) { return true; }
+
+        return currentInfo
+            .flatMap(i -> lastInfo.map(i2 -> new Pair<>(i, i2)))
+            .map(pair -> {
+                var currentInfo = pair.getKey();
+                var lastInfo = pair.getValue();
+                var currentClassNames = currentInfo.getAllClassNames();
+                var lastClassNames = lastInfo.getAllClassNames();
+                var currentSize = currentClassNames.size();
+                var lastSize = lastClassNames.size();
+
+                if (currentSize != lastSize) { return true; }
+
+                var renamed = currentClassNames.retainAll(lastClassNames);
+
+                if (renamed) { return true; }
+
+                var currentClasses = currentInfo.getAllClassInfosByName();
+                var lastClasses = lastInfo.getAllClassInfosByName();
+
+                return currentClassNames
+                    .stream()
+                    .anyMatch(name -> {
+                        var current = currentClasses.get(name);
+                        var last = lastClasses.get(name);
+                        var equals = current.isEquivalentTo(last);
+
+                        return !equals;
+                    });
+            })
+            .orElse(false);
     }
 
 //    public ClassInfo getInfo(File sourceFile, Package pkg)

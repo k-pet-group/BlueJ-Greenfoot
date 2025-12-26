@@ -500,6 +500,10 @@ public class KotlinPsiParser implements ParserBehavior {
 
         PsiElement parent = PsiTreeUtil.getParentOfType(tree.findElementAt(currentToken.getPosition()), KtNamedDeclaration.class);
 
+        if (parent instanceof KtPrimaryConstructor constructor) {
+            parent = parent.getParent();
+        }
+
         if (parent instanceof KtClassLikeDeclaration typedef) {
             var element = switch (typedef) {
                 case KtPureClassOrObject withBody -> withBody.getBody().getFirstChild();

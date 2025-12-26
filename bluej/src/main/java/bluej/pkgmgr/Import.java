@@ -25,6 +25,7 @@ import bluej.extensions2.SourceType;
 import bluej.parser.InfoParser;
 import bluej.parser.psi.SourceInput;
 import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.SourceInfo;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
@@ -99,7 +100,7 @@ public class Import
                     SourceType.Java,
                     new bluej.parser.entity.ClassLoaderResolver(Import.class.getClassLoader())
                 );
-                info = InfoParser.parse(input).get();
+                info = InfoParser.parse(input).flatMap(SourceInfo::getSinglePublicClassInfo).orElse(null);
             }
             catch (java.io.IOException e) {
                 info = null;

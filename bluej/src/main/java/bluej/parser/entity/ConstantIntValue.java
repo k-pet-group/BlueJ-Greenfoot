@@ -23,6 +23,8 @@ package bluej.parser.entity;
 
 import bluej.debugger.gentype.JavaType;
 
+import java.util.Objects;
+
 /**
  * Represents a value entity with a known (constant) integer value.
  * 
@@ -54,5 +56,12 @@ public class ConstantIntValue extends ValueEntity
     public long getConstantIntValue()
     {
         return value;
+    }
+
+    @Override
+    public boolean isEquivalentTo(JavaEntity o) {
+        if (!super.isEquivalentTo(o)) { return false; }
+
+        return (o instanceof ConstantIntValue other) &&  Objects.equals(value, other.value);
     }
 }

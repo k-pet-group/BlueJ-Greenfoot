@@ -47,8 +47,6 @@ import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionsMenuManager;
 import bluej.parser.DummyReflective;
 import bluej.parser.ParseFailure;
-import bluej.parser.context.CompilationUnitContext;
-import bluej.parser.context.CompilationUnitContextLoader;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
 import bluej.parser.entity.ParsedReflective;
@@ -159,7 +157,7 @@ public class ClassTarget extends DependentTarget
     // cached information obtained by parsing the source code
     // automatically becomes invalidated when the source code is
     // edited
-    private SourceInfo sourceInfo = null;
+    private CachedSourceInfo sourceInfo = null;
 
     // caches whether the class is abstract. Only accurate when the
     // classtarget state is normal (ie. the class is compiled).
@@ -359,10 +357,20 @@ public class ClassTarget extends DependentTarget
      */
     private void calcSourceAvailable()
     {
-
         if (sourceAvailable != SourceType.NONE) {
+            if (sourceAvailable == SourceType.Kotlin) {
+                try { ensureSaved(); } catch (IOException e) { Debug.reportError("Failed to save class target: " + e); }
+
+                var sourceInfo = getSourceInfo();
+
+                if (!sourceInfo.hasClass(getIdentifierName())) {
+                    sourceAvailable = SourceType.NONE;
+                }
+            }
+
             return;
         }
+
         // It's important to check for Stride source first!
         final SourceType[] languageTypes = { SourceType.Stride, SourceType.Java, SourceType.Kotlin };
         for (SourceType languageType : languageTypes) {
@@ -435,17 +443,17 @@ public class ClassTarget extends DependentTarget
      *
      * @return The source info object.
      */
-    protected SourceInfo getSourceInfo()
+    protected CachedSourceInfo getSourceInfo()
     {
         if (sourceInfo != null) return sourceInfo;
 
-        sourceInfo = new SourceInfo(getSourceInput());
+        sourceInfo = new CachedSourceInfo(getSourceInput());
 
         return sourceInfo;
     }
 
     public ClassInfo getClassInfo() {
-        return getSourceInfo().getClassInfo(getIdentifierName());
+        return getSourceInfo().getClassInfo(getIdentifierName()).orElse(null);
     }
 
     protected SourceInput getSourceInput() {
@@ -854,7 +862,7 @@ public class ClassTarget extends DependentTarget
                 }
                 else if (classInfo.isAbstract()) {
                     setRole(new AbstractClassRole());
-                } else if (classInfo.hasTopLevelFunctions() && !classInfo.foundPublicClass()) {
+                } else if (classInfo.isKotlinTopLevelFacade()) {
                     forceSetRole(new KotlinFileFacadeRole());
                 }
                 else {
@@ -1174,6 +1182,7 @@ public class ClassTarget extends DependentTarget
      */
     public boolean hasSourceCode()
     {
+        calcSourceAvailable();
         return sourceAvailable != SourceType.NONE;
     }
 
@@ -1323,6 +1332,8 @@ public class ClassTarget extends DependentTarget
      * @throws IOException if an I/O error occurs while saving
      */
     public void updateMetadata(@NotNull ClassInfo info) throws IOException {
+        if (getPackage() == null) { return; }
+
         this.getPackage().getProject().updateClassMetadata(getQualifiedName(), info);
     }
 
@@ -1556,10 +1567,14 @@ public class ClassTarget extends DependentTarget
     {
         invalidate();
 
+        var pkg = getPackage();
+
+        if (pkg == null) { return; }
+
         removeBreakpoints();
-        if (getPackage().getProject().getDebugger() != null)
+        if (pkg.getProject().getDebugger() != null)
         {
-            getPackage().getProject().getDebugger().removeBreakpointsForClass(getQualifiedName());
+            pkg.getProject().getDebugger().removeBreakpointsForClass(getQualifiedName());
         }
         if (isCompiled())
         {
@@ -1571,9 +1586,12 @@ public class ClassTarget extends DependentTarget
     @Override
     public void saveEvent(Editor editor)
     {
+        if (getPackage() == null) { return; }
+
         ClassInfo info = analyseSource();
         if (info != null) {
             updateTargetFile(info);
+
             try {
                 updateMetadata(info);
             } catch (IOException e) {
@@ -1581,6 +1599,11 @@ public class ClassTarget extends DependentTarget
             }
         }
         determineRole(null);
+
+        var changed = getSourceInfo().didClassInfoChange();
+        if (changed) {
+            getPackage().reload(true);
+        }
     }
 
     @Override
@@ -1885,6 +1908,8 @@ public class ClassTarget extends DependentTarget
      */
     private void updateTargetFile(ClassInfo info)
     {
+        if (getPackage() == null) { return; }
+
         if (analyseClassName(info)) {
             if (nameEqualsIgnoreCase(info.getName())) {
                 // this means file has same name but different case
@@ -1954,7 +1979,11 @@ public class ClassTarget extends DependentTarget
     {
         String newName = info.getPackage();
 
-        return (!getPackage().getQualifiedName().equals(newName));
+        var pkg = getPackage();
+
+        if (pkg == null) { return true; }
+
+        return (!pkg.getQualifiedName().equals(newName));
     }
 
     /**
@@ -1968,7 +1997,11 @@ public class ClassTarget extends DependentTarget
         removeAllOutDependencies();
         removeInheritDependencies();
 
-        String pkgPrefix = getPackage().getQualifiedName();
+        var pkg = getPackage();
+
+        if (pkg == null) { return; }
+
+        String pkgPrefix = pkg.getQualifiedName();
         pkgPrefix = (pkgPrefix.length() == 0) ? pkgPrefix : pkgPrefix + ".";
 
         // handle superclass dependency
