@@ -256,7 +256,7 @@ public class VMReference
 
         // Use UTF-8 for path encoding on platforms that already support it by default.
         // This preserves emoji paths while avoiding breakage on legacy non-UTF-8 Unix systems.
-        if (Config.isWindows() || Config.isMacOS() || Charset.defaultCharset().equals(StandardCharsets.UTF_8)) {
+        if (Config.isWinOS() || Config.isMacOS() || Charset.defaultCharset().equals(StandardCharsets.UTF_8)) {
             paramList.add("-Dsun.jnu.encoding=UTF-8");
         }
 
