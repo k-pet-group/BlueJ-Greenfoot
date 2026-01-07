@@ -466,7 +466,7 @@ dialogmgr.message=\u6d88\u606f
 
 #Terminal Window
 terminal.options=\u9009\u9879
-terminal.title=BlueJ:  \u7ec8\u7aef\u7a97\u53e3
+terminal.title=\u7ec8\u7aef\u7a97\u53e3
 terminal.clear=\u6e05\u9664
 terminal.copy=\u590d\u5236
 terminal.save=\u4fdd\u5b58\u4e3a\u6587\u4ef6...
