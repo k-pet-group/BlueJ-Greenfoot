@@ -31,6 +31,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.InetAddress;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.net.URL;
@@ -253,11 +254,11 @@ public class VMReference
         // Index for where the transport parameter is to be added
         int transportIndex = paramList.size();
 
-        // Critical fix for issue #2426: Always force UTF-8 for file paths on all platforms
-        // sun.jnu.encoding controls how Java converts file names/paths to/from native OS format
-        // This MUST be UTF-8 to support emoji and other Unicode characters in paths
-        // This is independent of file.content encoding (file.encoding) and does not affect it
-        paramList.add("-Dsun.jnu.encoding=UTF-8");
+        // Use UTF-8 for path encoding on platforms that already support it by default.
+        // This preserves emoji paths while avoiding breakage on legacy non-UTF-8 Unix systems.
+        if (Config.isWindows() || Config.isMacOS() || Charset.defaultCharset().equals(StandardCharsets.UTF_8)) {
+            paramList.add("-Dsun.jnu.encoding=UTF-8");
+        }
 
         // For file content encoding (file.encoding), check user preference
         // If user has not configured bluej.terminal.encoding, use system default
