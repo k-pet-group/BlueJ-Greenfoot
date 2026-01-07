@@ -31,6 +31,8 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -251,10 +253,18 @@ public class VMReference
         // Index for where the transport parameter is to be added
         int transportIndex = paramList.size();
 
+        // Critical fix for issue #2426: Always force UTF-8 for file paths on all platforms
+        // sun.jnu.encoding controls how Java converts file names/paths to/from native OS format
+        // This MUST be UTF-8 to support emoji and other Unicode characters in paths
+        // This is independent of file.content encoding (file.encoding) and does not affect it
+        paramList.add("-Dsun.jnu.encoding=UTF-8");
+
+        // For file content encoding (file.encoding), check user preference
+        // If user has not configured bluej.terminal.encoding, use system default
+        // This preserves backward compatibility with legacy projects using legacy encodings
+        // while still fixing emoji path issues (which depend only on sun.jnu.encoding)
         String streamEncoding = Config.getPropString("bluej.terminal.encoding", null);
         if (streamEncoding != null) {
-            // Set the input/output encoding to the same as the terminal encoding, to avoid confusion
-            // that mismatching these two causes. See bug #509.
             paramList.add("-Dfile.encoding=" + streamEncoding);
         }
 
@@ -457,8 +467,12 @@ public class VMReference
     @OnThread(Tag.Any)
     private Process launchVM(File initDir, String [] params)
         throws IOException
-    {    
-        Process vmProcess = Runtime.getRuntime().exec(params, null, initDir);
+    {
+        // Use ProcessBuilder instead of Runtime.exec() for better Unicode/emoji path support
+        // This fixes issue #2426 where paths containing emoji would get corrupted
+        ProcessBuilder pb = new ProcessBuilder(params);
+        pb.directory(initDir);
+        Process vmProcess = pb.start();
         BufferedReader bro = new BufferedReader(new InputStreamReader(vmProcess.getInputStream()));
         BufferedReader bre = new BufferedReader(new InputStreamReader(vmProcess.getErrorStream()));
 

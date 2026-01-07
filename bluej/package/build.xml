@@ -259,11 +259,22 @@
         <!-- We also have to copy the java executable in ourselves, as by default
              appbundler doesn't do so -->
         <mkdir dir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin"/>
+        <mkdir dir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/lib"/>
         <copy todir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin">
-            <file basedir="${mac_bundled_jdk_path}/bin" name="java/"/>
+            <fileset dir="${mac_bundled_jdk_path}/bin">
+                <include name="java"/>
+                <include name="jspawnhelper"/>
+            </fileset>
+        </copy>
+        <copy todir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/lib">
+            <fileset dir="${mac_bundled_jdk_path}/lib">
+                <include name="libjli.dylib"/>
+                <include name="jspawnhelper"/>
+                <include name="server/**"/>
+            </fileset>
         </copy>
         <chmod perm="a+x">
-            <fileset dir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin" includes="java" />
+            <fileset dir="BlueJ.app/Contents/PlugIns/${mac_bundler_arch_dir}/Contents/Home/bin" includes="java,jspawnhelper" />
         </chmod>
 
         <!-- We want to augment the error that appears when loading Apple build on Intel -->
