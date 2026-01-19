@@ -1424,7 +1424,9 @@ public final class Package
         //Take special care of ReadmeTarget
         //see ReadmeTarget.isSaveable for explanation
         Target t = getTarget(ReadmeTarget.README_ID);
-        t.save(props, "readme");
+        if (t != null) {
+            t.save(props, "readme");
+        }
 
 
         for (int i = 0; i < usesArrows.size(); i++)
