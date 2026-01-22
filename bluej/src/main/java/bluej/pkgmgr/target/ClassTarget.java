@@ -636,6 +636,10 @@ public class ClassTarget extends DependentTarget
             else
                 stereotypeLabel.setText("");
         }
+
+        if (role.getRoleName().equals("KotlinFileFacadeTarget")) {
+            nameLabel.setText(getBaseName().replaceFirst("Kt$", ""));
+        }
     }
 
     protected final void forceSetRole(ClassRole newRole) {
@@ -1206,7 +1210,7 @@ public class ClassTarget extends DependentTarget
             return null;
         }
         String defaultNameBySourceType = (role instanceof KotlinFileFacadeRole
-                ? getBaseName().substring(0, getBaseName().length() - 2)
+                ? getBaseName().replaceFirst("Kt$", "")
                 : getBaseName()) + "." + sourceType.getExtension();
         String sourceFileName = sourceType == SourceType.Kotlin
                 ?  ktSourceFileName.orElse(defaultNameBySourceType)

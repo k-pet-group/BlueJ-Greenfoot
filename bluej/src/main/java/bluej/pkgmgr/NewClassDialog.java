@@ -186,7 +186,17 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
                 // Save the classContent preference:
                 PrefMgr.setFlag(PrefMgr.NEW_CLASS_FULL_CONTENT, classContent.getSelectionModel().getSelectedItem() == ClassContent.FULL);
 
-                return new NewClassInfo(nameField.getText().trim(), templates.get(templateButtons.getSelectedToggle()).name, language.selectedProperty().get(), classContent.getSelectionModel().getSelectedItem());
+                var className = nameField.getText().trim();
+
+                Toggle selectedToggle = templateButtons.getSelectedToggle();
+                SourceType sourceType = language.selectedProperty().get();
+
+                if (sourceType == SourceType.Kotlin && selectedToggle.getUserData().equals("facade")) {
+                    className += "Kt";
+                }
+
+
+                return new NewClassInfo(className, templates.get(templateButtons.getSelectedToggle()).name, language.selectedProperty().get(), classContent.getSelectionModel().getSelectedItem());
             }
             else {
                 return null;
@@ -340,10 +350,6 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         {
             if (fieldHasHadContent || force)
                 showError(Config.getString("pkgmgr.newClass.error.windowsRestricted"), true);
-        }
-        else if (sourceType == SourceType.Kotlin && selectedToggle.getUserData().equals("facade") && !newClassName.endsWith("Kt")) {
-            if (fieldHasHadContent || force)
-                showError(Config.getString("pkgmgr.newClass.error.notFacadeName"), true);
         }
         else
         {

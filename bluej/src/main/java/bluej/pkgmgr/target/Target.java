@@ -399,7 +399,7 @@ public abstract class Target
 
     protected void updateAccessibleName(String accessibleTargetType, String suffix)
     {
-        pane.setAccessibleText(getIdentifierName() + (accessibleTargetType != null && !accessibleTargetType.isEmpty() ? " " + accessibleTargetType : "") + (suffix == null ? "" : suffix));
+        pane.setAccessibleText(getDisplayName() + (accessibleTargetType != null && !accessibleTargetType.isEmpty() ? " " + accessibleTargetType : "") + (suffix == null ? "" : suffix));
     }
 
     @OnThread(Tag.FXPlatform)
@@ -496,7 +496,6 @@ public abstract class Target
         props.put(prefix + ".y", String.valueOf(getY()));
         props.put(prefix + ".width", String.valueOf(getWidth()));
         props.put(prefix + ".height", String.valueOf(getHeight()));
-
         props.put(prefix + ".name", getIdentifierName());
     }
 
@@ -523,7 +522,7 @@ public abstract class Target
      */
     public String getDisplayName()
     {
-        return displayName;
+        return displayName.replaceFirst("Kt$", "");
     }
 
     @OnThread(Tag.Any)
