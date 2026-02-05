@@ -41,7 +41,7 @@ public abstract class NonCodeEditableTarget extends EditableTarget
 {
     protected NonCodeEditableTarget(Package pkg, String name, String accessibleTargetType)
     {
-        super(pkg, name, accessibleTargetType);
+        super(pkg, name, accessibleTargetType, name);
     }
 
     @Override

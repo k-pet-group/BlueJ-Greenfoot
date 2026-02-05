@@ -138,17 +138,23 @@ public abstract class Target
     private Line line1;
     private Line line2;
 
+    @OnThread(Tag.FXPlatform)
+    public Target(Package pkg, String identifierName, String accessibleTargetType)
+    {
+        this(pkg, identifierName, accessibleTargetType, identifierName);
+    }
+
     /**
      * Create a new target with default size.
      */
     @OnThread(Tag.FXPlatform)
-    public Target(Package pkg, String identifierName, String accessibleTargetType)
+    public Target(Package pkg, String identifierName, String accessibleTargetType, String displayName)
     {
         this.pkg = pkg;
         this.identifierName = identifierName;
-        this.displayName = identifierName;
+        this.displayName = displayName;
 
-        pane.setPrefWidth(calculateWidth(new Label(), identifierName, DEF_WIDTH));
+        pane.setPrefWidth(calculateWidth(new Label(), displayName, DEF_WIDTH));
         pane.setPrefHeight(DEF_HEIGHT);
         // We set this here rather than via CSS because we vary it dynamically:
         pane.setCursor(Cursor.HAND);
@@ -522,7 +528,7 @@ public abstract class Target
      */
     public String getDisplayName()
     {
-        return displayName.replaceFirst("Kt$", "");
+        return displayName;
     }
 
     @OnThread(Tag.Any)

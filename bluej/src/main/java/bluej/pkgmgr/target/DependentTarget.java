@@ -77,12 +77,16 @@ public abstract class DependentTarget extends EditableTarget
 
     boolean isMovable = true;
 
+    public DependentTarget(Package pkg, String identifierName, String accessibleTargetType) {
+        this(pkg, identifierName, accessibleTargetType, identifierName);
+    }
+
     /**
      * Create a new target belonging to the specified package.
      */
-    public DependentTarget(Package pkg, String identifierName, String accessibleTargetType)
+    public DependentTarget(Package pkg, String identifierName, String accessibleTargetType, String displayName)
     {
-        super(pkg, identifierName, accessibleTargetType);
+        super(pkg, identifierName, accessibleTargetType, displayName);
 
         inUses = new ArrayList<>();
         outUses = new ArrayList<>();

@@ -191,10 +191,10 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
                 Toggle selectedToggle = templateButtons.getSelectedToggle();
                 SourceType sourceType = language.selectedProperty().get();
 
+                // Facade classes are suffixed with "Kt" for Kotlin and as long as templates are tied to a concept of a class, we have to add that
                 if (sourceType == SourceType.Kotlin && selectedToggle.getUserData().equals("facade")) {
                     className += "Kt";
                 }
-
 
                 return new NewClassInfo(className, templates.get(templateButtons.getSelectedToggle()).name, language.selectedProperty().get(), classContent.getSelectionModel().getSelectedItem());
             }

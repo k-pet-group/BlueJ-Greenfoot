@@ -256,7 +256,7 @@ public class ClassTarget extends DependentTarget
      */
     public ClassTarget(Package pkg, String baseName, String template)
     {
-        super(pkg, baseName, "Class");
+        super(pkg, baseName, "Class", baseName.replaceFirst("Kt$", ""));
 
         if (pseudos == null)
         {
@@ -266,7 +266,7 @@ public class ClassTarget extends DependentTarget
         JavaFXUtil.addStyleClass(pane, "class-target");
         JavaFXUtil.addStyleClass(pane, "class-target-id-" + baseName);
 
-        nameLabel = new Label(baseName);
+        nameLabel = new Label(getDisplayName());
         JavaFXUtil.addStyleClass(nameLabel, "class-target-name");
         nameLabel.setMaxWidth(9999.0);
         stereotypeLabel = new Label();
@@ -522,9 +522,7 @@ public class ClassTarget extends DependentTarget
      *
      * @return The displayName value
      */
-    @Override
-    public String getDisplayName()
-    {
+    public String getTypeName() {
         return getBaseName() + getTypeParameters();
     }
 
@@ -635,10 +633,6 @@ public class ClassTarget extends DependentTarget
                 stereotypeLabel.setText(STEREOTYPE_OPEN + stereotype + STEREOTYPE_CLOSE);
             else
                 stereotypeLabel.setText("");
-        }
-
-        if (role.getRoleName().equals("KotlinFileFacadeTarget")) {
-            nameLabel.setText(getBaseName().replaceFirst("Kt$", ""));
         }
     }
 
@@ -1209,6 +1203,7 @@ public class ClassTarget extends DependentTarget
         {
             return null;
         }
+        // Kotlin facade class SomeFileKt will be located in SomeFile.kt, so we needto strip the suffix
         String defaultNameBySourceType = (role instanceof KotlinFileFacadeRole
                 ? getBaseName().replaceFirst("Kt$", "")
                 : getBaseName()) + "." + sourceType.getExtension();
@@ -1477,7 +1472,7 @@ public class ClassTarget extends DependentTarget
                         return project.getDefaultFXTabbedEditor();
                     }
                 };
-                editor = new FlowEditor(fetchTabbedEditor, getBaseName(), this,
+                editor = new FlowEditor(fetchTabbedEditor, getDisplayName(), this,
                         resolver, project.getJavadocResolver(), openCallback,
                         PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING),
                         FlowSource.fromSourceType(sourceAvailable));
@@ -2213,6 +2208,10 @@ public class ClassTarget extends DependentTarget
         }
     }
 
+    public void setDisplayName(String newName) {
+        // Ignore changing display name explicitly
+    }
+
     /**
      * Update the displayed class name (which includes type parameters).
      */
@@ -2228,7 +2227,7 @@ public class ClassTarget extends DependentTarget
     /**
      * Checks for ClassTarget name equality if case is ignored.
      * 
-     * 
+     * DisplayName
      * @param newName
      * @return true if name is equal ignoring case.
      */
@@ -2292,7 +2291,7 @@ public class ClassTarget extends DependentTarget
      */
     private void updateSize()
     {
-        String displayName = getDisplayName();
+        String displayName = getTypeName();
         // Don't make size smaller if user has already resized
         // to larger than is needed for text width:
         int width = calculateWidth(nameLabel, displayName, (int)pane.getPrefWidth());
