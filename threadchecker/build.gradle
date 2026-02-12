@@ -1,7 +1,28 @@
 apply plugin: 'java-library'
+apply plugin: 'org.openjfx.javafxplugin'
+
+repositories {
+    mavenCentral()
+}
+
+// JavaFX is needed at test time because TCScanner's constructor resolves
+// JavaFX types (e.g. ObjectPropertyBase, SwingNode, Application) when
+// building its set of known library annotations.
+javafx {
+    version = "23.0.2"  // javafx_version_setting <-- The Github Actions on Linux uses this to find and replace this line
+    modules = ['javafx.base', 'javafx.graphics', 'javafx.swing']
+    configuration = 'testImplementation'
+}
 
 dependencies {
     compileOnly project(':anns-threadchecker')
+    testImplementation project(':anns-threadchecker')
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 group = 'org.bluej'

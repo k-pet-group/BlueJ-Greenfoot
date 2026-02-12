@@ -44,6 +44,7 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ErrorType;
@@ -116,6 +117,11 @@ class TCScanner extends TreePathScanner<Void, Void>
     // So we keep a stack of the nested types and methods:
     // List of package names to exclude from the analysis:
     private final List<String> ignorePackages;
+    // Stack of argument type lists for the method invocations we are currently
+    // inside.  Each entry corresponds to a method call whose arguments are being
+    // visited.  Used by calculatedExpectedLambdaType to determine what functional
+    // interface type a lambda argument is expected to be.  A null entry means the
+    // method could not be resolved (defaultReturn case).
     private final LinkedList<List<TypeMirror>> callingMethodStack = new LinkedList<>();
     private final WrapDescent defaultReturn = new WrapDescent(
             () -> { callingMethodStack.addLast(null); },
@@ -695,8 +701,23 @@ class TCScanner extends TreePathScanner<Void, Void>
                             
                             for (int i = 0; i < invokeArgTypes.size(); i++)
                             {
-                                if (!types.isAssignable(types.capture(invokeArgTypes.get(i)), el.getParameters().get(i).asType()))
-                                    return false;
+                                TypeMirror argType = types.capture(invokeArgTypes.get(i));
+                                TypeMirror paramType = el.getParameters().get(i).asType();
+                                if (!types.isAssignable(argType, paramType))
+                                {
+                                    // For parameters with unresolved type variables
+                                    // (e.g. Supplier<T> where T is a method type
+                                    // parameter), exact assignability fails because
+                                    // the type variable is not yet bound.  Fall back
+                                    // to erasure comparison in that case only (this returns
+                                    // the upper bound of the type variable, so `T extends Type`
+                                    // should also work properly).
+                                    // For concrete generic types (e.g. Comparable<Integer>),
+                                    // the exact check is authoritative.
+                                    if (!hasTypeVariables(paramType)
+                                            || !types.isAssignable(types.erasure(argType), types.erasure(paramType)))
+                                        return false;
+                                }
                             }
                             return true;
                         })
@@ -1211,10 +1232,30 @@ class TCScanner extends TreePathScanner<Void, Void>
         return tags.isEmpty() ? null : tags.get(0);
     }
     
+    /**
+     * Visits a lambda expression and resolves its thread tag.  The tag is
+     * determined by the functional interface type that the lambda implements:
+     *
+     * <ol>
+     *   <li>{@link #calculatedExpectedLambdaType} determines the functional
+     *       interface type (e.g. FXPlatformRunnable) from the calling context
+     *       (method argument position, variable assignment, or return type).</li>
+     *   <li>{@link #lambdaClassToAnn} resolves the tag from that interface:
+     *       first checking special methods (Platform.runLater etc.), then the
+     *       interface's abstract method annotation, then class/package tags.</li>
+     * </ol>
+     *
+     * <p>The resolved tag (or null if none found) is pushed onto
+     * {@link #lambdaScopeStack} for the duration of the lambda body visit.
+     * A null entry means "no tag determined" and causes
+     * {@link #getCurrentTag} to walk backwards through the stack looking for
+     * the nearest non-null enclosing lambda tag.</p>
+     */
     @Override
     public Void visitLambdaExpression(LambdaExpressionTree node, Void p)
     {
         Tree parent = getCurrentPath().getParentPath().getLeaf();
+        
         TypeMirror lambdaClassType = calculatedExpectedLambdaType(parent, node);
         if (inDebugClass())
         {
@@ -1236,14 +1277,24 @@ class TCScanner extends TreePathScanner<Void, Void>
         lambdaScopeStack.removeLast();
         return r;
     }
+    
 
     private boolean inDebugClass()
     {
         return false; //typeScopeStack.stream().anyMatch(pa -> pa.item.getSimpleName().toString().contains("CreateTestAction"));
     }
 
-    // Null if error,
-    // non-null empty if just not found
+    /**
+     * Resolves the thread tag for a lambda from its functional interface type.
+     * Checks (in priority order): special methods like Platform.runLater,
+     * the interface's single abstract method annotation, the interface class
+     * annotation, and the interface's package annotation.
+     *
+     * @return {@code Optional.of(tag)} if a tag was found,
+     *         {@code Optional.empty()} if no tag applies (lambda inherits
+     *         from surrounding context), or {@code null} if an error occurred
+     *         (e.g. the interface has multiple abstract methods)
+     */
     private Optional<LocatedTag> lambdaClassToAnn(Tree parent, TypeMirror lambdaClassType, Tree errorLocation, boolean issueError)
     {
         lambdaClassType = types.capture(lambdaClassType);
@@ -1663,5 +1714,34 @@ class TCScanner extends TreePathScanner<Void, Void>
         return types.isSameType(a, b)
              || a.toString().equals(b.toString());
 
+    }
+
+    /**
+     * Returns true if the given type contains any unresolved type variables,
+     * either directly (the type itself is a TypeVariable) or nested inside
+     * type arguments, wildcard bounds, or array component types.
+     */
+    private boolean hasTypeVariables(TypeMirror type)
+    {
+        if (type == null)
+            return false;
+        if (type.getKind() == TypeKind.TYPEVAR)
+            return true;
+        if (type instanceof DeclaredType)
+        {
+            return ((DeclaredType) type).getTypeArguments().stream()
+                .anyMatch(this::hasTypeVariables);
+        }
+        if (type instanceof WildcardType)
+        {
+            WildcardType wt = (WildcardType) type;
+            return hasTypeVariables(wt.getExtendsBound())
+                || hasTypeVariables(wt.getSuperBound());
+        }
+        if (type instanceof ArrayType)
+        {
+            return hasTypeVariables(((ArrayType) type).getComponentType());
+        }
+        return false;
     }
 }

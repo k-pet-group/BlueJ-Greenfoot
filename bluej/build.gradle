@@ -38,7 +38,7 @@ dependencies {
     testImplementation 'org.testfx:testfx-core:4.0.15-alpha'
     testImplementation 'org.testfx:testfx-junit:4.0.15-alpha'
     testImplementation 'org.testfx:openjfx-monocle:21.0.2'
-    testImplementation 'junit:junit:4.13.2'
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
 }
 
 compileJava {
