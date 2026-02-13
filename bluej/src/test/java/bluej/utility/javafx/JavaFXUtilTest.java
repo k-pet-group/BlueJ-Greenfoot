@@ -45,11 +45,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * <p>Extends {@link ApplicationTest} to ensure the JavaFX toolkit is
  * initialised before tests run.</p>
  */
-public class JavaFXUtilTest extends ApplicationTest
-{
+public class JavaFXUtilTest extends ApplicationTest {
     @Override
-    public void start(Stage stage) throws Exception
-    {
+    public void start(Stage stage) throws Exception {
         // No UI needed; we just require the FX toolkit to be initialised.
     }
 
@@ -57,8 +55,7 @@ public class JavaFXUtilTest extends ApplicationTest
     // Helper: run a Runnable from a non-FX thread and wait for its result
     // ========================================================================
 
-    private void runOffFxThread(RunnableThrowing action) throws Exception
-    {
+    private void runOffFxThread(RunnableThrowing action) throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<Throwable> error = new AtomicReference<>();
         Thread t = new Thread(() -> {
@@ -82,13 +79,13 @@ public class JavaFXUtilTest extends ApplicationTest
     // ========================================================================
 
     @Test
-    public void testRunPlatformRunnable_fromNonFxThread() throws Exception
-    {
+    public void testRunPlatformRunnable_fromNonFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         AtomicBoolean wasOnFxThread = new AtomicBoolean(false);
         runOffFxThread(() -> {
             JavaFXUtil.runPlatform((FXPlatformRunnableThrowing) () -> {
+                Thread.sleep(100);
                 wasOnFxThread.set(Platform.isFxApplicationThread());
                 runOrder.add("inside");
                 threadIds.add(Thread.currentThread().threadId());
@@ -102,13 +99,13 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformFutureRunnable_fromNonFxThread() throws Exception
-    {
+    public void testRunPlatformFutureRunnable_fromNonFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         AtomicBoolean wasOnFxThread = new AtomicBoolean(false);
         runOffFxThread(() -> {
             Future<Void> future = JavaFXUtil.runPlatformFuture((FXPlatformRunnableThrowing) () -> {
+                Thread.sleep(100);
                 wasOnFxThread.set(Platform.isFxApplicationThread());
                 runOrder.add("inside");
                 threadIds.add(Thread.currentThread().threadId());
@@ -125,8 +122,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformRunnable_directOnFxThread() throws Exception
-    {
+    public void testRunPlatformRunnable_directOnFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         // Run from FX thread to test direct execution path
@@ -134,6 +130,7 @@ public class JavaFXUtilTest extends ApplicationTest
         Platform.runLater(() -> {
             try {
                 JavaFXUtil.runPlatform((FXPlatformRunnableThrowing) () -> {
+                    Thread.sleep(100);
                     runOrder.add("inside");
                     threadIds.add(Thread.currentThread().threadId());
                 });
@@ -150,8 +147,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformRunnable_exceptionPropagation() throws Exception
-    {
+    public void testRunPlatformRunnable_exceptionPropagation() throws Exception {
         AtomicReference<Throwable> caught = new AtomicReference<>();
         runOffFxThread(() -> {
             try {
@@ -170,8 +166,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformFutureRunnable_exceptionPropagation() throws Exception
-    {
+    public void testRunPlatformFutureRunnable_exceptionPropagation() throws Exception {
         AtomicReference<Future<Void>> futureRef = new AtomicReference<>();
         runOffFxThread(() -> {
             futureRef.set(JavaFXUtil.runPlatformFuture((FXPlatformRunnableThrowing) () -> {
@@ -194,14 +189,14 @@ public class JavaFXUtilTest extends ApplicationTest
     // ========================================================================
 
     @Test
-    public void testRunPlatformSupplier_fromNonFxThread() throws Exception
-    {
+    public void testRunPlatformSupplier_fromNonFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         AtomicBoolean wasOnFxThread = new AtomicBoolean(false);
         AtomicReference<String> result = new AtomicReference<>();
         runOffFxThread(() -> {
             String value = JavaFXUtil.runPlatform((FXPlatformSupplierThrowing<String>) () -> {
+                Thread.sleep(100);
                 wasOnFxThread.set(Platform.isFxApplicationThread());
                 runOrder.add("inside");
                 threadIds.add(Thread.currentThread().threadId());
@@ -218,14 +213,14 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformFutureSupplier_fromNonFxThread() throws Exception
-    {
+    public void testRunPlatformFutureSupplier_fromNonFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         AtomicBoolean wasOnFxThread = new AtomicBoolean(false);
         AtomicReference<Future<Integer>> futureRef = new AtomicReference<>();
         runOffFxThread(() -> {
             Future<Integer> future = JavaFXUtil.runPlatformFuture((FXPlatformSupplierThrowing<Integer>) () -> {
+                Thread.sleep(100);
                 wasOnFxThread.set(Platform.isFxApplicationThread());
                 runOrder.add("inside");
                 threadIds.add(Thread.currentThread().threadId());
@@ -245,14 +240,14 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformSupplier_directOnFxThread() throws Exception
-    {
+    public void testRunPlatformSupplier_directOnFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         CompletableFuture<String> done = new CompletableFuture<>();
         Platform.runLater(() -> {
             try {
                 String value = JavaFXUtil.runPlatform((FXPlatformSupplierThrowing<String>) () -> {
+                    Thread.sleep(100);
                     runOrder.add("inside");
                     threadIds.add(Thread.currentThread().threadId());
                     return "direct";
@@ -270,8 +265,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformSupplier_exceptionPropagation() throws Exception
-    {
+    public void testRunPlatformSupplier_exceptionPropagation() throws Exception {
         AtomicReference<Throwable> caught = new AtomicReference<>();
         runOffFxThread(() -> {
             try {
@@ -292,14 +286,14 @@ public class JavaFXUtilTest extends ApplicationTest
     // ========================================================================
 
     @Test
-    public void testRunPlatformConsumer_fromNonFxThread() throws Exception
-    {
+    public void testRunPlatformConsumer_fromNonFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         AtomicBoolean wasOnFxThread = new AtomicBoolean(false);
         AtomicReference<String> consumed = new AtomicReference<>();
         runOffFxThread(() -> {
             JavaFXUtil.runPlatform((FXPlatformConsumerThrowing<String>) s -> {
+                Thread.sleep(100);
                 wasOnFxThread.set(Platform.isFxApplicationThread());
                 consumed.set(s);
                 runOrder.add("inside");
@@ -315,8 +309,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformFutureConsumer_fromNonFxThread() throws Exception
-    {
+    public void testRunPlatformFutureConsumer_fromNonFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         AtomicBoolean wasOnFxThread = new AtomicBoolean(false);
@@ -324,6 +317,7 @@ public class JavaFXUtilTest extends ApplicationTest
         runOffFxThread(() -> {
             Future<Void> future = JavaFXUtil.runPlatformFuture(
                     (FXPlatformConsumerThrowing<Integer>) i -> {
+                        Thread.sleep(100);
                         wasOnFxThread.set(Platform.isFxApplicationThread());
                         consumed.set(i);
                         runOrder.add("inside");
@@ -342,14 +336,14 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformConsumer_directOnFxThread() throws Exception
-    {
+    public void testRunPlatformConsumer_directOnFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         CompletableFuture<Void> done = new CompletableFuture<>();
         Platform.runLater(() -> {
             try {
                 JavaFXUtil.runPlatform((FXPlatformConsumerThrowing<String>) s -> {
+                    Thread.sleep(100);
                     runOrder.add("inside");
                     threadIds.add(Thread.currentThread().threadId());
                 }, "fx-direct");
@@ -366,8 +360,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformConsumer_exceptionPropagation() throws Exception
-    {
+    public void testRunPlatformConsumer_exceptionPropagation() throws Exception {
         AtomicReference<Throwable> caught = new AtomicReference<>();
         runOffFxThread(() -> {
             try {
@@ -388,8 +381,7 @@ public class JavaFXUtilTest extends ApplicationTest
     // ========================================================================
 
     @Test
-    public void testRunPlatformFunction_fromNonFxThread() throws Exception
-    {
+    public void testRunPlatformFunction_fromNonFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         AtomicBoolean wasOnFxThread = new AtomicBoolean(false);
@@ -397,6 +389,7 @@ public class JavaFXUtilTest extends ApplicationTest
         runOffFxThread(() -> {
             int value = JavaFXUtil.runPlatform(
                     (FXPlatformFunctionThrowing<String, Integer>) s -> {
+                        Thread.sleep(100);
                         wasOnFxThread.set(Platform.isFxApplicationThread());
                         runOrder.add("inside");
                         threadIds.add(Thread.currentThread().threadId());
@@ -413,8 +406,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformFutureFunction_fromNonFxThread() throws Exception
-    {
+    public void testRunPlatformFutureFunction_fromNonFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         AtomicBoolean wasOnFxThread = new AtomicBoolean(false);
@@ -422,6 +414,7 @@ public class JavaFXUtilTest extends ApplicationTest
         runOffFxThread(() -> {
             Future<String> future = JavaFXUtil.runPlatformFuture(
                     (FXPlatformFunctionThrowing<Integer, String>) i -> {
+                        Thread.sleep(100);
                         wasOnFxThread.set(Platform.isFxApplicationThread());
                         runOrder.add("inside");
                         threadIds.add(Thread.currentThread().threadId());
@@ -441,8 +434,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformFunction_directOnFxThread() throws Exception
-    {
+    public void testRunPlatformFunction_directOnFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         CompletableFuture<Integer> done = new CompletableFuture<>();
@@ -450,6 +442,7 @@ public class JavaFXUtilTest extends ApplicationTest
             try {
                 int value = JavaFXUtil.runPlatform(
                         (FXPlatformFunctionThrowing<String, Integer>) s -> {
+                            Thread.sleep(100);
                             runOrder.add("inside");
                             threadIds.add(Thread.currentThread().threadId());
                             return s.length();
@@ -467,8 +460,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformFunction_exceptionPropagation() throws Exception
-    {
+    public void testRunPlatformFunction_exceptionPropagation() throws Exception {
         AtomicReference<Throwable> caught = new AtomicReference<>();
         runOffFxThread(() -> {
             try {
@@ -489,8 +481,7 @@ public class JavaFXUtilTest extends ApplicationTest
     // ========================================================================
 
     @Test
-    public void testRunPlatformBiConsumer_fromNonFxThread() throws Exception
-    {
+    public void testRunPlatformBiConsumer_fromNonFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         AtomicBoolean wasOnFxThread = new AtomicBoolean(false);
@@ -498,6 +489,7 @@ public class JavaFXUtilTest extends ApplicationTest
         runOffFxThread(() -> {
             JavaFXUtil.runPlatform(
                     (FXPlatformBiConsumerThrowing<String, Integer>) (s, i) -> {
+                        Thread.sleep(100);
                         wasOnFxThread.set(Platform.isFxApplicationThread());
                         consumed.set(s + ":" + i);
                         runOrder.add("inside");
@@ -514,8 +506,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformFutureBiConsumer_fromNonFxThread() throws Exception
-    {
+    public void testRunPlatformFutureBiConsumer_fromNonFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         AtomicBoolean wasOnFxThread = new AtomicBoolean(false);
@@ -523,6 +514,7 @@ public class JavaFXUtilTest extends ApplicationTest
         runOffFxThread(() -> {
             Future<Void> future = JavaFXUtil.runPlatformFuture(
                     (FXPlatformBiConsumerThrowing<String, String>) (a, b) -> {
+                        Thread.sleep(100);
                         wasOnFxThread.set(Platform.isFxApplicationThread());
                         consumed.set(a + b);
                         runOrder.add("inside");
@@ -542,8 +534,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformBiConsumer_directOnFxThread() throws Exception
-    {
+    public void testRunPlatformBiConsumer_directOnFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         CompletableFuture<Void> done = new CompletableFuture<>();
@@ -551,6 +542,7 @@ public class JavaFXUtilTest extends ApplicationTest
             try {
                 JavaFXUtil.runPlatform(
                         (FXPlatformBiConsumerThrowing<String, String>) (a, b) -> {
+                            Thread.sleep(100);
                             runOrder.add("inside");
                             threadIds.add(Thread.currentThread().threadId());
                         },
@@ -568,8 +560,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformBiConsumer_exceptionPropagation() throws Exception
-    {
+    public void testRunPlatformBiConsumer_exceptionPropagation() throws Exception {
         AtomicReference<Throwable> caught = new AtomicReference<>();
         runOffFxThread(() -> {
             try {
@@ -591,8 +582,7 @@ public class JavaFXUtilTest extends ApplicationTest
     // ========================================================================
 
     @Test
-    public void testRunPlatformBiFunction_fromNonFxThread() throws Exception
-    {
+    public void testRunPlatformBiFunction_fromNonFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         AtomicBoolean wasOnFxThread = new AtomicBoolean(false);
@@ -600,6 +590,7 @@ public class JavaFXUtilTest extends ApplicationTest
         runOffFxThread(() -> {
             String value = JavaFXUtil.runPlatform(
                     (FXPlatformBiFunctionThrowing<String, Integer, String>) (s, i) -> {
+                        Thread.sleep(100);
                         wasOnFxThread.set(Platform.isFxApplicationThread());
                         runOrder.add("inside");
                         threadIds.add(Thread.currentThread().threadId());
@@ -617,8 +608,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformFutureBiFunction_fromNonFxThread() throws Exception
-    {
+    public void testRunPlatformFutureBiFunction_fromNonFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         AtomicBoolean wasOnFxThread = new AtomicBoolean(false);
@@ -626,6 +616,7 @@ public class JavaFXUtilTest extends ApplicationTest
         runOffFxThread(() -> {
             Future<Integer> future = JavaFXUtil.runPlatformFuture(
                     (FXPlatformBiFunctionThrowing<Integer, Integer, Integer>) (a, b) -> {
+                        Thread.sleep(100);
                         wasOnFxThread.set(Platform.isFxApplicationThread());
                         runOrder.add("inside");
                         threadIds.add(Thread.currentThread().threadId());
@@ -646,8 +637,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformBiFunction_directOnFxThread() throws Exception
-    {
+    public void testRunPlatformBiFunction_directOnFxThread() throws Exception {
         ConcurrentLinkedQueue<String> runOrder = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Long> threadIds = new ConcurrentLinkedQueue<>();
         CompletableFuture<Integer> done = new CompletableFuture<>();
@@ -655,6 +645,7 @@ public class JavaFXUtilTest extends ApplicationTest
             try {
                 int value = JavaFXUtil.runPlatform(
                         (FXPlatformBiFunctionThrowing<Integer, Integer, Integer>) (a, b) -> {
+                            Thread.sleep(100);
                             runOrder.add("inside");
                             threadIds.add(Thread.currentThread().threadId());
                             return Integer.sum(a, b);
@@ -673,8 +664,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformBiFunction_exceptionPropagation() throws Exception
-    {
+    public void testRunPlatformBiFunction_exceptionPropagation() throws Exception {
         AtomicReference<Throwable> caught = new AtomicReference<>();
         runOffFxThread(() -> {
             try {
@@ -696,11 +686,11 @@ public class JavaFXUtilTest extends ApplicationTest
     // ========================================================================
 
     @Test
-    public void testRunPlatformFutureRunnable_completedFutureOnFxThread() throws Exception
-    {
+    public void testRunPlatformFutureRunnable_completedFutureOnFxThread() throws Exception {
         CompletableFuture<Boolean> isDone = new CompletableFuture<>();
         Platform.runLater(() -> {
             Future<Void> future = JavaFXUtil.runPlatformFuture((FXPlatformRunnableThrowing) () -> {
+                Thread.sleep(100);
                 // no-op
             });
             isDone.complete(future.isDone());
@@ -709,32 +699,35 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testRunPlatformFutureSupplier_completedFutureOnFxThread() throws Exception
-    {
+    public void testRunPlatformFutureSupplier_completedFutureOnFxThread() throws Exception {
         CompletableFuture<Boolean> isDone = new CompletableFuture<>();
         Platform.runLater(() -> {
             Future<String> future = JavaFXUtil.runPlatformFuture(
-                    (FXPlatformSupplierThrowing<String>) () -> "sync");
+                    (FXPlatformSupplierThrowing<String>) () -> {
+                        Thread.sleep(100);
+                        return "sync";
+                    });
             isDone.complete(future.isDone());
         });
         assertTrue(isDone.get(5, TimeUnit.SECONDS), "Future should be immediately done when called from FX thread");
     }
 
     @Test
-    public void testRunPlatformFutureFunction_completedFutureOnFxThread() throws Exception
-    {
+    public void testRunPlatformFutureFunction_completedFutureOnFxThread() throws Exception {
         CompletableFuture<Boolean> isDone = new CompletableFuture<>();
         Platform.runLater(() -> {
             Future<Integer> future = JavaFXUtil.runPlatformFuture(
-                    (FXPlatformFunctionThrowing<String, Integer>) String::length, "test");
+                    (FXPlatformFunctionThrowing<String, Integer>) (string) -> {
+                        Thread.sleep(100);
+                        return string.length();
+                    }, "test");
             isDone.complete(future.isDone());
         });
         assertTrue(isDone.get(5, TimeUnit.SECONDS), "Future should be immediately done when called from FX thread");
     }
 
     @Test
-    public void testRunPlatformFutureRunnable_failedFutureOnFxThread() throws Exception
-    {
+    public void testRunPlatformFutureRunnable_failedFutureOnFxThread() throws Exception {
         CompletableFuture<Future<Void>> futureRef = new CompletableFuture<>();
         Platform.runLater(() -> {
             Future<Void> future = JavaFXUtil.runPlatformFuture((FXPlatformRunnableThrowing) () -> {
@@ -757,8 +750,7 @@ public class JavaFXUtilTest extends ApplicationTest
     // ========================================================================
 
     @Test
-    public void testRunPlatformRunnable_uncheckedExceptionPropagation() throws Exception
-    {
+    public void testRunPlatformRunnable_uncheckedExceptionPropagation() throws Exception {
         AtomicReference<Throwable> caught = new AtomicReference<>();
         runOffFxThread(() -> {
             try {
@@ -779,8 +771,7 @@ public class JavaFXUtilTest extends ApplicationTest
     // ========================================================================
 
     @Test
-    public void testAllVariants_executeOnFxThread() throws Exception
-    {
+    public void testAllVariants_executeOnFxThread() throws Exception {
         AtomicInteger fxThreadCount = new AtomicInteger(0);
 
         runOffFxThread(() -> {
@@ -829,13 +820,14 @@ public class JavaFXUtilTest extends ApplicationTest
     // ========================================================================
 
     @Test
-    public void testFunctionalInterfaceSmokeTest_generics() throws Exception
-    {
+    public void testFunctionalInterfaceSmokeTest_generics() throws Exception {
         // Verify generic throwing interfaces compile and work correctly
-        RunnableThrowing rt = () -> {};
+        RunnableThrowing rt = () -> {
+        };
         rt.run();
 
-        ConsumerThrowing<String> ct = s -> {};
+        ConsumerThrowing<String> ct = s -> {
+        };
         ct.accept("test");
 
         SupplierThrowing<Integer> st = () -> 42;
@@ -844,7 +836,8 @@ public class JavaFXUtilTest extends ApplicationTest
         FunctionThrowing<String, Integer> ft = String::length;
         assertEquals(Integer.valueOf(3), ft.apply("abc"));
 
-        BiConsumerThrowing<String, Integer> bct = (s, i) -> {};
+        BiConsumerThrowing<String, Integer> bct = (s, i) -> {
+        };
         bct.accept("a", 1);
 
         BiFunctionThrowing<String, Integer, String> bft = (s, i) -> s + i;
@@ -852,8 +845,7 @@ public class JavaFXUtilTest extends ApplicationTest
     }
 
     @Test
-    public void testFunctionalInterfaceSmokeTest_fxBiFunction()
-    {
+    public void testFunctionalInterfaceSmokeTest_fxBiFunction() {
         // Verify the newly created FXBiFunction compiles and works
         FXBiFunction<String, Integer, String> fn = String::repeat;
         assertEquals("aaa", fn.apply("a", 3));
@@ -866,8 +858,7 @@ public class JavaFXUtilTest extends ApplicationTest
      * Tag.FXPlatform). These lambdas should then be accepted by runPlatform.
      */
     @Test
-    public void testLambdaTagInference_explicitType() throws Exception
-    {
+    public void testLambdaTagInference_explicitType() throws Exception {
         // Explicit type: the thread checker sees the target type and infers
         // the lambda's tag from the interface annotation.
         FXPlatformRunnableThrowing runnable = () -> {};
@@ -899,18 +890,17 @@ public class JavaFXUtilTest extends ApplicationTest
      * This verifies the inferred type retains its thread tag.
      */
     @Test
-    public void testLambdaTagInference_varType() throws Exception
-    {
+    public void testLambdaTagInference_varType() throws Exception {
         // var type: requires a cast to guide type inference, but the thread
         // checker should still see the inferred functional interface type.
         var runnable = (FXPlatformRunnableThrowing) () -> {};
         var supplier = (FXPlatformSupplierThrowing<String>) () -> "var-typed";
         var consumer = (FXPlatformConsumerThrowing<String>) (String s) -> {};
-        var function = (FXPlatformFunctionThrowing<String, Integer>) (String s) -> s.length();
+        var function = (FXPlatformFunctionThrowing<String, Integer>) String::length;
         var biConsumer = (FXPlatformBiConsumerThrowing<String, Integer>) (String s, Integer i) -> {};
-        var biFunction = (FXPlatformBiFunctionThrowing<String, Integer, String>) (String s, Integer i) -> s.repeat(i);
+        var biFunction = (FXPlatformBiFunctionThrowing<String, Integer, String>) String::repeat;
 
-        // Verify they work when passed to runPlatform from off-FX thread
+        // Verify they work when passed to runPlatform off the FX thread
         AtomicReference<String> result = new AtomicReference<>();
         runOffFxThread(() -> {
             JavaFXUtil.runPlatform(runnable);
@@ -933,8 +923,7 @@ public class JavaFXUtilTest extends ApplicationTest
      * Walks the cause chain of the given throwable looking for an instance of
      * the expected class.
      */
-    private boolean findCause(Throwable throwable, Class<? extends Throwable> expected)
-    {
+    private boolean findCause(Throwable throwable, Class<? extends Throwable> expected) {
         Throwable current = throwable;
         while (current != null) {
             if (expected.isInstance(current)) {
