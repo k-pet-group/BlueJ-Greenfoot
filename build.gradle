@@ -1,6 +1,15 @@
 plugins {
     id 'org.openjfx.javafxplugin' version '0.1.0' apply false
 }
+
+repositories {
+    maven {
+        name 'Offline repository for flatpak'
+        url './offline-repository'
+    }
+    mavenCentral()
+}
+
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
     options.release = 21
