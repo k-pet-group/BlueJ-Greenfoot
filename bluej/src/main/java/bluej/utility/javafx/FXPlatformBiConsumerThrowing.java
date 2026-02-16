@@ -34,7 +34,7 @@ import threadchecker.Tag;
  * than requiring the implementor to handle them internally.</p>
  *
  * <p>Primary use case: passing exception-throwing lambdas to
- * {@link JavaFXUtil#runPlatform(FXPlatformBiConsumerThrowing, Object, Object)} and
+ * {@link JavaFXUtil#runPlatformAndWait(FXPlatformBiConsumerThrowing, Object, Object)} and
  * {@link JavaFXUtil#runPlatformFuture(FXPlatformBiConsumerThrowing, Object, Object)},
  * which schedule execution on the FX thread with two arguments.</p>
  *

@@ -31,7 +31,7 @@ import threadchecker.Tag;
  * <p>This interface is used as the non-thread-annotated base for
  * {@link FXPlatformBiConsumerThrowing} and {@link FXBiConsumerThrowing},
  * enabling exception-propagating lambdas to be passed to
- * {@link JavaFXUtil#runPlatform} and {@link JavaFXUtil#runPlatformFuture}
+ * {@link JavaFXUtil#runPlatformAndWait} and {@link JavaFXUtil#runPlatformFuture}
  * without requiring callers to wrap checked exceptions manually.</p>
  *
  * @param <T> the type of the first argument to the operation

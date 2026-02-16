@@ -1763,7 +1763,7 @@ public class JavaFXUtil
 
 
     // ========================================================================
-    // Cross-thread execution: runPlatform (blocking) & runPlatformFuture (async)
+    // Cross-thread execution: runPlatformAndWait (blocking) & runPlatformFuture (async)
     // ========================================================================
 
     /**
@@ -1778,12 +1778,18 @@ public class JavaFXUtil
      * <p>Any checked exception thrown by the task is wrapped in a
      * {@link RuntimeException}.</p>
      *
+     * <p><strong>Warning:</strong> Do not call this from a thread that the FX
+     * platform thread is waiting on, as this would cause a deadlock.  This is
+     * unusual because we normally don't want the GUI thread to block, but if it
+     * does, calling this method from the thread it is waiting on will
+     * deadlock.</p>
+     *
      * @param r the task to execute on the FX platform thread
      * @throws RuntimeException wrapping any exception thrown by the task
      * @see #runPlatformFuture(FXPlatformRunnableThrowing)
      */
     @OnThread(Tag.Any)
-    public static void runPlatform(@OnThread(Tag.FXPlatform) FXPlatformRunnableThrowing r)
+    public static void runPlatformAndWait(FXPlatformRunnableThrowing r)
     {
         try {
             runPlatformFuture(r).get();
@@ -1805,6 +1811,12 @@ public class JavaFXUtil
      * <p>Any checked exception thrown by the supplier is wrapped in a
      * {@link RuntimeException}.</p>
      *
+     * <p><strong>Warning:</strong> Do not call this from a thread that the FX
+     * platform thread is waiting on, as this would cause a deadlock.  This is
+     * unusual because we normally don't want the GUI thread to block, but if it
+     * does, calling this method from the thread it is waiting on will
+     * deadlock.</p>
+     *
      * @param <T>  the return type of the supplier
      * @param task the supplier to execute on the FX platform thread
      * @return the value produced by the supplier
@@ -1812,7 +1824,7 @@ public class JavaFXUtil
      * @see #runPlatformFuture(FXPlatformSupplierThrowing)
      */
     @OnThread(Tag.Any)
-    public static <T> T runPlatform(FXPlatformSupplierThrowing<T> task)
+    public static <T> T runPlatformAndWait(FXPlatformSupplierThrowing<T> task)
     {
         try {
             return runPlatformFuture(task).get();
@@ -1834,6 +1846,12 @@ public class JavaFXUtil
      * <p>Any checked exception thrown by the consumer is wrapped in a
      * {@link RuntimeException}.</p>
      *
+     * <p><strong>Warning:</strong> Do not call this from a thread that the FX
+     * platform thread is waiting on, as this would cause a deadlock.  This is
+     * unusual because we normally don't want the GUI thread to block, but if it
+     * does, calling this method from the thread it is waiting on will
+     * deadlock.</p>
+     *
      * @param <T>  the type of the argument
      * @param task the consumer to execute on the FX platform thread
      * @param arg  the argument to pass to the consumer
@@ -1841,7 +1859,7 @@ public class JavaFXUtil
      * @see #runPlatformFuture(FXPlatformConsumerThrowing, Object)
      */
     @OnThread(Tag.Any)
-    public static <T> void runPlatform(FXPlatformConsumerThrowing<T> task, T arg)
+    public static <T> void runPlatformAndWait(FXPlatformConsumerThrowing<T> task, T arg)
     {
         try {
             runPlatformFuture(task, arg).get();
@@ -1864,6 +1882,12 @@ public class JavaFXUtil
      * <p>Any checked exception thrown by the function is wrapped in a
      * {@link RuntimeException}.</p>
      *
+     * <p><strong>Warning:</strong> Do not call this from a thread that the FX
+     * platform thread is waiting on, as this would cause a deadlock.  This is
+     * unusual because we normally don't want the GUI thread to block, but if it
+     * does, calling this method from the thread it is waiting on will
+     * deadlock.</p>
+     *
      * @param <T>  the type of the argument
      * @param <R>  the return type of the function
      * @param task the function to execute on the FX platform thread
@@ -1873,7 +1897,7 @@ public class JavaFXUtil
      * @see #runPlatformFuture(FXPlatformFunctionThrowing, Object)
      */
     @OnThread(Tag.Any)
-    public static <T, R> R runPlatform(FXPlatformFunctionThrowing<T, R> task, T arg)
+    public static <T, R> R runPlatformAndWait(FXPlatformFunctionThrowing<T, R> task, T arg)
     {
         try {
             return runPlatformFuture(task, arg).get();
@@ -1895,6 +1919,12 @@ public class JavaFXUtil
      * <p>Any checked exception thrown by the bi-consumer is wrapped in a
      * {@link RuntimeException}.</p>
      *
+     * <p><strong>Warning:</strong> Do not call this from a thread that the FX
+     * platform thread is waiting on, as this would cause a deadlock.  This is
+     * unusual because we normally don't want the GUI thread to block, but if it
+     * does, calling this method from the thread it is waiting on will
+     * deadlock.</p>
+     *
      * @param <T>  the type of the first argument
      * @param <U>  the type of the second argument
      * @param task the bi-consumer to execute on the FX platform thread
@@ -1904,7 +1934,7 @@ public class JavaFXUtil
      * @see #runPlatformFuture(FXPlatformBiConsumerThrowing, Object, Object)
      */
     @OnThread(Tag.Any)
-    public static <T, U> void runPlatform(FXPlatformBiConsumerThrowing<T, U> task, T arg1, U arg2)
+    public static <T, U> void runPlatformAndWait(FXPlatformBiConsumerThrowing<T, U> task, T arg1, U arg2)
     {
         try {
             runPlatformFuture(task, arg1, arg2).get();
@@ -1927,6 +1957,12 @@ public class JavaFXUtil
      * <p>Any checked exception thrown by the bi-function is wrapped in a
      * {@link RuntimeException}.</p>
      *
+     * <p><strong>Warning:</strong> Do not call this from a thread that the FX
+     * platform thread is waiting on, as this would cause a deadlock.  This is
+     * unusual because we normally don't want the GUI thread to block, but if it
+     * does, calling this method from the thread it is waiting on will
+     * deadlock.</p>
+     *
      * @param <T>  the type of the first argument
      * @param <U>  the type of the second argument
      * @param <R>  the return type of the bi-function
@@ -1938,7 +1974,7 @@ public class JavaFXUtil
      * @see #runPlatformFuture(FXPlatformBiFunctionThrowing, Object, Object)
      */
     @OnThread(Tag.Any)
-    public static <T, U, R> R runPlatform(FXPlatformBiFunctionThrowing<T, U, R> task, T arg1, U arg2)
+    public static <T, U, R> R runPlatformAndWait(FXPlatformBiFunctionThrowing<T, U, R> task, T arg1, U arg2)
     {
         try {
             return runPlatformFuture(task, arg1, arg2).get();
@@ -1961,7 +1997,7 @@ public class JavaFXUtil
      *
      * @param task the task to execute on the FX platform thread
      * @return a {@link Future}{@code <Void>} representing the task completion
-     * @see #runPlatform(FXPlatformRunnableThrowing)
+     * @see #runPlatformAndWait(FXPlatformRunnableThrowing)
      */
     @OnThread(Tag.Any)
     public static Future<Void> runPlatformFuture(FXPlatformRunnableThrowing task) {
@@ -2002,7 +2038,7 @@ public class JavaFXUtil
      * @param <T>  the return type of the supplier
      * @param task the supplier to execute on the FX platform thread
      * @return a {@link Future}{@code <T>} representing the supplier's result
-     * @see #runPlatform(FXPlatformSupplierThrowing)
+     * @see #runPlatformAndWait(FXPlatformSupplierThrowing)
      */
     @OnThread(Tag.Any)
     public static <T> Future<T> runPlatformFuture(FXPlatformSupplierThrowing<T> task) {
@@ -2044,7 +2080,7 @@ public class JavaFXUtil
      * @param task the consumer to execute on the FX platform thread
      * @param arg  the argument to pass to the consumer
      * @return a {@link Future}{@code <Void>} representing the task completion
-     * @see #runPlatform(FXPlatformConsumerThrowing, Object)
+     * @see #runPlatformAndWait(FXPlatformConsumerThrowing, Object)
      */
     @OnThread(Tag.Any)
     public static <T> Future<Void> runPlatformFuture(FXPlatformConsumerThrowing<T> task, T arg) {
@@ -2088,7 +2124,7 @@ public class JavaFXUtil
      * @param task the function to execute on the FX platform thread
      * @param arg  the argument to pass to the function
      * @return a {@link Future}{@code <R>} representing the function's result
-     * @see #runPlatform(FXPlatformFunctionThrowing, Object)
+     * @see #runPlatformAndWait(FXPlatformFunctionThrowing, Object)
      */
     @OnThread(Tag.Any)
     public static <T, R> Future<R> runPlatformFuture(FXPlatformFunctionThrowing<T, R> task, T arg) {
@@ -2132,7 +2168,7 @@ public class JavaFXUtil
      * @param arg1 the first argument to pass to the bi-consumer
      * @param arg2 the second argument to pass to the bi-consumer
      * @return a {@link Future}{@code <Void>} representing the task completion
-     * @see #runPlatform(FXPlatformBiConsumerThrowing, Object, Object)
+     * @see #runPlatformAndWait(FXPlatformBiConsumerThrowing, Object, Object)
      */
     @OnThread(Tag.Any)
     public static <T, U> Future<Void> runPlatformFuture(FXPlatformBiConsumerThrowing<T, U> task, T arg1, U arg2) {
@@ -2178,7 +2214,7 @@ public class JavaFXUtil
      * @param arg1 the first argument to pass to the bi-function
      * @param arg2 the second argument to pass to the bi-function
      * @return a {@link Future}{@code <R>} representing the bi-function's result
-     * @see #runPlatform(FXPlatformBiFunctionThrowing, Object, Object)
+     * @see #runPlatformAndWait(FXPlatformBiFunctionThrowing, Object, Object)
      */
     @OnThread(Tag.Any)
     public static <T, U, R> Future<R> runPlatformFuture(FXPlatformBiFunctionThrowing<T, U, R> task, T arg1, U arg2) {

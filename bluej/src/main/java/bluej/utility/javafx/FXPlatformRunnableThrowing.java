@@ -35,7 +35,7 @@ import threadchecker.Tag;
  * handle them internally.</p>
  *
  * <p>Primary use case: passing exception-throwing lambdas to
- * {@link JavaFXUtil#runPlatform(FXPlatformRunnableThrowing)} and
+ * {@link JavaFXUtil#runPlatformAndWait(FXPlatformRunnableThrowing)} and
  * {@link JavaFXUtil#runPlatformFuture(FXPlatformRunnableThrowing)}, which
  * schedule execution on the FX thread and propagate exceptions through
  * {@link java.util.concurrent.Future} or {@link RuntimeException}.</p>
@@ -43,7 +43,7 @@ import threadchecker.Tag;
  * @see FXPlatformRunnable
  * @see FXRunnableThrowing
  * @see RunnableThrowing
- * @see JavaFXUtil#runPlatform(FXPlatformRunnableThrowing)
+ * @see JavaFXUtil#runPlatformAndWait(FXPlatformRunnableThrowing)
  * @see JavaFXUtil#runPlatformFuture(FXPlatformRunnableThrowing)
  */
 @FunctionalInterface
