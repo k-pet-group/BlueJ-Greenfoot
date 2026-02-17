@@ -45,7 +45,7 @@ import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.FocusParent;
 import bluej.stride.slots.HeaderItem;
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ScrollFreeTextArea;
 import bluej.utility.javafx.SharedTransition;

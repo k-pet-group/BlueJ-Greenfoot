@@ -41,7 +41,7 @@ import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.editor.fixes.SuggestionList.SuggestionListListener;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;

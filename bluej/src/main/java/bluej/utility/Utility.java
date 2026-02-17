@@ -56,7 +56,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import javafx.application.Platform;

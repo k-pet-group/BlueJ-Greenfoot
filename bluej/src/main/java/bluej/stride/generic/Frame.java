@@ -35,6 +35,7 @@ import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.slots.StructuredSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.utility.javafx.*;
+import bluej.utility.javafx.threading.*;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;

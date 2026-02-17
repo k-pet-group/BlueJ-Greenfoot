@@ -38,7 +38,7 @@ import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

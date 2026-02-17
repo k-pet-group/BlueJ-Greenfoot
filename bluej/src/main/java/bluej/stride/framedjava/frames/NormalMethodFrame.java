@@ -51,6 +51,7 @@ import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 import bluej.utility.Utility;
 import bluej.utility.javafx.*;
+import bluej.utility.javafx.threading.*;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

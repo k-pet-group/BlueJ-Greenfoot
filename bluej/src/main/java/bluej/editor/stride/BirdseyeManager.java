@@ -25,8 +25,8 @@ import bluej.stride.generic.Frame.View;
 import javafx.scene.Node;
 
 import bluej.stride.generic.FrameCursor;
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXConsumer;
+import bluej.utility.javafx.threading.FXRunnable;
 
 /**
  * An interface implemented by ClassFrame/InterfaceFrame, providing methods

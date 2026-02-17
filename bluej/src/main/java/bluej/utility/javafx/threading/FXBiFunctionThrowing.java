@@ -19,38 +19,38 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A thread-agnostic variant of {@link java.util.function.BiFunction} whose
- * {@link #apply(Object, Object)} method is permitted to throw checked exceptions.
+ * A variant of {@link FXBiFunction} whose {@link #apply(Object, Object)}
+ * method is permitted to throw checked exceptions.
  *
- * <p>This interface is used as the non-thread-annotated base for
- * {@link FXPlatformBiFunctionThrowing} and {@link FXBiFunctionThrowing},
- * enabling exception-propagating lambdas to be passed to
- * {@link JavaFXUtil#runPlatformAndWait} and {@link JavaFXUtil#runPlatformFuture}
- * without requiring callers to wrap checked exceptions manually.</p>
+ * <p>This interface is annotated with {@code @OnThread(Tag.FX)}, indicating
+ * that its method is intended for use on the broader FX thread. Unlike
+ * {@link FXBiFunction}, checked exceptions are propagated.</p>
  *
  * @param <T> the type of the first argument to the function
  * @param <U> the type of the second argument to the function
  * @param <R> the type of the result of the function
+ * @see FXBiFunction
  * @see FXPlatformBiFunctionThrowing
- * @see FXBiFunctionThrowing
+ * @see BiFunctionThrowing
  */
 @FunctionalInterface
-public interface BiFunctionThrowing<T, U, R>
+public interface FXBiFunctionThrowing<T, U, R> extends FXPlatformBiFunctionThrowing<T, U, R>
 {
     /**
-     * Applies this function to the given arguments.
+     * Applies this function to the given arguments on the FX thread.
      *
      * @param t the first function argument
      * @param u the second function argument
      * @return the function result
      * @throws Exception if the operation fails
      */
-    @OnThread(Tag.Any)
+    @Override
+    @OnThread(Tag.FX)
     R apply(T t, U u) throws Exception;
 }

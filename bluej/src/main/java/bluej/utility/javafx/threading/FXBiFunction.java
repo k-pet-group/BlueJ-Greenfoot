@@ -19,35 +19,39 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A variant of {@link FXFunction} whose {@link #apply(Object)} method is
- * permitted to throw checked exceptions.
+ * Equivalent to {@link java.util.function.BiFunction}, annotated with
+ * {@code @OnThread(Tag.FX)} for the broader FX thread context.
  *
- * <p>This interface is annotated with {@code @OnThread(Tag.FX)}, indicating
- * that its method is intended for use on the broader FX thread. Unlike
- * {@link FXFunction}, checked exceptions are propagated.</p>
+ * <p>Extends {@link FXPlatformBiFunction} because {@code Tag.FXPlatform} is a
+ * <em>subset</em> of {@code Tag.FX}: any code running on the FX platform
+ * thread is also running on an FX thread.  This means an {@code FXBiFunction}
+ * can safely be passed where {@code FXPlatformBiFunction} is accepted — the
+ * call site guarantees FXPlatform, which satisfies the weaker FX
+ * requirement.</p>
  *
- * @param <FROM> the type of the input to the function
- * @param <TO>   the type of the result of the function
- * @see FXFunction
- * @see FXPlatformFunctionThrowing
- * @see FunctionThrowing
+ * @param <T> the type of the first argument to the function
+ * @param <U> the type of the second argument to the function
+ * @param <R> the type of the result of the function
+ * @see FXPlatformBiFunction
+ * @see FXBiFunctionThrowing
  */
 @FunctionalInterface
-public interface FXFunctionThrowing<FROM, TO>
+public interface FXBiFunction<T, U, R> extends FXPlatformBiFunction<T, U, R>
 {
     /**
-     * Applies this function to the given argument on the FX thread.
+     * Applies this function to the given arguments on the FX thread.
      *
-     * @param x the function argument
+     * @param t the first function argument
+     * @param u the second function argument
      * @return the function result
-     * @throws Exception if the operation fails
      */
+    @Override
     @OnThread(Tag.FX)
-    TO apply(FROM x) throws Exception;
+    R apply(T t, U u);
 }

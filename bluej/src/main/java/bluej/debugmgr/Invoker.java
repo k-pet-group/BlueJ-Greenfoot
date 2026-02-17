@@ -54,7 +54,7 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;

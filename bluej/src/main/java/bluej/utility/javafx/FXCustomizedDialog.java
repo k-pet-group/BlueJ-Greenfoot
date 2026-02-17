@@ -21,6 +21,7 @@
  */
 package bluej.utility.javafx;
 
+import bluej.utility.javafx.threading.*;
 import bluej.Config;
 
 import javafx.scene.Node;

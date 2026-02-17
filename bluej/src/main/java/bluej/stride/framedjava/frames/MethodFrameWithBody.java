@@ -49,7 +49,7 @@ import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.FormalParameters;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.Throws;
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 

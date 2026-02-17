@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2016 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,17 +19,32 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Equivalent to Supplier, but clearer (including to plugin) that it runs on FX thread
+ * Equivalent to {@link Runnable}, annotated with {@code @OnThread(Tag.FX)}
+ * for the broader FX thread context.
+ *
+ * <p>Extends {@link FXPlatformRunnable} because {@code Tag.FXPlatform} is a
+ * <em>subset</em> of {@code Tag.FX}: any code running on the FX platform
+ * thread is also running on an FX thread.  This means an {@code FXRunnable}
+ * can safely be passed where {@code FXPlatformRunnable} is accepted — the
+ * call site guarantees FXPlatform, which satisfies the weaker FX
+ * requirement.</p>
+ *
+ * @see FXPlatformRunnable
+ * @see FXRunnableThrowing
  */
 @FunctionalInterface
-public interface FXPlatformSupplier<T>
+public interface FXRunnable extends FXPlatformRunnable
 {
-    @OnThread(Tag.FXPlatform)
-    T get();
+    /**
+     * Runs this operation on the FX thread.
+     */
+    @Override
+    @OnThread(Tag.FX)
+    void run();
 }

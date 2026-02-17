@@ -22,8 +22,8 @@
 package bluej.editor.flow;
 
 import bluej.Config;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;

@@ -51,7 +51,7 @@ import bluej.stride.framedjava.slots.StructuredSlot.PlainVarReference;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.SuggestedFollowUpDisplay;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXSupplier;
+import bluej.utility.javafx.threading.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 
 public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>

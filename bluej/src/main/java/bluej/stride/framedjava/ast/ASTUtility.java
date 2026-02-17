@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.stride.generic.InteractionManager;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.parser.AssistContent.CompletionKind;

@@ -23,7 +23,7 @@ package bluej.pkgmgr;
 
 import bluej.Config;
 import bluej.pkgmgr.actions.RestartVMAction;
-import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.threading.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;

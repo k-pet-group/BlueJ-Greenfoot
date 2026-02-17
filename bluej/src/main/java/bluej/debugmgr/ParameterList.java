@@ -30,8 +30,8 @@ import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import bluej.utility.javafx.GrowableList;
 import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
@@ -61,10 +61,10 @@ public class ParameterList
      * The default parameter value
      */
     private String defaultParamValue;
-    private final FXConsumer<TextField> setLastFocused;
+    private final FXPlatformConsumer<TextField> setLastFocused;
     private final FXPlatformRunnable fireOK;
 
-    public ParameterList(int initialSize, String defaultParamValue, FXConsumer<TextField> setLastFocused, FXPlatformRunnable fireOK) 
+    public ParameterList(int initialSize, String defaultParamValue, FXPlatformConsumer<TextField> setLastFocused, FXPlatformRunnable fireOK) 
     {            
         parameters = new ArrayList<>(initialSize);
         this.defaultParamValue = defaultParamValue;
@@ -145,7 +145,7 @@ public class ParameterList
         HangingFlowPane.setBreakBefore(component, true);
         // Can't do this from CSS:
         HangingFlowPane.setMargin(component, new Insets(0, 8, 0, 8));
-        JavaFXUtil.addChangeListener(component.focusedProperty(), focused -> {
+        JavaFXUtil.addChangeListenerPlatform(component.focusedProperty(), focused -> {
             if (focused.booleanValue())
                 setLastFocused.accept(component.getEditor());
         });

@@ -77,7 +77,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;

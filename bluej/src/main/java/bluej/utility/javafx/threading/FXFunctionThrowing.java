@@ -19,36 +19,36 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A thread-agnostic variant of {@link java.util.function.Function} whose
- * {@link #apply(Object)} method is permitted to throw checked exceptions.
+ * A variant of {@link FXFunction} whose {@link #apply(Object)} method is
+ * permitted to throw checked exceptions.
  *
- * <p>This interface is used as the non-thread-annotated base for
- * {@link FXPlatformFunctionThrowing} and {@link FXFunctionThrowing},
- * enabling exception-propagating lambdas to be passed to
- * {@link JavaFXUtil#runPlatformAndWait} and {@link JavaFXUtil#runPlatformFuture}
- * without requiring callers to wrap checked exceptions manually.</p>
+ * <p>This interface is annotated with {@code @OnThread(Tag.FX)}, indicating
+ * that its method is intended for use on the broader FX thread. Unlike
+ * {@link FXFunction}, checked exceptions are propagated.</p>
  *
  * @param <T> the type of the input to the function
  * @param <R> the type of the result of the function
+ * @see FXFunction
  * @see FXPlatformFunctionThrowing
- * @see FXFunctionThrowing
+ * @see FunctionThrowing
  */
 @FunctionalInterface
-public interface FunctionThrowing<T, R>
+public interface FXFunctionThrowing<T, R> extends FXPlatformFunctionThrowing<T, R>
 {
     /**
-     * Applies this function to the given argument.
+     * Applies this function to the given argument on the FX thread.
      *
      * @param t the function argument
      * @return the function result
      * @throws Exception if the operation fails
      */
-    @OnThread(Tag.Any)
+    @Override
+    @OnThread(Tag.FX)
     R apply(T t) throws Exception;
 }

@@ -47,7 +47,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaUtils;
 import bluej.utility.javafx.AbstractOperation;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.dialog.InputDialog;
 import javafx.application.Platform;

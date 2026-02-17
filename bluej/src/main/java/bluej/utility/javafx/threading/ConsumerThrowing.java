@@ -19,34 +19,34 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A thread-agnostic variant of {@link java.util.function.Supplier} whose
- * {@link #get()} method is permitted to throw checked exceptions.
+ * A thread-agnostic variant of {@link java.util.function.Consumer} whose
+ * {@link #accept(Object)} method is permitted to throw checked exceptions.
  *
  * <p>This interface is used as the non-thread-annotated base for
- * {@link FXPlatformSupplierThrowing} and {@link FXSupplierThrowing},
+ * {@link FXPlatformConsumerThrowing} and {@link FXConsumerThrowing},
  * enabling exception-propagating lambdas to be passed to
- * {@link JavaFXUtil#runPlatformAndWait} and {@link JavaFXUtil#runPlatformFuture}
+ * {@link JavaFXThreadingUtil#runPlatformAndWait} and {@link JavaFXThreadingUtil#runPlatform}
  * without requiring callers to wrap checked exceptions manually.</p>
  *
- * @param <T> the type of results supplied by this supplier
- * @see FXPlatformSupplierThrowing
- * @see FXSupplierThrowing
+ * @param <T> the type of the input to the operation
+ * @see FXPlatformConsumerThrowing
+ * @see FXConsumerThrowing
  */
 @FunctionalInterface
-public interface SupplierThrowing<T>
+public interface ConsumerThrowing<T>
 {
     /**
-     * Gets a result.
+     * Performs this operation on the given argument.
      *
-     * @return a result
+     * @param t the input argument
      * @throws Exception if the operation fails
      */
     @OnThread(Tag.Any)
-    T get() throws Exception;
+    void accept(T t) throws Exception;
 }

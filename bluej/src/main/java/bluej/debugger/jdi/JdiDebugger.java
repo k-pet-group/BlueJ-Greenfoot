@@ -36,7 +36,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.debugger.*;
 import bluej.pkgmgr.Project;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import com.sun.jdi.*;
 import threadchecker.OnThread;
 import threadchecker.Tag;

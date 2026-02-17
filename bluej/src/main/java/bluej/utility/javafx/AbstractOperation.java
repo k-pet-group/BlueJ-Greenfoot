@@ -22,6 +22,7 @@
 package bluej.utility.javafx;
 
 import bluej.utility.Utility;
+import bluej.utility.javafx.threading.*;
 import bluej.utility.javafx.binding.ConcatListBinding;
 import bluej.utility.javafx.binding.DeepListBinding;
 import javafx.beans.property.ReadOnlyStringWrapper;

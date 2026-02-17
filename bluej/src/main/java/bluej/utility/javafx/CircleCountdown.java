@@ -21,6 +21,7 @@
  */
 package bluej.utility.javafx;
 
+import bluej.utility.javafx.threading.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;

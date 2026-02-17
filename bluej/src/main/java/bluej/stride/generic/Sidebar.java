@@ -23,7 +23,7 @@ package bluej.stride.generic;
 
 import java.util.List;
 
-import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.threading.FXConsumer;
 import javafx.animation.FadeTransition;
 import javafx.beans.Observable;
 import javafx.beans.binding.Binding;

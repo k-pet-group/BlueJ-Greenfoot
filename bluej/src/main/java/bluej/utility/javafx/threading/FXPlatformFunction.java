@@ -19,17 +19,24 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Created by neil on 21/04/16.
+ * Equivalent to {@link java.util.function.Function}, annotated with
+ * {@code @OnThread(Tag.FXPlatform)} to indicate it must run on the
+ * JavaFX platform thread.
+ *
+ * @param <T> the type of the input to the function
+ * @param <R> the type of the result of the function
+ * @see FXFunction
+ * @see FXPlatformFunctionThrowing
  */
 @FunctionalInterface
 @OnThread(Tag.FXPlatform)
-public interface FXPlatformBiFunction<T, U, R>
+public interface FXPlatformFunction<T, R>
 {
-    public R apply(T t, U u);
+    R apply(T t);
 }

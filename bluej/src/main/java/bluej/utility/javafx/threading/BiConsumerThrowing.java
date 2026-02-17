@@ -19,35 +19,36 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Equivalent to {@link java.util.function.BiFunction}, but clearer (including
- * to the thread-checker plugin) that it runs on the FX thread.
+ * A thread-agnostic variant of {@link java.util.function.BiConsumer} whose
+ * {@link #accept(Object, Object)} method is permitted to throw checked exceptions.
  *
- * <p>This is the {@code Tag.FX}-scoped counterpart of
- * {@link FXPlatformBiFunction}, following the same relationship pattern as
- * {@link FXFunction} to {@link FXPlatformFunction}.</p>
+ * <p>This interface is used as the non-thread-annotated base for
+ * {@link FXPlatformBiConsumerThrowing} and {@link FXBiConsumerThrowing},
+ * enabling exception-propagating lambdas to be passed to
+ * {@link JavaFXThreadingUtil#runPlatformAndWait} and {@link JavaFXThreadingUtil#runPlatform}
+ * without requiring callers to wrap checked exceptions manually.</p>
  *
- * @param <T> the type of the first argument to the function
- * @param <U> the type of the second argument to the function
- * @param <R> the type of the result of the function
- * @see FXPlatformBiFunction
- * @see FXBiFunctionThrowing
+ * @param <T> the type of the first argument to the operation
+ * @param <U> the type of the second argument to the operation
+ * @see FXPlatformBiConsumerThrowing
+ * @see FXBiConsumerThrowing
  */
 @FunctionalInterface
-public interface FXBiFunction<T, U, R>
+public interface BiConsumerThrowing<T, U>
 {
     /**
-     * Applies this function to the given arguments on the FX thread.
+     * Performs this operation on the given arguments.
      *
-     * @param t the first function argument
-     * @param u the second function argument
-     * @return the function result
+     * @param t the first input argument
+     * @param u the second input argument
+     * @throws Exception if the operation fails
      */
-    @OnThread(Tag.FX)
-    R apply(T t, U u);
+    @OnThread(Tag.Any)
+    void accept(T t, U u) throws Exception;
 }

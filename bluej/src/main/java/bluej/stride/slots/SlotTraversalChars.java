@@ -21,7 +21,7 @@
  */
 package bluej.stride.slots;
 
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;

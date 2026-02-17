@@ -40,6 +40,7 @@ import bluej.editor.fixes.SuggestionList;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.utility.javafx.*;
+import bluej.utility.javafx.threading.*;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;

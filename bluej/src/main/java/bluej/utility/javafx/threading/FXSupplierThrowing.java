@@ -19,34 +19,34 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A variant of {@link FXRunnable} whose {@link #run()} method is permitted to
- * throw checked exceptions. Extends {@link FXPlatformRunnableThrowing} following
- * the same inheritance pattern as {@link FXRunnable} extends {@link FXPlatformRunnable}.
+ * A variant of {@link FXSupplier} whose {@link #get()} method is permitted to
+ * throw checked exceptions.
  *
  * <p>This interface is annotated with {@code @OnThread(Tag.FX)}, indicating
- * that its method is intended for use on the broader FX thread (which includes
- * background FX loading threads, not just the platform thread). Unlike
- * {@link FXRunnable}, checked exceptions are propagated.</p>
+ * that its method is intended for use on the broader FX thread. Unlike
+ * {@link FXSupplier}, checked exceptions are propagated.</p>
  *
- * @see FXRunnable
- * @see FXPlatformRunnableThrowing
- * @see RunnableThrowing
+ * @param <T> the type of results supplied by this supplier
+ * @see FXSupplier
+ * @see FXPlatformSupplierThrowing
+ * @see SupplierThrowing
  */
 @FunctionalInterface
-public interface FXRunnableThrowing extends FXPlatformRunnableThrowing
+public interface FXSupplierThrowing<T> extends FXPlatformSupplierThrowing<T>
 {
     /**
-     * Executes the action on the FX thread.
+     * Gets a result on the FX thread.
      *
-     * @throws Exception if the action fails
+     * @return a result
+     * @throws Exception if the operation fails
      */
     @Override
     @OnThread(Tag.FX)
-    void run() throws Exception;
+    T get() throws Exception;
 }

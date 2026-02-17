@@ -41,7 +41,7 @@ import javafx.util.Duration;
 
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
-import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.threading.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;

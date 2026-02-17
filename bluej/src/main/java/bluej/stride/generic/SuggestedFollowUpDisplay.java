@@ -32,7 +32,7 @@ import javafx.scene.layout.VBox;
 import bluej.Config;
 import bluej.editor.stride.CodeOverlayPane;
 import bluej.stride.generic.InteractionManager.ShortcutKey;
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;

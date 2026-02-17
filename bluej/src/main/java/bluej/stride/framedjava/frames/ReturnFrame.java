@@ -45,7 +45,7 @@ import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 
 /**

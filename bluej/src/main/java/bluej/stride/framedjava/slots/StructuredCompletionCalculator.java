@@ -26,7 +26,7 @@ import java.util.List;
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.editor.fixes.SuggestionList;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

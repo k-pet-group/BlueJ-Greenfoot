@@ -19,34 +19,38 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A thread-agnostic variant of {@link java.util.function.Consumer} whose
- * {@link #accept(Object)} method is permitted to throw checked exceptions.
+ * A thread-agnostic variant of {@link java.util.function.BiFunction} whose
+ * {@link #apply(Object, Object)} method is permitted to throw checked exceptions.
  *
  * <p>This interface is used as the non-thread-annotated base for
- * {@link FXPlatformConsumerThrowing} and {@link FXConsumerThrowing},
+ * {@link FXPlatformBiFunctionThrowing} and {@link FXBiFunctionThrowing},
  * enabling exception-propagating lambdas to be passed to
- * {@link JavaFXUtil#runPlatformAndWait} and {@link JavaFXUtil#runPlatformFuture}
+ * {@link JavaFXThreadingUtil#runPlatformAndWait} and {@link JavaFXThreadingUtil#runPlatform}
  * without requiring callers to wrap checked exceptions manually.</p>
  *
- * @param <T> the type of the input to the operation
- * @see FXPlatformConsumerThrowing
- * @see FXConsumerThrowing
+ * @param <T> the type of the first argument to the function
+ * @param <U> the type of the second argument to the function
+ * @param <R> the type of the result of the function
+ * @see FXPlatformBiFunctionThrowing
+ * @see FXBiFunctionThrowing
  */
 @FunctionalInterface
-public interface ConsumerThrowing<T>
+public interface BiFunctionThrowing<T, U, R>
 {
     /**
-     * Performs this operation on the given argument.
+     * Applies this function to the given arguments.
      *
-     * @param t the input argument
+     * @param t the first function argument
+     * @param u the second function argument
+     * @return the function result
      * @throws Exception if the operation fails
      */
     @OnThread(Tag.Any)
-    void accept(T t) throws Exception;
+    R apply(T t, U u) throws Exception;
 }

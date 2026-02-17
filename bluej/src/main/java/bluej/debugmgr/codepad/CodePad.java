@@ -45,7 +45,7 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.AbstractOperation.Combine;
 import bluej.utility.javafx.AbstractOperation.ContextualItem;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;

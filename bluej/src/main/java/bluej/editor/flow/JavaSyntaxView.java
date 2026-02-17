@@ -38,7 +38,7 @@ import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectExpression;
@@ -2574,7 +2574,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                         break;
                     }
                 }
-                JavaFXUtil.runPlatformLater(this);
+                JavaFXUtil.runPlatformLater(this::run);
             }
             else {
                 // Mark that we are no longer scheduled.  Reapply backgrounds and syntax highlighting:

@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -34,8 +34,8 @@ import threadchecker.Tag;
  * than requiring the implementor to handle them internally.</p>
  *
  * <p>Primary use case: passing exception-throwing lambdas to
- * {@link JavaFXUtil#runPlatformAndWait(FXPlatformFunctionThrowing, Object)} and
- * {@link JavaFXUtil#runPlatformFuture(FXPlatformFunctionThrowing, Object)},
+ * {@link JavaFXThreadingUtil#runPlatformAndWait(FXPlatformFunctionThrowing, Object)} and
+ * {@link JavaFXThreadingUtil#runPlatform(FXPlatformFunctionThrowing, Object)},
  * which schedule execution on the FX thread with a single argument and return
  * a result.</p>
  *
@@ -56,6 +56,5 @@ public interface FXPlatformFunctionThrowing<T, R>
      * @return the function result
      * @throws Exception if the operation fails
      */
-    @OnThread(Tag.FXPlatform)
     R apply(T t) throws Exception;
 }

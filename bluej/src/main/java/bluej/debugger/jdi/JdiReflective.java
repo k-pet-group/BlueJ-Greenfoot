@@ -52,7 +52,7 @@ import bluej.debugger.gentype.TextType;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.BooleanType;
 import com.sun.jdi.ByteType;

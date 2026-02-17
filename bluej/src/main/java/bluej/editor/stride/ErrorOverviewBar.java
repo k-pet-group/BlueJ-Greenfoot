@@ -39,8 +39,8 @@ import javafx.scene.shape.Rectangle;
 
 import bluej.Config;
 import bluej.stride.generic.InteractionManager;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 
 /**

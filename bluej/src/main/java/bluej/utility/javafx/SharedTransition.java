@@ -21,6 +21,7 @@
  */
 package bluej.utility.javafx;
 
+import bluej.utility.javafx.threading.*;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.animation.Interpolator;

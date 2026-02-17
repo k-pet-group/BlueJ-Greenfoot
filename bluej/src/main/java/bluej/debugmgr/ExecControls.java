@@ -37,7 +37,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXAbstractAction;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;

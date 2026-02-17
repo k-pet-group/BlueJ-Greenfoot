@@ -32,7 +32,7 @@ import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameCursor;
-import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.threading.FXConsumer;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -62,7 +62,7 @@ import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.SlotValueListener;
 import bluej.stride.slots.VariableNameDefTextSlot;
 
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;

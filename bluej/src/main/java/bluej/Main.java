@@ -30,7 +30,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import de.jangassen.MenuToolkit;
 import de.jangassen.dialogs.about.AboutStageBuilder;

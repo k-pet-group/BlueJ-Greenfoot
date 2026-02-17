@@ -19,44 +19,39 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A variant of {@link FXPlatformBiFunction} whose {@link #apply(Object, Object)}
- * method is permitted to throw checked exceptions.
+ * A variant of {@link FXPlatformSupplier} whose {@link #get()} method is
+ * permitted to throw checked exceptions.
  *
  * <p>This interface is annotated with {@code @OnThread(Tag.FXPlatform)},
  * indicating that its method must be called on the JavaFX application thread.
- * Unlike {@link FXPlatformBiFunction}, checked exceptions are propagated rather
+ * Unlike {@link FXPlatformSupplier}, checked exceptions are propagated rather
  * than requiring the implementor to handle them internally.</p>
  *
  * <p>Primary use case: passing exception-throwing lambdas to
- * {@link JavaFXUtil#runPlatformAndWait(FXPlatformBiFunctionThrowing, Object, Object)} and
- * {@link JavaFXUtil#runPlatformFuture(FXPlatformBiFunctionThrowing, Object, Object)},
- * which schedule execution on the FX thread with two arguments and return a result.</p>
+ * {@link JavaFXThreadingUtil#runPlatformAndWait(FXPlatformSupplierThrowing)} and
+ * {@link JavaFXThreadingUtil#runPlatform(FXPlatformSupplierThrowing)},
+ * which schedule execution on the FX thread and return a result.</p>
  *
- * @param <T> the type of the first argument to the function
- * @param <U> the type of the second argument to the function
- * @param <R> the type of the result of the function
- * @see FXPlatformBiFunction
- * @see FXBiFunctionThrowing
- * @see BiFunctionThrowing
+ * @param <T> the type of results supplied by this supplier
+ * @see FXPlatformSupplier
+ * @see FXSupplierThrowing
+ * @see SupplierThrowing
  */
 @FunctionalInterface
 @OnThread(Tag.FXPlatform)
-public interface FXPlatformBiFunctionThrowing<T, U, R>
+public interface FXPlatformSupplierThrowing<T>
 {
     /**
-     * Applies this function to the given arguments on the JavaFX platform thread.
+     * Gets a result on the JavaFX platform thread.
      *
-     * @param t the first function argument
-     * @param u the second function argument
-     * @return the function result
+     * @return a result
      * @throws Exception if the operation fails
      */
-    @OnThread(Tag.FXPlatform)
-    R apply(T t, U u) throws Exception;
+    T get() throws Exception;
 }

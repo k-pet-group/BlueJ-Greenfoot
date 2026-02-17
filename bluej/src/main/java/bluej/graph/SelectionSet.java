@@ -22,7 +22,7 @@
 package bluej.graph;
 
 import bluej.pkgmgr.target.Target;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

@@ -35,7 +35,7 @@ import bluej.editor.fixes.FixSuggestion;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;

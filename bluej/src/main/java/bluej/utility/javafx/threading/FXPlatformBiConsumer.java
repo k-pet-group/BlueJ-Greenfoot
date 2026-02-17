@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2026 Michael Kölling and John Rosenberg
+ Copyright (C) 2016 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -19,33 +19,24 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A variant of {@link FXConsumer} whose {@link #accept(Object)} method is
- * permitted to throw checked exceptions.
+ * Equivalent to {@link java.util.function.BiConsumer}, annotated with
+ * {@code @OnThread(Tag.FXPlatform)} to indicate it must run on the
+ * JavaFX platform thread.
  *
- * <p>This interface is annotated with {@code @OnThread(Tag.FX)}, indicating
- * that its method is intended for use on the broader FX thread. Unlike
- * {@link FXConsumer}, checked exceptions are propagated.</p>
- *
- * @param <T> the type of the input to the operation
- * @see FXConsumer
- * @see FXPlatformConsumerThrowing
- * @see ConsumerThrowing
+ * @param <T> the type of the first argument to the operation
+ * @param <U> the type of the second argument to the operation
+ * @see FXBiConsumer
+ * @see FXPlatformBiConsumerThrowing
  */
 @FunctionalInterface
-public interface FXConsumerThrowing<T>
+@OnThread(Tag.FXPlatform)
+public interface FXPlatformBiConsumer<T, U>
 {
-    /**
-     * Performs this operation on the given argument on the FX thread.
-     *
-     * @param t the input argument
-     * @throws Exception if the operation fails
-     */
-    @OnThread(Tag.FX)
-    void accept(T t) throws Exception;
+    void accept(T t, U u);
 }

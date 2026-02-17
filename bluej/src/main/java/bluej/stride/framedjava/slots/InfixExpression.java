@@ -40,7 +40,7 @@ import bluej.stride.framedjava.ast.links.PossibleTypeLink;
 import bluej.stride.framedjava.ast.links.PossibleVarLink;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.generic.InteractionManager;
-import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.threading.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;

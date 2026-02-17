@@ -23,9 +23,9 @@ package bluej.editor.base;
 
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformFunction;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformFunction;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.StringExpression;
 import javafx.scene.Node;

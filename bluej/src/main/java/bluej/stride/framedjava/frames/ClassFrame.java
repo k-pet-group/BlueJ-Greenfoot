@@ -51,6 +51,7 @@ import bluej.stride.slots.SlotLabel;
 import bluej.stride.slots.TriangleLabel;
 import bluej.utility.Utility;
 import bluej.utility.javafx.*;
+import bluej.utility.javafx.threading.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;

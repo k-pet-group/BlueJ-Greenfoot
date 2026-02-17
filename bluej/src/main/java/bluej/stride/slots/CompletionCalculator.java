@@ -26,7 +26,7 @@ import javafx.scene.control.TextField;
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.editor.fixes.SuggestionList.SuggestionListListener;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

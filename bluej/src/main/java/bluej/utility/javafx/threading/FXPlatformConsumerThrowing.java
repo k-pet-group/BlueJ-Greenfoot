@@ -19,42 +19,39 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A variant of {@link FXPlatformRunnable} whose {@link #run()} method is
- * permitted to throw checked exceptions.
+ * A variant of {@link FXPlatformConsumer} whose {@link #accept(Object)} method
+ * is permitted to throw checked exceptions.
  *
  * <p>This interface is annotated with {@code @OnThread(Tag.FXPlatform)},
- * indicating that its {@link #run()} method must be called on the JavaFX
- * application thread (the "platform" thread). Unlike {@link FXPlatformRunnable},
- * checked exceptions are propagated rather than requiring the implementor to
- * handle them internally.</p>
+ * indicating that its method must be called on the JavaFX application thread.
+ * Unlike {@link FXPlatformConsumer}, checked exceptions are propagated rather
+ * than requiring the implementor to handle them internally.</p>
  *
  * <p>Primary use case: passing exception-throwing lambdas to
- * {@link JavaFXUtil#runPlatformAndWait(FXPlatformRunnableThrowing)} and
- * {@link JavaFXUtil#runPlatformFuture(FXPlatformRunnableThrowing)}, which
- * schedule execution on the FX thread and propagate exceptions through
- * {@link java.util.concurrent.Future} or {@link RuntimeException}.</p>
+ * {@link JavaFXThreadingUtil#runPlatformAndWait(FXPlatformConsumerThrowing, Object)} and
+ * {@link JavaFXThreadingUtil#runPlatform(FXPlatformConsumerThrowing, Object)},
+ * which schedule execution on the FX thread with a single argument.</p>
  *
- * @see FXPlatformRunnable
- * @see FXRunnableThrowing
- * @see RunnableThrowing
- * @see JavaFXUtil#runPlatformAndWait(FXPlatformRunnableThrowing)
- * @see JavaFXUtil#runPlatformFuture(FXPlatformRunnableThrowing)
+ * @param <T> the type of the input to the operation
+ * @see FXPlatformConsumer
+ * @see FXConsumerThrowing
+ * @see ConsumerThrowing
  */
 @FunctionalInterface
 @OnThread(Tag.FXPlatform)
-public interface FXPlatformRunnableThrowing
+public interface FXPlatformConsumerThrowing<T>
 {
     /**
-     * Executes the action on the JavaFX platform thread.
+     * Performs this operation on the given argument on the JavaFX platform thread.
      *
-     * @throws Exception if the action fails
+     * @param t the input argument
+     * @throws Exception if the operation fails
      */
-    @OnThread(Tag.FXPlatform)
-    void run() throws Exception;
+    void accept(T t) throws Exception;
 }

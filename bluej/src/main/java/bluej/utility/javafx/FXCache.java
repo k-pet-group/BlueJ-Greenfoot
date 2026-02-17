@@ -20,6 +20,8 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.utility.javafx;
+
+import bluej.utility.javafx.threading.*;
 import java.util.HashMap;
 
 /**

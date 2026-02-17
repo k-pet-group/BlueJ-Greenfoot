@@ -40,6 +40,7 @@ import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.slots.InfixStructured.RangeType;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.utility.javafx.*;
+import bluej.utility.javafx.threading.*;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.StringExpression;

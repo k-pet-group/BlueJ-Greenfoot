@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2026 Michael Kölling and John Rosenberg
+ Copyright (C) 2015 Michael Kölling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,37 +19,37 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A variant of {@link FXBiFunction} whose {@link #apply(Object, Object)}
- * method is permitted to throw checked exceptions.
+ * Equivalent to {@link java.util.function.Function}, annotated with
+ * {@code @OnThread(Tag.FX)} for the broader FX thread context.
  *
- * <p>This interface is annotated with {@code @OnThread(Tag.FX)}, indicating
- * that its method is intended for use on the broader FX thread. Unlike
- * {@link FXBiFunction}, checked exceptions are propagated.</p>
+ * <p>Extends {@link FXPlatformFunction} because {@code Tag.FXPlatform} is a
+ * <em>subset</em> of {@code Tag.FX}: any code running on the FX platform
+ * thread is also running on an FX thread.  This means an {@code FXFunction}
+ * can safely be passed where {@code FXPlatformFunction} is accepted — the
+ * call site guarantees FXPlatform, which satisfies the weaker FX
+ * requirement.</p>
  *
- * @param <T> the type of the first argument to the function
- * @param <U> the type of the second argument to the function
+ * @param <T> the type of the input to the function
  * @param <R> the type of the result of the function
- * @see FXBiFunction
- * @see FXPlatformBiFunctionThrowing
- * @see BiFunctionThrowing
+ * @see FXPlatformFunction
+ * @see FXFunctionThrowing
  */
 @FunctionalInterface
-public interface FXBiFunctionThrowing<T, U, R>
+public interface FXFunction<T, R> extends FXPlatformFunction<T, R>
 {
     /**
-     * Applies this function to the given arguments on the FX thread.
+     * Applies this function to the given argument on the FX thread.
      *
-     * @param t the first function argument
-     * @param u the second function argument
+     * @param t the function argument
      * @return the function result
-     * @throws Exception if the operation fails
      */
+    @Override
     @OnThread(Tag.FX)
-    R apply(T t, U u) throws Exception;
+    R apply(T t);
 }

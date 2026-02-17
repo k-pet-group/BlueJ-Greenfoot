@@ -21,6 +21,7 @@
  */
 package bluej.utility.javafx;
 
+import bluej.utility.javafx.threading.*;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;

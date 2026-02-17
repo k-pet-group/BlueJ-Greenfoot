@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016 Michael Kölling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,17 +19,23 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Equivalent to BiConsumer, but clearer (including to plugin) that it runs on FX thread
+ * Equivalent to {@link java.util.function.Supplier}, annotated with
+ * {@code @OnThread(Tag.FXPlatform)} to indicate it must run on the
+ * JavaFX platform thread.
+ *
+ * @param <T> the type of results supplied by this supplier
+ * @see FXSupplier
+ * @see FXPlatformSupplierThrowing
  */
 @FunctionalInterface
-public interface FXBiConsumer<T, U>
+@OnThread(Tag.FXPlatform)
+public interface FXPlatformSupplier<T>
 {
-    @OnThread(Tag.FX)
-    public void accept(T t, U u);
+    T get();
 }

@@ -21,7 +21,7 @@
  */
 package greenfoot.guifx.classes;
 
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 
 import java.util.ArrayList;
 import java.util.HashSet;

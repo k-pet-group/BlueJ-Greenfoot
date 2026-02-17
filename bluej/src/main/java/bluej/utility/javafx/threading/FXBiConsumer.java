@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2026 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,35 +19,37 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A variant of {@link FXBiConsumer} whose {@link #accept(Object, Object)}
- * method is permitted to throw checked exceptions.
+ * Equivalent to {@link java.util.function.BiConsumer}, annotated with
+ * {@code @OnThread(Tag.FX)} for the broader FX thread context.
  *
- * <p>This interface is annotated with {@code @OnThread(Tag.FX)}, indicating
- * that its method is intended for use on the broader FX thread. Unlike
- * {@link FXBiConsumer}, checked exceptions are propagated.</p>
+ * <p>Extends {@link FXPlatformBiConsumer} because {@code Tag.FXPlatform} is a
+ * <em>subset</em> of {@code Tag.FX}: any code running on the FX platform
+ * thread is also running on an FX thread.  This means an {@code FXBiConsumer}
+ * can safely be passed where {@code FXPlatformBiConsumer} is accepted — the
+ * call site guarantees FXPlatform, which satisfies the weaker FX
+ * requirement.</p>
  *
  * @param <T> the type of the first argument to the operation
  * @param <U> the type of the second argument to the operation
- * @see FXBiConsumer
- * @see FXPlatformBiConsumerThrowing
- * @see BiConsumerThrowing
+ * @see FXPlatformBiConsumer
+ * @see FXBiConsumerThrowing
  */
 @FunctionalInterface
-public interface FXBiConsumerThrowing<T, U>
+public interface FXBiConsumer<T, U> extends FXPlatformBiConsumer<T, U>
 {
     /**
      * Performs this operation on the given arguments on the FX thread.
      *
      * @param t the first input argument
      * @param u the second input argument
-     * @throws Exception if the operation fails
      */
+    @Override
     @OnThread(Tag.FX)
-    void accept(T t, U u) throws Exception;
+    void accept(T t, U u);
 }

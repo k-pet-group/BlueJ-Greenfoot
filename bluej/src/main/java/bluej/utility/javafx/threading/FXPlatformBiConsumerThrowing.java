@@ -19,40 +19,41 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A variant of {@link FXPlatformSupplier} whose {@link #get()} method is
- * permitted to throw checked exceptions.
+ * A variant of {@link FXPlatformBiConsumer} whose {@link #accept(Object, Object)}
+ * method is permitted to throw checked exceptions.
  *
  * <p>This interface is annotated with {@code @OnThread(Tag.FXPlatform)},
  * indicating that its method must be called on the JavaFX application thread.
- * Unlike {@link FXPlatformSupplier}, checked exceptions are propagated rather
+ * Unlike {@link FXPlatformBiConsumer}, checked exceptions are propagated rather
  * than requiring the implementor to handle them internally.</p>
  *
  * <p>Primary use case: passing exception-throwing lambdas to
- * {@link JavaFXUtil#runPlatformAndWait(FXPlatformSupplierThrowing)} and
- * {@link JavaFXUtil#runPlatformFuture(FXPlatformSupplierThrowing)},
- * which schedule execution on the FX thread and return a result.</p>
+ * {@link JavaFXThreadingUtil#runPlatformAndWait(FXPlatformBiConsumerThrowing, Object, Object)} and
+ * {@link JavaFXThreadingUtil#runPlatform(FXPlatformBiConsumerThrowing, Object, Object)},
+ * which schedule execution on the FX thread with two arguments.</p>
  *
- * @param <T> the type of results supplied by this supplier
- * @see FXPlatformSupplier
- * @see FXSupplierThrowing
- * @see SupplierThrowing
+ * @param <T> the type of the first argument to the operation
+ * @param <U> the type of the second argument to the operation
+ * @see FXPlatformBiConsumer
+ * @see FXBiConsumerThrowing
+ * @see BiConsumerThrowing
  */
 @FunctionalInterface
 @OnThread(Tag.FXPlatform)
-public interface FXPlatformSupplierThrowing<T>
+public interface FXPlatformBiConsumerThrowing<T, U>
 {
     /**
-     * Gets a result on the JavaFX platform thread.
+     * Performs this operation on the given arguments on the JavaFX platform thread.
      *
-     * @return a result
+     * @param t the first input argument
+     * @param u the second input argument
      * @throws Exception if the operation fails
      */
-    @OnThread(Tag.FXPlatform)
-    T get() throws Exception;
+    void accept(T t, U u) throws Exception;
 }

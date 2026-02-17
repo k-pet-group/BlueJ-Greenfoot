@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2026 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,18 +19,34 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
-import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Equivalent to Runnable, but clearer (including to plugin) that it runs on FX thread
+ * A variant of {@link FXRunnable} whose {@link #run()} method is permitted to
+ * throw checked exceptions. Extends {@link FXPlatformRunnableThrowing} following
+ * the same inheritance pattern as {@link FXRunnable} extends {@link FXPlatformRunnable}.
+ *
+ * <p>This interface is annotated with {@code @OnThread(Tag.FX)}, indicating
+ * that its method is intended for use on the broader FX thread (which includes
+ * background FX loading threads, not just the platform thread). Unlike
+ * {@link FXRunnable}, checked exceptions are propagated.</p>
+ *
+ * @see FXRunnable
+ * @see FXPlatformRunnableThrowing
+ * @see RunnableThrowing
  */
 @FunctionalInterface
-public interface FXRunnable extends FXPlatformRunnable
+public interface FXRunnableThrowing extends FXPlatformRunnableThrowing
 {
+    /**
+     * Executes the action on the FX thread.
+     *
+     * @throws Exception if the action fails
+     */
+    @Override
     @OnThread(Tag.FX)
-    public void run();
+    void run() throws Exception;
 }

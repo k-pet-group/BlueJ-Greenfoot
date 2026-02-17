@@ -24,7 +24,7 @@ package bluej.editor.fixes;
 import bluej.editor.EditorWatcher;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.control.Label;
 

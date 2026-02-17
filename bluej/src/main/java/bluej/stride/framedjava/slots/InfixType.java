@@ -27,8 +27,8 @@ import java.util.Optional;
 
 import bluej.stride.framedjava.ast.links.PossibleTypeLink;
 import bluej.stride.generic.InteractionManager;
-import bluej.utility.javafx.FXBiConsumer;
-import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.threading.FXBiConsumer;
+import bluej.utility.javafx.threading.FXConsumer;
 
 /**
  * Created by neil on 22/05/2016.

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,17 +19,35 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Equivalent to Supplier, but clearer (including to plugin) that it runs on FX thread
+ * Equivalent to {@link java.util.function.Consumer}, annotated with
+ * {@code @OnThread(Tag.FX)} for the broader FX thread context.
+ *
+ * <p>Extends {@link FXPlatformConsumer} because {@code Tag.FXPlatform} is a
+ * <em>subset</em> of {@code Tag.FX}: any code running on the FX platform
+ * thread is also running on an FX thread.  This means an {@code FXConsumer}
+ * can safely be passed where {@code FXPlatformConsumer} is accepted — the
+ * call site guarantees FXPlatform, which satisfies the weaker FX
+ * requirement.</p>
+ *
+ * @param <T> the type of the input to the operation
+ * @see FXPlatformConsumer
+ * @see FXConsumerThrowing
  */
 @FunctionalInterface
-public interface FXSupplier<T>
+public interface FXConsumer<T> extends FXPlatformConsumer<T>
 {
+    /**
+     * Performs this operation on the given argument on the FX thread.
+     *
+     * @param t the input argument
+     */
+    @Override
     @OnThread(Tag.FX)
-    T get();
+    void accept(T t);
 }

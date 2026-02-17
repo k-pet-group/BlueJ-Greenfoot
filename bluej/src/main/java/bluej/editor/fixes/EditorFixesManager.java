@@ -27,7 +27,7 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.role.Kind;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import javafx.util.Pair;
 import threadchecker.OnThread;
 import threadchecker.Tag;

@@ -26,7 +26,7 @@ import bluej.collect.DataCollector;
 import bluej.debugger.gentype.JavaType;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;

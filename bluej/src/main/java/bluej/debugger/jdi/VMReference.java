@@ -43,7 +43,7 @@ import java.util.Map;
 import bluej.debugger.Debugger.EventHandlerRunnable;
 import bluej.debugger.RunOnThread;
 import bluej.utility.DialogManager;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Boot;

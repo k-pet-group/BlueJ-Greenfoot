@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.dependency.*;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import javafx.geometry.Point2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;

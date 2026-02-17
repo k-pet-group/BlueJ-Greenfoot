@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2026 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -19,17 +19,34 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package bluej.utility.javafx;
+package bluej.utility.javafx.threading;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Equivalent to BiConsumer, but clearer (including to plugin) that it runs on FX thread
+ * A variant of {@link FXConsumer} whose {@link #accept(Object)} method is
+ * permitted to throw checked exceptions.
+ *
+ * <p>This interface is annotated with {@code @OnThread(Tag.FX)}, indicating
+ * that its method is intended for use on the broader FX thread. Unlike
+ * {@link FXConsumer}, checked exceptions are propagated.</p>
+ *
+ * @param <T> the type of the input to the operation
+ * @see FXConsumer
+ * @see FXPlatformConsumerThrowing
+ * @see ConsumerThrowing
  */
 @FunctionalInterface
-@OnThread(Tag.FXPlatform)
-public interface FXPlatformBiConsumer<T, U>
+public interface FXConsumerThrowing<T> extends FXPlatformConsumerThrowing<T>
 {
-    public void accept(T t, U u);
+    /**
+     * Performs this operation on the given argument on the FX thread.
+     *
+     * @param t the input argument
+     * @throws Exception if the operation fails
+     */
+    @Override
+    @OnThread(Tag.FX)
+    void accept(T t) throws Exception;
 }

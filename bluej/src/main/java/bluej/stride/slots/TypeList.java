@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.InteractionManager;
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXRunnable;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;

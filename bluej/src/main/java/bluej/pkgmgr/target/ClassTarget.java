@@ -78,6 +78,7 @@ import bluej.stride.framedjava.elements.TopLevelCodeElement;
 import bluej.stride.generic.Frame;
 import bluej.utility.*;
 import bluej.utility.javafx.*;
+import bluej.utility.javafx.threading.*;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.application.Application;

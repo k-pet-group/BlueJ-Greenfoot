@@ -22,6 +22,7 @@
 package bluej.utility.javafx;
 
 import bluej.Config;
+import bluej.utility.javafx.threading.*;
 import bluej.editor.stride.CodeOverlayPane.WidthLimit;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.WindowOverlayPane;
@@ -77,6 +78,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -802,7 +805,7 @@ public class JavaFXUtil
                 @Override
                 public void run()
                 {
-                    runPlatformLater(runnable);
+                    runPlatformLater(runnable::run);
                     scene.removePostLayoutPulseListener(this);
                 }
             });
@@ -1733,514 +1736,121 @@ public class JavaFXUtil
     }
 
     /**
-     * A method which runs the given action on the platform thread when it
-     * later becomes available.  A specific way to call Platform.runLater
-     * from the platform thread when you really mean to (thread checker will warn
-     * you otherwise).
+     * @deprecated Use {@link bluej.utility.javafx.threading.JavaFXThreadingUtil#runAfterCurrent} instead.
      */
+    @Deprecated
     @OnThread(Tag.FXPlatform)
     public static void runAfterCurrent(FXPlatformRunnable r)
     {
-        // Defeat thread checker:
-        ((FXPlatformConsumer<Runnable>)(Platform::runLater)).accept(r::run);
+        bluej.utility.javafx.threading.JavaFXThreadingUtil.runAfterCurrent(r);
     }
 
     /**
-     * Runs the action on the FX platform thread (after the current action,
-     * if called on the platform thread).
-     *
-     * Be very careful using this: race hazards ahoy if you use it from an FX
-     * loading thread, expecting it to nicely take place after the current code.
-     * Instead, it could run alongside the currently executing code.
-     *
-     * @param r
+     * @deprecated Use {@link bluej.utility.javafx.threading.JavaFXThreadingUtil#unwrapCause} instead.
      */
-    @OnThread(Tag.FX)
-    public static void runPlatformLater(FXPlatformRunnable r)
+    @Deprecated
+    @OnThread(Tag.Any)
+    public static <E extends Throwable> @Nullable E unwrapCause(@NotNull Throwable throwable, @NotNull Class<E> type)
     {
-        Platform.runLater(r::run);
+        return bluej.utility.javafx.threading.JavaFXThreadingUtil.unwrapCause(throwable, type);
     }
-
 
     // ========================================================================
-    // Cross-thread execution: runPlatformAndWait (blocking) & runPlatformFuture (async)
+    // Deprecated threading delegates — use JavaFXThreadingUtil directly
     // ========================================================================
 
-    /**
-     * Executes the given task on the JavaFX platform thread and blocks the
-     * calling thread until the task completes.
-     *
-     * <p>If the calling thread <em>is</em> the FX application thread, the task
-     * is executed synchronously (no scheduling overhead). Otherwise the task is
-     * posted via {@link Platform#runLater} and the caller blocks on the
-     * resulting {@link Future}.</p>
-     *
-     * <p>Any checked exception thrown by the task is wrapped in a
-     * {@link RuntimeException}.</p>
-     *
-     * <p><strong>Warning:</strong> Do not call this from a thread that the FX
-     * platform thread is waiting on, as this would cause a deadlock.  This is
-     * unusual because we normally don't want the GUI thread to block, but if it
-     * does, calling this method from the thread it is waiting on will
-     * deadlock.</p>
-     *
-     * @param r the task to execute on the FX platform thread
-     * @throws RuntimeException wrapping any exception thrown by the task
-     * @see #runPlatformFuture(FXPlatformRunnableThrowing)
-     */
-    @OnThread(Tag.Any)
-    public static void runPlatformAndWait(FXPlatformRunnableThrowing r)
-    {
-        try {
-            runPlatformFuture(r).get();
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Exception while running task on FX thread", e);
-        }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatformLater(FXPlatformRunnableThrowing)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static @NotNull Future<Void> runPlatformLater(@NotNull FXPlatformRunnableThrowing task) {
+        return JavaFXThreadingUtil.runPlatformLater(task);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatformLater(FXPlatformSupplierThrowing)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T> @NotNull Future<T> runPlatformLater(@NotNull FXPlatformSupplierThrowing<T> task) {
+        return JavaFXThreadingUtil.runPlatformLater(task);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatformLater(FXPlatformConsumerThrowing, Object)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T> @NotNull Future<Void> runPlatformLater(@NotNull FXPlatformConsumerThrowing<T> task, T arg) {
+        return JavaFXThreadingUtil.runPlatformLater(task, arg);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatformLater(FXPlatformFunctionThrowing, Object)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T, R> @NotNull Future<R> runPlatformLater(@NotNull FXPlatformFunctionThrowing<T, R> task, T arg) {
+        return JavaFXThreadingUtil.runPlatformLater(task, arg);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatformLater(FXPlatformBiConsumerThrowing, Object, Object)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T, U> @NotNull Future<Void> runPlatformLater(@NotNull FXPlatformBiConsumerThrowing<T, U> task, T arg1, U arg2) {
+        return JavaFXThreadingUtil.runPlatformLater(task, arg1, arg2);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatformLater(FXPlatformBiFunctionThrowing, Object, Object)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T, U, R> @NotNull Future<R> runPlatformLater(@NotNull FXPlatformBiFunctionThrowing<T, U, R> task, T arg1, U arg2) {
+        return JavaFXThreadingUtil.runPlatformLater(task, arg1, arg2);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatformAndWait(FXPlatformRunnableThrowing)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static void runPlatformAndWait(@NotNull FXPlatformRunnableThrowing r) {
+        JavaFXThreadingUtil.runPlatformAndWait(r);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatformAndWait(FXPlatformSupplierThrowing)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T> T runPlatformAndWait(@NotNull FXPlatformSupplierThrowing<T> task) {
+        return JavaFXThreadingUtil.runPlatformAndWait(task);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatformAndWait(FXPlatformConsumerThrowing, Object)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T> void runPlatformAndWait(@NotNull FXPlatformConsumerThrowing<T> task, T arg) {
+        JavaFXThreadingUtil.runPlatformAndWait(task, arg);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatformAndWait(FXPlatformFunctionThrowing, Object)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T, R> R runPlatformAndWait(@NotNull FXPlatformFunctionThrowing<T, R> task, T arg) {
+        return JavaFXThreadingUtil.runPlatformAndWait(task, arg);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatformAndWait(FXPlatformBiConsumerThrowing, Object, Object)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T, U> void runPlatformAndWait(@NotNull FXPlatformBiConsumerThrowing<T, U> task, T arg1, U arg2) {
+        JavaFXThreadingUtil.runPlatformAndWait(task, arg1, arg2);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatformAndWait(FXPlatformBiFunctionThrowing, Object, Object)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T, U, R> R runPlatformAndWait(@NotNull FXPlatformBiFunctionThrowing<T, U, R> task, T arg1, U arg2) {
+        return JavaFXThreadingUtil.runPlatformAndWait(task, arg1, arg2);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatform(FXPlatformRunnableThrowing)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static @NotNull Future<Void> runPlatform(@NotNull FXPlatformRunnableThrowing task) {
+        return JavaFXThreadingUtil.runPlatform(task);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatform(FXPlatformSupplierThrowing)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T> @NotNull Future<T> runPlatform(@NotNull FXPlatformSupplierThrowing<T> task) {
+        return JavaFXThreadingUtil.runPlatform(task);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatform(FXPlatformConsumerThrowing, Object)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T> @NotNull Future<Void> runPlatform(@NotNull FXPlatformConsumerThrowing<T> task, T arg) {
+        return JavaFXThreadingUtil.runPlatform(task, arg);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatform(FXPlatformFunctionThrowing, Object)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T, R> @NotNull Future<R> runPlatform(@NotNull FXPlatformFunctionThrowing<T, R> task, T arg) {
+        return JavaFXThreadingUtil.runPlatform(task, arg);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatform(FXPlatformBiConsumerThrowing, Object, Object)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T, U> @NotNull Future<Void> runPlatform(@NotNull FXPlatformBiConsumerThrowing<T, U> task, T arg1, U arg2) {
+        return JavaFXThreadingUtil.runPlatform(task, arg1, arg2);
+    }
+    /** @deprecated Use {@link JavaFXThreadingUtil#runPlatform(FXPlatformBiFunctionThrowing, Object, Object)} */
+    @Deprecated @OnThread(Tag.Any)
+    public static <T, U, R> @NotNull Future<R> runPlatform(@NotNull FXPlatformBiFunctionThrowing<T, U, R> task, T arg1, U arg2) {
+        return JavaFXThreadingUtil.runPlatform(task, arg1, arg2);
     }
 
     /**
-     * Executes the given supplier on the JavaFX platform thread, blocks the
-     * calling thread until it completes, and returns the result.
-     *
-     * <p>If the calling thread <em>is</em> the FX application thread, the
-     * supplier is evaluated synchronously. Otherwise it is posted via
-     * {@link Platform#runLater} and the caller blocks on the resulting
-     * {@link Future}.</p>
-     *
-     * <p>Any checked exception thrown by the supplier is wrapped in a
-     * {@link RuntimeException}.</p>
-     *
-     * <p><strong>Warning:</strong> Do not call this from a thread that the FX
-     * platform thread is waiting on, as this would cause a deadlock.  This is
-     * unusual because we normally don't want the GUI thread to block, but if it
-     * does, calling this method from the thread it is waiting on will
-     * deadlock.</p>
-     *
-     * @param <T>  the return type of the supplier
-     * @param task the supplier to execute on the FX platform thread
-     * @return the value produced by the supplier
-     * @throws RuntimeException wrapping any exception thrown by the supplier
-     * @see #runPlatformFuture(FXPlatformSupplierThrowing)
-     */
-    @OnThread(Tag.Any)
-    public static <T> T runPlatformAndWait(FXPlatformSupplierThrowing<T> task)
-    {
-        try {
-            return runPlatformFuture(task).get();
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Exception while running task on FX thread", e);
-        }
-    }
-
-    /**
-     * Executes the given consumer on the JavaFX platform thread with the
-     * provided argument, and blocks the calling thread until completion.
-     *
-     * <p>If the calling thread <em>is</em> the FX application thread, the
-     * consumer is invoked synchronously. Otherwise it is posted via
-     * {@link Platform#runLater} and the caller blocks on the resulting
-     * {@link Future}.</p>
-     *
-     * <p>Any checked exception thrown by the consumer is wrapped in a
-     * {@link RuntimeException}.</p>
-     *
-     * <p><strong>Warning:</strong> Do not call this from a thread that the FX
-     * platform thread is waiting on, as this would cause a deadlock.  This is
-     * unusual because we normally don't want the GUI thread to block, but if it
-     * does, calling this method from the thread it is waiting on will
-     * deadlock.</p>
-     *
-     * @param <T>  the type of the argument
-     * @param task the consumer to execute on the FX platform thread
-     * @param arg  the argument to pass to the consumer
-     * @throws RuntimeException wrapping any exception thrown by the consumer
-     * @see #runPlatformFuture(FXPlatformConsumerThrowing, Object)
-     */
-    @OnThread(Tag.Any)
-    public static <T> void runPlatformAndWait(FXPlatformConsumerThrowing<T> task, T arg)
-    {
-        try {
-            runPlatformFuture(task, arg).get();
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Exception while running task on FX thread", e);
-        }
-    }
-
-    /**
-     * Executes the given function on the JavaFX platform thread with the
-     * provided argument, blocks the calling thread until completion, and
-     * returns the result.
-     *
-     * <p>If the calling thread <em>is</em> the FX application thread, the
-     * function is evaluated synchronously. Otherwise it is posted via
-     * {@link Platform#runLater} and the caller blocks on the resulting
-     * {@link Future}.</p>
-     *
-     * <p>Any checked exception thrown by the function is wrapped in a
-     * {@link RuntimeException}.</p>
-     *
-     * <p><strong>Warning:</strong> Do not call this from a thread that the FX
-     * platform thread is waiting on, as this would cause a deadlock.  This is
-     * unusual because we normally don't want the GUI thread to block, but if it
-     * does, calling this method from the thread it is waiting on will
-     * deadlock.</p>
-     *
-     * @param <T>  the type of the argument
-     * @param <R>  the return type of the function
-     * @param task the function to execute on the FX platform thread
-     * @param arg  the argument to pass to the function
-     * @return the value produced by the function
-     * @throws RuntimeException wrapping any exception thrown by the function
-     * @see #runPlatformFuture(FXPlatformFunctionThrowing, Object)
-     */
-    @OnThread(Tag.Any)
-    public static <T, R> R runPlatformAndWait(FXPlatformFunctionThrowing<T, R> task, T arg)
-    {
-        try {
-            return runPlatformFuture(task, arg).get();
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Exception while running task on FX thread", e);
-        }
-    }
-
-    /**
-     * Executes the given bi-consumer on the JavaFX platform thread with the
-     * provided arguments, and blocks the calling thread until completion.
-     *
-     * <p>If the calling thread <em>is</em> the FX application thread, the
-     * bi-consumer is invoked synchronously. Otherwise it is posted via
-     * {@link Platform#runLater} and the caller blocks on the resulting
-     * {@link Future}.</p>
-     *
-     * <p>Any checked exception thrown by the bi-consumer is wrapped in a
-     * {@link RuntimeException}.</p>
-     *
-     * <p><strong>Warning:</strong> Do not call this from a thread that the FX
-     * platform thread is waiting on, as this would cause a deadlock.  This is
-     * unusual because we normally don't want the GUI thread to block, but if it
-     * does, calling this method from the thread it is waiting on will
-     * deadlock.</p>
-     *
-     * @param <T>  the type of the first argument
-     * @param <U>  the type of the second argument
-     * @param task the bi-consumer to execute on the FX platform thread
-     * @param arg1 the first argument to pass to the bi-consumer
-     * @param arg2 the second argument to pass to the bi-consumer
-     * @throws RuntimeException wrapping any exception thrown by the bi-consumer
-     * @see #runPlatformFuture(FXPlatformBiConsumerThrowing, Object, Object)
-     */
-    @OnThread(Tag.Any)
-    public static <T, U> void runPlatformAndWait(FXPlatformBiConsumerThrowing<T, U> task, T arg1, U arg2)
-    {
-        try {
-            runPlatformFuture(task, arg1, arg2).get();
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Exception while running task on FX thread", e);
-        }
-    }
-
-    /**
-     * Executes the given bi-function on the JavaFX platform thread with the
-     * provided arguments, blocks the calling thread until completion, and
-     * returns the result.
-     *
-     * <p>If the calling thread <em>is</em> the FX application thread, the
-     * bi-function is evaluated synchronously. Otherwise it is posted via
-     * {@link Platform#runLater} and the caller blocks on the resulting
-     * {@link Future}.</p>
-     *
-     * <p>Any checked exception thrown by the bi-function is wrapped in a
-     * {@link RuntimeException}.</p>
-     *
-     * <p><strong>Warning:</strong> Do not call this from a thread that the FX
-     * platform thread is waiting on, as this would cause a deadlock.  This is
-     * unusual because we normally don't want the GUI thread to block, but if it
-     * does, calling this method from the thread it is waiting on will
-     * deadlock.</p>
-     *
-     * @param <T>  the type of the first argument
-     * @param <U>  the type of the second argument
-     * @param <R>  the return type of the bi-function
-     * @param task the bi-function to execute on the FX platform thread
-     * @param arg1 the first argument to pass to the bi-function
-     * @param arg2 the second argument to pass to the bi-function
-     * @return the value produced by the bi-function
-     * @throws RuntimeException wrapping any exception thrown by the bi-function
-     * @see #runPlatformFuture(FXPlatformBiFunctionThrowing, Object, Object)
-     */
-    @OnThread(Tag.Any)
-    public static <T, U, R> R runPlatformAndWait(FXPlatformBiFunctionThrowing<T, U, R> task, T arg1, U arg2)
-    {
-        try {
-            return runPlatformFuture(task, arg1, arg2).get();
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Exception while running task on FX thread", e);
-        }
-    }
-
-    /**
-     * Schedules the given task for execution on the JavaFX platform thread and
-     * returns a {@link Future} representing its completion.
-     *
-     * <p>If the calling thread <em>is</em> the FX application thread, the task
-     * is executed synchronously and the returned future is already completed.
-     * Otherwise the task is posted via {@link Platform#runLater}.</p>
-     *
-     * <p>Any exception thrown by the task is captured in the returned future
-     * (accessible via {@link Future#get()}).</p>
-     *
-     * @param task the task to execute on the FX platform thread
-     * @return a {@link Future}{@code <Void>} representing the task completion
-     * @see #runPlatformAndWait(FXPlatformRunnableThrowing)
-     */
-    @OnThread(Tag.Any)
-    public static Future<Void> runPlatformFuture(FXPlatformRunnableThrowing task) {
-        if (Platform.isFxApplicationThread()) {
-            try {
-                // Cast to suppress threadchecker, as we are sure we're on the right thread
-                ((RunnableThrowing) task::run).run();
-                return CompletableFuture.completedFuture(null);
-            } catch (Exception ex) {
-                return CompletableFuture.failedFuture(ex);
-            }
-        } else {
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            Platform.runLater(() -> {
-                try {
-                    task.run();
-                    future.complete(null);
-                } catch (Throwable ex) {
-                    future.completeExceptionally(ex);
-                }
-            });
-            return future;
-        }
-    }
-
-    /**
-     * Schedules the given supplier for execution on the JavaFX platform thread
-     * and returns a {@link Future} representing its result.
-     *
-     * <p>If the calling thread <em>is</em> the FX application thread, the
-     * supplier is evaluated synchronously and the returned future is already
-     * completed with the result. Otherwise the supplier is posted via
-     * {@link Platform#runLater}.</p>
-     *
-     * <p>Any exception thrown by the supplier is captured in the returned
-     * future.</p>
-     *
-     * @param <T>  the return type of the supplier
-     * @param task the supplier to execute on the FX platform thread
-     * @return a {@link Future}{@code <T>} representing the supplier's result
-     * @see #runPlatformAndWait(FXPlatformSupplierThrowing)
-     */
-    @OnThread(Tag.Any)
-    public static <T> Future<T> runPlatformFuture(FXPlatformSupplierThrowing<T> task) {
-        if (Platform.isFxApplicationThread()) {
-            try {
-                // Cast to suppress threadchecker, as we are sure we're on the right thread
-                var value = ((SupplierThrowing<T>) task::get).get();
-                return CompletableFuture.completedFuture(value);
-            } catch (Exception ex) {
-                return CompletableFuture.failedFuture(ex);
-            }
-        } else {
-            CompletableFuture<T> future = new CompletableFuture<>();
-            Platform.runLater(() -> {
-                try {
-                    future.complete(task.get());
-                } catch (Throwable ex) {
-                    future.completeExceptionally(ex);
-                }
-            });
-            return future;
-        }
-    }
-
-    /**
-     * Schedules the given consumer for execution on the JavaFX platform thread
-     * with the provided argument, and returns a {@link Future} representing
-     * completion.
-     *
-     * <p>If the calling thread <em>is</em> the FX application thread, the
-     * consumer is invoked synchronously and the returned future is already
-     * completed. Otherwise the consumer is posted via
-     * {@link Platform#runLater}.</p>
-     *
-     * <p>Any exception thrown by the consumer is captured in the returned
-     * future.</p>
-     *
-     * @param <T>  the type of the argument
-     * @param task the consumer to execute on the FX platform thread
-     * @param arg  the argument to pass to the consumer
-     * @return a {@link Future}{@code <Void>} representing the task completion
-     * @see #runPlatformAndWait(FXPlatformConsumerThrowing, Object)
-     */
-    @OnThread(Tag.Any)
-    public static <T> Future<Void> runPlatformFuture(FXPlatformConsumerThrowing<T> task, T arg) {
-        if (Platform.isFxApplicationThread()) {
-            try {
-                // Cast to suppress threadchecker, as we are sure we're on the right thread
-                ((ConsumerThrowing<T>) task::accept).accept(arg);
-                return CompletableFuture.completedFuture(null);
-            } catch (Exception ex) {
-                return CompletableFuture.failedFuture(ex);
-            }
-        } else {
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            Platform.runLater(() -> {
-                try {
-                    task.accept(arg);
-                    future.complete(null);
-                } catch (Throwable ex) {
-                    future.completeExceptionally(ex);
-                }
-            });
-            return future;
-        }
-    }
-
-    /**
-     * Schedules the given function for execution on the JavaFX platform thread
-     * with the provided argument, and returns a {@link Future} representing
-     * the result.
-     *
-     * <p>If the calling thread <em>is</em> the FX application thread, the
-     * function is evaluated synchronously and the returned future is already
-     * completed. Otherwise the function is posted via
-     * {@link Platform#runLater}.</p>
-     *
-     * <p>Any exception thrown by the function is captured in the returned
-     * future.</p>
-     *
-     * @param <T>  the type of the argument
-     * @param <R>  the return type of the function
-     * @param task the function to execute on the FX platform thread
-     * @param arg  the argument to pass to the function
-     * @return a {@link Future}{@code <R>} representing the function's result
-     * @see #runPlatformAndWait(FXPlatformFunctionThrowing, Object)
-     */
-    @OnThread(Tag.Any)
-    public static <T, R> Future<R> runPlatformFuture(FXPlatformFunctionThrowing<T, R> task, T arg) {
-        if (Platform.isFxApplicationThread()) {
-            try {
-                // Cast to suppress threadchecker, as we are sure we're on the right thread
-                var value = ((FunctionThrowing<T, R>) task::apply).apply(arg);
-                return CompletableFuture.completedFuture(value);
-            } catch (Exception ex) {
-                return CompletableFuture.failedFuture(ex);
-            }
-        } else {
-            CompletableFuture<R> future = new CompletableFuture<>();
-            Platform.runLater(() -> {
-                try {
-                    future.complete(task.apply(arg));
-                } catch (Throwable ex) {
-                    future.completeExceptionally(ex);
-                }
-            });
-            return future;
-        }
-    }
-
-    /**
-     * Schedules the given bi-consumer for execution on the JavaFX platform
-     * thread with the provided arguments, and returns a {@link Future}
-     * representing completion.
-     *
-     * <p>If the calling thread <em>is</em> the FX application thread, the
-     * bi-consumer is invoked synchronously and the returned future is already
-     * completed. Otherwise the bi-consumer is posted via
-     * {@link Platform#runLater}.</p>
-     *
-     * <p>Any exception thrown by the bi-consumer is captured in the returned
-     * future.</p>
-     *
-     * @param <T>  the type of the first argument
-     * @param <U>  the type of the second argument
-     * @param task the bi-consumer to execute on the FX platform thread
-     * @param arg1 the first argument to pass to the bi-consumer
-     * @param arg2 the second argument to pass to the bi-consumer
-     * @return a {@link Future}{@code <Void>} representing the task completion
-     * @see #runPlatformAndWait(FXPlatformBiConsumerThrowing, Object, Object)
-     */
-    @OnThread(Tag.Any)
-    public static <T, U> Future<Void> runPlatformFuture(FXPlatformBiConsumerThrowing<T, U> task, T arg1, U arg2) {
-        if (Platform.isFxApplicationThread()) {
-            try {
-                // Cast to suppress threadchecker, as we are sure we're on the right thread
-                ((BiConsumerThrowing<T, U>) task::accept).accept(arg1, arg2);
-                return CompletableFuture.completedFuture(null);
-            } catch (Exception ex) {
-                return CompletableFuture.failedFuture(ex);
-            }
-        } else {
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            Platform.runLater(() -> {
-                try {
-                    task.accept(arg1, arg2);
-                    future.complete(null);
-                } catch (Throwable ex) {
-                    future.completeExceptionally(ex);
-                }
-            });
-            return future;
-        }
-    }
-
-    /**
-     * Schedules the given bi-function for execution on the JavaFX platform
-     * thread with the provided arguments, and returns a {@link Future}
-     * representing the result.
-     *
-     * <p>If the calling thread <em>is</em> the FX application thread, the
-     * bi-function is evaluated synchronously and the returned future is
-     * already completed. Otherwise the bi-function is posted via
-     * {@link Platform#runLater}.</p>
-     *
-     * <p>Any exception thrown by the bi-function is captured in the returned
-     * future.</p>
-     *
-     * @param <T>  the type of the first argument
-     * @param <U>  the type of the second argument
-     * @param <R>  the return type of the bi-function
-     * @param task the bi-function to execute on the FX platform thread
-     * @param arg1 the first argument to pass to the bi-function
-     * @param arg2 the second argument to pass to the bi-function
-     * @return a {@link Future}{@code <R>} representing the bi-function's result
-     * @see #runPlatformAndWait(FXPlatformBiFunctionThrowing, Object, Object)
-     */
-    @OnThread(Tag.Any)
-    public static <T, U, R> Future<R> runPlatformFuture(FXPlatformBiFunctionThrowing<T, U, R> task, T arg1, U arg2) {
-        if (Platform.isFxApplicationThread()) {
-            try {
-                // Cast to suppress threadchecker, as we are sure we're on the right thread
-                var value = ((BiFunctionThrowing<T, U, R>) task::apply).apply(arg1, arg2);
-                return CompletableFuture.completedFuture(value);
-            } catch (Exception ex) {
-                return CompletableFuture.failedFuture(ex);
-            }
-        } else {
-            CompletableFuture<R> future = new CompletableFuture<>();
-            Platform.runLater(() -> {
-                try {
-                    future.complete(task.apply(arg1, arg2));
-                } catch (Throwable ex) {
-                    future.completeExceptionally(ex);
-                }
-            });
-            return future;
-        }
-    }
-
-    /**
-     * Draw stripes over a rectangle - yet another thing missing from the AWT
      */
     public static void stripeRect(GraphicsContext g, int x, int y, int width, int height, int separation, int thickness, boolean backslash, Color color)
     {

@@ -23,7 +23,7 @@ package bluej.extmgr;
 
 import bluej.Config;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.scene.control.*;

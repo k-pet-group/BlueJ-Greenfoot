@@ -33,7 +33,7 @@ import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 
 import bluej.stride.framedjava.frames.StrideDictionary;
-import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.threading.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;

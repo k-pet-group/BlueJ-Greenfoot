@@ -34,6 +34,7 @@ import bluej.stride.framedjava.slots.UnderlineContainer;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.WrappableSlotLabel;
 import bluej.utility.javafx.*;
+import bluej.utility.javafx.threading.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
