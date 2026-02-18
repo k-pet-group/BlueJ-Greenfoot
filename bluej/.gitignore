@@ -1,6 +1,10 @@
 # Eclipse project files:
 /.classpath
 /.project
+/bin
+
+# BlueJ-generated class context (comments/signatures; can be regenerated):
+*.ctxt
 
 /classes/
 /boot/classes/

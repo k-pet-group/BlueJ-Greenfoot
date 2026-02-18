@@ -53,6 +53,14 @@ tasks.flatpakGradleGenerator {
     doLast { println "Generated dependencies.json for flatpak" }
 }
 
+// Needed to copy splash files from the JAR into the expected location
+task copyBootResources(type: Copy) {
+    from project(':boot').layout.buildDirectory.dir("resources/main")
+    into layout.buildDirectory.dir("resources/main/bluej")
+}
+copyBootResources.dependsOn ':boot:processResources'
+processResources.dependsOn copyBootResources
+
 compileJava {
     options.compilerArgs += [
         "-Xplugin:threadchecker.TCPlugin",
