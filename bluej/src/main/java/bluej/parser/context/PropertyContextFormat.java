@@ -22,6 +22,8 @@
 package bluej.parser.context;
 
 import org.jetbrains.annotations.NotNull;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 
+@OnThread(value = Tag.Any, ignoreParent = true)
 final class PropertyContextFormat {
 
     /**

@@ -1,6 +1,8 @@
 package bluej.parser.context;
 
 import org.jetbrains.annotations.NotNull;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.List;
  * Represents a single comment entry (method, field, constructor, etc.)
  * Each entry contains a target signature, documentation text, and optional parameter names.
  */
+@OnThread(value = Tag.Any, ignoreParent = true)
 public class CommentEntry {
     // Method/field signature
     @NotNull

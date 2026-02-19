@@ -29,7 +29,6 @@ import java.util.*;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.parser.context.CommentEntry;
 import bluej.parser.context.CompilationUnitContext;
-import bluej.parser.context.CompilationUnitContextLoader;
 import bluej.pkgmgr.Project;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaUtils;
@@ -460,6 +459,8 @@ public class View
             loadClassComments(curview.getSuper(), table);
 
         try {
+            // TODO: When View becomes @ProjectScoped (ViewFactory commit), replace
+            //  this with an @Inject CompilationUnitContextLoader field.
             // Use the shared loader's contextForClass(Class<?>) method which automatically
             // handles different classloaders for each class in the hierarchy
             CompilationUnitContext context = this.project.contextForClass(curview.cl);

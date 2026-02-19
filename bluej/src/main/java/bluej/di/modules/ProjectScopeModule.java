@@ -23,6 +23,7 @@ package bluej.di.modules;
 
 import bluej.di.scopes.ProjectScope;
 import bluej.di.scopes.ProjectScoped;
+import bluej.parser.context.CompilationUnitContextLoader;
 import bluej.pkgmgr.Project;
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
@@ -31,15 +32,13 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Guice module that configures the {@link ProjectScope} binding.
  *
- * // TODO: re-add {@link} to ProjectFactory once introduced
  * <p>Bindings:
  * <ul>
  *   <li>{@link Project} — seeded into the scope by
- *       the project-opening code</li>
+ *       {@link bluej.pkgmgr.ProjectFactory#open}</li>
+ *   <li>{@link CompilationUnitContextLoader} — created from the
+ *       seeded {@code Project} (or from a test-seeded override)</li>
  * </ul>
- *
- * <p>Additional project-scoped bindings are added by the
- * production integration layer.
  *
  * @see ProjectScope
  * @see ProjectScoped
@@ -54,6 +53,10 @@ public class ProjectScopeModule extends AbstractModule {
 
         bind(Project.class)
             .toProvider(ProjectScopeModule::provideProject)
+            .in(ProjectScoped.class);
+
+        bind(CompilationUnitContextLoader.class)
+            .toProvider(ProjectScopeModule::provideContextLoader)
             .in(ProjectScoped.class);
     }
 
@@ -76,9 +79,37 @@ public class ProjectScopeModule extends AbstractModule {
         if (project == null) {
             throw new IllegalStateException(
                 "Project has not been seeded into the current scope. " +
-                "Ensure the project scope has been entered and Project seeded.");
+                "This usually means a @ProjectScoped dependency was resolved " +
+                "during Project construction, which is not supported. " +
+                "Use @Inject fields instead (populated after construction by " +
+                "ProjectFactory.open).");
         }
         return project;
+    }
+
+    /**
+     * Provides the {@link CompilationUnitContextLoader}.
+     *
+     * <p>If a loader has been manually seeded (e.g. by test code),
+     * that instance is returned.  Otherwise a new one is created
+     * from the seeded {@link Project}.
+     */
+    private static @NotNull CompilationUnitContextLoader provideContextLoader() {
+        var ctx = requireContext("CompilationUnitContextLoader");
+
+        CompilationUnitContextLoader seeded =
+            ctx.get(Key.get(CompilationUnitContextLoader.class));
+        if (seeded != null) {
+            return seeded;
+        }
+
+        Project project = ctx.get(Key.get(Project.class));
+        if (project == null) {
+            throw new IllegalStateException(
+                "Project has not been seeded — " +
+                "cannot create CompilationUnitContextLoader.");
+        }
+        return new CompilationUnitContextLoader(project);
     }
 
     // ── helpers ──────────────────────────────────────────────────────

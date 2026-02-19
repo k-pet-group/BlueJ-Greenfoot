@@ -21,6 +21,8 @@
  */
 package bluej;
 
+import bluej.di.BlueJInjector;
+import bluej.di.modules.ApplicationModule;
 import bluej.collect.DataCollector;
 import bluej.extensions2.event.ApplicationEvent;
 import bluej.extmgr.ExtensionWrapper;
@@ -121,6 +123,10 @@ public class Main
         File bluejLibDir = Boot.getBluejLibDir();
 
         Config.initialise(bluejLibDir, commandLineProps, boot.isGreenfoot());
+        
+        // Initialize the Guice dependency injection framework
+        // This must happen before any project-scoped services are used
+        BlueJInjector.initialize(new ApplicationModule());
 
         CompletableFuture<Stage> futureMainWindow = new CompletableFuture<>();
         // Must do this after Config initialisation:

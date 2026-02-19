@@ -25,10 +25,11 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Stage;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
-
-import java.util.logging.Logger;
 
 /**
  * Global injector singleton for the BlueJ application.
@@ -58,6 +59,9 @@ public final class BlueJInjector {
     private static final Logger log = Logger.getLogger(BlueJInjector.class.getName());
     private static volatile Injector injector;
     private static final Object lock = new Object();
+    private static final List<Runnable> resetListeners =
+        new CopyOnWriteArrayList<>();
+
     private BlueJInjector() { /* utility class */ }
 
     // ── lifecycle ─────────────────────────────────────────────────────
@@ -144,6 +148,18 @@ public final class BlueJInjector {
     // ── testing ───────────────────────────────────────────────────────
 
     /**
+     * Register a listener that is called when the injector is
+     * reset for testing.  Used to clear caches that hold
+     * references to injector-managed instances (e.g.
+     * {@code Project.cachedFactory}).
+     *
+     * @param listener the listener to register
+     */
+    public static void onReset(@NotNull Runnable listener) {
+        resetListeners.add(listener);
+    }
+
+    /**
      * Reset the injector for testing.
      *
      * <p><strong>Warning:</strong> not thread-safe — use only in
@@ -157,5 +173,6 @@ public final class BlueJInjector {
         synchronized (lock) {
             injector = null;
         }
+        resetListeners.forEach(Runnable::run);
     }
 }

@@ -27,14 +27,12 @@ import org.jetbrains.annotations.NotNull;
  * A thread-bound token representing an active project scope.
  *
  * <p>{@code ProjectHandle} is created and pushed onto the
- * thread-local scope stack by the project-opening code
+ * thread-local scope stack by {@link bluej.pkgmgr.ProjectFactory}
  * (or test utilities).  The only public operation is
  * {@link #close()}, which pops the stack.
  *
- * // TODO: re-add {@link} to ProjectFactory and Project.withScope() once introduced
  * <p>Callers should never need to create handles directly — use
- * {@link ProjectScope#enter} (or the project-lifecycle wrapper)
- * instead.
+ * {@link bluej.pkgmgr.Project#withScope(Runnable)} instead.
  *
  * @see ProjectScope
  * @see ProjectScoped

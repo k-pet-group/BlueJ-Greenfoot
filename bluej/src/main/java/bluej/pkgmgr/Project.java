@@ -51,6 +51,8 @@ import bluej.groupwork.ui.StatusFrame;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.groupwork.ui.UpdateFilesFrame;
 import bluej.parser.context.ClassLoaderProvider;
+import bluej.di.BlueJInjector;
+import com.google.inject.Inject;
 import bluej.parser.context.CompilationUnitContext;
 import bluej.parser.context.CompilationUnitContextLoader;
 import bluej.parser.entity.EntityResolver;
@@ -119,11 +121,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     private static final String JDK_SOURCE_PATH_PROPERTY = "bluej.jdk.source";
     private static final String PROJECT_CHARSET_PROP = "project.charset";
     public static final String RUN_ON_THREAD_PROP = "project.invoke.thread";
-    /**
-     * Collection of all open projects. The canonical name of the project
-     * directory (as a File object) is used as the key.
-     */
-    private static Map<File,Project> projects = new HashMap<File,Project>();
 
     /* ------------------- end of static declarations ------------------ */
 
@@ -138,6 +135,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
       (indexed by the qualifiedName of the package).
        The unnamed package ie root package of the package tree
        can be obtained by retrieving "" from this collection */
+    @OnThread(value = Tag.Any, ignoreParent = true)
     private Map<String, Package> packages;
     /** the debugger for this project */
     @OnThread(Tag.Any)
@@ -156,7 +154,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
        ie if opening /home/user/foo/com/sun where
        /home/user/foo is the project directory, this variable
        will be set to com.sun */
-    private String initialPackageName = "";
+    /** Package-private — set by {@link ProjectFactory#open(String)}. */
+    String initialPackageName = "";
     /** This holds all object inspectors and class inspectors
         for a project. It should only hold object inspectors that
         have a wrapper on the object bench. Inspectors of fields of
@@ -177,7 +176,13 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private Optional<Boolean> isSharedProject = Optional.empty();
 
-    // Loader of compilation unit metadata (e.g. comments or Kotlin property definitions)
+    /**
+     * The compilation-unit context loader for this project.
+     * Injected by Guice via {@code injectMembers()} after construction
+     * (see {@link ProjectFactory#open(File)}).
+     */
+    @Inject
+    @OnThread(value = Tag.Any, ignoreParent = true)
     private CompilationUnitContextLoader contextLoader;
 
     // Indicator of SVN shared project, which is no longer supported from BlueJ 5
@@ -267,11 +272,39 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     /* ------------------- end of field declarations ------------------- */
 
     /**
+     * Cached reference to the {@link ProjectFactory} singleton.
+     * Populated lazily on first access (after injector initialisation).
+     * Cleared on injector reset (for test isolation).
+     */
+    private static volatile ProjectFactory cachedFactory;
+    static {
+        BlueJInjector.onReset(() -> cachedFactory = null);
+    }
+
+    /**
+     * Returns the {@link ProjectFactory} singleton.
+     * Used by the legacy static methods that delegate to the factory.
+     * The reference is cached to avoid injector lookup overhead on
+     * every call.
+     */
+    @OnThread(Tag.Any)
+    private static @NotNull ProjectFactory factory() {
+        ProjectFactory f = cachedFactory;
+        if (f == null) {
+            f = BlueJInjector.getInstance(ProjectFactory.class);
+            cachedFactory = f;
+        }
+        return f;
+    }
+
+    /**
      * Construct a project in the directory projectDir.
      * This must contain the root bluej.pkg of a nested package
      * (this should by its nature be the unnamed package).
+     *
+     * <p>Package-private — use {@link ProjectFactory#open}.
      */
-    private Project(File projectDir) throws IOException
+    Project(File projectDir) throws IOException
     {
         if (projectDir == null) {
             throw new NullPointerException();
@@ -386,8 +419,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         // As we may have added new targets, we make sure the new targets are placed correctly in this package
         // this also fixes the placement of CSS targets when added directly in the file system, in the current package
         currPackage.setEditor(currPackage.getEditor());
-
-        this.contextLoader = new CompilationUnitContextLoader(this);
     }
 
     /**
@@ -401,19 +432,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     @OnThread(Tag.Any)
     public static boolean isProject(String projectPath)
     {
-        File startingDir;
-
-        try {
-            startingDir = pathIntoStartingDirectory(projectPath);
-        } catch (IOException ioe) {
-            return false;
-        }
-
-        if (startingDir == null) {
-            return false;
-        }
-
-        return (Package.isPackage(startingDir));
+        return factory().isProject(projectPath);
     }
 
     /**
@@ -428,69 +447,16 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      */
     public static Project openProject(String projectPath)
     {
-        String startingPackageName;
-        File projectDir;
-        File startingDir;
-
-        try {
-            startingDir = pathIntoStartingDirectory(projectPath);
-        } catch (IOException ioe) {
-            Debug.reportError("could not resolve directory " + projectPath, ioe);
+        // Resolve path to project root (needed for GUI checks).
+        File projectDir = factory().resolveProjectRoot(projectPath);
+        if (projectDir == null) {
             return null;
         }
 
-        if (startingDir == null) {
-            // Debug.message("attempt to open " + projectPath + " as a project failed");
-            return null;
-        }
-
-        // if there is an existing bluej package file here we
-        // need to find the root directory of the project
-        // (and while we are at it we will construct the qualified
-        //  package name that lets us open the PkgMgrFrame at the
-        //  right point)
-        if (Package.isPackage(startingDir)) {
-            File curDir = startingDir;
-            File lastDir = null;
-
-            startingPackageName = "";
-
-            while ((curDir != null) && Package.isPackage(curDir)) {
-                if (lastDir != null) {
-                    String lastdirName = lastDir.getName();
-
-                    if (!JavaNames.isIdentifier(lastdirName)) {
-                        break;
-                    }
-
-                    startingPackageName = "." + lastdirName + startingPackageName;
-                }
-
-                lastDir = curDir;
-                curDir = curDir.getParentFile();
-            }
-
-            if (startingPackageName.length() > 0) {
-                if (startingPackageName.charAt(0) == '.') {
-                    startingPackageName = startingPackageName.substring(1);
-                }
-            }
-
-            // lastDir is now the directory holding the topmost bluej
-            // package file in the directory heirarchy
-            projectDir = lastDir;
-
-            if (projectDir == null) {
-                projectDir = startingDir;
-            }
-        } else {
-            // Debug.message("no BlueJ package file found in directory " + startingDir);
-            return null;
-        }
-
+        // ── GUI: read-only / virtualised handling ─────────────────────
         boolean readOnly = false;
 
-        if(Config.isModernWinOS()) {
+        if (Config.isModernWinOS()) {
             WriteCapabilities capabilities = FileUtility.getVistaWriteCapabilities(projectDir);
             switch (capabilities) {
                 case VIRTUALIZED_WRITE:
@@ -501,7 +467,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                     readOnly = true;
                     break;
                 case NORMAL_WRITE:
-                    break;
                 default:
                     break;
             }
@@ -511,99 +476,63 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         }
 
         boolean isGreenfootStartupProject = Config.isGreenfootStartupProject(projectDir);
-        // Suppress the read-only warning if we know they are opening the Greenfoot startup project
 
         if (readOnly && !isGreenfootStartupProject) {
             Utility.bringToFrontFX(null);
-            // Prompt user to "Save elsewhere"
-
-
             DialogManager.showMessageFX(null, "project-is-readonly", projectDir.toString());
 
             boolean done = false;
-
-            while (!done)
-            {
-                // Get a file name to save under
-                File newName = FileUtility.getSaveProjectFX(null, null, Config.getString("pkgmgr.saveAs.title"));
+            while (!done) {
+                File newName = FileUtility.getSaveProjectFX(null, null,
+                    Config.getString("pkgmgr.saveAs.title"));
 
                 if (newName != null) {
                     int result = FileUtility.copyDirectory(projectDir, newName);
-
                     switch (result) {
                         case FileUtility.NO_ERROR:
-                            // It worked, use this as the new project:
                             projectDir = newName;
                             done = true;
                             break;
-
                         case FileUtility.DEST_EXISTS_NOT_DIR:
                             DialogManager.showErrorFX(null, "directory-exists-file");
                             break;
                         case FileUtility.DEST_EXISTS_NON_EMPTY:
                             DialogManager.showErrorFX(null, "directory-exists-non-empty");
                             break;
-
                         case FileUtility.SRC_NOT_DIRECTORY:
                         case FileUtility.COPY_ERROR:
                             DialogManager.showErrorFX(null, "cannot-save-project");
-
                             break;
                     }
                 }
                 else {
-                    done = true; // if they pressed cancel, just continue with old project
+                    done = true;
                 }
             }
         }
 
-        // check whether it already exists
-        Project proj = projects.get(projectDir);
-
+        // ── delegate to factory (handles scope, construction, post-open) ──
+        Project proj;
+        try {
+            // Re-open from the (possibly redirected) path so the
+            // factory does the full path resolution + initialPackageName.
+            proj = factory().open(projectDir.getAbsolutePath());
+        }
+        catch (IOException ioe) {
+            return null;
+        }
         if (proj == null) {
-            try {
-                proj = new Project(projectDir);
-                projects.put(projectDir, proj);
-            }
-            catch (IOException ioe) {
-                return null;
-            }
+            return null;
         }
 
-        if (startingPackageName.equals("")) {
-            Package startingPackage = proj.getPackage("");
-
-            while (startingPackage != null) {
-                Package sub = startingPackage.getBoringSubPackage();
-
-                if (sub == null) {
-                    break;
-                }
-
-                startingPackage = sub;
-            }
-
-            proj.initialPackageName = startingPackage.getQualifiedName();
-        }
-        else {
-            proj.initialPackageName = startingPackageName;
-        }
-
-        DataCollector.projectOpened(proj, ExtensionsManager.getInstance().getLoadedExtensions(proj));
-
-        proj.getImportScanner().startScanning();
-
-        PrefMgr.addRecentProject(proj.getProjectDir());
-
+        // ── GUI post-open: tutorial tab ──────────────────────────────
         File tutorialFile = new File(proj.getProjectDir(), "tutorial.html");
-        if (tutorialFile.exists())
-        {
-            try
-            {
-                proj.createNewFXTabbedEditor().openWebViewTab(tutorialFile.toURI().toURL().toString(), true);
+        if (tutorialFile.exists()) {
+            try {
+                proj.createNewFXTabbedEditor()
+                    .openWebViewTab(tutorialFile.toURI().toURL().toString(), true);
             }
-            catch (MalformedURLException e)
-            {
+            catch (MalformedURLException e) {
                 Debug.reportError(e);
             }
         }
@@ -619,6 +548,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     {
         DataCollector.projectClosed(project);
 
+        // GUI cleanup — stays here (not in factory)
         if (project.hasExecControls()) {
             project.getExecControls().hide();
         }
@@ -633,10 +563,9 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         }
 
         project.removeAllInspectors();
-        project.getDebugger().removeDebuggerListener(project);
-        project.getDebugger().close(false);
 
-        projects.remove(project.getProjectDir());
+        // Non-GUI cleanup — delegate to factory
+        factory().close(project);
     }
 
     /**
@@ -650,51 +579,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     @OnThread(Tag.Any)
     public static boolean createNewProject(String projectPath)
     {
-        if (projectPath != null) {
-            // check whether name is already in use
-            File dir = new File(projectPath);
-
-            if (dir.exists() && (!dir.isDirectory() || dir.list().length > 0)) {
-                return false;
-            }
-
-            if (dir.exists() || dir.mkdir()) {
-                File newreadmeFile = new File(dir, Package.readmeName);
-
-                PackageFile pkgFile = PackageFileFactory.getPackageFile(dir);
-                try {
-                    if (pkgFile.create()) {
-                        Properties props = new Properties();
-                        if (Config.isGreenfoot())
-                        {
-                            // Set the size to contain the default new world size, to avoid
-                            // annoying sizing up and down when loading a new project:
-                            props.put("mainWindow.width", "850");
-                            props.put("mainWindow.height", "600");
-                            // Must set x and y, or width and height don't take effect:
-                            props.put("mainWindow.x", "40");
-                            props.put("mainWindow.y", "40");
-                        }
-                        props.put(PROJECT_CHARSET_PROP, "UTF-8");
-                        try {
-                            pkgFile.save(props);
-                            FileUtility.copyFile(Config.getTemplateFile(
-                                    "readme"), newreadmeFile);
-                            return true;
-                        }
-                        catch (IOException ioe) {
-                            // TODO should propagate this exception
-                            Debug.message("I/O error while creating project: " + ioe.getMessage());
-                        }
-                    }
-                } catch (IOException ioe) {
-                    // TODO should propagate this exception
-                }
-            }
-        }
-
-        Debug.message("Unable to create project directory: " + projectPath);
-        return false;
+        return factory().createNew(projectPath);
     }
 
     /**
@@ -702,7 +587,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      */
     public static int getOpenProjectCount()
     {
-        return projects.size();
+        return factory().openCount();
     }
 
     /**
@@ -711,7 +596,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      */
     public static Collection<Project> getProjects()
     {
-        return projects.values();
+        return factory().openProjects();
     }
 
     /**
@@ -719,38 +604,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      */
     public static Project getProject(File projectKey)
     {
-        return projects.get(projectKey);
-    }
-
-    /**
-     * Helper function to take a path (either a directory or a file)
-     * and return either the canonical path to the directory
-     * (in the case of a bluej.pkg file passed in, return the directory containing
-     * the file. Returns null if file is not a bluej.pkg file or if the
-     * directory/file does not exist.
-     */
-    @OnThread(Tag.Any)
-    private static File pathIntoStartingDirectory(String projectPath)
-            throws IOException
-    {
-        File startingDir;
-
-        startingDir = new File(projectPath).getCanonicalFile();
-
-        if (startingDir.isDirectory()) {
-            return startingDir;
-        }
-
-        /* allow a bluej.pkg file to be specified. In this case,
-           we immediately find the parent directory and use that as the
-           starting directory */
-        if (startingDir.isFile()) {
-            if (Package.isPackageFileName(startingDir.getName())) {
-                return startingDir.getParentFile();
-            }
-        }
-
-        return null;
+        return factory().get(projectKey);
     }
 
     /**
@@ -1170,6 +1024,46 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     {
         return projectDir;
     }
+    
+    /**
+     * Execute a runnable within this project's DI scope.
+     *
+     * <p>Borrows the project's scope for the duration of the
+     * callback, pushing it onto the current thread's scope stack
+     * and popping it when the callback returns (or throws).
+     *
+     * <p>This is the primary public entry point for project-scoped
+     * DI in BlueJ.  Inside the callback, {@code @ProjectScoped}
+     * services are resolved against this project.
+     *
+     * <p>Example:
+     * <pre>
+     * project.withScope(() -&gt; {
+     *     MyService svc = BlueJInjector.getInstance(MyService.class);
+     *     svc.doWork();
+     * });
+     * </pre>
+     *
+     * @param action the action to execute within the scope
+     * @throws IllegalStateException if the project scope has not been initialised
+     */
+    @OnThread(Tag.Any)
+    public void withScope(@NotNull Runnable action) {
+        factory().withScope(this, action);
+    }
+
+    /**
+     * Execute a supplier within this project's DI scope and return the result.
+     *
+     * @param action the action to execute within the scope
+     * @param <T>    the return type
+     * @return the result of the action
+     * @throws IllegalStateException if the project scope has not been initialised
+     */
+    @OnThread(Tag.Any)
+    public <T> T withScope(@NotNull java.util.function.Supplier<T> action) {
+        return factory().withScope(this, action);
+    }
 
     /**
      * Return the source path for the project. The source path contains the JDK source,
@@ -1208,7 +1102,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     {
         return String.valueOf(new String("BJID" + getProjectDir().getPath()).hashCode());
     }
-
+    
     /**
      * Get the name of the package represented by the directory which was specified
      * as the directory to open when this project was opened.
@@ -1236,6 +1130,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      * @returns  the package, or null if the package doesn't exist (directory
      *           doesn't exist, or doesn't contain bluej.pkg file)
      */
+    @OnThread(value = Tag.Any, ignoreParent = true)
     public Package getPackage(String qualifiedName)
     {
         Package existing = packages.get(qualifiedName);
@@ -1258,7 +1153,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                     pkg = new Package(this, JavaNames.getBase(qualifiedName),
                             parent);
                     packages.put(qualifiedName, pkg);
-                    pkg.loadTargets();
+                    JavaFXUtil.runPlatformAndWait(pkg::loadTargets);
                 } else { // parent package does not exist. How can it not exist ?
                     pkg = null;
                 }
@@ -1316,7 +1211,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      * @return the CompilationUnitContext
      */
     @NotNull public CompilationUnitContext contextForClass(String qualifiedName) {
-        return this.contextLoader.contextForClass(qualifiedName);
+        return contextLoader.contextForClass(qualifiedName);
     }
 
     /**
@@ -1326,7 +1221,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      * @return the CompilationUnitContext
      */
     @NotNull public CompilationUnitContext contextForClass(@NotNull Class<?> clazz) {
-        return this.contextLoader.contextForClass(clazz);
+        return contextLoader.contextForClass(clazz);
     }
 
     /**
@@ -1338,7 +1233,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      * @return the CompilationUnitContext
      */
     @NotNull public CompilationUnitContext updateClassMetadata(@NotNull String qualifiedName, @NotNull ClassInfo info) {
-        return this.contextLoader.updateContextFromClassInfo(qualifiedName, info);
+        return contextLoader.updateContextFromClassInfo(qualifiedName, info);
     }
 
     /**
@@ -1349,7 +1244,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      * @return whether the class was cached
      */
     public boolean evictFromCache(@NotNull String qualifiedName) {
-        return this.contextLoader.evictFromCache(qualifiedName);
+        return contextLoader.evictFromCache(qualifiedName);
     }
 
 

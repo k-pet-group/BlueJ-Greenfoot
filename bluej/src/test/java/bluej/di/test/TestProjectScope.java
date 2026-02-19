@@ -23,6 +23,7 @@ package bluej.di.test;
 
 import bluej.di.BlueJInjectorTestUtils;
 import bluej.di.scopes.ProjectScope;
+import bluej.parser.context.CompilationUnitContextLoader;
 import bluej.pkgmgr.Project;
 
 /**
@@ -35,12 +36,13 @@ import bluej.pkgmgr.Project;
  * });
  * </pre>
  *
- * <h3>With Mock Project</h3>
+ * <h3>With Mocks</h3>
  * <pre>
  * TestProjectScope.builder()
  *         .withProject(mockProject)
+ *         .withLoader(mockLoader)
  *         .withScope(() -&gt; {
- *             // test with mock project
+ *             // test with mocks
  *         });
  * </pre>
  *
@@ -58,6 +60,29 @@ public final class TestProjectScope {
      */
     public static TestProjectScopeBuilder builder() {
         return TestProjectScopeBuilder.create();
+    }
+
+    /**
+     * Sets up a test scope with the specified project and loader.
+     *
+     * @param project a Project instance (mock or real)
+     * @param loader  a CompilationUnitContextLoader instance
+     * @return a seeded {@link ProjectScope.ScopeContext}
+     * @throws IllegalArgumentException if project or loader is null
+     */
+    public static ProjectScope.ScopeContext setup(
+            Project project,
+            CompilationUnitContextLoader loader) {
+        if (project == null) {
+            throw new IllegalArgumentException("Project cannot be null");
+        }
+        if (loader == null) {
+            throw new IllegalArgumentException("Loader cannot be null");
+        }
+        return builder()
+            .withProject(project)
+            .withLoader(loader)
+            .build();
     }
 
     /**

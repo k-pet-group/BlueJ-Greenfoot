@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class encapsulates the logic for loading .ctxt files from
  * the classpath, with proper classloader handling and optional caching.
  */
+@OnThread(value = Tag.Any, ignoreParent = true)
 public class CompilationUnitContextLoader implements AutoCloseable {
     
     /** The primary classloader to use for loading resources */
@@ -331,6 +332,7 @@ public class CompilationUnitContextLoader implements AutoCloseable {
      * This allows ClassInfo data to be extracted on the FX thread
      * and used elsewhere without thread constraints.
      */
+    @OnThread(value = Tag.Any, ignoreParent = true)
     public record ClassInfoData(
             @NotNull String className,
             @NotNull Properties comments

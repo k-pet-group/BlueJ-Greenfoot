@@ -232,6 +232,7 @@ public final class Package
      * java.lang for instance) If the package file (bluej.pkg) is not found, an
      * IOException is thrown.
      */
+    @OnThread(value = Tag.Any, ignoreParent = true)
     public Package(Project project, String baseName, Package parent)
         throws IOException
     {
@@ -249,13 +250,28 @@ public final class Package
         this.parentPackage = parent;
         this.targets = new TargetCollection();
 
-        init();
+        // Block until init completes on the FX thread.
+        // Unwrap IOException so callers (e.g. Project.getPackage)
+        // can still catch it.
+        //
+        // WARNING: This blocks the calling thread on the FX thread.
+        // Do not call this constructor from a thread that the FX
+        // thread is waiting on, as this would cause a deadlock.
+        try {
+            JavaFXUtil.runPlatformAndWait(this::init);
+        }
+        catch (RuntimeException e) {
+            IOException ioe = JavaFXUtil.unwrapCause(e, IOException.class);
+            if (ioe != null) throw ioe;
+            throw e;
+        }
     }
 
     /**
      * Create the unnamed package of a project If the package file (bluej.pkg)
      * is not found, an IOException is thrown.
      */
+    @OnThread(value = Tag.Any, ignoreParent = true)
     public Package(Project project)
         throws IOException
     {
@@ -263,12 +279,32 @@ public final class Package
         this.baseName = "";
         this.parentPackage = null;
         this.targets = new TargetCollection();
-        init();
+
+        // Block until init completes on the FX thread.
+        // Unwrap IOException so callers (e.g. Project constructor)
+        // can still catch it.
+        //
+        // WARNING: This blocks the calling thread on the FX thread.
+        // Do not call this constructor from a thread that the FX
+        // thread is waiting on, as this would cause a deadlock.
+        try {
+            JavaFXUtil.runPlatformAndWait(this::init);
+        }
+        catch (RuntimeException e) {
+            IOException ioe = JavaFXUtil.unwrapCause(e, IOException.class);
+            if (ioe != null) throw ioe;
+            throw e;
+        }
     }
 
-    private void init()
-        throws IOException
-    {
+    /**
+     * Initialise fields and load the package from disk.
+     *
+     * @throws IOException if the package directory or package file
+     *                     does not exist or cannot be read
+     */
+    @OnThread(Tag.FXPlatform)
+    private void init() throws IOException {
         callHistory = new CallHistory(HISTORY_LENGTH);
         dir = new File(project.getProjectDir(), getRelativePath().getPath());
         load();
@@ -422,6 +458,7 @@ public final class Package
      * boring is that the package has no classes in it and only one sub package.
      * If this package is not boring, this method returns null.
      */
+    @OnThread(value = Tag.Any, ignoreParent = true)
     protected synchronized Package getBoringSubPackage()
     {
         PackageTarget pt = null;
@@ -445,7 +482,8 @@ public final class Package
         if (pt == null)
             return null;
 
-        return getProject().getPackage(pt.getQualifiedName());
+        PackageTarget finalPt = pt;
+        return JavaFXUtil.runPlatformAndWait(() -> getProject().getPackage(finalPt.getQualifiedName()));
     }
 
     /**

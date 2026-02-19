@@ -26,12 +26,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Encapsulates the context information for a compilation unit.
  * This includes method/field documentation, parameter names, and other metadata
  * stored in .ctxt files.
  */
+@OnThread(value = Tag.Any, ignoreParent = true)
 public class CompilationUnitContext {
     
     /** A list of comments contained in this compilation unit */

@@ -25,6 +25,7 @@ import bluej.di.BlueJInjector;
 import bluej.di.modules.ProjectScopeModule;
 import bluej.di.scopes.ProjectId;
 import bluej.di.scopes.ProjectScope;
+import bluej.parser.context.CompilationUnitContextLoader;
 import bluej.pkgmgr.Project;
 
 import java.util.function.Supplier;
@@ -53,8 +54,8 @@ import java.util.function.Supplier;
  */
 public final class TestProjectScopeBuilder {
 
-    // TODO: add withLoader(CompilationUnitContextLoader) when that class becomes project-scoped
     private Project project;
+    private CompilationUnitContextLoader loader;
 
     private TestProjectScopeBuilder() {}
 
@@ -79,6 +80,22 @@ public final class TestProjectScopeBuilder {
             throw new IllegalArgumentException("Project cannot be null");
         }
         this.project = project;
+        return this;
+    }
+
+    /**
+     * Set a CompilationUnitContextLoader to seed in the scope.
+     *
+     * @param loader the loader instance (mock or real)
+     * @return this builder for chaining
+     * @throws IllegalArgumentException if loader is null
+     */
+    public TestProjectScopeBuilder withLoader(
+            CompilationUnitContextLoader loader) {
+        if (loader == null) {
+            throw new IllegalArgumentException("Loader cannot be null");
+        }
+        this.loader = loader;
         return this;
     }
 
@@ -136,6 +153,10 @@ public final class TestProjectScopeBuilder {
         var ctx = new ProjectScope.ScopeContext(id);
 
         ctx.seed(Project.class, projectToUse);
+
+        if (loader != null) {
+            ctx.seed(CompilationUnitContextLoader.class, loader);
+        }
 
         return ctx;
     }

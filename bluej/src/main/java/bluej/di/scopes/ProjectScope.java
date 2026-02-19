@@ -33,10 +33,10 @@ import java.util.function.Supplier;
 /**
  * Custom Guice {@link Scope} for project-scoped dependencies.
  *
- * // TODO: re-add {@link} to ProjectFactory once introduced
  * <p>Each open project owns exactly <b>one</b> {@link ScopeContext}
- * for its entire lifetime, created by the project-opening code
- * and disposed when the project closes.
+ * for its entire lifetime, created by
+ * {@link bluej.pkgmgr.ProjectFactory} when the project opens and
+ * disposed by {@link bluej.pkgmgr.ProjectFactory#close} when it closes.
  *
  * <h3>Thread-local stack</h3>
  * <p>A thread-local stack of {@link ProjectHandle} instances tracks
@@ -135,7 +135,8 @@ public class ProjectScope implements Scope {
         /**
          * Clear all values.
          *
-         * <p>Called during project disposal.
+         * <p>Called by {@link bluej.pkgmgr.ProjectFactory#close}
+         * during project shutdown.
          */
         public void clear() {
             values.clear();
