@@ -1,0 +1,96 @@
+/*
+ This file is part of the BlueJ program.
+ Copyright (C) 2026  Michael Kolling and John Rosenberg
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is subject to the Classpath exception as provided in the
+ LICENSE.txt file that accompanied this code.
+ */
+package bluej.di.modules;
+
+import bluej.di.scopes.ProjectScope;
+import bluej.di.scopes.ProjectScoped;
+import bluej.pkgmgr.Project;
+import com.google.inject.AbstractModule;
+import com.google.inject.Key;
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * Guice module that configures the {@link ProjectScope} binding.
+ *
+ * // TODO: re-add {@link} to ProjectFactory once introduced
+ * <p>Bindings:
+ * <ul>
+ *   <li>{@link Project} — seeded into the scope by
+ *       the project-opening code</li>
+ * </ul>
+ *
+ * <p>Additional project-scoped bindings are added by the
+ * production integration layer.
+ *
+ * @see ProjectScope
+ * @see ProjectScoped
+ */
+public class ProjectScopeModule extends AbstractModule {
+
+    private final ProjectScope projectScope = new ProjectScope();
+
+    @Override
+    protected void configure() {
+        bindScope(ProjectScoped.class, projectScope);
+
+        bind(Project.class)
+            .toProvider(ProjectScopeModule::provideProject)
+            .in(ProjectScoped.class);
+    }
+
+    /**
+     * Returns the {@link ProjectScope} instance used by this module.
+     */
+    public @NotNull ProjectScope getProjectScope() {
+        return projectScope;
+    }
+
+    // ── providers ────────────────────────────────────────────────────
+
+    /**
+     * Provides the {@link Project} from the current scope context.
+     * The instance is seeded during project opening.
+     */
+    private static @NotNull Project provideProject() {
+        var ctx = requireContext("Project");
+        Project project = ctx.get(Key.get(Project.class));
+        if (project == null) {
+            throw new IllegalStateException(
+                "Project has not been seeded into the current scope. " +
+                "Ensure the project scope has been entered and Project seeded.");
+        }
+        return project;
+    }
+
+    // ── helpers ──────────────────────────────────────────────────────
+
+    private static @NotNull ProjectScope.ScopeContext requireContext(@NotNull String what) {
+        ProjectScope.ScopeContext ctx = ProjectScope.current();
+        if (ctx == null) {
+            throw new IllegalStateException(
+                "Attempted to inject " + what +
+                " outside of project scope. " +
+                "Ensure this code runs inside an active project scope.");
+        }
+        return ctx;
+    }
+}
