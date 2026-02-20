@@ -24,6 +24,7 @@ package bluej.utility.javafx.threading;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
+import bluej.di.scopes.ProjectScope;
 import bluej.utility.Debug;
 import javafx.application.Platform;
 import org.jetbrains.annotations.NotNull;
@@ -105,6 +106,17 @@ public class JavaFXThreadingUtil
     // ========================================================================
     // Cross-thread execution:
     //   runPlatformLater (always async) → runPlatform (smart) → runPlatformAndWait (blocking)
+    //
+    // All runPlatformLater overloads automatically propagate the calling
+    // thread's project scope (if any) to the FX platform thread via
+    // ProjectScope.captureScope().  This ensures that @ProjectScoped
+    // dependencies are available in FX callbacks without manual wiring.
+    //
+    // Implementation note: the pattern
+    //   try (var h = capture != null ? capture.get() : null) { ... }
+    // relies on Java's try-with-resources accepting a null AutoCloseable
+    // (JLS §14.20.3) — close() is simply not called when the resource
+    // is null.  This avoids an extra if/else branch in every overload.
     // ========================================================================
 
     /**
@@ -128,8 +140,9 @@ public class JavaFXThreadingUtil
     @OnThread(Tag.Any)
     public static @NotNull Future<Void> runPlatformLater(@NotNull FXPlatformRunnableThrowing task) {
         CompletableFuture<Void> future = new CompletableFuture<>();
+        var scopeCapture = ProjectScope.captureScope();
         Platform.runLater(() -> {
-            try {
+            try (var scopeHandle = scopeCapture != null ? scopeCapture.get() : null) {
                 task.run();
                 future.complete(null);
             } catch (Throwable ex) {
@@ -161,8 +174,9 @@ public class JavaFXThreadingUtil
     @OnThread(Tag.Any)
     public static <T> @NotNull Future<T> runPlatformLater(@NotNull FXPlatformSupplierThrowing<T> task) {
         CompletableFuture<T> future = new CompletableFuture<>();
+        var scopeCapture = ProjectScope.captureScope();
         Platform.runLater(() -> {
-            try {
+            try (var scopeHandle = scopeCapture != null ? scopeCapture.get() : null) {
                 future.complete(task.get());
             } catch (Throwable ex) {
                 Debug.reportError("Exception in runPlatformLater task", ex);
@@ -194,8 +208,9 @@ public class JavaFXThreadingUtil
     @OnThread(Tag.Any)
     public static <T> @NotNull Future<Void> runPlatformLater(@NotNull FXPlatformConsumerThrowing<T> task, T arg) {
         CompletableFuture<Void> future = new CompletableFuture<>();
+        var scopeCapture = ProjectScope.captureScope();
         Platform.runLater(() -> {
-            try {
+            try (var scopeHandle = scopeCapture != null ? scopeCapture.get() : null) {
                 task.accept(arg);
                 future.complete(null);
             } catch (Throwable ex) {
@@ -229,8 +244,9 @@ public class JavaFXThreadingUtil
     @OnThread(Tag.Any)
     public static <T, R> @NotNull Future<R> runPlatformLater(@NotNull FXPlatformFunctionThrowing<T, R> task, T arg) {
         CompletableFuture<R> future = new CompletableFuture<>();
+        var scopeCapture = ProjectScope.captureScope();
         Platform.runLater(() -> {
-            try {
+            try (var scopeHandle = scopeCapture != null ? scopeCapture.get() : null) {
                 future.complete(task.apply(arg));
             } catch (Throwable ex) {
                 Debug.reportError("Exception in runPlatformLater task", ex);
@@ -265,8 +281,9 @@ public class JavaFXThreadingUtil
     @OnThread(Tag.Any)
     public static <T, U> @NotNull Future<Void> runPlatformLater(@NotNull FXPlatformBiConsumerThrowing<T, U> task, T arg1, U arg2) {
         CompletableFuture<Void> future = new CompletableFuture<>();
+        var scopeCapture = ProjectScope.captureScope();
         Platform.runLater(() -> {
-            try {
+            try (var scopeHandle = scopeCapture != null ? scopeCapture.get() : null) {
                 task.accept(arg1, arg2);
                 future.complete(null);
             } catch (Throwable ex) {
@@ -303,8 +320,9 @@ public class JavaFXThreadingUtil
     @OnThread(Tag.Any)
     public static <T, U, R> @NotNull Future<R> runPlatformLater(@NotNull FXPlatformBiFunctionThrowing<T, U, R> task, T arg1, U arg2) {
         CompletableFuture<R> future = new CompletableFuture<>();
+        var scopeCapture = ProjectScope.captureScope();
         Platform.runLater(() -> {
-            try {
+            try (var scopeHandle = scopeCapture != null ? scopeCapture.get() : null) {
                 future.complete(task.apply(arg1, arg2));
             } catch (Throwable ex) {
                 Debug.reportError("Exception in runPlatformLater task", ex);

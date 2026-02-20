@@ -82,11 +82,11 @@ public class ScopedExecutor {
      * @return a Future representing the pending result
      */
     public <T> @NotNull Future<T> submit(@NotNull Callable<T> task) {
-        // No propagateScope(Callable) overload — propagate manually
-        var scopeSupplier = ProjectScope.captureScope();
+        // Cannot use propagateScope(Callable) — ambiguous with propagateScope(Supplier).
+        var scope = ProjectScope.captureScope();
         return delegate.submit(() -> {
-            if (scopeSupplier != null) {
-                try (var handle = scopeSupplier.get()) {
+            if (scope != null) {
+                try (var h = scope.get()) {
                     return task.call();
                 }
             }

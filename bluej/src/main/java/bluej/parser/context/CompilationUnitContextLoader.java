@@ -70,12 +70,12 @@ public class CompilationUnitContextLoader implements AutoCloseable {
 
 
     /**
-     * Package-private constructor for testing.
-     * Allows injection of a test ClassLoaderProvider implementation.
+     * Constructor for testing and DI.
+     * Allows injection of a custom ClassLoaderProvider implementation.
      *
      * @param provider The ClassLoaderProvider to use for loading contexts
      */
-    CompilationUnitContextLoader(ClassLoaderProvider provider) {
+    public CompilationUnitContextLoader(ClassLoaderProvider provider) {
         this.provider = provider;
         this.cache = new ConcurrentHashMap<>();
     }

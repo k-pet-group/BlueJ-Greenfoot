@@ -315,6 +315,14 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      * (this should by its nature be the unnamed package).
      *
      * <p>Package-private — use {@link ProjectFactory#open}.
+     *
+     * <p><b>DI constraint:</b> This constructor runs <em>before</em>
+     * the {@code Project} instance is seeded into the DI scope.
+     * Code called during construction must <b>not</b> resolve
+     * {@code @ProjectScoped} dependencies that transitively depend
+     * on {@code Project} (e.g. via {@code BlueJInjector.getInstance}).
+     * Use {@code @Inject} fields instead — they are populated by
+     * {@link ProjectFactory#open} after construction completes.
      */
     Project(File projectDir) throws IOException
     {
