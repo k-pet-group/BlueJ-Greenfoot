@@ -281,7 +281,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
     public View getReturnType()
     {
         if (returnType == null) {
-            returnType = View.getView(method.getReturnType(), getDeclaringView().project);
+            returnType = getDeclaringView().factory.getView(method.getReturnType());
         }
         return returnType;
     }

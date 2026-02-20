@@ -85,7 +85,7 @@ public class ProjectJavadocResolver implements JavadocResolver
 
         try {
             Class<?> cl = project.getClassLoader().loadClass(declName);
-            View clView = View.getView(cl, project);
+            View clView = project.views().getView(cl);
             List<CallableView> methods = Utility.concat(Arrays.asList(clView.getAllMethods()), Arrays.asList(clView.getConstructors()));
 
             for (CallableView method : methods)
@@ -164,7 +164,7 @@ public class ProjectJavadocResolver implements JavadocResolver
 
         try {
             Class<?> cl = project.getClassLoader().loadClass(declName);
-            View clView = View.getView(cl, project);
+            View clView = project.views().getView(cl);
             CallableView[] methods = method instanceof MethodReflective ? clView.getAllMethods() : clView.getConstructors();
 
             for (int i = 0; i < methods.length; i++) {

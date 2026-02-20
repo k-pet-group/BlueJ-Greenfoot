@@ -95,7 +95,7 @@ public class GClassDiagram extends BorderPane
                     // Can't load class, so rule it out:
                     return null;
                 }
-                View view = View.getView(cl, project);
+                View view = project.views().getView(cl);
 
                 // Needs to be non-abstract to instantiate:
                 if (!java.lang.reflect.Modifier.isAbstract(cl.getModifiers()))

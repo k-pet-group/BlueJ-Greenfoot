@@ -25,6 +25,7 @@ import bluej.di.scopes.ProjectScope;
 import bluej.di.scopes.ProjectScoped;
 import bluej.parser.context.CompilationUnitContextLoader;
 import bluej.pkgmgr.Project;
+import bluej.views.ViewFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
 import org.jetbrains.annotations.NotNull;
@@ -58,6 +59,11 @@ public class ProjectScopeModule extends AbstractModule {
         bind(CompilationUnitContextLoader.class)
             .toProvider(ProjectScopeModule::provideContextLoader)
             .in(ProjectScoped.class);
+
+        // ViewFactory has @ProjectScoped + @Inject on the class,
+        // but we bind explicitly for clarity and to ensure it is
+        // validated at injector creation time (Stage.PRODUCTION).
+        bind(ViewFactory.class).in(ProjectScoped.class);
     }
 
     /**

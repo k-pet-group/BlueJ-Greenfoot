@@ -56,7 +56,6 @@ import java.io.File;
  */
 class Identifier
 {
-    private final Project project;
     private File projectId;
     private String packageId;
     private String qualifiedClassName;
@@ -88,7 +87,6 @@ class Identifier
     @OnThread(Tag.Any)
     Identifier(Project bluejProject, Package bluejPackage, String aQualifiedClassName)
     {
-        project = bluejProject;
         projectId = bluejProject.getProjectDir();
         if (bluejPackage != null) packageId = bluejPackage.getQualifiedName();
         qualifiedClassName = aQualifiedClassName;
@@ -226,8 +224,8 @@ class Identifier
     {
         Class<?> aClass = getJavaClass();
 
-        // View.getView does not fail, if the class does not exist it will be created.
-        return View.getView(aClass, project);
+        // ViewFactory.getView does not fail; if the class has not been seen it will be created.
+        return getBluejProject().views().getView(aClass);
     }
 
     /*

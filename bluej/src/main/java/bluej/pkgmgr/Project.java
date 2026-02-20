@@ -59,7 +59,6 @@ import bluej.parser.entity.EntityResolver;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
-import bluej.prefmgr.PrefMgr;
 import bluej.terminal.Terminal;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
@@ -69,6 +68,7 @@ import bluej.utility.javafx.threading.FXConsumer;
 import bluej.utility.javafx.threading.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.View;
+import bluej.views.ViewFactory;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.ScaleTransition;
@@ -184,6 +184,18 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     @Inject
     @OnThread(value = Tag.Any, ignoreParent = true)
     private CompilationUnitContextLoader contextLoader;
+
+    /**
+     * Per-project View cache.  Injected by Guice as a
+     * {@code @ProjectScoped} dependency.
+     *
+     * <p>Null between construction and {@link ProjectFactory#open}
+     * calling {@code injectMembers()}.  Use {@link #views()} for
+     * access — it guards against premature use.
+     */
+    @Inject
+    @OnThread(value = Tag.Any, ignoreParent = true)
+    private ViewFactory viewFactory;
 
     // Indicator of SVN shared project, which is no longer supported from BlueJ 5
     private boolean isSharedSVNProject = false;
@@ -1026,6 +1038,25 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     }
     
     /**
+     * Returns this project's {@link ViewFactory} for creating/caching
+     * {@link View} instances.
+     *
+     * @return the view factory (injected by Guice)
+     */
+    @OnThread(value = Tag.Any, ignoreParent = true)
+    public @NotNull ViewFactory views() {
+        ViewFactory vf = viewFactory;
+        if (vf == null) {
+            throw new IllegalStateException(
+                "ViewFactory has not been injected yet. " +
+                "Do not call views() during Project construction — " +
+                "@Inject fields are populated after construction by " +
+                "ProjectFactory.open().");
+        }
+        return vf;
+    }
+
+    /**
      * Execute a runnable within this project's DI scope.
      *
      * <p>Borrows the project's scope for the duration of the
@@ -1621,7 +1652,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         removeAllInspectors();
 
         // remove views for classes loaded by this classloader
-        View.removeAll(currentClassLoader);
+        viewFactory.removeAll(currentClassLoader);
 
         if (! Config.isGreenfoot()) {
             // dispose windows for local classes. Should not run user code
