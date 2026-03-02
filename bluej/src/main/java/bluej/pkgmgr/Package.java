@@ -351,20 +351,20 @@ public final class Package
     public String getQualifiedName()
     {
         Package currentPkg = this;
-        String retName = "";
+        StringBuilder retName = new StringBuilder();
 
         while (!currentPkg.isUnnamedPackage()) {
-            if (retName.equals("")) {
-                retName = currentPkg.getBaseName();
+            if (retName.isEmpty()) {
+                retName.insert(0, currentPkg.getBaseName());
             }
             else {
-                retName = currentPkg.getBaseName() + "." + retName;
+                retName.insert(0, currentPkg.getBaseName() + ".");
             }
 
             currentPkg = currentPkg.getParent();
         }
 
-        return retName;
+        return retName.toString();
     }
 
     /**

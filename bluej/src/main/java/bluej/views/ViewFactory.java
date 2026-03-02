@@ -44,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see View
  */
 @ProjectScoped
-@OnThread(Tag.Any)
+@OnThread(value = Tag.Any, ignoreParent = true)
 public final class ViewFactory {
 
     private final @NotNull CompilationUnitContextLoader contextLoader;
