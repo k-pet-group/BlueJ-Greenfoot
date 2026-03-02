@@ -123,7 +123,8 @@ public class ProjectFactory {
         if (startingPackageName.isEmpty()) {
             Package startingPackage = JavaFXThreadingUtil.runPlatformAndWait(() -> proj.getPackage(""));
             while (startingPackage != null) {
-                Package sub = startingPackage.getBoringSubPackage();
+                var startingPackageFinal = startingPackage;
+                Package sub = JavaFXThreadingUtil.runPlatformAndWait(() -> startingPackageFinal.getBoringSubPackage());
                 if (sub == null) break;
                 startingPackage = sub;
             }

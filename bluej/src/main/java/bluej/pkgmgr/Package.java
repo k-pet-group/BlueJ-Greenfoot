@@ -426,7 +426,6 @@ public final class Package
      * boring is that the package has no classes in it and only one sub package.
      * If this package is not boring, this method returns null.
      */
-    @OnThread(value = Tag.Any, ignoreParent = true)
     protected synchronized Package getBoringSubPackage()
     {
         PackageTarget pt = null;
@@ -450,8 +449,7 @@ public final class Package
         if (pt == null)
             return null;
 
-        PackageTarget finalPt = pt;
-        return JavaFXUtil.runPlatformAndWait(() -> getProject().getPackage(finalPt.getQualifiedName()));
+        return getProject().getPackage(pt.getQualifiedName());
     }
 
     /**

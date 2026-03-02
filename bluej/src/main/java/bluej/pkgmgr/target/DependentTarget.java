@@ -341,11 +341,11 @@ public abstract class DependentTarget extends EditableTarget
         Collections.sort(outUsesCopy, new LayoutComparer(this, false));
 
         // Count the number of arrows into each quadrant
-        int cy = getY() + (int)getHeight() / 2;
+        int cy = getY() + getHeight() / 2;
         int n_top = 0, n_bottom = 0;
         for(int i = outUsesCopy.size() - 1; i >= 0; i--) {
             Target to = ((Dependency) outUsesCopy.get(i)).getTo();
-            int to_cy = to.getY() + (int)to.getHeight() / 2;
+            int to_cy = to.getY() + to.getHeight() / 2;
             if(to_cy < cy)
                 ++n_top;
             else

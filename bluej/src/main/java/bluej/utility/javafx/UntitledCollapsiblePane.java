@@ -183,12 +183,12 @@ public class UntitledCollapsiblePane extends Pane
 
         if (isVertical())
         {
-            arrowSize = snapSizeY(arrow.TRIANGLE_DEPTH + 2 * arrowPadding);
+            arrowSize = snapSizeY(TriangleArrow.TRIANGLE_DEPTH + 2 * arrowPadding);
             arrowWrapper.resize(w, arrowSize);
         }
         else
         {
-            arrowSize = snapSizeX(arrow.TRIANGLE_DEPTH + 2 * arrowPadding);
+            arrowSize = snapSizeX(TriangleArrow.TRIANGLE_DEPTH + 2 * arrowPadding);
             arrowWrapper.resize(arrowSize, h);
         }
         positionInArea(arrowWrapper, x, y,
@@ -225,25 +225,25 @@ public class UntitledCollapsiblePane extends Pane
     @Override
     protected double computePrefWidth(double height)
     {
-        return isVertical() ? content.prefWidth(height) : content.prefWidth(height) * getTransition() + arrow.TRIANGLE_DEPTH + 2 * arrowPadding;
+        return isVertical() ? content.prefWidth(height) : content.prefWidth(height) * getTransition() + TriangleArrow.TRIANGLE_DEPTH + 2 * arrowPadding;
     }
 
     @Override
     protected double computePrefHeight(double width)
     {
-        return isVertical() ? content.prefHeight(width) * getTransition() + arrow.TRIANGLE_DEPTH + 2 * arrowPadding : content.prefHeight(width);
+        return isVertical() ? content.prefHeight(width) * getTransition() + TriangleArrow.TRIANGLE_DEPTH + 2 * arrowPadding : content.prefHeight(width);
     }
 
     @Override
     protected double computeMinWidth(double height)
     {
-        return isVertical() ? content.minWidth(height) : content.minWidth(height) * getTransition() + arrow.TRIANGLE_DEPTH + 2 * arrowPadding;
+        return isVertical() ? content.minWidth(height) : content.minWidth(height) * getTransition() + TriangleArrow.TRIANGLE_DEPTH + 2 * arrowPadding;
     }
 
     @Override
     protected double computeMinHeight(double width)
     {
-        return isVertical() ? content.minHeight(width) * getTransition() + arrow.TRIANGLE_DEPTH + 2 * arrowPadding : content.minHeight(width);
+        return isVertical() ? content.minHeight(width) * getTransition() + TriangleArrow.TRIANGLE_DEPTH + 2 * arrowPadding : content.minHeight(width);
     }
 
     private double getTransition()
