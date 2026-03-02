@@ -1169,7 +1169,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      * @returns  the package, or null if the package doesn't exist (directory
      *           doesn't exist, or doesn't contain bluej.pkg file)
      */
-    @OnThread(value = Tag.Any, ignoreParent = true)
     public Package getPackage(String qualifiedName)
     {
         Package existing = packages.get(qualifiedName);

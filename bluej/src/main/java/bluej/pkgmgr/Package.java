@@ -69,6 +69,7 @@ import bluej.utility.filefilter.FrameSourceFilter;
 import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
+import org.jetbrains.annotations.NotNull;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -232,14 +233,10 @@ public final class Package
      * java.lang for instance) If the package file (bluej.pkg) is not found, an
      * IOException is thrown.
      */
-    @OnThread(value = Tag.Any, ignoreParent = true)
-    public Package(Project project, String baseName, Package parent)
+    public Package(@NotNull Project project, @NotNull String baseName, @NotNull Package parent)
         throws IOException
     {
-        if (parent == null)
-            throw new NullPointerException("Package must have a valid parent package");
-
-        if (baseName.length() == 0)
+        if (baseName.isEmpty())
             throw new IllegalArgumentException("unnamedPackage must be created using Package(project)");
 
         if (!JavaNames.isIdentifier(baseName))
@@ -250,28 +247,13 @@ public final class Package
         this.parentPackage = parent;
         this.targets = new TargetCollection();
 
-        // Block until init completes on the FX thread.
-        // Unwrap IOException so callers (e.g. Project.getPackage)
-        // can still catch it.
-        //
-        // WARNING: This blocks the calling thread on the FX thread.
-        // Do not call this constructor from a thread that the FX
-        // thread is waiting on, as this would cause a deadlock.
-        try {
-            JavaFXUtil.runPlatformAndWait(this::init);
-        }
-        catch (RuntimeException e) {
-            IOException ioe = JavaFXUtil.unwrapCause(e, IOException.class);
-            if (ioe != null) throw ioe;
-            throw e;
-        }
+        init();
     }
 
     /**
      * Create the unnamed package of a project If the package file (bluej.pkg)
      * is not found, an IOException is thrown.
      */
-    @OnThread(value = Tag.Any, ignoreParent = true)
     public Package(Project project)
         throws IOException
     {
@@ -280,21 +262,7 @@ public final class Package
         this.parentPackage = null;
         this.targets = new TargetCollection();
 
-        // Block until init completes on the FX thread.
-        // Unwrap IOException so callers (e.g. Project constructor)
-        // can still catch it.
-        //
-        // WARNING: This blocks the calling thread on the FX thread.
-        // Do not call this constructor from a thread that the FX
-        // thread is waiting on, as this would cause a deadlock.
-        try {
-            JavaFXUtil.runPlatformAndWait(this::init);
-        }
-        catch (RuntimeException e) {
-            IOException ioe = JavaFXUtil.unwrapCause(e, IOException.class);
-            if (ioe != null) throw ioe;
-            throw e;
-        }
+        init();
     }
 
     /**

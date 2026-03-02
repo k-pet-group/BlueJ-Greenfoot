@@ -32,6 +32,7 @@ import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.threading.JavaFXThreadingUtil;
 import com.google.inject.Singleton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -120,7 +121,7 @@ public class ProjectFactory {
             computeStartingPackageName(projectDir, startingDir);
 
         if (startingPackageName.isEmpty()) {
-            Package startingPackage = proj.getPackage("");
+            Package startingPackage = JavaFXThreadingUtil.runPlatformAndWait(() -> proj.getPackage(""));
             while (startingPackage != null) {
                 Package sub = startingPackage.getBoringSubPackage();
                 if (sub == null) break;
