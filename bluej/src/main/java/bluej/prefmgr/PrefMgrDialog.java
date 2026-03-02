@@ -30,7 +30,7 @@ import bluej.extmgr.ExtensionPrefManager;
 import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Project;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

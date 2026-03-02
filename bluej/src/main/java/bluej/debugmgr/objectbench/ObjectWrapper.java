@@ -77,12 +77,14 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import bluej.views.View;
+import bluej.views.ViewFactory;
 import bluej.views.ViewFilter;
+import org.jetbrains.annotations.NotNull;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -432,7 +434,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         menu = new ContextMenu();
 
         // add the menu items to call the methods
-        createMethodMenuItems(menu.getItems(), pkg.getProject(), cl, iType, this, pkg.getQualifiedName(), true);
+        createMethodMenuItems(menu.getItems(), pkg.getProject().views(), cl, iType, this, pkg.getQualifiedName(), true);
 
         // add inspect and remove options
         MenuItem item;
@@ -460,17 +462,18 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
      *            methods)
      * @param showObjectMethods Whether to show the submenu with methods from java.lang.Object
      */
-    public static void createMethodMenuItems(ObservableList<MenuItem> menu, Project project, Class<?> cl, InvokeListener il,
+    public static void createMethodMenuItems(ObservableList<MenuItem> menu, @NotNull ViewFactory views, Class<?> cl, InvokeListener il,
                                              String currentPackageName, boolean showObjectMethods)
     {
         GenTypeClass gt = new GenTypeClass(new JavaReflective(cl));
-        createMethodMenuItems(menu, project, cl, gt, il, currentPackageName, showObjectMethods);
+        createMethodMenuItems(menu, views, cl, gt, il, currentPackageName, showObjectMethods);
     }
 
     /**
      * Creates the menu items for all the methods in the class
      * 
      * @param menu  The menu to add the menu items to
+     * @param views The ViewFactory for resolving View instances
      * @param cl    The class whose methods to add
      * @param gtype  The generic type of the class
      * @param il    The invoke listener to notify when a method is called
@@ -479,11 +482,11 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
      *            methods)
      * @param showObjectMethods Whether to show the submenu for methods inherited from java.lang.Object
      */
-    public static void createMethodMenuItems(ObservableList<MenuItem> menu, Project project, Class<?> cl, GenTypeClass gtype, InvokeListener il,
+    public static void createMethodMenuItems(ObservableList<MenuItem> menu, @NotNull ViewFactory views, Class<?> cl, GenTypeClass gtype, InvokeListener il,
                                              String currentPackageName, boolean showObjectMethods)
     {
         if (cl != null) {
-            View view = View.getView(cl, project);
+            View view = views.getView(cl);
             Hashtable<String, String> methodsUsed = new Hashtable<>();
             List<Class<?>> classes = getClassHierarchy(cl);
 
@@ -513,7 +516,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
             // create submenus for superclasses
             for(int i = 1; i < classes.size(); i++ ) {
                 Class<?> currentClass = classes.get(i);
-                view = View.getView(currentClass, project);
+                view = views.getView(currentClass);
 
                 // Determine visibility of package private / protected members
                 filter = new ViewFilter(StaticOrInstance.INSTANCE, currentPackageName);
@@ -532,7 +535,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
             // Create submenus for interfaces which have default methods:
             for (Class<?> iface : getInterfacesWithDefaultMethods(cl))
             {
-                view = View.getView(iface, project);
+                view = views.getView(iface);
                 declaredMethods = view.getDeclaredMethods();
                 Menu subMenu = new Menu(inheritedFrom + " "
                         + JavaNames.stripPrefix(iface.getName()));

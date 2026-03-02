@@ -1,5 +1,6 @@
 package bluej.utility.javafx;
 
+import bluej.utility.javafx.threading.*;
 import javafx.scene.canvas.Canvas;
 
 /**

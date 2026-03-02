@@ -27,6 +27,7 @@ import bluej.stride.generic.InteractionManager;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.*;
+import bluej.utility.javafx.threading.*;
 import bluej.utility.javafx.binding.DeepListBinding;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;

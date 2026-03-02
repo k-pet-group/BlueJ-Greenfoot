@@ -30,17 +30,20 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.parser.context.CommentEntry;
 import bluej.parser.context.CompilationUnitContext;
 import bluej.parser.context.CompilationUnitContextLoader;
-import bluej.pkgmgr.Project;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 
 /**
  * A representation of a Java class in BlueJ.
- * 
- * <p>The methods in this class are generally thread-safe.
+ *
+ * <p>View instances are created and cached by {@link ViewFactory},
+ * one factory per project. Use {@code project.views().getView(cl)}
+ * to obtain a View.
  *
  * @author  Michael Cahill
  */
@@ -49,7 +52,10 @@ public class View
 {
     /** The class that this view is for **/
     protected final Class<?> cl;
-    protected final Project project;
+
+    private final @NotNull CompilationUnitContextLoader contextLoader;
+    /** Package-private — accessed by {@link FieldView} and {@link MethodView}. */
+    final @NotNull ViewFactory factory;
 
     protected FieldView[] fields;
     protected FieldView[] allFields;
@@ -60,58 +66,20 @@ public class View
 
     protected Comment comment;
 
-    private static Map<Class<?>,View> views = new HashMap<Class<?>,View>();
-
     /**
-     * Return a view of a class.
-     * This is the only way to obtain a View object.
-     * This method is thread-safe.
+     * Package-private constructor — use {@link ViewFactory#getView}.
+     *
+     * @param cl            the class this view represents
+     * @param contextLoader loader for compilation unit context
+     * @param factory       the owning factory (for recursive navigation)
      */
-    public static View getView(Class<?> cl, Project project)
-    {
-        if(cl == null)
-            return null;
-
-        // Debug.message("Started getView for class " + cl);
-
-        synchronized (views) {
-            View v = views.get(cl);
-            if(v == null) {
-                v = new View(cl, project);
-                views.put(cl, v);
-            }
-
-            // Debug.message("Ended getView for class " + cl);
-
-            return v;
-        }
-    }
-
-    /**
-     * Remove from the view cache, all views of classes
-     * which were loaded by the given class loader.
-     * Also clears any cached contexts for those classes.
-     * This method is thread-safe.
-     */
-    public static void removeAll(ClassLoader loader)
-    {
-        synchronized (views) {
-            Iterator<View> it = views.values().iterator();
-
-            while (it.hasNext()) {
-                View v = it.next();
-
-                if (v.getClassLoader() == loader) {
-                    it.remove();
-                }
-            }
-        }
-    }
-
-    private View(Class<?> cl, Project project)
+    @OnThread(value = Tag.Any, ignoreParent = true)
+    View(@NotNull Class<?> cl, @NotNull CompilationUnitContextLoader contextLoader,
+         @NotNull ViewFactory factory)
     {
         this.cl = cl;
-        this.project = project;
+        this.contextLoader = contextLoader;
+        this.factory = factory;
     }
 
     private ClassLoader getClassLoader()
@@ -151,7 +119,7 @@ public class View
 
     public View getSuper()
     {
-        return getView(cl.getSuperclass(), this.project);
+        return factory.getView(cl.getSuperclass());
     }
 
     public View[] getInterfaces()
@@ -160,7 +128,7 @@ public class View
 
         View[] interfaceViews = new View[interfaces.length];
         for(int i = 0; i < interfaces.length; i++)
-            interfaceViews[i] =  getView(interfaces[i], this.project);
+            interfaceViews[i] = factory.getView(interfaces[i]);
 
         return interfaceViews;
     }
@@ -460,10 +428,9 @@ public class View
             loadClassComments(curview.getSuper(), table);
 
         try {
-            // Use the shared loader's contextForClass(Class<?>) method which automatically
-            // handles different classloaders for each class in the hierarchy
-            CompilationUnitContext context = this.project.contextForClass(curview.cl);
-            
+            // Use the contextLoader to get context for each class in the hierarchy
+            CompilationUnitContext context = this.contextLoader.contextForClass(curview.cl);
+
             // Match up the comments with the members of this view
             for (CommentEntry entry : context.getComments()) {
                 String target = entry.getTarget();
@@ -485,9 +452,8 @@ public class View
                     Comment c = convertToComment(entry);
                     m.setComment(c);
                 }
-                // Removed debug messages for cleaner code
             }
-
+            
         } catch (Exception e) {
             // Maintain existing error handling behavior
             e.printStackTrace();

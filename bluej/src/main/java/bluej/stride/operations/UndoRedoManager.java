@@ -26,7 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import bluej.stride.generic.FrameState;
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXRunnable;
 
 /**
  * An undo/redo manager for the frame editor. A stack of farme states is maintained;

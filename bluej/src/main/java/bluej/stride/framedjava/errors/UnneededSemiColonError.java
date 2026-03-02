@@ -28,7 +28,7 @@ import bluej.editor.fixes.FixSuggestion;
 import bluej.stride.framedjava.ast.StringSlotFragment;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXRunnable;
 
 /**
  * An error which indicates an extra semi-colon at the end of a slot.

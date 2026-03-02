@@ -22,7 +22,7 @@ LICENSE.txt file that accompanied this code.
 package bluej.editor.flow;
 
 import bluej.Config;
-import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.threading.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

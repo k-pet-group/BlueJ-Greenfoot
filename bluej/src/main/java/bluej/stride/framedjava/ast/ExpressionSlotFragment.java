@@ -38,7 +38,7 @@ import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.errors.*;
 import bluej.stride.framedjava.frames.MethodFrameWithBody;
 import bluej.stride.generic.FrameCanvas;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import javafx.application.Platform;
 import bluej.parser.JavaParser;
 import bluej.parser.lexer.LocatableToken;

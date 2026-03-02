@@ -63,8 +63,8 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformFunction;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformFunction;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.CallableView;
@@ -1830,7 +1830,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                         if (target instanceof ClassTarget)
                         {
                             Menu menu = new Menu(namesForActors[i].getName() + ":" + actor.getClassName());
-                            ObjectWrapper.createMethodMenuItems(menu.getItems(), project, project.loadClass(actor.getClassName()), new RecordInvoke(actor), "", true);
+                            ObjectWrapper.createMethodMenuItems(menu.getItems(), project.views(), project.loadClass(actor.getClassName()), new RecordInvoke(actor), "", true);
                             menu.getItems().add(makeInspectMenuItem(actor, namesForActors[i].getName()));
                             //add a listener to the action event on the items in the sub-menu to hide the context menus
                             for (MenuItem menuItem : menu.getItems())
@@ -1879,7 +1879,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                         contextMenu.setOnHidden(e -> {
                             contextMenu = null;
                         });
-                        ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project,
+                        ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.views(),
                                 project.loadClass(world.getClassName()), new RecordInvoke(world), "", true);
                         contextMenu.getItems().add(makeInspectMenuItem(world, debugHandler.nameObjects(List.of(world))[0].getName()));
                         

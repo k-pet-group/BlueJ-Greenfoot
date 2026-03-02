@@ -29,7 +29,7 @@ import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefPanelListener;
 import bluej.utility.DialogManager;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.animation.RotateTransition;
 import javafx.geometry.Pos;

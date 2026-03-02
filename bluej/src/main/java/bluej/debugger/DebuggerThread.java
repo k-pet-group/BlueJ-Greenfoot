@@ -21,7 +21,7 @@
  */
 package bluej.debugger;
 
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

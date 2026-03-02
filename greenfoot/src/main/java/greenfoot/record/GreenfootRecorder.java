@@ -23,7 +23,7 @@ package greenfoot.record;
 
 import bluej.debugger.DebuggerObject;
 import bluej.editor.Editor;
-import bluej.utility.javafx.FXPlatformFunction;
+import bluej.utility.javafx.threading.FXPlatformFunction;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

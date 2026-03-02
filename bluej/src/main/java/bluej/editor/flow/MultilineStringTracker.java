@@ -22,7 +22,7 @@
 package bluej.editor.flow;
 
 import bluej.extensions2.editor.DocumentListener;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 
 import java.util.Objects;
 import java.util.SortedSet;

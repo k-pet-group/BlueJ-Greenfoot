@@ -22,6 +22,8 @@
 package bluej.parser.context;
 
 import bluej.classmgr.BPClassLoader;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.io.File;
 
@@ -40,6 +42,7 @@ import java.io.File;
  * 
  * @see CompilationUnitContextLoader
  */
+@OnThread(value = Tag.Any, ignoreParent = true)
 public interface ClassLoaderProvider {
     /**
      * Gets the ClassLoader to use for loading classes and resources.

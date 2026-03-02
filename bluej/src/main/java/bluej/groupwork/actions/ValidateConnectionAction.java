@@ -26,7 +26,7 @@ import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.ui.CheckConnectionDialog;
 import bluej.groupwork.ui.TeamSettingsPanel;
 import bluej.pkgmgr.Project;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 
 import javafx.stage.Window;
 import threadchecker.OnThread;

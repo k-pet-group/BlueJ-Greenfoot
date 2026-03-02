@@ -29,7 +29,7 @@ import bluej.stride.operations.PullUpContentsOperation;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 
-import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.threading.FXConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

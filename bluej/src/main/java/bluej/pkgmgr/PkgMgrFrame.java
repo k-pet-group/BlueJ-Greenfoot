@@ -66,6 +66,7 @@ import bluej.testmgr.TestDisplayFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.*;
 import bluej.utility.javafx.*;
+import bluej.utility.javafx.threading.*;
 import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;

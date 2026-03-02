@@ -1,0 +1,43 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2016 Michael Kölling and John Rosenberg 
+
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
+package bluej.utility.javafx.threading;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+/**
+ * Equivalent to {@link java.util.function.BiFunction}, annotated with
+ * {@code @OnThread(Tag.FXPlatform)} to indicate it must run on the
+ * JavaFX platform thread.
+ *
+ * @param <T> the type of the first argument to the function
+ * @param <U> the type of the second argument to the function
+ * @param <R> the type of the result of the function
+ * @see FXBiFunction
+ * @see FXPlatformBiFunctionThrowing
+ */
+@FunctionalInterface
+@OnThread(Tag.FXPlatform)
+public interface FXPlatformBiFunction<T, U, R>
+{
+    R apply(T t, U u);
+}

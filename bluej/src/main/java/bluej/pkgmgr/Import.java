@@ -27,7 +27,7 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import javafx.stage.Window;
 
 import java.io.File;

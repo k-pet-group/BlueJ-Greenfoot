@@ -30,8 +30,8 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.EditableTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.javafx.AbstractOperation;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
 import bluej.views.View;
@@ -95,7 +95,7 @@ public class GClassDiagram extends BorderPane
                     // Can't load class, so rule it out:
                     return null;
                 }
-                View view = View.getView(cl, project);
+                View view = project.views().getView(cl);
 
                 // Needs to be non-abstract to instantiate:
                 if (!java.lang.reflect.Modifier.isAbstract(cl.getModifiers()))

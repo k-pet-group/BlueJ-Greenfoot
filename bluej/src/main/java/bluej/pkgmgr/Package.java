@@ -69,6 +69,7 @@ import bluej.utility.filefilter.FrameSourceFilter;
 import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
+import org.jetbrains.annotations.NotNull;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -232,13 +233,10 @@ public final class Package
      * java.lang for instance) If the package file (bluej.pkg) is not found, an
      * IOException is thrown.
      */
-    public Package(Project project, String baseName, Package parent)
+    public Package(@NotNull Project project, @NotNull String baseName, @NotNull Package parent)
         throws IOException
     {
-        if (parent == null)
-            throw new NullPointerException("Package must have a valid parent package");
-
-        if (baseName.length() == 0)
+        if (baseName.isEmpty())
             throw new IllegalArgumentException("unnamedPackage must be created using Package(project)");
 
         if (!JavaNames.isIdentifier(baseName))
@@ -263,12 +261,18 @@ public final class Package
         this.baseName = "";
         this.parentPackage = null;
         this.targets = new TargetCollection();
+
         init();
     }
 
-    private void init()
-        throws IOException
-    {
+    /**
+     * Initialise fields and load the package from disk.
+     *
+     * @throws IOException if the package directory or package file
+     *                     does not exist or cannot be read
+     */
+    @OnThread(Tag.FXPlatform)
+    private void init() throws IOException {
         callHistory = new CallHistory(HISTORY_LENGTH);
         dir = new File(project.getProjectDir(), getRelativePath().getPath());
         load();
@@ -347,20 +351,20 @@ public final class Package
     public String getQualifiedName()
     {
         Package currentPkg = this;
-        String retName = "";
+        StringBuilder retName = new StringBuilder();
 
         while (!currentPkg.isUnnamedPackage()) {
-            if (retName.equals("")) {
-                retName = currentPkg.getBaseName();
+            if (retName.isEmpty()) {
+                retName.insert(0, currentPkg.getBaseName());
             }
             else {
-                retName = currentPkg.getBaseName() + "." + retName;
+                retName.insert(0, currentPkg.getBaseName() + ".");
             }
 
             currentPkg = currentPkg.getParent();
         }
 
-        return retName;
+        return retName.toString();
     }
 
     /**

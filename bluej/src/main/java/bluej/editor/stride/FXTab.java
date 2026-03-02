@@ -23,7 +23,7 @@ package bluej.editor.stride;
 
 import java.util.List;
 
-import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.threading.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.value.ObservableStringValue;

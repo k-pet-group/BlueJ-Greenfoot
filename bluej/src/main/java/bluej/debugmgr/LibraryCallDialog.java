@@ -181,7 +181,7 @@ public class LibraryCallDialog extends Dialog<CallableView>
      */
     private void displayMethodsForClass(Class<?> cl)
     {
-        View classView = View.getView(cl, pkg.getProject());
+        View classView = pkg.getProject().views().getView(cl);
         ViewFilter filter;
 
         ConstructorView[] constructors = classView.getConstructors();

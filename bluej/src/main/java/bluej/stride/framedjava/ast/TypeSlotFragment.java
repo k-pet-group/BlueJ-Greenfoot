@@ -34,7 +34,7 @@ import bluej.stride.framedjava.errors.*;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.InteractionManager;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

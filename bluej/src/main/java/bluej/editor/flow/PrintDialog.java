@@ -25,6 +25,7 @@ import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.threading.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.ReadOnlyBooleanWrapper;

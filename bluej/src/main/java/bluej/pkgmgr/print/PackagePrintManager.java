@@ -27,7 +27,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.utility.Debug;
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXRunnable;
 import javafx.print.PrinterJob;
 import threadchecker.OnThread;
 import threadchecker.Tag;

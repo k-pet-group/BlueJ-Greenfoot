@@ -72,13 +72,8 @@ import bluej.editor.fixes.SuggestionList.SuggestionListParent;
 import bluej.utility.BackgroundConsumer;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import bluej.utility.javafx.CircleCountdown;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXRunnable;
-import bluej.utility.javafx.FXSupplier;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
+import bluej.utility.javafx.*;
+import bluej.utility.javafx.threading.*;
 import bluej.utility.javafx.binding.ViewportHeightBinding;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -2403,7 +2398,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
 
     private void setupFocusable(CursorOrSlot parent, Node node)
     {
-        FXRunnable checkPositionChange = new FXRunnable() {
+        FXPlatformRunnableThrowing checkPositionChange = new FXPlatformRunnableThrowing() {
             Bounds lastBounds = boundsInScrollContent(node);
             @Override
             public void run()
@@ -2430,7 +2425,9 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
             }
         };
 
-        ChangeListener<Object> listener = (a, b, c) -> JavaFXUtil.runPlatformLater(checkPositionChange);
+        ChangeListener<Object> listener = (a, b, c) -> {
+            JavaFXUtil.runPlatformLater(checkPositionChange);
+        };
 
         // When we detect focus gain, or whenever the size/position changes and node is focused,
         // make sure we remain visible:

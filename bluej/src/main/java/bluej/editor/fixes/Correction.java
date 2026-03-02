@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 import bluej.Config;
 import bluej.parser.AssistContentThreadSafe;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

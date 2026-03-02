@@ -26,7 +26,7 @@ import bluej.editor.base.TextLine.StyledSegment;
 import bluej.editor.flow.Document;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
-import bluej.utility.javafx.FXFunction;
+import bluej.utility.javafx.threading.FXFunction;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

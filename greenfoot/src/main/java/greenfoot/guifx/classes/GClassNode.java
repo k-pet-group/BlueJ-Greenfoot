@@ -22,8 +22,8 @@
 package greenfoot.guifx.classes;
 
 import bluej.Config;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXRunnable;
 import greenfoot.guifx.GreenfootStage;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
 import javafx.beans.binding.ObjectExpression;

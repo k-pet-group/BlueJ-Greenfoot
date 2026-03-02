@@ -31,7 +31,9 @@ description = 'boot'
 sourceSets {
     splash
     main {
-        resources.srcDirs "build/resources/main/bluej"
+        // NOTE: we use `build/generated/resources` instead of `build/resources`,
+        // as otherwise it breaks when using JDTS LSP (e.g. VSCode, Eclipse)
+        resources.srcDirs += "build/generated/resources/main/bluej"
     }
 }
 
@@ -47,9 +49,9 @@ task drawBlueJSplashVersion(type: JavaExec) {
          "16", // font size
          "215", // X position
          "114", // Y position
-         "build/resources/main/bluej/gen-bluej-splash.png" // destination
+         "build/generated/resources/main/bluej/gen-bluej-splash.png" // destination
     doFirst {
-        mkdir "build/resources/main/bluej"
+        mkdir "build/generated/resources/main/bluej"
     }
 }
 
@@ -65,9 +67,9 @@ task drawBlueJSplashVersion2x(type: JavaExec) {
             "32", // font size
             "430", // X position
             "228", // Y position
-            "build/resources/main/bluej/gen-bluej-splash@2x.png" // destination
+            "build/generated/resources/main/bluej/gen-bluej-splash@2x.png" // destination
     doFirst {
-        mkdir "build/resources/main/bluej"
+        mkdir "build/generated/resources/main/bluej"
     }
 }
 
@@ -83,9 +85,9 @@ task drawGreenfootSplashVersion(type: JavaExec) {
             "16", // font size
             "165", // X position
             "145", // Y position
-            "build/resources/main/bluej/gen-greenfoot-splash.png" // destination
+            "build/generated/resources/main/bluej/gen-greenfoot-splash.png" // destination
     doFirst {
-        mkdir "build/resources/main/bluej"
+        mkdir "build/generated/resources/main/bluej"
     }
 }
 
@@ -101,9 +103,9 @@ task drawGreenfootSplashVersion2x(type: JavaExec) {
             "32", // font size
             "330", // X position
             "290", // Y position
-            "build/resources/main/bluej/gen-greenfoot-splash@2x.png" // destination
+            "build/generated/resources/main/bluej/gen-greenfoot-splash@2x.png" // destination
     doFirst {
-        mkdir "build/resources/main/bluej"
+        mkdir "build/generated/resources/main/bluej"
     }
 }
 

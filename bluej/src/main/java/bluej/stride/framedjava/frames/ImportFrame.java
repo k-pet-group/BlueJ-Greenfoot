@@ -54,7 +54,7 @@ import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 
 import bluej.editor.stride.FrameCatalogue;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

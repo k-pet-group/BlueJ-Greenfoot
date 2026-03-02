@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 
 import bluej.stride.generic.ScreenreaderDictionary;
 import bluej.utility.javafx.*;
+import bluej.utility.javafx.threading.*;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;

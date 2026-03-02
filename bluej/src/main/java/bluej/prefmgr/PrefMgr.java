@@ -25,6 +25,7 @@ import java.io.File;
 import java.util.*;
 
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.threading.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.NumberBinding;

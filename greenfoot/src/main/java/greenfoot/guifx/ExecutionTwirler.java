@@ -23,7 +23,7 @@ package greenfoot.guifx;
 
 import bluej.Config;
 import bluej.pkgmgr.Project;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.vmcomm.GreenfootDebugHandler;
 import javafx.animation.Animation;

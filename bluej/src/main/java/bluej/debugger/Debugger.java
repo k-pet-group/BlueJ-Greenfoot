@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.jdi.JdiDebugger;
 import bluej.debugger.jdi.TestResultsWithRunTime;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

@@ -48,7 +48,7 @@ import bluej.pkgmgr.target.role.Kind;
 import bluej.utility.BackgroundSupplier;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;

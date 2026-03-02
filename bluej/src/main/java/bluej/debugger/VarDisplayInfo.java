@@ -22,7 +22,7 @@
 package bluej.debugger;
 
 import bluej.debugger.gentype.JavaType;
-import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.threading.FXPlatformSupplier;
 import com.sun.jdi.LocalVariable;
 import threadchecker.OnThread;
 import threadchecker.Tag;

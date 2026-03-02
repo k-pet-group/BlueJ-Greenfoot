@@ -71,13 +71,13 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Duration;
 
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformConsumer;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXSupplier;
+import bluej.utility.javafx.threading.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ScalableHeightLabel;
 

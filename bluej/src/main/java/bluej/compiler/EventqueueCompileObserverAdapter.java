@@ -21,7 +21,7 @@
  */
 package bluej.compiler;
 
-import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.threading.FXPlatformRunnable;
 import javafx.application.Platform;
 
 import java.util.Optional;
