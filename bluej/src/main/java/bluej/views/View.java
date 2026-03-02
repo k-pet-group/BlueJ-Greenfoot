@@ -73,6 +73,7 @@ public class View
      * @param contextLoader loader for compilation unit context
      * @param factory       the owning factory (for recursive navigation)
      */
+    @OnThread(value = Tag.Any, ignoreParent = true)
     View(@NotNull Class<?> cl, @NotNull CompilationUnitContextLoader contextLoader,
          @NotNull ViewFactory factory)
     {

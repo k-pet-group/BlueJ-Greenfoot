@@ -111,6 +111,6 @@ public final class ViewFactory {
      * {@code View.getView()}.
      */
     private @NotNull View createView(@NotNull Class<?> cl) {
-        return JavaFXUtil.runPlatformAndWait(() -> new View(cl, contextLoader, this));
+        return new View(cl, contextLoader, this);
     }
 }
