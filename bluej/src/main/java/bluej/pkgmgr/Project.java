@@ -1191,7 +1191,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                     pkg = new Package(this, JavaNames.getBase(qualifiedName),
                             parent);
                     packages.put(qualifiedName, pkg);
-                    JavaFXUtil.runPlatformAndWait(pkg::loadTargets);
+                    pkg.loadTargets();
                 } else { // parent package does not exist. How can it not exist ?
                     pkg = null;
                 }
