@@ -313,7 +313,7 @@ public class KotlinParsedCUNodeTest
             t = t.next;
         }
         assertNotNull("'fun' should be tokenized as a keyword by Kotlin tokenizer", kwToken);
-        assertEquals(TokenType.KEYWORD1, kwToken.id);
+        assertEquals(TokenType.KEYWORD2, kwToken.id);
     }
 
     @Test
@@ -330,7 +330,7 @@ public class KotlinParsedCUNodeTest
             t = t.next;
         }
         assertNotNull("'val' should be a Kotlin keyword", kwToken);
-        assertEquals(TokenType.KEYWORD1, kwToken.id);
+        assertEquals(TokenType.KEYWORD2, kwToken.id);
     }
 
     // -----------------------------------------------------------------------

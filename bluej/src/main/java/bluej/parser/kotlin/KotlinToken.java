@@ -386,27 +386,37 @@ public final class KotlinToken
     {
         return switch (tokenType)
         {
-            // Hard keywords → KEYWORD1 (primary keyword color)
-            case KW_PACKAGE, KW_AS, KW_TYPE_ALIAS, KW_CLASS, KW_THIS, KW_SUPER,
-                 KW_VAL, KW_VAR, KW_FUN, KW_FOR, KW_NULL, KW_TRUE, KW_FALSE,
-                 KW_IS, KW_IN, KW_THROW, KW_RETURN, KW_BREAK, KW_CONTINUE,
-                 KW_OBJECT, KW_IF, KW_TRY, KW_ELSE, KW_WHILE, KW_DO, KW_WHEN,
-                 KW_INTERFACE, KW_TYPEOF, KW_NOT_IN, KW_NOT_IS,
-                 KW_IMPORT, KW_ENUM
+            // KEYWORD1: Control flow + Modifiers (matches Java's role-based scheme)
+            // -- Control flow --
+            case KW_IF, KW_ELSE, KW_FOR, KW_WHILE, KW_DO, KW_WHEN,
+                 KW_BREAK, KW_CONTINUE, KW_RETURN, KW_THROW, KW_TRY,
+                 KW_IS, KW_NOT_IS, KW_IN, KW_NOT_IN, KW_AS, KW_TYPEOF,
+            // -- Visibility modifiers --
+                 KW_PRIVATE, KW_PUBLIC, KW_INTERNAL, KW_PROTECTED,
+            // -- Other modifiers --
+                 KW_ABSTRACT, KW_OPEN, KW_FINAL, KW_SEALED,
+                 KW_OVERRIDE, KW_INNER, KW_LATEINIT,
+                 KW_DATA, KW_VALUE, KW_INLINE, KW_TAILREC,
+                 KW_OPERATOR, KW_INFIX, KW_CONST, KW_SUSPEND,
+                 KW_ANNOTATION, KW_REIFIED, KW_EXTERNAL,
+                 KW_CROSSINLINE, KW_NOINLINE,
+                 KW_EXPECT, KW_ACTUAL, KW_CONTRACT,
+                 KW_VARARG, KW_OUT
                 -> Token.TokenType.KEYWORD1;
 
-            // Soft / modifier keywords → KEYWORD2 (secondary keyword color)
-            case KW_WHERE, KW_BY, KW_GET, KW_SET, KW_CONSTRUCTOR, KW_INIT,
-                 KW_ABSTRACT, KW_OPEN, KW_INNER, KW_OVERRIDE,
-                 KW_OUT, KW_VARARG, KW_COMPANION, KW_SEALED,
-                 KW_FINAL, KW_LATEINIT, KW_DATA, KW_VALUE,
-                 KW_INLINE, KW_TAILREC, KW_OPERATOR, KW_INFIX, KW_CONST,
-                 KW_SUSPEND, KW_ANNOTATION, KW_REIFIED, KW_EXTERNAL,
-                 KW_CROSSINLINE, KW_NOINLINE, KW_EXPECT, KW_ACTUAL, KW_CONTRACT
+            // KEYWORD2: Declarations (type, member, structural)
+            // -- Type declarations --
+            case KW_CLASS, KW_INTERFACE, KW_ENUM, KW_OBJECT,
+                 KW_TYPE_ALIAS, KW_PACKAGE, KW_IMPORT,
+            // -- Member declarations --
+                 KW_FUN, KW_VAL, KW_VAR,
+            // -- Structural --
+                 KW_CONSTRUCTOR, KW_INIT, KW_COMPANION,
+                 KW_WHERE, KW_BY, KW_GET, KW_SET
                 -> Token.TokenType.KEYWORD2;
 
-            // Visibility modifiers → KEYWORD3
-            case KW_PRIVATE, KW_PUBLIC, KW_INTERNAL, KW_PROTECTED
+            // KEYWORD3: Reference keywords (matches Java: this/super/null/true/false)
+            case KW_THIS, KW_SUPER, KW_NULL, KW_TRUE, KW_FALSE
                 -> Token.TokenType.KEYWORD3;
 
             // Numeric literals

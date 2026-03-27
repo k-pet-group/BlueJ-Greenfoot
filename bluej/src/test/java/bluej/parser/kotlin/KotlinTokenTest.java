@@ -32,63 +32,92 @@ import static org.junit.Assert.*;
  */
 public class KotlinTokenTest
 {
-    // --- Hard keywords → KEYWORD1 ---
+    // --- KEYWORD1: Control flow + Modifiers (matches Java's role-based scheme) ---
 
     @Test
-    public void testHardKeywordsMappedToKeyword1()
+    public void testControlFlowKeywordsMappedToKeyword1()
     {
-        assertDisplayType(KotlinToken.KW_VAL, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_VAR, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_FUN, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_CLASS, Token.TokenType.KEYWORD1);
         assertDisplayType(KotlinToken.KW_IF, Token.TokenType.KEYWORD1);
         assertDisplayType(KotlinToken.KW_ELSE, Token.TokenType.KEYWORD1);
         assertDisplayType(KotlinToken.KW_WHEN, Token.TokenType.KEYWORD1);
         assertDisplayType(KotlinToken.KW_FOR, Token.TokenType.KEYWORD1);
         assertDisplayType(KotlinToken.KW_WHILE, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_DO, Token.TokenType.KEYWORD1);
         assertDisplayType(KotlinToken.KW_RETURN, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_OBJECT, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_INTERFACE, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_IMPORT, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_PACKAGE, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_NULL, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_TRUE, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_FALSE, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_THIS, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_SUPER, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_BREAK, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_CONTINUE, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_THROW, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_TRY, Token.TokenType.KEYWORD1);
         assertDisplayType(KotlinToken.KW_IS, Token.TokenType.KEYWORD1);
         assertDisplayType(KotlinToken.KW_AS, Token.TokenType.KEYWORD1);
         assertDisplayType(KotlinToken.KW_IN, Token.TokenType.KEYWORD1);
-        assertDisplayType(KotlinToken.KW_ENUM, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_NOT_IS, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_NOT_IN, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_TYPEOF, Token.TokenType.KEYWORD1);
     }
 
-    // --- Soft / modifier keywords → KEYWORD2 ---
+    @Test
+    public void testModifierKeywordsMappedToKeyword1()
+    {
+        // Visibility modifiers → KEYWORD1 (matches Java)
+        assertDisplayType(KotlinToken.KW_PRIVATE, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_PUBLIC, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_INTERNAL, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_PROTECTED, Token.TokenType.KEYWORD1);
+        // Other modifiers → KEYWORD1
+        assertDisplayType(KotlinToken.KW_ABSTRACT, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_OPEN, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_FINAL, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_SEALED, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_OVERRIDE, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_INNER, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_LATEINIT, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_DATA, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_VALUE, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_INLINE, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_CONST, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_SUSPEND, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_VARARG, Token.TokenType.KEYWORD1);
+        assertDisplayType(KotlinToken.KW_OUT, Token.TokenType.KEYWORD1);
+    }
+
+    // --- KEYWORD2: Declarations (type, member, structural) ---
 
     @Test
-    public void testModifierKeywordsMappedToKeyword2()
+    public void testDeclarationKeywordsMappedToKeyword2()
     {
-        assertDisplayType(KotlinToken.KW_OPEN, Token.TokenType.KEYWORD2);
-        assertDisplayType(KotlinToken.KW_OVERRIDE, Token.TokenType.KEYWORD2);
-        assertDisplayType(KotlinToken.KW_ABSTRACT, Token.TokenType.KEYWORD2);
-        assertDisplayType(KotlinToken.KW_DATA, Token.TokenType.KEYWORD2);
-        assertDisplayType(KotlinToken.KW_SEALED, Token.TokenType.KEYWORD2);
-        assertDisplayType(KotlinToken.KW_COMPANION, Token.TokenType.KEYWORD2);
+        // Type declarations
+        assertDisplayType(KotlinToken.KW_CLASS, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_INTERFACE, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_ENUM, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_OBJECT, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_TYPE_ALIAS, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_PACKAGE, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_IMPORT, Token.TokenType.KEYWORD2);
+        // Member declarations
+        assertDisplayType(KotlinToken.KW_FUN, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_VAL, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_VAR, Token.TokenType.KEYWORD2);
+        // Structural
         assertDisplayType(KotlinToken.KW_CONSTRUCTOR, Token.TokenType.KEYWORD2);
         assertDisplayType(KotlinToken.KW_INIT, Token.TokenType.KEYWORD2);
-        assertDisplayType(KotlinToken.KW_INNER, Token.TokenType.KEYWORD2);
-        assertDisplayType(KotlinToken.KW_INLINE, Token.TokenType.KEYWORD2);
-        assertDisplayType(KotlinToken.KW_CONST, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_COMPANION, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_WHERE, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_BY, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_GET, Token.TokenType.KEYWORD2);
+        assertDisplayType(KotlinToken.KW_SET, Token.TokenType.KEYWORD2);
     }
 
-    // --- Visibility modifiers → KEYWORD3 ---
+    // --- KEYWORD3: Reference keywords (matches Java: this/super/null/true/false) ---
 
     @Test
-    public void testVisibilityKeywordsMappedToKeyword3()
+    public void testReferenceKeywordsMappedToKeyword3()
     {
-        assertDisplayType(KotlinToken.KW_PRIVATE, Token.TokenType.KEYWORD3);
-        assertDisplayType(KotlinToken.KW_PUBLIC, Token.TokenType.KEYWORD3);
-        assertDisplayType(KotlinToken.KW_INTERNAL, Token.TokenType.KEYWORD3);
-        assertDisplayType(KotlinToken.KW_PROTECTED, Token.TokenType.KEYWORD3);
+        assertDisplayType(KotlinToken.KW_THIS, Token.TokenType.KEYWORD3);
+        assertDisplayType(KotlinToken.KW_SUPER, Token.TokenType.KEYWORD3);
+        assertDisplayType(KotlinToken.KW_NULL, Token.TokenType.KEYWORD3);
+        assertDisplayType(KotlinToken.KW_TRUE, Token.TokenType.KEYWORD3);
+        assertDisplayType(KotlinToken.KW_FALSE, Token.TokenType.KEYWORD3);
     }
 
     // --- Literals ---

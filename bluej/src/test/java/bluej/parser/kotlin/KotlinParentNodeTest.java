@@ -132,50 +132,49 @@ public class KotlinParentNodeTest
     }
 
     // -----------------------------------------------------------------------
-    // Tests: Hard keywords → KEYWORD1
+    // Tests: KEYWORD1 — Control flow + Modifiers (matches Java's role-based scheme)
     // -----------------------------------------------------------------------
 
     @Test
     public void testHardKeywordsAreKeyword1()
     {
-        String[] hardKeywords = {
-            "val", "var", "fun", "class", "if", "when", "for", "while",
-            "return", "do", "throw", "try", "else", "object", "interface",
-            "is", "in", "break", "continue", "package", "as", "null",
-            "true", "false"
+        // Control flow hard keywords → KEYWORD1
+        String[] controlFlowKeywords = {
+            "if", "when", "for", "while", "return", "do", "throw", "try",
+            "else", "is", "in", "break", "continue", "as"
         };
 
-        for (String kw : hardKeywords)
+        for (String kw : controlFlowKeywords)
         {
             List<Token> tokens = tokenizeKotlin(kw);
-            // Find the non-DEFAULT token
             Token kwToken = tokens.stream()
                 .filter(t -> t.id != TokenType.DEFAULT)
                 .findFirst()
                 .orElse(null);
             assertNotNull("Keyword '" + kw + "' should produce a non-DEFAULT token", kwToken);
-            // Hard keywords map to KEYWORD1 or KEYWORD3 (for this/super/null/true/false)
-            assertTrue("Keyword '" + kw + "' should be KEYWORD1 or KEYWORD3, got " + kwToken.id,
-                kwToken.id == TokenType.KEYWORD1 || kwToken.id == TokenType.KEYWORD3);
+            assertEquals("Keyword '" + kw + "' should be KEYWORD1",
+                TokenType.KEYWORD1, kwToken.id);
         }
     }
 
     @Test
-    public void testFunKeywordIsKeyword1()
+    public void testFunKeywordIsKeyword2()
     {
+        // fun is a declaration keyword → KEYWORD2
         List<Token> tokens = tokenizeKotlin("fun");
         Token funToken = tokens.stream()
             .filter(t -> t.id != TokenType.DEFAULT)
             .findFirst()
             .orElse(null);
         assertNotNull(funToken);
-        assertEquals(TokenType.KEYWORD1, funToken.id);
+        assertEquals(TokenType.KEYWORD2, funToken.id);
         assertEquals(3, funToken.length);
     }
 
     @Test
-    public void testValVarAreKeyword1()
+    public void testValVarAreKeyword2()
     {
+        // val/var are declaration keywords → KEYWORD2
         for (String kw : new String[]{"val", "var"})
         {
             List<Token> tokens = tokenizeKotlin(kw);
@@ -184,42 +183,44 @@ public class KotlinParentNodeTest
                 .findFirst()
                 .orElse(null);
             assertNotNull(kwToken);
-            assertEquals("'" + kw + "' should be KEYWORD1", TokenType.KEYWORD1, kwToken.id);
+            assertEquals("'" + kw + "' should be KEYWORD2", TokenType.KEYWORD2, kwToken.id);
         }
     }
 
     // -----------------------------------------------------------------------
-    // Tests: Soft/modifier keywords → KEYWORD2
+    // Tests: Modifiers → KEYWORD1 (matches Java)
     // -----------------------------------------------------------------------
 
     @Test
-    public void testSoftKeywordsAreKeyword2()
+    public void testSoftKeywordsAreKeyword1()
     {
-        String[] softKeywords = {
-            "open", "override", "abstract", "data", "sealed", "companion",
+        // Modifiers → KEYWORD1 (aligned with Java's role-based scheme)
+        String[] modifierKeywords = {
+            "open", "override", "abstract", "data", "sealed",
             "inline", "operator", "infix", "const", "lateinit"
         };
 
-        for (String kw : softKeywords)
+        for (String kw : modifierKeywords)
         {
             List<Token> tokens = tokenizeKotlin(kw);
             Token kwToken = tokens.stream()
                 .filter(t -> t.id != TokenType.DEFAULT)
                 .findFirst()
                 .orElse(null);
-            assertNotNull("Soft keyword '" + kw + "' should produce a non-DEFAULT token", kwToken);
-            assertEquals("Soft keyword '" + kw + "' should be KEYWORD2",
-                TokenType.KEYWORD2, kwToken.id);
+            assertNotNull("Modifier keyword '" + kw + "' should produce a non-DEFAULT token", kwToken);
+            assertEquals("Modifier keyword '" + kw + "' should be KEYWORD1",
+                TokenType.KEYWORD1, kwToken.id);
         }
     }
 
     // -----------------------------------------------------------------------
-    // Tests: Visibility modifiers → KEYWORD3
+    // Tests: Visibility modifiers → KEYWORD1 (matches Java)
     // -----------------------------------------------------------------------
 
     @Test
-    public void testVisibilityModifiersAreKeyword3()
+    public void testVisibilityModifiersAreKeyword1()
     {
+        // Visibility modifiers → KEYWORD1 (aligned with Java where public/private are modifiers)
         String[] visKeywords = {"private", "public", "internal", "protected"};
 
         for (String kw : visKeywords)
@@ -230,8 +231,8 @@ public class KotlinParentNodeTest
                 .findFirst()
                 .orElse(null);
             assertNotNull("Visibility keyword '" + kw + "' should produce a non-DEFAULT token", kwToken);
-            assertEquals("Visibility keyword '" + kw + "' should be KEYWORD3",
-                TokenType.KEYWORD3, kwToken.id);
+            assertEquals("Visibility keyword '" + kw + "' should be KEYWORD1",
+                TokenType.KEYWORD1, kwToken.id);
         }
     }
 
@@ -364,13 +365,13 @@ public class KotlinParentNodeTest
     @Test
     public void testMixedKotlinLine()
     {
-        // "val x = 42" should produce: KEYWORD1("val") DEFAULT(" ") DEFAULT("x") DEFAULT(" = ") CHAR_LITERAL("42")
+        // "val x = 42" should produce: KEYWORD2("val") DEFAULT(" ") DEFAULT("x") DEFAULT(" = ") CHAR_LITERAL("42")
         String source = "val x = 42";
         List<Token> tokens = tokenizeKotlin(source);
 
-        // First non-whitespace token should be KEYWORD1 for "val"
+        // First non-whitespace token should be KEYWORD2 for "val" (declaration keyword)
         Token first = tokens.get(0);
-        assertEquals(TokenType.KEYWORD1, first.id);
+        assertEquals(TokenType.KEYWORD2, first.id);
         assertEquals(3, first.length); // "val" is 3 chars
 
         // Total length should match
@@ -384,9 +385,9 @@ public class KotlinParentNodeTest
         String source = "fun greet(name: String)";
         List<Token> tokens = tokenizeKotlin(source);
 
-        // First token should be KEYWORD1 for "fun"
+        // First token should be KEYWORD2 for "fun" (declaration keyword)
         Token first = tokens.get(0);
-        assertEquals(TokenType.KEYWORD1, first.id);
+        assertEquals(TokenType.KEYWORD2, first.id);
         assertEquals(3, first.length);
 
         // Total length should match
@@ -425,7 +426,7 @@ public class KotlinParentNodeTest
     @Test
     public void testVirtualDispatchUsesKotlinLexer()
     {
-        // "fun" is a Kotlin keyword (KEYWORD1) but NOT a Java keyword.
+        // "fun" is a Kotlin keyword (KEYWORD2 — declaration) but NOT a Java keyword.
         // If tokenizeText() were still static, it would be Java's tokenization
         // which would return DEFAULT for "fun".
         KotlinParentNode node = new KotlinParentNode(null);
@@ -438,7 +439,7 @@ public class KotlinParentNodeTest
             .findFirst()
             .orElse(null);
         assertNotNull("'fun' should be tokenized as a keyword by KotlinParentNode", funToken);
-        assertEquals(TokenType.KEYWORD1, funToken.id);
+        assertEquals(TokenType.KEYWORD2, funToken.id);
     }
 
     @Test
@@ -455,6 +456,6 @@ public class KotlinParentNodeTest
             .findFirst()
             .orElse(null);
         assertNotNull("'val' should be tokenized as a keyword by KotlinParentNode", valToken);
-        assertEquals(TokenType.KEYWORD1, valToken.id);
+        assertEquals(TokenType.KEYWORD2, valToken.id);
     }
 }

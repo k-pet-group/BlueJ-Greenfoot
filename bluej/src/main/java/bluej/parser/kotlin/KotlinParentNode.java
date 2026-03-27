@@ -125,9 +125,9 @@ public class KotlinParentNode extends JavaParentNode
      * <p>Overrides the Java-specific tokenization in {@link JavaParentNode}.
      * Maps Kotlin tokens to {@link TokenType} for CSS class assignment:
      * <ul>
-     *   <li>{@code val/var/fun/class/if/when/for/while/return/this/super/null/true/false} → KEYWORD1</li>
-     *   <li>{@code open/override/abstract/data/sealed/companion} → KEYWORD2</li>
-     *   <li>{@code private/public/internal/protected} → KEYWORD3</li>
+     *   <li>Control flow + modifiers (if/for/while/private/abstract/...) → KEYWORD1</li>
+     *   <li>Declarations (class/interface/fun/val/var/import/...) → KEYWORD2</li>
+     *   <li>References (this/super/null/true/false) → KEYWORD3</li>
      *   <li>String literals → STRING_LITERAL</li>
      *   <li>Comments → COMMENT_NORMAL / COMMENT_JAVADOC</li>
      * </ul>
