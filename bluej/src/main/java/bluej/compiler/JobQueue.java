@@ -32,8 +32,10 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 
 /**
- * Reasonably generic interface between the BlueJ IDE and the Java compiler.
- * 
+ * Reasonably generic interface between the BlueJ IDE and the compiler(s).
+ * Manages a single CompilerThread and dispatches compilation jobs to the
+ * appropriate compiler (Java or Kotlin) based on source file extension.
+ *
  * @author Michael Cahill
  */
 public class JobQueue
@@ -51,14 +53,16 @@ public class JobQueue
     // ---- instance ----
 
     private CompilerThread thread = null;
-    private Compiler compiler = null;
+    private Compiler javaCompiler = null;
+    private Compiler kotlinCompiler = null;
 
     /**
      * Construct the JobQueue. This is private; use getJobQueue() to get the job queue instance.
      */
     private JobQueue()
     {
-        compiler = new CompilerAPICompiler();
+        javaCompiler = new CompilerAPICompiler();
+        kotlinCompiler = new KotlinCompiler();
         thread = new CompilerThread();
 
         // Lower priority to improve GUI response time during compilation
@@ -70,14 +74,15 @@ public class JobQueue
     }
 
     /**
-     * Adds a job to the compile queue.
-     * 
+     * Adds a job to the compile queue. The appropriate compiler (Java or Kotlin)
+     * is selected based on the source file extensions.
+     *
      * @param sources   The files to compile
      * @param observer  Observer to be notified when compilation begins,
      *                  errors/warnings, completes
-     * @param classPath The classpath to use to locate objects/source code
-     * @param destDir   Destination for class files?
-     * @param suppressUnchecked    Suppress "unchecked" warning in java 1.5
+     * @param bpClassLoader The classpath to use to locate objects/source code
+     * @param destDir   Destination for class files
+     * @param suppressUnchecked    Suppress "unchecked" warning
      */
     public void addJob(CompileInputFile[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
             boolean suppressUnchecked, Charset fileCharset, CompileReason reason, CompileType type)
@@ -85,9 +90,26 @@ public class JobQueue
         List<String> options = new ArrayList<String>();
         String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, "");
         options.addAll(Utility.dequoteCommandLine(optionString));
-        
-        thread.addJob(new Job(sources, compiler, observer, bpClassLoader,
+
+        Compiler selectedCompiler = hasKotlinSources(sources) ? kotlinCompiler : javaCompiler;
+        thread.addJob(new Job(sources, selectedCompiler, observer, bpClassLoader,
                 destDir, suppressUnchecked, options, fileCharset, type, reason));
+    }
+
+    /**
+     * Check whether the source files contain any Kotlin (.kt) files.
+     */
+    private static boolean hasKotlinSources(CompileInputFile[] sources)
+    {
+        for (CompileInputFile source : sources)
+        {
+            File sourceFile = source.getJavaCompileInputFile();
+            if (sourceFile != null && sourceFile.getName().endsWith(".kt"))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

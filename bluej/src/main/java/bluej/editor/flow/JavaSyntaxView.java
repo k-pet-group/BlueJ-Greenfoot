@@ -386,9 +386,22 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     @OnThread(Tag.FXPlatform)
     public void enableParser(boolean force)
     {
+        enableParser(new ParsedCUNode(parentResolver));
+    }
+
+    /**
+     * Enable the parser with a pre-built root node. This allows callers to
+     * supply a language-specific root node (e.g. {@code KotlinParsedCUNode}
+     * for Kotlin files) instead of the default Java {@link ParsedCUNode}.
+     *
+     * @param externalRootNode  the root parse node to use
+     */
+    @OnThread(Tag.FXPlatform)
+    public void enableParser(ParsedCUNode externalRootNode)
+    {
         if (rootNode == null)
         {
-            rootNode = new ParsedCUNode(parentResolver);
+            rootNode = externalRootNode;
             reparseRecordTree = new NodeTree<ReparseRecord>();
             //if (parentResolver != null || force) {
             //rootNode.setParentResolver(parentResolver);
@@ -406,7 +419,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 {
                     scopeBackgrounds.linesAdded(document.getLineFromPosition(start), linesAdded);
                     fireInsertUpdate(start, newText.length());
-                }                
+                }
                 scheduleReparseRunner();
             });
 

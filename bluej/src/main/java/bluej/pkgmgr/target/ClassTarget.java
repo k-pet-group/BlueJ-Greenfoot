@@ -328,6 +328,11 @@ public class ClassTarget extends DependentTarget
             sourceAvailable = SourceType.Java;
             noSourceLabel.setText("");
         }
+        else if (getKotlinSourceFile().canRead())
+        {
+            sourceAvailable = SourceType.Kotlin;
+            noSourceLabel.setText("");
+        }
         else
         {
             sourceAvailable = SourceType.NONE;
@@ -1112,6 +1117,21 @@ public class ClassTarget extends DependentTarget
         }
     }
 
+    /**
+     * @return the name of the Kotlin file this target corresponds to.
+     */
+    public File getKotlinSourceFile()
+    {
+        if (null == getPackage())
+        {
+            return null;
+        }
+        else
+        {
+            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Kotlin.getExtension());
+        }
+    }
+
     @SuppressWarnings("incomplete-switch")
     @Override
     public File getSourceFile()
@@ -1120,6 +1140,7 @@ public class ClassTarget extends DependentTarget
         {
             case Java: return getJavaSourceFile();
             case Stride: return getFrameSourceFile();
+            case Kotlin: return getKotlinSourceFile();
         }
         return null;
     }
@@ -1193,6 +1214,9 @@ public class ClassTarget extends DependentTarget
         List<SourceFileInfo> list = new ArrayList<>();
         if (sourceAvailable.equals(SourceType.Stride)) {
             list.add(new SourceFileInfo(getFrameSourceFile(), SourceType.Stride));
+        }
+        else if (sourceAvailable.equals(SourceType.Kotlin)) {
+            list.add(new SourceFileInfo(getKotlinSourceFile(), SourceType.Kotlin));
         }
         list.add(new SourceFileInfo(getJavaSourceFile(), SourceType.Java));
         return list;
@@ -1357,6 +1381,19 @@ public class ClassTarget extends DependentTarget
                 Package pkg = getPackage();
                 editor = new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, openCallback);
             }
+            else if (sourceAvailable == SourceType.Kotlin) {
+                editor = new FlowEditor(newWindow -> {
+                    if (newWindow)
+                    {
+                        return project.createNewFXTabbedEditor();
+                    }
+                    else
+                    {
+                        return project.getDefaultFXTabbedEditor();
+                    }
+                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true, true);
+                ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
+            }
 
             // editor may be null if source has been deleted
             // for example.
@@ -1384,6 +1421,9 @@ public class ClassTarget extends DependentTarget
                     break;
                 case Stride:
                     Config.recordEditorOpen(Config.SourceType.Stride);
+                    break;
+                case Kotlin:
+                    Config.recordEditorOpen(Config.SourceType.Kotlin);
                     break;
                 default:
                     break;
@@ -1614,6 +1654,10 @@ public class ClassTarget extends DependentTarget
                             getBaseName(), getPackage().getBaseName(), includeFullContent));
                     success = true;
                     break;
+                case Kotlin:
+                    // Append ".kt" to template name so "stdclass" looks up "stdclass.kt.tmpl"
+                    success = role.generateSkeleton(template + ".kt", getPackage(), getBaseName(), getKotlinSourceFile().getPath(), includeFullContent);
+                    break;
                 default:
                     success = false;
             }
@@ -1750,7 +1794,8 @@ public class ClassTarget extends DependentTarget
 
         analysing = true;
 
-        ClassInfo info = sourceInfo.getInfo(getJavaSourceFile(), getPackage());
+        File sourceFile = (sourceAvailable == SourceType.Kotlin) ? getKotlinSourceFile() : getJavaSourceFile();
+        ClassInfo info = sourceInfo.getInfo(sourceFile, getPackage());
 
         // info will be null if the source was unparseable
         if (info != null) {
@@ -2640,6 +2685,9 @@ public class ClassTarget extends DependentTarget
 
     public CompileInputFile getCompileInputFile()
     {
+        if (sourceAvailable == SourceType.Kotlin) {
+            return new CompileInputFile(getKotlinSourceFile(), getKotlinSourceFile());
+        }
         return new CompileInputFile(getJavaSourceFile(), getSourceFile());
     }
 

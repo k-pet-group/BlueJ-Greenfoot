@@ -188,6 +188,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final EditorFixesManager editorFixesMgr;
 
     private final boolean sourceIsCode;           // true if current buffer is code
+    private final boolean isKotlin;               // true if editing a .kt file
     private final List<Menu> fxMenus;
     private final ListView<ErrorDetails> errorList;
     private final BorderPane errorListPane;
@@ -257,7 +258,14 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     // Used during testing
     public void enableParser(boolean force)
     {
-        javaSyntaxView.enableParser(force);
+        if (isKotlin)
+        {
+            javaSyntaxView.enableParser(new bluej.parser.kotlin.KotlinParsedCUNode());
+        }
+        else
+        {
+            javaSyntaxView.enableParser(force);
+        }
     }
 
     @Override
@@ -531,6 +539,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
     public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting, boolean sourceIsCode)
     {
+        this(fetchTabbedEditor, title, editorWatcher, parentResolver, javadocResolver, openCallback, syntaxHighlighting, sourceIsCode, false);
+    }
+
+    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting, boolean sourceIsCode, boolean isKotlin)
+    {
         this.fxTab = new FlowFXTab(this, title);
         this.javadocResolver = javadocResolver;
         this.windowTitle = title;
@@ -548,6 +561,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.actions = new FlowActions(this);
         this.htmlPane = new WebView();
         this.sourceIsCode = sourceIsCode;
+        this.isKotlin = isKotlin;
         this.editorFixesMgr = new EditorFixesManager(watcher == null || watcher.getPackage() == null ? new CompletableFuture<>() : watcher.getPackage().getProject().getImports());
         htmlPane.visibleProperty().bind(viewingHTML);
         setCenter(new StackPane(flowEditorPane, htmlPane));
@@ -1280,7 +1294,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
                 if (sourceIsCode)
                 {
-                    javaSyntaxView.enableParser(false);
+                    enableParser(false);
                 }
                 loaded = true;
             }
@@ -3663,7 +3677,14 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 return lineDisplay.calculateLineWidth(content);
             }
         }, flowEditorPaneListener, this.javaSyntaxView.getEntityResolver(), PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING));
-        javaSyntaxView.enableParser(true);
+        if (isKotlin)
+        {
+            javaSyntaxView.enableParser(new bluej.parser.kotlin.KotlinParsedCUNode());
+        }
+        else
+        {
+            javaSyntaxView.enableParser(true);
+        }
         StyledLines allLines = new StyledLines(doc, lineStylerWrapper[0]);
         lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true, null));
 

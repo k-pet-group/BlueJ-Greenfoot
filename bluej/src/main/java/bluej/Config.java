@@ -2019,6 +2019,7 @@ public final class Config
     public enum SourceType
     {
         Java,
-        Stride
+        Stride,
+        Kotlin
     }
 }

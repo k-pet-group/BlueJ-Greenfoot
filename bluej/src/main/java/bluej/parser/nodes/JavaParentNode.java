@@ -457,7 +457,7 @@ public abstract class JavaParentNode extends ParentParsedNode
         return new TokenAndScope(dummyTok.next, startLatestNode);
     }
 
-    protected static Token tokenizeText(ReparseableDocument document, int pos, int length)
+    protected Token tokenizeText(ReparseableDocument document, int pos, int length)
     {
         Reader dr = document.makeReader(pos, pos+length);
         TokenStream lexer = JavaParser.getLexer(dr, true, false);

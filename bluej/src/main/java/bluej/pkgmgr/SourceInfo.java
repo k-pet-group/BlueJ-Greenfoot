@@ -55,7 +55,17 @@ public final class SourceInfo
         {
             try
             {
-                info = InfoParser.parseWithPkg(sourceFile, pkg);
+                if (sourceFile != null && sourceFile.getName().endsWith(".kt"))
+                {
+                    // Kotlin files are parsed by KotlinInfoParser.
+                    // Until KotlinInfoParser is implemented, info remains null
+                    // and Kotlin classes rely on compiled Class<?> for role/dependency info.
+                    info = null;
+                }
+                else
+                {
+                    info = InfoParser.parseWithPkg(sourceFile, pkg);
+                }
             }
             catch (FileNotFoundException fnfe)
             {
