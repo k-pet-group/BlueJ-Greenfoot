@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import bluej.parser.InfoParser;
+import bluej.parser.kotlin.KotlinInfoParser;
 import bluej.parser.symtab.ClassInfo;
 
 /**
@@ -57,10 +58,7 @@ public final class SourceInfo
             {
                 if (sourceFile != null && sourceFile.getName().endsWith(".kt"))
                 {
-                    // Kotlin files are parsed by KotlinInfoParser.
-                    // Until KotlinInfoParser is implemented, info remains null
-                    // and Kotlin classes rely on compiled Class<?> for role/dependency info.
-                    info = null;
+                    info = KotlinInfoParser.parse(sourceFile);
                 }
                 else
                 {
