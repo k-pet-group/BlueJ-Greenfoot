@@ -259,10 +259,18 @@ public class KotlinParsedCUNodeTest
         assertNotNull(classNp);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
 
-        // Class should contain method
-        NodeAndPosition<ParsedNode> methodNp = classNp.getNode()
+        // Class contains an inner NONE node (container+inner pattern from
+        // KotlinPsiScopeBuilder), then the method is nested inside that.
+        NodeAndPosition<ParsedNode> innerNp = classNp.getNode()
             .findNodeAtOrAfter(classNp.getPosition(), classNp.getPosition());
-        assertNotNull("Class should contain a method", methodNp);
+        assertNotNull("Class should contain an inner node", innerNp);
+        assertEquals("First child of class should be inner NONE node",
+            ParsedNode.NODETYPE_NONE, innerNp.getNode().getNodeType());
+
+        // Method is inside the inner node
+        NodeAndPosition<ParsedNode> methodNp = innerNp.getNode()
+            .findNodeAtOrAfter(innerNp.getPosition(), innerNp.getPosition());
+        assertNotNull("Inner node should contain a method", methodNp);
         assertEquals(ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
     }
 
@@ -277,10 +285,18 @@ public class KotlinParsedCUNodeTest
         assertNotNull(methodNp);
         assertEquals(ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
 
-        // Method should contain children (selection + iteration)
-        NodeAndPosition<ParsedNode> first = methodNp.getNode()
+        // Method contains an inner NONE node (container+inner pattern from
+        // KotlinPsiScopeBuilder), then control flow nodes are nested inside.
+        NodeAndPosition<ParsedNode> innerNp = methodNp.getNode()
             .findNodeAtOrAfter(methodNp.getPosition(), methodNp.getPosition());
-        assertNotNull("Method should contain control flow children", first);
+        assertNotNull("Method should contain an inner node", innerNp);
+        assertEquals("First child of method should be inner NONE node",
+            ParsedNode.NODETYPE_NONE, innerNp.getNode().getNodeType());
+
+        // Control flow nodes are inside the inner node
+        NodeAndPosition<ParsedNode> first = innerNp.getNode()
+            .findNodeAtOrAfter(innerNp.getPosition(), innerNp.getPosition());
+        assertNotNull("Inner node should contain control flow children", first);
         // First child should be if (SELECTION) or for (ITERATION)
         int nt = first.getNode().getNodeType();
         assertTrue("First child should be SELECTION or ITERATION",
@@ -358,8 +374,15 @@ public class KotlinParsedCUNodeTest
         assertTrue("Class node should be KotlinParentNode",
             classNp.getNode() instanceof KotlinParentNode);
 
-        NodeAndPosition<ParsedNode> methodNp = classNp.getNode()
+        // Navigate through inner NONE node to reach the method
+        NodeAndPosition<ParsedNode> innerNp = classNp.getNode()
             .findNodeAtOrAfter(classNp.getPosition(), classNp.getPosition());
+        assertNotNull(innerNp);
+        assertTrue("Inner node should be KotlinParentNode",
+            innerNp.getNode() instanceof KotlinParentNode);
+
+        NodeAndPosition<ParsedNode> methodNp = innerNp.getNode()
+            .findNodeAtOrAfter(innerNp.getPosition(), innerNp.getPosition());
         assertNotNull(methodNp);
         assertTrue("Method node should be KotlinParentNode",
             methodNp.getNode() instanceof KotlinParentNode);
@@ -464,10 +487,18 @@ public class KotlinParsedCUNodeTest
         assertNotNull("Should have class node", classNp);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
 
-        // Class should contain at least one method
-        NodeAndPosition<ParsedNode> methodNp = classNp.getNode()
+        // Class contains an inner NONE node (container+inner pattern from
+        // KotlinPsiScopeBuilder), then methods are nested inside that.
+        NodeAndPosition<ParsedNode> innerNp = classNp.getNode()
             .findNodeAtOrAfter(classNp.getPosition(), classNp.getPosition());
-        assertNotNull("Class should contain methods", methodNp);
+        assertNotNull("Class should contain an inner node", innerNp);
+        assertEquals("First child of class should be inner NONE node",
+            ParsedNode.NODETYPE_NONE, innerNp.getNode().getNodeType());
+
+        // Methods are inside the inner node
+        NodeAndPosition<ParsedNode> methodNp = innerNp.getNode()
+            .findNodeAtOrAfter(innerNp.getPosition(), innerNp.getPosition());
+        assertNotNull("Inner node should contain methods", methodNp);
         assertEquals(ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
     }
 }
