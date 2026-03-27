@@ -21,45 +21,70 @@
  */
 package bluej.parser.kotlin;
 
-import bluej.parser.lexer.LocatableToken;
 import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
+
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
+import org.jetbrains.kotlin.kdoc.psi.api.KDoc;
+import org.jetbrains.kotlin.lexer.KtTokens;
+import org.jetbrains.kotlin.name.FqName;
+import org.jetbrains.kotlin.psi.KtClass;
+import org.jetbrains.kotlin.psi.KtClassBody;
+import org.jetbrains.kotlin.psi.KtClassOrObject;
+import org.jetbrains.kotlin.psi.KtDeclaration;
+import org.jetbrains.kotlin.psi.KtFile;
+import org.jetbrains.kotlin.psi.KtImportDirective;
+import org.jetbrains.kotlin.psi.KtNamedFunction;
+import org.jetbrains.kotlin.psi.KtNullableType;
+import org.jetbrains.kotlin.psi.KtObjectDeclaration;
+import org.jetbrains.kotlin.psi.KtParameter;
+import org.jetbrains.kotlin.psi.KtPrimaryConstructor;
+import org.jetbrains.kotlin.psi.KtProperty;
+import org.jetbrains.kotlin.psi.KtSuperTypeCallEntry;
+import org.jetbrains.kotlin.psi.KtSuperTypeListEntry;
+import org.jetbrains.kotlin.psi.KtTypeElement;
+import org.jetbrains.kotlin.psi.KtTypeParameter;
+import org.jetbrains.kotlin.psi.KtTypeReference;
+import org.jetbrains.kotlin.psi.KtUserType;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
  * Parses Kotlin source files to extract class metadata ({@link ClassInfo})
- * for the class diagram. Uses token-stream scanning via {@link KotlinLexer}
- * to find the top-level class declaration and extract its structure.
+ * for the class diagram. Uses PSI-based extraction via
+ * {@link KotlinEnvironmentManager#getPsiFactory()} to build a full parse tree
+ * and extract metadata directly from PSI nodes.
  *
  * <p>This is the Kotlin parallel to {@code bluej.parser.InfoParser} for Java.
  * Unlike the Java InfoParser (which uses a full recursive-descent parser with
- * callbacks), this implementation uses a simpler single-pass token scan —
- * sufficient for BlueJ's one-class-per-file model.</p>
+ * callbacks), this implementation uses PSI APIs from
+ * {@code kotlin-compiler-embeddable} for reliable structural extraction.</p>
  *
  * <h3>Parsing strategy</h3>
  * <ol>
- *   <li>Tokenize the full file with {@link KotlinLexer}</li>
- *   <li>Scan for {@code package} declaration</li>
- *   <li>Skip imports</li>
- *   <li>Accumulate class modifiers ({@code abstract}, {@code open}, {@code data}, etc.)</li>
- *   <li>Match class/interface/object/enum declaration</li>
- *   <li>Extract type parameters, primary constructor params, supertype list</li>
+ *   <li>{@code KtPsiFactory.createFile(source)} builds a PSI tree</li>
+ *   <li>{@code KtFile.getPackageFqName()} extracts the package name</li>
+ *   <li>{@code KtFile.getImportDirectives()} extracts imports for the "used" list</li>
+ *   <li>Find the first {@code KtClassOrObject} in top-level declarations</li>
+ *   <li>Extract modifiers, supertypes, type parameters, constructor params,
+ *       and body members via PSI methods</li>
  *   <li>Populate and return {@link ClassInfo}</li>
  * </ol>
  *
- * <h3>Supertype disambiguation heuristic</h3>
- * <p>Kotlin uses {@code :} for both extends and implements. Without type
- * resolution, we use this heuristic: supertypes followed by {@code (...)}
- * are classes (the first is the superclass), and those without parentheses
- * are interfaces. This is correct for the MVP subset.</p>
+ * <h3>Supertype disambiguation</h3>
+ * <p>PSI structurally distinguishes class supertypes ({@code KtSuperTypeCallEntry}
+ * — has constructor call) from interface supertypes ({@code KtSuperTypeEntry}
+ * — no constructor call). This is more reliable than the previous
+ * parentheses-heuristic approach.</p>
  *
  * @author BlueJ Team
  */
@@ -99,561 +124,538 @@ public class KotlinInfoParser
      */
     public static ClassInfo parse(Reader r, String targetPkg)
     {
-        // Tokenize the entire file
-        KotlinLexer lexer = new KotlinLexer(r);
-        List<LocatableToken> tokens = tokenizeAll(lexer);
-
-        if (tokens.isEmpty())
+        // Read full source into String (PSI requires CharSequence)
+        String source = readFully(r);
+        if (source == null || source.isBlank())
         {
             return null;
         }
 
-        Parser parser = new Parser(tokens);
-        return parser.parse();
-    }
+        // Build PSI tree
+        KtFile ktFile = KotlinEnvironmentManager.getPsiFactory().createFile(source);
 
-    /**
-     * Consume all tokens from the lexer into a list, filtering out
-     * whitespace and dangling newlines.
-     */
-    private static List<LocatableToken> tokenizeAll(KotlinLexer lexer)
-    {
-        List<LocatableToken> tokens = new ArrayList<>();
-        LocatableToken token;
-        while (true)
+        // Extract package name
+        FqName packageFqName = ktFile.getPackageFqName();
+        String packageName = packageFqName.isRoot() ? "" : packageFqName.asString();
+
+        // Find the first top-level KtClassOrObject declaration
+        KtClassOrObject classOrObject = null;
+        for (KtDeclaration decl : ktFile.getDeclarations())
         {
-            token = lexer.nextToken();
-            int type = token.getType();
-            if (type == KotlinToken.EOF)
+            if (decl instanceof KtClassOrObject co)
             {
+                classOrObject = co;
                 break;
             }
-            // Skip whitespace
-            if (type == KotlinToken.WHITE_SPACE || type == KotlinToken.DANGLING_NEWLINE)
+        }
+
+        if (classOrObject == null)
+        {
+            return null;
+        }
+
+        // Build ClassInfo from PSI node
+        return buildClassInfo(classOrObject, ktFile, packageName, targetPkg);
+    }
+
+    // -----------------------------------------------------------------------
+    // Core PSI extraction
+    // -----------------------------------------------------------------------
+
+    /**
+     * Build a {@link ClassInfo} from a PSI class/object declaration.
+     */
+    private static ClassInfo buildClassInfo(KtClassOrObject classOrObject,
+            KtFile ktFile, String packageName, String targetPkg)
+    {
+        ClassInfo info = new ClassInfo();
+
+        // --- Class identity ---
+        String name = classOrObject.getName();
+        if (name == null)
+        {
+            return null;
+        }
+
+        boolean isPublic = !classOrObject.hasModifier(KtTokens.PRIVATE_KEYWORD)
+            && !classOrObject.hasModifier(KtTokens.INTERNAL_KEYWORD)
+            && !classOrObject.hasModifier(KtTokens.PROTECTED_KEYWORD);
+        info.setName(name, isPublic);
+
+        // --- Modifiers ---
+        if (classOrObject instanceof KtClass ktClass)
+        {
+            info.setInterface(ktClass.isInterface());
+            info.setEnum(ktClass.isEnum());
+            info.setAbstract(
+                ktClass.hasModifier(KtTokens.ABSTRACT_KEYWORD)
+                || ktClass.isSealed()
+                || ktClass.isInterface());
+        }
+        else
+        {
+            // KtObjectDeclaration — not abstract, not interface, not enum
+            info.setAbstract(false);
+            info.setInterface(false);
+            info.setEnum(false);
+        }
+
+        // --- Package name (fixes gap: package not stored) ---
+        if (!packageName.isEmpty())
+        {
+            info.setPackageSelections(
+                new Selection(1, 1),   // package statement placeholder
+                new Selection(1, 1),   // package name placeholder
+                packageName,           // the actual package name text
+                new Selection(1, 1)    // semi placeholder (Kotlin has no semicolons)
+            );
+        }
+
+        // --- targetPkg validation (fixes gap: targetPkg unused) ---
+        if (targetPkg != null && !targetPkg.isEmpty()
+            && !targetPkg.equals(packageName))
+        {
+            info.setParseError(true);
+        }
+
+        // --- Imports → used types (fixes gap: imports not tracked) ---
+        extractImports(ktFile, info);
+
+        // --- Type parameters ---
+        extractTypeParameters(classOrObject, info);
+
+        // --- Primary constructor parameter types → used list ---
+        extractPrimaryConstructor(classOrObject, info);
+
+        // --- Supertype list ---
+        extractSupertypes(classOrObject, info);
+
+        // --- Class body: methods and properties (fixes gap: no body parsing) ---
+        extractClassBody(classOrObject, info);
+
+        // --- KDoc comment on the class itself ---
+        String classKDoc = extractKDoc(classOrObject);
+        if (classKDoc != null)
+        {
+            info.addComment(name, classKDoc, null);
+        }
+
+        return info;
+    }
+
+    // -----------------------------------------------------------------------
+    // Import extraction
+    // -----------------------------------------------------------------------
+
+    /**
+     * Extract imported types and add non-primitive ones to the "used" list.
+     */
+    private static void extractImports(KtFile ktFile, ClassInfo info)
+    {
+        for (KtImportDirective imp : ktFile.getImportDirectives())
+        {
+            FqName importedFqName = imp.getImportedFqName();
+            if (importedFqName != null)
+            {
+                String simpleName = importedFqName.shortName().asString();
+                if (!isPrimitiveKotlinType(simpleName))
+                {
+                    info.addUsed(simpleName);
+                }
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Type parameter extraction
+    // -----------------------------------------------------------------------
+
+    /**
+     * Extract type parameters (e.g., {@code <T>}, {@code <T : Comparable<T>>}).
+     */
+    private static void extractTypeParameters(KtClassOrObject classOrObject, ClassInfo info)
+    {
+        List<KtTypeParameter> typeParams = classOrObject.getTypeParameters();
+        for (KtTypeParameter tp : typeParams)
+        {
+            String tpText = tp.getText();
+            if (tpText != null && !tpText.isEmpty())
+            {
+                info.addTypeParameterText(tpText);
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Primary constructor extraction
+    // -----------------------------------------------------------------------
+
+    /**
+     * Extract parameter types from the primary constructor and add
+     * non-primitive ones to the "used" list.
+     */
+    private static void extractPrimaryConstructor(KtClassOrObject classOrObject, ClassInfo info)
+    {
+        KtPrimaryConstructor ctor = classOrObject.getPrimaryConstructor();
+        if (ctor == null)
+        {
+            return;
+        }
+
+        for (KtParameter param : ctor.getValueParameters())
+        {
+            KtTypeReference typeRef = param.getTypeReference();
+            if (typeRef != null)
+            {
+                String typeName = extractSimpleName(typeRef);
+                if (typeName != null && !isPrimitiveKotlinType(typeName))
+                {
+                    info.addUsed(typeName);
+                }
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Supertype extraction
+    // -----------------------------------------------------------------------
+
+    /**
+     * Extract supertypes using PSI's structural distinction:
+     * {@link KtSuperTypeCallEntry} (has constructor call → class) vs
+     * other entries (no constructor → interface).
+     */
+    private static void extractSupertypes(KtClassOrObject classOrObject, ClassInfo info)
+    {
+        boolean foundSuperclass = false;
+
+        for (KtSuperTypeListEntry entry : classOrObject.getSuperTypeListEntries())
+        {
+            KtTypeReference typeRef = entry.getTypeReference();
+            if (typeRef == null)
             {
                 continue;
             }
-            tokens.add(token);
+
+            String typeName = extractSimpleName(typeRef);
+            if (typeName == null)
+            {
+                continue;
+            }
+
+            if (entry instanceof KtSuperTypeCallEntry)
+            {
+                // Constructor call → class supertype: `: Base(...)`
+                if (!foundSuperclass)
+                {
+                    info.setSuperclass(typeName);
+                    foundSuperclass = true;
+                }
+                else
+                {
+                    // Multiple constructor-call supertypes (unusual but possible)
+                    info.addUsed(typeName);
+                }
+            }
+            else
+            {
+                // Plain or delegated → interface: `: Iface` or `: Iface by impl`
+                info.addImplements(typeName);
+            }
         }
-        return tokens;
     }
 
     // -----------------------------------------------------------------------
-    // Internal token-stream parser
+    // Class body extraction
     // -----------------------------------------------------------------------
 
     /**
-     * Stateful token-stream parser that walks through tokens and extracts
-     * class metadata.
+     * Extract methods and properties from the class body.
+     * Adds their types to the "used" list and their KDoc comments
+     * to the comments list.
      */
-    @OnThread(Tag.FXPlatform)
-    private static class Parser
+    private static void extractClassBody(KtClassOrObject classOrObject, ClassInfo info)
     {
-        private final List<LocatableToken> tokens;
-        private int pos = 0;
-
-        // Accumulated state
-        private boolean isAbstract = false;
-        private boolean isOpen = false;
-        private boolean isSealed = false;
-        private boolean isData = false;
-        private boolean isInner = false;
-        private boolean isEnum = false;
-        private boolean isPublic = true; // Kotlin classes are public by default
-        private String lastDocComment = null;
-
-        Parser(List<LocatableToken> tokens)
+        KtClassBody body = classOrObject.getBody();
+        if (body == null)
         {
-            this.tokens = tokens;
+            return;
         }
 
-        ClassInfo parse()
+        for (KtDeclaration member : body.getDeclarations())
         {
-            // Phase 1: Skip package declaration
-            skipPackage();
-
-            // Phase 2: Skip import statements
-            skipImports();
-
-            // Phase 3: Find and parse the top-level class declaration
-            return parseTopLevelDeclaration();
-        }
-
-        // --- Phase 1: Package ---
-
-        private void skipPackage()
-        {
-            if (currentType() == KotlinToken.KW_PACKAGE)
+            if (member instanceof KtNamedFunction fun)
             {
-                pos++; // skip 'package' keyword
-                // Skip: foo.bar.baz
-                while (pos < tokens.size() && !isStatementEnd())
-                {
-                    pos++;
-                }
+                extractMethod(fun, info);
+            }
+            else if (member instanceof KtProperty prop)
+            {
+                extractProperty(prop, info);
             }
         }
+    }
 
-        // --- Phase 2: Imports ---
-
-        private void skipImports()
+    /**
+     * Extract a method's parameter types, return type, and KDoc comment.
+     */
+    private static void extractMethod(KtNamedFunction fun, ClassInfo info)
+    {
+        String methodName = fun.getName();
+        if (methodName == null)
         {
-            while (currentType() == KotlinToken.KW_IMPORT)
+            return;
+        }
+
+        // Collect parameter types for "used" list
+        for (KtParameter param : fun.getValueParameters())
+        {
+            KtTypeReference typeRef = param.getTypeReference();
+            if (typeRef != null)
             {
-                pos++; // skip 'import' keyword
-                // Skip: foo.bar.Baz
-                while (pos < tokens.size() && !isStatementEnd())
+                String typeName = extractSimpleName(typeRef);
+                if (typeName != null && !isPrimitiveKotlinType(typeName))
                 {
-                    pos++;
+                    info.addUsed(typeName);
                 }
             }
         }
 
-        // --- Phase 3: Top-level declaration ---
-
-        private ClassInfo parseTopLevelDeclaration()
+        // Collect return type for "used" list
+        KtTypeReference returnTypeRef = fun.getTypeReference();
+        if (returnTypeRef != null)
         {
-            // Collect modifiers and annotations before the class keyword
-            while (pos < tokens.size())
+            String returnType = extractSimpleName(returnTypeRef);
+            if (returnType != null && !isPrimitiveKotlinType(returnType))
             {
-                int type = currentType();
-
-                // Track KDoc comments
-                if (type == KotlinToken.DOC_COMMENT)
-                {
-                    lastDocComment = currentText();
-                    pos++;
-                    continue;
-                }
-
-                // Skip other comments
-                if (KotlinToken.isComment(type))
-                {
-                    pos++;
-                    continue;
-                }
-
-                // Skip annotations (@Foo)
-                if (type == KotlinToken.AT)
-                {
-                    skipAnnotation();
-                    continue;
-                }
-
-                // Accumulate modifiers
-                if (type == KotlinToken.KW_ABSTRACT) { isAbstract = true; pos++; continue; }
-                if (type == KotlinToken.KW_OPEN) { isOpen = true; pos++; continue; }
-                if (type == KotlinToken.KW_SEALED) { isSealed = true; pos++; continue; }
-                if (type == KotlinToken.KW_DATA) { isData = true; pos++; continue; }
-                if (type == KotlinToken.KW_INNER) { isInner = true; pos++; continue; }
-                if (type == KotlinToken.KW_ENUM) { isEnum = true; pos++; continue; }
-                if (type == KotlinToken.KW_PRIVATE) { isPublic = false; pos++; continue; }
-                if (type == KotlinToken.KW_INTERNAL) { isPublic = false; pos++; continue; }
-                if (type == KotlinToken.KW_PROTECTED) { isPublic = false; pos++; continue; }
-                if (type == KotlinToken.KW_PUBLIC) { isPublic = true; pos++; continue; }
-
-                // Skip other modifier keywords that don't affect ClassInfo
-                if (type == KotlinToken.KW_FINAL || type == KotlinToken.KW_ANNOTATION
-                    || type == KotlinToken.KW_VALUE || type == KotlinToken.KW_INLINE
-                    || type == KotlinToken.KW_EXTERNAL || type == KotlinToken.KW_EXPECT
-                    || type == KotlinToken.KW_ACTUAL)
-                {
-                    pos++;
-                    continue;
-                }
-
-                // Class declaration
-                if (type == KotlinToken.KW_CLASS)
-                {
-                    pos++;
-                    return parseClassBody(false);
-                }
-
-                // Interface declaration
-                if (type == KotlinToken.KW_INTERFACE)
-                {
-                    pos++;
-                    return parseClassBody(true);
-                }
-
-                // Object declaration
-                if (type == KotlinToken.KW_OBJECT)
-                {
-                    pos++;
-                    return parseObjectBody();
-                }
-
-                // Not a declaration we recognize — skip
-                pos++;
-            }
-
-            return null; // No class declaration found
-        }
-
-        // --- Parse class/interface body ---
-
-        private ClassInfo parseClassBody(boolean isInterface)
-        {
-            // Expect: <Name> [<TypeParams>] [(PrimaryConstructor)] [: SuperTypes] [{...}]
-            if (currentType() != KotlinToken.IDENTIFIER)
-            {
-                return null;
-            }
-
-            String className = currentText();
-            pos++;
-
-            ClassInfo info = new ClassInfo();
-            info.setName(className, isPublic);
-            info.setInterface(isInterface);
-            info.setAbstract(isAbstract || isSealed || isInterface);
-            info.setEnum(isEnum);
-
-            if (lastDocComment != null)
-            {
-                info.addComment(className, lastDocComment, null);
-            }
-
-            // Type parameters: <T, U : Comparable<U>>
-            if (currentType() == KotlinToken.LT)
-            {
-                parseTypeParameters(info);
-            }
-
-            // Primary constructor parameters: (val name: String, val age: Int)
-            if (currentType() == KotlinToken.LPAR)
-            {
-                parseConstructorParams(info);
-            }
-
-            // Supertype list: : Base(), Interface1, Interface2
-            if (currentType() == KotlinToken.COLON)
-            {
-                pos++; // skip ':'
-                parseSupertypeList(info);
-            }
-
-            return info;
-        }
-
-        // --- Parse object declaration ---
-
-        private ClassInfo parseObjectBody()
-        {
-            // Expect: <Name> [: SuperTypes] [{...}]
-            // Handle: companion object { } (no name)
-            if (currentType() != KotlinToken.IDENTIFIER)
-            {
-                return null;
-            }
-
-            String objectName = currentText();
-            pos++;
-
-            ClassInfo info = new ClassInfo();
-            info.setName(objectName, isPublic);
-            info.setAbstract(false);
-
-            if (lastDocComment != null)
-            {
-                info.addComment(objectName, lastDocComment, null);
-            }
-
-            // Supertype list
-            if (currentType() == KotlinToken.COLON)
-            {
-                pos++; // skip ':'
-                parseSupertypeList(info);
-            }
-
-            return info;
-        }
-
-        // --- Type parameters ---
-
-        private void parseTypeParameters(ClassInfo info)
-        {
-            // Skip '<', collect type param text until matching '>'
-            pos++; // skip '<'
-            int depth = 1;
-            StringBuilder currentParam = new StringBuilder();
-
-            while (pos < tokens.size() && depth > 0)
-            {
-                int type = currentType();
-                if (type == KotlinToken.LT)
-                {
-                    depth++;
-                    currentParam.append(currentText());
-                }
-                else if (type == KotlinToken.GT)
-                {
-                    depth--;
-                    if (depth > 0)
-                    {
-                        currentParam.append(currentText());
-                    }
-                }
-                else if (type == KotlinToken.COMMA && depth == 1)
-                {
-                    // Separator between type params
-                    String param = currentParam.toString().trim();
-                    if (!param.isEmpty())
-                    {
-                        info.addTypeParameterText(param);
-                    }
-                    currentParam = new StringBuilder();
-                }
-                else
-                {
-                    currentParam.append(currentText());
-                }
-                pos++;
-            }
-
-            // Add last type parameter
-            String param = currentParam.toString().trim();
-            if (!param.isEmpty())
-            {
-                info.addTypeParameterText(param);
+                info.addUsed(returnType);
             }
         }
 
-        // --- Primary constructor parameters ---
-
-        private void parseConstructorParams(ClassInfo info)
+        // Store KDoc comment if present
+        String docComment = extractKDoc(fun);
+        if (docComment != null)
         {
-            // Skip '(', extract parameter type names for 'used' list
-            pos++; // skip '('
-            int depth = 1;
+            String target = buildMethodTarget(fun);
+            String paramNames = buildParamNames(fun);
+            info.addComment(target, docComment, paramNames);
+        }
+    }
 
-            while (pos < tokens.size() && depth > 0)
+    /**
+     * Extract a property's type and add it to the "used" list.
+     */
+    private static void extractProperty(KtProperty prop, ClassInfo info)
+    {
+        KtTypeReference typeRef = prop.getTypeReference();
+        if (typeRef != null)
+        {
+            String typeName = extractSimpleName(typeRef);
+            if (typeName != null && !isPrimitiveKotlinType(typeName))
             {
-                int type = currentType();
-                if (type == KotlinToken.LPAR)
-                {
-                    depth++;
-                }
-                else if (type == KotlinToken.RPAR)
-                {
-                    depth--;
-                }
-                else if (depth == 1 && type == KotlinToken.COLON)
-                {
-                    // After ':' comes the parameter type
-                    pos++; // skip ':'
-                    // Read the type name (could be qualified: foo.Bar)
-                    String typeName = readTypeName();
-                    if (typeName != null && !isPrimitiveKotlinType(typeName))
-                    {
-                        info.addUsed(typeName);
-                    }
-                    continue; // readTypeName already advanced pos
-                }
-                pos++;
+                info.addUsed(typeName);
             }
         }
+    }
 
-        // --- Supertype list ---
+    // -----------------------------------------------------------------------
+    // Utility methods
+    // -----------------------------------------------------------------------
 
-        private void parseSupertypeList(ClassInfo info)
+    /**
+     * Extract the simple (unqualified) type name from a type reference.
+     * Handles user types ({@code Foo}), qualified types ({@code com.example.Foo}),
+     * nullable types ({@code Foo?}), and generic types ({@code List<String>}).
+     *
+     * @return the simple type name, or null if it cannot be determined
+     */
+    private static String extractSimpleName(KtTypeReference typeRef)
+    {
+        KtTypeElement typeElement = typeRef.getTypeElement();
+        if (typeElement instanceof KtUserType userType)
         {
-            // Parse comma-separated supertypes until '{' or EOF
-            // Heuristic: if followed by '(' it's a class (superclass), otherwise interface
-            boolean foundSuperclass = false;
-
-            while (pos < tokens.size())
+            return extractNameFromUserType(userType);
+        }
+        if (typeElement instanceof KtNullableType nullable)
+        {
+            KtTypeElement inner = nullable.getInnerType();
+            if (inner instanceof KtUserType userType)
             {
-                int type = currentType();
-
-                // End of supertype list
-                if (type == KotlinToken.LBRACE || type == KotlinToken.KW_WHERE)
-                {
-                    break;
-                }
-
-                // Skip comments
-                if (KotlinToken.isComment(type))
-                {
-                    pos++;
-                    continue;
-                }
-
-                // Read the supertype name
-                if (type == KotlinToken.IDENTIFIER)
-                {
-                    String supertypeName = readTypeName();
-                    if (supertypeName == null)
-                    {
-                        break;
-                    }
-
-                    // Skip type arguments if present: <Foo, Bar>
-                    if (currentType() == KotlinToken.LT)
-                    {
-                        skipBalanced(KotlinToken.LT, KotlinToken.GT);
-                    }
-
-                    // Check if followed by '(' — class constructor call
-                    if (currentType() == KotlinToken.LPAR)
-                    {
-                        // It's a class supertype
-                        if (!foundSuperclass)
-                        {
-                            info.setSuperclass(supertypeName);
-                            foundSuperclass = true;
-                        }
-                        else
-                        {
-                            info.addUsed(supertypeName);
-                        }
-                        // Skip the constructor arguments
-                        skipBalanced(KotlinToken.LPAR, KotlinToken.RPAR);
-                    }
-                    else
-                    {
-                        // No parens — it's an interface
-                        info.addImplements(supertypeName);
-                    }
-
-                    // Skip comma between supertypes
-                    if (currentType() == KotlinToken.COMMA)
-                    {
-                        pos++;
-                    }
-                }
-                else
-                {
-                    pos++;
-                }
+                return extractNameFromUserType(userType);
             }
         }
+        // Fallback: parse from text
+        return extractNameFromText(typeRef.getText());
+    }
 
-        // --- Utility methods ---
+    /**
+     * Extract the simple name from a {@link KtUserType}, handling qualified
+     * names like {@code com.example.Foo} by returning just {@code "Foo"}.
+     */
+    private static String extractNameFromUserType(KtUserType userType)
+    {
+        // getReferencedName() returns the simple (last segment) name
+        // For "com.example.Foo", the KtUserType tree is nested:
+        //   KtUserType("Foo") with qualifier KtUserType("example") with qualifier KtUserType("com")
+        // So getReferencedName() on the outermost already gives us "Foo"
+        String name = userType.getReferencedName();
+        return name;
+    }
 
-        /**
-         * Read a possibly qualified type name (e.g., "Foo" or "foo.bar.Baz").
-         * Returns the simple name (last segment). Advances pos.
-         */
-        private String readTypeName()
+    /**
+     * Fallback: extract simple name from raw type text.
+     * Strips nullable markers, generic parameters, and qualifiers.
+     */
+    private static String extractNameFromText(String text)
+    {
+        if (text == null || text.isEmpty())
         {
-            if (currentType() != KotlinToken.IDENTIFIER)
-            {
-                return null;
-            }
-
-            String name = currentText();
-            pos++;
-
-            // Handle qualified names: skip dots and take the last identifier
-            while (currentType() == KotlinToken.DOT)
-            {
-                pos++; // skip '.'
-                if (currentType() == KotlinToken.IDENTIFIER)
-                {
-                    name = currentText();
-                    pos++;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return name;
+            return null;
         }
-
-        /**
-         * Skip a balanced pair of tokens (e.g., parentheses, angle brackets).
-         */
-        private void skipBalanced(int openType, int closeType)
+        // Remove nullable marker
+        if (text.endsWith("?"))
         {
-            if (currentType() != openType)
-            {
-                return;
-            }
-            pos++; // skip open
-            int depth = 1;
-            while (pos < tokens.size() && depth > 0)
-            {
-                int type = currentType();
-                if (type == openType) depth++;
-                else if (type == closeType) depth--;
-                pos++;
-            }
+            text = text.substring(0, text.length() - 1);
         }
-
-        /**
-         * Skip an annotation: @Foo or @Foo(args).
-         */
-        private void skipAnnotation()
+        // Remove generic parameters
+        int lt = text.indexOf('<');
+        if (lt > 0)
         {
-            pos++; // skip '@'
-            // Skip annotation name (possibly qualified)
-            while (currentType() == KotlinToken.IDENTIFIER || currentType() == KotlinToken.DOT)
+            text = text.substring(0, lt);
+        }
+        // Get simple name (last segment of qualified name)
+        int dot = text.lastIndexOf('.');
+        if (dot >= 0)
+        {
+            text = text.substring(dot + 1);
+        }
+        return text.trim().isEmpty() ? null : text.trim();
+    }
+
+    /**
+     * Extract KDoc comment text from a declaration.
+     * Returns the raw KDoc text (including delimiters), or null if absent.
+     */
+    private static String extractKDoc(PsiElement decl)
+    {
+        // KDoc appears as a direct child PsiElement of the declaration
+        for (PsiElement child = decl.getFirstChild(); child != null;
+             child = child.getNextSibling())
+        {
+            if (child instanceof KDoc)
             {
-                pos++;
-            }
-            // Skip annotation arguments if present
-            if (currentType() == KotlinToken.LPAR)
-            {
-                skipBalanced(KotlinToken.LPAR, KotlinToken.RPAR);
+                return child.getText();
             }
         }
+        return null;
+    }
 
-        /**
-         * Check if current token marks the end of a statement
-         * (semicolon or start of next declaration).
-         */
-        private boolean isStatementEnd()
+    /**
+     * Build the method target string for {@link ClassInfo#addComment}.
+     * Format: {@code "ReturnType methodName(ParamType1,ParamType2)"}
+     */
+    private static String buildMethodTarget(KtNamedFunction fun)
+    {
+        StringBuilder target = new StringBuilder();
+
+        // Return type (or "Unit" if not specified)
+        KtTypeReference returnTypeRef = fun.getTypeReference();
+        if (returnTypeRef != null)
         {
-            int type = currentType();
-            return type == KotlinToken.KW_IMPORT
-                || type == KotlinToken.KW_CLASS
-                || type == KotlinToken.KW_INTERFACE
-                || type == KotlinToken.KW_OBJECT
-                || type == KotlinToken.KW_FUN
-                || type == KotlinToken.KW_VAL
-                || type == KotlinToken.KW_VAR
-                || type == KotlinToken.KW_ABSTRACT
-                || type == KotlinToken.KW_OPEN
-                || type == KotlinToken.KW_SEALED
-                || type == KotlinToken.KW_DATA
-                || type == KotlinToken.KW_ENUM
-                || type == KotlinToken.KW_PRIVATE
-                || type == KotlinToken.KW_PUBLIC
-                || type == KotlinToken.KW_INTERNAL
-                || type == KotlinToken.KW_PROTECTED
-                || type == KotlinToken.KW_ANNOTATION
-                || type == KotlinToken.AT;
+            target.append(returnTypeRef.getText());
+        }
+        else
+        {
+            target.append("Unit");
         }
 
-        private int currentType()
-        {
-            if (pos >= tokens.size()) return KotlinToken.EOF;
-            return tokens.get(pos).getType();
-        }
+        target.append(' ');
+        target.append(fun.getName());
+        target.append('(');
 
-        private String currentText()
+        // Parameter types
+        StringJoiner params = new StringJoiner(",");
+        for (KtParameter param : fun.getValueParameters())
         {
-            if (pos >= tokens.size()) return "";
-            return tokens.get(pos).getText();
-        }
-
-        /**
-         * Check if a type name is a Kotlin primitive/built-in type
-         * (which shouldn't be added to the 'used' list).
-         */
-        private static boolean isPrimitiveKotlinType(String name)
-        {
-            return switch (name)
+            KtTypeReference paramType = param.getTypeReference();
+            if (paramType != null)
             {
-                case "Int", "Long", "Short", "Byte",
-                     "Double", "Float",
-                     "Boolean", "Char",
-                     "String", "Unit", "Nothing", "Any" -> true;
-                default -> false;
-            };
+                params.add(paramType.getText());
+            }
+            else
+            {
+                params.add("Any");
+            }
         }
+        target.append(params);
+        target.append(')');
+
+        return target.toString();
+    }
+
+    /**
+     * Build a space-separated list of parameter names for
+     * {@link ClassInfo#addComment}.
+     *
+     * @return parameter names string, or null if no parameters
+     */
+    private static String buildParamNames(KtNamedFunction fun)
+    {
+        List<KtParameter> params = fun.getValueParameters();
+        if (params.isEmpty())
+        {
+            return null;
+        }
+
+        StringJoiner names = new StringJoiner(" ");
+        for (KtParameter param : params)
+        {
+            String name = param.getName();
+            if (name != null)
+            {
+                names.add(name);
+            }
+        }
+        String result = names.toString();
+        return result.isEmpty() ? null : result;
+    }
+
+    /**
+     * Read all content from a Reader into a String.
+     *
+     * @return the full content, or null on I/O error
+     */
+    private static String readFully(Reader r)
+    {
+        try
+        {
+            StringBuilder sb = new StringBuilder();
+            char[] buf = new char[4096];
+            int n;
+            while ((n = r.read(buf)) != -1)
+            {
+                sb.append(buf, 0, n);
+            }
+            return sb.toString();
+        }
+        catch (IOException e)
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Check if a type name is a Kotlin primitive/built-in type
+     * (which shouldn't be added to the 'used' list).
+     */
+    private static boolean isPrimitiveKotlinType(String name)
+    {
+        return switch (name)
+        {
+            case "Int", "Long", "Short", "Byte",
+                 "Double", "Float",
+                 "Boolean", "Char",
+                 "String", "Unit", "Nothing", "Any" -> true;
+            default -> false;
+        };
     }
 }

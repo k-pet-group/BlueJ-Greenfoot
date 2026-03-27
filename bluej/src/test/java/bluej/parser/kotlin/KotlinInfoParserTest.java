@@ -34,12 +34,17 @@ import static org.junit.Assert.*;
 public class KotlinInfoParserTest
 {
     // -----------------------------------------------------------------------
-    // Helper
+    // Helpers
     // -----------------------------------------------------------------------
 
     private ClassInfo parse(String source)
     {
         return KotlinInfoParser.parse(new StringReader(source), null);
+    }
+
+    private ClassInfo parseWithPkg(String source, String targetPkg)
+    {
+        return KotlinInfoParser.parse(new StringReader(source), targetPkg);
     }
 
     // -----------------------------------------------------------------------
@@ -187,7 +192,7 @@ public class KotlinInfoParserTest
     }
 
     // -----------------------------------------------------------------------
-    // Package and imports
+    // Package and imports (basic — class found correctly)
     // -----------------------------------------------------------------------
 
     @Test
@@ -313,5 +318,216 @@ public class KotlinInfoParserTest
     {
         ClassInfo info = parse("package foo\nimport bar.Baz");
         assertNull("File with only package/imports should return null", info);
+    }
+
+    // =======================================================================
+    // NEW TESTS — Package extraction (fixes gap 1)
+    // =======================================================================
+
+    @Test
+    public void testPackageNameExtracted()
+    {
+        ClassInfo info = parse("package animals\nclass Dog");
+        assertNotNull(info);
+        assertEquals("Dog", info.getName());
+        assertEquals("animals", info.getPackage());
+        assertTrue(info.hasPackageStatement());
+    }
+
+    @Test
+    public void testSubPackageNameExtracted()
+    {
+        ClassInfo info = parse("package com.example.animals\nclass Dog");
+        assertNotNull(info);
+        assertEquals("com.example.animals", info.getPackage());
+        assertTrue(info.hasPackageStatement());
+    }
+
+    @Test
+    public void testDefaultPackage()
+    {
+        ClassInfo info = parse("class Dog");
+        assertNotNull(info);
+        assertEquals("", info.getPackage());
+        assertFalse(info.hasPackageStatement());
+    }
+
+    // =======================================================================
+    // NEW TESTS — Import tracking (fixes gap 2)
+    // =======================================================================
+
+    @Test
+    public void testImportsAddedToUsed()
+    {
+        ClassInfo info = parse(
+            "import animals.Animal\n"
+            + "import animals.Habitat\n"
+            + "class Dog : Animal()"
+        );
+        assertNotNull(info);
+        // Animal is the superclass (goes to superclass, removed from used)
+        // Habitat should be in the used list from imports
+        assertTrue("Imported non-primitive type should be in used list",
+            info.getUsed().contains("Habitat"));
+    }
+
+    @Test
+    public void testPrimitiveImportsExcluded()
+    {
+        ClassInfo info = parse(
+            "import kotlin.Int\n"
+            + "import kotlin.String\n"
+            + "class Foo"
+        );
+        assertNotNull(info);
+        assertFalse("Primitive type Int should not be in used list",
+            info.getUsed().contains("Int"));
+        assertFalse("Primitive type String should not be in used list",
+            info.getUsed().contains("String"));
+    }
+
+    // =======================================================================
+    // NEW TESTS — Method/property type extraction (fixes gap 3)
+    // =======================================================================
+
+    @Test
+    public void testMethodReturnTypeInUsed()
+    {
+        ClassInfo info = parse(
+            "class Foo {\n"
+            + "    fun getItems(): ArrayList<String> = TODO()\n"
+            + "}"
+        );
+        assertNotNull(info);
+        assertTrue("Method return type should be in used list",
+            info.getUsed().contains("ArrayList"));
+    }
+
+    @Test
+    public void testMethodParamTypeInUsed()
+    {
+        ClassInfo info = parse(
+            "class Foo {\n"
+            + "    fun process(handler: Handler): Unit = TODO()\n"
+            + "}"
+        );
+        assertNotNull(info);
+        assertTrue("Method parameter type should be in used list",
+            info.getUsed().contains("Handler"));
+    }
+
+    @Test
+    public void testPropertyTypeInUsed()
+    {
+        ClassInfo info = parse(
+            "class Foo {\n"
+            + "    val items: MutableList<String> = mutableListOf()\n"
+            + "}"
+        );
+        assertNotNull(info);
+        assertTrue("Property type should be in used list",
+            info.getUsed().contains("MutableList"));
+    }
+
+    // =======================================================================
+    // NEW TESTS — KDoc extraction
+    // =======================================================================
+
+    @Test
+    public void testKDocCommentExtracted()
+    {
+        ClassInfo info = parse("/** A dog. */\nclass Dog");
+        assertNotNull(info);
+        assertFalse("Class KDoc should be extracted",
+            info.getCommentsAsList().isEmpty());
+        assertEquals("Dog", info.getCommentsAsList().get(0).target);
+    }
+
+    @Test
+    public void testMethodKDocExtracted()
+    {
+        ClassInfo info = parse(
+            "class Foo {\n"
+            + "    /** Runs the task. */\n"
+            + "    fun run() {}\n"
+            + "}"
+        );
+        assertNotNull(info);
+        // Should have at least one comment for the method
+        boolean hasMethodComment = info.getCommentsAsList().stream()
+            .anyMatch(c -> c.target.contains("run"));
+        assertTrue("Method KDoc should be extracted", hasMethodComment);
+    }
+
+    // =======================================================================
+    // NEW TESTS — targetPkg validation (fixes gap 4)
+    // =======================================================================
+
+    @Test
+    public void testTargetPkgMismatchSetsError()
+    {
+        ClassInfo info = parseWithPkg("package foo\nclass X", "bar");
+        assertNotNull(info);
+        assertTrue("Package mismatch should set parse error",
+            info.hadParseError());
+    }
+
+    @Test
+    public void testTargetPkgMatchNoError()
+    {
+        ClassInfo info = parseWithPkg("package foo\nclass X", "foo");
+        assertNotNull(info);
+        assertFalse("Package match should not set parse error",
+            info.hadParseError());
+    }
+
+    // =======================================================================
+    // NEW TESTS — Constructor parameter types
+    // =======================================================================
+
+    @Test
+    public void testConstructorParamTypesInUsed()
+    {
+        ClassInfo info = parse("class Dog(val name: String, val owner: Person)");
+        assertNotNull(info);
+        assertTrue("Non-primitive constructor param type should be in used",
+            info.getUsed().contains("Person"));
+        assertFalse("Primitive constructor param type should not be in used",
+            info.getUsed().contains("String"));
+    }
+
+    // =======================================================================
+    // NEW TESTS — Qualified and generic supertypes
+    // =======================================================================
+
+    @Test
+    public void testQualifiedSupertype()
+    {
+        ClassInfo info = parse("class Dog : com.example.Animal()");
+        assertNotNull(info);
+        assertEquals("Simple name should be extracted from qualified supertype",
+            "Animal", info.getSuperclass());
+    }
+
+    @Test
+    public void testGenericSupertype()
+    {
+        ClassInfo info = parse("class StringList : ArrayList<String>()");
+        assertNotNull(info);
+        assertEquals("Generic supertype name should be extracted without type args",
+            "ArrayList", info.getSuperclass());
+    }
+
+    // =======================================================================
+    // NEW TESTS — Object with supertype
+    // =======================================================================
+
+    @Test
+    public void testObjectWithSupertype()
+    {
+        ClassInfo info = parse("object Singleton : Base()");
+        assertNotNull(info);
+        assertEquals("Singleton", info.getName());
+        assertEquals("Base", info.getSuperclass());
     }
 }
