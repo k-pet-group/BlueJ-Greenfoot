@@ -258,6 +258,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
         // next, get templates from files in template directory and merge them in
         addDirectoryTemplates(templates, SourceType.Java, parent);
+        addDirectoryTemplates(templates, SourceType.Kotlin, parent);
 
         // Create a radio button for each template found
         boolean first = true;
@@ -291,11 +292,18 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             DialogManager.showErrorFX(parent, "error-no-templates");
         }
         else {
-            String templateSuffix = ".tmpl";
+            // Kotlin templates use ".kt.tmpl" suffix; Java templates use plain ".tmpl".
+            // We must match the language-specific suffix to avoid leaking templates
+            // across languages (e.g., "stdclass.kt.tmpl" must not appear as a Java template).
+            String templateSuffix = sourceType == SourceType.Kotlin ? ".kt.tmpl" : ".tmpl";
             int suffixLength = templateSuffix.length();
 
             Arrays.asList(templateDir.list()).forEach(file -> {
                 if(file.endsWith(templateSuffix)) {
+                    // For Java, skip files that match a more-specific language suffix (e.g., ".kt.tmpl")
+                    if (sourceType != SourceType.Kotlin && file.endsWith(".kt.tmpl")) {
+                        return;
+                    }
                     String templateName = file.substring(0, file.length() - suffixLength);
                     templates.addTemplate(templateName, sourceType);
                 }
@@ -342,7 +350,11 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             enable = true;
         }
 
-        templates.forEach((radio, templateInfo) -> radio.setVisible(templateInfo.sourceTypes.contains(language.selectedProperty().get())));
+        templates.forEach((radio, templateInfo) -> {
+            boolean visible = templateInfo.sourceTypes.contains(language.selectedProperty().get());
+            radio.setVisible(visible);
+            radio.setManaged(visible);
+        });
         setOKEnabled(enable);
     }
 
