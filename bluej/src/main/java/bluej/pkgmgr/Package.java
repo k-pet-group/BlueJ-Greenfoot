@@ -1964,7 +1964,7 @@ public final class Package
      */
     public void userAddImplementsClassDependency(ClassTarget from, ClassTarget to)
     {
-        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
         if (info != null) {
             from.getEditor().addImplements(to.getBaseName(), info);
             from.analyseSource();
@@ -1979,7 +1979,7 @@ public final class Package
      */
     public void userAddExtendsInterfaceDependency(ClassTarget from, ClassTarget to)
     {
-        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
         from.getEditor().addExtendsInterface(to.getBaseName(), info);
         from.analyseSource();
     }
@@ -1992,7 +1992,7 @@ public final class Package
      */
     public void userAddExtendsClassDependency(ClassTarget from, ClassTarget to)
     {
-        from.getEditor().setExtendsClass(to.getBaseName(), from.getSourceInfo().getInfo(from.getJavaSourceFile(), this));
+        from.getEditor().setExtendsClass(to.getBaseName(), from.getSourceInfo().getInfo(from.getSourceFile(), this));
         from.analyseSource();
     }
 
@@ -2009,7 +2009,7 @@ public final class Package
 
         ClassTarget from = (ClassTarget) d.getFrom();
         ClassTarget to = (ClassTarget) d.getTo();
-        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
         if (d instanceof ImplementsDependency) {
             from.getEditor().removeExtendsOrImplementsInterface(to.getBaseName(), info);
         }
@@ -2753,7 +2753,7 @@ public final class Package
                      * names)
                      */
                     try {
-                        ClassInfo info = t.getSourceInfo().getInfo(t.getJavaSourceFile(), t.getPackage());
+                        ClassInfo info = t.getSourceInfo().getInfo(t.getSourceFile(), t.getPackage());
 
                         if (info != null) {
                             // Use ClassTarget method to create and save context

@@ -21,6 +21,8 @@
  */
 package bluej.parser.kotlin;
 
+import bluej.parser.SourceLocation;
+import bluej.parser.SourceSpan;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 
@@ -29,9 +31,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
+import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc;
 import org.jetbrains.kotlin.lexer.KtTokens;
@@ -52,6 +56,7 @@ import org.jetbrains.kotlin.psi.KtSuperTypeCallEntry;
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry;
 import org.jetbrains.kotlin.psi.KtTypeElement;
 import org.jetbrains.kotlin.psi.KtTypeParameter;
+import org.jetbrains.kotlin.psi.KtTypeParameterList;
 import org.jetbrains.kotlin.psi.KtTypeReference;
 import org.jetbrains.kotlin.psi.KtUserType;
 
@@ -155,7 +160,7 @@ public class KotlinInfoParser
         }
 
         // Build ClassInfo from PSI node
-        return buildClassInfo(classOrObject, ktFile, packageName, targetPkg);
+        return buildClassInfo(classOrObject, ktFile, packageName, targetPkg, source);
     }
 
     // -----------------------------------------------------------------------
@@ -166,7 +171,7 @@ public class KotlinInfoParser
      * Build a {@link ClassInfo} from a PSI class/object declaration.
      */
     private static ClassInfo buildClassInfo(KtClassOrObject classOrObject,
-            KtFile ktFile, String packageName, String targetPkg)
+            KtFile ktFile, String packageName, String targetPkg, String source)
     {
         ClassInfo info = new ClassInfo();
 
@@ -227,8 +232,39 @@ public class KotlinInfoParser
         // --- Primary constructor parameter types → used list ---
         extractPrimaryConstructor(classOrObject, info);
 
-        // --- Supertype list ---
-        extractSupertypes(classOrObject, info);
+        // --- Compute default insertion point for extends/implements ---
+        // Position after class header (name, type params, primary constructor)
+        // where ": SuperType" would be inserted if no supertypes exist.
+        int insertOffset;
+        KtPrimaryConstructor ctor = classOrObject.getPrimaryConstructor();
+        if (ctor != null)
+        {
+            // After primary constructor: class Foo(val x: Int)↓
+            insertOffset = ctor.getTextRange().getEndOffset();
+        }
+        else
+        {
+            KtTypeParameterList tpList = classOrObject.getTypeParameterList();
+            if (tpList != null)
+            {
+                // After type parameters: class Foo<T>↓
+                insertOffset = tpList.getTextRange().getEndOffset();
+            }
+            else
+            {
+                // After class name: class Foo↓
+                PsiElement nameIdent = classOrObject.getNameIdentifier();
+                insertOffset = (nameIdent != null)
+                    ? nameIdent.getTextRange().getEndOffset()
+                    : classOrObject.getTextRange().getStartOffset();
+            }
+        }
+        Selection defaultInsertSel = pointSelection(insertOffset, source);
+        info.setExtendsInsertSelection(defaultInsertSel);
+        info.setImplementsInsertSelection(defaultInsertSel);
+
+        // --- Supertype list (may update insert selections) ---
+        extractSupertypes(classOrObject, info, source);
 
         // --- Class body: methods and properties (fixes gap: no body parsing) ---
         extractClassBody(classOrObject, info);
@@ -324,12 +360,47 @@ public class KotlinInfoParser
      * Extract supertypes using PSI's structural distinction:
      * {@link KtSuperTypeCallEntry} (has constructor call → class) vs
      * other entries (no constructor → interface).
+     *
+     * <p>Also populates the {@link Selection} objects in {@link ClassInfo}
+     * needed by {@code FlowEditor} for UI-driven inheritance arrow editing
+     * (adding/removing extends/implements via the class diagram).</p>
+     *
+     * <p>Selection objects populated:</p>
+     * <ul>
+     *   <li>{@code extendsInsertSelection} → set to null (supertypes exist)</li>
+     *   <li>{@code implementsInsertSelection} → after last supertype entry</li>
+     *   <li>{@code superReplaceSelection} → span of superclass entry text</li>
+     *   <li>{@code extendsReplaceSelection} → span from before {@code :} to
+     *       start of superclass entry (the "keyword" part)</li>
+     *   <li>{@code interfaceSelections} → list of keyword/comma and interface
+     *       name selections for interface editing</li>
+     * </ul>
      */
-    private static void extractSupertypes(KtClassOrObject classOrObject, ClassInfo info)
+    private static void extractSupertypes(KtClassOrObject classOrObject,
+            ClassInfo info, String source)
     {
+        List<KtSuperTypeListEntry> entries = classOrObject.getSuperTypeListEntries();
+
+        if (entries.isEmpty())
+        {
+            return; // insert selections already set to defaults in buildClassInfo
+        }
+
         boolean foundSuperclass = false;
 
-        for (KtSuperTypeListEntry entry : classOrObject.getSuperTypeListEntries())
+        // Find the colon token `:` (direct child of the class declaration)
+        PsiElement colon = findChildByText(classOrObject, ":");
+
+        // Since supertypes exist, null out extendsInsertSelection
+        info.setExtendsInsertSelection(null);
+
+        // Build interface selections list (parallels Java's interfaceSelections)
+        // Structure: [keyword_sel, iface1_sel, comma_sel, iface2_sel, ...]
+        // keyword_sel is ":" (no superclass) or "," (comma after superclass)
+        List<Selection> ifaceSelections = null;
+        Selection lastCommaSelection = null;
+
+        for (KtSuperTypeListEntry entry : entries)
         {
             KtTypeReference typeRef = entry.getTypeReference();
             if (typeRef == null)
@@ -343,6 +414,8 @@ public class KotlinInfoParser
                 continue;
             }
 
+            TextRange entryRange = entry.getTextRange();
+
             if (entry instanceof KtSuperTypeCallEntry)
             {
                 // Constructor call → class supertype: `: Base(...)`
@@ -350,6 +423,31 @@ public class KotlinInfoParser
                 {
                     info.setSuperclass(typeName);
                     foundSuperclass = true;
+
+                    // superReplaceSelection = span of this entry (e.g., "Bar()")
+                    info.setSuperReplaceSelection(
+                        offsetToSelection(entryRange.getStartOffset(),
+                                           entryRange.getEndOffset(), source));
+
+                    // extendsReplaceSelection = span from before ":" to start
+                    // of the superclass entry (covers " : " keyword part)
+                    if (colon != null)
+                    {
+                        int replaceStart = colon.getTextRange().getStartOffset();
+                        // Include preceding whitespace if present
+                        if (replaceStart > 0
+                            && source.charAt(replaceStart - 1) == ' ')
+                        {
+                            replaceStart--;
+                        }
+                        info.setExtendsReplaceSelection(
+                            offsetToSelection(replaceStart,
+                                               entryRange.getStartOffset(), source));
+                    }
+
+                    // Update implementsInsertSelection to after this entry
+                    info.setImplementsInsertSelection(
+                        pointSelection(entryRange.getEndOffset(), source));
                 }
                 else
                 {
@@ -361,8 +459,76 @@ public class KotlinInfoParser
             {
                 // Plain or delegated → interface: `: Iface` or `: Iface by impl`
                 info.addImplements(typeName);
+
+                if (ifaceSelections == null)
+                {
+                    // First interface encountered — initialize the list
+                    ifaceSelections = new ArrayList<>();
+                    lastCommaSelection = null; // Don't carry over from superclass
+
+                    // Add the "keyword" selection at index 0:
+                    // - If superclass precedes: comma between superclass and here
+                    // - If no superclass: the colon token
+                    if (foundSuperclass)
+                    {
+                        PsiElement comma = findPrecedingComma(entry);
+                        if (comma != null)
+                        {
+                            ifaceSelections.add(offsetToSelection(
+                                comma.getTextRange().getStartOffset(),
+                                comma.getTextRange().getEndOffset(), source));
+                        }
+                    }
+                    else if (colon != null)
+                    {
+                        ifaceSelections.add(offsetToSelection(
+                            colon.getTextRange().getStartOffset(),
+                            colon.getTextRange().getEndOffset(), source));
+                    }
+                }
+
+                Selection ifaceSel = offsetToSelection(
+                    entryRange.getStartOffset(),
+                    entryRange.getEndOffset(), source);
+
+                if (lastCommaSelection != null)
+                {
+                    // Extend comma selection to reach start of this interface
+                    // (matches Java InfoParser's pattern: comma extended to
+                    // include whitespace up to the next interface name)
+                    lastCommaSelection.extendEnd(
+                        ifaceSel.getLine(), ifaceSel.getColumn());
+                    ifaceSelections.add(lastCommaSelection);
+                    lastCommaSelection = null;
+                }
+
+                ifaceSelections.add(ifaceSel);
+            }
+
+            // Look for trailing comma after this entry
+            PsiElement comma = findFollowingComma(entry);
+            if (comma != null)
+            {
+                lastCommaSelection = offsetToSelection(
+                    comma.getTextRange().getStartOffset(),
+                    comma.getTextRange().getEndOffset(), source);
+            }
+            else
+            {
+                lastCommaSelection = null;
             }
         }
+
+        // Finalize interface selections (need at least keyword + one interface)
+        if (ifaceSelections != null && ifaceSelections.size() > 1)
+        {
+            info.setInterfaceSelections(ifaceSelections);
+        }
+
+        // Update implementsInsertSelection to after the very last entry
+        KtSuperTypeListEntry lastEntry = entries.get(entries.size() - 1);
+        info.setImplementsInsertSelection(
+            pointSelection(lastEntry.getTextRange().getEndOffset(), source));
     }
 
     // -----------------------------------------------------------------------
@@ -657,5 +823,142 @@ public class KotlinInfoParser
                  "String", "Unit", "Nothing", "Any" -> true;
             default -> false;
         };
+    }
+
+    // -----------------------------------------------------------------------
+    // PSI tree navigation helpers
+    // -----------------------------------------------------------------------
+
+    /**
+     * Find a direct child PsiElement whose text equals the given string.
+     *
+     * @return the first matching child, or null if not found
+     */
+    private static PsiElement findChildByText(PsiElement parent, String text)
+    {
+        for (PsiElement child = parent.getFirstChild(); child != null;
+             child = child.getNextSibling())
+        {
+            if (text.equals(child.getText()))
+            {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find a COMMA PsiElement that precedes the given element
+     * (skipping whitespace).
+     */
+    private static PsiElement findPrecedingComma(PsiElement element)
+    {
+        PsiElement prev = element.getPrevSibling();
+        while (prev != null)
+        {
+            String text = prev.getText();
+            if (",".equals(text))
+            {
+                return prev;
+            }
+            if (text.trim().isEmpty())
+            {
+                prev = prev.getPrevSibling();
+                continue;
+            }
+            break; // hit a non-whitespace, non-comma element
+        }
+        return null;
+    }
+
+    /**
+     * Find a COMMA PsiElement that follows the given element
+     * (skipping whitespace).
+     */
+    private static PsiElement findFollowingComma(PsiElement element)
+    {
+        PsiElement next = element.getNextSibling();
+        while (next != null)
+        {
+            String text = next.getText();
+            if (",".equals(text))
+            {
+                return next;
+            }
+            if (text.trim().isEmpty())
+            {
+                next = next.getNextSibling();
+                continue;
+            }
+            break;
+        }
+        return null;
+    }
+
+    // -----------------------------------------------------------------------
+    // Offset → Selection conversion helpers
+    // -----------------------------------------------------------------------
+
+    /**
+     * Convert a 0-based absolute offset in the source string to a
+     * 1-based line number.
+     */
+    private static int getLine(int offset, String source)
+    {
+        int line = 1;
+        for (int i = 0; i < offset && i < source.length(); i++)
+        {
+            if (source.charAt(i) == '\n')
+            {
+                line++;
+            }
+        }
+        return line;
+    }
+
+    /**
+     * Convert a 0-based absolute offset in the source string to a
+     * 1-based column number.
+     */
+    private static int getCol(int offset, String source)
+    {
+        if (offset == 0)
+        {
+            return 1;
+        }
+        int col = 1;
+        for (int i = offset - 1; i >= 0; i--)
+        {
+            if (source.charAt(i) == '\n')
+            {
+                break;
+            }
+            col++;
+        }
+        return col;
+    }
+
+    /**
+     * Create a {@link Selection} spanning from startOffset to endOffset
+     * in the source. PSI offsets are 0-based; Selection uses 1-based
+     * line/column.
+     */
+    private static Selection offsetToSelection(int startOffset, int endOffset,
+            String source)
+    {
+        return new Selection(new SourceSpan(
+            new SourceLocation(getLine(startOffset, source),
+                               getCol(startOffset, source)),
+            new SourceLocation(getLine(endOffset, source),
+                               getCol(endOffset, source))));
+    }
+
+    /**
+     * Create a zero-width {@link Selection} at the given offset
+     * (an insertion point).
+     */
+    private static Selection pointSelection(int offset, String source)
+    {
+        return new Selection(getLine(offset, source), getCol(offset, source));
     }
 }

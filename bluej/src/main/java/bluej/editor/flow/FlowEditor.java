@@ -2629,17 +2629,43 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                if (info.getSuperclass() == null) {
-                    Selection s1 = info.getExtendsInsertSelection();
-
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                    insertText(" extends " + className, false);
+                if (isKotlin) {
+                    if (info.getSuperclass() == null) {
+                        if (info.hasInterfaceSelections()) {
+                            // Has interfaces but no superclass: insert "className(), "
+                            // before the first interface in the supertype list
+                            Selection firstIface = info.getInterfaceSelections().get(1);
+                            setSelection(new SourceLocation(firstIface.getLine(), firstIface.getColumn()), new SourceLocation(firstIface.getLine(), firstIface.getColumn()));
+                            insertText(className + "(), ", false);
+                        }
+                        else {
+                            // No supertypes at all: insert " : className()"
+                            Selection s1 = info.getExtendsInsertSelection();
+                            setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+                            insertText(" : " + className + "()", false);
+                        }
+                    }
+                    else {
+                        // Replace existing superclass: replace "OldName()" with "NewName()"
+                        Selection s1 = info.getSuperReplaceSelection();
+                        setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+                        insertText(className + "()", false);
+                    }
                 }
                 else {
-                    Selection s1 = info.getSuperReplaceSelection();
+                    // Java path (unchanged)
+                    if (info.getSuperclass() == null) {
+                        Selection s1 = info.getExtendsInsertSelection();
 
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                    insertText(className, false);
+                        setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+                        insertText(" extends " + className, false);
+                    }
+                    else {
+                        Selection s1 = info.getSuperReplaceSelection();
+
+                        setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+                        insertText(className, false);
+                    }
                 }
                 save();
             }
@@ -2656,12 +2682,41 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                Selection s1 = info.getExtendsReplaceSelection();
-                s1.combineWith(info.getSuperReplaceSelection());
+                if (isKotlin) {
+                    Selection superSel = info.getSuperReplaceSelection();
+                    if (superSel != null) {
+                        if (info.hasInterfaceSelections()) {
+                            // Has interfaces after superclass: remove superclass
+                            // entry and its trailing comma, keeping ": Interface..."
+                            // Delete from superclass start to first interface start
+                            Selection firstIface = info.getInterfaceSelections().get(1);
+                            setSelection(new SourceLocation(superSel.getLine(), superSel.getColumn()), new SourceLocation(firstIface.getLine(), firstIface.getColumn()));
+                            insertText("", false);
+                        }
+                        else {
+                            // Superclass is the only supertype: remove entire
+                            // " : SuperClass()" span
+                            Selection extReplace = info.getExtendsReplaceSelection();
+                            if (extReplace != null) {
+                                extReplace.combineWith(superSel);
+                                setSelection(new SourceLocation(extReplace.getLine(), extReplace.getColumn()), new SourceLocation(extReplace.getEndLine(), extReplace.getEndColumn()));
+                            }
+                            else {
+                                setSelection(new SourceLocation(superSel.getLine(), superSel.getColumn()), new SourceLocation(superSel.getEndLine(), superSel.getEndColumn()));
+                            }
+                            insertText("", false);
+                        }
+                    }
+                }
+                else {
+                    // Java path (unchanged)
+                    Selection s1 = info.getExtendsReplaceSelection();
+                    s1.combineWith(info.getSuperReplaceSelection());
 
-                if (s1 != null) {
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                    insertText("", false);
+                    if (s1 != null) {
+                        setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+                        insertText("", false);
+                    }
                 }
                 save();
             }
@@ -2678,24 +2733,40 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                Selection s1 = info.getImplementsInsertSelection();
-                setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+                if (isKotlin) {
+                    Selection s1 = info.getImplementsInsertSelection();
+                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
 
-                if (info.hasInterfaceSelections()) {
-                    // if we already have an implements clause then we need to put a
-                    // comma and the interface name but not before checking that we
-                    // don't already have it
-
-                    List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
-
-                    // XXX make this equality check against full package name
-                    if (!exists.contains(interfaceName))
-                        insertText(", " + interfaceName, false);
+                    if (info.hasInterfaceSelections() || info.getSuperclass() != null) {
+                        // Already has supertypes: append ", interfaceName"
+                        if (info.hasInterfaceSelections()) {
+                            List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
+                            if (!exists.contains(interfaceName))
+                                insertText(", " + interfaceName, false);
+                        }
+                        else {
+                            insertText(", " + interfaceName, false);
+                        }
+                    }
+                    else {
+                        // No supertypes at all: insert " : interfaceName"
+                        insertText(" : " + interfaceName, false);
+                    }
                 }
                 else {
-                    // otherwise we need to put the actual "implements" word
-                    // and the interface name
-                    insertText(" implements " + interfaceName, false);
+                    // Java path (unchanged)
+                    Selection s1 = info.getImplementsInsertSelection();
+                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+
+                    if (info.hasInterfaceSelections()) {
+                        List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
+
+                        if (!exists.contains(interfaceName))
+                            insertText(", " + interfaceName, false);
+                    }
+                    else {
+                        insertText(" implements " + interfaceName, false);
+                    }
                 }
                 save();
             }
@@ -2737,25 +2808,40 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                Selection s1 = info.getExtendsInsertSelection();
-                setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+                if (isKotlin) {
+                    // Kotlin uses unified supertype list — same logic as addImplements
+                    Selection s1 = info.getImplementsInsertSelection();
+                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
 
-                if (info.hasInterfaceSelections()) {
-                    // if we already have an extends clause then we need to put a
-                    // comma and the interface name but not before checking that we
-                    // don't
-                    // already have it
-
-                    List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
-
-                    // XXX make this equality check against full package name
-                    if (!exists.contains(interfaceName))
-                        insertText(", " + interfaceName, false);
+                    if (info.hasInterfaceSelections() || info.getSuperclass() != null) {
+                        if (info.hasInterfaceSelections()) {
+                            List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
+                            if (!exists.contains(interfaceName))
+                                insertText(", " + interfaceName, false);
+                        }
+                        else {
+                            insertText(", " + interfaceName, false);
+                        }
+                    }
+                    else {
+                        // No supertypes: insert " : interfaceName"
+                        insertText(" : " + interfaceName, false);
+                    }
                 }
                 else {
-                    // otherwise we need to put the actual "extends" word
-                    // and the interface name
-                    insertText(" extends " + interfaceName, false);
+                    // Java path (unchanged)
+                    Selection s1 = info.getExtendsInsertSelection();
+                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+
+                    if (info.hasInterfaceSelections()) {
+                        List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
+
+                        if (!exists.contains(interfaceName))
+                            insertText(", " + interfaceName, false);
+                    }
+                    else {
+                        insertText(" extends " + interfaceName, false);
+                    }
                 }
                 save();
             }
