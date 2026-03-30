@@ -68,6 +68,7 @@ import bluej.utility.*;
 import bluej.utility.filefilter.FrameSourceFilter;
 import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
+import bluej.utility.filefilter.KotlinSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -673,6 +674,27 @@ public final class Package
             interestingSet.add(frameFileName);
         }
 
+        // process all *.kt files
+        File kotlinSrcFiles[] = path.listFiles(new KotlinSourceFilter());
+        if (kotlinSrcFiles != null)
+        {
+            for (int i = 0; i < kotlinSrcFiles.length; i++)
+            {
+                String kotlinFileName = JavaNames.stripSuffix(
+                        kotlinSrcFiles[i].getName(),
+                        "." + SourceType.Kotlin.getExtension());
+
+                // check if the name would be a valid java name
+                // (Kotlin class names must also be valid JVM identifiers)
+                if (!JavaNames.isIdentifier(kotlinFileName))
+                    continue;
+
+                // files with a $ in them signify inner classes (which we want
+                // to ignore)
+                if (kotlinFileName.indexOf('$') == -1)
+                    interestingSet.add(kotlinFileName);
+            }
+        }
 
         // process all *.class files
         for (int i = 0; i < classFiles.length; i++) {
@@ -688,7 +710,14 @@ public final class Package
                 continue;
 
             if (classFileName.indexOf('$') == -1) {
-                // add only if there is no corresponding .java file
+                // skip Kt facade classes that have a corresponding .kt source
+                // (e.g., UtilsKt.class when Utils.kt exists)
+                if (classFileName.endsWith("Kt") && classFileName.length() > 2
+                        && interestingSet.contains(
+                                classFileName.substring(0, classFileName.length() - 2))) {
+                    continue;
+                }
+                // add only if there is no corresponding source file
                 if (!interestingSet.contains(classFileName)) {
                     try {
                         Class<?> c = loadClass(getQualifiedName(classFileName));

@@ -530,4 +530,241 @@ public class KotlinInfoParserTest
         assertEquals("Singleton", info.getName());
         assertEquals("Base", info.getSuperclass());
     }
+
+    // =======================================================================
+    // NEW TESTS — Top-level functions (function-only files)
+    // =======================================================================
+
+    /**
+     * Parse with an explicit file name, needed for function-only files
+     * where the ClassInfo name is derived from the file stem.
+     */
+    private ClassInfo parseWithFileName(String source, String fileName)
+    {
+        return KotlinInfoParser.parse(new StringReader(source), null, fileName);
+    }
+
+    @Test
+    public void testFunctionOnlyFile()
+    {
+        ClassInfo info = parseWithFileName(
+            "fun greet(name: String): String {\n"
+            + "    return \"Hello, $name!\"\n"
+            + "}",
+            "Utils.kt"
+        );
+        assertNotNull("Function-only file should return non-null ClassInfo", info);
+        assertEquals("Utils", info.getName());
+        assertTrue("Should be marked as top-level functions only",
+            info.isTopLevelFunctionsOnly());
+        assertTrue(info.foundPublicClass());
+    }
+
+    @Test
+    public void testFunctionOnlyFileModifiers()
+    {
+        ClassInfo info = parseWithFileName(
+            "fun doSomething() {}",
+            "Helpers.kt"
+        );
+        assertNotNull(info);
+        assertFalse("Function file should not be interface", info.isInterface());
+        assertFalse("Function file should not be abstract", info.isAbstract());
+        assertFalse("Function file should not be enum", info.isEnum());
+        assertTrue(info.isTopLevelFunctionsOnly());
+    }
+
+    @Test
+    public void testFunctionOnlyFileWithPackage()
+    {
+        ClassInfo info = parseWithFileName(
+            "package com.example\n\n"
+            + "fun compute(): Int = 42",
+            "MathUtils.kt"
+        );
+        assertNotNull(info);
+        assertEquals("MathUtils", info.getName());
+        assertEquals("com.example", info.getPackage());
+        assertTrue(info.hasPackageStatement());
+        assertTrue(info.isTopLevelFunctionsOnly());
+    }
+
+    @Test
+    public void testFunctionOnlyFileWithImports()
+    {
+        ClassInfo info = parseWithFileName(
+            "import animals.Dog\n"
+            + "import animals.Cat\n\n"
+            + "fun createDog(): Dog = Dog()",
+            "Factory.kt"
+        );
+        assertNotNull(info);
+        assertTrue(info.isTopLevelFunctionsOnly());
+        assertTrue("Imported type Dog should be in used list",
+            info.getUsed().contains("Dog"));
+        assertTrue("Imported type Cat should be in used list",
+            info.getUsed().contains("Cat"));
+    }
+
+    @Test
+    public void testFunctionOnlyFileDependencies()
+    {
+        ClassInfo info = parseWithFileName(
+            "fun process(data: DataSet): Result {\n"
+            + "    return Result()\n"
+            + "}",
+            "Processor.kt"
+        );
+        assertNotNull(info);
+        assertTrue(info.isTopLevelFunctionsOnly());
+        assertTrue("Parameter type should be in used list",
+            info.getUsed().contains("DataSet"));
+        assertTrue("Return type should be in used list",
+            info.getUsed().contains("Result"));
+    }
+
+    @Test
+    public void testFunctionOnlyFilePrimitiveTypesExcluded()
+    {
+        ClassInfo info = parseWithFileName(
+            "fun add(a: Int, b: Int): Int = a + b\n"
+            + "fun greet(name: String): String = \"Hi\"",
+            "Primitives.kt"
+        );
+        assertNotNull(info);
+        assertTrue(info.isTopLevelFunctionsOnly());
+        assertFalse("Int should not be in used list",
+            info.getUsed().contains("Int"));
+        assertFalse("String should not be in used list",
+            info.getUsed().contains("String"));
+    }
+
+    @Test
+    public void testFunctionOnlyFileMultipleFunctions()
+    {
+        ClassInfo info = parseWithFileName(
+            "fun first(): Handler = TODO()\n"
+            + "fun second(): Processor = TODO()\n"
+            + "fun third(input: DataSource): Output = TODO()",
+            "Operations.kt"
+        );
+        assertNotNull(info);
+        assertTrue(info.isTopLevelFunctionsOnly());
+        assertTrue(info.getUsed().contains("Handler"));
+        assertTrue(info.getUsed().contains("Processor"));
+        assertTrue(info.getUsed().contains("DataSource"));
+        assertTrue(info.getUsed().contains("Output"));
+    }
+
+    @Test
+    public void testFunctionOnlyFileKDocExtracted()
+    {
+        ClassInfo info = parseWithFileName(
+            "/** Greets the user. */\n"
+            + "fun greet(name: String): String = \"Hello\"",
+            "Greetings.kt"
+        );
+        assertNotNull(info);
+        assertTrue(info.isTopLevelFunctionsOnly());
+        boolean hasGreetComment = info.getCommentsAsList().stream()
+            .anyMatch(c -> c.target.contains("greet"));
+        assertTrue("KDoc on top-level function should be extracted", hasGreetComment);
+    }
+
+    @Test
+    public void testFunctionOnlyFileNameStemExtraction()
+    {
+        // File name without .kt extension should still work
+        ClassInfo info = parseWithFileName(
+            "fun example() {}",
+            "MyHelpers.kt"
+        );
+        assertNotNull(info);
+        assertEquals("Name should be file stem without .kt",
+            "MyHelpers", info.getName());
+    }
+
+    @Test
+    public void testMixedFileReturnsClass()
+    {
+        // File has both a class and top-level functions.
+        // The class should be returned (existing behavior).
+        ClassInfo info = parseWithFileName(
+            "class Dog(val name: String)\n\n"
+            + "fun createDog(): Dog = Dog(\"Rex\")",
+            "Dog.kt"
+        );
+        assertNotNull(info);
+        assertEquals("Dog", info.getName());
+        assertFalse("Mixed file should return class, not function-only",
+            info.isTopLevelFunctionsOnly());
+    }
+
+    @Test
+    public void testEmptyFileStillNull()
+    {
+        // Regression: empty file should still return null
+        ClassInfo info = parseWithFileName("", "Empty.kt");
+        assertNull("Empty file should return null", info);
+    }
+
+    @Test
+    public void testOnlyCommentsStillNull()
+    {
+        // Regression: file with only comments should return null
+        ClassInfo info = parseWithFileName(
+            "// just a comment\n/* block comment */",
+            "Comments.kt"
+        );
+        assertNull("File with only comments should return null", info);
+    }
+
+    @Test
+    public void testOnlyPackageAndImportsStillNull()
+    {
+        // Regression: file with only package/imports but no class or functions
+        ClassInfo info = parseWithFileName(
+            "package foo\nimport bar.Baz",
+            "Empty.kt"
+        );
+        assertNull("File with only package/imports should return null", info);
+    }
+
+    @Test
+    public void testFunctionOnlyFileTargetPkgMismatch()
+    {
+        ClassInfo info = KotlinInfoParser.parse(
+            new StringReader("package foo\nfun test() {}"),
+            "bar",
+            "Test.kt"
+        );
+        assertNotNull(info);
+        assertTrue(info.isTopLevelFunctionsOnly());
+        assertTrue("Package mismatch should set parse error",
+            info.hadParseError());
+    }
+
+    @Test
+    public void testFunctionOnlyFileTargetPkgMatch()
+    {
+        ClassInfo info = KotlinInfoParser.parse(
+            new StringReader("package foo\nfun test() {}"),
+            "foo",
+            "Test.kt"
+        );
+        assertNotNull(info);
+        assertTrue(info.isTopLevelFunctionsOnly());
+        assertFalse("Package match should not set parse error",
+            info.hadParseError());
+    }
+
+    @Test
+    public void testClassFileNotMarkedAsTopLevelFunctions()
+    {
+        // Regression: regular class files should NOT have the flag set
+        ClassInfo info = parse("class Dog");
+        assertNotNull(info);
+        assertFalse("Regular class should not be top-level functions only",
+            info.isTopLevelFunctionsOnly());
+    }
 }

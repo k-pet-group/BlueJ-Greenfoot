@@ -75,6 +75,7 @@ public final class ClassInfo
     private boolean isAbstract = false;
     private boolean isUnitTest = false;
     private boolean isEnum = false;
+    private boolean topLevelFunctionsOnly = false;
 
     private boolean hadParseError = false;
 
@@ -533,6 +534,16 @@ public final class ClassInfo
     public boolean isEnum()
     {
         return this.isEnum;
+    }
+
+    public boolean isTopLevelFunctionsOnly()
+    {
+        return this.topLevelFunctionsOnly;
+    }
+
+    public void setTopLevelFunctionsOnly(boolean topLevelFunctionsOnly)
+    {
+        this.topLevelFunctionsOnly = topLevelFunctionsOnly;
     }
 
     public boolean hadParseError()

@@ -80,6 +80,9 @@ import threadchecker.Tag;
  *   <li>{@code KtFile.getPackageFqName()} extracts the package name</li>
  *   <li>{@code KtFile.getImportDirectives()} extracts imports for the "used" list</li>
  *   <li>Find the first {@code KtClassOrObject} in top-level declarations</li>
+ *   <li>If no class/object found, check for top-level {@code KtNamedFunction}
+ *       declarations and synthesize a "function-only" ClassInfo
+ *       ({@code topLevelFunctionsOnly = true})</li>
  *   <li>Extract modifiers, supertypes, type parameters, constructor params,
  *       and body members via PSI methods</li>
  *   <li>Populate and return {@link ClassInfo}</li>
@@ -108,7 +111,7 @@ public class KotlinInfoParser
     {
         try (FileReader reader = new FileReader(f))
         {
-            return parse(reader, null);
+            return parse(reader, null, f.getName());
         }
         catch (FileNotFoundException e)
         {
@@ -129,6 +132,21 @@ public class KotlinInfoParser
      */
     public static ClassInfo parse(Reader r, String targetPkg)
     {
+        return parse(r, targetPkg, null);
+    }
+
+    /**
+     * Parse from a Reader with an explicit file name for top-level function
+     * support. The file name is used to derive the ClassInfo name when the
+     * file contains only top-level functions (no class/object declaration).
+     *
+     * @param r         reader over Kotlin source
+     * @param targetPkg expected package name (for validation), may be null
+     * @param fileName  original source file name (e.g., "Utils.kt"), may be null
+     * @return ClassInfo with extracted metadata, or null if no declarations found
+     */
+    public static ClassInfo parse(Reader r, String targetPkg, String fileName)
+    {
         // Read full source into String (PSI requires CharSequence)
         String source = readFully(r);
         if (source == null || source.isBlank())
@@ -136,8 +154,18 @@ public class KotlinInfoParser
             return null;
         }
 
-        // Build PSI tree
-        KtFile ktFile = KotlinEnvironmentManager.getPsiFactory().createFile(source);
+        // Build PSI tree (use real file name if available for ktFile.getName())
+        KtFile ktFile;
+        if (fileName != null)
+        {
+            ktFile = KotlinEnvironmentManager.getPsiFactory()
+                .createFile(fileName, source);
+        }
+        else
+        {
+            ktFile = KotlinEnvironmentManager.getPsiFactory()
+                .createFile(source);
+        }
 
         // Extract package name
         FqName packageFqName = ktFile.getPackageFqName();
@@ -156,7 +184,21 @@ public class KotlinInfoParser
 
         if (classOrObject == null)
         {
-            return null;
+            // No class/object found — check for top-level functions
+            List<KtNamedFunction> topLevelFunctions = new ArrayList<>();
+            for (KtDeclaration decl : ktFile.getDeclarations())
+            {
+                if (decl instanceof KtNamedFunction fun)
+                {
+                    topLevelFunctions.add(fun);
+                }
+            }
+            if (topLevelFunctions.isEmpty())
+            {
+                return null; // No class AND no functions — truly empty file
+            }
+            return buildTopLevelFunctionsInfo(
+                topLevelFunctions, ktFile, packageName, targetPkg, source);
         }
 
         // Build ClassInfo from PSI node
@@ -274,6 +316,79 @@ public class KotlinInfoParser
         if (classKDoc != null)
         {
             info.addComment(name, classKDoc, null);
+        }
+
+        return info;
+    }
+
+    // -----------------------------------------------------------------------
+    // Top-level functions support
+    // -----------------------------------------------------------------------
+
+    /**
+     * Build a {@link ClassInfo} for a Kotlin file that contains only
+     * top-level functions (no class or object declaration). The synthesized
+     * ClassInfo represents the facade class that kotlinc generates
+     * (e.g., {@code Utils.kt} → {@code UtilsKt.class}).
+     *
+     * <p>The name is derived from the file stem (e.g., {@code "Utils"} from
+     * {@code "Utils.kt"}). The {@code topLevelFunctionsOnly} flag is set to
+     * {@code true} so that {@code ClassTarget} can assign a
+     * {@code KotlinFileRole} and append the "Kt" suffix for compilation.</p>
+     *
+     * @param functions   the top-level function declarations found in the file
+     * @param ktFile      the PSI file node
+     * @param packageName the extracted package name
+     * @param targetPkg   expected package name (for validation), may be null
+     * @param source      the full source text (for offset→Selection conversion)
+     * @return ClassInfo with name, used types, and topLevelFunctionsOnly flag
+     */
+    private static ClassInfo buildTopLevelFunctionsInfo(
+            List<KtNamedFunction> functions,
+            KtFile ktFile, String packageName, String targetPkg, String source)
+    {
+        ClassInfo info = new ClassInfo();
+
+        // --- Name from file stem (e.g., "Utils" from "Utils.kt") ---
+        String ktFileName = ktFile.getName();
+        String stem = ktFileName.endsWith(".kt")
+                ? ktFileName.substring(0, ktFileName.length() - 3)
+                : ktFileName;
+        info.setName(stem, true);
+
+        // --- Mark as function-only file ---
+        info.setTopLevelFunctionsOnly(true);
+
+        // --- Not a class/interface/enum/abstract ---
+        info.setInterface(false);
+        info.setEnum(false);
+        info.setAbstract(false);
+
+        // --- Package handling ---
+        if (!packageName.isEmpty())
+        {
+            info.setPackageSelections(
+                new Selection(1, 1),   // package statement placeholder
+                new Selection(1, 1),   // package name placeholder
+                packageName,           // the actual package name text
+                new Selection(1, 1)    // semi placeholder (Kotlin has no semicolons)
+            );
+        }
+
+        // --- targetPkg validation ---
+        if (targetPkg != null && !targetPkg.isEmpty()
+            && !targetPkg.equals(packageName))
+        {
+            info.setParseError(true);
+        }
+
+        // --- Imports → used types ---
+        extractImports(ktFile, info);
+
+        // --- Extract dependencies and KDoc from each function ---
+        for (KtNamedFunction fun : functions)
+        {
+            extractMethod(fun, info);
         }
 
         return info;

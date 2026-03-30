@@ -65,6 +65,7 @@ import bluej.pkgmgr.target.role.AbstractClassRole;
 import bluej.pkgmgr.target.role.ClassRole;
 import bluej.pkgmgr.target.role.EnumClassRole;
 import bluej.pkgmgr.target.role.InterfaceClassRole;
+import bluej.pkgmgr.target.role.KotlinFileRole;
 import bluej.pkgmgr.target.role.StdClassRole;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.pkgmgr.target.role.UnitTestClassRole.UnitTestFramework;
@@ -152,6 +153,11 @@ public class ClassTarget extends DependentTarget
     // setRole(). A role should not contain important state information
     // because role objects are thrown away at a whim.
     private ClassRole role = new StdClassRole();
+    // Thread-safe flag indicating this target represents a Kotlin file with
+    // only top-level functions (facade class). Set in setRole() when a
+    // KotlinFileRole is assigned, read from getQualifiedName()/getClassFile()
+    // which may run on any thread.
+    private volatile boolean isKotlinFacade = false;
 
     // a flag indicating whether an editor, when opened for the first
     // time, should display the interface of this class
@@ -239,7 +245,7 @@ public class ClassTarget extends DependentTarget
 
         if (pseudos == null)
         {
-            pseudos = Utility.mapList(Arrays.<Class<? extends ClassRole>>asList(StdClassRole.class, UnitTestClassRole.class, AbstractClassRole.class, InterfaceClassRole.class, EnumClassRole.class), ClassTarget::pseudoFor).toArray(new String[0]);
+            pseudos = Utility.mapList(Arrays.<Class<? extends ClassRole>>asList(StdClassRole.class, UnitTestClassRole.class, AbstractClassRole.class, InterfaceClassRole.class, EnumClassRole.class, KotlinFileRole.class), ClassTarget::pseudoFor).toArray(new String[0]);
         }
 
         JavaFXUtil.addStyleClass(pane, "class-target");
@@ -369,7 +375,17 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.Any)
     public String getQualifiedName()
     {
-        return getPackage().getQualifiedName(getBaseName());
+        String baseName = getBaseName();
+        // Kotlin facade classes are compiled with a "Kt" suffix
+        // (e.g., Utils.kt → UtilsKt.class), so the class loader
+        // needs the suffixed name to find the compiled class.
+        // Uses volatile isKotlinFacade flag (thread-safe) instead of
+        // checking role directly (which requires FXPlatform).
+        if (isKotlinFacade)
+        {
+            baseName = baseName + "Kt";
+        }
+        return getPackage().getQualifiedName(baseName);
     }
 
     /**
@@ -547,6 +563,7 @@ public class ClassTarget extends DependentTarget
     {
         if (role == null || role.getRoleName() != newRole.getRoleName()) {
             role = newRole;
+            isKotlinFacade = (newRole instanceof KotlinFileRole);
 
             String select = pseudoFor(role.getClass());
             String stereotype = role.getStereotypeLabel();
@@ -563,10 +580,12 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.Any)
     private static String pseudoFor(Class<? extends ClassRole> aClass)
     {
-        // AbstractClassRole becomes bj-abstract, etc
+        // AbstractClassRole becomes bj-abstract, KotlinFileRole becomes bj-kotlinfile, etc
         String name = aClass.getSimpleName();
         if (name.endsWith("ClassRole"))
             name = name.substring(0, name.length() - "ClassRole".length());
+        else if (name.endsWith("Role"))
+            name = name.substring(0, name.length() - "Role".length());
         return "bj-" + name.toLowerCase();
     }
 
@@ -700,12 +719,38 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
+     * Check if a compiled class is a Kotlin facade class generated from
+     * a file with only top-level functions. Kotlin facade classes have a
+     * name ending in "Kt" and contain only static methods (the top-level
+     * functions compiled as static methods).
+     *
+     * @param cl the compiled class to check
+     * @return true if the class appears to be a Kotlin facade class
+     */
+    private static boolean isKotlinFacadeClass(Class<?> cl)
+    {
+        if (!cl.getSimpleName().endsWith("Kt"))
+        {
+            return false;
+        }
+        // Kotlin facade classes contain only static methods
+        for (java.lang.reflect.Method m : cl.getDeclaredMethods())
+        {
+            if (!Modifier.isStatic(m.getModifiers()))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Use a variety of tests to determine what our role is.
-     * 
+     *
      * <p>All tests must be very quick and should not rely on any significant
      * computation (ie. reparsing). If computation is required, the existing
      * role will do for the time being.
-     * 
+     *
      * @param cl Description of the Parameter
      */
     public void determineRole(Class<?> cl)
@@ -754,6 +799,9 @@ public class ClassTarget extends DependentTarget
             else if (isJunit5TestClass(cl)) {
                 setRole(new UnitTestClassRole(UnitTestFramework.JUnit5));
             }
+            else if (isKotlinFacadeClass(cl)) {
+                setRole(new KotlinFileRole());
+            }
             else {
                 setRole(new StdClassRole());
             }
@@ -776,6 +824,9 @@ public class ClassTarget extends DependentTarget
                 }
                 else if (classInfo.isAbstract()) {
                     setRole(new AbstractClassRole());
+                }
+                else if (classInfo.isTopLevelFunctionsOnly()) {
+                    setRole(new KotlinFileRole());
                 }
                 else {
                     // We shouldn't override applet/unit test class roles based only
@@ -830,6 +881,9 @@ public class ClassTarget extends DependentTarget
         }
         else if (EnumClassRole.ENUM_ROLE_NAME.equals(type)) {
             setRole(new EnumClassRole());
+        }
+        else if (KotlinFileRole.KOTLIN_FILE_ROLE_NAME.equals(type)) {
+            setRole(new KotlinFileRole());
         }
 
         getRole().load(props, prefix);
@@ -1247,6 +1301,11 @@ public class ClassTarget extends DependentTarget
      */
     public File getClassFile()
     {
+        // Kotlin facade classes compile with a "Kt" suffix
+        if (isKotlinFacade)
+        {
+            return getPackageFile(getBaseName() + "Kt.class");
+        }
         return getPackageFile(getBaseName() + ".class");
     }
 
