@@ -311,6 +311,8 @@ public class KotlinPsiScopeBuilder
                     innerNode.setInner(true);
                     innerNode.setComplete(true);
                     methodNode.insertNode(innerNode, innerRelPos, innerSize, listener);
+                    // Recurse into expression body for nested control flow (if/when/for/while)
+                    processExpression(exprBody, innerNode, innerAbsPos, listener);
                 }
             }
         }
