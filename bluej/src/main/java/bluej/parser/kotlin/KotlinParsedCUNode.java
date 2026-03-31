@@ -135,6 +135,22 @@ public class KotlinParsedCUNode extends ParsedCUNode
     }
 
     // -----------------------------------------------------------------------
+    // Multiline string handling — bypasses MultilineStringTracker
+    // -----------------------------------------------------------------------
+
+    /**
+     * Returns {@code true} — Kotlin handles multiline strings via
+     * {@link KotlinStringNode} in the parse tree, so
+     * {@code MultilineStringTracker}'s line-level override should be
+     * skipped in {@code JavaSyntaxView.getTokenStylesFor()}.
+     */
+    @Override
+    public boolean handlesMultilineStrings()
+    {
+        return true;
+    }
+
+    // -----------------------------------------------------------------------
     // Kotlin tokenization — overrides Java lexer with KotlinLexer
     // -----------------------------------------------------------------------
 

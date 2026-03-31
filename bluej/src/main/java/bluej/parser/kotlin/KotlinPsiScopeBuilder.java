@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiComment;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.KtBlockExpression;
+import org.jetbrains.kotlin.psi.KtBlockStringTemplateEntry;
 import org.jetbrains.kotlin.psi.KtClass;
 import org.jetbrains.kotlin.psi.KtClassBody;
 import org.jetbrains.kotlin.psi.KtDeclaration;
@@ -42,6 +43,9 @@ import org.jetbrains.kotlin.psi.KtIfExpression;
 import org.jetbrains.kotlin.psi.KtLoopExpression;
 import org.jetbrains.kotlin.psi.KtNamedFunction;
 import org.jetbrains.kotlin.psi.KtObjectDeclaration;
+import org.jetbrains.kotlin.psi.KtSimpleNameStringTemplateEntry;
+import org.jetbrains.kotlin.psi.KtStringTemplateEntry;
+import org.jetbrains.kotlin.psi.KtStringTemplateExpression;
 import org.jetbrains.kotlin.psi.KtWhenEntry;
 import org.jetbrains.kotlin.psi.KtWhenExpression;
 
@@ -67,6 +71,8 @@ import threadchecker.Tag;
  *   <li>{@link KtWhenExpression} → {@link KotlinParentNode}(NODETYPE_SELECTION, blue)</li>
  *   <li>{@link KtLoopExpression} (for/while/do-while) → {@link KotlinParentNode}(NODETYPE_ITERATION, pink)</li>
  *   <li>{@link PsiComment} → {@link KotlinCommentNode}(NODETYPE_COMMENT)</li>
+ *   <li>{@link KtStringTemplateExpression} (multiline) → {@link KotlinStringNode}(NODETYPE_NONE)
+ *       with child {@link KotlinParentNode} for template expression bodies</li>
  * </ul>
  *
  * <p>{@link PsiComment} elements are detected at three levels: file-level children,
@@ -407,6 +413,13 @@ public class KotlinPsiScopeBuilder
             // KtForExpression, KtWhileExpression, KtDoWhileExpression all extend KtLoopExpression
             processControlFlow(ktLoop, parent, parentAbsPos, ParsedNode.NODETYPE_ITERATION, listener);
         }
+        // Multiline triple-quoted strings → KotlinStringNode with template children.
+        // Single-line strings fall through to the catch-all else (recurse into children).
+        else if (element instanceof KtStringTemplateExpression stringExpr
+                && isMultilineString(stringExpr))
+        {
+            insertStringNode(stringExpr, parent, parentAbsPos, listener);
+        }
         // Recurse into nested blocks (e.g., lambda bodies, run { }, etc.)
         else if (element instanceof KtBlockExpression block)
         {
@@ -488,6 +501,100 @@ public class KotlinPsiScopeBuilder
             if (psi instanceof PsiComment psiComment)
             {
                 insertCommentNode(psiComment, container, containerAbsPos, listener);
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Internal: String node helpers
+    // -----------------------------------------------------------------------
+
+    /**
+     * Check whether a string template expression is a multiline triple-quoted
+     * string ({@code """..."""}). Single-line strings ({@code "..."}) are
+     * handled correctly by per-line tokenization and don't need a parse
+     * tree node.
+     */
+    private static boolean isMultilineString(KtStringTemplateExpression stringExpr)
+    {
+        String text = stringExpr.getText();
+        return text != null && text.startsWith("\"\"\"");
+    }
+
+    /**
+     * Insert a {@link KotlinStringNode} for a multiline triple-quoted string,
+     * with child {@link KotlinParentNode} nodes for template expression bodies.
+     *
+     * <p>The string node covers the entire {@code """..."""} region.
+     * {@code KotlinStringNode.tokenizeText()} returns {@code STRING_LITERAL}
+     * for all gap content (plain text, {@code $}, {@code ${}, {@code }}).
+     * Child nodes cover template expression bodies, getting normal Kotlin
+     * tokenization (identifiers render as black).</p>
+     *
+     * @param stringExpr   the PSI string template expression (must be multiline)
+     * @param parent       the parent BlueJ node to insert into
+     * @param parentAbsPos absolute document position of the parent
+     * @param listener     structure listener
+     */
+    private static void insertStringNode(KtStringTemplateExpression stringExpr,
+            JavaParentNode parent, int parentAbsPos, NodeStructureListener listener)
+    {
+        TextRange range = stringExpr.getTextRange();
+        int relPos = range.getStartOffset() - parentAbsPos;
+        int size = range.getLength();
+
+        if (size <= 0)
+        {
+            return;
+        }
+
+        KotlinStringNode stringNode = new KotlinStringNode(parent);
+        stringNode.setComplete(true);
+        parent.insertNode(stringNode, relPos, size, listener);
+
+        int stringAbsPos = range.getStartOffset();
+
+        // Create child nodes for template expression bodies
+        for (KtStringTemplateEntry entry : stringExpr.getEntries())
+        {
+            if (entry instanceof KtSimpleNameStringTemplateEntry simpleEntry)
+            {
+                // $name → child covering the identifier after $
+                PsiElement nameElement = simpleEntry.getExpression();
+                if (nameElement != null)
+                {
+                    TextRange nameRange = nameElement.getTextRange();
+                    int childRelPos = nameRange.getStartOffset() - stringAbsPos;
+                    int childSize = nameRange.getLength();
+                    if (childSize > 0)
+                    {
+                        KotlinParentNode child = new KotlinParentNode(stringNode);
+                        child.setComplete(true);
+                        stringNode.insertNode(child, childRelPos, childSize, listener);
+                    }
+                }
+            }
+            else if (entry instanceof KtBlockStringTemplateEntry blockEntry)
+            {
+                // ${expr} → child covering expression body between ${ and }
+                // Recurse into the expression to detect nested control flow
+                // (e.g., ${if (A) B else C} gets blue scope highlighting).
+                PsiElement expression = blockEntry.getExpression();
+                if (expression != null)
+                {
+                    TextRange exprRange = expression.getTextRange();
+                    int childRelPos = exprRange.getStartOffset() - stringAbsPos;
+                    int childSize = exprRange.getLength();
+                    if (childSize > 0)
+                    {
+                        KotlinParentNode child = new KotlinParentNode(stringNode);
+                        child.setComplete(true);
+                        stringNode.insertNode(child, childRelPos, childSize, listener);
+                        // Build scope nodes inside the expression (if/when/for/while)
+                        int childAbsPos = exprRange.getStartOffset();
+                        processExpression(expression, child, childAbsPos, listener);
+                    }
+                }
             }
         }
     }

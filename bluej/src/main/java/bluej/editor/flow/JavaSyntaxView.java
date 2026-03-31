@@ -468,7 +468,14 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
         // We first need to check if we're in a multiline string
         // literal, as that will determine the highlighting:
-        TextBlockRelation textBlockRelation = multilineStringTracker.getTextBlockRelation(lineStart, lineEnd, tas.startLatestScope());
+        // When the root node handles multiline strings via the parse tree
+        // (e.g., Kotlin's KotlinStringNode), skip the MultilineStringTracker
+        // entirely — the parse tree's getMarkTokensFor() already produces
+        // correct STRING_LITERAL tokens for string content and code tokens
+        // for template expressions.
+        TextBlockRelation textBlockRelation = rootNode.handlesMultilineStrings()
+                ? TextBlockRelation.NONE
+                : multilineStringTracker.getTextBlockRelation(lineStart, lineEnd, tas.startLatestScope());
 
         if (textBlockRelation == TextBlockRelation.ENTIRELY_INSIDE)
         {
