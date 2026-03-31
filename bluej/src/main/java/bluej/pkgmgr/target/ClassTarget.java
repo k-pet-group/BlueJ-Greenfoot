@@ -305,6 +305,10 @@ public class ClassTarget extends DependentTarget
             {
                 setRole(new EnumClassRole());
             }
+            else if (template.startsWith("kotlinfile"))
+            {
+                setRole(new KotlinFileRole());
+            }
             else
             {
                 setRole(new StdClassRole());

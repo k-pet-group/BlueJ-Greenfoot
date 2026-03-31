@@ -1476,10 +1476,13 @@ public class PkgMgrFrame
 
         ClassTarget target = new ClassTarget(thePkg, name, template);
 
-        if ( template != null ) { 
+        if ( template != null ) {
             boolean success = target.generateSkeleton(template, sourceType, classContent == ClassContent.FULL);
             if (! success)
                 return false;
+            // Re-analyse source to confirm the role from parsed content,
+            // as defense-in-depth in case the constructor's template guess was wrong.
+            target.analyseSource();
         }
 
         thePkg.addTarget(target);
