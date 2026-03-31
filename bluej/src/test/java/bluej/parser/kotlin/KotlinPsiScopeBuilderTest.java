@@ -69,15 +69,23 @@ public class KotlinPsiScopeBuilderTest
     }
 
     /**
-     * Find the inner node of a container. Asserts the first child
-     * is indeed an inner node with NODETYPE_NONE.
+     * Find the inner node of a container, skipping any comment nodes
+     * that may precede it (e.g., KDoc attached to the declaration).
      */
     private NodeAndPosition<ParsedNode> findInner(NodeAndPosition<ParsedNode> containerNp)
     {
         NodeAndPosition<ParsedNode> np = containerNp.getNode().findNodeAtOrAfter(
             containerNp.getPosition(), containerNp.getPosition());
-        assertNotNull("Container should have inner node", np);
-        assertTrue("First child of container should be inner",
+        // Skip past comment nodes to find the actual inner node.
+        // findNodeAtOrAfter finds nodes whose END >= pos, so we use +1
+        // to advance strictly past the current node.
+        while (np != null && np.getNode().getNodeType() == ParsedNode.NODETYPE_COMMENT)
+        {
+            int afterNode = np.getPosition() + np.getSize() + 1;
+            np = containerNp.getNode().findNodeAtOrAfter(afterNode, containerNp.getPosition());
+        }
+        assertNotNull("Container should have inner node (after skipping comments)", np);
+        assertTrue("Child should be inner (after skipping comments)",
             np.getNode().isInner());
         assertEquals("Inner node should be NODETYPE_NONE",
             ParsedNode.NODETYPE_NONE, np.getNode().getNodeType());
@@ -85,14 +93,21 @@ public class KotlinPsiScopeBuilderTest
     }
 
     /**
-     * Navigate through the inner node to find the first content child.
+     * Navigate through the inner node to find the first non-comment content child.
      */
     private NodeAndPosition<ParsedNode> firstContentChild(
             NodeAndPosition<ParsedNode> containerNp)
     {
         NodeAndPosition<ParsedNode> innerNp = findInner(containerNp);
-        return innerNp.getNode().findNodeAtOrAfter(
+        NodeAndPosition<ParsedNode> np = innerNp.getNode().findNodeAtOrAfter(
             innerNp.getPosition(), innerNp.getPosition());
+        // Skip comment nodes to find the first scope child
+        while (np != null && np.getNode().getNodeType() == ParsedNode.NODETYPE_COMMENT)
+        {
+            int afterNode = np.getPosition() + np.getSize() + 1;
+            np = innerNp.getNode().findNodeAtOrAfter(afterNode, innerNp.getPosition());
+        }
+        return np;
     }
 
     // -----------------------------------------------------------------------
@@ -544,6 +559,219 @@ public class KotlinPsiScopeBuilderTest
             ifNp.getPosition() >= methodNp.getPosition()
             && ifNp.getEnd() <= methodNp.getEnd());
     }
+
+    // -----------------------------------------------------------------------
+    // Tests: Comment nodes
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void testFileLevelBlockCommentCreatesCommentNode()
+    {
+        // In Kotlin PSI, a block comment before a class is absorbed into the
+        // class declaration's text range. So the comment appears as a child of
+        // the TYPEDEF container, not as a direct file-level child.
+        String source = "/* file-level comment */\nclass Foo { }";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        // First child at file level should be the class (comment is inside it)
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull("Should have the class node", classNp);
+        assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
+
+        // The block comment should be the first child of the class container
+        NodeAndPosition<ParsedNode> commentNp = classNp.getNode().findNodeAtOrAfter(
+            classNp.getPosition(), classNp.getPosition());
+        assertNotNull("Class container should have comment child", commentNp);
+        assertEquals("Block comment should be NODETYPE_COMMENT",
+            ParsedNode.NODETYPE_COMMENT, commentNp.getNode().getNodeType());
+        assertEquals("Comment should start at position 0", 0, commentNp.getPosition());
+        assertEquals("Comment size should match '/* file-level comment */'",
+            "/* file-level comment */".length(), commentNp.getSize());
+    }
+
+    @Test
+    public void testFileLevelKDocCreatesCommentNode()
+    {
+        String source = "/** KDoc comment */\nclass Foo { }";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        // First child at file level should be the class (KDoc is attached to declaration)
+        // KDoc is a child of the KtClass PSI element, so it should appear
+        // as a COMMENT node inside the TYPEDEF container
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull(classNp);
+        assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
+
+        // The KDoc should be the first child of the class container
+        NodeAndPosition<ParsedNode> docNp = classNp.getNode().findNodeAtOrAfter(
+            classNp.getPosition(), classNp.getPosition());
+        assertNotNull("Class container should have KDoc comment child", docNp);
+        assertEquals("KDoc should be NODETYPE_COMMENT",
+            ParsedNode.NODETYPE_COMMENT, docNp.getNode().getNodeType());
+    }
+
+    @Test
+    public void testEolCommentInsideBlockCreatesCommentNode()
+    {
+        String source = "fun test() { // line comment\n}";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        NodeAndPosition<ParsedNode> methodNp = firstChild(root);
+        assertNotNull(methodNp);
+        assertEquals(ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
+
+        // Find inner, then the comment inside it
+        NodeAndPosition<ParsedNode> innerNp = findInner(methodNp);
+        NodeAndPosition<ParsedNode> commentNp = innerNp.getNode().findNodeAtOrAfter(
+            innerNp.getPosition(), innerNp.getPosition());
+        assertNotNull("Method inner should contain a comment node", commentNp);
+        assertEquals("EOL comment should be NODETYPE_COMMENT",
+            ParsedNode.NODETYPE_COMMENT, commentNp.getNode().getNodeType());
+    }
+
+    @Test
+    public void testBlockCommentInsideClassBodyCreatesCommentNode()
+    {
+        // In Kotlin PSI, a block comment before a function in a class body is
+        // absorbed into the function's text range. So the comment appears as a
+        // child of the METHODDEF container, not of the class inner node.
+        String source = "class Foo {\n    /* block comment */\n    fun bar() { }\n}";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        // class → inner → method (comment is inside the method container)
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull(classNp);
+        assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
+
+        // The method includes the block comment in its text range
+        NodeAndPosition<ParsedNode> methodNp = firstContentChild(classNp);
+        assertNotNull("Class inner should contain method node", methodNp);
+        assertEquals(ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
+
+        // The block comment should be the first child of the method container
+        NodeAndPosition<ParsedNode> commentNp = methodNp.getNode().findNodeAtOrAfter(
+            methodNp.getPosition(), methodNp.getPosition());
+        assertNotNull("Method container should have comment child", commentNp);
+        assertEquals("Block comment should be NODETYPE_COMMENT",
+            ParsedNode.NODETYPE_COMMENT, commentNp.getNode().getNodeType());
+    }
+
+    @Test
+    public void testKDocAttachedToMethodCreatesCommentNodeInsideMethodContainer()
+    {
+        String source = "class Foo {\n    /**\n     * Method doc.\n     */\n    fun bar() { }\n}";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        // class → inner → method (KDoc is attached, so it's inside the METHODDEF container)
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        NodeAndPosition<ParsedNode> methodNp = firstContentChild(classNp);
+        assertNotNull("Class inner should contain method node", methodNp);
+        assertEquals(ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
+
+        // The KDoc should be the first child of the method container
+        NodeAndPosition<ParsedNode> docNp = methodNp.getNode().findNodeAtOrAfter(
+            methodNp.getPosition(), methodNp.getPosition());
+        assertNotNull("Method container should have KDoc child", docNp);
+        assertEquals("KDoc attached to method should be NODETYPE_COMMENT",
+            ParsedNode.NODETYPE_COMMENT, docNp.getNode().getNodeType());
+    }
+
+    @Test
+    public void testMultiLineKDocWithKeywordsDoesNotCreateScopeNodes()
+    {
+        // This is the canonical bug scenario: keywords inside comments
+        // should NOT create scope/keyword nodes
+        String source = """
+                /**
+                 * This class is awesome.
+                 * It handles if conditions and for loops.
+                 */
+                class SomeClass { }""";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        // The class is the first child at file level (KDoc is attached to it)
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull(classNp);
+        assertEquals("Should be the class node",
+            ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
+
+        // Inside the class container, the first child should be the KDoc comment
+        NodeAndPosition<ParsedNode> docNp = classNp.getNode().findNodeAtOrAfter(
+            classNp.getPosition(), classNp.getPosition());
+        assertNotNull("Should have KDoc as first child of class container", docNp);
+        assertEquals("KDoc should be NODETYPE_COMMENT",
+            ParsedNode.NODETYPE_COMMENT, docNp.getNode().getNodeType());
+
+        // Verify the KDoc spans the full comment text
+        int kdocStart = source.indexOf("/**");
+        int kdocEnd = source.indexOf("*/") + 2;
+        assertEquals("KDoc should start at the /** position",
+            kdocStart, docNp.getPosition());
+        assertEquals("KDoc size should span the entire comment",
+            kdocEnd - kdocStart, docNp.getSize());
+    }
+
+    @Test
+    public void testExistingTestWithKDocStillWorks()
+    {
+        // Regression: the existing testKDocClassWithMethodAndIfPositions test
+        // should continue to work — the class and method nodes must still exist
+        // even though we now also create comment nodes.
+        String source = """
+                /**
+                 * Class doc.
+                 */
+                class SomeClass {
+                    /**
+                     * Method doc.
+                     */
+                    fun sampleMethod(y: Int): Int {
+                        if (y == 0) {
+                            return 0
+                        }
+                        return y
+                    }
+                }""";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        // Class should still be the first child at file level
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull("Should have class node", classNp);
+        assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
+
+        // The class inner should still have a method
+        NodeAndPosition<ParsedNode> classInner = findInner(classNp);
+        // Find the method — it may not be the first child if there's a KDoc
+        // in the class body. Walk children to find METHODDEF.
+        NodeAndPosition<ParsedNode> methodNp = null;
+        NodeAndPosition<ParsedNode> np = classInner.getNode().findNodeAtOrAfter(
+            classInner.getPosition(), classInner.getPosition());
+        while (np != null)
+        {
+            if (np.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF)
+            {
+                methodNp = np;
+                break;
+            }
+            // Move past this node — findNodeAtOrAfter finds nodes whose END >= pos,
+            // so +1 ensures we advance strictly past the current node.
+            int afterNode = np.getPosition() + np.getSize() + 1;
+            np = classInner.getNode().findNodeAtOrAfter(afterNode, classInner.getPosition());
+        }
+        assertNotNull("Class inner should still contain method node", methodNp);
+        assertEquals(ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
+
+        // Method should still have an if inside it
+        NodeAndPosition<ParsedNode> methodInner = findInner(methodNp);
+        NodeAndPosition<ParsedNode> ifNp = methodInner.getNode().findNodeAtOrAfter(
+            methodInner.getPosition(), methodInner.getPosition());
+        assertNotNull("Method inner should contain if-node", ifNp);
+        assertEquals(ParsedNode.NODETYPE_SELECTION, ifNp.getNode().getNodeType());
+    }
+
+    // -----------------------------------------------------------------------
+    // Tests: Containment checks
+    // -----------------------------------------------------------------------
 
     @Test
     public void testNodePositionWithinParentBounds()

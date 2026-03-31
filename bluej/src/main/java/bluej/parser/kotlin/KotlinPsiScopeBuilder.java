@@ -21,13 +21,17 @@
  */
 package bluej.parser.kotlin;
 
+import bluej.parser.Token.TokenType;
 import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.nodes.NodeStructureListener;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
 
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode;
 import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange;
+import org.jetbrains.kotlin.com.intellij.psi.PsiComment;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
+import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.KtBlockExpression;
 import org.jetbrains.kotlin.psi.KtClass;
 import org.jetbrains.kotlin.psi.KtClassBody;
@@ -62,7 +66,13 @@ import threadchecker.Tag;
  *   <li>{@link KtIfExpression} → {@link KotlinParentNode}(NODETYPE_SELECTION, blue)</li>
  *   <li>{@link KtWhenExpression} → {@link KotlinParentNode}(NODETYPE_SELECTION, blue)</li>
  *   <li>{@link KtLoopExpression} (for/while/do-while) → {@link KotlinParentNode}(NODETYPE_ITERATION, pink)</li>
+ *   <li>{@link PsiComment} → {@link KotlinCommentNode}(NODETYPE_COMMENT)</li>
  * </ul>
+ *
+ * <p>{@link PsiComment} elements are detected at three levels: file-level children,
+ * class body children, and block expression children. KDoc comments attached to
+ * declarations (which PSI includes in the declaration's text range) are also
+ * detected and inserted as comment nodes within the container node.</p>
  *
  * @author BlueJ Team
  */
@@ -105,9 +115,17 @@ public class KotlinPsiScopeBuilder
             int parentAbsPos, NodeStructureListener listener)
     {
         NodeStructureListener lsnr = listener != null ? listener : NO_OP_LISTENER;
-        for (KtDeclaration decl : ktFile.getDeclarations())
+        // Iterate getChildren() instead of getDeclarations() to see PsiComment elements
+        for (PsiElement child : ktFile.getChildren())
         {
-            processDeclaration(decl, parent, parentAbsPos, lsnr);
+            if (child instanceof PsiComment psiComment)
+            {
+                insertCommentNode(psiComment, parent, parentAbsPos, lsnr);
+            }
+            else if (child instanceof KtDeclaration decl)
+            {
+                processDeclaration(decl, parent, parentAbsPos, lsnr);
+            }
         }
     }
 
@@ -186,6 +204,9 @@ public class KotlinPsiScopeBuilder
 
         parent.insertNode(typeNode, relPos, size, listener);
 
+        // Insert comment nodes for KDoc/comments attached to this declaration
+        insertAttachedComments(ktClass, typeNode, absPos, listener);
+
         // Create inner node for class body (matches Java's container+inner pattern)
         KtClassBody body = ktClass.getBody();
         if (body != null)
@@ -232,6 +253,9 @@ public class KotlinPsiScopeBuilder
 
         parent.insertNode(typeNode, relPos, size, listener);
 
+        // Insert comment nodes for KDoc/comments attached to this declaration
+        insertAttachedComments(ktObject, typeNode, absPos, listener);
+
         KtClassBody body = ktObject.getBody();
         if (body != null)
         {
@@ -245,16 +269,25 @@ public class KotlinPsiScopeBuilder
     }
 
     /**
-     * Process a class body — walk declarations and create child nodes.
+     * Process a class body — walk children (declarations and comments) and
+     * create child nodes.
      *
      * @param parentAbsPos absolute document position of the parent BlueJ node
      */
     private static void processClassBody(KtClassBody body, JavaParentNode parent,
             int parentAbsPos, NodeStructureListener listener)
     {
-        for (KtDeclaration decl : body.getDeclarations())
+        // Iterate getChildren() instead of getDeclarations() to see PsiComment elements
+        for (PsiElement child : body.getChildren())
         {
-            processDeclaration(decl, parent, parentAbsPos, listener);
+            if (child instanceof PsiComment psiComment)
+            {
+                insertCommentNode(psiComment, parent, parentAbsPos, listener);
+            }
+            else if (child instanceof KtDeclaration decl)
+            {
+                processDeclaration(decl, parent, parentAbsPos, listener);
+            }
         }
     }
 
@@ -278,6 +311,9 @@ public class KotlinPsiScopeBuilder
         methodNode.setComplete(true);
 
         parent.insertNode(methodNode, relPos, size, listener);
+
+        // Insert comment nodes for KDoc/comments attached to this declaration
+        insertAttachedComments(ktFunction, methodNode, absPos, listener);
 
         // Create inner node for function body (matches Java's container+inner pattern)
         if (ktFunction.hasBlockBody())
@@ -320,16 +356,32 @@ public class KotlinPsiScopeBuilder
 
     /**
      * Process the contents of a block expression, looking for nested
-     * scope-creating constructs (if/when/for/while).
+     * scope-creating constructs (if/when/for/while) and comments.
+     *
+     * <p>Uses AST-level traversal because {@code KtBlockExpression.getChildren()}
+     * does not return comments — they are only visible at the AST node level.</p>
      *
      * @param parentAbsPos absolute document position of the parent BlueJ node
      */
     private static void processBlockContents(KtBlockExpression block, JavaParentNode parent,
             int parentAbsPos, NodeStructureListener listener)
     {
-        for (PsiElement child : block.getChildren())
+        // Walk AST children to find both statements and comments.
+        // PSI getChildren() on KtBlockExpression doesn't return comments.
+        for (ASTNode child = block.getNode().getFirstChildNode();
+             child != null; child = child.getTreeNext())
         {
-            processExpression(child, parent, parentAbsPos, listener);
+            PsiElement psi = child.getPsi();
+            if (psi instanceof PsiComment psiComment)
+            {
+                insertCommentNode(psiComment, parent, parentAbsPos, listener);
+            }
+            else if (!(psi instanceof org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace)
+                && child.getElementType() != KtTokens.LBRACE
+                && child.getElementType() != KtTokens.RBRACE)
+            {
+                processExpression(psi, parent, parentAbsPos, listener);
+            }
         }
     }
 
@@ -369,6 +421,80 @@ public class KotlinPsiScopeBuilder
             }
         }
     }
+
+    // -----------------------------------------------------------------------
+    // Internal: Comment node helpers
+    // -----------------------------------------------------------------------
+
+    /**
+     * Insert a {@link KotlinCommentNode} for a PSI comment element.
+     * Determines the comment type (KDoc → COMMENT_JAVADOC, others → COMMENT_NORMAL)
+     * from the PSI token type.
+     *
+     * @param comment      the PSI comment element
+     * @param parent       the parent BlueJ node to insert into
+     * @param parentAbsPos absolute document position of the parent
+     * @param listener     structure listener
+     */
+    private static void insertCommentNode(PsiComment comment, JavaParentNode parent,
+            int parentAbsPos, NodeStructureListener listener)
+    {
+        TextRange range = comment.getTextRange();
+        int relPos = range.getStartOffset() - parentAbsPos;
+        int size = range.getLength();
+
+        if (size <= 0)
+        {
+            return;
+        }
+
+        TokenType commentType;
+        if (comment.getTokenType() == KtTokens.DOC_COMMENT)
+        {
+            commentType = TokenType.COMMENT_JAVADOC;
+        }
+        else
+        {
+            commentType = TokenType.COMMENT_NORMAL;
+        }
+
+        KotlinCommentNode node = new KotlinCommentNode(parent, commentType);
+        node.setComplete(true);
+        parent.insertNode(node, relPos, size, listener);
+    }
+
+    /**
+     * Insert comment nodes for comments that are attached to a declaration.
+     *
+     * <p>In Kotlin PSI, comments preceding a declaration (KDoc, block comments,
+     * and line comments) are included within the declaration's text range.
+     * However, only KDoc appears via {@code getChildren()} — regular comments
+     * are only visible at the AST node level. We walk AST children to catch
+     * all comment types.</p>
+     *
+     * @param declaration  the PSI declaration element (class, function, object)
+     * @param container    the container BlueJ node for this declaration
+     * @param containerAbsPos absolute document position of the container
+     * @param listener     structure listener
+     */
+    private static void insertAttachedComments(PsiElement declaration,
+            JavaParentNode container, int containerAbsPos, NodeStructureListener listener)
+    {
+        // Walk AST children — PSI getChildren() doesn't return regular comments
+        for (ASTNode child = declaration.getNode().getFirstChildNode();
+             child != null; child = child.getTreeNext())
+        {
+            PsiElement psi = child.getPsi();
+            if (psi instanceof PsiComment psiComment)
+            {
+                insertCommentNode(psiComment, container, containerAbsPos, listener);
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Internal: Inner node helpers
+    // -----------------------------------------------------------------------
 
     /**
      * Create and insert an inner node for a body element ({@link KtClassBody}
