@@ -24,6 +24,7 @@ package bluej.parser.kotlin;
 import bluej.parser.Token;
 import bluej.parser.Token.TokenType;
 import bluej.parser.nodes.JavaParentNode;
+import bluej.parser.nodes.NodeStructureListener;
 import bluej.parser.nodes.ReparseableDocument;
 
 import threadchecker.OnThread;
@@ -57,10 +58,14 @@ import threadchecker.Tag;
  * background rendering on subsequent lines.</p>
  *
  * <p><b>Edit handling:</b> inherits {@code ParentParsedNode.textInserted()/
- * textRemoved()} (absorb edit, schedule deferred reparse) and
- * {@code ParentParsedNode.reparseNode()} (returns {@code REMOVE_NODE}).
- * This is the same strategy used by all Kotlin scope nodes — edits
- * cascade up to {@link KotlinParsedCUNode} for full PSI reparse.</p>
+ * textRemoved()} (absorb edit, schedule deferred reparse). Overrides
+ * {@link #reparseNode} to always return {@code REMOVE_NODE}, which
+ * cascades the reparse up to the parent node (inner body or root).
+ * This is necessary because {@code KotlinParentNode.reparseNode()}
+ * would otherwise attempt block-level PSI reparse via
+ * {@code createBlock()} on the string content — treating string
+ * text as Kotlin code — since this node has {@code isInner()=true}
+ * and {@code isContainer()=false}.</p>
  *
  * @author BlueJ Team
  */
@@ -104,8 +109,23 @@ public class KotlinStringNode extends KotlinParentNode
         return tok;
     }
 
-    // No textInserted/textRemoved/reparseNode overrides needed.
-    // Inherited ParentParsedNode behavior: absorb edit → deferred reparse
-    // → REMOVE_NODE → cascades up to KotlinParsedCUNode for full PSI reparse.
-    // Consistent with all other Kotlin scope nodes.
+    /**
+     * Always return {@code REMOVE_NODE} so the parent node reparses.
+     *
+     * <p>This override is critical: without it, the inherited
+     * {@link KotlinParentNode#reparseNode} would attempt block-level PSI
+     * reparse via {@code createBlock()} on the string's text content,
+     * because this node passes all its guards ({@code isInner()=true},
+     * {@code isContainer()=false}, parent is not TYPEDEF). That would
+     * treat string content as Kotlin code, rebuild children as code
+     * scopes inside the string node, and then {@link #tokenizeText}
+     * would render everything (including real code after the string)
+     * as {@code STRING_LITERAL}.</p>
+     */
+    @Override
+    protected int reparseNode(ReparseableDocument document, int nodePos,
+            int offset, int maxParse, NodeStructureListener listener)
+    {
+        return REMOVE_NODE;
+    }
 }

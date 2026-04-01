@@ -386,6 +386,11 @@ public class KotlinPsiScopeBuilder
                 && child.getElementType() != KtTokens.LBRACE
                 && child.getElementType() != KtTokens.RBRACE)
             {
+                // Detect comments attached to declarations within the block
+                // (e.g., KDoc/block/line comments before a property like val x = 5).
+                // PSI includes these comments inside the declaration's AST node,
+                // so the block's AST walk sees the declaration — not the comment.
+                insertAttachedComments(psi, parent, parentAbsPos, listener);
                 processExpression(psi, parent, parentAbsPos, listener);
             }
         }

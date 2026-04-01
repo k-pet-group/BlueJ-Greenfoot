@@ -23,16 +23,12 @@ package bluej.parser.kotlin;
 
 import bluej.parser.Token;
 import bluej.parser.Token.TokenType;
-import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.nodes.NodeStructureListener;
 import bluej.parser.nodes.ReparseableDocument;
-import bluej.parser.nodes.ReparseableDocument.Element;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.io.Reader;
 
 /**
  * A leaf parse node representing a Kotlin comment (KDoc, block comment, or
@@ -45,13 +41,15 @@ import java.io.Reader;
  * {@code class}, {@code if}, {@code is} inside comment text are never
  * re-lexed as keywords.</p>
  *
- * <p>This mirrors Java's {@link bluej.parser.nodes.CommentNode} approach
- * for incremental reparse: edits inside comments are absorbed locally
- * ({@code textInserted}/{@code textRemoved} return {@code ALL_OK}), and
- * the deferred {@code reparseNode()} validates the comment boundaries using
- * {@link KotlinLexer}. This avoids triggering a full-file PSI reparse
- * (~50&ndash;100ms) for every keystroke inside a comment, reducing the
- * cost to ~0.1ms.</p>
+ * <p><b>Edit handling:</b> inherits {@code ParentParsedNode.textInserted()/
+ * textRemoved()} (absorb edit, schedule deferred reparse). Overrides
+ * {@link #reparseNode} to always return {@code REMOVE_NODE}, which
+ * cascades the reparse up to the parent node (inner body or root) for
+ * a PSI-based rebuild. This is the same simple strategy used by
+ * {@link KotlinStringNode} &mdash; correct and maintainable at the
+ * cost of ~5&ndash;100ms per comment edit (vs ~0.1ms with a smart
+ * KotlinLexer-based Tier 1 reparse). Educational files are small
+ * enough that this is acceptable.</p>
  *
  * <p>Extends {@link JavaParentNode} (rather than {@code ParsedNode} directly)
  * because {@code ParsedNode}'s constructor is package-private to
@@ -63,8 +61,7 @@ import java.io.Reader;
 @OnThread(Tag.FXPlatform)
 public class KotlinCommentNode extends JavaParentNode
 {
-    private TokenType commentType;
-    private boolean singleLine;
+    private final TokenType commentType;
 
     /**
      * Create a comment node with explicit single-line flag.
@@ -80,7 +77,6 @@ public class KotlinCommentNode extends JavaParentNode
     {
         super(parent);
         this.commentType = commentType;
-        this.singleLine = singleLine;
     }
 
     /**
@@ -121,130 +117,20 @@ public class KotlinCommentNode extends JavaParentNode
         return new TokenAndScope(tok, pos);
     }
 
-    // -----------------------------------------------------------------------
-    // Edit absorption — absorb locally, schedule deferred reparse
-    // -----------------------------------------------------------------------
-
     /**
-     * Absorb text insertion locally. The comment node grows to accommodate
-     * the inserted text and schedules a deferred reparse. This avoids the
-     * immediate {@code REMOVE_NODE} cascade that would trigger a full-file
-     * PSI reparse.
+     * Always return {@code REMOVE_NODE} so the parent node reparses.
      *
-     * <p>The deferred reparse will call {@link #reparseNode} which validates
-     * the comment boundaries using {@link KotlinLexer}.</p>
-     */
-    @Override
-    public int textInserted(ReparseableDocument document, int nodePos,
-            int insPos, int length, NodeStructureListener listener)
-    {
-        int newSize = getSize() + length;
-        resize(newSize);
-        document.scheduleReparse(insPos, length);
-        return ALL_OK;
-    }
-
-    /**
-     * Absorb text removal locally. The comment node shrinks and schedules
-     * a deferred reparse for boundary validation.
-     */
-    @Override
-    public int textRemoved(ReparseableDocument document, int nodePos,
-            int delPos, int length, NodeStructureListener listener)
-    {
-        int newSize = getSize() - length;
-        resize(newSize);
-        document.scheduleReparse(delPos, 0);
-        return ALL_OK;
-    }
-
-    // -----------------------------------------------------------------------
-    // Reparse — validate comment boundaries with KotlinLexer
-    // -----------------------------------------------------------------------
-
-    /**
-     * Validate the comment boundaries using {@link KotlinLexer}.
-     *
-     * <p>Creates a lexer over the node's document region and reads the first
-     * token. If the token is still a comment of the same type (single-line
-     * vs multi-line), the node adjusts its size and returns {@code ALL_OK}
-     * or {@code NODE_SHRUNK}. If the comment structure is broken (e.g.,
-     * the closing {@code * /} was deleted), returns {@code REMOVE_NODE}
-     * to cascade to the parent for block-level or full-file reparse.</p>
+     * <p>The parent (inner body node via {@code createBlock()} or root via
+     * {@code createFile()}) rebuilds the tree from PSI, which will create
+     * a fresh {@code KotlinCommentNode} with the correct boundaries.</p>
      */
     @Override
     protected int reparseNode(ReparseableDocument document, int nodePos,
             int offset, int maxParse, NodeStructureListener listener)
     {
-        // Compute line/column for the KotlinLexer position tracking
-        Element map = document.getDefaultRootElement();
-        int pline = map.getElementIndex(nodePos) + 1;
-        int pcol = nodePos - map.getElement(pline - 1).getStartOffset() + 1;
-
-        // Create a KotlinLexer over this node's text region
-        Reader r = document.makeReader(nodePos, nodePos + getSize());
-        KotlinLexer lexer = new KotlinLexer(r, pline, pcol, nodePos);
-
-        LocatableToken commentToken = lexer.nextToken();
-
-        // Check if the first token is still a comment
-        if (!KotlinToken.isComment(commentToken.getType()))
-        {
-            return REMOVE_NODE;
-        }
-
-        // Determine if the re-lexed comment is single-line or multi-line
-        boolean newSingleLine = (commentToken.getType() == KotlinToken.EOL_COMMENT);
-
-        // Detect single-line <-> multi-line type change
-        if (singleLine && !newSingleLine)
-        {
-            // Changed from single-line to multi-line — structural change
-            return REMOVE_NODE;
-        }
-        else if (!singleLine && newSingleLine)
-        {
-            // Changed from multi-line to single-line — structural change
-            return REMOVE_NODE;
-        }
-
-        // Update comment type (e.g., block -> KDoc or vice versa)
-        TokenType newCommentType;
-        if (commentToken.getType() == KotlinToken.DOC_COMMENT)
-        {
-            newCommentType = TokenType.COMMENT_JAVADOC;
-        }
-        else
-        {
-            newCommentType = TokenType.COMMENT_NORMAL;
-        }
-        commentType = newCommentType;
-        singleLine = newSingleLine;
-
-        // Compute new size from re-lexed token end position
-        int newEnd = lineColToPos(document, commentToken.getEndLine(),
-                commentToken.getEndColumn());
-        int newSize = newEnd - nodePos;
-        document.markSectionParsed(nodePos, newSize);
-
-        if (getSize() != newSize)
-        {
-            setSize(newSize);
-            return NODE_SHRUNK;
-        }
-
-        return ALL_OK;
+        return REMOVE_NODE;
     }
 
-    /**
-     * Convert a line/column position to an absolute document offset.
-     * Matches the pattern used by Java's {@code CommentNode}.
-     */
-    private static int lineColToPos(ReparseableDocument document,
-            int line, int col)
-    {
-        Element map = document.getDefaultRootElement();
-        Element lineEl = map.getElement(line - 1);
-        return lineEl.getStartOffset() + col - 1;
-    }
+    // textInserted/textRemoved: inherited from ParentParsedNode
+    // (absorb edit, resize, schedule deferred reparse → reparseNode() → REMOVE_NODE)
 }

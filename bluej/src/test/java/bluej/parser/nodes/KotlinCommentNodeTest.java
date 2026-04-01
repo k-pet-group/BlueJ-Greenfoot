@@ -36,17 +36,18 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * Tests for KotlinCommentNode incremental reparse (Tier 1).
+ * Tests for KotlinCommentNode.
  *
  * <p>Verifies that edits inside comments are absorbed locally
- * ({@code textInserted}/{@code textRemoved} return {@code ALL_OK})
- * and that {@code reparseNode()} validates comment boundaries
- * using {@code KotlinLexer}.</p>
+ * ({@code textInserted}/{@code textRemoved} return {@code ALL_OK}
+ * via inherited {@code ParentParsedNode} behavior) and that
+ * {@code reparseNode()} always returns {@code REMOVE_NODE} to
+ * cascade to the parent for PSI-based rebuild.</p>
  *
  * <p>This test lives in {@code bluej.parser.nodes} (same package as
  * {@link ParsedNode}) so it can directly reference the protected
- * reparse result constants ({@code ALL_OK}, {@code NODE_SHRUNK},
- * {@code REMOVE_NODE}) without duplication.</p>
+ * reparse result constants ({@code ALL_OK}, {@code REMOVE_NODE})
+ * without duplication.</p>
  */
 public class KotlinCommentNodeTest
 {
@@ -54,10 +55,6 @@ public class KotlinCommentNodeTest
     // Test document implementation with line tracking
     // -----------------------------------------------------------------------
 
-    /**
-     * A mutable document implementation for testing comment reparse.
-     * Supports line/column tracking via getDefaultRootElement().
-     */
     private static class TestDocument implements ReparseableDocument
     {
         private String content;
@@ -121,10 +118,6 @@ public class KotlinCommentNodeTest
         }
     }
 
-    /**
-     * Line-based Element for getDefaultRootElement().
-     * Splits content by newline to compute line-offset mappings.
-     */
     private static class RootElement implements ReparseableDocument.Element
     {
         private final List<LineElement> lines;
@@ -139,7 +132,7 @@ public class KotlinCommentNodeTest
                 int endOffset = offset + parts[i].length();
                 if (i < parts.length - 1)
                 {
-                    endOffset += 1; // account for '\n'
+                    endOffset += 1;
                 }
                 lines.add(new LineElement(offset, endOffset));
                 offset = endOffset;
@@ -248,15 +241,9 @@ public class KotlinCommentNodeTest
     };
 
     // -----------------------------------------------------------------------
-    // Helpers: create root node and comment node
+    // Helpers
     // -----------------------------------------------------------------------
 
-    /**
-     * Create a KotlinParsedCUNode as the root of the test tree.
-     * ParsedCUNode overrides getSize()/resize()/setSize() with its own
-     * {@code size} field, so it does not require NodeTree-based size
-     * tracking — making it suitable as a test root without a real document.
-     */
     private KotlinParsedCUNode createRoot(int size)
     {
         KotlinParsedCUNode root = new KotlinParsedCUNode();
@@ -264,10 +251,6 @@ public class KotlinCommentNodeTest
         return root;
     }
 
-    /**
-     * Create a KotlinCommentNode and insert it into a parent
-     * so that getSize()/resize()/setSize() work via NodeTree.
-     */
     private KotlinCommentNode createCommentNode(KotlinParsedCUNode root,
             TokenType commentType, boolean singleLine, int offset, int size)
     {
@@ -277,13 +260,6 @@ public class KotlinCommentNodeTest
         return node;
     }
 
-    /**
-     * Call {@code reparseNode()} on the given node. This helper exists
-     * because {@code reparseNode} is {@code protected} in {@link ParsedNode};
-     * accessing it through a {@code ParsedNode} reference (same package)
-     * satisfies the Java access check, while a {@code KotlinCommentNode}
-     * reference (different package) would not.
-     */
     private int callReparseNode(ParsedNode node, ReparseableDocument doc,
             int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
@@ -291,7 +267,7 @@ public class KotlinCommentNodeTest
     }
 
     // -----------------------------------------------------------------------
-    // Tests: textInserted absorbs edits
+    // Tests: textInserted absorbs edits (inherited from ParentParsedNode)
     // -----------------------------------------------------------------------
 
     @Test
@@ -304,7 +280,6 @@ public class KotlinCommentNodeTest
         KotlinCommentNode comment = createCommentNode(root,
                 TokenType.COMMENT_NORMAL, false, 0, content.length());
 
-        // Insert a character at position 3 ("/* hXello */")
         int result = comment.textInserted(doc, 0, 3, 1, NO_OP);
 
         assertEquals("textInserted should return ALL_OK",
@@ -345,7 +320,7 @@ public class KotlinCommentNodeTest
     }
 
     // -----------------------------------------------------------------------
-    // Tests: textRemoved absorbs edits
+    // Tests: textRemoved absorbs edits (inherited from ParentParsedNode)
     // -----------------------------------------------------------------------
 
     @Test
@@ -382,11 +357,11 @@ public class KotlinCommentNodeTest
     }
 
     // -----------------------------------------------------------------------
-    // Tests: reparseNode validates block comment
+    // Tests: reparseNode always returns REMOVE_NODE
     // -----------------------------------------------------------------------
 
     @Test
-    public void testReparseValidBlockComment()
+    public void testReparseValidBlockCommentReturnsRemoveNode()
     {
         String content = "/* hello world */";
         TestDocument doc = new TestDocument(content);
@@ -397,16 +372,12 @@ public class KotlinCommentNodeTest
 
         int result = callReparseNode(comment, doc, 0, 0, content.length(), NO_OP);
 
-        assertEquals("Valid block comment should return ALL_OK",
-                ParsedNode.ALL_OK, result);
+        assertEquals("reparseNode should always return REMOVE_NODE",
+                ParsedNode.REMOVE_NODE, result);
     }
 
-    // -----------------------------------------------------------------------
-    // Tests: reparseNode validates KDoc comment
-    // -----------------------------------------------------------------------
-
     @Test
-    public void testReparseValidKDocComment()
+    public void testReparseValidKDocCommentReturnsRemoveNode()
     {
         String content = "/** KDoc comment */";
         TestDocument doc = new TestDocument(content);
@@ -417,16 +388,12 @@ public class KotlinCommentNodeTest
 
         int result = callReparseNode(comment, doc, 0, 0, content.length(), NO_OP);
 
-        assertEquals("Valid KDoc comment should return ALL_OK",
-                ParsedNode.ALL_OK, result);
+        assertEquals("reparseNode should always return REMOVE_NODE",
+                ParsedNode.REMOVE_NODE, result);
     }
 
-    // -----------------------------------------------------------------------
-    // Tests: reparseNode validates EOL comment
-    // -----------------------------------------------------------------------
-
     @Test
-    public void testReparseValidEolComment()
+    public void testReparseValidEolCommentReturnsRemoveNode()
     {
         String content = "// end of line comment";
         TestDocument doc = new TestDocument(content);
@@ -437,18 +404,13 @@ public class KotlinCommentNodeTest
 
         int result = callReparseNode(comment, doc, 0, 0, content.length(), NO_OP);
 
-        assertEquals("Valid EOL comment should return ALL_OK",
-                ParsedNode.ALL_OK, result);
+        assertEquals("reparseNode should always return REMOVE_NODE",
+                ParsedNode.REMOVE_NODE, result);
     }
 
-    // -----------------------------------------------------------------------
-    // Tests: reparseNode detects broken structure
-    // -----------------------------------------------------------------------
-
     @Test
-    public void testReparseBrokenBlockComment()
+    public void testReparseBrokenContentReturnsRemoveNode()
     {
-        // The document contains text that is not a comment at all.
         String content = "not a comment";
         TestDocument doc = new TestDocument(content);
         KotlinParsedCUNode root = createRoot(content.length());
@@ -458,74 +420,7 @@ public class KotlinCommentNodeTest
 
         int result = callReparseNode(comment, doc, 0, 0, content.length(), NO_OP);
 
-        assertEquals("Non-comment content should return REMOVE_NODE",
+        assertEquals("reparseNode should always return REMOVE_NODE",
                 ParsedNode.REMOVE_NODE, result);
-    }
-
-    // -----------------------------------------------------------------------
-    // Tests: reparseNode detects type change (single-line <-> multi-line)
-    // -----------------------------------------------------------------------
-
-    @Test
-    public void testReparseDetectsSingleToMultiLineChange()
-    {
-        // Node was created as single-line, but content is now a block comment
-        String content = "/* now a block */";
-        TestDocument doc = new TestDocument(content);
-        KotlinParsedCUNode root = createRoot(content.length());
-
-        // Create as single-line (was originally //)
-        KotlinCommentNode comment = createCommentNode(root,
-                TokenType.COMMENT_NORMAL, true, 0, content.length());
-
-        int result = callReparseNode(comment, doc, 0, 0, content.length(), NO_OP);
-
-        assertEquals("Single-line -> multi-line change should return REMOVE_NODE",
-                ParsedNode.REMOVE_NODE, result);
-    }
-
-    @Test
-    public void testReparseDetectsMultiToSingleLineChange()
-    {
-        // Node was created as multi-line, but content is now a line comment
-        String content = "// now a line comment";
-        TestDocument doc = new TestDocument(content);
-        KotlinParsedCUNode root = createRoot(content.length());
-
-        // Create as multi-line (was originally /* */)
-        KotlinCommentNode comment = createCommentNode(root,
-                TokenType.COMMENT_NORMAL, false, 0, content.length());
-
-        int result = callReparseNode(comment, doc, 0, 0, content.length(), NO_OP);
-
-        assertEquals("Multi-line -> single-line change should return REMOVE_NODE",
-                ParsedNode.REMOVE_NODE, result);
-    }
-
-    // -----------------------------------------------------------------------
-    // Tests: reparseNode adjusts size (NODE_SHRUNK)
-    // -----------------------------------------------------------------------
-
-    @Test
-    public void testReparseSizeAdjustment()
-    {
-        // Content is a valid block comment that is smaller than the node's
-        // registered size — reparseNode should adjust via NODE_SHRUNK
-        String content = "/* hi */  extra";
-        TestDocument doc = new TestDocument(content);
-        KotlinParsedCUNode root = createRoot(content.length());
-
-        // Create node with the full document length (including "  extra")
-        KotlinCommentNode comment = createCommentNode(root,
-                TokenType.COMMENT_NORMAL, false, 0, content.length());
-
-        int result = callReparseNode(comment, doc, 0, 0, content.length(), NO_OP);
-
-        // The lexer should see "/* hi */" as the comment token (8 chars),
-        // and the node was 15 chars. So it should shrink.
-        assertEquals("Size mismatch should return NODE_SHRUNK",
-                ParsedNode.NODE_SHRUNK, result);
-        assertEquals("Node should be resized to actual comment length",
-                8, comment.getSize());
     }
 }
