@@ -25,11 +25,18 @@ import bluej.parser.Token;
 import bluej.parser.Token.TokenType;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.JavaParentNode;
+import bluej.parser.nodes.NodeStructureListener;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
+
+import org.jetbrains.kotlin.psi.KtBlockExpression;
+import org.jetbrains.kotlin.psi.KtPsiFactory;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.io.IOException;
 import java.io.Reader;
 
 /**
@@ -43,6 +50,13 @@ import java.io.Reader;
  * class can represent Kotlin classes (TYPEDEF), functions (METHODDEF),
  * and control-flow scopes (SELECTION, ITERATION) — all with correct
  * Kotlin tokenization via virtual dispatch.</p>
+ *
+ * <p>Inner body nodes (function bodies, control-flow bodies) override
+ * {@link #reparseNode} to attempt block-level PSI reparse via
+ * {@link KtPsiFactory#createBlock}, reducing reparse cost from ~50-100ms
+ * (full-file) to ~5-20ms. Container nodes and class body inner nodes
+ * return {@code REMOVE_NODE} to cascade to full-file reparse (class bodies
+ * require {@code processClassBody(KtClassBody)}, not block-level parsing).</p>
  *
  * <p>This class does NOT implement {@link bluej.parser.entity.EntityResolver}
  * beyond what {@code JavaParentNode} provides — entity resolution
@@ -118,6 +132,149 @@ public class KotlinParentNode extends JavaParentNode
         // Scope nodes in Kotlin contain their own closing brace
         return isContainerNode;
     }
+
+    // -----------------------------------------------------------------------
+    // Block-level PSI reparse (Tier 3)
+    // -----------------------------------------------------------------------
+
+    /**
+     * Attempt block-level PSI reparse for inner body nodes. This avoids a
+     * full-file reparse (~50-100ms) when edits occur within a function body
+     * or control-flow body, reducing cost to ~5-20ms.
+     *
+     * <p><b>Inner body nodes</b> ({@code isInner() == true}): read the inner
+     * content (text between the enclosing braces, without the braces
+     * themselves), parse with {@link KtPsiFactory#createBlock} (which adds
+     * its own wrapping), rebuild children via
+     * {@link KotlinPsiScopeBuilder#buildScopesFromBlock}.</p>
+     *
+     * <p><b>Container nodes</b> ({@code isContainer() == true}): return
+     * {@code REMOVE_NODE}. Container boundaries (class declarations, function
+     * signatures) can only be validated by full-file parsing.</p>
+     *
+     * <p><b>Other nodes</b>: return {@code REMOVE_NODE} to cascade up.</p>
+     */
+    @Override
+    protected int reparseNode(ReparseableDocument document, int nodePos,
+            int offset, int maxParse, NodeStructureListener listener)
+    {
+        // Containers always delegate up — their boundaries (class/function
+        // signatures) can only be validated by full-file parsing
+        if (isContainer())
+        {
+            return REMOVE_NODE;
+        }
+
+        // Only inner body nodes attempt block-level reparse
+        if (!isInner())
+        {
+            return REMOVE_NODE;
+        }
+
+        // Class body inner nodes cannot use block-level reparse because
+        // KtPsiFactory.createBlock() produces a KtBlockExpression, which
+        // processes block statements (control flow, local vars) — not
+        // class member declarations (functions, nested classes). Class
+        // body members require processClassBody(KtClassBody), but we
+        // only have a KtBlockExpression from createBlock(). Cascade to
+        // full-file reparse instead.
+        ParsedNode parent = getParentNode();
+        if (parent != null && parent.getNodeType() == NODETYPE_TYPEDEF)
+        {
+            return REMOVE_NODE;
+        }
+
+        // Read the inner content (text between the enclosing braces).
+        // Boundary check: if the inner node extends past the document
+        // (e.g., closing brace was deleted), cascade to full-file reparse.
+        int innerEnd = nodePos + getSize();
+        if (innerEnd > document.getLength())
+        {
+            return REMOVE_NODE;
+        }
+
+        String innerContent = readDocumentText(document, nodePos, innerEnd);
+
+        try
+        {
+            // Parse the inner content as a block using createBlock().
+            // Pass just the inner content WITHOUT braces — createBlock()
+            // wraps it internally as "fun x() {\n<content>\n}" and returns
+            // the body KtBlockExpression.
+            KtPsiFactory psiFactory = KotlinEnvironmentManager.getPsiFactory();
+            KtBlockExpression block = psiFactory.createBlock(innerContent);
+
+            // Remove all existing children
+            removeAllChildren(nodePos, listener);
+
+            // Rebuild scope tree from PSI block.
+            // createBlock() wraps as "fun x() {\n<content>\n}", so the
+            // block's LBRACE is at getStartOffset(), then a '\n' follows.
+            // Our content starts 2 characters after the LBRACE: +1 for
+            // the brace itself, +1 for the injected newline.
+            int contentPsiOffset = block.getTextRange().getStartOffset() + 2;
+            KotlinPsiScopeBuilder.buildScopesFromBlock(block, this,
+                    contentPsiOffset, listener);
+
+            // Mark section parsed
+            document.markSectionParsed(nodePos, getSize());
+            return ALL_OK;
+        }
+        catch (Exception e)
+        {
+            // Syntax error breaks block structure — cascade to parent
+            return REMOVE_NODE;
+        }
+    }
+
+    /**
+     * Remove all child nodes from this node, notifying the listener
+     * of each removal.
+     */
+    private void removeAllChildren(int nodePos, NodeStructureListener listener)
+    {
+        NodeAndPosition<ParsedNode> child = findNodeAtOrAfter(nodePos, nodePos);
+        while (child != null)
+        {
+            NodeAndPosition<ParsedNode> next = child.nextSibling();
+            removeChild(child, listener);
+            child = next;
+        }
+    }
+
+    /**
+     * Read a section of the document into a String.
+     *
+     * @param document the document to read from
+     * @param start    start offset (inclusive)
+     * @param end      end offset (exclusive)
+     * @return the document text, or empty string on error
+     */
+    private static String readDocumentText(ReparseableDocument document,
+            int start, int end)
+    {
+        try
+        {
+            Reader reader = document.makeReader(start, end);
+            StringBuilder sb = new StringBuilder(end - start);
+            char[] buf = new char[4096];
+            int n;
+            while ((n = reader.read(buf)) != -1)
+            {
+                sb.append(buf, 0, n);
+            }
+            reader.close();
+            return sb.toString();
+        }
+        catch (IOException e)
+        {
+            return "";
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Kotlin tokenization
+    // -----------------------------------------------------------------------
 
     /**
      * Tokenize a text region using KotlinLexer and KotlinToken mapping.

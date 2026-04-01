@@ -442,7 +442,7 @@ public class KotlinPsiScopeBuilder
     /**
      * Insert a {@link KotlinCommentNode} for a PSI comment element.
      * Determines the comment type (KDoc → COMMENT_JAVADOC, others → COMMENT_NORMAL)
-     * from the PSI token type.
+     * and single-line flag from the PSI token type.
      *
      * @param comment      the PSI comment element
      * @param parent       the parent BlueJ node to insert into
@@ -462,16 +462,25 @@ public class KotlinPsiScopeBuilder
         }
 
         TokenType commentType;
+        boolean singleLine;
         if (comment.getTokenType() == KtTokens.DOC_COMMENT)
         {
             commentType = TokenType.COMMENT_JAVADOC;
+            singleLine = false;
+        }
+        else if (comment.getTokenType() == KtTokens.EOL_COMMENT)
+        {
+            commentType = TokenType.COMMENT_NORMAL;
+            singleLine = true;
         }
         else
         {
+            // BLOCK_COMMENT or SHEBANG_COMMENT
             commentType = TokenType.COMMENT_NORMAL;
+            singleLine = false;
         }
 
-        KotlinCommentNode node = new KotlinCommentNode(parent, commentType);
+        KotlinCommentNode node = new KotlinCommentNode(parent, commentType, singleLine);
         node.setComplete(true);
         parent.insertNode(node, relPos, size, listener);
     }
