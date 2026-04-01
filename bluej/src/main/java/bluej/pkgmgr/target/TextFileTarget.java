@@ -105,7 +105,7 @@ public class TextFileTarget extends NonCodeEditableTarget
                 {
                     return getPackage().getProject().getDefaultFXTabbedEditor();
                 }
-            }, getSourceFile().getName(), this, null, null, () -> {}, new ReadOnlyBooleanWrapper(false), false);
+            }, getSourceFile().getName(), this, null, null, () -> {}, new ReadOnlyBooleanWrapper(false), false, new bluej.editor.flow.JavaLanguageSupport());
             flowEditor.showFile(file.getAbsolutePath(), StandardCharsets.UTF_8, false, null);
             this.editor = flowEditor;
         }

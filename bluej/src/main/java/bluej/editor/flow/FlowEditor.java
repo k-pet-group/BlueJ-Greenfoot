@@ -188,7 +188,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final EditorFixesManager editorFixesMgr;
 
     private final boolean sourceIsCode;           // true if current buffer is code
-    private final boolean isKotlin;               // true if editing a .kt file
+    private final FlowLanguageSupport languageSupport;  // strategy for language-specific editor behavior
     private final List<Menu> fxMenus;
     private final ListView<ErrorDetails> errorList;
     private final BorderPane errorListPane;
@@ -258,14 +258,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     // Used during testing
     public void enableParser(boolean force)
     {
-        if (isKotlin)
-        {
-            javaSyntaxView.enableParser(new bluej.parser.kotlin.KotlinParsedCUNode());
-        }
-        else
-        {
-            javaSyntaxView.enableParser(force);
-        }
+        javaSyntaxView.enableParser(
+            languageSupport.createRootNode(javaSyntaxView.getEntityResolver()), force);
     }
 
     @Override
@@ -537,12 +531,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     // package-visible:
     final UndoManager undoManager;
 
-    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting, boolean sourceIsCode)
-    {
-        this(fetchTabbedEditor, title, editorWatcher, parentResolver, javadocResolver, openCallback, syntaxHighlighting, sourceIsCode, false);
-    }
-
-    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting, boolean sourceIsCode, boolean isKotlin)
+    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting, boolean sourceIsCode, FlowLanguageSupport languageSupport)
     {
         this.fxTab = new FlowFXTab(this, title);
         this.javadocResolver = javadocResolver;
@@ -561,7 +550,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.actions = new FlowActions(this);
         this.htmlPane = new WebView();
         this.sourceIsCode = sourceIsCode;
-        this.isKotlin = isKotlin;
+        this.languageSupport = languageSupport;
         this.editorFixesMgr = new EditorFixesManager(watcher == null || watcher.getPackage() == null ? new CompletableFuture<>() : watcher.getPackage().getProject().getImports());
         htmlPane.visibleProperty().bind(viewingHTML);
         setCenter(new StackPane(flowEditorPane, htmlPane));
@@ -2629,44 +2618,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                if (isKotlin) {
-                    if (info.getSuperclass() == null) {
-                        if (info.hasInterfaceSelections()) {
-                            // Has interfaces but no superclass: insert "className(), "
-                            // before the first interface in the supertype list
-                            Selection firstIface = info.getInterfaceSelections().get(1);
-                            setSelection(new SourceLocation(firstIface.getLine(), firstIface.getColumn()), new SourceLocation(firstIface.getLine(), firstIface.getColumn()));
-                            insertText(className + "(), ", false);
-                        }
-                        else {
-                            // No supertypes at all: insert " : className()"
-                            Selection s1 = info.getExtendsInsertSelection();
-                            setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                            insertText(" : " + className + "()", false);
-                        }
-                    }
-                    else {
-                        // Replace existing superclass: replace "OldName()" with "NewName()"
-                        Selection s1 = info.getSuperReplaceSelection();
-                        setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                        insertText(className + "()", false);
-                    }
-                }
-                else {
-                    // Java path (unchanged)
-                    if (info.getSuperclass() == null) {
-                        Selection s1 = info.getExtendsInsertSelection();
-
-                        setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                        insertText(" extends " + className, false);
-                    }
-                    else {
-                        Selection s1 = info.getSuperReplaceSelection();
-
-                        setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                        insertText(className, false);
-                    }
-                }
+                languageSupport.setExtendsClass(this, className, info);
                 save();
             }
         }
@@ -2682,42 +2634,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                if (isKotlin) {
-                    Selection superSel = info.getSuperReplaceSelection();
-                    if (superSel != null) {
-                        if (info.hasInterfaceSelections()) {
-                            // Has interfaces after superclass: remove superclass
-                            // entry and its trailing comma, keeping ": Interface..."
-                            // Delete from superclass start to first interface start
-                            Selection firstIface = info.getInterfaceSelections().get(1);
-                            setSelection(new SourceLocation(superSel.getLine(), superSel.getColumn()), new SourceLocation(firstIface.getLine(), firstIface.getColumn()));
-                            insertText("", false);
-                        }
-                        else {
-                            // Superclass is the only supertype: remove entire
-                            // " : SuperClass()" span
-                            Selection extReplace = info.getExtendsReplaceSelection();
-                            if (extReplace != null) {
-                                extReplace.combineWith(superSel);
-                                setSelection(new SourceLocation(extReplace.getLine(), extReplace.getColumn()), new SourceLocation(extReplace.getEndLine(), extReplace.getEndColumn()));
-                            }
-                            else {
-                                setSelection(new SourceLocation(superSel.getLine(), superSel.getColumn()), new SourceLocation(superSel.getEndLine(), superSel.getEndColumn()));
-                            }
-                            insertText("", false);
-                        }
-                    }
-                }
-                else {
-                    // Java path (unchanged)
-                    Selection s1 = info.getExtendsReplaceSelection();
-                    s1.combineWith(info.getSuperReplaceSelection());
-
-                    if (s1 != null) {
-                        setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                        insertText("", false);
-                    }
-                }
+                languageSupport.removeExtendsClass(this, info);
                 save();
             }
         }
@@ -2733,41 +2650,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                if (isKotlin) {
-                    Selection s1 = info.getImplementsInsertSelection();
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-
-                    if (info.hasInterfaceSelections() || info.getSuperclass() != null) {
-                        // Already has supertypes: append ", interfaceName"
-                        if (info.hasInterfaceSelections()) {
-                            List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
-                            if (!exists.contains(interfaceName))
-                                insertText(", " + interfaceName, false);
-                        }
-                        else {
-                            insertText(", " + interfaceName, false);
-                        }
-                    }
-                    else {
-                        // No supertypes at all: insert " : interfaceName"
-                        insertText(" : " + interfaceName, false);
-                    }
-                }
-                else {
-                    // Java path (unchanged)
-                    Selection s1 = info.getImplementsInsertSelection();
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-
-                    if (info.hasInterfaceSelections()) {
-                        List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
-
-                        if (!exists.contains(interfaceName))
-                            insertText(", " + interfaceName, false);
-                    }
-                    else {
-                        insertText(" implements " + interfaceName, false);
-                    }
-                }
+                languageSupport.addImplements(this, interfaceName, info);
                 save();
             }
         }
@@ -2782,7 +2665,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      * TODO this is usually used to get the implemented interfaces, but it is a clumsy way
      *      to do that.
      */
-    private List<String> getInterfaceTexts(List<Selection> selections)
+    List<String> getInterfaceTexts(List<Selection> selections)
     {
         List<String> r = new ArrayList<String>(selections.size());
         for (Selection sel : selections)
@@ -2808,41 +2691,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                if (isKotlin) {
-                    // Kotlin uses unified supertype list — same logic as addImplements
-                    Selection s1 = info.getImplementsInsertSelection();
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-
-                    if (info.hasInterfaceSelections() || info.getSuperclass() != null) {
-                        if (info.hasInterfaceSelections()) {
-                            List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
-                            if (!exists.contains(interfaceName))
-                                insertText(", " + interfaceName, false);
-                        }
-                        else {
-                            insertText(", " + interfaceName, false);
-                        }
-                    }
-                    else {
-                        // No supertypes: insert " : interfaceName"
-                        insertText(" : " + interfaceName, false);
-                    }
-                }
-                else {
-                    // Java path (unchanged)
-                    Selection s1 = info.getExtendsInsertSelection();
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-
-                    if (info.hasInterfaceSelections()) {
-                        List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
-
-                        if (!exists.contains(interfaceName))
-                            insertText(", " + interfaceName, false);
-                    }
-                    else {
-                        insertText(" extends " + interfaceName, false);
-                    }
-                }
+                languageSupport.addExtendsInterface(this, interfaceName, info);
                 save();
             }
         }
@@ -3763,14 +3612,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 return lineDisplay.calculateLineWidth(content);
             }
         }, flowEditorPaneListener, this.javaSyntaxView.getEntityResolver(), PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING));
-        if (isKotlin)
-        {
-            javaSyntaxView.enableParser(new bluej.parser.kotlin.KotlinParsedCUNode());
-        }
-        else
-        {
-            javaSyntaxView.enableParser(true);
-        }
+        javaSyntaxView.enableParser(
+            languageSupport.createRootNode(javaSyntaxView.getEntityResolver()), true);
         StyledLines allLines = new StyledLines(doc, lineStylerWrapper[0]);
         lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true, null));
 

@@ -1434,7 +1434,7 @@ public class ClassTarget extends DependentTarget
                     {
                         return project.getDefaultFXTabbedEditor();
                     }
-                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true);
+                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true, new bluej.editor.flow.JavaLanguageSupport());
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
             }
             else if (sourceAvailable == SourceType.Stride) {
@@ -1454,7 +1454,7 @@ public class ClassTarget extends DependentTarget
                     {
                         return project.getDefaultFXTabbedEditor();
                     }
-                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true, true);
+                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true, new bluej.editor.flow.KotlinLanguageSupport());
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
             }
 

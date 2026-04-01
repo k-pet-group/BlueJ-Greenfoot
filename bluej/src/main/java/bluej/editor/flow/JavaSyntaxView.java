@@ -379,36 +379,33 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     }
 
     /**
-     * Enable the parser. This should be called after loading a document.
-     * @param force  whether to force-enable the parser. If false, the parser will only
-     *                be enabled if an entity resolver is available.
+     * Enable the parser with a default Java root node. This is a convenience
+     * for callers that always use Java parsing (e.g. Stride elements, tests).
+     * Language-aware callers should use {@link #enableParser(ParsedCUNode, boolean)}.
+     *
+     * @param force  if {@code true}, replace the existing parser
      */
     @OnThread(Tag.FXPlatform)
     public void enableParser(boolean force)
     {
-        enableParser(new ParsedCUNode(parentResolver));
+        enableParser(new ParsedCUNode(parentResolver), force);
     }
 
     /**
-     * Enable the parser with a pre-built root node. This allows callers to
-     * supply a language-specific root node (e.g. {@code KotlinParsedCUNode}
-     * for Kotlin files) instead of the default Java {@link ParsedCUNode}.
+     * Enable the parser with a pre-built root node and optional force flag.
      *
      * @param externalRootNode  the root parse node to use
+     * @param force             if {@code true}, replace the existing parser
      */
     @OnThread(Tag.FXPlatform)
-    public void enableParser(ParsedCUNode externalRootNode)
+    public void enableParser(ParsedCUNode externalRootNode, boolean force)
     {
         if (rootNode == null)
         {
             rootNode = externalRootNode;
             reparseRecordTree = new NodeTree<ReparseRecord>();
-            //if (parentResolver != null || force) {
-            //rootNode.setParentResolver(parentResolver);
             rootNode.textInserted(this, 0, 0, document.getLength(),
                     new SyntaxEvent(0, document.getLength(), true, false));
-            // We can discard the MoeSyntaxEvent: the reparse will update scopes/syntax
-            //}
             document.addListener(true, (start, oldText, newText, linesRemoved, linesAdded) -> {
                 if (oldText.length() != 0)
                 {
@@ -423,6 +420,15 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 scheduleReparseRunner();
             });
 
+            scheduleReparseRunner();
+        }
+        else if (force)
+        {
+            // Replace the root node but don't re-register the document listener
+            rootNode = externalRootNode;
+            reparseRecordTree = new NodeTree<ReparseRecord>();
+            rootNode.textInserted(this, 0, 0, document.getLength(),
+                    new SyntaxEvent(0, document.getLength(), true, false));
             scheduleReparseRunner();
         }
     }
