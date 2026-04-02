@@ -1274,11 +1274,16 @@ public class ClassTarget extends DependentTarget
         List<SourceFileInfo> list = new ArrayList<>();
         if (sourceAvailable.equals(SourceType.Stride)) {
             list.add(new SourceFileInfo(getFrameSourceFile(), SourceType.Stride));
+            // Stride generates a .java file alongside the .stride file
+            list.add(new SourceFileInfo(getJavaSourceFile(), SourceType.Java));
         }
         else if (sourceAvailable.equals(SourceType.Kotlin)) {
+            // Kotlin targets have no .java file
             list.add(new SourceFileInfo(getKotlinSourceFile(), SourceType.Kotlin));
         }
-        list.add(new SourceFileInfo(getJavaSourceFile(), SourceType.Java));
+        else {
+            list.add(new SourceFileInfo(getJavaSourceFile(), SourceType.Java));
+        }
         return list;
     }
 
@@ -1353,16 +1358,22 @@ public class ClassTarget extends DependentTarget
     class InnerClassFileFilter
         implements FileFilter
     {
-        /**
-         * Description of the Method
-         * 
-         * @param pathname Description of the Parameter
-         * @return Description of the Return Value
-         */
         @Override
         public boolean accept(File pathname)
         {
-            return pathname.getName().startsWith(getBaseName() + "$");
+            String name = pathname.getName();
+            // Match standard inner class files: ClassName$Inner.class
+            if (name.startsWith(getBaseName() + "$"))
+            {
+                return true;
+            }
+            // Kotlin facade classes compile as ClassNameKt.class, with
+            // inner/lambda classes as ClassNameKt$lambda.class
+            if (isKotlinFacade && name.startsWith(getBaseName() + "Kt$"))
+            {
+                return true;
+            }
+            return false;
         }
     }
 
@@ -2120,6 +2131,10 @@ public class ClassTarget extends DependentTarget
             String filename;
             File oldFrameSourceFile = null;
             File newFrameSourceFile = null;
+            // Track the primary source files for DataCollector (may differ
+            // from oldJavaSourceFile/newJavaSourceFile for Kotlin targets)
+            File oldPrimarySource = oldJavaSourceFile;
+            File newPrimarySource = newJavaSourceFile;
             getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
 
             if (getSourceType().equals(SourceType.Stride)) {
@@ -2127,16 +2142,25 @@ public class ClassTarget extends DependentTarget
                 oldFrameSourceFile = getFrameSourceFile();
                 FileUtility.copyFile(oldFrameSourceFile, newFrameSourceFile);
                 filename = newFrameSourceFile.getAbsolutePath();
+                // Stride also generates a .java file that must be copied
+                FileUtility.copyFile(oldJavaSourceFile, newJavaSourceFile);
+            }
+            else if (getSourceType().equals(SourceType.Kotlin)) {
+                File oldKotlinSourceFile = getKotlinSourceFile();
+                File newKotlinSourceFile = getPackageFile(newName + "." + SourceType.Kotlin.getExtension());
+                FileUtility.copyFile(oldKotlinSourceFile, newKotlinSourceFile);
+                filename = newKotlinSourceFile.getAbsolutePath();
+                oldPrimarySource = oldKotlinSourceFile;
+                newPrimarySource = newKotlinSourceFile;
             }
             else {
                 filename = newJavaSourceFile.getAbsolutePath();
+                FileUtility.copyFile(oldJavaSourceFile, newJavaSourceFile);
             }
 
-            // Also copy the Java file across, in all cases:
-            FileUtility.copyFile(oldJavaSourceFile, newJavaSourceFile);
-            String javaFilename = newJavaSourceFile.getAbsolutePath();
-            String docFilename = getPackage().getProject().getDocumentationFile(javaFilename);
-            getEditor().changeName(newName, filename, javaFilename, docFilename);
+            String primaryFilename = newPrimarySource.getAbsolutePath();
+            String docFilename = getPackage().getProject().getDocumentationFile(primaryFilename);
+            getEditor().changeName(newName, filename, primaryFilename, docFilename);
 
             removeGeneratedFiles();
 
@@ -2151,7 +2175,7 @@ public class ClassTarget extends DependentTarget
             BClass bClass = getBClass();
             ExtensionBridge.ChangeBClassName(bClass, getQualifiedName());
 
-            DataCollector.renamedClass(getPackage(), oldFrameSourceFile, newFrameSourceFile, oldJavaSourceFile, newJavaSourceFile);
+            DataCollector.renamedClass(getPackage(), oldFrameSourceFile, newFrameSourceFile, oldPrimarySource, newPrimarySource);
 
             // Take copy of listeners in case the rename causes new listeners to be added:
             for (TargetListener stateListener : new ArrayList<>(stateListeners))
@@ -2544,7 +2568,12 @@ public class ClassTarget extends DependentTarget
     public void remove()
     {
         File frameSourceFile = getSourceType().equals(SourceType.Stride) ? getFrameSourceFile() : null;
-        File javaSourceFile = getJavaSourceFile();
+        // Use the actual primary source file (Java or Kotlin) for data collection
+        File primarySourceFile = getSourceFile();
+        if (primarySourceFile == null)
+        {
+            primarySourceFile = getJavaSourceFile();
+        }
         prepareForRemoval();
         Package pkg = getPackage();
         pkg.removeTarget(this);
@@ -2553,9 +2582,9 @@ public class ClassTarget extends DependentTarget
         ClassEvent event = new ClassEvent(getPackage(), getBClass());
         ExtensionsManager.getInstance().delegateEvent(event);
 
-        // We must remove after the above, because it might involve saving, 
+        // We must remove after the above, because it might involve saving,
         // and thus recording edits to the file
-        DataCollector.removeClass(pkg, frameSourceFile, javaSourceFile);
+        DataCollector.removeClass(pkg, frameSourceFile, primarySourceFile);
 
 
         // In Greenfoot we don't do detailed dependency tracking, so we just recompile the whole
