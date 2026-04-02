@@ -21,6 +21,7 @@
  */
 package bluej.editor.flow;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jetbrains.kotlin.psi.KtClassOrObject;
@@ -39,10 +40,14 @@ import bluej.parser.symtab.ClassInfo;
 
 /**
  * Kotlin implementation of {@link FlowLanguageSupport}. Creates a
- * {@link KotlinParsedCUNode} for parsing and uses PSI {@code TextRange}
- * offsets with string splicing for supertype list editing. Each editing
- * method re-parses the editor text to a PSI tree, locates the relevant
- * supertype entries, and replaces the corresponding text range.
+ * {@link KotlinParsedCUNode} for parsing and uses PSI to read the current
+ * supertype list, then rebuilds the entire supertype clause from a modified
+ * list of entry texts.
+ *
+ * <p>Each editing method re-parses the editor text to a PSI tree, collects
+ * the current supertype entry texts into a list, modifies the list, and
+ * replaces the whole supertype clause via
+ * {@link #rebuildSupertypeClause(FlowEditor, String, KtClassOrObject, List)}.</p>
  *
  * <p>Kotlin uses a unified supertype list ({@code : SuperClass(), Interface})
  * for both class and interface inheritance. A {@link KtSuperTypeCallEntry}
@@ -65,30 +70,26 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
         if (cls == null)
             return;
 
-        KtSuperTypeCallEntry existing = findSuperclassEntry(cls);
-        KtSuperTypeList superList = cls.getSuperTypeList();
-
-        if (existing != null)
+        List<String> texts = new ArrayList<>();
+        boolean replaced = false;
+        for (var entry : cls.getSuperTypeListEntries())
         {
-            // Replace existing superclass entry: "OldName()" -> "NewName()"
-            replaceRange(editor,
-                existing.getTextRange().getStartOffset(),
-                existing.getTextRange().getEndOffset(),
-                className + "()");
+            if (entry instanceof KtSuperTypeCallEntry)
+            {
+                texts.add(className + "()");
+                replaced = true;
+            }
+            else
+            {
+                texts.add(entry.getText());
+            }
         }
-        else if (superList != null)
+        if (!replaced)
         {
-            // Has interfaces but no superclass: insert "className(), " at
-            // the start of the supertype list
-            int insertOffset = superList.getTextRange().getStartOffset();
-            replaceRange(editor, insertOffset, insertOffset, className + "(), ");
+            // Superclass goes first in the list
+            texts.add(0, className + "()");
         }
-        else
-        {
-            // No supertypes at all: insert " : className()"
-            int insertOffset = findSupertypeInsertOffset(cls);
-            replaceRange(editor, insertOffset, insertOffset, " : " + className + "()");
-        }
+        rebuildSupertypeClause(editor, source, cls, texts);
     }
 
     @Override
@@ -99,19 +100,20 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
         if (cls == null)
             return;
 
-        KtSuperTypeCallEntry superEntry = findSuperclassEntry(cls);
-        if (superEntry == null)
-            return;
-
-        removeSuperTypeEntry(editor, source, cls, superEntry);
+        List<String> texts = new ArrayList<>();
+        for (var entry : cls.getSuperTypeListEntries())
+        {
+            if (!(entry instanceof KtSuperTypeCallEntry))
+            {
+                texts.add(entry.getText());
+            }
+        }
+        rebuildSupertypeClause(editor, source, cls, texts);
     }
 
     @Override
     public void addImplements(FlowEditor editor, String interfaceName, ClassInfo info)
     {
-        // Kotlin uses a unified supertype list for both class and interface
-        // inheritance, so the logic is identical for addImplements and
-        // addExtendsInterface
         addSupertype(editor, interfaceName);
     }
 
@@ -129,11 +131,15 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
         if (cls == null)
             return;
 
-        KtSuperTypeListEntry target = findEntryByName(cls, interfaceName);
-        if (target == null)
-            return;
-
-        removeSuperTypeEntry(editor, source, cls, target);
+        List<String> texts = new ArrayList<>();
+        for (var entry : cls.getSuperTypeListEntries())
+        {
+            if (!stripGenerics(entryTypeName(entry)).equals(interfaceName))
+            {
+                texts.add(entry.getText());
+            }
+        }
+        rebuildSupertypeClause(editor, source, cls, texts);
     }
 
     // ----- Private helpers -----
@@ -149,80 +155,79 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
         if (cls == null)
             return;
 
-        KtSuperTypeList superList = cls.getSuperTypeList();
-
-        if (superList != null)
+        List<String> texts = new ArrayList<>();
+        for (var entry : cls.getSuperTypeListEntries())
         {
-            // Already has supertypes: check for duplicates, then append
-            if (findEntryByName(cls, typeName) != null)
-                return;
-            int endOffset = superList.getTextRange().getEndOffset();
-            replaceRange(editor, endOffset, endOffset, ", " + typeName);
+            if (stripGenerics(entryTypeName(entry)).equals(typeName))
+                return; // already present
+            texts.add(entry.getText());
         }
-        else
-        {
-            // No supertypes: insert " : typeName"
-            int insertOffset = findSupertypeInsertOffset(cls);
-            replaceRange(editor, insertOffset, insertOffset, " : " + typeName);
-        }
+        texts.add(typeName);
+        rebuildSupertypeClause(editor, source, cls, texts);
     }
 
     /**
-     * Remove a supertype entry from the list, handling comma separators
-     * and removing the entire supertype clause when the last entry is removed.
+     * Replace the entire supertype clause in the editor. Handles three cases:
+     * <ul>
+     *   <li>Empty list — remove the entire "{@code  : ...}" clause</li>
+     *   <li>Existing clause — replace the supertype list text range</li>
+     *   <li>No existing clause — insert "{@code  : }" at the appropriate offset</li>
+     * </ul>
      */
-    private void removeSuperTypeEntry(FlowEditor editor, String source,
-        KtClassOrObject cls, KtSuperTypeListEntry target)
+    private void rebuildSupertypeClause(FlowEditor editor, String source,
+        KtClassOrObject cls, List<String> entryTexts)
     {
-        List<KtSuperTypeListEntry> entries = cls.getSuperTypeListEntries();
         KtSuperTypeList superList = cls.getSuperTypeList();
+        String joined = String.join(", ", entryTexts);
 
-        if (entries.size() == 1)
+        if (entryTexts.isEmpty())
         {
-            // Last supertype: remove entire " : Entry" span including colon
+            // Remove entire clause: " : ..."
+            if (superList == null)
+                return;
             var colon = cls.getColon();
             if (colon == null)
                 return;
             int removeStart = colon.getTextRange().getStartOffset();
-            // Include whitespace before colon
             if (removeStart > 0 && source.charAt(removeStart - 1) == ' ')
                 removeStart--;
             replaceRange(editor, removeStart,
                 superList.getTextRange().getEndOffset(), "");
         }
+        else if (superList != null)
+        {
+            // Replace existing supertype list portion
+            replaceRange(editor,
+                superList.getTextRange().getStartOffset(),
+                superList.getTextRange().getEndOffset(),
+                joined);
+        }
         else
         {
-            // Multiple supertypes: remove this entry + its comma separator
-            int entryStart = target.getTextRange().getStartOffset();
-            int entryEnd = target.getTextRange().getEndOffset();
-            boolean isFirst = entries.get(0).getTextRange().getStartOffset()
-                == entryStart;
-
-            if (isFirst)
-            {
-                // First entry: remove entry + trailing ", "
-                int removeEnd = entryEnd;
-                while (removeEnd < source.length()
-                    && (source.charAt(removeEnd) == ','
-                        || source.charAt(removeEnd) == ' '))
-                {
-                    removeEnd++;
-                }
-                replaceRange(editor, entryStart, removeEnd, "");
-            }
-            else
-            {
-                // Non-first entry: remove preceding ", " + entry
-                int removeStart = entryStart;
-                while (removeStart > 0
-                    && (source.charAt(removeStart - 1) == ','
-                        || source.charAt(removeStart - 1) == ' '))
-                {
-                    removeStart--;
-                }
-                replaceRange(editor, removeStart, entryEnd, "");
-            }
+            // Insert new clause
+            int offset = findSupertypeInsertOffset(cls);
+            replaceRange(editor, offset, offset, " : " + joined);
         }
+    }
+
+    /**
+     * Get the type name text from a supertype entry, using the type
+     * reference if available.
+     */
+    private String entryTypeName(KtSuperTypeListEntry entry)
+    {
+        var typeRef = entry.getTypeReference();
+        return typeRef != null ? typeRef.getText() : entry.getText();
+    }
+
+    /**
+     * Strip generic type arguments from a type name.
+     * E.g., {@code "Comparable<Foo>"} becomes {@code "Comparable"}.
+     */
+    private String stripGenerics(String typeName)
+    {
+        int idx = typeName.indexOf('<');
+        return idx != -1 ? typeName.substring(0, idx).trim() : typeName.trim();
     }
 
     /**
@@ -246,46 +251,6 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
         {
             if (decl instanceof KtClassOrObject co)
                 return co;
-        }
-        return null;
-    }
-
-    /**
-     * Find the superclass entry in the supertype list. In Kotlin PSI, a
-     * {@link KtSuperTypeCallEntry} (with constructor call parentheses)
-     * indicates a superclass, while a plain entry indicates an interface.
-     *
-     * @return the superclass entry, or {@code null} if none
-     */
-    private KtSuperTypeCallEntry findSuperclassEntry(KtClassOrObject cls)
-    {
-        for (var entry : cls.getSuperTypeListEntries())
-        {
-            if (entry instanceof KtSuperTypeCallEntry callEntry)
-                return callEntry;
-        }
-        return null;
-    }
-
-    /**
-     * Find a supertype entry by its type name. Strips generic type arguments
-     * for comparison (e.g., {@code Comparable<Foo>} matches {@code "Comparable"}).
-     *
-     * @return the matching entry, or {@code null} if not found
-     */
-    private KtSuperTypeListEntry findEntryByName(KtClassOrObject cls, String name)
-    {
-        for (var entry : cls.getSuperTypeListEntries())
-        {
-            var typeRef = entry.getTypeReference();
-            String entryName = typeRef != null ? typeRef.getText() : entry.getText();
-            // Strip generic type arguments: "Comparable<Foo>" -> "Comparable"
-            int taIndex = entryName.indexOf('<');
-            if (taIndex != -1)
-                entryName = entryName.substring(0, taIndex);
-            entryName = entryName.trim();
-            if (name.equals(entryName))
-                return entry;
         }
         return null;
     }

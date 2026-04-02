@@ -21,6 +21,9 @@
  */
 package bluej.parser.kotlin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode;
 import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange;
 import org.jetbrains.kotlin.psi.KtClassOrObject;
@@ -343,6 +346,257 @@ public class KotlinPsiEditingTest
             listText.contains("Base()"));
         assertTrue("List text should contain 'Runnable', got: " + listText,
             listText.contains("Runnable"));
+    }
+
+    // ===== Approach 4: Clause-rebuild =====
+    // Parse → collect entry texts → modify list → rebuild entire clause
+
+    @Test
+    public void testClauseRebuildAddSuperclass()
+    {
+        String result = rebuildWith("class Foo {\n}", cls -> {
+            List<String> texts = collectEntryTexts(cls);
+            texts.add(0, "Base()");
+            return texts;
+        });
+        assertEquals("class Foo : Base() {\n}", result);
+    }
+
+    @Test
+    public void testClauseRebuildReplaceSuperclass()
+    {
+        String result = rebuildWith("class Foo : OldBase() {\n}", cls -> {
+            List<String> texts = new ArrayList<>();
+            for (var entry : cls.getSuperTypeListEntries())
+            {
+                if (entry instanceof KtSuperTypeCallEntry)
+                    texts.add("NewBase()");
+                else
+                    texts.add(entry.getText());
+            }
+            return texts;
+        });
+        assertEquals("class Foo : NewBase() {\n}", result);
+    }
+
+    @Test
+    public void testClauseRebuildAddInterface()
+    {
+        String result = rebuildWith("class Foo : Base() {\n}", cls -> {
+            List<String> texts = collectEntryTexts(cls);
+            texts.add("Runnable");
+            return texts;
+        });
+        assertEquals("class Foo : Base(), Runnable {\n}", result);
+    }
+
+    @Test
+    public void testClauseRebuildRemoveLastSupertype()
+    {
+        String result = rebuildWith("class Foo : Base() {\n}", cls -> {
+            return new ArrayList<>(); // empty = remove clause
+        });
+        assertEquals("class Foo {\n}", result);
+    }
+
+    @Test
+    public void testClauseRebuildRemoveOneInterface()
+    {
+        String result = rebuildWith(
+            "class Foo : Base(), Runnable, Comparable<Foo> {\n}", cls -> {
+                List<String> texts = new ArrayList<>();
+                for (var entry : cls.getSuperTypeListEntries())
+                {
+                    String name = entryTypeName(entry);
+                    if (!stripGenerics(name).equals("Runnable"))
+                        texts.add(entry.getText());
+                }
+                return texts;
+            });
+        assertEquals("class Foo : Base(), Comparable<Foo> {\n}", result);
+    }
+
+    @Test
+    public void testClauseRebuildRemoveFirstInterface()
+    {
+        String result = rebuildWith(
+            "class Foo : Base(), Runnable, Comparable<Foo> {\n}", cls -> {
+                List<String> texts = new ArrayList<>();
+                for (var entry : cls.getSuperTypeListEntries())
+                {
+                    if (!(entry instanceof KtSuperTypeCallEntry))
+                    {
+                        // keep only interfaces, skip superclass
+                    }
+                    else
+                    {
+                        // Actually, let's remove Base() (first entry)
+                    }
+                }
+                // Remove superclass, keep interfaces
+                for (var entry : cls.getSuperTypeListEntries())
+                {
+                    if (!(entry instanceof KtSuperTypeCallEntry))
+                        texts.add(entry.getText());
+                }
+                return texts;
+            });
+        assertEquals("class Foo : Runnable, Comparable<Foo> {\n}", result);
+    }
+
+    // ===== Multiline class declarations =====
+
+    @Test
+    public void testMultilineAddInterface()
+    {
+        String source = "class SomeClass(\n    val x: Int\n): Interface {\n}";
+        String result = rebuildWith(source, cls -> {
+            List<String> texts = collectEntryTexts(cls);
+            texts.add("Runnable");
+            return texts;
+        });
+        assertEquals(
+            "class SomeClass(\n    val x: Int\n): Interface, Runnable {\n}",
+            result);
+    }
+
+    @Test
+    public void testMultilineRemoveLastSupertype()
+    {
+        String source = "class SomeClass(\n    val x: Int\n): Interface {\n}";
+        String result = rebuildWith(source, cls -> {
+            return new ArrayList<>();
+        });
+        assertEquals("class SomeClass(\n    val x: Int\n) {\n}", result);
+    }
+
+    @Test
+    public void testMultilineRemoveOneOfTwo()
+    {
+        String source = "class SomeClass(\n    val x: Int\n): Base(), Interface {\n}";
+        String result = rebuildWith(source, cls -> {
+            List<String> texts = new ArrayList<>();
+            for (var entry : cls.getSuperTypeListEntries())
+            {
+                if (!(entry instanceof KtSuperTypeCallEntry))
+                    texts.add(entry.getText());
+            }
+            return texts;
+        });
+        assertEquals(
+            "class SomeClass(\n    val x: Int\n): Interface {\n}",
+            result);
+    }
+
+    @Test
+    public void testMultilineReplaceSuperclass()
+    {
+        String source = "class SomeClass(\n    val x: Int\n): OldBase(), Interface {\n}";
+        String result = rebuildWith(source, cls -> {
+            List<String> texts = new ArrayList<>();
+            for (var entry : cls.getSuperTypeListEntries())
+            {
+                if (entry instanceof KtSuperTypeCallEntry)
+                    texts.add("NewBase()");
+                else
+                    texts.add(entry.getText());
+            }
+            return texts;
+        });
+        assertEquals(
+            "class SomeClass(\n    val x: Int\n): NewBase(), Interface {\n}",
+            result);
+    }
+
+    @Test
+    public void testMultilineAddSuperclassToBarClass()
+    {
+        String source = "class SomeClass(\n    val x: Int\n) {\n}";
+        String result = rebuildWith(source, cls -> {
+            List<String> texts = new ArrayList<>();
+            texts.add("Base()");
+            return texts;
+        });
+        assertEquals(
+            "class SomeClass(\n    val x: Int\n) : Base() {\n}",
+            result);
+    }
+
+    // ===== Clause-rebuild helpers =====
+
+    /**
+     * Apply a clause-rebuild operation and return the resulting source string.
+     * The modifier function receives the parsed class and returns the desired
+     * list of supertype entry texts.
+     */
+    private String rebuildWith(String source,
+        java.util.function.Function<KtClassOrObject, List<String>> modifier)
+    {
+        KtFile ktFile = factory().createFile("test.kt", source);
+        KtClassOrObject cls = findClass(ktFile);
+        List<String> entryTexts = modifier.apply(cls);
+        return rebuildSupertypeClause(source, cls, entryTexts);
+    }
+
+    /**
+     * Rebuild the supertype clause in the source string — mirrors the logic
+     * in KotlinLanguageSupport.rebuildSupertypeClause() but operates on
+     * strings instead of FlowEditor.
+     */
+    private String rebuildSupertypeClause(String source,
+        KtClassOrObject cls, List<String> entryTexts)
+    {
+        KtSuperTypeList superList = cls.getSuperTypeList();
+        String joined = String.join(", ", entryTexts);
+
+        if (entryTexts.isEmpty())
+        {
+            if (superList == null)
+                return source;
+            var colon = cls.getColon();
+            if (colon == null)
+                return source;
+            int removeStart = colon.getTextRange().getStartOffset();
+            if (removeStart > 0 && source.charAt(removeStart - 1) == ' ')
+                removeStart--;
+            return source.substring(0, removeStart)
+                + source.substring(superList.getTextRange().getEndOffset());
+        }
+        else if (superList != null)
+        {
+            return source.substring(0, superList.getTextRange().getStartOffset())
+                + joined
+                + source.substring(superList.getTextRange().getEndOffset());
+        }
+        else
+        {
+            int offset = findSupertypeInsertOffset(cls);
+            return source.substring(0, offset)
+                + " : " + joined
+                + source.substring(offset);
+        }
+    }
+
+    private List<String> collectEntryTexts(KtClassOrObject cls)
+    {
+        List<String> texts = new ArrayList<>();
+        for (var entry : cls.getSuperTypeListEntries())
+        {
+            texts.add(entry.getText());
+        }
+        return texts;
+    }
+
+    private String entryTypeName(KtSuperTypeListEntry entry)
+    {
+        var typeRef = entry.getTypeReference();
+        return typeRef != null ? typeRef.getText() : entry.getText();
+    }
+
+    private String stripGenerics(String typeName)
+    {
+        int idx = typeName.indexOf('<');
+        return idx != -1 ? typeName.substring(0, idx).trim() : typeName.trim();
     }
 
     /**
