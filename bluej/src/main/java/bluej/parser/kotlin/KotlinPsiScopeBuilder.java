@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode;
 import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange;
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
+import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.KtBlockExpression;
 import org.jetbrains.kotlin.psi.KtBlockStringTemplateEntry;
@@ -56,32 +57,9 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Walks a Kotlin PSI tree ({@link KtFile} or {@link KtBlockExpression}) and
- * creates corresponding BlueJ {@link ParsedNode} children for scope coloring
- * by {@code JavaSyntaxView}.
- *
- * <p>All scope nodes are created as {@link KotlinParentNode} instances with
- * the appropriate {@code NODETYPE_*} constant. This ensures that
- * {@code tokenizeText()} uses the Kotlin lexer throughout the entire parse
- * tree — not just at the root level.</p>
- *
- * <h3>PSI Node → BlueJ Node Mapping</h3>
- * <ul>
- *   <li>{@link KtClass} → {@link KotlinParentNode}(NODETYPE_TYPEDEF, green)</li>
- *   <li>{@link KtObjectDeclaration} → {@link KotlinParentNode}(NODETYPE_TYPEDEF, green)</li>
- *   <li>{@link KtNamedFunction} → {@link KotlinParentNode}(NODETYPE_METHODDEF, yellow)</li>
- *   <li>{@link KtIfExpression} → {@link KotlinParentNode}(NODETYPE_SELECTION, blue)</li>
- *   <li>{@link KtWhenExpression} → {@link KotlinParentNode}(NODETYPE_SELECTION, blue)</li>
- *   <li>{@link KtLoopExpression} (for/while/do-while) → {@link KotlinParentNode}(NODETYPE_ITERATION, pink)</li>
- *   <li>{@link PsiComment} → {@link KotlinCommentNode}(NODETYPE_COMMENT)</li>
- *   <li>{@link KtStringTemplateExpression} (multiline) → {@link KotlinStringNode}(NODETYPE_NONE)
- *       with child {@link KotlinParentNode} for template expression bodies</li>
- * </ul>
- *
- * <p>{@link PsiComment} elements are detected at three levels: file-level children,
- * class body children, and block expression children. KDoc comments attached to
- * declarations (which PSI includes in the declaration's text range) are also
- * detected and inserted as comment nodes within the container node.</p>
+ * Walks a Kotlin PSI tree and creates corresponding BlueJ scope nodes
+ * ({@link KotlinParentNode}, {@link KotlinCommentNode}, {@link KotlinStringNode})
+ * for scope coloring by {@code JavaSyntaxView}.
  *
  * @author BlueJ Team
  */
@@ -91,10 +69,6 @@ public class KotlinPsiScopeBuilder
     private KotlinPsiScopeBuilder()
     {
     } // utility class
-
-    // -----------------------------------------------------------------------
-    // No-op listener for building the tree without event forwarding
-    // -----------------------------------------------------------------------
 
     private static final NodeStructureListener NO_OP_LISTENER = new NodeStructureListener()
     {
@@ -107,10 +81,6 @@ public class KotlinPsiScopeBuilder
         @Override
         public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize) {}
     };
-
-    // -----------------------------------------------------------------------
-    // Public API
-    // -----------------------------------------------------------------------
 
     /**
      * Build scope nodes from a full-file PSI parse.
@@ -162,10 +132,6 @@ public class KotlinPsiScopeBuilder
         NodeStructureListener lsnr = listener != null ? listener : NO_OP_LISTENER;
         processBlockContents(block, parent, parentAbsPos, lsnr);
     }
-
-    // -----------------------------------------------------------------------
-    // Internal: PSI element processing
-    // -----------------------------------------------------------------------
 
     /**
      * Process a top-level or member declaration and create the appropriate
@@ -473,7 +439,7 @@ public class KotlinPsiScopeBuilder
             {
                 insertCommentNode(psiComment, parent, parentAbsPos, listener);
             }
-            else if (!(psi instanceof org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace)
+            else if (!(psi instanceof PsiWhiteSpace)
                 && child.getElementType() != KtTokens.LBRACE
                 && child.getElementType() != KtTokens.RBRACE)
             {
@@ -531,10 +497,6 @@ public class KotlinPsiScopeBuilder
         }
     }
 
-    // -----------------------------------------------------------------------
-    // Internal: Comment node helpers
-    // -----------------------------------------------------------------------
-
     /**
      * Insert a {@link KotlinCommentNode} for a PSI comment element.
      * Determines the comment type (KDoc → COMMENT_JAVADOC, others → COMMENT_NORMAL)
@@ -558,25 +520,17 @@ public class KotlinPsiScopeBuilder
         }
 
         TokenType commentType;
-        boolean singleLine;
         if (comment.getTokenType() == KtTokens.DOC_COMMENT)
         {
             commentType = TokenType.COMMENT_JAVADOC;
-            singleLine = false;
-        }
-        else if (comment.getTokenType() == KtTokens.EOL_COMMENT)
-        {
-            commentType = TokenType.COMMENT_NORMAL;
-            singleLine = true;
         }
         else
         {
-            // BLOCK_COMMENT or SHEBANG_COMMENT
+            // EOL_COMMENT, BLOCK_COMMENT, or SHEBANG_COMMENT
             commentType = TokenType.COMMENT_NORMAL;
-            singleLine = false;
         }
 
-        KotlinCommentNode node = new KotlinCommentNode(parent, commentType, singleLine);
+        KotlinCommentNode node = new KotlinCommentNode(parent, commentType);
         node.setComplete(true);
         parent.insertNode(node, relPos, size, listener);
     }
@@ -609,10 +563,6 @@ public class KotlinPsiScopeBuilder
             }
         }
     }
-
-    // -----------------------------------------------------------------------
-    // Internal: String node helpers
-    // -----------------------------------------------------------------------
 
     /**
      * Check whether a string template expression is a multiline triple-quoted
@@ -703,10 +653,6 @@ public class KotlinPsiScopeBuilder
             }
         }
     }
-
-    // -----------------------------------------------------------------------
-    // Internal: Inner node helpers
-    // -----------------------------------------------------------------------
 
     /**
      * Create and insert an inner node for a body element ({@link KtClassBody}

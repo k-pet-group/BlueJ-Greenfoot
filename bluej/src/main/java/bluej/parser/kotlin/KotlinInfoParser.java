@@ -21,11 +21,6 @@
  */
 package bluej.parser.kotlin;
 
-import bluej.parser.SourceLocation;
-import bluej.parser.SourceSpan;
-import bluej.parser.symtab.ClassInfo;
-import bluej.parser.symtab.Selection;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -34,6 +29,11 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+
+import bluej.parser.SourceLocation;
+import bluej.parser.SourceSpan;
+import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
 
 import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
@@ -65,34 +65,9 @@ import threadchecker.Tag;
 
 /**
  * Parses Kotlin source files to extract class metadata ({@link ClassInfo})
- * for the class diagram. Uses PSI-based extraction via
- * {@link KotlinEnvironmentManager#getPsiFactory()} to build a full parse tree
- * and extract metadata directly from PSI nodes.
- *
- * <p>This is the Kotlin parallel to {@code bluej.parser.InfoParser} for Java.
- * Unlike the Java InfoParser (which uses a full recursive-descent parser with
- * callbacks), this implementation uses PSI APIs from
- * {@code kotlin-compiler-embeddable} for reliable structural extraction.</p>
- *
- * <h3>Parsing strategy</h3>
- * <ol>
- *   <li>{@code KtPsiFactory.createFile(source)} builds a PSI tree</li>
- *   <li>{@code KtFile.getPackageFqName()} extracts the package name</li>
- *   <li>{@code KtFile.getImportDirectives()} extracts imports for the "used" list</li>
- *   <li>Find the first {@code KtClassOrObject} in top-level declarations</li>
- *   <li>If no class/object found, check for top-level {@code KtNamedFunction}
- *       declarations and synthesize a "function-only" ClassInfo
- *       ({@code topLevelFunctionsOnly = true})</li>
- *   <li>Extract modifiers, supertypes, type parameters, constructor params,
- *       and body members via PSI methods</li>
- *   <li>Populate and return {@link ClassInfo}</li>
- * </ol>
- *
- * <h3>Supertype disambiguation</h3>
- * <p>PSI structurally distinguishes class supertypes ({@code KtSuperTypeCallEntry}
- * — has constructor call) from interface supertypes ({@code KtSuperTypeEntry}
- * — no constructor call). This is more reliable than the previous
- * parentheses-heuristic approach.</p>
+ * for the class diagram. This is the Kotlin counterpart to
+ * {@code bluej.parser.InfoParser} for Java, using PSI APIs from
+ * kotlin-compiler-embeddable.
  *
  * @author BlueJ Team
  */
@@ -204,10 +179,6 @@ public class KotlinInfoParser
         // Build ClassInfo from PSI node
         return buildClassInfo(classOrObject, ktFile, packageName, targetPkg, source);
     }
-
-    // -----------------------------------------------------------------------
-    // Core PSI extraction
-    // -----------------------------------------------------------------------
 
     /**
      * Build a {@link ClassInfo} from a PSI class/object declaration.
@@ -321,10 +292,6 @@ public class KotlinInfoParser
         return info;
     }
 
-    // -----------------------------------------------------------------------
-    // Top-level functions support
-    // -----------------------------------------------------------------------
-
     /**
      * Build a {@link ClassInfo} for a Kotlin file that contains only
      * top-level functions (no class or object declaration). The synthesized
@@ -394,10 +361,6 @@ public class KotlinInfoParser
         return info;
     }
 
-    // -----------------------------------------------------------------------
-    // Import extraction
-    // -----------------------------------------------------------------------
-
     /**
      * Extract imported types and add non-primitive ones to the "used" list.
      */
@@ -417,10 +380,6 @@ public class KotlinInfoParser
         }
     }
 
-    // -----------------------------------------------------------------------
-    // Type parameter extraction
-    // -----------------------------------------------------------------------
-
     /**
      * Extract type parameters (e.g., {@code <T>}, {@code <T : Comparable<T>>}).
      */
@@ -436,10 +395,6 @@ public class KotlinInfoParser
             }
         }
     }
-
-    // -----------------------------------------------------------------------
-    // Primary constructor extraction
-    // -----------------------------------------------------------------------
 
     /**
      * Extract parameter types from the primary constructor and add
@@ -466,10 +421,6 @@ public class KotlinInfoParser
             }
         }
     }
-
-    // -----------------------------------------------------------------------
-    // Supertype extraction
-    // -----------------------------------------------------------------------
 
     /**
      * Extract supertypes using PSI's structural distinction:
@@ -646,10 +597,6 @@ public class KotlinInfoParser
             pointSelection(lastEntry.getTextRange().getEndOffset(), source));
     }
 
-    // -----------------------------------------------------------------------
-    // Class body extraction
-    // -----------------------------------------------------------------------
-
     /**
      * Extract methods and properties from the class body.
      * Adds their types to the "used" list and their KDoc comments
@@ -737,10 +684,6 @@ public class KotlinInfoParser
             }
         }
     }
-
-    // -----------------------------------------------------------------------
-    // Utility methods
-    // -----------------------------------------------------------------------
 
     /**
      * Extract the simple (unqualified) type name from a type reference.
@@ -940,10 +883,6 @@ public class KotlinInfoParser
         };
     }
 
-    // -----------------------------------------------------------------------
-    // PSI tree navigation helpers
-    // -----------------------------------------------------------------------
-
     /**
      * Find a direct child PsiElement whose text equals the given string.
      *
@@ -1009,10 +948,6 @@ public class KotlinInfoParser
         }
         return null;
     }
-
-    // -----------------------------------------------------------------------
-    // Offset → Selection conversion helpers
-    // -----------------------------------------------------------------------
 
     /**
      * Convert a 0-based absolute offset in the source string to a

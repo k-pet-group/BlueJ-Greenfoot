@@ -21,13 +21,14 @@
  */
 package bluej.parser.kotlin;
 
+import java.io.IOException;
+import java.io.Reader;
+
 import bluej.parser.TokenStream;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.lexer.LineColPos;
-import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType;
 
-import java.io.IOException;
-import java.io.Reader;
+import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -36,15 +37,6 @@ import threadchecker.Tag;
  * Kotlin tokenizer for the BlueJ editor. Wraps the PSI KotlinLexer from
  * kotlin-compiler-embeddable and produces LocatableTokens compatible with
  * BlueJ's parser infrastructure.
- *
- * <p>The PSI lexer operates on {@link CharSequence}. For callers that have a
- * {@link Reader} (e.g. {@code HoleDocument.makeReader()}), the constructor
- * reads the full content into a String. For per-line tokenization (the common
- * case in {@code KotlinSyntaxView}), the CharSequence constructors avoid any
- * copy.</p>
- *
- * <p>Each instance is single-use and NOT thread-safe — create a new instance
- * per tokenization pass. This matches JavaLexer's usage pattern.</p>
  *
  * @author BlueJ Team
  */
@@ -61,10 +53,6 @@ public final class KotlinLexer implements TokenStream
     private int currentLine;
     private int currentColumn;
     private int currentPosition;
-
-    // -----------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------
 
     /**
      * Construct from a CharSequence. This is the primary constructor —
@@ -119,10 +107,6 @@ public final class KotlinLexer implements TokenStream
     {
         this(readFully(in), line, col, position);
     }
-
-    // -----------------------------------------------------------------------
-    // TokenStream implementation
-    // -----------------------------------------------------------------------
 
     /**
      * Returns the next token from the Kotlin source.
@@ -228,10 +212,6 @@ public final class KotlinLexer implements TokenStream
 
         return new LocatableToken(blueJType, tokenText, begin, end);
     }
-
-    // -----------------------------------------------------------------------
-    // Internal utilities
-    // -----------------------------------------------------------------------
 
     /**
      * Advance line/column/position tracking through the given text.

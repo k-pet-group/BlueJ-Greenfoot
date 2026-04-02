@@ -32,40 +32,9 @@ import threadchecker.Tag;
 
 /**
  * Parse tree node for multiline triple-quoted Kotlin strings
- * ({@code """..."""}).
- *
- * <p>Extends {@link KotlinParentNode} so the inherited
- * {@code getMarkTokensFor()} tree walk handles children (template
- * expressions) normally. Only {@link #tokenizeText} is overridden to
- * return {@link TokenType#STRING_LITERAL} for gap content — plain string
- * text between template expressions renders as green.</p>
- *
- * <p>Child {@link KotlinParentNode} nodes cover template expression bodies:
- * <ul>
- *   <li>{@code $name} → child spanning the identifier (normal Kotlin
- *       tokenization → black)</li>
- *   <li>{@code ${expr}} → child spanning the expression body (normal
- *       tokenization)</li>
- * </ul>
- * The {@code $} and {@code ${…}} delimiters are part of the gap
- * ({@code STRING_LITERAL} → green).</p>
- *
- * <p><b>Scope rendering:</b> Marked as inner ({@code setInner(true)}) so
- * that {@code JavaSyntaxView}'s scope walker treats it like other scope
- * nodes (if/for/when/while). It receives neutral C3/BK coloring, blending
- * with the enclosing scope background. Without this, its template
- * expression children would pollute the scope stack and break scope
- * background rendering on subsequent lines.</p>
- *
- * <p><b>Edit handling:</b> inherits {@code ParentParsedNode.textInserted()/
- * textRemoved()} (absorb edit, schedule deferred reparse). Overrides
- * {@link #reparseNode} to always return {@code REMOVE_NODE}, which
- * cascades the reparse up to the parent node (inner body or root).
- * This is necessary because {@code KotlinParentNode.reparseNode()}
- * would otherwise attempt block-level PSI reparse via
- * {@code createBlock()} on the string content — treating string
- * text as Kotlin code — since this node has {@code isInner()=true}
- * and {@code isContainer()=false}.</p>
+ * ({@code """..."""}). Tokenizes gap content as string literals and
+ * delegates template expression bodies to child nodes for normal
+ * Kotlin tokenization.
  *
  * @author BlueJ Team
  */

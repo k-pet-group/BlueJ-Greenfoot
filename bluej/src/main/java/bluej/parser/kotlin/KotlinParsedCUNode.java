@@ -21,6 +21,9 @@
  */
 package bluej.parser.kotlin;
 
+import java.io.IOException;
+import java.io.Reader;
+
 import bluej.parser.Token;
 import bluej.parser.nodes.NodeStructureListener;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -35,33 +38,10 @@ import org.jetbrains.kotlin.psi.KtPsiFactory;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.io.IOException;
-import java.io.Reader;
-
 /**
- * Root parse node for a Kotlin source file. Extends {@link ParsedCUNode}
- * to be compatible with {@code JavaSyntaxView} which expects a
- * {@code ParsedCUNode} root.
- *
- * <p>Unlike the Java {@link ParsedCUNode} which uses {@code EditorParser}
- * for token-by-token incremental parsing, this class overrides
- * {@link #reparseNode} to use the Kotlin PSI parser from
- * {@code kotlin-compiler-embeddable}. On every reparse:</p>
- * <ol>
- *   <li>All existing child nodes are removed</li>
- *   <li>The full document text is read</li>
- *   <li>{@link KtPsiFactory#createFile} produces a PSI tree</li>
- *   <li>{@link KotlinPsiScopeBuilder#buildScopesFromFile} converts the PSI
- *       tree into {@link KotlinParentNode} children with the correct
- *       scope types for {@code JavaSyntaxView} coloring</li>
- * </ol>
- *
- * <p>This full-reparse approach is appropriate for the MVP: educational
- * Kotlin files are typically 100-500 lines, and PSI parsing takes
- * ~50-100ms for a 500-line file.</p>
- *
- * <p>Entity resolution (code completion, imports) from {@code ParsedCUNode}
- * is inherited but unused for Kotlin MVP - the parent resolver is null.</p>
+ * Root parse node for a Kotlin source file. Uses the Kotlin PSI parser
+ * for full-file reparsing and scope building via
+ * {@link KotlinPsiScopeBuilder}.
  *
  * @author BlueJ Team
  */
@@ -77,10 +57,6 @@ public class KotlinParsedCUNode extends ParsedCUNode
     {
         super(null);
     }
-
-    // -----------------------------------------------------------------------
-    // PSI-based reparse — replaces the Java EditorParser loop
-    // -----------------------------------------------------------------------
 
     /**
      * Perform a full PSI reparse of the Kotlin document. This completely
@@ -134,10 +110,6 @@ public class KotlinParsedCUNode extends ParsedCUNode
         return ALL_OK;
     }
 
-    // -----------------------------------------------------------------------
-    // Multiline string handling — bypasses MultilineStringTracker
-    // -----------------------------------------------------------------------
-
     /**
      * Returns {@code true} — Kotlin handles multiline strings via
      * {@link KotlinStringNode} in the parse tree, so
@@ -149,10 +121,6 @@ public class KotlinParsedCUNode extends ParsedCUNode
     {
         return true;
     }
-
-    // -----------------------------------------------------------------------
-    // Kotlin tokenization — overrides Java lexer with KotlinLexer
-    // -----------------------------------------------------------------------
 
     /**
      * Tokenize text using the Kotlin lexer. This is called by
@@ -166,10 +134,6 @@ public class KotlinParsedCUNode extends ParsedCUNode
         return KotlinParentNode.doKotlinTokenization(document, pos, length);
     }
 
-    // -----------------------------------------------------------------------
-    // Override doPartialParse (not used — reparseNode is overridden)
-    // -----------------------------------------------------------------------
-
     /**
      * Not used — {@link #reparseNode} is overridden to use PSI parsing
      * instead of the {@code EditorParser}-based partial parse loop.
@@ -181,10 +145,6 @@ public class KotlinParsedCUNode extends ParsedCUNode
         // Return PP_OK as a safe default.
         return PP_OK;
     }
-
-    // -----------------------------------------------------------------------
-    // Internal helpers
-    // -----------------------------------------------------------------------
 
     /**
      * Remove all child nodes from this root, notifying the listener

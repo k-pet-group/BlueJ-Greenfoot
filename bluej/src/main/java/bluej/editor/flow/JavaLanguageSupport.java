@@ -21,13 +21,13 @@
  */
 package bluej.editor.flow;
 
+import java.util.List;
+
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
-
-import java.util.List;
 
 /**
  * Java implementation of {@link FlowLanguageSupport}. Creates a standard

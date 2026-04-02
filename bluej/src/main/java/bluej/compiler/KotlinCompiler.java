@@ -39,13 +39,8 @@ import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler;
 import org.jetbrains.kotlin.config.Services;
 
 /**
- * A compiler implementation wrapping kotlin-compiler-embeddable (K2) for
- * programmatic Kotlin compilation. This is a peer to CompilerAPICompiler
- * (which wraps javax.tools.JavaCompiler for Java).
- *
- * KotlinCompiler follows the same contract as the abstract Compiler class:
- * configuration is set via setters before compile() is called, diagnostics
- * are reported to the CompileObserver, and success/failure is returned.
+ * A compiler implementation wrapping kotlin-compiler-embeddable for
+ * Kotlin compilation, analogous to CompilerAPICompiler for Java.
  *
  * @author BlueJ Team
  */

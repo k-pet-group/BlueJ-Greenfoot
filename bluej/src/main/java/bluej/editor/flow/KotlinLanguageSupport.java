@@ -21,14 +21,14 @@
  */
 package bluej.editor.flow;
 
+import java.util.List;
+
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.kotlin.KotlinParsedCUNode;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
-
-import java.util.List;
 
 /**
  * Kotlin implementation of {@link FlowLanguageSupport}. Creates a
@@ -122,36 +122,24 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
     @Override
     public void addImplements(FlowEditor editor, String interfaceName, ClassInfo info)
     {
-        Selection s1 = info.getImplementsInsertSelection();
-        editor.setSelection(
-            new SourceLocation(s1.getLine(), s1.getColumn()),
-            new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-
-        if (info.hasInterfaceSelections() || info.getSuperclass() != null)
-        {
-            // Already has supertypes: append ", interfaceName"
-            if (info.hasInterfaceSelections())
-            {
-                List<String> exists = editor.getInterfaceTexts(info.getInterfaceSelections());
-                if (!exists.contains(interfaceName))
-                    editor.insertText(", " + interfaceName, false);
-            }
-            else
-            {
-                editor.insertText(", " + interfaceName, false);
-            }
-        }
-        else
-        {
-            // No supertypes at all: insert " : interfaceName"
-            editor.insertText(" : " + interfaceName, false);
-        }
+        // Kotlin uses a unified supertype list for both class and interface inheritance
+        addSupertype(editor, interfaceName, info);
     }
 
     @Override
     public void addExtendsInterface(FlowEditor editor, String interfaceName, ClassInfo info)
     {
-        // Kotlin uses unified supertype list — same logic as addImplements
+        // Kotlin uses a unified supertype list — same logic as addImplements
+        addSupertype(editor, interfaceName, info);
+    }
+
+    /**
+     * Shared implementation for adding a supertype (class or interface) to the
+     * Kotlin supertype list. Kotlin uses a single colon-separated list for both
+     * class and interface inheritance, so the logic is identical.
+     */
+    private void addSupertype(FlowEditor editor, String typeName, ClassInfo info)
+    {
         Selection s1 = info.getImplementsInsertSelection();
         editor.setSelection(
             new SourceLocation(s1.getLine(), s1.getColumn()),
@@ -159,21 +147,22 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
 
         if (info.hasInterfaceSelections() || info.getSuperclass() != null)
         {
+            // Already has supertypes: append ", typeName"
             if (info.hasInterfaceSelections())
             {
                 List<String> exists = editor.getInterfaceTexts(info.getInterfaceSelections());
-                if (!exists.contains(interfaceName))
-                    editor.insertText(", " + interfaceName, false);
+                if (!exists.contains(typeName))
+                    editor.insertText(", " + typeName, false);
             }
             else
             {
-                editor.insertText(", " + interfaceName, false);
+                editor.insertText(", " + typeName, false);
             }
         }
         else
         {
-            // No supertypes: insert " : interfaceName"
-            editor.insertText(" : " + interfaceName, false);
+            // No supertypes at all: insert " : typeName"
+            editor.insertText(" : " + typeName, false);
         }
     }
 }

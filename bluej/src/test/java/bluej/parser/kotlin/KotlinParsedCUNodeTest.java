@@ -203,7 +203,8 @@ public class KotlinParsedCUNodeTest
     {
         KotlinParsedCUNode node = new KotlinParsedCUNode();
         assertEquals("Initial size should be 0", 0, node.getSize());
-        assertTrue("Root node should mark its own end", node.isComplete() || true);
+        // A freshly constructed node is not yet marked complete
+        assertFalse("Freshly constructed node should not be complete", node.isComplete());
     }
 
     @Test

@@ -22,25 +22,26 @@
 package bluej.parser.kotlin;
 
 import bluej.parser.Token;
+
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType;
 import org.jetbrains.kotlin.lexer.KtTokens;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
- * Kotlin token type mapping. Converts PSI KtTokens (IElementType) to BlueJ
- * Token.TokenType for CSS class assignment, and to integer token type constants
- * compatible with JavaTokenTypes for LocatableToken.
- *
- * <p>Token type constants start at 200 to avoid collision with JavaTokenTypes.</p>
+ * Kotlin token type mapping. Converts PSI KtTokens to BlueJ Token.TokenType
+ * for syntax highlighting, and to integer constants compatible with
+ * JavaTokenTypes for LocatableToken.
  *
  * @author BlueJ Team
  */
+@OnThread(Tag.Any)
 public final class KotlinToken
 {
-    private KotlinToken() {} // utility class
-
-    // -----------------------------------------------------------------------
-    // Integer token type constants (parallel to JavaTokenTypes, starting at 200)
-    // -----------------------------------------------------------------------
+    private KotlinToken()
+    {
+    }
 
     // --- Hard keywords (200-229) ---
     public static final int KW_PACKAGE = 200;
@@ -195,10 +196,6 @@ public final class KotlinToken
     public static final int EOF = 1;  // Match JavaTokenTypes.EOF
     public static final int RESERVED = 342;
     public static final int INVALID = 343;
-
-    // -----------------------------------------------------------------------
-    // Mapping: PSI IElementType → BlueJ integer token type
-    // -----------------------------------------------------------------------
 
     /**
      * Map a PSI IElementType to a BlueJ integer token type.
@@ -371,10 +368,6 @@ public final class KotlinToken
         return IDENTIFIER;
     }
 
-    // -----------------------------------------------------------------------
-    // Mapping: BlueJ integer token type → Token.TokenType (for CSS styling)
-    // -----------------------------------------------------------------------
-
     /**
      * Map a BlueJ integer token type to Token.TokenType for CSS styling.
      * This determines the CSS class applied via {@link Token.TokenType#getCSSClass()}.
@@ -446,10 +439,6 @@ public final class KotlinToken
         };
     }
 
-    // -----------------------------------------------------------------------
-    // Utility: check token category
-    // -----------------------------------------------------------------------
-
     /**
      * Returns true if the token type is any keyword (hard or soft).
      */
@@ -473,10 +462,6 @@ public final class KotlinToken
     {
         return tokenType >= OPEN_QUOTE && tokenType <= LONG_TEMPLATE_ENTRY_END;
     }
-
-    // -----------------------------------------------------------------------
-    // Soft keyword reclassification by text
-    // -----------------------------------------------------------------------
 
     /**
      * Map an identifier's text to a soft keyword type, if it matches a known

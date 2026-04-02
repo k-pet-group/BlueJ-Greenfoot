@@ -31,30 +31,9 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * A leaf parse node representing a Kotlin comment (KDoc, block comment, or
- * end-of-line comment) in the scope tree.
- *
- * <p>This node prevents keyword highlighting inside comments by returning a
- * single comment-typed token from {@link #getMarkTokensFor}. When
- * {@code JavaSyntaxView} encounters this node, it uses the returned token
- * directly instead of calling {@code tokenizeText()} &mdash; so keywords like
- * {@code class}, {@code if}, {@code is} inside comment text are never
- * re-lexed as keywords.</p>
- *
- * <p><b>Edit handling:</b> inherits {@code ParentParsedNode.textInserted()/
- * textRemoved()} (absorb edit, schedule deferred reparse). Overrides
- * {@link #reparseNode} to always return {@code REMOVE_NODE}, which
- * cascades the reparse up to the parent node (inner body or root) for
- * a PSI-based rebuild. This is the same simple strategy used by
- * {@link KotlinStringNode} &mdash; correct and maintainable at the
- * cost of ~5&ndash;100ms per comment edit (vs ~0.1ms with a smart
- * KotlinLexer-based Tier 1 reparse). Educational files are small
- * enough that this is acceptable.</p>
- *
- * <p>Extends {@link JavaParentNode} (rather than {@code ParsedNode} directly)
- * because {@code ParsedNode}'s constructor is package-private to
- * {@code bluej.parser.nodes}. {@link JavaParentNode} provides a public
- * constructor accessible from {@code bluej.parser.kotlin}.</p>
+ * A parse node representing a Kotlin comment (KDoc, block, or end-of-line)
+ * in the scope tree. Returns a single comment-typed token to prevent keyword
+ * highlighting inside comments.
  *
  * @author BlueJ Team
  */
@@ -64,23 +43,7 @@ public class KotlinCommentNode extends JavaParentNode
     private final TokenType commentType;
 
     /**
-     * Create a comment node with explicit single-line flag.
-     *
-     * @param parent      the parent node in the parse tree
-     * @param commentType either {@link TokenType#COMMENT_JAVADOC} for KDoc
-     *                    or {@link TokenType#COMMENT_NORMAL} for block/line comments
-     * @param singleLine  {@code true} for {@code //} end-of-line comments,
-     *                    {@code false} for {@code /* *}{@code /} and {@code /** *}{@code /}
-     */
-    public KotlinCommentNode(JavaParentNode parent, TokenType commentType,
-            boolean singleLine)
-    {
-        super(parent);
-        this.commentType = commentType;
-    }
-
-    /**
-     * Create a comment node (defaults to multi-line).
+     * Create a comment node.
      *
      * @param parent      the parent node in the parse tree
      * @param commentType either {@link TokenType#COMMENT_JAVADOC} for KDoc
@@ -88,7 +51,8 @@ public class KotlinCommentNode extends JavaParentNode
      */
     public KotlinCommentNode(JavaParentNode parent, TokenType commentType)
     {
-        this(parent, commentType, false);
+        super(parent);
+        this.commentType = commentType;
     }
 
     @Override

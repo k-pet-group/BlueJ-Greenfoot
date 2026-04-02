@@ -252,9 +252,9 @@ public class KotlinCommentNodeTest
     }
 
     private KotlinCommentNode createCommentNode(KotlinParsedCUNode root,
-            TokenType commentType, boolean singleLine, int offset, int size)
+            TokenType commentType, int offset, int size)
     {
-        KotlinCommentNode node = new KotlinCommentNode(root, commentType, singleLine);
+        KotlinCommentNode node = new KotlinCommentNode(root, commentType);
         node.setComplete(true);
         root.insertNode(node, offset, size, NO_OP);
         return node;
@@ -278,7 +278,7 @@ public class KotlinCommentNodeTest
         KotlinParsedCUNode root = createRoot(content.length());
 
         KotlinCommentNode comment = createCommentNode(root,
-                TokenType.COMMENT_NORMAL, false, 0, content.length());
+                TokenType.COMMENT_NORMAL, 0, content.length());
 
         int result = comment.textInserted(doc, 0, 3, 1, NO_OP);
 
@@ -294,7 +294,7 @@ public class KotlinCommentNodeTest
         KotlinParsedCUNode root = createRoot(content.length());
 
         KotlinCommentNode comment = createCommentNode(root,
-                TokenType.COMMENT_NORMAL, false, 0, content.length());
+                TokenType.COMMENT_NORMAL, 0, content.length());
         int originalSize = comment.getSize();
 
         comment.textInserted(doc, 0, 3, 5, NO_OP);
@@ -311,7 +311,7 @@ public class KotlinCommentNodeTest
         KotlinParsedCUNode root = createRoot(content.length());
 
         KotlinCommentNode comment = createCommentNode(root,
-                TokenType.COMMENT_NORMAL, false, 0, content.length());
+                TokenType.COMMENT_NORMAL, 0, content.length());
 
         comment.textInserted(doc, 0, 3, 1, NO_OP);
 
@@ -331,7 +331,7 @@ public class KotlinCommentNodeTest
         KotlinParsedCUNode root = createRoot(content.length());
 
         KotlinCommentNode comment = createCommentNode(root,
-                TokenType.COMMENT_NORMAL, false, 0, content.length());
+                TokenType.COMMENT_NORMAL, 0, content.length());
 
         int result = comment.textRemoved(doc, 0, 3, 1, NO_OP);
 
@@ -347,7 +347,7 @@ public class KotlinCommentNodeTest
         KotlinParsedCUNode root = createRoot(content.length());
 
         KotlinCommentNode comment = createCommentNode(root,
-                TokenType.COMMENT_NORMAL, false, 0, content.length());
+                TokenType.COMMENT_NORMAL, 0, content.length());
         int originalSize = comment.getSize();
 
         comment.textRemoved(doc, 0, 3, 2, NO_OP);
@@ -368,7 +368,7 @@ public class KotlinCommentNodeTest
         KotlinParsedCUNode root = createRoot(content.length());
 
         KotlinCommentNode comment = createCommentNode(root,
-                TokenType.COMMENT_NORMAL, false, 0, content.length());
+                TokenType.COMMENT_NORMAL, 0, content.length());
 
         int result = callReparseNode(comment, doc, 0, 0, content.length(), NO_OP);
 
@@ -384,7 +384,7 @@ public class KotlinCommentNodeTest
         KotlinParsedCUNode root = createRoot(content.length());
 
         KotlinCommentNode comment = createCommentNode(root,
-                TokenType.COMMENT_JAVADOC, false, 0, content.length());
+                TokenType.COMMENT_JAVADOC, 0, content.length());
 
         int result = callReparseNode(comment, doc, 0, 0, content.length(), NO_OP);
 
@@ -400,7 +400,7 @@ public class KotlinCommentNodeTest
         KotlinParsedCUNode root = createRoot(content.length());
 
         KotlinCommentNode comment = createCommentNode(root,
-                TokenType.COMMENT_NORMAL, true, 0, content.length());
+                TokenType.COMMENT_NORMAL, 0, content.length());
 
         int result = callReparseNode(comment, doc, 0, 0, content.length(), NO_OP);
 
@@ -416,7 +416,7 @@ public class KotlinCommentNodeTest
         KotlinParsedCUNode root = createRoot(content.length());
 
         KotlinCommentNode comment = createCommentNode(root,
-                TokenType.COMMENT_NORMAL, false, 0, content.length());
+                TokenType.COMMENT_NORMAL, 0, content.length());
 
         int result = callReparseNode(comment, doc, 0, 0, content.length(), NO_OP);
 

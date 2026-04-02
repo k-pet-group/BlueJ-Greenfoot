@@ -36,6 +36,8 @@ import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.TextEditor;
 import bluej.editor.flow.FlowEditor;
+import bluej.editor.flow.JavaLanguageSupport;
+import bluej.editor.flow.KotlinLanguageSupport;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions2.*;
@@ -738,7 +740,7 @@ public class ClassTarget extends DependentTarget
             return false;
         }
         // Kotlin facade classes contain only static methods
-        for (java.lang.reflect.Method m : cl.getDeclaredMethods())
+        for (Method m : cl.getDeclaredMethods())
         {
             if (!Modifier.isStatic(m.getModifiers()))
             {
@@ -1434,7 +1436,7 @@ public class ClassTarget extends DependentTarget
                     {
                         return project.getDefaultFXTabbedEditor();
                     }
-                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true, new bluej.editor.flow.JavaLanguageSupport());
+                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true, new JavaLanguageSupport());
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
             }
             else if (sourceAvailable == SourceType.Stride) {
@@ -1454,7 +1456,7 @@ public class ClassTarget extends DependentTarget
                     {
                         return project.getDefaultFXTabbedEditor();
                     }
-                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true, new bluej.editor.flow.KotlinLanguageSupport());
+                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true, new KotlinLanguageSupport());
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
             }
 

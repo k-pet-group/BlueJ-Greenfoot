@@ -33,19 +33,13 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Manages a shared {@link KotlinCoreEnvironment} for both editor PSI parsing
+ * Manages a shared {@link KotlinCoreEnvironment} for editor PSI parsing
  * and Kotlin compilation. The environment is created lazily on first use
- * (~1-2 seconds) and cached for the lifetime of the BlueJ process.
- *
- * <p>Thread-safe: environment creation is synchronized; the resulting
- * {@link Project} instance is safe for concurrent read-only PSI parsing
- * (wrapped in read actions).</p>
- *
- * <p>Students who never open a {@code .kt} file pay zero cost — the
- * environment is not created at BlueJ startup.</p>
+ * and cached for the lifetime of the BlueJ process.
  *
  * @author BlueJ Team
  */
+@OnThread(Tag.Any)
 public final class KotlinEnvironmentManager
 {
     private KotlinEnvironmentManager()
@@ -57,10 +51,6 @@ public final class KotlinEnvironmentManager
     private static volatile KotlinCoreEnvironment environment;
     private static volatile KtPsiFactory psiFactory;
     private static Disposable parentDisposable;
-
-    // -----------------------------------------------------------------------
-    // Public API
-    // -----------------------------------------------------------------------
 
     /**
      * Get the shared {@link KotlinCoreEnvironment}. Creates it on first call
@@ -147,10 +137,6 @@ public final class KotlinEnvironmentManager
     {
         return environment != null;
     }
-
-    // -----------------------------------------------------------------------
-    // Internal: environment creation
-    // -----------------------------------------------------------------------
 
     /**
      * Create the KotlinCoreEnvironment. Called exactly once under the

@@ -26,13 +26,9 @@ import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
 
 /**
- * Strategy interface that encapsulates language-specific behavior for
- * {@link FlowEditor}. Each supported language (Java, Kotlin) provides an
- * implementation that handles parser creation and source text manipulation
- * for class declarations.
- *
- * <p>This replaces the {@code boolean isKotlin} flag that previously caused
- * branching throughout FlowEditor with polymorphic dispatch.</p>
+ * Strategy interface for language-specific behavior in {@link FlowEditor}.
+ * Each supported language provides an implementation that handles parser
+ * creation and source text manipulation for class declarations.
  */
 public interface FlowLanguageSupport
 {

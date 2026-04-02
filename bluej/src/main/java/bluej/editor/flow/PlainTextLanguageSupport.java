@@ -27,12 +27,8 @@ import bluej.parser.symtab.ClassInfo;
 
 /**
  * No-op implementation of {@link FlowLanguageSupport} for non-code editors
- * (README files, plain text files, CSS files, etc.).
- *
- * <p>These editors are opened with {@code sourceIsCode = false}, so the
- * language support methods should never be invoked. All methods throw
- * {@link UnsupportedOperationException} as a fail-fast guard against
- * accidental use.</p>
+ * (README files, plain text files, CSS files, etc.). All methods throw
+ * {@link UnsupportedOperationException}.
  */
 public class PlainTextLanguageSupport implements FlowLanguageSupport
 {

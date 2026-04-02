@@ -21,16 +21,17 @@
  */
 package bluej.utility.filefilter;
 
-import bluej.extensions2.SourceType;
-
 import java.io.File;
 import java.io.FileFilter;
+
+import bluej.extensions2.SourceType;
 
 /**
  * A FileFilter that only accepts Kotlin source files.
  * An instance of this class can be used as a parameter for
  * the listFiles method of class File.
  *
+ * @author BlueJ Team
  * @see java.io.FileFilter
  * @see java.io.File
  */

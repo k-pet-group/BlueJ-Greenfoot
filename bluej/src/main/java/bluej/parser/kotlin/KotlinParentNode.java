@@ -21,6 +21,9 @@
  */
 package bluej.parser.kotlin;
 
+import java.io.IOException;
+import java.io.Reader;
+
 import bluej.parser.Token;
 import bluej.parser.Token.TokenType;
 import bluej.parser.lexer.LocatableToken;
@@ -36,31 +39,11 @@ import org.jetbrains.kotlin.psi.KtPsiFactory;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.io.IOException;
-import java.io.Reader;
-
 /**
- * Parent node for Kotlin parse tree elements. Overrides
- * {@link JavaParentNode#tokenizeText} to use {@link KotlinLexer} and
- * {@link KotlinToken} mapping instead of the Java lexer, providing
- * per-line Kotlin syntax highlighting when called via
- * {@link #getMarkTokensFor}.
- *
- * <p>This class also supports configurable node types so that a single
- * class can represent Kotlin classes (TYPEDEF), functions (METHODDEF),
- * and control-flow scopes (SELECTION, ITERATION) — all with correct
- * Kotlin tokenization via virtual dispatch.</p>
- *
- * <p>Inner body nodes (function bodies, control-flow bodies) override
- * {@link #reparseNode} to attempt block-level PSI reparse via
- * {@link KtPsiFactory#createBlock}, reducing reparse cost from ~50-100ms
- * (full-file) to ~5-20ms. Container nodes and class body inner nodes
- * return {@code REMOVE_NODE} to cascade to full-file reparse (class bodies
- * require {@code processClassBody(KtClassBody)}, not block-level parsing).</p>
- *
- * <p>This class does NOT implement {@link bluej.parser.entity.EntityResolver}
- * beyond what {@code JavaParentNode} provides — entity resolution
- * (code completion, type-aware features) is not supported for Kotlin MVP.</p>
+ * Parent node for Kotlin parse tree elements. Overrides tokenization to use
+ * {@link KotlinLexer} instead of the Java lexer, providing Kotlin syntax
+ * highlighting. Supports configurable node types for classes, functions,
+ * and control-flow scopes.
  *
  * @author BlueJ Team
  */
@@ -132,10 +115,6 @@ public class KotlinParentNode extends JavaParentNode
         // Scope nodes in Kotlin contain their own closing brace
         return isContainerNode;
     }
-
-    // -----------------------------------------------------------------------
-    // Block-level PSI reparse (Tier 3)
-    // -----------------------------------------------------------------------
 
     /**
      * Attempt block-level PSI reparse for inner body nodes. This avoids a
@@ -271,10 +250,6 @@ public class KotlinParentNode extends JavaParentNode
             return "";
         }
     }
-
-    // -----------------------------------------------------------------------
-    // Kotlin tokenization
-    // -----------------------------------------------------------------------
 
     /**
      * Tokenize a text region using KotlinLexer and KotlinToken mapping.

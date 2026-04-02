@@ -21,24 +21,21 @@
  */
 package bluej.pkgmgr.target.role;
 
-import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.DependentTarget.State;
-import bluej.pkgmgr.target.actions.ClassTargetOperation;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-
 import java.util.Collections;
 import java.util.List;
 
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.DependentTarget.State;
+import bluej.pkgmgr.target.actions.ClassTargetOperation;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
- * A role for Kotlin files containing only top-level functions.
- * These compile to a JVM facade class (e.g., Utils.kt -> UtilsKt.class)
- * with all functions as public static methods.
+ * A role for Kotlin files containing only top-level functions. The diagram
+ * displays a "functions" stereotype label.
  *
- * <p>The diagram displays a "functions" stereotype label. Constructors are
- * suppressed (the facade class has a private constructor). Static method
- * invocation is inherited from {@link ClassRole} and exposes the top-level
- * functions for object bench interaction.
+ * @author BlueJ Team
  */
 public class KotlinFileRole extends ClassRole
 {
