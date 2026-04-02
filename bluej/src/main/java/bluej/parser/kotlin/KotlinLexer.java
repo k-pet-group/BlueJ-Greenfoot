@@ -109,6 +109,12 @@ public final class KotlinLexer implements TokenStream
     }
 
     /**
+     * Holds the result of compound operator merging: the (possibly merged)
+     * token type and text.
+     */
+    private record MergedToken(int type, String text) {}
+
+    /**
      * Returns the next token from the Kotlin source.
      *
      * <p>Delegates to the PSI lexer, maps the IElementType to a BlueJ token
@@ -129,43 +135,65 @@ public final class KotlinLexer implements TokenStream
             return new LocatableToken(KotlinToken.EOF, "", pos, pos);
         }
 
-        // Read token boundaries from the PSI lexer
-        int tokenStart = psiLexer.getTokenStart();
-        int tokenEnd = psiLexer.getTokenEnd();
-        String tokenText = source.subSequence(tokenStart, tokenEnd).toString();
-
-        // Advance PSI past current token immediately, so we can peek at
-        // the next token for compound operator merging below.
+        // Read token text and advance PSI past it (enables peek-ahead
+        // for compound operator merging)
+        String tokenText = source.subSequence(
+            psiLexer.getTokenStart(), psiLexer.getTokenEnd()).toString();
         psiLexer.advance();
 
-        // Record the begin position before advancing
+        // Record begin position, then advance through token characters
         LineColPos begin = new LineColPos(currentLine, currentColumn, currentPosition);
-
-        // Advance line/column tracking through the token's characters
         advancePosition(tokenText);
 
-        // Record the end position after advancing
+        // Map PSI type → BlueJ type, reclassify soft keywords
+        int blueJType = reclassifySoftKeyword(
+            KotlinToken.mapTokenType(psiType), tokenText);
+
+        // Merge compound operators that PSI splits (?. ?: !!)
+        MergedToken merged = tryMergeCompoundOperator(blueJType, tokenText);
+
+        // End position reflects the final character (after any merge)
         LineColPos end = new LineColPos(currentLine, currentColumn, currentPosition);
 
-        // Map PSI token type to BlueJ integer constant
-        int blueJType = KotlinToken.mapTokenType(psiType);
+        return new LocatableToken(merged.type, merged.text, begin, end);
+    }
 
-        // PSI returns soft keywords (abstract, open, sealed, data, enum,
-        // override, private, etc.) as IDENTIFIER because they are
-        // context-sensitive in Kotlin. Reclassify them by text so that
-        // syntax highlighting and KotlinInfoParser see keyword types.
+    /**
+     * Reclassify soft keywords that PSI returns as IDENTIFIER. Kotlin's
+     * soft keywords ({@code abstract}, {@code open}, {@code sealed},
+     * {@code data}, etc.) are context-sensitive, so the PSI lexer emits
+     * them as identifiers. We reclassify by text for syntax highlighting.
+     *
+     * @param blueJType the mapped BlueJ token type
+     * @param tokenText the token's text
+     * @return the reclassified type if a soft keyword, otherwise the
+     *         original type
+     */
+    private int reclassifySoftKeyword(int blueJType, String tokenText)
+    {
         if (blueJType == KotlinToken.IDENTIFIER)
         {
             int softKw = KotlinToken.mapSoftKeywordByText(tokenText);
             if (softKw >= 0)
             {
-                blueJType = softKw;
+                return softKw;
             }
         }
+        return blueJType;
+    }
 
-        // Merge compound operators that PSI splits into separate tokens.
-        // PSI tokenizes ?. as QUEST+DOT, ?: as QUEST+COLON, !! as EXCL+EXCL.
-        // We merge them into single tokens for cleaner consumer logic.
+    /**
+     * Merge compound operators that PSI splits into separate tokens.
+     * PSI tokenizes {@code ?.} as QUEST+DOT, {@code ?:} as QUEST+COLON,
+     * and {@code !!} as EXCL+EXCL. This method peeks at the next PSI token
+     * and, if a merge is possible, advances the position and PSI lexer.
+     *
+     * @param blueJType the current token's BlueJ type
+     * @param tokenText the current token's text
+     * @return a {@link MergedToken} with the (possibly merged) type and text
+     */
+    private MergedToken tryMergeCompoundOperator(int blueJType, String tokenText)
+    {
         if (blueJType == KotlinToken.QUEST)
         {
             IElementType nextPsi = psiLexer.getTokenType();
@@ -175,20 +203,16 @@ public final class KotlinLexer implements TokenStream
                 if (nextType == KotlinToken.DOT)
                 {
                     // ?. → SAFE_ACCESS
-                    blueJType = KotlinToken.SAFE_ACCESS;
-                    tokenText = "?.";
                     advancePosition(".");
-                    end = new LineColPos(currentLine, currentColumn, currentPosition);
                     psiLexer.advance();
+                    return new MergedToken(KotlinToken.SAFE_ACCESS, "?.");
                 }
                 else if (nextType == KotlinToken.COLON)
                 {
                     // ?: → ELVIS
-                    blueJType = KotlinToken.ELVIS;
-                    tokenText = "?:";
                     advancePosition(":");
-                    end = new LineColPos(currentLine, currentColumn, currentPosition);
                     psiLexer.advance();
+                    return new MergedToken(KotlinToken.ELVIS, "?:");
                 }
             }
         }
@@ -201,16 +225,13 @@ public final class KotlinLexer implements TokenStream
                 if (nextType == KotlinToken.EXCL)
                 {
                     // !! → EXCLEXCL
-                    blueJType = KotlinToken.EXCLEXCL;
-                    tokenText = "!!";
                     advancePosition("!");
-                    end = new LineColPos(currentLine, currentColumn, currentPosition);
                     psiLexer.advance();
+                    return new MergedToken(KotlinToken.EXCLEXCL, "!!");
                 }
             }
         }
-
-        return new LocatableToken(blueJType, tokenText, begin, end);
+        return new MergedToken(blueJType, tokenText);
     }
 
     /**
