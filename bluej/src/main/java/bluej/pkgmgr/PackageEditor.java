@@ -1039,7 +1039,13 @@ public final class PackageEditor extends StackPane
                     return false;
                 }
                 ClassTarget superClass = (ClassTarget)target;
-                if (subClassFinal.isInterface())
+                // Kotlin top-level function files cannot participate
+                // in inheritance — silently ignore
+                if (subClassFinal.isKotlinFacade() || superClass.isKotlinFacade())
+                {
+                    // no-op: fall through to stopNewInherits()
+                }
+                else if (subClassFinal.isInterface())
                 {
                     if (superClass.isInterface())
                         pkg.userAddExtendsInterfaceDependency(subClassFinal, superClass);

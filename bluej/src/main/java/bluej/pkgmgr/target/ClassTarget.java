@@ -1096,8 +1096,20 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
+     * Check whether this target represents a Kotlin file containing only
+     * top-level functions (no class declaration). Such targets cannot
+     * participate in inheritance relationships.
+     *
+     * @return true if this is a Kotlin facade (top-level functions only)
+     */
+    public boolean isKotlinFacade()
+    {
+        return isKotlinFacade;
+    }
+
+    /**
      * Verify whether this class target is an unit test class
-     * 
+     *
      * @return true if class target is a unit test class, else returns false
      */
     public boolean isUnitTest()
