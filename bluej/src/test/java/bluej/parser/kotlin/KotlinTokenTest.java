@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -22,6 +22,7 @@
 package bluej.parser.kotlin;
 
 import bluej.parser.Token;
+import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.junit.Test;
 
@@ -258,8 +259,7 @@ public class KotlinTokenTest
     public void testUnknownPsiTypeFallsBackToIdentifier()
     {
         // Create a synthetic IElementType that isn't in KtTokens
-        org.jetbrains.kotlin.com.intellij.psi.tree.IElementType unknownType =
-            new org.jetbrains.kotlin.com.intellij.psi.tree.IElementType("UNKNOWN_TEST", null);
+        IElementType unknownType = new IElementType("UNKNOWN_TEST", null);
         assertEquals(KotlinToken.IDENTIFIER, KotlinToken.mapTokenType(unknownType));
     }
 

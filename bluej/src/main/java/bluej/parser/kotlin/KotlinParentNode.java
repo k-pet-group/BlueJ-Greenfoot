@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -172,7 +172,7 @@ public class KotlinParentNode extends JavaParentNode
             return REMOVE_NODE;
         }
 
-        String innerContent = readDocumentText(document, nodePos, innerEnd);
+        String innerContent = KotlinParserUtils.readDocumentText(document, nodePos, innerEnd);
 
         try
         {
@@ -218,36 +218,6 @@ public class KotlinParentNode extends JavaParentNode
             NodeAndPosition<ParsedNode> next = child.nextSibling();
             removeChild(child, listener);
             child = next;
-        }
-    }
-
-    /**
-     * Read a section of the document into a String.
-     *
-     * @param document the document to read from
-     * @param start    start offset (inclusive)
-     * @param end      end offset (exclusive)
-     * @return the document text, or empty string on error
-     */
-    private static String readDocumentText(ReparseableDocument document,
-            int start, int end)
-    {
-        try
-        {
-            Reader reader = document.makeReader(start, end);
-            StringBuilder sb = new StringBuilder(end - start);
-            char[] buf = new char[4096];
-            int n;
-            while ((n = reader.read(buf)) != -1)
-            {
-                sb.append(buf, 0, n);
-            }
-            reader.close();
-            return sb.toString();
-        }
-        catch (IOException e)
-        {
-            return "";
         }
     }
 

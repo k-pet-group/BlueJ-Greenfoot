@@ -25,11 +25,12 @@ package bluej.compiler;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Compiler class - an abstract interface to a source-to-bytecode compiler. This
  * can be implemented by different compiler implementations.
- * 
+ *
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Poul Henriksen
@@ -37,6 +38,17 @@ import java.util.List;
 abstract class Compiler
 {
     public static final String COMPILER_OPTIONS = "bluej.compiler.options";
+
+    private static final AtomicInteger nextDiagnosticIdentifier = new AtomicInteger(1);
+
+    /**
+     * Get a new unique identifier for a compiler diagnostic. Shared across
+     * all compiler implementations so error IDs never collide.
+     */
+    public static int getNewErrorIdentifier()
+    {
+        return nextDiagnosticIdentifier.getAndIncrement();
+    }
 
     private File destDir;
     private List<File> classPath;

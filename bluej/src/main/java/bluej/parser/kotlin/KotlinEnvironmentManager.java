@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -120,9 +120,9 @@ public final class KotlinEnvironmentManager
     {
         if (parentDisposable != null)
         {
+            Disposer.dispose(parentDisposable);
             psiFactory = null;
             environment = null;
-            Disposer.dispose(parentDisposable);
             parentDisposable = null;
         }
     }

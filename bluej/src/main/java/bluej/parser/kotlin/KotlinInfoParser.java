@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@ package bluej.parser.kotlin;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,8 +122,8 @@ public class KotlinInfoParser
     public static ClassInfo parse(Reader r, String targetPkg, String fileName)
     {
         // Read full source into String (PSI requires CharSequence)
-        String source = readFully(r);
-        if (source == null || source.isBlank())
+        String source = KotlinParserUtils.readFully(r);
+        if (source.isBlank())
         {
             return null;
         }
@@ -841,30 +840,6 @@ public class KotlinInfoParser
         }
         String result = names.toString();
         return result.isEmpty() ? null : result;
-    }
-
-    /**
-     * Read all content from a Reader into a String.
-     *
-     * @return the full content, or null on I/O error
-     */
-    private static String readFully(Reader r)
-    {
-        try
-        {
-            StringBuilder sb = new StringBuilder();
-            char[] buf = new char[4096];
-            int n;
-            while ((n = r.read(buf)) != -1)
-            {
-                sb.append(buf, 0, n);
-            }
-            return sb.toString();
-        }
-        catch (IOException e)
-        {
-            return null;
-        }
     }
 
     /**

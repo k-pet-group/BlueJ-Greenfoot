@@ -54,7 +54,7 @@ public abstract class DirectSlotError extends CodeError
     @OnThread(Tag.FXPlatform)
     public DirectSlotError(SlotFragment code, DiagnosticOrigin origin)
     {
-        super(code, CompilerAPICompiler.getNewErrorIdentifer());
+        super(code, CompilerAPICompiler.getNewErrorIdentifier());
         this.origin = origin;
     }
 

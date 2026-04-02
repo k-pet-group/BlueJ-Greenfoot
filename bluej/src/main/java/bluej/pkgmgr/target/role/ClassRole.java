@@ -135,7 +135,9 @@ public abstract class ClassRole
             translations.put("PKGLINE", "");
         }
         else {
-            translations.put("PKGLINE", "package " + pkg.getQualifiedName() + ";" + Config.nl + Config.nl);
+            // Kotlin doesn't use semicolons after package declarations
+            String terminator = sourceFile.endsWith(".kt") ? "" : ";";
+            translations.put("PKGLINE", "package " + pkg.getQualifiedName() + terminator + Config.nl + Config.nl);
         }
         // For Stride, we just put the package name:
         translations.put("PKGNAME", pkg.getQualifiedName());

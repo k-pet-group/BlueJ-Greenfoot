@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -43,7 +43,7 @@ import threadchecker.Tag;
 @OnThread(Tag.Any)
 public final class KotlinLexer implements TokenStream
 {
-    /** The underlying PSI lexer from kotlin-compiler-embeddable. */
+    // FQN required: name collision with this class (bluej.parser.kotlin.KotlinLexer)
     private final org.jetbrains.kotlin.lexer.KotlinLexer psiLexer;
 
     /** The full source text being tokenized. */
@@ -92,7 +92,7 @@ public final class KotlinLexer implements TokenStream
      */
     public KotlinLexer(Reader in)
     {
-        this(readFully(in), 1, 1, 0);
+        this(KotlinParserUtils.readFully(in), 1, 1, 0);
     }
 
     /**
@@ -105,7 +105,7 @@ public final class KotlinLexer implements TokenStream
      */
     public KotlinLexer(Reader in, int line, int col, int position)
     {
-        this(readFully(in), line, col, position);
+        this(KotlinParserUtils.readFully(in), line, col, position);
     }
 
     /**
@@ -231,30 +231,6 @@ public final class KotlinLexer implements TokenStream
                 currentColumn++;
             }
             currentPosition++;
-        }
-    }
-
-    /**
-     * Read an entire Reader into a String. Used by the Reader constructors
-     * to convert to CharSequence for the PSI lexer.
-     */
-    private static String readFully(Reader reader)
-    {
-        try
-        {
-            StringBuilder sb = new StringBuilder();
-            char[] buf = new char[4096];
-            int n;
-            while ((n = reader.read(buf)) != -1)
-            {
-                sb.append(buf, 0, n);
-            }
-            return sb.toString();
-        }
-        catch (IOException e)
-        {
-            // Shouldn't happen with HoleDocument readers, but handle gracefully
-            return "";
         }
     }
 }

@@ -152,7 +152,7 @@ public class KotlinCompiler extends Compiler
 
                     diagnostic = new Diagnostic(diagType, diagMessage, fileName,
                             startLine, startColumn, endLine, endColumn,
-                            DiagnosticOrigin.KOTLIN, CompilerAPICompiler.getNewErrorIdentifer());
+                            DiagnosticOrigin.KOTLIN, getNewErrorIdentifier());
                 }
                 else
                 {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2024  Michael Kolling and John Rosenberg
+ Copyright (C) 2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -20,9 +20,6 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.parser.kotlin;
-
-import java.io.IOException;
-import java.io.Reader;
 
 import bluej.parser.Token;
 import bluej.parser.nodes.NodeStructureListener;
@@ -85,7 +82,7 @@ public class KotlinParsedCUNode extends ParsedCUNode
         }
 
         // 3. Read document text
-        String source = readDocumentText(document, 0, docLength);
+        String source = KotlinParserUtils.readDocumentText(document, 0, docLength);
         if (source.isEmpty())
         {
             document.markSectionParsed(offset, 0);
@@ -161,28 +158,4 @@ public class KotlinParsedCUNode extends ParsedCUNode
         }
     }
 
-    /**
-     * Read a section of the document into a String.
-     */
-    private static String readDocumentText(ReparseableDocument document,
-            int start, int end)
-    {
-        try
-        {
-            Reader reader = document.makeReader(start, end);
-            StringBuilder sb = new StringBuilder(end - start);
-            char[] buf = new char[4096];
-            int n;
-            while ((n = reader.read(buf)) != -1)
-            {
-                sb.append(buf, 0, n);
-            }
-            reader.close();
-            return sb.toString();
-        }
-        catch (IOException e)
-        {
-            return "";
-        }
-    }
 }
