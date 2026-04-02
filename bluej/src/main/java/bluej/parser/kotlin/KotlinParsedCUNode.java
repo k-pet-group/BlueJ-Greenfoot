@@ -70,10 +70,8 @@ public class KotlinParsedCUNode extends ParsedCUNode
     {
         int docLength = document.getLength();
 
-        // 1. Remove all existing child nodes
         removeAllChildren(nodePos, listener);
 
-        // 2. Empty document — nothing to parse
         if (docLength == 0)
         {
             document.markSectionParsed(offset, 0);
@@ -81,7 +79,6 @@ public class KotlinParsedCUNode extends ParsedCUNode
             return ALL_OK;
         }
 
-        // 3. Read document text
         String source = KotlinParserUtils.readDocumentText(document, 0, docLength);
         if (source.isEmpty())
         {
@@ -90,17 +87,12 @@ public class KotlinParsedCUNode extends ParsedCUNode
             return ALL_OK;
         }
 
-        // 4. PSI parse
         KtPsiFactory psiFactory = KotlinEnvironmentManager.getPsiFactory();
         KtFile ktFile = psiFactory.createFile(source);
 
-        // 5. Build scope tree from PSI
         KotlinPsiScopeBuilder.buildScopesFromFile(ktFile, this, 0, listener);
 
-        // 6. Mark the entire document as parsed (full-file reparse)
-        // Unlike Java's incremental parser which only parses from offset
-        // forward, we rebuilt the entire tree — so mark from nodePos for
-        // the full size to ensure all lines get repainted.
+        // Mark the entire document as parsed
         document.markSectionParsed(nodePos, getSize());
         complete = true;
 

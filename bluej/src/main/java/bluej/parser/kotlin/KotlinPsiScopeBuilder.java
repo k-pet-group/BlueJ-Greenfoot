@@ -340,12 +340,8 @@ public class KotlinPsiScopeBuilder
     }
 
     /**
-     * Process a secondary constructor → KotlinParentNode(NODETYPE_METHODDEF).
-     *
-     * <p>Follows the same container+inner pattern as {@link #processFunction}. Secondary
-     * constructors always have block bodies (no expression body variant). The delegation
-     * call ({@code this(...)} or {@code super(...)}) is part of the text range but does
-     * not produce a separate scope node.</p>
+     * Process a KtSecondaryConstructor, creating a scope node for
+     * constructor parameters and body.
      */
     private static void processConstructor(KtSecondaryConstructor ktCtor, JavaParentNode parent,
             int parentAbsPos, NodeStructureListener listener)
@@ -379,12 +375,8 @@ public class KotlinPsiScopeBuilder
     }
 
     /**
-     * Process an init block → KotlinParentNode(NODETYPE_METHODDEF).
-     *
-     * <p>Init blocks ({@code init { ... }}) are initializer code analogous to constructors.
-     * They produce {@code NODETYPE_METHODDEF} (yellow scope) matching the treatment of
-     * constructors and methods. Multiple init blocks in the same class each get their own
-     * container+inner scope node.</p>
+     * Process a KtClassInitializer (init block), creating a scope
+     * node for the initializer body.
      */
     private static void processInitBlock(KtClassInitializer ktInit, JavaParentNode parent,
             int parentAbsPos, NodeStructureListener listener)
@@ -418,13 +410,8 @@ public class KotlinPsiScopeBuilder
     }
 
     /**
-     * Process the contents of a block expression, looking for nested
-     * scope-creating constructs (if/when/for/while) and comments.
-     *
-     * <p>Uses AST-level traversal because {@code KtBlockExpression.getChildren()}
-     * does not return comments — they are only visible at the AST node level.</p>
-     *
-     * @param parentAbsPos absolute document position of the parent BlueJ node
+     * Recurse into the children of a block expression, processing
+     * nested declarations and statements.
      */
     private static void processBlockContents(KtBlockExpression block, JavaParentNode parent,
             int parentAbsPos, NodeStructureListener listener)
@@ -536,18 +523,8 @@ public class KotlinPsiScopeBuilder
     }
 
     /**
-     * Insert comment nodes for comments that are attached to a declaration.
-     *
-     * <p>In Kotlin PSI, comments preceding a declaration (KDoc, block comments,
-     * and line comments) are included within the declaration's text range.
-     * However, only KDoc appears via {@code getChildren()} — regular comments
-     * are only visible at the AST node level. We walk AST children to catch
-     * all comment types.</p>
-     *
-     * @param declaration  the PSI declaration element (class, function, object)
-     * @param container    the container BlueJ node for this declaration
-     * @param containerAbsPos absolute document position of the container
-     * @param listener     structure listener
+     * Insert comment nodes for comments attached to (preceding) a declaration.
+     * Walks AST children since PSI getChildren() omits regular comments.
      */
     private static void insertAttachedComments(PsiElement declaration,
             JavaParentNode container, int containerAbsPos, NodeStructureListener listener)
@@ -577,19 +554,8 @@ public class KotlinPsiScopeBuilder
     }
 
     /**
-     * Insert a {@link KotlinStringNode} for a multiline triple-quoted string,
-     * with child {@link KotlinParentNode} nodes for template expression bodies.
-     *
-     * <p>The string node covers the entire {@code """..."""} region.
-     * {@code KotlinStringNode.tokenizeText()} returns {@code STRING_LITERAL}
-     * for all gap content (plain text, {@code $}, {@code ${}, {@code }}).
-     * Child nodes cover template expression bodies, getting normal Kotlin
-     * tokenization (identifiers render as black).</p>
-     *
-     * @param stringExpr   the PSI string template expression (must be multiline)
-     * @param parent       the parent BlueJ node to insert into
-     * @param parentAbsPos absolute document position of the parent
-     * @param listener     structure listener
+     * Create a KotlinStringNode for a string literal and populate its
+     * children for template expression highlighting.
      */
     private static void insertStringNode(KtStringTemplateExpression stringExpr,
             JavaParentNode parent, int parentAbsPos, NodeStructureListener listener)
@@ -655,17 +621,8 @@ public class KotlinPsiScopeBuilder
     }
 
     /**
-     * Create and insert an inner node for a body element ({@link KtClassBody}
-     * or {@link KtBlockExpression}). The inner node spans the content between
-     * the opening and closing braces, matching Java's container+inner pattern
-     * where containers get type-specific colors and inner nodes get neutral
-     * C3+BK coloring.
-     *
-     * @param bodyElement     the PSI body element (must have braces)
-     * @param container       the container BlueJ node to insert into
-     * @param containerAbsPos absolute document position of the container
-     * @param listener        structure listener
-     * @return the created inner node, or null if body is too small
+     * Create an inner (method-body) node spanning from opening brace
+     * to closing brace of a code block.
      */
     private static KotlinParentNode insertInnerNode(PsiElement bodyElement,
             JavaParentNode container, int containerAbsPos, NodeStructureListener listener)
@@ -688,12 +645,8 @@ public class KotlinPsiScopeBuilder
     }
 
     /**
-     * Process a control flow body expression as an inner node.
-     *
-     * <p>For block bodies ({@code { ... }}), the inner spans the content
-     * between braces. For braceless bodies ({@code if (x) return y}),
-     * the inner spans the expression itself. Kotlin allows braceless
-     * bodies unlike Java, but they still need inner highlighting.</p>
+     * Process a body element as an inner node. Handles both braced
+     * blocks and braceless single-expression bodies.
      */
     private static void processBodyAsInner(KtExpression bodyExpr,
             JavaParentNode container, int containerAbsPos, NodeStructureListener listener)
@@ -734,13 +687,8 @@ public class KotlinPsiScopeBuilder
     }
 
     /**
-     * Process a control flow construct (if/when/for/while/do-while)
-     * as a KotlinParentNode with the appropriate scope type.
-     *
-     * <p>Uses type-specific PSI methods ({@code getThen()}, {@code getBody()},
-     * etc.) to find body blocks. Kotlin PSI wraps bodies in
-     * {@code KtContainerNode} elements, so generic {@code getChildren()}
-     * iteration would miss them.</p>
+     * Process a control flow statement (if/when/for/while) by creating
+     * a container node and recursing into its body.
      */
     private static void processControlFlow(PsiElement element, JavaParentNode parent,
             int parentAbsPos, int nodeType, NodeStructureListener listener)

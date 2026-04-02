@@ -472,13 +472,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         int lineEnd = document.getLineEnd(lineIndex);
         ParsedNode.TokenAndScope tas = rootNode.getMarkTokensFor(lineStart, lineContent.length(), 0, this);
 
-        // We first need to check if we're in a multiline string
-        // literal, as that will determine the highlighting:
-        // When the root node handles multiline strings via the parse tree
-        // (e.g., Kotlin's KotlinStringNode), skip the MultilineStringTracker
-        // entirely — the parse tree's getMarkTokensFor() already produces
-        // correct STRING_LITERAL tokens for string content and code tokens
-        // for template expressions.
+        // Skip MultilineStringTracker when the root node handles multiline strings natively (e.g., Kotlin).
         TextBlockRelation textBlockRelation = rootNode.handlesMultilineStrings()
                 ? TextBlockRelation.NONE
                 : multilineStringTracker.getTextBlockRelation(lineStart, lineEnd, tas.startLatestScope());

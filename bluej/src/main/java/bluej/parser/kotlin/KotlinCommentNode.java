@@ -95,6 +95,4 @@ public class KotlinCommentNode extends JavaParentNode
         return REMOVE_NODE;
     }
 
-    // textInserted/textRemoved: inherited from ParentParsedNode
-    // (absorb edit, resize, schedule deferred reparse → reparseNode() → REMOVE_NODE)
 }

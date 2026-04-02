@@ -101,11 +101,9 @@ public class JobQueue
      */
     private static boolean hasKotlinSources(CompileInputFile[] sources)
     {
-        for (CompileInputFile source : sources)
-        {
+        for (CompileInputFile source : sources) {
             File sourceFile = source.getJavaCompileInputFile();
-            if (sourceFile != null && sourceFile.getName().endsWith(".kt"))
-            {
+            if (sourceFile != null && sourceFile.getName().endsWith(".kt")) {
                 return true;
             }
         }

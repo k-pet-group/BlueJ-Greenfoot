@@ -44,9 +44,9 @@ public final class KotlinEnvironmentManager
 {
     private KotlinEnvironmentManager()
     {
-    } // utility class — all static
+    }
 
-    // --- Singleton state (guarded by class lock) ---
+    // Singleton state (guarded by class lock)
 
     private static volatile KotlinCoreEnvironment environment;
     private static volatile KtPsiFactory psiFactory;

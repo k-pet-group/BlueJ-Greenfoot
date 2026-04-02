@@ -24,6 +24,7 @@ package bluej.pkgmgr.target;
 import bluej.Config;
 import bluej.editor.Editor;
 import bluej.editor.flow.FlowEditor;
+import bluej.editor.flow.PlainTextLanguageSupport;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.actions.EditAction;
 import bluej.utility.Debug;
@@ -128,7 +129,7 @@ public class ReadmeTarget extends NonCodeEditableTarget
                 {
                     return getPackage().getProject().getDefaultFXTabbedEditor();
                 }
-            }, getSourceFile().getName(), this, null, null, () -> {}, new ReadOnlyBooleanWrapper(false), false, new bluej.editor.flow.PlainTextLanguageSupport());
+            }, getSourceFile().getName(), this, null, null, () -> {}, new ReadOnlyBooleanWrapper(false), false, new PlainTextLanguageSupport());
             flowEditor.showFile(getSourceFile().getAbsolutePath(), StandardCharsets.UTF_8, false, null);
             this.editor = flowEditor;
         }

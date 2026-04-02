@@ -21,17 +21,17 @@
  */
 package bluej.parser.nodes;
 
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import bluej.parser.Token.TokenType;
 import bluej.parser.kotlin.KotlinCommentNode;
 import bluej.parser.kotlin.KotlinParsedCUNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 import org.junit.Test;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -51,9 +51,7 @@ import static org.junit.Assert.*;
  */
 public class KotlinCommentNodeTest
 {
-    // -----------------------------------------------------------------------
     // Test document implementation with line tracking
-    // -----------------------------------------------------------------------
 
     private static class TestDocument implements ReparseableDocument
     {
@@ -223,9 +221,7 @@ public class KotlinCommentNodeTest
         }
     }
 
-    // -----------------------------------------------------------------------
     // No-op listener
-    // -----------------------------------------------------------------------
 
     private static final NodeStructureListener NO_OP = new NodeStructureListener()
     {
@@ -240,9 +236,7 @@ public class KotlinCommentNodeTest
                 int oldPos, int oldSize) {}
     };
 
-    // -----------------------------------------------------------------------
     // Helpers
-    // -----------------------------------------------------------------------
 
     private KotlinParsedCUNode createRoot(int size)
     {
@@ -266,9 +260,7 @@ public class KotlinCommentNodeTest
         return node.reparseNode(doc, nodePos, offset, maxParse, listener);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: textInserted absorbs edits (inherited from ParentParsedNode)
-    // -----------------------------------------------------------------------
 
     @Test
     public void testTextInsertedReturnsAllOk()
@@ -319,9 +311,7 @@ public class KotlinCommentNodeTest
                 3, doc.lastReparsePos);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: textRemoved absorbs edits (inherited from ParentParsedNode)
-    // -----------------------------------------------------------------------
 
     @Test
     public void testTextRemovedReturnsAllOk()
@@ -356,9 +346,7 @@ public class KotlinCommentNodeTest
                 originalSize - 2, comment.getSize());
     }
 
-    // -----------------------------------------------------------------------
     // Tests: reparseNode always returns REMOVE_NODE
-    // -----------------------------------------------------------------------
 
     @Test
     public void testReparseValidBlockCommentReturnsRemoveNode()

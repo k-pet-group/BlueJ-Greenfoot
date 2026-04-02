@@ -122,11 +122,7 @@ public class ParsedCUNode extends IncrementalParsingNode
 
     /**
      * Returns whether this compilation unit handles multiline string
-     * highlighting via the parse tree (rather than MultilineStringTracker).
-     * Default is {@code false} — Java uses {@code MultilineStringTracker}
-     * for text blocks. {@code KotlinParsedCUNode} overrides to return
-     * {@code true} because Kotlin handles multiline strings via
-     * {@code KotlinStringNode} in the parse tree.
+     * highlighting via the parse tree rather than MultilineStringTracker.
      */
     public boolean handlesMultilineStrings()
     {

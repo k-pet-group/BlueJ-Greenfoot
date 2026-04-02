@@ -243,15 +243,11 @@ public class KotlinCompilerTest
         final List<Diagnostic> errors = new ArrayList<>();
         final List<Diagnostic> warnings = new ArrayList<>();
         final List<Diagnostic> notes = new ArrayList<>();
-        boolean compilationStarted = false;
-        boolean compilationEnded = false;
-        boolean wasSuccessful = false;
 
         @Override
         public void startCompile(CompileInputFile[] sources, CompileReason reason,
                 CompileType type, int compilationSequence)
         {
-            compilationStarted = true;
         }
 
         @Override
@@ -275,8 +271,6 @@ public class KotlinCompilerTest
         public void endCompile(CompileInputFile[] sources, boolean succesful,
                 CompileType type, int compilationSequence)
         {
-            compilationEnded = true;
-            wasSuccessful = succesful;
         }
     }
 

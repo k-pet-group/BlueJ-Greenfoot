@@ -21,18 +21,19 @@
  */
 package bluej.parser.kotlin;
 
-import bluej.parser.Token;
-import bluej.parser.Token.TokenType;
-import bluej.parser.nodes.ReparseableDocument;
-import bluej.parser.nodes.ParsedCUNode;
-
-import org.junit.Test;
-import static org.junit.Assert.*;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import bluej.parser.Token;
+import bluej.parser.Token.TokenType;
+import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.nodes.ReparseableDocument;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests for KotlinParentNode — verifies that tokenizeText() produces
@@ -44,9 +45,7 @@ import java.util.List;
  */
 public class KotlinParentNodeTest
 {
-    // -----------------------------------------------------------------------
     // Helper: minimal ReparseableDocument for testing tokenizeText()
-    // -----------------------------------------------------------------------
 
     /**
      * Minimal implementation of ReparseableDocument that wraps a String.
@@ -104,9 +103,7 @@ public class KotlinParentNodeTest
         }
     }
 
-    // -----------------------------------------------------------------------
     // Helper: extract non-END tokens from linked list
-    // -----------------------------------------------------------------------
 
     private List<Token> collectTokens(Token head)
     {
@@ -131,9 +128,7 @@ public class KotlinParentNodeTest
         return collectTokens(head);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: KEYWORD1 — Control flow + Modifiers (matches Java's role-based scheme)
-    // -----------------------------------------------------------------------
 
     @Test
     public void testHardKeywordsAreKeyword1()
@@ -187,9 +182,7 @@ public class KotlinParentNodeTest
         }
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Modifiers → KEYWORD1 (matches Java)
-    // -----------------------------------------------------------------------
 
     @Test
     public void testSoftKeywordsAreKeyword1()
@@ -213,9 +206,7 @@ public class KotlinParentNodeTest
         }
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Visibility modifiers → KEYWORD1 (matches Java)
-    // -----------------------------------------------------------------------
 
     @Test
     public void testVisibilityModifiersAreKeyword1()
@@ -236,9 +227,7 @@ public class KotlinParentNodeTest
         }
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Literals → this/super/null/true/false
-    // -----------------------------------------------------------------------
 
     @Test
     public void testThisSuperNullTrueFalseAreKeyword()
@@ -258,9 +247,7 @@ public class KotlinParentNodeTest
         }
     }
 
-    // -----------------------------------------------------------------------
     // Tests: String literals → STRING_LITERAL
-    // -----------------------------------------------------------------------
 
     @Test
     public void testStringLiteralTokenType()
@@ -281,9 +268,7 @@ public class KotlinParentNodeTest
         assertTrue("Triple-quoted string should produce STRING_LITERAL token", hasStringLiteral);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Comments → COMMENT_NORMAL / COMMENT_JAVADOC
-    // -----------------------------------------------------------------------
 
     @Test
     public void testLineComment()
@@ -312,9 +297,7 @@ public class KotlinParentNodeTest
         assertTrue("KDoc comment should produce COMMENT_JAVADOC token", hasKDoc);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Numeric literals
-    // -----------------------------------------------------------------------
 
     @Test
     public void testNumericLiteral()
@@ -328,9 +311,7 @@ public class KotlinParentNodeTest
         assertEquals(TokenType.CHAR_LITERAL, numToken.id); // numerics map to CHAR_LITERAL
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Token chain structure
-    // -----------------------------------------------------------------------
 
     @Test
     public void testTokenChainEndsWithEND()
@@ -358,9 +339,7 @@ public class KotlinParentNodeTest
         assertEquals("Token lengths should sum to source length", source.length(), totalLength);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Mixed Kotlin code
-    // -----------------------------------------------------------------------
 
     @Test
     public void testMixedKotlinLine()
@@ -395,9 +374,7 @@ public class KotlinParentNodeTest
         assertEquals(source.length(), totalLength);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Empty / edge cases
-    // -----------------------------------------------------------------------
 
     @Test
     public void testEmptySource()
@@ -419,9 +396,7 @@ public class KotlinParentNodeTest
         assertEquals(10, tokens.get(0).length);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Virtual dispatch (regression test for static→virtual refactor)
-    // -----------------------------------------------------------------------
 
     @Test
     public void testVirtualDispatchUsesKotlinLexer()

@@ -21,7 +21,6 @@
  */
 package bluej.parser.kotlin;
 
-import java.io.IOException;
 import java.io.Reader;
 
 import bluej.parser.Token;
@@ -117,21 +116,8 @@ public class KotlinParentNode extends JavaParentNode
     }
 
     /**
-     * Attempt block-level PSI reparse for inner body nodes. This avoids a
-     * full-file reparse (~50-100ms) when edits occur within a function body
-     * or control-flow body, reducing cost to ~5-20ms.
-     *
-     * <p><b>Inner body nodes</b> ({@code isInner() == true}): read the inner
-     * content (text between the enclosing braces, without the braces
-     * themselves), parse with {@link KtPsiFactory#createBlock} (which adds
-     * its own wrapping), rebuild children via
-     * {@link KotlinPsiScopeBuilder#buildScopesFromBlock}.</p>
-     *
-     * <p><b>Container nodes</b> ({@code isContainer() == true}): return
-     * {@code REMOVE_NODE}. Container boundaries (class declarations, function
-     * signatures) can only be validated by full-file parsing.</p>
-     *
-     * <p><b>Other nodes</b>: return {@code REMOVE_NODE} to cascade up.</p>
+     * Attempt block-level PSI reparse for inner body nodes. Containers
+     * and non-inner nodes return REMOVE_NODE to cascade up to full-file reparse.
      */
     @Override
     protected int reparseNode(ReparseableDocument document, int nodePos,
@@ -150,13 +136,7 @@ public class KotlinParentNode extends JavaParentNode
             return REMOVE_NODE;
         }
 
-        // Class body inner nodes cannot use block-level reparse because
-        // KtPsiFactory.createBlock() produces a KtBlockExpression, which
-        // processes block statements (control flow, local vars) — not
-        // class member declarations (functions, nested classes). Class
-        // body members require processClassBody(KtClassBody), but we
-        // only have a KtBlockExpression from createBlock(). Cascade to
-        // full-file reparse instead.
+        // Class body inner nodes need processClassBody(), not createBlock(). Cascade to full reparse.
         ParsedNode parent = getParentNode();
         if (parent != null && parent.getNodeType() == NODETYPE_TYPEDEF)
         {
@@ -186,11 +166,7 @@ public class KotlinParentNode extends JavaParentNode
             // Remove all existing children
             removeAllChildren(nodePos, listener);
 
-            // Rebuild scope tree from PSI block.
-            // createBlock() wraps as "fun x() {\n<content>\n}", so the
-            // block's LBRACE is at getStartOffset(), then a '\n' follows.
-            // Our content starts 2 characters after the LBRACE: +1 for
-            // the brace itself, +1 for the injected newline.
+            // createBlock() wraps as 'fun x() {\n...\n}', so content starts 2 chars after LBRACE
             int contentPsiOffset = block.getTextRange().getStartOffset() + 2;
             KotlinPsiScopeBuilder.buildScopesFromBlock(block, this,
                     contentPsiOffset, listener);
@@ -222,22 +198,8 @@ public class KotlinParentNode extends JavaParentNode
     }
 
     /**
-     * Tokenize a text region using KotlinLexer and KotlinToken mapping.
-     *
-     * <p>Overrides the Java-specific tokenization in {@link JavaParentNode}.
-     * Maps Kotlin tokens to {@link TokenType} for CSS class assignment:
-     * <ul>
-     *   <li>Control flow + modifiers (if/for/while/private/abstract/...) → KEYWORD1</li>
-     *   <li>Declarations (class/interface/fun/val/var/import/...) → KEYWORD2</li>
-     *   <li>References (this/super/null/true/false) → KEYWORD3</li>
-     *   <li>String literals → STRING_LITERAL</li>
-     *   <li>Comments → COMMENT_NORMAL / COMMENT_JAVADOC</li>
-     * </ul>
-     *
-     * @param document the document being tokenized
-     * @param pos      start position in document
-     * @param length   length of region to tokenize
-     * @return linked list of Token objects with TokenType assignments
+     * Tokenize a text region using KotlinLexer and map tokens to
+     * TokenType for syntax highlighting.
      */
     @Override
     protected Token tokenizeText(ReparseableDocument document, int pos, int length)

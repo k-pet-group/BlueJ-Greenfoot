@@ -21,12 +21,13 @@
  */
 package bluej.parser.kotlin;
 
-import bluej.parser.lexer.LocatableToken;
-import org.junit.Test;
-
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import bluej.parser.lexer.LocatableToken;
+
+import org.junit.Test;
 
 import static org.junit.Assert.*;
 
@@ -35,9 +36,7 @@ import static org.junit.Assert.*;
  */
 public class KotlinLexerTest
 {
-    // -----------------------------------------------------------------------
     // Helper: tokenize and return non-whitespace tokens
-    // -----------------------------------------------------------------------
 
     private List<LocatableToken> tokenize(String source)
     {
@@ -75,9 +74,7 @@ public class KotlinLexerTest
         return tokens;
     }
 
-    // -----------------------------------------------------------------------
     // Basic tokenization
-    // -----------------------------------------------------------------------
 
     @Test
     public void testEmptyInput()
@@ -125,9 +122,7 @@ public class KotlinLexerTest
         assertEquals("Dog", tokens.get(2).getText());
     }
 
-    // -----------------------------------------------------------------------
     // Comments
-    // -----------------------------------------------------------------------
 
     @Test
     public void testLineComment()
@@ -150,9 +145,7 @@ public class KotlinLexerTest
         assertTrue(tokens.stream().anyMatch(t -> t.getType() == KotlinToken.DOC_COMMENT));
     }
 
-    // -----------------------------------------------------------------------
     // String literals
-    // -----------------------------------------------------------------------
 
     @Test
     public void testSimpleString()
@@ -182,9 +175,7 @@ public class KotlinLexerTest
         assertTrue(tokens.stream().anyMatch(t -> t.getType() == KotlinToken.CLOSING_QUOTE));
     }
 
-    // -----------------------------------------------------------------------
     // Kotlin-specific operators
-    // -----------------------------------------------------------------------
 
     @Test
     public void testKotlinOperators()
@@ -209,9 +200,7 @@ public class KotlinLexerTest
         assertTrue(tokens.stream().anyMatch(t -> t.getType() == KotlinToken.ARROW));
     }
 
-    // -----------------------------------------------------------------------
     // Position tracking
-    // -----------------------------------------------------------------------
 
     @Test
     public void testPositionTrackingSingleLine()
@@ -256,9 +245,7 @@ public class KotlinLexerTest
         assertEquals("Column numbers should be 1-based", 1, token.getColumn());
     }
 
-    // -----------------------------------------------------------------------
     // Reader constructor
-    // -----------------------------------------------------------------------
 
     @Test
     public void testReaderConstructor()
@@ -281,9 +268,7 @@ public class KotlinLexerTest
         assertEquals(100, token.getPosition());
     }
 
-    // -----------------------------------------------------------------------
     // Edge cases
-    // -----------------------------------------------------------------------
 
     @Test
     public void testOnlyWhitespace()

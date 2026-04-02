@@ -735,15 +735,12 @@ public class ClassTarget extends DependentTarget
      */
     private static boolean isKotlinFacadeClass(Class<?> cl)
     {
-        if (!cl.getSimpleName().endsWith("Kt"))
-        {
+        if (!cl.getSimpleName().endsWith("Kt")) {
             return false;
         }
         // Kotlin facade classes contain only static methods
-        for (Method m : cl.getDeclaredMethods())
-        {
-            if (!Modifier.isStatic(m.getModifiers()))
-            {
+        for (Method m : cl.getDeclaredMethods()) {
+            if (!Modifier.isStatic(m.getModifiers())) {
                 return false;
             }
         }
@@ -1182,12 +1179,9 @@ public class ClassTarget extends DependentTarget
      */
     public File getKotlinSourceFile()
     {
-        if (null == getPackage())
-        {
+        if (null == getPackage()) {
             return null;
-        }
-        else
-        {
+        } else {
             return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Kotlin.getExtension());
         }
     }

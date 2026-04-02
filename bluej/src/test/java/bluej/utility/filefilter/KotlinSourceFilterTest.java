@@ -21,9 +21,9 @@
  */
 package bluej.utility.filefilter;
 
-import org.junit.Test;
-
 import java.io.File;
+
+import org.junit.Test;
 
 import static org.junit.Assert.*;
 
@@ -37,13 +37,13 @@ public class KotlinSourceFilterTest
     @Test
     public void testAcceptsKtFile()
     {
-        assertTrue(filter.accept(new File("Utils.kt")));
+        assertTrue("Should accept .kt file", filter.accept(new File("Utils.kt")));
     }
 
     @Test
     public void testAcceptsKtFileInPath()
     {
-        assertTrue(filter.accept(new File("/some/path/MyClass.kt")));
+        assertTrue("Should accept .kt file with path", filter.accept(new File("/some/path/MyClass.kt")));
     }
 
     @Test

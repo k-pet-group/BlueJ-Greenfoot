@@ -21,6 +21,11 @@
  */
 package bluej.parser.nodes;
 
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import bluej.parser.kotlin.KotlinEnvironmentManager;
 import bluej.parser.kotlin.KotlinParentNode;
 import bluej.parser.kotlin.KotlinParsedCUNode;
@@ -31,11 +36,6 @@ import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.psi.KtPsiFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -68,9 +68,7 @@ public class KotlinParentNodeReparseTest
         psiFactory = KotlinEnvironmentManager.getPsiFactory();
     }
 
-    // -----------------------------------------------------------------------
     // Test document implementation
-    // -----------------------------------------------------------------------
 
     private static class TestDocument implements ReparseableDocument
     {
@@ -236,9 +234,7 @@ public class KotlinParentNodeReparseTest
         }
     }
 
-    // -----------------------------------------------------------------------
     // No-op listener
-    // -----------------------------------------------------------------------
 
     private static final NodeStructureListener NO_OP = new NodeStructureListener()
     {
@@ -253,9 +249,7 @@ public class KotlinParentNodeReparseTest
                 int oldPos, int oldSize) {}
     };
 
-    // -----------------------------------------------------------------------
     // Helpers
-    // -----------------------------------------------------------------------
 
     /**
      * Build a scope tree from source text using the PSI factory.
@@ -321,9 +315,7 @@ public class KotlinParentNodeReparseTest
         return false;
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Inner node block-level reparse succeeds
-    // -----------------------------------------------------------------------
 
     @Test
     public void testInnerNodeBlockReparseReturnsAllOk()
@@ -366,9 +358,7 @@ public class KotlinParentNodeReparseTest
                 innerNp.getSize(), doc.lastMarkParsedSize);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Block reparse preserves scope children
-    // -----------------------------------------------------------------------
 
     @Test
     public void testBlockReparsePreservesIfChild()
@@ -421,9 +411,7 @@ public class KotlinParentNodeReparseTest
                         ParsedNode.NODETYPE_ITERATION));
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Block reparse adds new scope
-    // -----------------------------------------------------------------------
 
     @Test
     public void testBlockReparseAddsNewScope()
@@ -468,9 +456,7 @@ public class KotlinParentNodeReparseTest
                         ParsedNode.NODETYPE_SELECTION));
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Block reparse removes scope
-    // -----------------------------------------------------------------------
 
     @Test
     public void testBlockReparseRemovesScope()
@@ -511,9 +497,7 @@ public class KotlinParentNodeReparseTest
                         ParsedNode.NODETYPE_SELECTION));
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Broken block → REMOVE_NODE
-    // -----------------------------------------------------------------------
 
     @Test
     public void testBlockEndBeyondDocumentReturnsRemoveNode()
@@ -564,9 +548,7 @@ public class KotlinParentNodeReparseTest
                 ParsedNode.ALL_OK, result);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Container nodes always return REMOVE_NODE
-    // -----------------------------------------------------------------------
 
     @Test
     public void testMethodContainerReturnsRemoveNode()
@@ -632,9 +614,7 @@ public class KotlinParentNodeReparseTest
                 ParsedNode.REMOVE_NODE, result);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Class body inner node returns REMOVE_NODE
-    // -----------------------------------------------------------------------
 
     @Test
     public void testClassInnerNodeReturnsRemoveNode()
@@ -660,9 +640,7 @@ public class KotlinParentNodeReparseTest
                 ParsedNode.REMOVE_NODE, result);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Child position accuracy after block reparse
-    // -----------------------------------------------------------------------
 
     @Test
     public void testBlockReparseChildPositionsAreCorrect()
@@ -777,9 +755,7 @@ public class KotlinParentNodeReparseTest
         }
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Multi-level nesting
-    // -----------------------------------------------------------------------
 
     @Test
     public void testNestedControlFlowRebuiltCorrectly()

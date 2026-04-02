@@ -292,22 +292,8 @@ public class KotlinInfoParser
     }
 
     /**
-     * Build a {@link ClassInfo} for a Kotlin file that contains only
-     * top-level functions (no class or object declaration). The synthesized
-     * ClassInfo represents the facade class that kotlinc generates
-     * (e.g., {@code Utils.kt} → {@code UtilsKt.class}).
-     *
-     * <p>The name is derived from the file stem (e.g., {@code "Utils"} from
-     * {@code "Utils.kt"}). The {@code topLevelFunctionsOnly} flag is set to
-     * {@code true} so that {@code ClassTarget} can assign a
-     * {@code KotlinFileRole} and append the "Kt" suffix for compilation.</p>
-     *
-     * @param functions   the top-level function declarations found in the file
-     * @param ktFile      the PSI file node
-     * @param packageName the extracted package name
-     * @param targetPkg   expected package name (for validation), may be null
-     * @param source      the full source text (for offset→Selection conversion)
-     * @return ClassInfo with name, used types, and topLevelFunctionsOnly flag
+     * Build a ClassInfo for a file containing only top-level functions.
+     * The name is derived from the file stem (e.g., Utils from Utils.kt).
      */
     private static ClassInfo buildTopLevelFunctionsInfo(
             List<KtNamedFunction> functions,
@@ -422,24 +408,8 @@ public class KotlinInfoParser
     }
 
     /**
-     * Extract supertypes using PSI's structural distinction:
-     * {@link KtSuperTypeCallEntry} (has constructor call → class) vs
-     * other entries (no constructor → interface).
-     *
-     * <p>Also populates the {@link Selection} objects in {@link ClassInfo}
-     * needed by {@code FlowEditor} for UI-driven inheritance arrow editing
-     * (adding/removing extends/implements via the class diagram).</p>
-     *
-     * <p>Selection objects populated:</p>
-     * <ul>
-     *   <li>{@code extendsInsertSelection} → set to null (supertypes exist)</li>
-     *   <li>{@code implementsInsertSelection} → after last supertype entry</li>
-     *   <li>{@code superReplaceSelection} → span of superclass entry text</li>
-     *   <li>{@code extendsReplaceSelection} → span from before {@code :} to
-     *       start of superclass entry (the "keyword" part)</li>
-     *   <li>{@code interfaceSelections} → list of keyword/comma and interface
-     *       name selections for interface editing</li>
-     * </ul>
+     * Extract supertypes and populate Selection objects for
+     * extends/implements editing in the class diagram.
      */
     private static void extractSupertypes(KtClassOrObject classOrObject,
             ClassInfo info, String source)

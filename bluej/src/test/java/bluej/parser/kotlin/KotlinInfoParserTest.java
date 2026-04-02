@@ -21,10 +21,11 @@
  */
 package bluej.parser.kotlin;
 
-import bluej.parser.symtab.ClassInfo;
-import org.junit.Test;
-
 import java.io.StringReader;
+
+import bluej.parser.symtab.ClassInfo;
+
+import org.junit.Test;
 
 import static org.junit.Assert.*;
 
@@ -33,9 +34,7 @@ import static org.junit.Assert.*;
  */
 public class KotlinInfoParserTest
 {
-    // -----------------------------------------------------------------------
     // Helpers
-    // -----------------------------------------------------------------------
 
     private ClassInfo parse(String source)
     {
@@ -47,9 +46,7 @@ public class KotlinInfoParserTest
         return KotlinInfoParser.parse(new StringReader(source), targetPkg);
     }
 
-    // -----------------------------------------------------------------------
     // Simple class declarations
-    // -----------------------------------------------------------------------
 
     @Test
     public void testSimpleClass()
@@ -126,9 +123,7 @@ public class KotlinInfoParserTest
         assertFalse(info.isAbstract());
     }
 
-    // -----------------------------------------------------------------------
     // Superclass and interfaces
-    // -----------------------------------------------------------------------
 
     @Test
     public void testWithSuperclass()
@@ -169,9 +164,7 @@ public class KotlinInfoParserTest
         assertEquals("Animal", info.getSuperclass());
     }
 
-    // -----------------------------------------------------------------------
     // Type parameters
-    // -----------------------------------------------------------------------
 
     @Test
     public void testTypeParameter()
@@ -191,9 +184,7 @@ public class KotlinInfoParserTest
         assertEquals(2, info.getTypeParameterTexts().size());
     }
 
-    // -----------------------------------------------------------------------
     // Package and imports (basic — class found correctly)
-    // -----------------------------------------------------------------------
 
     @Test
     public void testWithPackageDeclaration()
@@ -216,9 +207,7 @@ public class KotlinInfoParserTest
         assertEquals("Calculator", info.getName());
     }
 
-    // -----------------------------------------------------------------------
     // Modifiers and annotations
-    // -----------------------------------------------------------------------
 
     @Test
     public void testPrivateClass()
@@ -255,9 +244,7 @@ public class KotlinInfoParserTest
         assertEquals("Helper", info.getName());
     }
 
-    // -----------------------------------------------------------------------
     // Complex realistic examples
-    // -----------------------------------------------------------------------
 
     @Test
     public void testFullClassWithBody()
@@ -295,9 +282,7 @@ public class KotlinInfoParserTest
         assertTrue(info.isAbstract());
     }
 
-    // -----------------------------------------------------------------------
     // Edge cases
-    // -----------------------------------------------------------------------
 
     @Test
     public void testEmptyFile()
@@ -320,9 +305,7 @@ public class KotlinInfoParserTest
         assertNull("File with only package/imports should return null", info);
     }
 
-    // =======================================================================
     // NEW TESTS — Package extraction (fixes gap 1)
-    // =======================================================================
 
     @Test
     public void testPackageNameExtracted()
@@ -352,9 +335,7 @@ public class KotlinInfoParserTest
         assertFalse(info.hasPackageStatement());
     }
 
-    // =======================================================================
     // NEW TESTS — Import tracking (fixes gap 2)
-    // =======================================================================
 
     @Test
     public void testImportsAddedToUsed()
@@ -386,9 +367,7 @@ public class KotlinInfoParserTest
             info.getUsed().contains("String"));
     }
 
-    // =======================================================================
     // NEW TESTS — Method/property type extraction (fixes gap 3)
-    // =======================================================================
 
     @Test
     public void testMethodReturnTypeInUsed()
@@ -429,9 +408,7 @@ public class KotlinInfoParserTest
             info.getUsed().contains("MutableList"));
     }
 
-    // =======================================================================
     // NEW TESTS — KDoc extraction
-    // =======================================================================
 
     @Test
     public void testKDocCommentExtracted()
@@ -459,9 +436,7 @@ public class KotlinInfoParserTest
         assertTrue("Method KDoc should be extracted", hasMethodComment);
     }
 
-    // =======================================================================
     // NEW TESTS — targetPkg validation (fixes gap 4)
-    // =======================================================================
 
     @Test
     public void testTargetPkgMismatchSetsError()
@@ -481,9 +456,7 @@ public class KotlinInfoParserTest
             info.hadParseError());
     }
 
-    // =======================================================================
     // NEW TESTS — Constructor parameter types
-    // =======================================================================
 
     @Test
     public void testConstructorParamTypesInUsed()
@@ -496,9 +469,7 @@ public class KotlinInfoParserTest
             info.getUsed().contains("String"));
     }
 
-    // =======================================================================
     // NEW TESTS — Qualified and generic supertypes
-    // =======================================================================
 
     @Test
     public void testQualifiedSupertype()
@@ -518,9 +489,7 @@ public class KotlinInfoParserTest
             "ArrayList", info.getSuperclass());
     }
 
-    // =======================================================================
     // NEW TESTS — Object with supertype
-    // =======================================================================
 
     @Test
     public void testObjectWithSupertype()
@@ -531,9 +500,7 @@ public class KotlinInfoParserTest
         assertEquals("Base", info.getSuperclass());
     }
 
-    // =======================================================================
     // NEW TESTS — Top-level functions (function-only files)
-    // =======================================================================
 
     /**
      * Parse with an explicit file name, needed for function-only files

@@ -79,17 +79,9 @@ public class KotlinStringNode extends KotlinParentNode
     }
 
     /**
-     * Always return {@code REMOVE_NODE} so the parent node reparses.
-     *
-     * <p>This override is critical: without it, the inherited
-     * {@link KotlinParentNode#reparseNode} would attempt block-level PSI
-     * reparse via {@code createBlock()} on the string's text content,
-     * because this node passes all its guards ({@code isInner()=true},
-     * {@code isContainer()=false}, parent is not TYPEDEF). That would
-     * treat string content as Kotlin code, rebuild children as code
-     * scopes inside the string node, and then {@link #tokenizeText}
-     * would render everything (including real code after the string)
-     * as {@code STRING_LITERAL}.</p>
+     * Always return REMOVE_NODE so the parent node reparses. Without this
+     * override, the inherited block-level reparse would incorrectly treat
+     * string content as code.
      */
     @Override
     protected int reparseNode(ReparseableDocument document, int nodePos,

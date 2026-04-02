@@ -21,6 +21,11 @@
  */
 package bluej.parser.kotlin;
 
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import bluej.parser.Token;
 import bluej.parser.Token.TokenType;
 import bluej.parser.nodes.NodeStructureListener;
@@ -31,11 +36,6 @@ import bluej.parser.nodes.ReparseableDocument;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -57,9 +57,7 @@ public class KotlinParsedCUNodeTest
         KotlinEnvironmentManager.getEnvironment();
     }
 
-    // -----------------------------------------------------------------------
     // Minimal ReparseableDocument for testing
-    // -----------------------------------------------------------------------
 
     private static class StringDocument implements ReparseableDocument
     {
@@ -164,9 +162,7 @@ public class KotlinParsedCUNodeTest
         }
     }
 
-    // -----------------------------------------------------------------------
     // No-op listener
-    // -----------------------------------------------------------------------
 
     private static final NodeStructureListener NO_OP = new NodeStructureListener()
     {
@@ -175,9 +171,7 @@ public class KotlinParsedCUNodeTest
         @Override public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize) {}
     };
 
-    // -----------------------------------------------------------------------
     // Helper: create node, set size, reparse
-    // -----------------------------------------------------------------------
 
     private KotlinParsedCUNode parseDocument(String source)
     {
@@ -194,9 +188,7 @@ public class KotlinParsedCUNodeTest
         return parent.findNodeAtOrAfter(0, 0);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Basic construction
-    // -----------------------------------------------------------------------
 
     @Test
     public void testConstructionDefaults()
@@ -217,9 +209,7 @@ public class KotlinParsedCUNodeTest
         assertEquals(200, node.getSize());
     }
 
-    // -----------------------------------------------------------------------
     // Tests: PSI reparse builds scope tree
-    // -----------------------------------------------------------------------
 
     @Test
     public void testEmptyDocumentParsesCleanly()
@@ -304,9 +294,7 @@ public class KotlinParsedCUNodeTest
             nt == ParsedNode.NODETYPE_SELECTION || nt == ParsedNode.NODETYPE_ITERATION);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Kotlin tokenization (not Java)
-    // -----------------------------------------------------------------------
 
     @Test
     public void testTokenizeTextUsesKotlinLexer()
@@ -350,9 +338,7 @@ public class KotlinParsedCUNodeTest
         assertEquals(TokenType.KEYWORD2, kwToken.id);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Child nodes also use Kotlin tokenization
-    // -----------------------------------------------------------------------
 
     @Test
     public void testChildNodesAreKotlinParentNode()
@@ -389,9 +375,7 @@ public class KotlinParsedCUNodeTest
             methodNp.getNode() instanceof KotlinParentNode);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Reparse rebuilds tree from scratch
-    // -----------------------------------------------------------------------
 
     @Test
     public void testReparseClearsAndRebuilds()
@@ -417,9 +401,7 @@ public class KotlinParsedCUNodeTest
             ParsedNode.NODETYPE_METHODDEF, child2.getNode().getNodeType());
     }
 
-    // -----------------------------------------------------------------------
     // Tests: markSectionParsed is called
-    // -----------------------------------------------------------------------
 
     @Test
     public void testMarkSectionParsedCalled()
@@ -436,9 +418,7 @@ public class KotlinParsedCUNodeTest
             doc.getParsedSize() > 0);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Node type correctness
-    // -----------------------------------------------------------------------
 
     @Test
     public void testObjectDeclarationCreatesTypedef()
@@ -466,9 +446,7 @@ public class KotlinParsedCUNodeTest
         assertNull("Import-only file should have no scope children", child);
     }
 
-    // -----------------------------------------------------------------------
     // Tests: Complex Kotlin patterns
-    // -----------------------------------------------------------------------
 
     @Test
     public void testFullClassWithMultipleMembers()
