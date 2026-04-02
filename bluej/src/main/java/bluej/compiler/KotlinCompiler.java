@@ -67,99 +67,90 @@ public class KotlinCompiler extends Compiler
     public boolean compile(File[] sources, CompileObserver observer,
             boolean internal, List<String> userOptions, Charset fileCharset, CompileType type)
     {
-        // Stage 1: Determine output directory
-        File outputDir;
-        File tempDir = null;
-        if (type.keepClasses())
-        {
-            outputDir = getDestDir();
-        }
-        else
-        {
-            // For ERROR_CHECK_ONLY, use a temp directory (class files are discarded)
-            try
-            {
-                tempDir = Files.createTempDirectory("bluej-kotlin").toFile();
-                outputDir = tempDir;
-            }
-            catch (IOException e)
-            {
-                observer.compilerMessage(new Diagnostic(Diagnostic.ERROR,
-                        DiagnosticMessage.fromEnglish("Failed to create temporary directory for Kotlin compilation: " + e.getMessage())),
-                        type);
-                return false;
-            }
+        File outputDir = resolveOutputDir(type, observer);
+        if (outputDir == null) {
+            return false;
         }
 
-        // Stage 2: Collect diagnostics via MessageCollector
-        List<Diagnostic> collectedDiagnostics = new ArrayList<>();
+        List<Diagnostic> diagnostics = new ArrayList<>();
         boolean[] hasErrors = {false};
+        MessageCollector collector = createMessageCollector(diagnostics, hasErrors);
 
-        MessageCollector messageCollector = new MessageCollector()
+        ExitCode exitCode;
+        try {
+            exitCode = invokeCompiler(sources, collector, outputDir);
+        }
+        catch (Exception e) {
+            observer.compilerMessage(new Diagnostic(Diagnostic.ERROR,
+                    DiagnosticMessage.fromEnglish("Kotlin compiler internal error: " + e.getMessage())),
+                    type);
+            if (!type.keepClasses()) {
+                cleanupTempDir(outputDir);
+            }
+            return false;
+        }
+
+        for (Diagnostic diagnostic : diagnostics) {
+            observer.compilerMessage(diagnostic, type);
+        }
+
+        if (!type.keepClasses()) {
+            cleanupTempDir(outputDir);
+        }
+        return exitCode == ExitCode.OK;
+    }
+
+    /**
+     * Resolve the output directory for compiled class files.
+     *
+     * @return the output directory, or null if creation failed
+     */
+    private File resolveOutputDir(CompileType type, CompileObserver observer)
+    {
+        if (type.keepClasses()) {
+            return getDestDir();
+        }
+        try {
+            return Files.createTempDirectory("bluej-kotlin").toFile();
+        }
+        catch (IOException e) {
+            observer.compilerMessage(new Diagnostic(Diagnostic.ERROR,
+                    DiagnosticMessage.fromEnglish("Failed to create temporary directory for Kotlin compilation: " + e.getMessage())),
+                    type);
+            return null;
+        }
+    }
+
+    /**
+     * Create a MessageCollector that converts Kotlin compiler messages into
+     * BlueJ Diagnostic objects.
+     */
+    private MessageCollector createMessageCollector(List<Diagnostic> diagnostics,
+            boolean[] hasErrors)
+    {
+        return new MessageCollector()
         {
             @Override
-            public void report(CompilerMessageSeverity severity, String message, CompilerMessageSourceLocation location)
+            public void report(CompilerMessageSeverity severity, String message,
+                    CompilerMessageSourceLocation location)
             {
-                // Filter out non-diagnostic messages (logging, output, etc.)
                 if (severity == CompilerMessageSeverity.LOGGING ||
-                    severity == CompilerMessageSeverity.OUTPUT)
-                {
+                    severity == CompilerMessageSeverity.OUTPUT) {
                     return;
                 }
 
-                if (severity.isError())
-                {
+                if (severity.isError()) {
                     hasErrors[0] = true;
                 }
 
-                int diagType;
-                if (severity == CompilerMessageSeverity.ERROR || severity == CompilerMessageSeverity.EXCEPTION)
-                {
-                    diagType = Diagnostic.ERROR;
-                }
-                else if (severity == CompilerMessageSeverity.WARNING || severity == CompilerMessageSeverity.STRONG_WARNING)
-                {
-                    diagType = Diagnostic.WARNING;
-                }
-                else
-                {
-                    diagType = Diagnostic.NOTE;
-                }
-
+                int diagType = mapSeverity(severity);
                 DiagnosticMessage diagMessage = DiagnosticMessage.fromEnglish(message);
 
-                Diagnostic diagnostic;
-                if (location != null)
-                {
-                    String fileName = location.getPath();
-                    // Extract just the filename from the path
-                    if (fileName != null)
-                    {
-                        int lastSep = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
-                        if (lastSep >= 0)
-                        {
-                            fileName = fileName.substring(lastSep + 1);
-                        }
-                    }
-
-                    long startLine = location.getLine();
-                    long startColumn = location.getColumn();
-                    // Kotlin's MessageCollector may provide lineEnd/columnEnd via
-                    // CompilerMessageSourceLocation, but the base interface only
-                    // guarantees line and column. Use them if > 0, else default.
-                    long endLine = location.getLineEnd() > 0 ? location.getLineEnd() : startLine;
-                    long endColumn = location.getColumnEnd() > 0 ? location.getColumnEnd() : startColumn;
-
-                    diagnostic = new Diagnostic(diagType, diagMessage, fileName,
-                            startLine, startColumn, endLine, endColumn,
-                            DiagnosticOrigin.KOTLIN, getNewErrorIdentifier());
+                if (location != null) {
+                    diagnostics.add(createLocatedDiagnostic(diagType, diagMessage, location));
+                } else {
+                    diagnostics.add(new Diagnostic(diagType, diagMessage));
                 }
-                else
-                {
-                    diagnostic = new Diagnostic(diagType, diagMessage);
-                }
-
-                collectedDiagnostics.add(diagnostic);
             }
 
             @Override
@@ -172,71 +163,85 @@ public class KotlinCompiler extends Compiler
             public void clear()
             {
                 hasErrors[0] = false;
-                collectedDiagnostics.clear();
+                diagnostics.clear();
             }
         };
+    }
 
-        // Stage 3: Build K2 compiler arguments and invoke
-        ExitCode exitCode;
-        try
-        {
-            K2JVMCompiler compiler = new K2JVMCompiler();
-            K2JVMCompilerArguments args = new K2JVMCompilerArguments();
+    /**
+     * Map a Kotlin compiler severity to a BlueJ diagnostic type constant.
+     */
+    private static int mapSeverity(CompilerMessageSeverity severity)
+    {
+        if (severity == CompilerMessageSeverity.ERROR || severity == CompilerMessageSeverity.EXCEPTION) {
+            return Diagnostic.ERROR;
+        } else if (severity == CompilerMessageSeverity.WARNING || severity == CompilerMessageSeverity.STRONG_WARNING) {
+            return Diagnostic.WARNING;
+        }
+        return Diagnostic.NOTE;
+    }
 
-            // Output directory
-            args.setDestination(outputDir.getAbsolutePath());
+    /**
+     * Create a Diagnostic with source location from a Kotlin compiler message.
+     */
+    private Diagnostic createLocatedDiagnostic(int diagType, DiagnosticMessage message,
+            CompilerMessageSourceLocation location)
+    {
+        String fileName = location.getPath();
+        if (fileName != null) {
+            int lastSep = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
+            if (lastSep >= 0) {
+                fileName = fileName.substring(lastSep + 1);
+            }
+        }
 
-            // Classpath
-            List<File> classPath = getClassPath();
-            if (classPath != null && !classPath.isEmpty())
-            {
-                StringBuilder cp = new StringBuilder();
-                for (int i = 0; i < classPath.size(); i++)
-                {
-                    if (i > 0)
-                    {
-                        cp.append(File.pathSeparator);
-                    }
-                    cp.append(classPath.get(i).getAbsolutePath());
+        long startLine = location.getLine();
+        long startColumn = location.getColumn();
+        // Use lineEnd/columnEnd if provided, else default to start position
+        long endLine = location.getLineEnd() > 0 ? location.getLineEnd() : startLine;
+        long endColumn = location.getColumnEnd() > 0 ? location.getColumnEnd() : startColumn;
+
+        return new Diagnostic(diagType, message, fileName,
+                startLine, startColumn, endLine, endColumn,
+                DiagnosticOrigin.KOTLIN, getNewErrorIdentifier());
+    }
+
+    /**
+     * Build K2 compiler arguments and invoke the compiler.
+     *
+     * @return the compiler exit code
+     * @throws Exception if the compiler encounters an internal error
+     */
+    private ExitCode invokeCompiler(File[] sources, MessageCollector collector,
+            File outputDir) throws Exception
+    {
+        K2JVMCompiler compiler = new K2JVMCompiler();
+        K2JVMCompilerArguments args = new K2JVMCompilerArguments();
+
+        args.setDestination(outputDir.getAbsolutePath());
+
+        List<File> classPath = getClassPath();
+        if (classPath != null && !classPath.isEmpty()) {
+            StringBuilder cp = new StringBuilder();
+            for (int i = 0; i < classPath.size(); i++) {
+                if (i > 0) {
+                    cp.append(File.pathSeparator);
                 }
-                args.setClasspath(cp.toString());
+                cp.append(classPath.get(i).getAbsolutePath());
             }
-
-            // JVM target
-            args.setJvmTarget("21");
-
-            // No reflection dependency
-            args.setNoReflect(true);
-
-            // Source files
-            String[] sourcePaths = new String[sources.length];
-            for (int i = 0; i < sources.length; i++)
-            {
-                sourcePaths[i] = sources[i].getAbsolutePath();
-            }
-            args.setFreeArgs(List.of(sourcePaths));
-
-            // Invoke K2 compiler
-            exitCode = compiler.exec(messageCollector, Services.EMPTY, args);
-        }
-        catch (Exception e)
-        {
-            observer.compilerMessage(new Diagnostic(Diagnostic.ERROR,
-                    DiagnosticMessage.fromEnglish("Kotlin compiler internal error: " + e.getMessage())),
-                    type);
-            cleanupTempDir(tempDir);
-            return false;
+            args.setClasspath(cp.toString());
         }
 
-        // Stage 4: Dispatch collected diagnostics to observer
-        for (Diagnostic diagnostic : collectedDiagnostics)
-        {
-            observer.compilerMessage(diagnostic, type);
-        }
+        args.setJvmTarget("21");
+        args.setNoReflect(true);
 
-        // Stage 5: Cleanup and return
-        cleanupTempDir(tempDir);
-        return exitCode == ExitCode.OK;
+        String[] sourcePaths = new String[sources.length];
+        for (int i = 0; i < sources.length; i++) {
+            sourcePaths[i] = sources[i].getAbsolutePath();
+        }
+        args.setFreeArgs(List.of(sourcePaths));
+
+        return compiler.exec(collector, Services.EMPTY, args);
     }
 
     /**
