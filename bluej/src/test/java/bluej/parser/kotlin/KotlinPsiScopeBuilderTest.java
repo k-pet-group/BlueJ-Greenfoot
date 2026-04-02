@@ -770,6 +770,265 @@ public class KotlinPsiScopeBuilderTest
     }
 
     // -----------------------------------------------------------------------
+    // Tests: Secondary constructors
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void testSecondaryConstructorCreatesMethodNode()
+    {
+        String source = "class Foo {\n    constructor(x: Int) { println(x) }\n}";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull(classNp);
+        assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
+
+        // Constructor is inside the class's inner node
+        NodeAndPosition<ParsedNode> ctorNp = firstContentChild(classNp);
+        assertNotNull("Class inner should contain a constructor node", ctorNp);
+        assertEquals("Constructor should be NODETYPE_METHODDEF",
+            ParsedNode.NODETYPE_METHODDEF, ctorNp.getNode().getNodeType());
+
+        // Constructor should have an inner node
+        NodeAndPosition<ParsedNode> innerNp = findInner(ctorNp);
+        assertTrue("Inner should be within constructor bounds",
+            innerNp.getPosition() > ctorNp.getPosition()
+            && innerNp.getEnd() < ctorNp.getEnd());
+    }
+
+    @Test
+    public void testSecondaryConstructorWithDelegation()
+    {
+        String source = "class Foo(val x: Int) {\n    constructor(x: Int, y: Int) : this(x) { println(y) }\n}";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull(classNp);
+
+        // Constructor is the first content child (primary constructor is skipped)
+        NodeAndPosition<ParsedNode> ctorNp = firstContentChild(classNp);
+        assertNotNull("Class inner should contain secondary constructor", ctorNp);
+        assertEquals(ParsedNode.NODETYPE_METHODDEF, ctorNp.getNode().getNodeType());
+
+        // The scope should cover the full constructor text including delegation call
+        int ctorStart = source.indexOf("constructor");
+        assertEquals("Constructor scope should start at 'constructor' keyword",
+            ctorStart, ctorNp.getPosition());
+        assertTrue("Constructor scope should include delegation call",
+            ctorNp.getEnd() > source.indexOf("this(x)"));
+    }
+
+    @Test
+    public void testSecondaryConstructorWithNestedControlFlow()
+    {
+        String source = "class Foo {\n    constructor(x: Int) {\n        if (x > 0) { println(x) }\n    }\n}";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        NodeAndPosition<ParsedNode> ctorNp = firstContentChild(classNp);
+        assertNotNull("Should have constructor", ctorNp);
+        assertEquals(ParsedNode.NODETYPE_METHODDEF, ctorNp.getNode().getNodeType());
+
+        // Find the if inside the constructor's inner node
+        NodeAndPosition<ParsedNode> ctorInner = findInner(ctorNp);
+        NodeAndPosition<ParsedNode> ifNp = ctorInner.getNode().findNodeAtOrAfter(
+            ctorInner.getPosition(), ctorInner.getPosition());
+        assertNotNull("Constructor inner should contain if-node", ifNp);
+        assertEquals("if should be NODETYPE_SELECTION",
+            ParsedNode.NODETYPE_SELECTION, ifNp.getNode().getNodeType());
+    }
+
+    // -----------------------------------------------------------------------
+    // Tests: Primary constructors (skipped)
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void testPrimaryConstructorSkipped()
+    {
+        String source = "class Foo(val x: Int) { }";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull(classNp);
+        assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
+
+        // The class inner should have NO children — primary constructor has no scope
+        NodeAndPosition<ParsedNode> classInner = findInner(classNp);
+        NodeAndPosition<ParsedNode> childNp = classInner.getNode().findNodeAtOrAfter(
+            classInner.getPosition(), classInner.getPosition());
+        assertNull("Primary constructor should NOT create a scope node", childNp);
+    }
+
+    @Test
+    public void testPrimaryConstructorWithExplicitKeyword()
+    {
+        String source = "class Foo constructor(val x: Int) { }";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull(classNp);
+        assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
+
+        // Even with explicit 'constructor' keyword, no scope node for primary constructor
+        NodeAndPosition<ParsedNode> classInner = findInner(classNp);
+        NodeAndPosition<ParsedNode> childNp = classInner.getNode().findNodeAtOrAfter(
+            classInner.getPosition(), classInner.getPosition());
+        assertNull("Explicit primary constructor should NOT create a scope node", childNp);
+    }
+
+    // -----------------------------------------------------------------------
+    // Tests: Init blocks
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void testInitBlockCreatesMethodNode()
+    {
+        String source = "class Foo {\n    init { println(\"hi\") }\n}";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull(classNp);
+
+        NodeAndPosition<ParsedNode> initNp = firstContentChild(classNp);
+        assertNotNull("Class inner should contain an init block node", initNp);
+        assertEquals("Init block should be NODETYPE_METHODDEF",
+            ParsedNode.NODETYPE_METHODDEF, initNp.getNode().getNodeType());
+
+        // Init block should have an inner node
+        NodeAndPosition<ParsedNode> innerNp = findInner(initNp);
+        assertTrue("Inner should be within init block bounds",
+            innerNp.getPosition() > initNp.getPosition()
+            && innerNp.getEnd() < initNp.getEnd());
+    }
+
+    @Test
+    public void testInitBlockWithNestedControlFlow()
+    {
+        String source = "class Foo {\n    init {\n        for (i in 1..10) { println(i) }\n    }\n}";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        NodeAndPosition<ParsedNode> initNp = firstContentChild(classNp);
+        assertNotNull("Should have init block", initNp);
+        assertEquals(ParsedNode.NODETYPE_METHODDEF, initNp.getNode().getNodeType());
+
+        // Find the for loop inside the init block's inner node
+        NodeAndPosition<ParsedNode> initInner = findInner(initNp);
+        NodeAndPosition<ParsedNode> forNp = initInner.getNode().findNodeAtOrAfter(
+            initInner.getPosition(), initInner.getPosition());
+        assertNotNull("Init inner should contain for-node", forNp);
+        assertEquals("for should be NODETYPE_ITERATION",
+            ParsedNode.NODETYPE_ITERATION, forNp.getNode().getNodeType());
+    }
+
+    @Test
+    public void testMultipleInitBlocks()
+    {
+        String source = "class Foo {\n    init { println(\"first\") }\n    init { println(\"second\") }\n}";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull(classNp);
+
+        NodeAndPosition<ParsedNode> classInner = findInner(classNp);
+
+        // First init block
+        NodeAndPosition<ParsedNode> init1Np = classInner.getNode().findNodeAtOrAfter(
+            classInner.getPosition(), classInner.getPosition());
+        assertNotNull("Should have first init block", init1Np);
+        assertEquals(ParsedNode.NODETYPE_METHODDEF, init1Np.getNode().getNodeType());
+
+        // Second init block — search after the first one ends
+        int afterFirst = init1Np.getPosition() + init1Np.getSize() + 1;
+        NodeAndPosition<ParsedNode> init2Np = classInner.getNode().findNodeAtOrAfter(
+            afterFirst, classInner.getPosition());
+        assertNotNull("Should have second init block", init2Np);
+        assertEquals("Second init should also be NODETYPE_METHODDEF",
+            ParsedNode.NODETYPE_METHODDEF, init2Np.getNode().getNodeType());
+
+        // Both should have inner nodes
+        findInner(init1Np);
+        findInner(init2Np);
+    }
+
+    @Test
+    public void testInitBlockAndConstructorOrdering()
+    {
+        String source = "class Foo {\n    init { println(\"init\") }\n    constructor(x: Int) { println(x) }\n    fun bar() { }\n}";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull(classNp);
+
+        NodeAndPosition<ParsedNode> classInner = findInner(classNp);
+
+        // First: init block
+        NodeAndPosition<ParsedNode> np1 = classInner.getNode().findNodeAtOrAfter(
+            classInner.getPosition(), classInner.getPosition());
+        assertNotNull("Should have first scope node (init)", np1);
+        assertEquals(ParsedNode.NODETYPE_METHODDEF, np1.getNode().getNodeType());
+        assertTrue("First node should be the init block",
+            np1.getPosition() == source.indexOf("init {"));
+
+        // Second: constructor
+        int afterFirst = np1.getPosition() + np1.getSize() + 1;
+        NodeAndPosition<ParsedNode> np2 = classInner.getNode().findNodeAtOrAfter(
+            afterFirst, classInner.getPosition());
+        assertNotNull("Should have second scope node (constructor)", np2);
+        assertEquals(ParsedNode.NODETYPE_METHODDEF, np2.getNode().getNodeType());
+        assertEquals("Second node should be the constructor",
+            source.indexOf("constructor"), np2.getPosition());
+
+        // Third: method
+        int afterSecond = np2.getPosition() + np2.getSize() + 1;
+        NodeAndPosition<ParsedNode> np3 = classInner.getNode().findNodeAtOrAfter(
+            afterSecond, classInner.getPosition());
+        assertNotNull("Should have third scope node (method)", np3);
+        assertEquals(ParsedNode.NODETYPE_METHODDEF, np3.getNode().getNodeType());
+        assertEquals("Third node should be the method",
+            source.indexOf("fun bar"), np3.getPosition());
+    }
+
+    // -----------------------------------------------------------------------
+    // Tests: Companion object transparency
+    // -----------------------------------------------------------------------
+
+    @Test
+    public void testCompanionObjectTransparency()
+    {
+        String source = "class Foo {\n    companion object {\n        fun create(): Foo = Foo()\n    }\n}";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull(classNp);
+        assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
+
+        // The companion object's fun create() should be promoted to the class body level
+        // — no intermediate TYPEDEF for the companion object
+        NodeAndPosition<ParsedNode> methodNp = firstContentChild(classNp);
+        assertNotNull("Companion method should be promoted to class level", methodNp);
+        assertEquals("Promoted method should be NODETYPE_METHODDEF",
+            ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
+    }
+
+    @Test
+    public void testNamedCompanionObjectTransparency()
+    {
+        String source = "class Foo {\n    companion object Factory {\n        fun create(): Foo = Foo()\n    }\n}";
+        KotlinParsedCUNode root = buildScopeTree(source);
+
+        NodeAndPosition<ParsedNode> classNp = firstChild(root);
+        assertNotNull(classNp);
+        assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
+
+        // Named companion object should also be transparent
+        NodeAndPosition<ParsedNode> methodNp = firstContentChild(classNp);
+        assertNotNull("Named companion method should be promoted to class level", methodNp);
+        assertEquals("Promoted method should be NODETYPE_METHODDEF",
+            ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
+    }
+
+    // -----------------------------------------------------------------------
     // Tests: Containment checks
     // -----------------------------------------------------------------------
 

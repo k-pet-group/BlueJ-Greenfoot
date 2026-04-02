@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.psi.KtBlockExpression;
 import org.jetbrains.kotlin.psi.KtBlockStringTemplateEntry;
 import org.jetbrains.kotlin.psi.KtClass;
 import org.jetbrains.kotlin.psi.KtClassBody;
+import org.jetbrains.kotlin.psi.KtClassInitializer;
 import org.jetbrains.kotlin.psi.KtDeclaration;
 import org.jetbrains.kotlin.psi.KtExpression;
 import org.jetbrains.kotlin.psi.KtFile;
@@ -43,6 +44,8 @@ import org.jetbrains.kotlin.psi.KtIfExpression;
 import org.jetbrains.kotlin.psi.KtLoopExpression;
 import org.jetbrains.kotlin.psi.KtNamedFunction;
 import org.jetbrains.kotlin.psi.KtObjectDeclaration;
+import org.jetbrains.kotlin.psi.KtPrimaryConstructor;
+import org.jetbrains.kotlin.psi.KtSecondaryConstructor;
 import org.jetbrains.kotlin.psi.KtSimpleNameStringTemplateEntry;
 import org.jetbrains.kotlin.psi.KtStringTemplateEntry;
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression;
@@ -185,6 +188,16 @@ public class KotlinPsiScopeBuilder
         {
             processFunction(ktFunction, parent, parentAbsPos, listener);
         }
+        else if (decl instanceof KtSecondaryConstructor ktCtor)
+        {
+            processConstructor(ktCtor, parent, parentAbsPos, listener);
+        }
+        else if (decl instanceof KtClassInitializer ktInit)
+        {
+            processInitBlock(ktInit, parent, parentAbsPos, listener);
+        }
+        // KtPrimaryConstructor — no block body (parameter declarations only),
+        // so no scope node. Kotlin uses init blocks for initialization logic.
         // KtProperty and other declarations don't create scope nodes
     }
 
@@ -356,6 +369,84 @@ public class KotlinPsiScopeBuilder
                     // Recurse into expression body for nested control flow (if/when/for/while)
                     processExpression(exprBody, innerNode, innerAbsPos, listener);
                 }
+            }
+        }
+    }
+
+    /**
+     * Process a secondary constructor → KotlinParentNode(NODETYPE_METHODDEF).
+     *
+     * <p>Follows the same container+inner pattern as {@link #processFunction}. Secondary
+     * constructors always have block bodies (no expression body variant). The delegation
+     * call ({@code this(...)} or {@code super(...)}) is part of the text range but does
+     * not produce a separate scope node.</p>
+     */
+    private static void processConstructor(KtSecondaryConstructor ktCtor, JavaParentNode parent,
+            int parentAbsPos, NodeStructureListener listener)
+    {
+        TextRange range = ktCtor.getTextRange();
+        int absPos = range.getStartOffset();
+        int relPos = absPos - parentAbsPos;
+        int size = range.getLength();
+
+        // Container node (NODETYPE_METHODDEF → yellow scope)
+        KotlinParentNode ctorNode = new KotlinParentNode(parent, ParsedNode.NODETYPE_METHODDEF);
+        ctorNode.setName("constructor");
+        ctorNode.setComplete(true);
+
+        parent.insertNode(ctorNode, relPos, size, listener);
+
+        // Insert comment nodes for KDoc/comments attached to this declaration
+        insertAttachedComments(ktCtor, ctorNode, absPos, listener);
+
+        // Inner node for constructor body (block body only — no expression body for constructors)
+        KtBlockExpression block = ktCtor.getBodyBlockExpression();
+        if (block != null)
+        {
+            KotlinParentNode innerNode = insertInnerNode(block, ctorNode, absPos, listener);
+            if (innerNode != null)
+            {
+                int innerAbsPos = block.getTextRange().getStartOffset() + 1;
+                processBlockContents(block, innerNode, innerAbsPos, listener);
+            }
+        }
+    }
+
+    /**
+     * Process an init block → KotlinParentNode(NODETYPE_METHODDEF).
+     *
+     * <p>Init blocks ({@code init { ... }}) are initializer code analogous to constructors.
+     * They produce {@code NODETYPE_METHODDEF} (yellow scope) matching the treatment of
+     * constructors and methods. Multiple init blocks in the same class each get their own
+     * container+inner scope node.</p>
+     */
+    private static void processInitBlock(KtClassInitializer ktInit, JavaParentNode parent,
+            int parentAbsPos, NodeStructureListener listener)
+    {
+        TextRange range = ktInit.getTextRange();
+        int absPos = range.getStartOffset();
+        int relPos = absPos - parentAbsPos;
+        int size = range.getLength();
+
+        // Container node (NODETYPE_METHODDEF → yellow scope)
+        KotlinParentNode initNode = new KotlinParentNode(parent, ParsedNode.NODETYPE_METHODDEF);
+        initNode.setName("init");
+        initNode.setComplete(true);
+
+        parent.insertNode(initNode, relPos, size, listener);
+
+        // Insert comment nodes for KDoc/comments attached to this declaration
+        insertAttachedComments(ktInit, initNode, absPos, listener);
+
+        // Inner node for init body
+        KtExpression body = ktInit.getBody();
+        if (body instanceof KtBlockExpression block)
+        {
+            KotlinParentNode innerNode = insertInnerNode(block, initNode, absPos, listener);
+            if (innerNode != null)
+            {
+                int innerAbsPos = block.getTextRange().getStartOffset() + 1;
+                processBlockContents(block, innerNode, innerAbsPos, listener);
             }
         }
     }
