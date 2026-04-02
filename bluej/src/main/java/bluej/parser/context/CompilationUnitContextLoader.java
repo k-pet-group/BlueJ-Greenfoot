@@ -232,7 +232,7 @@ public class CompilationUnitContextLoader implements AutoCloseable {
         Path contextFilePath = constructContextFilePath(qualifiedName);
 
         try {
-            File contextFile = contextFilePath.toFile();
+            File contextFile = getPackageRoot().resolve(contextFilePath).toFile();
 
             context.setComments(PropertyContextFormat.fromProperties(data.comments));
 
