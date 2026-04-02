@@ -67,4 +67,11 @@ public class PlainTextLanguageSupport implements FlowLanguageSupport
         throw new UnsupportedOperationException(
             "PlainTextLanguageSupport does not support class declaration editing");
     }
+
+    @Override
+    public void removeInterface(FlowEditor editor, String interfaceName, ClassInfo info)
+    {
+        throw new UnsupportedOperationException(
+            "PlainTextLanguageSupport does not support class declaration editing");
+    }
 }

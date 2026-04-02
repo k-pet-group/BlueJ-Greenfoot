@@ -75,4 +75,16 @@ public interface FlowLanguageSupport
      * @param info          parsed class info with selection positions
      */
     void addExtendsInterface(FlowEditor editor, String interfaceName, ClassInfo info);
+
+    /**
+     * Remove an interface (or supertype) from the class's extends/implements
+     * list. For Java, this removes from the implements or extends clause using
+     * pre-computed Selections. For Kotlin, this re-parses the source and
+     * splices the string directly.
+     *
+     * @param editor        the editor to modify
+     * @param interfaceName the interface name to remove
+     * @param info          parsed class info
+     */
+    void removeInterface(FlowEditor editor, String interfaceName, ClassInfo info);
 }

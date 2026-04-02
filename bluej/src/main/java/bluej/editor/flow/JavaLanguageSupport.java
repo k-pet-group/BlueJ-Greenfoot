@@ -121,4 +121,30 @@ public class JavaLanguageSupport implements FlowLanguageSupport
             editor.insertText(" extends " + interfaceName, false);
         }
     }
+
+    @Override
+    public void removeInterface(FlowEditor editor, String interfaceName, ClassInfo info)
+    {
+        List<Selection> vsels = info.getInterfaceSelections();
+        List<String> vtexts = editor.getInterfaceTexts(vsels);
+        int where = vtexts.indexOf(interfaceName);
+
+        // Special case: deleting the first interface when others remain —
+        // delete the following comma instead of the preceding one
+        if (where == 1 && vsels.size() > 2)
+        {
+            where = 2;
+        }
+
+        if (where > 0)
+        {
+            Selection s1 = vsels.get(where - 1);
+            s1.combineWith(vsels.get(where));
+
+            editor.setSelection(
+                new SourceLocation(s1.getLine(), s1.getColumn()),
+                new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+            editor.insertText("", false);
+        }
+    }
 }
