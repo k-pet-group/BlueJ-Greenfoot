@@ -22,6 +22,8 @@
 package bluej.parser.kotlin;
 
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 
 import bluej.parser.Token;
 import bluej.parser.Token.TokenType;
@@ -211,76 +213,62 @@ public class KotlinParentNode extends JavaParentNode
      * Static tokenization helper shared by {@link KotlinParentNode} and
      * {@link KotlinParsedCUNode} (which extends {@code IncrementalParsingNode}
      * and cannot inherit this class).
+     *
+     * <p>Reads tokens from KotlinLexer, maps each to a display
+     * {@link TokenType}, and builds a linked token list bounded by
+     * {@code length} characters. Multiline tokens (comments, strings)
+     * consume all remaining length.</p>
      */
     static Token doKotlinTokenization(ReparseableDocument document, int pos, int length)
     {
         Reader dr = document.makeReader(pos, pos + length);
         KotlinLexer lexer = new KotlinLexer(dr);
 
-        Token dummyTok = new Token(0, TokenType.END);
-        Token token = dummyTok;
-
-        int curcol = 1;
+        List<Token> tokens = new ArrayList<>();
         int remaining = length;
+        int curcol = 1;
+
         while (remaining > 0)
         {
             LocatableToken lt = lexer.nextToken();
-
-            // EOF — done tokenizing
             if (lt.getType() == KotlinToken.EOF)
             {
                 if (remaining > 0)
-                {
-                    token.next = new Token(remaining, TokenType.DEFAULT);
-                    token = token.next;
-                }
+                    tokens.add(new Token(remaining, TokenType.DEFAULT));
                 break;
             }
 
-            // Whitespace tokens — emit as DEFAULT
-            if (lt.getType() == KotlinToken.WHITE_SPACE || lt.getType() == KotlinToken.DANGLING_NEWLINE)
-            {
-                // If whitespace crosses a line boundary, only count up to remaining
-                int wsLen = lt.getLength();
-                if (lt.getEndLine() > 1 || wsLen >= remaining)
-                {
-                    token.next = new Token(remaining, TokenType.DEFAULT);
-                    token = token.next;
-                    break;
-                }
-                token.next = new Token(wsLen, TokenType.DEFAULT);
-                token = token.next;
-                remaining -= wsLen;
-                curcol += wsLen;
-                continue;
-            }
-
-            // If the token starts beyond our current position (gap), fill with DEFAULT
+            // Fill gap before token with DEFAULT
             if (lt.getColumn() > curcol)
             {
                 int gap = lt.getColumn() - curcol;
-                token.next = new Token(gap, TokenType.DEFAULT);
-                token = token.next;
+                tokens.add(new Token(gap, TokenType.DEFAULT));
                 remaining -= gap;
                 curcol += gap;
             }
 
-            // Map Kotlin token type to display type
-            TokenType tokType = KotlinToken.toDisplayType(lt.getType());
-
-            int tokLen = lt.getLength();
-            if (lt.getEndLine() > 1)
-            {
-                tokLen = remaining;
-            }
-
-            token.next = new Token(tokLen, tokType);
-            token = token.next;
-            remaining -= tokLen;
-            curcol += tokLen;
+            // Multiline tokens consume all remaining length
+            int len = (lt.getEndLine() > 1 || lt.getLength() >= remaining)
+                ? remaining : lt.getLength();
+            tokens.add(new Token(len, KotlinToken.toDisplayType(lt.getType())));
+            remaining -= len;
+            curcol += len;
         }
 
-        token.next = new Token(0, TokenType.END);
-        return dummyTok.next;
+        tokens.add(new Token(0, TokenType.END));
+        return linkTokens(tokens);
+    }
+
+    /**
+     * Link a list of tokens into a singly-linked chain and return the head.
+     */
+    private static Token linkTokens(List<Token> tokens)
+    {
+        for (int i = 0; i < tokens.size() - 1; i++)
+        {
+            tokens.get(i).next = tokens.get(i + 1);
+        }
+        return tokens.isEmpty()
+            ? new Token(0, TokenType.END) : tokens.get(0);
     }
 }
