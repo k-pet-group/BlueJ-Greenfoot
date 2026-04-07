@@ -462,10 +462,11 @@ public class KotlinPsiScopeBuilder
             // KtForExpression, KtWhileExpression, KtDoWhileExpression all extend KtLoopExpression
             processControlFlow(ktLoop, parent, parentAbsPos, ParsedNode.NODETYPE_ITERATION, listener);
         }
-        // Multiline triple-quoted strings → KotlinStringNode with template children.
-        // Single-line strings fall through to the catch-all else (recurse into children).
+        // Strings with block template entries (${...}) or triple-quoted strings
+        // need a KotlinStringNode — otherwise control flow inside ${...} would
+        // create scope nodes that split the string during getMarkTokensFor().
         else if (element instanceof KtStringTemplateExpression stringExpr
-                && isMultilineString(stringExpr))
+                && (isMultilineString(stringExpr) || hasBlockTemplateEntry(stringExpr)))
         {
             insertStringNode(stringExpr, parent, parentAbsPos, listener);
         }
@@ -551,6 +552,17 @@ public class KotlinPsiScopeBuilder
     {
         String text = stringExpr.getText();
         return text != null && text.startsWith("\"\"\"");
+    }
+
+    // Check whether a string contains a block template entry (${...}).
+    private static boolean hasBlockTemplateEntry(KtStringTemplateExpression stringExpr)
+    {
+        for (KtStringTemplateEntry entry : stringExpr.getEntries()) {
+            if (entry instanceof KtBlockStringTemplateEntry) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
