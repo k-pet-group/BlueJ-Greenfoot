@@ -206,8 +206,7 @@ public final class KotlinToken
      */
     public static int mapTokenType(IElementType psiType)
     {
-        if (psiType == null)
-        {
+        if (psiType == null) {
             return EOF;
         }
 

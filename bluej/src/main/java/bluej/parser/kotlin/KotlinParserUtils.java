@@ -49,21 +49,17 @@ public final class KotlinParserUtils
     public static String readDocumentText(ReparseableDocument document,
             int start, int end)
     {
-        try
-        {
+        try {
             Reader reader = document.makeReader(start, end);
             StringBuilder sb = new StringBuilder(end - start);
             char[] buf = new char[4096];
             int n;
-            while ((n = reader.read(buf)) != -1)
-            {
+            while ((n = reader.read(buf)) != -1) {
                 sb.append(buf, 0, n);
             }
             reader.close();
             return sb.toString();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             return "";
         }
     }
@@ -75,19 +71,15 @@ public final class KotlinParserUtils
      */
     public static String readFully(Reader reader)
     {
-        try
-        {
+        try {
             StringBuilder sb = new StringBuilder();
             char[] buf = new char[4096];
             int n;
-            while ((n = reader.read(buf)) != -1)
-            {
+            while ((n = reader.read(buf)) != -1) {
                 sb.append(buf, 0, n);
             }
             return sb.toString();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             return "";
         }
     }

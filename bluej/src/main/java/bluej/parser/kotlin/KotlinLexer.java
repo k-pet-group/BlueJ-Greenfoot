@@ -129,8 +129,7 @@ public final class KotlinLexer implements TokenStream
         IElementType psiType = psiLexer.getTokenType();
 
         // EOF — PSI lexer returns null when exhausted
-        if (psiType == null)
-        {
+        if (psiType == null) {
             LineColPos pos = new LineColPos(currentLine, currentColumn, currentPosition);
             return new LocatableToken(KotlinToken.EOF, "", pos, pos);
         }
@@ -171,11 +170,9 @@ public final class KotlinLexer implements TokenStream
      */
     private int reclassifySoftKeyword(int blueJType, String tokenText)
     {
-        if (blueJType == KotlinToken.IDENTIFIER)
-        {
+        if (blueJType == KotlinToken.IDENTIFIER) {
             int softKw = KotlinToken.mapSoftKeywordByText(tokenText);
-            if (softKw >= 0)
-            {
+            if (softKw >= 0) {
                 return softKw;
             }
         }
@@ -194,36 +191,27 @@ public final class KotlinLexer implements TokenStream
      */
     private MergedToken tryMergeCompoundOperator(int blueJType, String tokenText)
     {
-        if (blueJType == KotlinToken.QUEST)
-        {
+        if (blueJType == KotlinToken.QUEST) {
             IElementType nextPsi = psiLexer.getTokenType();
-            if (nextPsi != null)
-            {
+            if (nextPsi != null) {
                 int nextType = KotlinToken.mapTokenType(nextPsi);
-                if (nextType == KotlinToken.DOT)
-                {
+                if (nextType == KotlinToken.DOT) {
                     // ?. → SAFE_ACCESS
                     advancePosition(".");
                     psiLexer.advance();
                     return new MergedToken(KotlinToken.SAFE_ACCESS, "?.");
-                }
-                else if (nextType == KotlinToken.COLON)
-                {
+                } else if (nextType == KotlinToken.COLON) {
                     // ?: → ELVIS
                     advancePosition(":");
                     psiLexer.advance();
                     return new MergedToken(KotlinToken.ELVIS, "?:");
                 }
             }
-        }
-        else if (blueJType == KotlinToken.EXCL)
-        {
+        } else if (blueJType == KotlinToken.EXCL) {
             IElementType nextPsi = psiLexer.getTokenType();
-            if (nextPsi != null)
-            {
+            if (nextPsi != null) {
                 int nextType = KotlinToken.mapTokenType(nextPsi);
-                if (nextType == KotlinToken.EXCL)
-                {
+                if (nextType == KotlinToken.EXCL) {
                     // !! → EXCLEXCL
                     advancePosition("!");
                     psiLexer.advance();
@@ -239,16 +227,12 @@ public final class KotlinLexer implements TokenStream
      */
     private void advancePosition(String text)
     {
-        for (int i = 0; i < text.length(); i++)
-        {
+        for (int i = 0; i < text.length(); i++) {
             char ch = text.charAt(i);
-            if (ch == '\n')
-            {
+            if (ch == '\n') {
                 currentLine++;
                 currentColumn = 1;
-            }
-            else
-            {
+            } else {
                 currentColumn++;
             }
             currentPosition++;

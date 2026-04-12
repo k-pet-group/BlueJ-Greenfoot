@@ -222,7 +222,9 @@ public class KotlinLexerTest
         while (true)
         {
             LocatableToken t = lexer.nextToken();
-            if (t.getType() == KotlinToken.EOF) break;
+            if (t.getType() == KotlinToken.EOF) {
+                break;
+            }
             tokens.add(t);
         }
 

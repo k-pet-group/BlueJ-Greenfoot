@@ -61,13 +61,10 @@ public final class KotlinEnvironmentManager
     public static KotlinCoreEnvironment getEnvironment()
     {
         KotlinCoreEnvironment env = environment;
-        if (env == null)
-        {
-            synchronized (KotlinEnvironmentManager.class)
-            {
+        if (env == null) {
+            synchronized (KotlinEnvironmentManager.class) {
                 env = environment;
-                if (env == null)
-                {
+                if (env == null) {
                     env = createEnvironment();
                     environment = env;
                 }
@@ -96,13 +93,10 @@ public final class KotlinEnvironmentManager
     public static KtPsiFactory getPsiFactory()
     {
         KtPsiFactory factory = psiFactory;
-        if (factory == null)
-        {
-            synchronized (KotlinEnvironmentManager.class)
-            {
+        if (factory == null) {
+            synchronized (KotlinEnvironmentManager.class) {
                 factory = psiFactory;
-                if (factory == null)
-                {
+                if (factory == null) {
                     factory = new KtPsiFactory(getProject());
                     psiFactory = factory;
                 }
@@ -118,8 +112,7 @@ public final class KotlinEnvironmentManager
      */
     public static synchronized void dispose()
     {
-        if (parentDisposable != null)
-        {
+        if (parentDisposable != null) {
             Disposer.dispose(parentDisposable);
             psiFactory = null;
             environment = null;

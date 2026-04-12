@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024,2025 Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024,2025,2026 Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -686,13 +686,15 @@ public final class Package
 
                 // check if the name would be a valid java name
                 // (Kotlin class names must also be valid JVM identifiers)
-                if (!JavaNames.isIdentifier(kotlinFileName))
+                if (!JavaNames.isIdentifier(kotlinFileName)) {
                     continue;
+                }
 
                 // files with a $ in them signify inner classes (which we want
                 // to ignore)
-                if (kotlinFileName.indexOf('$') == -1)
+                if (kotlinFileName.indexOf('$') == -1) {
                     interestingSet.add(kotlinFileName);
+                }
             }
         }
 

@@ -79,16 +79,13 @@ public class KotlinInfoParser
      */
     public static ClassInfo parse(File f) throws FileNotFoundException
     {
-        try (FileReader reader = new FileReader(f))
-        {
+        try (FileReader reader = new FileReader(f)) {
             return parse(reader, null, f.getName());
         }
-        catch (FileNotFoundException e)
-        {
+        catch (FileNotFoundException e) {
             throw e;
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             return null;
         }
     }
@@ -119,20 +116,16 @@ public class KotlinInfoParser
     {
         // Read full source into String (PSI requires CharSequence)
         String source = KotlinParserUtils.readFully(r);
-        if (source.isBlank())
-        {
+        if (source.isBlank()) {
             return null;
         }
 
         // Build PSI tree (use real file name if available for ktFile.getName())
         KtFile ktFile;
-        if (fileName != null)
-        {
+        if (fileName != null) {
             ktFile = KotlinEnvironmentManager.getPsiFactory()
                 .createFile(fileName, source);
-        }
-        else
-        {
+        } else {
             ktFile = KotlinEnvironmentManager.getPsiFactory()
                 .createFile(source);
         }
@@ -143,28 +136,22 @@ public class KotlinInfoParser
 
         // Find the first top-level KtClassOrObject declaration
         KtClassOrObject classOrObject = null;
-        for (KtDeclaration decl : ktFile.getDeclarations())
-        {
-            if (decl instanceof KtClassOrObject co)
-            {
+        for (KtDeclaration decl : ktFile.getDeclarations()) {
+            if (decl instanceof KtClassOrObject co) {
                 classOrObject = co;
                 break;
             }
         }
 
-        if (classOrObject == null)
-        {
+        if (classOrObject == null) {
             // No class/object found — check for top-level functions
             List<KtNamedFunction> topLevelFunctions = new ArrayList<>();
-            for (KtDeclaration decl : ktFile.getDeclarations())
-            {
-                if (decl instanceof KtNamedFunction fun)
-                {
+            for (KtDeclaration decl : ktFile.getDeclarations()) {
+                if (decl instanceof KtNamedFunction fun) {
                     topLevelFunctions.add(fun);
                 }
             }
-            if (topLevelFunctions.isEmpty())
-            {
+            if (topLevelFunctions.isEmpty()) {
                 return null; // No class AND no functions — truly empty file
             }
             return buildTopLevelFunctionsInfo(
@@ -185,8 +172,7 @@ public class KotlinInfoParser
 
         // --- Class identity ---
         String name = classOrObject.getName();
-        if (name == null)
-        {
+        if (name == null) {
             return null;
         }
 
@@ -196,17 +182,14 @@ public class KotlinInfoParser
         info.setName(name, isPublic);
 
         // --- Modifiers ---
-        if (classOrObject instanceof KtClass ktClass)
-        {
+        if (classOrObject instanceof KtClass ktClass) {
             info.setInterface(ktClass.isInterface());
             info.setEnum(ktClass.isEnum());
             info.setAbstract(
                 ktClass.hasModifier(KtTokens.ABSTRACT_KEYWORD)
                 || ktClass.isSealed()
                 || ktClass.isInterface());
-        }
-        else
-        {
+        } else {
             // KtObjectDeclaration — not abstract, not interface, not enum
             info.setAbstract(false);
             info.setInterface(false);
@@ -214,8 +197,7 @@ public class KotlinInfoParser
         }
 
         // --- Package name (fixes gap: package not stored) ---
-        if (!packageName.isEmpty())
-        {
+        if (!packageName.isEmpty()) {
             info.setPackageSelections(
                 new Selection(1, 1),   // package statement placeholder
                 new Selection(1, 1),   // package name placeholder
@@ -226,8 +208,7 @@ public class KotlinInfoParser
 
         // --- targetPkg validation (fixes gap: targetPkg unused) ---
         if (targetPkg != null && !targetPkg.isEmpty()
-            && !targetPkg.equals(packageName))
-        {
+            && !targetPkg.equals(packageName)) {
             info.setParseError(true);
         }
 
@@ -248,8 +229,7 @@ public class KotlinInfoParser
 
         // --- KDoc comment on the class itself ---
         String classKDoc = extractKDoc(classOrObject);
-        if (classKDoc != null)
-        {
+        if (classKDoc != null) {
             info.addComment(name, classKDoc, null);
         }
 
@@ -282,8 +262,7 @@ public class KotlinInfoParser
         info.setAbstract(false);
 
         // --- Package handling ---
-        if (!packageName.isEmpty())
-        {
+        if (!packageName.isEmpty()) {
             info.setPackageSelections(
                 new Selection(1, 1),   // package statement placeholder
                 new Selection(1, 1),   // package name placeholder
@@ -294,8 +273,7 @@ public class KotlinInfoParser
 
         // --- targetPkg validation ---
         if (targetPkg != null && !targetPkg.isEmpty()
-            && !targetPkg.equals(packageName))
-        {
+            && !targetPkg.equals(packageName)) {
             info.setParseError(true);
         }
 
@@ -303,8 +281,7 @@ public class KotlinInfoParser
         extractImports(ktFile, info);
 
         // --- Extract dependencies and KDoc from each function ---
-        for (KtNamedFunction fun : functions)
-        {
+        for (KtNamedFunction fun : functions) {
             extractMethod(fun, info);
         }
 
@@ -316,14 +293,11 @@ public class KotlinInfoParser
      */
     private static void extractImports(KtFile ktFile, ClassInfo info)
     {
-        for (KtImportDirective imp : ktFile.getImportDirectives())
-        {
+        for (KtImportDirective imp : ktFile.getImportDirectives()) {
             FqName importedFqName = imp.getImportedFqName();
-            if (importedFqName != null)
-            {
+            if (importedFqName != null) {
                 String simpleName = importedFqName.shortName().asString();
-                if (!isPrimitiveKotlinType(simpleName))
-                {
+                if (!isPrimitiveKotlinType(simpleName)) {
                     info.addUsed(simpleName);
                 }
             }
@@ -336,11 +310,9 @@ public class KotlinInfoParser
     private static void extractTypeParameters(KtClassOrObject classOrObject, ClassInfo info)
     {
         List<KtTypeParameter> typeParams = classOrObject.getTypeParameters();
-        for (KtTypeParameter tp : typeParams)
-        {
+        for (KtTypeParameter tp : typeParams) {
             String tpText = tp.getText();
-            if (tpText != null && !tpText.isEmpty())
-            {
+            if (tpText != null && !tpText.isEmpty()) {
                 info.addTypeParameterText(tpText);
             }
         }
@@ -353,19 +325,15 @@ public class KotlinInfoParser
     private static void extractPrimaryConstructor(KtClassOrObject classOrObject, ClassInfo info)
     {
         KtPrimaryConstructor ctor = classOrObject.getPrimaryConstructor();
-        if (ctor == null)
-        {
+        if (ctor == null) {
             return;
         }
 
-        for (KtParameter param : ctor.getValueParameters())
-        {
+        for (KtParameter param : ctor.getValueParameters()) {
             KtTypeReference typeRef = param.getTypeReference();
-            if (typeRef != null)
-            {
+            if (typeRef != null) {
                 String typeName = extractSimpleName(typeRef);
-                if (typeName != null && !isPrimitiveKotlinType(typeName))
-                {
+                if (typeName != null && !isPrimitiveKotlinType(typeName)) {
                     info.addUsed(typeName);
                 }
             }
@@ -381,23 +349,21 @@ public class KotlinInfoParser
     private static void extractSupertypes(KtClassOrObject classOrObject,
             ClassInfo info)
     {
-        for (KtSuperTypeListEntry entry : classOrObject.getSuperTypeListEntries())
-        {
+        for (KtSuperTypeListEntry entry : classOrObject.getSuperTypeListEntries()) {
             KtTypeReference typeRef = entry.getTypeReference();
-            if (typeRef == null)
+            if (typeRef == null) {
                 continue;
+            }
 
             String typeName = extractSimpleName(typeRef);
-            if (typeName == null)
+            if (typeName == null) {
                 continue;
+            }
 
-            if (entry instanceof KtSuperTypeCallEntry)
-            {
+            if (entry instanceof KtSuperTypeCallEntry) {
                 // Constructor call → superclass: `: Base(...)`
                 info.setSuperclass(typeName);
-            }
-            else
-            {
+            } else {
                 // Plain or delegated entry → interface: `: Interface`
                 info.addImplements(typeName);
             }
@@ -412,19 +378,14 @@ public class KotlinInfoParser
     private static void extractClassBody(KtClassOrObject classOrObject, ClassInfo info)
     {
         KtClassBody body = classOrObject.getBody();
-        if (body == null)
-        {
+        if (body == null) {
             return;
         }
 
-        for (KtDeclaration member : body.getDeclarations())
-        {
-            if (member instanceof KtNamedFunction fun)
-            {
+        for (KtDeclaration member : body.getDeclarations()) {
+            if (member instanceof KtNamedFunction fun) {
                 extractMethod(fun, info);
-            }
-            else if (member instanceof KtProperty prop)
-            {
+            } else if (member instanceof KtProperty prop) {
                 extractProperty(prop, info);
             }
         }
@@ -436,20 +397,16 @@ public class KotlinInfoParser
     private static void extractMethod(KtNamedFunction fun, ClassInfo info)
     {
         String methodName = fun.getName();
-        if (methodName == null)
-        {
+        if (methodName == null) {
             return;
         }
 
         // Collect parameter types for "used" list
-        for (KtParameter param : fun.getValueParameters())
-        {
+        for (KtParameter param : fun.getValueParameters()) {
             KtTypeReference typeRef = param.getTypeReference();
-            if (typeRef != null)
-            {
+            if (typeRef != null) {
                 String typeName = extractSimpleName(typeRef);
-                if (typeName != null && !isPrimitiveKotlinType(typeName))
-                {
+                if (typeName != null && !isPrimitiveKotlinType(typeName)) {
                     info.addUsed(typeName);
                 }
             }
@@ -457,19 +414,16 @@ public class KotlinInfoParser
 
         // Collect return type for "used" list
         KtTypeReference returnTypeRef = fun.getTypeReference();
-        if (returnTypeRef != null)
-        {
+        if (returnTypeRef != null) {
             String returnType = extractSimpleName(returnTypeRef);
-            if (returnType != null && !isPrimitiveKotlinType(returnType))
-            {
+            if (returnType != null && !isPrimitiveKotlinType(returnType)) {
                 info.addUsed(returnType);
             }
         }
 
         // Store KDoc comment if present
         String docComment = extractKDoc(fun);
-        if (docComment != null)
-        {
+        if (docComment != null) {
             String target = buildMethodTarget(fun);
             String paramNames = buildParamNames(fun);
             info.addComment(target, docComment, paramNames);
@@ -482,11 +436,9 @@ public class KotlinInfoParser
     private static void extractProperty(KtProperty prop, ClassInfo info)
     {
         KtTypeReference typeRef = prop.getTypeReference();
-        if (typeRef != null)
-        {
+        if (typeRef != null) {
             String typeName = extractSimpleName(typeRef);
-            if (typeName != null && !isPrimitiveKotlinType(typeName))
-            {
+            if (typeName != null && !isPrimitiveKotlinType(typeName)) {
                 info.addUsed(typeName);
             }
         }
@@ -502,15 +454,12 @@ public class KotlinInfoParser
     private static String extractSimpleName(KtTypeReference typeRef)
     {
         KtTypeElement typeElement = typeRef.getTypeElement();
-        if (typeElement instanceof KtUserType userType)
-        {
+        if (typeElement instanceof KtUserType userType) {
             return extractNameFromUserType(userType);
         }
-        if (typeElement instanceof KtNullableType nullable)
-        {
+        if (typeElement instanceof KtNullableType nullable) {
             KtTypeElement inner = nullable.getInnerType();
-            if (inner instanceof KtUserType userType)
-            {
+            if (inner instanceof KtUserType userType) {
                 return extractNameFromUserType(userType);
             }
         }
@@ -538,25 +487,21 @@ public class KotlinInfoParser
      */
     private static String extractNameFromText(String text)
     {
-        if (text == null || text.isEmpty())
-        {
+        if (text == null || text.isEmpty()) {
             return null;
         }
         // Remove nullable marker
-        if (text.endsWith("?"))
-        {
+        if (text.endsWith("?")) {
             text = text.substring(0, text.length() - 1);
         }
         // Remove generic parameters
         int lt = text.indexOf('<');
-        if (lt > 0)
-        {
+        if (lt > 0) {
             text = text.substring(0, lt);
         }
         // Get simple name (last segment of qualified name)
         int dot = text.lastIndexOf('.');
-        if (dot >= 0)
-        {
+        if (dot >= 0) {
             text = text.substring(dot + 1);
         }
         return text.trim().isEmpty() ? null : text.trim();
@@ -570,10 +515,8 @@ public class KotlinInfoParser
     {
         // KDoc appears as a direct child PsiElement of the declaration
         for (PsiElement child = decl.getFirstChild(); child != null;
-             child = child.getNextSibling())
-        {
-            if (child instanceof KDoc)
-            {
+             child = child.getNextSibling()) {
+            if (child instanceof KDoc) {
                 return child.getText();
             }
         }
@@ -590,12 +533,9 @@ public class KotlinInfoParser
 
         // Return type (or "Unit" if not specified)
         KtTypeReference returnTypeRef = fun.getTypeReference();
-        if (returnTypeRef != null)
-        {
+        if (returnTypeRef != null) {
             target.append(returnTypeRef.getText());
-        }
-        else
-        {
+        } else {
             target.append("Unit");
         }
 
@@ -605,15 +545,11 @@ public class KotlinInfoParser
 
         // Parameter types
         StringJoiner params = new StringJoiner(",");
-        for (KtParameter param : fun.getValueParameters())
-        {
+        for (KtParameter param : fun.getValueParameters()) {
             KtTypeReference paramType = param.getTypeReference();
-            if (paramType != null)
-            {
+            if (paramType != null) {
                 params.add(paramType.getText());
-            }
-            else
-            {
+            } else {
                 params.add("Any");
             }
         }
@@ -632,17 +568,14 @@ public class KotlinInfoParser
     private static String buildParamNames(KtNamedFunction fun)
     {
         List<KtParameter> params = fun.getValueParameters();
-        if (params.isEmpty())
-        {
+        if (params.isEmpty()) {
             return null;
         }
 
         StringJoiner names = new StringJoiner(" ");
-        for (KtParameter param : params)
-        {
+        for (KtParameter param : params) {
             String name = param.getName();
-            if (name != null)
-            {
+            if (name != null) {
                 names.add(name);
             }
         }
@@ -656,8 +589,7 @@ public class KotlinInfoParser
      */
     private static boolean isPrimitiveKotlinType(String name)
     {
-        return switch (name)
-        {
+        return switch (name) {
             case "Int", "Long", "Short", "Byte",
                  "Double", "Float",
                  "Boolean", "Char",

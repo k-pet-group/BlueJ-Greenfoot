@@ -67,25 +67,21 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
     {
         String source = getSourceText(editor);
         KtClassOrObject cls = findClassOrObject(source);
-        if (cls == null)
+        if (cls == null) {
             return;
+        }
 
         List<String> texts = new ArrayList<>();
         boolean replaced = false;
-        for (var entry : cls.getSuperTypeListEntries())
-        {
-            if (entry instanceof KtSuperTypeCallEntry)
-            {
+        for (var entry : cls.getSuperTypeListEntries()) {
+            if (entry instanceof KtSuperTypeCallEntry) {
                 texts.add(className + "()");
                 replaced = true;
-            }
-            else
-            {
+            } else {
                 texts.add(entry.getText());
             }
         }
-        if (!replaced)
-        {
+        if (!replaced) {
             // Superclass goes first in the list
             texts.add(0, className + "()");
         }
@@ -97,14 +93,13 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
     {
         String source = getSourceText(editor);
         KtClassOrObject cls = findClassOrObject(source);
-        if (cls == null)
+        if (cls == null) {
             return;
+        }
 
         List<String> texts = new ArrayList<>();
-        for (var entry : cls.getSuperTypeListEntries())
-        {
-            if (!(entry instanceof KtSuperTypeCallEntry))
-            {
+        for (var entry : cls.getSuperTypeListEntries()) {
+            if (!(entry instanceof KtSuperTypeCallEntry)) {
                 texts.add(entry.getText());
             }
         }
@@ -128,14 +123,13 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
     {
         String source = getSourceText(editor);
         KtClassOrObject cls = findClassOrObject(source);
-        if (cls == null)
+        if (cls == null) {
             return;
+        }
 
         List<String> texts = new ArrayList<>();
-        for (var entry : cls.getSuperTypeListEntries())
-        {
-            if (!stripGenerics(entryTypeName(entry)).equals(interfaceName))
-            {
+        for (var entry : cls.getSuperTypeListEntries()) {
+            if (!stripGenerics(entryTypeName(entry)).equals(interfaceName)) {
                 texts.add(entry.getText());
             }
         }
@@ -152,14 +146,15 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
     {
         String source = getSourceText(editor);
         KtClassOrObject cls = findClassOrObject(source);
-        if (cls == null)
+        if (cls == null) {
             return;
+        }
 
         List<String> texts = new ArrayList<>();
-        for (var entry : cls.getSuperTypeListEntries())
-        {
-            if (stripGenerics(entryTypeName(entry)).equals(typeName))
+        for (var entry : cls.getSuperTypeListEntries()) {
+            if (stripGenerics(entryTypeName(entry)).equals(typeName)) {
                 return; // already present
+            }
             texts.add(entry.getText());
         }
         texts.add(typeName);
@@ -180,30 +175,28 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
         KtSuperTypeList superList = cls.getSuperTypeList();
         String joined = String.join(", ", entryTexts);
 
-        if (entryTexts.isEmpty())
-        {
+        if (entryTexts.isEmpty()) {
             // Remove entire clause: " : ..."
-            if (superList == null)
+            if (superList == null) {
                 return;
+            }
             var colon = cls.getColon();
-            if (colon == null)
+            if (colon == null) {
                 return;
+            }
             int removeStart = colon.getTextRange().getStartOffset();
-            if (removeStart > 0 && source.charAt(removeStart - 1) == ' ')
+            if (removeStart > 0 && source.charAt(removeStart - 1) == ' ') {
                 removeStart--;
+            }
             replaceRange(editor, removeStart,
                 superList.getTextRange().getEndOffset(), "");
-        }
-        else if (superList != null)
-        {
+        } else if (superList != null) {
             // Replace existing supertype list portion
             replaceRange(editor,
                 superList.getTextRange().getStartOffset(),
                 superList.getTextRange().getEndOffset(),
                 joined);
-        }
-        else
-        {
+        } else {
             // Insert new clause
             int offset = findSupertypeInsertOffset(cls);
             replaceRange(editor, offset, offset, " : " + joined);
@@ -247,10 +240,10 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
     private KtClassOrObject findClassOrObject(String source)
     {
         KtFile ktFile = KotlinEnvironmentManager.getPsiFactory().createFile(source);
-        for (KtDeclaration decl : ktFile.getDeclarations())
-        {
-            if (decl instanceof KtClassOrObject co)
+        for (KtDeclaration decl : ktFile.getDeclarations()) {
+            if (decl instanceof KtClassOrObject co) {
                 return co;
+            }
         }
         return null;
     }
@@ -262,14 +255,17 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
     private int findSupertypeInsertOffset(KtClassOrObject cls)
     {
         var ctor = cls.getPrimaryConstructor();
-        if (ctor != null)
+        if (ctor != null) {
             return ctor.getTextRange().getEndOffset();
+        }
         var tpList = cls.getTypeParameterList();
-        if (tpList != null)
+        if (tpList != null) {
             return tpList.getTextRange().getEndOffset();
+        }
         var nameIdent = cls.getNameIdentifier();
-        if (nameIdent != null)
+        if (nameIdent != null) {
             return nameIdent.getTextRange().getEndOffset();
+        }
         return cls.getTextRange().getStartOffset();
     }
 

@@ -249,19 +249,13 @@ public class KotlinCompiler extends Compiler
      */
     private void cleanupTempDir(File tempDir)
     {
-        if (tempDir != null && tempDir.exists())
-        {
+        if (tempDir != null && tempDir.exists()) {
             File[] files = tempDir.listFiles();
-            if (files != null)
-            {
-                for (File file : files)
-                {
-                    if (file.isDirectory())
-                    {
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
                         cleanupTempDir(file);
-                    }
-                    else
-                    {
+                    } else {
                         file.delete();
                     }
                 }

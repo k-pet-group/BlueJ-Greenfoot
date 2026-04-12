@@ -106,19 +106,20 @@ public class KotlinEnvironmentManagerTest
         {
             final int idx = i;
             threads[i] = new Thread(() -> {
-                try
-                {
+                try {
                     results[idx] = KotlinEnvironmentManager.getProject();
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     exceptions[idx] = e;
                 }
             });
         }
 
-        for (Thread t : threads) t.start();
-        for (Thread t : threads) t.join(10000); // 10s timeout
+        for (Thread t : threads) {
+            t.start();
+        }
+        for (Thread t : threads) {
+            t.join(10000); // 10s timeout
+        }
 
         for (int i = 0; i < threadCount; i++)
         {

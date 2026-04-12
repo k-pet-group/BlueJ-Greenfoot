@@ -72,16 +72,14 @@ public class KotlinParsedCUNode extends ParsedCUNode
 
         removeAllChildren(nodePos, listener);
 
-        if (docLength == 0)
-        {
+        if (docLength == 0) {
             document.markSectionParsed(offset, 0);
             complete = true;
             return ALL_OK;
         }
 
         String source = KotlinParserUtils.readDocumentText(document, 0, docLength);
-        if (source.isEmpty())
-        {
+        if (source.isEmpty()) {
             document.markSectionParsed(offset, 0);
             complete = true;
             return ALL_OK;
@@ -142,8 +140,7 @@ public class KotlinParsedCUNode extends ParsedCUNode
     private void removeAllChildren(int nodePos, NodeStructureListener listener)
     {
         NodeAndPosition<ParsedNode> child = findNodeAtOrAfter(nodePos, nodePos);
-        while (child != null)
-        {
+        while (child != null) {
             NodeAndPosition<ParsedNode> next = child.nextSibling();
             removeChild(child, listener);
             child = next;

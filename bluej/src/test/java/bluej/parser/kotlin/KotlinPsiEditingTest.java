@@ -81,10 +81,11 @@ public class KotlinPsiEditingTest
             List<String> texts = new ArrayList<>();
             for (var entry : cls.getSuperTypeListEntries())
             {
-                if (entry instanceof KtSuperTypeCallEntry)
+                if (entry instanceof KtSuperTypeCallEntry) {
                     texts.add("NewBase()");
-                else
+                } else {
                     texts.add(entry.getText());
+                }
             }
             return texts;
         });
@@ -120,8 +121,9 @@ public class KotlinPsiEditingTest
                 for (var entry : cls.getSuperTypeListEntries())
                 {
                     String name = entryTypeName(entry);
-                    if (!stripGenerics(name).equals("Runnable"))
+                    if (!stripGenerics(name).equals("Runnable")) {
                         texts.add(entry.getText());
+                    }
                 }
                 return texts;
             });
@@ -136,8 +138,9 @@ public class KotlinPsiEditingTest
                 List<String> texts = new ArrayList<>();
                 for (var entry : cls.getSuperTypeListEntries())
                 {
-                    if (!(entry instanceof KtSuperTypeCallEntry))
+                    if (!(entry instanceof KtSuperTypeCallEntry)) {
                         texts.add(entry.getText());
+                    }
                 }
                 return texts;
             });
@@ -178,8 +181,9 @@ public class KotlinPsiEditingTest
             List<String> texts = new ArrayList<>();
             for (var entry : cls.getSuperTypeListEntries())
             {
-                if (!(entry instanceof KtSuperTypeCallEntry))
+                if (!(entry instanceof KtSuperTypeCallEntry)) {
                     texts.add(entry.getText());
+                }
             }
             return texts;
         });
@@ -196,10 +200,11 @@ public class KotlinPsiEditingTest
             List<String> texts = new ArrayList<>();
             for (var entry : cls.getSuperTypeListEntries())
             {
-                if (entry instanceof KtSuperTypeCallEntry)
+                if (entry instanceof KtSuperTypeCallEntry) {
                     texts.add("NewBase()");
-                else
+                } else {
                     texts.add(entry.getText());
+                }
             }
             return texts;
         });
@@ -251,14 +256,17 @@ public class KotlinPsiEditingTest
 
         if (entryTexts.isEmpty())
         {
-            if (superList == null)
+            if (superList == null) {
                 return source;
+            }
             var colon = cls.getColon();
-            if (colon == null)
+            if (colon == null) {
                 return source;
+            }
             int removeStart = colon.getTextRange().getStartOffset();
-            if (removeStart > 0 && source.charAt(removeStart - 1) == ' ')
+            if (removeStart > 0 && source.charAt(removeStart - 1) == ' ') {
                 removeStart--;
+            }
             return source.substring(0, removeStart)
                 + source.substring(superList.getTextRange().getEndOffset());
         }
@@ -302,14 +310,17 @@ public class KotlinPsiEditingTest
     private int findSupertypeInsertOffset(KtClassOrObject cls)
     {
         var ctor = cls.getPrimaryConstructor();
-        if (ctor != null)
+        if (ctor != null) {
             return ctor.getTextRange().getEndOffset();
+        }
         var tpList = cls.getTypeParameterList();
-        if (tpList != null)
+        if (tpList != null) {
             return tpList.getTextRange().getEndOffset();
+        }
         var nameIdent = cls.getNameIdentifier();
-        if (nameIdent != null)
+        if (nameIdent != null) {
             return nameIdent.getTextRange().getEndOffset();
+        }
         return cls.getTextRange().getStartOffset();
     }
 }

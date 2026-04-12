@@ -95,14 +95,10 @@ public class KotlinPsiScopeBuilder
     {
         NodeStructureListener lsnr = listener != null ? listener : NO_OP_LISTENER;
         // Iterate getChildren() instead of getDeclarations() to see PsiComment elements
-        for (PsiElement child : ktFile.getChildren())
-        {
-            if (child instanceof PsiComment psiComment)
-            {
+        for (PsiElement child : ktFile.getChildren()) {
+            if (child instanceof PsiComment psiComment) {
                 insertCommentNode(psiComment, parent, parentAbsPos, lsnr);
-            }
-            else if (child instanceof KtDeclaration decl)
-            {
+            } else if (child instanceof KtDeclaration decl) {
                 processDeclaration(decl, parent, parentAbsPos, lsnr);
             }
         }
@@ -142,24 +138,15 @@ public class KotlinPsiScopeBuilder
     private static void processDeclaration(KtDeclaration decl, JavaParentNode parent,
             int parentAbsPos, NodeStructureListener listener)
     {
-        if (decl instanceof KtClass ktClass)
-        {
+        if (decl instanceof KtClass ktClass) {
             processClass(ktClass, parent, parentAbsPos, listener);
-        }
-        else if (decl instanceof KtObjectDeclaration ktObject)
-        {
+        } else if (decl instanceof KtObjectDeclaration ktObject) {
             processObject(ktObject, parent, parentAbsPos, listener);
-        }
-        else if (decl instanceof KtNamedFunction ktFunction)
-        {
+        } else if (decl instanceof KtNamedFunction ktFunction) {
             processFunction(ktFunction, parent, parentAbsPos, listener);
-        }
-        else if (decl instanceof KtSecondaryConstructor ktCtor)
-        {
+        } else if (decl instanceof KtSecondaryConstructor ktCtor) {
             processConstructor(ktCtor, parent, parentAbsPos, listener);
-        }
-        else if (decl instanceof KtClassInitializer ktInit)
-        {
+        } else if (decl instanceof KtClassInitializer ktInit) {
             processInitBlock(ktInit, parent, parentAbsPos, listener);
         }
         // KtPrimaryConstructor — no block body (parameter declarations only),
@@ -181,8 +168,7 @@ public class KotlinPsiScopeBuilder
         // Create KotlinParentNode for the class (TYPEDEF → green scope)
         KotlinParentNode typeNode = new KotlinParentNode(parent, ParsedNode.NODETYPE_TYPEDEF);
         String name = ktClass.getName();
-        if (name != null)
-        {
+        if (name != null) {
             typeNode.setName(name);
         }
         typeNode.setComplete(true);
@@ -194,11 +180,9 @@ public class KotlinPsiScopeBuilder
 
         // Create inner node for class body (matches Java's container+inner pattern)
         KtClassBody body = ktClass.getBody();
-        if (body != null)
-        {
+        if (body != null) {
             KotlinParentNode innerNode = insertInnerNode(body, typeNode, absPos, listener);
-            if (innerNode != null)
-            {
+            if (innerNode != null) {
                 int innerAbsPos = body.getTextRange().getStartOffset() + 1;
                 processClassBody(body, innerNode, innerAbsPos, listener);
             }
@@ -212,12 +196,10 @@ public class KotlinPsiScopeBuilder
             int parentAbsPos, NodeStructureListener listener)
     {
         // Skip companion objects — they don't form a visible scope
-        if (ktObject.isCompanion())
-        {
+        if (ktObject.isCompanion()) {
             // But process their members as if they belong to the parent
             KtClassBody body = ktObject.getBody();
-            if (body != null)
-            {
+            if (body != null) {
                 processClassBody(body, parent, parentAbsPos, listener);
             }
             return;
@@ -230,8 +212,7 @@ public class KotlinPsiScopeBuilder
 
         KotlinParentNode typeNode = new KotlinParentNode(parent, ParsedNode.NODETYPE_TYPEDEF);
         String name = ktObject.getName();
-        if (name != null)
-        {
+        if (name != null) {
             typeNode.setName(name);
         }
         typeNode.setComplete(true);
@@ -242,11 +223,9 @@ public class KotlinPsiScopeBuilder
         insertAttachedComments(ktObject, typeNode, absPos, listener);
 
         KtClassBody body = ktObject.getBody();
-        if (body != null)
-        {
+        if (body != null) {
             KotlinParentNode innerNode = insertInnerNode(body, typeNode, absPos, listener);
-            if (innerNode != null)
-            {
+            if (innerNode != null) {
                 int innerAbsPos = body.getTextRange().getStartOffset() + 1;
                 processClassBody(body, innerNode, innerAbsPos, listener);
             }
@@ -263,14 +242,10 @@ public class KotlinPsiScopeBuilder
             int parentAbsPos, NodeStructureListener listener)
     {
         // Iterate getChildren() instead of getDeclarations() to see PsiComment elements
-        for (PsiElement child : body.getChildren())
-        {
-            if (child instanceof PsiComment psiComment)
-            {
+        for (PsiElement child : body.getChildren()) {
+            if (child instanceof PsiComment psiComment) {
                 insertCommentNode(psiComment, parent, parentAbsPos, listener);
-            }
-            else if (child instanceof KtDeclaration decl)
-            {
+            } else if (child instanceof KtDeclaration decl) {
                 processDeclaration(decl, parent, parentAbsPos, listener);
             }
         }
@@ -289,8 +264,7 @@ public class KotlinPsiScopeBuilder
 
         String name = ktFunction.getName();
         KotlinParentNode methodNode = new KotlinParentNode(parent, ParsedNode.NODETYPE_METHODDEF);
-        if (name != null)
-        {
+        if (name != null) {
             methodNode.setName(name);
         }
         methodNode.setComplete(true);
@@ -301,33 +275,26 @@ public class KotlinPsiScopeBuilder
         insertAttachedComments(ktFunction, methodNode, absPos, listener);
 
         // Create inner node for function body (matches Java's container+inner pattern)
-        if (ktFunction.hasBlockBody())
-        {
+        if (ktFunction.hasBlockBody()) {
             // Block body: fun f() { ... } — inner spans content between braces
             KtBlockExpression block = ktFunction.getBodyBlockExpression();
-            if (block != null)
-            {
+            if (block != null) {
                 KotlinParentNode innerNode = insertInnerNode(block, methodNode, absPos, listener);
-                if (innerNode != null)
-                {
+                if (innerNode != null) {
                     int innerAbsPos = block.getTextRange().getStartOffset() + 1;
                     processBlockContents(block, innerNode, innerAbsPos, listener);
                 }
             }
-        }
-        else
-        {
+        } else {
             // Expression body: fun f() = expr — inner spans the expression
             KtExpression exprBody = ktFunction.getBodyExpression();
-            if (exprBody != null)
-            {
+            if (exprBody != null) {
                 TextRange exprRange = exprBody.getTextRange();
                 int innerAbsPos = exprRange.getStartOffset();
                 int innerRelPos = innerAbsPos - absPos;
                 int innerSize = exprRange.getLength();
 
-                if (innerSize > 0)
-                {
+                if (innerSize > 0) {
                     KotlinParentNode innerNode = new KotlinParentNode(methodNode, ParsedNode.NODETYPE_NONE);
                     innerNode.setInner(true);
                     innerNode.setComplete(true);
@@ -363,11 +330,9 @@ public class KotlinPsiScopeBuilder
 
         // Inner node for constructor body (block body only — no expression body for constructors)
         KtBlockExpression block = ktCtor.getBodyBlockExpression();
-        if (block != null)
-        {
+        if (block != null) {
             KotlinParentNode innerNode = insertInnerNode(block, ctorNode, absPos, listener);
-            if (innerNode != null)
-            {
+            if (innerNode != null) {
                 int innerAbsPos = block.getTextRange().getStartOffset() + 1;
                 processBlockContents(block, innerNode, innerAbsPos, listener);
             }
@@ -398,11 +363,9 @@ public class KotlinPsiScopeBuilder
 
         // Inner node for init body
         KtExpression body = ktInit.getBody();
-        if (body instanceof KtBlockExpression block)
-        {
+        if (body instanceof KtBlockExpression block) {
             KotlinParentNode innerNode = insertInnerNode(block, initNode, absPos, listener);
-            if (innerNode != null)
-            {
+            if (innerNode != null) {
                 int innerAbsPos = block.getTextRange().getStartOffset() + 1;
                 processBlockContents(block, innerNode, innerAbsPos, listener);
             }
@@ -419,17 +382,13 @@ public class KotlinPsiScopeBuilder
         // Walk AST children to find both statements and comments.
         // PSI getChildren() on KtBlockExpression doesn't return comments.
         for (ASTNode child = block.getNode().getFirstChildNode();
-             child != null; child = child.getTreeNext())
-        {
+             child != null; child = child.getTreeNext()) {
             PsiElement psi = child.getPsi();
-            if (psi instanceof PsiComment psiComment)
-            {
+            if (psi instanceof PsiComment psiComment) {
                 insertCommentNode(psiComment, parent, parentAbsPos, listener);
-            }
-            else if (!(psi instanceof PsiWhiteSpace)
+            } else if (!(psi instanceof PsiWhiteSpace)
                 && child.getElementType() != KtTokens.LBRACE
-                && child.getElementType() != KtTokens.RBRACE)
-            {
+                && child.getElementType() != KtTokens.RBRACE) {
                 // Detect comments attached to declarations within the block
                 // (e.g., KDoc/block/line comments before a property like val x = 5).
                 // PSI includes these comments inside the declaration's AST node,
@@ -449,16 +408,11 @@ public class KotlinPsiScopeBuilder
     private static void processExpression(PsiElement element, JavaParentNode parent,
             int parentAbsPos, NodeStructureListener listener)
     {
-        if (element instanceof KtIfExpression ktIf)
-        {
+        if (element instanceof KtIfExpression ktIf) {
             processControlFlow(ktIf, parent, parentAbsPos, ParsedNode.NODETYPE_SELECTION, listener);
-        }
-        else if (element instanceof KtWhenExpression ktWhen)
-        {
+        } else if (element instanceof KtWhenExpression ktWhen) {
             processControlFlow(ktWhen, parent, parentAbsPos, ParsedNode.NODETYPE_SELECTION, listener);
-        }
-        else if (element instanceof KtLoopExpression ktLoop)
-        {
+        } else if (element instanceof KtLoopExpression ktLoop) {
             // KtForExpression, KtWhileExpression, KtDoWhileExpression all extend KtLoopExpression
             processControlFlow(ktLoop, parent, parentAbsPos, ParsedNode.NODETYPE_ITERATION, listener);
         }
@@ -466,20 +420,16 @@ public class KotlinPsiScopeBuilder
         // need a KotlinStringNode — otherwise control flow inside ${...} would
         // create scope nodes that split the string during getMarkTokensFor().
         else if (element instanceof KtStringTemplateExpression stringExpr
-                && (isMultilineString(stringExpr) || hasBlockTemplateEntry(stringExpr)))
-        {
+                && (isMultilineString(stringExpr) || hasBlockTemplateEntry(stringExpr))) {
             insertStringNode(stringExpr, parent, parentAbsPos, listener);
         }
         // Recurse into nested blocks (e.g., lambda bodies, run { }, etc.)
-        else if (element instanceof KtBlockExpression block)
-        {
+        else if (element instanceof KtBlockExpression block) {
             processBlockContents(block, parent, parentAbsPos, listener);
         }
         // For other elements, check children for nested control flow
-        else
-        {
-            for (PsiElement child : element.getChildren())
-            {
+        else {
+            for (PsiElement child : element.getChildren()) {
                 processExpression(child, parent, parentAbsPos, listener);
             }
         }
@@ -502,18 +452,14 @@ public class KotlinPsiScopeBuilder
         int relPos = range.getStartOffset() - parentAbsPos;
         int size = range.getLength();
 
-        if (size <= 0)
-        {
+        if (size <= 0) {
             return;
         }
 
         TokenType commentType;
-        if (comment.getTokenType() == KtTokens.DOC_COMMENT)
-        {
+        if (comment.getTokenType() == KtTokens.DOC_COMMENT) {
             commentType = TokenType.COMMENT_JAVADOC;
-        }
-        else
-        {
+        } else {
             // EOL_COMMENT, BLOCK_COMMENT, or SHEBANG_COMMENT
             commentType = TokenType.COMMENT_NORMAL;
         }
@@ -532,11 +478,9 @@ public class KotlinPsiScopeBuilder
     {
         // Walk AST children — PSI getChildren() doesn't return regular comments
         for (ASTNode child = declaration.getNode().getFirstChildNode();
-             child != null; child = child.getTreeNext())
-        {
+             child != null; child = child.getTreeNext()) {
             PsiElement psi = child.getPsi();
-            if (psi instanceof PsiComment psiComment)
-            {
+            if (psi instanceof PsiComment psiComment) {
                 insertCommentNode(psiComment, container, containerAbsPos, listener);
             }
         }
@@ -576,8 +520,7 @@ public class KotlinPsiScopeBuilder
         int relPos = range.getStartOffset() - parentAbsPos;
         int size = range.getLength();
 
-        if (size <= 0)
-        {
+        if (size <= 0) {
             return;
         }
 
@@ -588,38 +531,30 @@ public class KotlinPsiScopeBuilder
         int stringAbsPos = range.getStartOffset();
 
         // Create child nodes for template expression bodies
-        for (KtStringTemplateEntry entry : stringExpr.getEntries())
-        {
-            if (entry instanceof KtSimpleNameStringTemplateEntry simpleEntry)
-            {
+        for (KtStringTemplateEntry entry : stringExpr.getEntries()) {
+            if (entry instanceof KtSimpleNameStringTemplateEntry simpleEntry) {
                 // $name → child covering the identifier after $
                 PsiElement nameElement = simpleEntry.getExpression();
-                if (nameElement != null)
-                {
+                if (nameElement != null) {
                     TextRange nameRange = nameElement.getTextRange();
                     int childRelPos = nameRange.getStartOffset() - stringAbsPos;
                     int childSize = nameRange.getLength();
-                    if (childSize > 0)
-                    {
+                    if (childSize > 0) {
                         KotlinParentNode child = new KotlinParentNode(stringNode);
                         child.setComplete(true);
                         stringNode.insertNode(child, childRelPos, childSize, listener);
                     }
                 }
-            }
-            else if (entry instanceof KtBlockStringTemplateEntry blockEntry)
-            {
+            } else if (entry instanceof KtBlockStringTemplateEntry blockEntry) {
                 // ${expr} → child covering expression body between ${ and }
                 // Recurse into the expression to detect nested control flow
                 // (e.g., ${if (A) B else C} gets blue scope highlighting).
                 PsiElement expression = blockEntry.getExpression();
-                if (expression != null)
-                {
+                if (expression != null) {
                     TextRange exprRange = expression.getTextRange();
                     int childRelPos = exprRange.getStartOffset() - stringAbsPos;
                     int childSize = exprRange.getLength();
-                    if (childSize > 0)
-                    {
+                    if (childSize > 0) {
                         KotlinParentNode child = new KotlinParentNode(stringNode);
                         child.setComplete(true);
                         stringNode.insertNode(child, childRelPos, childSize, listener);
@@ -644,8 +579,7 @@ public class KotlinPsiScopeBuilder
         int innerRelPos = innerAbsPos - containerAbsPos;
         int innerSize = bodyRange.getLength() - 2; // exclude '{' and '}'
 
-        if (innerSize <= 0)
-        {
+        if (innerSize <= 0) {
             return null;
         }
 
@@ -663,31 +597,25 @@ public class KotlinPsiScopeBuilder
     private static void processBodyAsInner(KtExpression bodyExpr,
             JavaParentNode container, int containerAbsPos, NodeStructureListener listener)
     {
-        if (bodyExpr == null)
-        {
+        if (bodyExpr == null) {
             return;
         }
 
-        if (bodyExpr instanceof KtBlockExpression block)
-        {
+        if (bodyExpr instanceof KtBlockExpression block) {
             // Block body — inner spans content between { and }
             KotlinParentNode innerNode = insertInnerNode(block, container, containerAbsPos, listener);
-            if (innerNode != null)
-            {
+            if (innerNode != null) {
                 int innerAbsPos = block.getTextRange().getStartOffset() + 1;
                 processBlockContents(block, innerNode, innerAbsPos, listener);
             }
-        }
-        else
-        {
+        } else {
             // Braceless body (e.g., if (x) return y) — inner spans the expression
             TextRange range = bodyExpr.getTextRange();
             int innerAbsPos = range.getStartOffset();
             int innerRelPos = innerAbsPos - containerAbsPos;
             int innerSize = range.getLength();
 
-            if (innerSize > 0)
-            {
+            if (innerSize > 0) {
                 KotlinParentNode innerNode = new KotlinParentNode(container, ParsedNode.NODETYPE_NONE);
                 innerNode.setInner(true);
                 innerNode.setComplete(true);
@@ -718,32 +646,23 @@ public class KotlinPsiScopeBuilder
         // Use type-specific PSI getters for body blocks.
         // Kotlin PSI wraps bodies in KtContainerNode elements, so generic
         // getChildren() iteration would miss them.
-        if (element instanceof KtLoopExpression ktLoop)
-        {
+        if (element instanceof KtLoopExpression ktLoop) {
             // for/while/do-while — single body via KtLoopExpression.getBody()
             processBodyAsInner(ktLoop.getBody(), scopeNode, absPos, listener);
-        }
-        else if (element instanceof KtIfExpression ktIf)
-        {
+        } else if (element instanceof KtIfExpression ktIf) {
             // if — two branches: then and else
             processBodyAsInner(ktIf.getThen(), scopeNode, absPos, listener);
             KtExpression elseExpr = ktIf.getElse();
-            if (elseExpr instanceof KtIfExpression elseIf)
-            {
+            if (elseExpr instanceof KtIfExpression elseIf) {
                 // else-if chain: nested selection scope
                 processControlFlow(elseIf, scopeNode, absPos,
                         ParsedNode.NODETYPE_SELECTION, listener);
-            }
-            else
-            {
+            } else {
                 processBodyAsInner(elseExpr, scopeNode, absPos, listener);
             }
-        }
-        else if (element instanceof KtWhenExpression ktWhen)
-        {
+        } else if (element instanceof KtWhenExpression ktWhen) {
             // when — each entry has its own body expression
-            for (KtWhenEntry entry : ktWhen.getEntries())
-            {
+            for (KtWhenEntry entry : ktWhen.getEntries()) {
                 processBodyAsInner(entry.getExpression(), scopeNode, absPos, listener);
             }
         }

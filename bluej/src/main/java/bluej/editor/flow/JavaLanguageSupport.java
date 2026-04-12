@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2025  Michael Kolling and John Rosenberg
+ Copyright (C) 2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -45,17 +45,14 @@ public class JavaLanguageSupport implements FlowLanguageSupport
     @Override
     public void setExtendsClass(FlowEditor editor, String className, ClassInfo info)
     {
-        if (info.getSuperclass() == null)
-        {
+        if (info.getSuperclass() == null) {
             Selection s1 = info.getExtendsInsertSelection();
 
             editor.setSelection(
                 new SourceLocation(s1.getLine(), s1.getColumn()),
                 new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
             editor.insertText(" extends " + className, false);
-        }
-        else
-        {
+        } else {
             Selection s1 = info.getSuperReplaceSelection();
 
             editor.setSelection(
@@ -71,8 +68,7 @@ public class JavaLanguageSupport implements FlowLanguageSupport
         Selection s1 = info.getExtendsReplaceSelection();
         s1.combineWith(info.getSuperReplaceSelection());
 
-        if (s1 != null)
-        {
+        if (s1 != null) {
             editor.setSelection(
                 new SourceLocation(s1.getLine(), s1.getColumn()),
                 new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
@@ -88,15 +84,13 @@ public class JavaLanguageSupport implements FlowLanguageSupport
             new SourceLocation(s1.getLine(), s1.getColumn()),
             new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
 
-        if (info.hasInterfaceSelections())
-        {
+        if (info.hasInterfaceSelections()) {
             List<String> exists = editor.getInterfaceTexts(info.getInterfaceSelections());
 
-            if (!exists.contains(interfaceName))
+            if (!exists.contains(interfaceName)) {
                 editor.insertText(", " + interfaceName, false);
-        }
-        else
-        {
+            }
+        } else {
             editor.insertText(" implements " + interfaceName, false);
         }
     }
@@ -109,15 +103,13 @@ public class JavaLanguageSupport implements FlowLanguageSupport
             new SourceLocation(s1.getLine(), s1.getColumn()),
             new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
 
-        if (info.hasInterfaceSelections())
-        {
+        if (info.hasInterfaceSelections()) {
             List<String> exists = editor.getInterfaceTexts(info.getInterfaceSelections());
 
-            if (!exists.contains(interfaceName))
+            if (!exists.contains(interfaceName)) {
                 editor.insertText(", " + interfaceName, false);
-        }
-        else
-        {
+            }
+        } else {
             editor.insertText(" extends " + interfaceName, false);
         }
     }
@@ -131,13 +123,11 @@ public class JavaLanguageSupport implements FlowLanguageSupport
 
         // Special case: deleting the first interface when others remain —
         // delete the following comma instead of the preceding one
-        if (where == 1 && vsels.size() > 2)
-        {
+        if (where == 1 && vsels.size() > 2) {
             where = 2;
         }
 
-        if (where > 0)
-        {
+        if (where > 0) {
             Selection s1 = vsels.get(where - 1);
             s1.combineWith(vsels.get(where));
 
