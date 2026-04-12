@@ -27,21 +27,12 @@ import java.io.FileFilter;
 import bluej.extensions2.SourceType;
 
 /**
- * A FileFilter that only accepts Kotlin source files.
- * An instance of this class can be used as a parameter for
- * the listFiles method of class File.
+ * A FileFilter that only accepts Kotlin source files (.kt).
  *
  * @author BlueJ Team
- * @see java.io.FileFilter
- * @see java.io.File
  */
 public class KotlinSourceFilter implements FileFilter
 {
-    /**
-     * This method only accepts files that are Kotlin source files.
-     * Whether a file is a Kotlin source file is determined by the fact that
-     * its filename ends with ".kt".
-     */
     @Override
     public boolean accept(File pathname)
     {

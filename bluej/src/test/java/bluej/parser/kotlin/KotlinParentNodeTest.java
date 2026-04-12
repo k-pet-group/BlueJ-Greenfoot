@@ -45,8 +45,6 @@ import static org.junit.Assert.*;
  */
 public class KotlinParentNodeTest
 {
-    // Helper: minimal ReparseableDocument for testing tokenizeText()
-
     /**
      * Minimal implementation of ReparseableDocument that wraps a String.
      * Only makeReader() is needed for tokenizeText() testing.
@@ -103,8 +101,6 @@ public class KotlinParentNodeTest
         }
     }
 
-    // Helper: extract non-END tokens from linked list
-
     private List<Token> collectTokens(Token head)
     {
         List<Token> tokens = new ArrayList<>();
@@ -127,8 +123,6 @@ public class KotlinParentNodeTest
         Token head = node.tokenizeText(doc, 0, source.length());
         return collectTokens(head);
     }
-
-    // Tests: KEYWORD1 — Control flow + Modifiers (matches Java's role-based scheme)
 
     @Test
     public void testHardKeywordsAreKeyword1()
@@ -182,8 +176,6 @@ public class KotlinParentNodeTest
         }
     }
 
-    // Tests: Modifiers → KEYWORD1 (matches Java)
-
     @Test
     public void testSoftKeywordsAreKeyword1()
     {
@@ -206,8 +198,6 @@ public class KotlinParentNodeTest
         }
     }
 
-    // Tests: Visibility modifiers → KEYWORD1 (matches Java)
-
     @Test
     public void testVisibilityModifiersAreKeyword1()
     {
@@ -227,8 +217,6 @@ public class KotlinParentNodeTest
         }
     }
 
-    // Tests: Literals → this/super/null/true/false
-
     @Test
     public void testThisSuperNullTrueFalseAreKeyword()
     {
@@ -246,8 +234,6 @@ public class KotlinParentNodeTest
                 kwToken.id == TokenType.KEYWORD1 || kwToken.id == TokenType.KEYWORD3);
         }
     }
-
-    // Tests: String literals → STRING_LITERAL
 
     @Test
     public void testStringLiteralTokenType()
@@ -267,8 +253,6 @@ public class KotlinParentNodeTest
             .anyMatch(t -> t.id == TokenType.STRING_LITERAL);
         assertTrue("Triple-quoted string should produce STRING_LITERAL token", hasStringLiteral);
     }
-
-    // Tests: Comments → COMMENT_NORMAL / COMMENT_JAVADOC
 
     @Test
     public void testLineComment()
@@ -297,8 +281,6 @@ public class KotlinParentNodeTest
         assertTrue("KDoc comment should produce COMMENT_JAVADOC token", hasKDoc);
     }
 
-    // Tests: Numeric literals
-
     @Test
     public void testNumericLiteral()
     {
@@ -310,8 +292,6 @@ public class KotlinParentNodeTest
         assertNotNull(numToken);
         assertEquals(TokenType.CHAR_LITERAL, numToken.id); // numerics map to CHAR_LITERAL
     }
-
-    // Tests: Token chain structure
 
     @Test
     public void testTokenChainEndsWithEND()
@@ -338,8 +318,6 @@ public class KotlinParentNodeTest
         int totalLength = tokens.stream().mapToInt(t -> t.length).sum();
         assertEquals("Token lengths should sum to source length", source.length(), totalLength);
     }
-
-    // Tests: Mixed Kotlin code
 
     @Test
     public void testMixedKotlinLine()
@@ -374,8 +352,6 @@ public class KotlinParentNodeTest
         assertEquals(source.length(), totalLength);
     }
 
-    // Tests: Empty / edge cases
-
     @Test
     public void testEmptySource()
     {
@@ -395,8 +371,6 @@ public class KotlinParentNodeTest
         assertEquals(TokenType.DEFAULT, tokens.get(0).id);
         assertEquals(10, tokens.get(0).length);
     }
-
-    // Tests: Virtual dispatch (regression test for static→virtual refactor)
 
     @Test
     public void testVirtualDispatchUsesKotlinLexer()

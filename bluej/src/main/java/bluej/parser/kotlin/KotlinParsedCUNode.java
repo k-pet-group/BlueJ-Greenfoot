@@ -90,7 +90,6 @@ public class KotlinParsedCUNode extends ParsedCUNode
 
         KotlinPsiScopeBuilder.buildScopesFromFile(ktFile, this, 0, listener);
 
-        // Mark the entire document as parsed
         document.markSectionParsed(nodePos, getSize());
         complete = true;
 
@@ -128,15 +127,9 @@ public class KotlinParsedCUNode extends ParsedCUNode
     @Override
     protected int doPartialParse(ParseParams params, int state)
     {
-        // This method is never called because reparseNode() is overridden.
-        // Return PP_OK as a safe default.
         return PP_OK;
     }
 
-    /**
-     * Remove all child nodes from this root, notifying the listener
-     * of each removal.
-     */
     private void removeAllChildren(int nodePos, NodeStructureListener listener)
     {
         NodeAndPosition<ParsedNode> child = findNodeAtOrAfter(nodePos, nodePos);

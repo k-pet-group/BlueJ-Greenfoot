@@ -78,9 +78,7 @@ public interface FlowLanguageSupport
 
     /**
      * Remove an interface (or supertype) from the class's extends/implements
-     * list. For Java, this removes from the implements or extends clause using
-     * pre-computed Selections. For Kotlin, this re-parses the source and
-     * splices the string directly.
+     * list.
      *
      * @param editor        the editor to modify
      * @param interfaceName the interface name to remove

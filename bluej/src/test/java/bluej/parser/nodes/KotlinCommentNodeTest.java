@@ -36,23 +36,11 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Tests for KotlinCommentNode.
- *
- * <p>Verifies that edits inside comments are absorbed locally
- * ({@code textInserted}/{@code textRemoved} return {@code ALL_OK}
- * via inherited {@code ParentParsedNode} behavior) and that
- * {@code reparseNode()} always returns {@code REMOVE_NODE} to
- * cascade to the parent for PSI-based rebuild.</p>
- *
- * <p>This test lives in {@code bluej.parser.nodes} (same package as
- * {@link ParsedNode}) so it can directly reference the protected
- * reparse result constants ({@code ALL_OK}, {@code REMOVE_NODE})
- * without duplication.</p>
+ * Tests for KotlinCommentNode -- verifies edit absorption and
+ * reparseNode() behavior for comment scope nodes.
  */
 public class KotlinCommentNodeTest
 {
-    // Test document implementation with line tracking
-
     private static class TestDocument implements ReparseableDocument
     {
         private String content;
@@ -221,8 +209,6 @@ public class KotlinCommentNodeTest
         }
     }
 
-    // No-op listener
-
     private static final NodeStructureListener NO_OP = new NodeStructureListener()
     {
         @Override
@@ -235,8 +221,6 @@ public class KotlinCommentNodeTest
         public void nodeChangedLength(NodeAndPosition<ParsedNode> node,
                 int oldPos, int oldSize) {}
     };
-
-    // Helpers
 
     private KotlinParsedCUNode createRoot(int size)
     {
@@ -259,8 +243,6 @@ public class KotlinCommentNodeTest
     {
         return node.reparseNode(doc, nodePos, offset, maxParse, listener);
     }
-
-    // Tests: textInserted absorbs edits (inherited from ParentParsedNode)
 
     @Test
     public void testTextInsertedReturnsAllOk()
@@ -311,8 +293,6 @@ public class KotlinCommentNodeTest
                 3, doc.lastReparsePos);
     }
 
-    // Tests: textRemoved absorbs edits (inherited from ParentParsedNode)
-
     @Test
     public void testTextRemovedReturnsAllOk()
     {
@@ -345,8 +325,6 @@ public class KotlinCommentNodeTest
         assertEquals("Node should shrink by removed length",
                 originalSize - 2, comment.getSize());
     }
-
-    // Tests: reparseNode always returns REMOVE_NODE
 
     @Test
     public void testReparseValidBlockCommentReturnsRemoveNode()

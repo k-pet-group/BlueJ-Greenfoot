@@ -33,8 +33,6 @@ import static org.junit.Assert.*;
  */
 public class KotlinTokenTest
 {
-    // --- KEYWORD1: Control flow + Modifiers (matches Java's role-based scheme) ---
-
     @Test
     public void testControlFlowKeywordsMappedToKeyword1()
     {
@@ -82,8 +80,6 @@ public class KotlinTokenTest
         assertDisplayType(KotlinToken.KW_OUT, Token.TokenType.KEYWORD1);
     }
 
-    // --- KEYWORD2: Declarations (type, member, structural) ---
-
     @Test
     public void testDeclarationKeywordsMappedToKeyword2()
     {
@@ -109,8 +105,6 @@ public class KotlinTokenTest
         assertDisplayType(KotlinToken.KW_SET, Token.TokenType.KEYWORD2);
     }
 
-    // --- KEYWORD3: Reference keywords (matches Java: this/super/null/true/false) ---
-
     @Test
     public void testReferenceKeywordsMappedToKeyword3()
     {
@@ -121,8 +115,6 @@ public class KotlinTokenTest
         assertDisplayType(KotlinToken.KW_FALSE, Token.TokenType.KEYWORD3);
     }
 
-    // --- Literals ---
-
     @Test
     public void testNumericLiteralsMappedToCharLiteral()
     {
@@ -130,8 +122,6 @@ public class KotlinTokenTest
         assertDisplayType(KotlinToken.FLOAT_LITERAL, Token.TokenType.CHAR_LITERAL);
         assertDisplayType(KotlinToken.CHARACTER_LITERAL, Token.TokenType.CHAR_LITERAL);
     }
-
-    // --- Strings ---
 
     @Test
     public void testStringPartsMappedToStringLiteral()
@@ -145,8 +135,6 @@ public class KotlinTokenTest
         assertDisplayType(KotlinToken.LONG_TEMPLATE_ENTRY_END, Token.TokenType.STRING_LITERAL);
     }
 
-    // --- Comments ---
-
     @Test
     public void testCommentsMappedCorrectly()
     {
@@ -156,15 +144,11 @@ public class KotlinTokenTest
         assertDisplayType(KotlinToken.DOC_COMMENT, Token.TokenType.COMMENT_JAVADOC);
     }
 
-    // --- Annotations → LABEL ---
-
     @Test
     public void testAnnotationAtMappedToLabel()
     {
         assertDisplayType(KotlinToken.AT, Token.TokenType.LABEL);
     }
-
-    // --- Operators/identifiers → DEFAULT ---
 
     @Test
     public void testOperatorsAndIdentifiersMappedToDefault()
@@ -179,8 +163,6 @@ public class KotlinTokenTest
         assertDisplayType(KotlinToken.SAFE_ACCESS, Token.TokenType.DEFAULT);
         assertDisplayType(KotlinToken.ELVIS, Token.TokenType.DEFAULT);
     }
-
-    // --- PSI mapTokenType tests ---
 
     @Test
     public void testPsiHardKeywordMapping()
@@ -263,8 +245,6 @@ public class KotlinTokenTest
         assertEquals(KotlinToken.IDENTIFIER, KotlinToken.mapTokenType(unknownType));
     }
 
-    // --- Utility category checks ---
-
     @Test
     public void testIsKeyword()
     {
@@ -292,8 +272,6 @@ public class KotlinTokenTest
         assertTrue(KotlinToken.isStringPart(KotlinToken.ESCAPE_SEQUENCE));
         assertFalse(KotlinToken.isStringPart(KotlinToken.IDENTIFIER));
     }
-
-    // --- Helper ---
 
     private void assertDisplayType(int tokenType, Token.TokenType expected)
     {

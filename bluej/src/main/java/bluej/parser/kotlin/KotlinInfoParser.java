@@ -114,13 +114,11 @@ public class KotlinInfoParser
      */
     public static ClassInfo parse(Reader r, String targetPkg, String fileName)
     {
-        // Read full source into String (PSI requires CharSequence)
         String source = KotlinParserUtils.readFully(r);
         if (source.isBlank()) {
             return null;
         }
 
-        // Build PSI tree (use real file name if available for ktFile.getName())
         KtFile ktFile;
         if (fileName != null) {
             ktFile = KotlinEnvironmentManager.getPsiFactory()
@@ -130,11 +128,9 @@ public class KotlinInfoParser
                 .createFile(source);
         }
 
-        // Extract package name
         FqName packageFqName = ktFile.getPackageFqName();
         String packageName = packageFqName.isRoot() ? "" : packageFqName.asString();
 
-        // Find the first top-level KtClassOrObject declaration
         KtClassOrObject classOrObject = null;
         for (KtDeclaration decl : ktFile.getDeclarations()) {
             if (decl instanceof KtClassOrObject co) {
@@ -144,7 +140,6 @@ public class KotlinInfoParser
         }
 
         if (classOrObject == null) {
-            // No class/object found — check for top-level functions
             List<KtNamedFunction> topLevelFunctions = new ArrayList<>();
             for (KtDeclaration decl : ktFile.getDeclarations()) {
                 if (decl instanceof KtNamedFunction fun) {
@@ -158,7 +153,6 @@ public class KotlinInfoParser
                 topLevelFunctions, ktFile, packageName, targetPkg);
         }
 
-        // Build ClassInfo from PSI node
         return buildClassInfo(classOrObject, ktFile, packageName, targetPkg);
     }
 
@@ -170,7 +164,6 @@ public class KotlinInfoParser
     {
         ClassInfo info = new ClassInfo();
 
-        // --- Class identity ---
         String name = classOrObject.getName();
         if (name == null) {
             return null;
@@ -181,7 +174,6 @@ public class KotlinInfoParser
             && !classOrObject.hasModifier(KtTokens.PROTECTED_KEYWORD);
         info.setName(name, isPublic);
 
-        // --- Modifiers ---
         if (classOrObject instanceof KtClass ktClass) {
             info.setInterface(ktClass.isInterface());
             info.setEnum(ktClass.isEnum());
@@ -190,13 +182,12 @@ public class KotlinInfoParser
                 || ktClass.isSealed()
                 || ktClass.isInterface());
         } else {
-            // KtObjectDeclaration — not abstract, not interface, not enum
+            // KtObjectDeclaration -- not abstract, not interface, not enum
             info.setAbstract(false);
             info.setInterface(false);
             info.setEnum(false);
         }
 
-        // --- Package name (fixes gap: package not stored) ---
         if (!packageName.isEmpty()) {
             info.setPackageSelections(
                 new Selection(1, 1),   // package statement placeholder
@@ -206,28 +197,21 @@ public class KotlinInfoParser
             );
         }
 
-        // --- targetPkg validation (fixes gap: targetPkg unused) ---
         if (targetPkg != null && !targetPkg.isEmpty()
             && !targetPkg.equals(packageName)) {
             info.setParseError(true);
         }
 
-        // --- Imports → used types (fixes gap: imports not tracked) ---
         extractImports(ktFile, info);
 
-        // --- Type parameters ---
         extractTypeParameters(classOrObject, info);
 
-        // --- Primary constructor parameter types → used list ---
         extractPrimaryConstructor(classOrObject, info);
 
-        // --- Supertype list ---
         extractSupertypes(classOrObject, info);
 
-        // --- Class body: methods and properties (fixes gap: no body parsing) ---
         extractClassBody(classOrObject, info);
 
-        // --- KDoc comment on the class itself ---
         String classKDoc = extractKDoc(classOrObject);
         if (classKDoc != null) {
             info.addComment(name, classKDoc, null);
@@ -246,22 +230,18 @@ public class KotlinInfoParser
     {
         ClassInfo info = new ClassInfo();
 
-        // --- Name from file stem (e.g., "Utils" from "Utils.kt") ---
         String ktFileName = ktFile.getName();
         String stem = ktFileName.endsWith(".kt")
                 ? ktFileName.substring(0, ktFileName.length() - 3)
                 : ktFileName;
         info.setName(stem, true);
 
-        // --- Mark as function-only file ---
         info.setTopLevelFunctionsOnly(true);
 
-        // --- Not a class/interface/enum/abstract ---
         info.setInterface(false);
         info.setEnum(false);
         info.setAbstract(false);
 
-        // --- Package handling ---
         if (!packageName.isEmpty()) {
             info.setPackageSelections(
                 new Selection(1, 1),   // package statement placeholder
@@ -271,16 +251,13 @@ public class KotlinInfoParser
             );
         }
 
-        // --- targetPkg validation ---
         if (targetPkg != null && !targetPkg.isEmpty()
             && !targetPkg.equals(packageName)) {
             info.setParseError(true);
         }
 
-        // --- Imports → used types ---
         extractImports(ktFile, info);
 
-        // --- Extract dependencies and KDoc from each function ---
         for (KtNamedFunction fun : functions) {
             extractMethod(fun, info);
         }
@@ -401,7 +378,6 @@ public class KotlinInfoParser
             return;
         }
 
-        // Collect parameter types for "used" list
         for (KtParameter param : fun.getValueParameters()) {
             KtTypeReference typeRef = param.getTypeReference();
             if (typeRef != null) {
@@ -412,7 +388,6 @@ public class KotlinInfoParser
             }
         }
 
-        // Collect return type for "used" list
         KtTypeReference returnTypeRef = fun.getTypeReference();
         if (returnTypeRef != null) {
             String returnType = extractSimpleName(returnTypeRef);
@@ -421,7 +396,6 @@ public class KotlinInfoParser
             }
         }
 
-        // Store KDoc comment if present
         String docComment = extractKDoc(fun);
         if (docComment != null) {
             String target = buildMethodTarget(fun);
@@ -490,16 +464,13 @@ public class KotlinInfoParser
         if (text == null || text.isEmpty()) {
             return null;
         }
-        // Remove nullable marker
         if (text.endsWith("?")) {
             text = text.substring(0, text.length() - 1);
         }
-        // Remove generic parameters
         int lt = text.indexOf('<');
         if (lt > 0) {
             text = text.substring(0, lt);
         }
-        // Get simple name (last segment of qualified name)
         int dot = text.lastIndexOf('.');
         if (dot >= 0) {
             text = text.substring(dot + 1);

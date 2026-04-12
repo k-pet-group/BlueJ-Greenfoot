@@ -88,7 +88,6 @@ public class KotlinLexerTest
     public void testSimpleVariableDeclaration()
     {
         List<LocatableToken> tokens = tokenize("val x: Int = 5");
-        // val, x, :, Int, =, 5
         assertTrue(tokens.size() >= 6);
         assertEquals(KotlinToken.KW_VAL, tokens.get(0).getType());
         assertEquals("val", tokens.get(0).getText());

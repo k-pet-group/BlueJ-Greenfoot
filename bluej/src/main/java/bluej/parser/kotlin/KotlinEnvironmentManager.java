@@ -75,7 +75,6 @@ public final class KotlinEnvironmentManager
 
     /**
      * Get the {@link Project} instance for PSI parsing.
-     * Convenience method — equivalent to {@code getEnvironment().getProject()}.
      *
      * @return the IntelliJ Project instance
      */
@@ -86,7 +85,6 @@ public final class KotlinEnvironmentManager
 
     /**
      * Get a {@link KtPsiFactory} for creating PSI elements from text.
-     * Uses the shared Project. The factory is cached for reuse.
      *
      * @return a reusable KtPsiFactory instance
      */
@@ -122,7 +120,6 @@ public final class KotlinEnvironmentManager
 
     /**
      * Check whether the environment has been initialized.
-     * Useful for testing and diagnostics.
      *
      * @return true if the environment has been created
      */

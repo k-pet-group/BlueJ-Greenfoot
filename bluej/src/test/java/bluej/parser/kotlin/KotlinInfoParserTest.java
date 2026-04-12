@@ -34,8 +34,6 @@ import static org.junit.Assert.*;
  */
 public class KotlinInfoParserTest
 {
-    // Helpers
-
     private ClassInfo parse(String source)
     {
         return KotlinInfoParser.parse(new StringReader(source), null);
@@ -305,8 +303,6 @@ public class KotlinInfoParserTest
         assertNull("File with only package/imports should return null", info);
     }
 
-    // NEW TESTS — Package extraction (fixes gap 1)
-
     @Test
     public void testPackageNameExtracted()
     {
@@ -334,8 +330,6 @@ public class KotlinInfoParserTest
         assertEquals("", info.getPackage());
         assertFalse(info.hasPackageStatement());
     }
-
-    // NEW TESTS — Import tracking (fixes gap 2)
 
     @Test
     public void testImportsAddedToUsed()
@@ -366,8 +360,6 @@ public class KotlinInfoParserTest
         assertFalse("Primitive type String should not be in used list",
             info.getUsed().contains("String"));
     }
-
-    // NEW TESTS — Method/property type extraction (fixes gap 3)
 
     @Test
     public void testMethodReturnTypeInUsed()
@@ -408,8 +400,6 @@ public class KotlinInfoParserTest
             info.getUsed().contains("MutableList"));
     }
 
-    // NEW TESTS — KDoc extraction
-
     @Test
     public void testKDocCommentExtracted()
     {
@@ -436,8 +426,6 @@ public class KotlinInfoParserTest
         assertTrue("Method KDoc should be extracted", hasMethodComment);
     }
 
-    // NEW TESTS — targetPkg validation (fixes gap 4)
-
     @Test
     public void testTargetPkgMismatchSetsError()
     {
@@ -456,8 +444,6 @@ public class KotlinInfoParserTest
             info.hadParseError());
     }
 
-    // NEW TESTS — Constructor parameter types
-
     @Test
     public void testConstructorParamTypesInUsed()
     {
@@ -468,8 +454,6 @@ public class KotlinInfoParserTest
         assertFalse("Primitive constructor param type should not be in used",
             info.getUsed().contains("String"));
     }
-
-    // NEW TESTS — Qualified and generic supertypes
 
     @Test
     public void testQualifiedSupertype()
@@ -489,8 +473,6 @@ public class KotlinInfoParserTest
             "ArrayList", info.getSuperclass());
     }
 
-    // NEW TESTS — Object with supertype
-
     @Test
     public void testObjectWithSupertype()
     {
@@ -499,8 +481,6 @@ public class KotlinInfoParserTest
         assertEquals("Singleton", info.getName());
         assertEquals("Base", info.getSuperclass());
     }
-
-    // NEW TESTS — Top-level functions (function-only files)
 
     /**
      * Parse with an explicit file name, needed for function-only files

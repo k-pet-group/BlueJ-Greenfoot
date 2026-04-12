@@ -49,13 +49,10 @@ public class KotlinPsiScopeBuilderTest
         psiFactory = KotlinEnvironmentManager.getPsiFactory();
     }
 
-    // Helpers
-
     private KotlinParsedCUNode buildScopeTree(String source)
     {
         KtFile ktFile = psiFactory.createFile(source);
         KotlinParsedCUNode root = new KotlinParsedCUNode();
-        // Set root node size to the full source length
         root.setSize(source.length());
         KotlinPsiScopeBuilder.buildScopesFromFile(ktFile, root, 0);
         return root;
@@ -108,7 +105,6 @@ public class KotlinPsiScopeBuilderTest
         return np;
     }
 
-    // Tests: Basic class
 
     @Test
     public void testClassDeclarationCreatesTypeNode()
@@ -138,7 +134,6 @@ public class KotlinPsiScopeBuilderTest
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, np.getNode().getNodeType());
     }
 
-    // Tests: Function declaration
 
     @Test
     public void testTopLevelFunctionCreatesMethodNode()
@@ -156,7 +151,7 @@ public class KotlinPsiScopeBuilderTest
         String source = "class Foo {\n    fun bar() { }\n}";
         KotlinParsedCUNode root = buildScopeTree(source);
 
-        // First child should be the class
+
         NodeAndPosition<ParsedNode> classNp = firstChild(root);
         assertNotNull(classNp);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
@@ -168,7 +163,6 @@ public class KotlinPsiScopeBuilderTest
             ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
     }
 
-    // Tests: Inner nodes
 
     @Test
     public void testClassHasInnerNode()
@@ -238,7 +232,6 @@ public class KotlinPsiScopeBuilderTest
             && forInner.getEnd() < forNp.getEnd());
     }
 
-    // Tests: Control flow → scope nodes
 
     @Test
     public void testIfExpressionCreatesSelectionNode()
@@ -310,7 +303,6 @@ public class KotlinPsiScopeBuilderTest
             ParsedNode.NODETYPE_ITERATION, whileNp.getNode().getNodeType());
     }
 
-    // Tests: Edge cases
 
     @Test
     public void testEmptyFileProducesNoChildren()
@@ -344,7 +336,6 @@ public class KotlinPsiScopeBuilderTest
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, innerClassNp.getNode().getNodeType());
     }
 
-    // Tests: Offset accuracy
 
     @Test
     public void testClassNodePositionMatchesSource()
@@ -372,7 +363,6 @@ public class KotlinPsiScopeBuilderTest
             source.length(), np.getSize());
     }
 
-    // Tests: Complex Kotlin patterns
 
     @Test
     public void testFullClassWithMethodAndControlFlow()
@@ -399,7 +389,6 @@ public class KotlinPsiScopeBuilderTest
         assertEquals(ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
     }
 
-    // Tests: Relative position accuracy (nested scopes)
 
     @Test
     public void testMethodInsideClassHasCorrectAbsolutePosition()
@@ -542,7 +531,6 @@ public class KotlinPsiScopeBuilderTest
             && ifNp.getEnd() <= methodNp.getEnd());
     }
 
-    // Tests: Comment nodes
 
     @Test
     public void testFileLevelBlockCommentCreatesCommentNode()
@@ -749,7 +737,6 @@ public class KotlinPsiScopeBuilderTest
         assertEquals(ParsedNode.NODETYPE_SELECTION, ifNp.getNode().getNodeType());
     }
 
-    // Tests: Secondary constructors
 
     @Test
     public void testSecondaryConstructorCreatesMethodNode()
@@ -816,7 +803,6 @@ public class KotlinPsiScopeBuilderTest
             ParsedNode.NODETYPE_SELECTION, ifNp.getNode().getNodeType());
     }
 
-    // Tests: Primary constructors (skipped)
 
     @Test
     public void testPrimaryConstructorSkipped()
@@ -852,7 +838,6 @@ public class KotlinPsiScopeBuilderTest
         assertNull("Explicit primary constructor should NOT create a scope node", childNp);
     }
 
-    // Tests: Init blocks
 
     @Test
     public void testInitBlockCreatesMethodNode()
@@ -963,7 +948,6 @@ public class KotlinPsiScopeBuilderTest
             source.indexOf("fun bar"), np3.getPosition());
     }
 
-    // Tests: Companion object transparency
 
     @Test
     public void testCompanionObjectTransparency()
@@ -1000,7 +984,6 @@ public class KotlinPsiScopeBuilderTest
             ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
     }
 
-    // Tests: Containment checks
 
     @Test
     public void testNodePositionWithinParentBounds()

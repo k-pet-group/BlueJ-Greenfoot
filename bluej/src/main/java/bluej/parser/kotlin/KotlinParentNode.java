@@ -60,12 +60,6 @@ public class KotlinParentNode extends JavaParentNode
     private final boolean isContainerNode;
     private String name;
 
-    /**
-     * Construct a Kotlin parent node with the given parent and default
-     * NODETYPE_NONE.
-     *
-     * @param parent the parent node (may be null for root nodes)
-     */
     public KotlinParentNode(JavaParentNode parent)
     {
         this(parent, NODETYPE_NONE);
@@ -233,10 +227,6 @@ public class KotlinParentNode extends JavaParentNode
         return null;
     }
 
-    /**
-     * Remove all child nodes from this node, notifying the listener
-     * of each removal.
-     */
     private void removeAllChildren(int nodePos, NodeStructureListener listener)
     {
         NodeAndPosition<ParsedNode> child = findNodeAtOrAfter(nodePos, nodePos);
@@ -288,7 +278,6 @@ public class KotlinParentNode extends JavaParentNode
                 break;
             }
 
-            // Fill gap before token with DEFAULT
             if (lt.getColumn() > curcol)
             {
                 int gap = lt.getColumn() - curcol;

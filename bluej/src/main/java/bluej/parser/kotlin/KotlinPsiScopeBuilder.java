@@ -530,7 +530,6 @@ public class KotlinPsiScopeBuilder
 
         int stringAbsPos = range.getStartOffset();
 
-        // Create child nodes for template expression bodies
         for (KtStringTemplateEntry entry : stringExpr.getEntries()) {
             if (entry instanceof KtSimpleNameStringTemplateEntry simpleEntry) {
                 // $name → child covering the identifier after $
@@ -558,7 +557,6 @@ public class KotlinPsiScopeBuilder
                         KotlinParentNode child = new KotlinParentNode(stringNode);
                         child.setComplete(true);
                         stringNode.insertNode(child, childRelPos, childSize, listener);
-                        // Build scope nodes inside the expression (if/when/for/while)
                         int childAbsPos = exprRange.getStartOffset();
                         processExpression(expression, child, childAbsPos, listener);
                     }

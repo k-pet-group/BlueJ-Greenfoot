@@ -140,15 +140,12 @@ public final class KotlinLexer implements TokenStream
             psiLexer.getTokenStart(), psiLexer.getTokenEnd()).toString();
         psiLexer.advance();
 
-        // Record begin position, then advance through token characters
         LineColPos begin = new LineColPos(currentLine, currentColumn, currentPosition);
         advancePosition(tokenText);
 
-        // Map PSI type → BlueJ type, reclassify soft keywords
         int blueJType = reclassifySoftKeyword(
             KotlinToken.mapTokenType(psiType), tokenText);
 
-        // Merge compound operators that PSI splits (?. ?: !!)
         MergedToken merged = tryMergeCompoundOperator(blueJType, tokenText);
 
         // End position reflects the final character (after any merge)

@@ -61,8 +61,6 @@ public class KotlinPsiEditingTest
         return null;
     }
 
-    // ===== Single-line class declarations =====
-
     @Test
     public void testAddSuperclass()
     {
@@ -147,8 +145,6 @@ public class KotlinPsiEditingTest
         assertEquals("class Foo : Runnable, Comparable<Foo> {\n}", result);
     }
 
-    // ===== Multiline class declarations =====
-
     @Test
     public void testMultilineAddInterface()
     {
@@ -226,8 +222,6 @@ public class KotlinPsiEditingTest
             "class SomeClass(\n    val x: Int\n) : Base() {\n}",
             result);
     }
-
-    // ===== Helpers =====
 
     /**
      * Apply a clause-rebuild operation and return the resulting source string.

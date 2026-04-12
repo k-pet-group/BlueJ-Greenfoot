@@ -41,9 +41,6 @@ public class KotlinFileRole extends ClassRole
 {
     public static final String KOTLIN_FILE_ROLE_NAME = "KotlinFileTarget";
 
-    /**
-     * Create the Kotlin file role.
-     */
     public KotlinFileRole()
     {
     }

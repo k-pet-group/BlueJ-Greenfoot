@@ -41,22 +41,6 @@ import static org.junit.Assert.*;
 
 /**
  * Tests for KotlinParentNode block-level PSI reparse (Tier 3).
- *
- * <p>Verifies that inner body nodes (function bodies, control-flow
- * bodies) can reparse at block level via
- * {@code KtPsiFactory.createBlock()} instead of cascading to
- * full-file PSI reparse (~5-20ms vs ~50-100ms). Class body inner
- * nodes return {@code REMOVE_NODE} because {@code createBlock()}
- * produces block statements, not class member declarations.</p>
- *
- * <p>Container nodes (TYPEDEF, METHODDEF, SELECTION, ITERATION)
- * always return {@code REMOVE_NODE} from {@code reparseNode()},
- * since their boundaries can only be validated by full-file parsing.</p>
- *
- * <p>This test lives in {@code bluej.parser.nodes} (same package as
- * {@link ParsedNode}) so it can directly reference the protected
- * reparse result constants and call {@code reparseNode()} via
- * same-package access.</p>
  */
 public class KotlinParentNodeReparseTest
 {
@@ -67,8 +51,6 @@ public class KotlinParentNodeReparseTest
     {
         psiFactory = KotlinEnvironmentManager.getPsiFactory();
     }
-
-    // Test document implementation
 
     private static class TestDocument implements ReparseableDocument
     {
@@ -234,8 +216,6 @@ public class KotlinParentNodeReparseTest
         }
     }
 
-    // No-op listener
-
     private static final NodeStructureListener NO_OP = new NodeStructureListener()
     {
         @Override
@@ -248,8 +228,6 @@ public class KotlinParentNodeReparseTest
         public void nodeChangedLength(NodeAndPosition<ParsedNode> node,
                 int oldPos, int oldSize) {}
     };
-
-    // Helpers
 
     /**
      * Build a scope tree from source text using the PSI factory.
@@ -315,8 +293,6 @@ public class KotlinParentNodeReparseTest
         return false;
     }
 
-    // Tests: Inner node block-level reparse succeeds
-
     @Test
     public void testInnerNodeBlockReparseReturnsAllOk()
     {
@@ -357,8 +333,6 @@ public class KotlinParentNodeReparseTest
         assertEquals("markSectionParsed should be called with inner node size",
                 innerNp.getSize(), doc.lastMarkParsedSize);
     }
-
-    // Tests: Block reparse preserves scope children
 
     @Test
     public void testBlockReparsePreservesIfChild()
@@ -411,8 +385,6 @@ public class KotlinParentNodeReparseTest
                         ParsedNode.NODETYPE_ITERATION));
     }
 
-    // Tests: Block reparse adds new scope
-
     @Test
     public void testBlockReparseAddsNewScope()
     {
@@ -456,8 +428,6 @@ public class KotlinParentNodeReparseTest
                         ParsedNode.NODETYPE_SELECTION));
     }
 
-    // Tests: Block reparse removes scope
-
     @Test
     public void testBlockReparseRemovesScope()
     {
@@ -496,8 +466,6 @@ public class KotlinParentNodeReparseTest
                 hasChildOfType(innerNp.getNode(), innerPos,
                         ParsedNode.NODETYPE_SELECTION));
     }
-
-    // Tests: Broken block → REMOVE_NODE
 
     @Test
     public void testBlockEndBeyondDocumentReturnsRemoveNode()
@@ -547,8 +515,6 @@ public class KotlinParentNodeReparseTest
         assertEquals("Inner node at position 0 should succeed",
                 ParsedNode.ALL_OK, result);
     }
-
-    // Tests: Container nodes always return REMOVE_NODE
 
     @Test
     public void testMethodContainerReturnsRemoveNode()
@@ -614,8 +580,6 @@ public class KotlinParentNodeReparseTest
                 ParsedNode.REMOVE_NODE, result);
     }
 
-    // Tests: Class body inner node returns REMOVE_NODE
-
     @Test
     public void testClassInnerNodeReturnsRemoveNode()
     {
@@ -639,8 +603,6 @@ public class KotlinParentNodeReparseTest
         assertEquals("Class body inner node should return REMOVE_NODE",
                 ParsedNode.REMOVE_NODE, result);
     }
-
-    // Tests: Child position accuracy after block reparse
 
     @Test
     public void testBlockReparseChildPositionsAreCorrect()
@@ -754,8 +716,6 @@ public class KotlinParentNodeReparseTest
             assertEquals("Child " + i + " size should match", orig[2], rep[2]);
         }
     }
-
-    // Tests: Multi-level nesting
 
     @Test
     public void testNestedControlFlowRebuiltCorrectly()

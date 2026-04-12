@@ -43,16 +43,6 @@ import bluej.parser.symtab.ClassInfo;
  * {@link KotlinParsedCUNode} for parsing and uses PSI to read the current
  * supertype list, then rebuilds the entire supertype clause from a modified
  * list of entry texts.
- *
- * <p>Each editing method re-parses the editor text to a PSI tree, collects
- * the current supertype entry texts into a list, modifies the list, and
- * replaces the whole supertype clause via
- * {@link #rebuildSupertypeClause(FlowEditor, String, KtClassOrObject, List)}.</p>
- *
- * <p>Kotlin uses a unified supertype list ({@code : SuperClass(), Interface})
- * for both class and interface inheritance. A {@link KtSuperTypeCallEntry}
- * (with constructor call parentheses) indicates a superclass; a plain
- * {@link KtSuperTypeListEntry} indicates an interface.</p>
  */
 public class KotlinLanguageSupport implements FlowLanguageSupport
 {
@@ -136,8 +126,6 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
         rebuildSupertypeClause(editor, source, cls, texts);
     }
 
-    // ----- Private helpers -----
-
     /**
      * Add a supertype (class or interface) to the Kotlin supertype list.
      * Checks for duplicates before inserting.
@@ -203,10 +191,7 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
         }
     }
 
-    /**
-     * Get the type name text from a supertype entry, using the type
-     * reference if available.
-     */
+    /** Returns the type reference text, falling back to the full entry text. */
     private String entryTypeName(KtSuperTypeListEntry entry)
     {
         var typeRef = entry.getTypeReference();
@@ -223,9 +208,6 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
         return idx != -1 ? typeName.substring(0, idx).trim() : typeName.trim();
     }
 
-    /**
-     * Get the full source text from the editor.
-     */
     private String getSourceText(FlowEditor editor)
     {
         return editor.getText(

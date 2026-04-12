@@ -89,7 +89,6 @@ public class KotlinCompilerTest
     @Test
     public void testCompileValidKotlinFile() throws IOException
     {
-        // Write a simple Kotlin source file
         Path sourceFile = sourceDir.resolve("Hello.kt");
         Files.writeString(sourceFile, """
             class Hello {
@@ -108,7 +107,6 @@ public class KotlinCompilerTest
         assertTrue("Compilation of valid Kotlin file should succeed", success);
         assertEquals("No errors expected", 0, observer.errors.size());
 
-        // Verify .class file was created
         File classFile = new File(tempDir.toFile(), "Hello.class");
         assertTrue("Hello.class should be generated", classFile.exists());
     }
@@ -134,7 +132,6 @@ public class KotlinCompilerTest
         assertFalse("Compilation with syntax error should fail", success);
         assertTrue("At least one error diagnostic expected", observer.errors.size() > 0);
 
-        // Verify the diagnostic has Kotlin origin
         Diagnostic firstError = observer.errors.get(0);
         assertEquals("Diagnostic should have KOTLIN origin",
                 "kotlin", firstError.getOrigin());
