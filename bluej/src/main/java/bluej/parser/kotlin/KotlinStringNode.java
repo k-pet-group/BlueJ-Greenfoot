@@ -49,7 +49,6 @@ public class KotlinStringNode extends KotlinParentNode
     public KotlinStringNode(JavaParentNode parent)
     {
         super(parent, NODETYPE_NONE);
-        setInner(true);
     }
 
     @Override

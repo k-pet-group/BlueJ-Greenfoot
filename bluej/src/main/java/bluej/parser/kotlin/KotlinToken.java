@@ -516,7 +516,6 @@ public final class KotlinToken
             case "set" -> KW_SET;
             case "suspend" -> KW_SUSPEND;
             case "tailrec" -> KW_TAILREC;
-            case "value" -> KW_VALUE;
             case "vararg" -> KW_VARARG;
             case "where" -> KW_WHERE;
             default -> -1;

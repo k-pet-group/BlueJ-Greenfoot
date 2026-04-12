@@ -34,8 +34,12 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
 
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode;
+import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement;
 import org.jetbrains.kotlin.psi.KtBlockExpression;
+import org.jetbrains.kotlin.psi.KtDeclaration;
+import org.jetbrains.kotlin.psi.KtFile;
+import org.jetbrains.kotlin.psi.KtNamedFunction;
 import org.jetbrains.kotlin.psi.KtPsiFactory;
 
 import threadchecker.OnThread;
@@ -111,6 +115,23 @@ public class KotlinParentNode extends JavaParentNode
         return isContainerNode;
     }
 
+    // Refuse to absorb text appended exactly at our end boundary.
+    // ParentParsedNode.textInserted delegates into a child when
+    // findNodeAtOrAfter returns it (using >=, so nodeEnd == insPos
+    // matches). For Kotlin, this causes nodes to absorb text that
+    // belongs to a sibling scope (e.g., "else" absorbed into if's
+    // then-inner, or "fun main()" absorbed into expression-body "20").
+    // Returning REMOVE_NODE forces the parent to handle the insertion.
+    @Override
+    public int textInserted(ReparseableDocument document, int nodePos,
+                            int insPos, int length, NodeStructureListener listener)
+    {
+        if (insPos >= nodePos + getSize()) {
+            return REMOVE_NODE;
+        }
+        return super.textInserted(document, nodePos, insPos, length, listener);
+    }
+
     @Override
     protected boolean marksOwnEnd()
     {
@@ -122,29 +143,28 @@ public class KotlinParentNode extends JavaParentNode
      * Attempt block-level PSI reparse for inner body nodes.
      * Non-inner nodes return REMOVE_NODE to cascade up to full-file reparse.
      *
-     * <p>Block-level reparse uses {@code KtPsiFactory.createBlock()} to parse
-     * just the inner content (between braces) instead of the whole file.
-     * This is ~3-10× faster than full-file reparse for edits inside
-     * function bodies. The content offsets are derived from the PSI tree
-     * itself (LBRACE/RBRACE positions) rather than hardcoded.</p>
+     * <p>Wraps inner content as {@code "fun _() {" + content} (no closing
+     * brace) and parses via {@code createFile()}. Since no synthetic {@code }}
+     * is added, PSI brace matching uses only real braces from the document.
+     * If the inner node is oversized (contains a {@code }} that belongs to a
+     * parent scope), PSI closes the function body at that brace and
+     * {@code body.getRBrace() != null} — detected and cascaded to full-file
+     * reparse.</p>
      */
     @Override
     protected int reparseNode(ReparseableDocument document, int nodePos,
             int offset, int maxParse, NodeStructureListener listener)
     {
-        // Only inner body nodes attempt block-level reparse.
-        // Containers, non-inner nodes, and class body inners (which need
-        // processClassBody()) all cascade to full-file reparse.
+        // Only inner body nodes of methods/control-flow attempt block-level
+        // reparse. Class body inners need processClassBody().
         if (!isInner()) {
             return REMOVE_NODE;
         }
-
         ParsedNode parent = getParentNode();
         if (parent != null && parent.getNodeType() == NODETYPE_TYPEDEF) {
             return REMOVE_NODE;
         }
 
-        // Boundary check: inner node must not extend past the document.
         int innerEnd = nodePos + getSize();
         if (innerEnd > document.getLength()) {
             return REMOVE_NODE;
@@ -152,63 +172,65 @@ public class KotlinParentNode extends JavaParentNode
 
         String innerContent = KotlinParserUtils.readDocumentText(document, nodePos, innerEnd);
 
-        try
-        {
-            // createBlock() wraps innerContent as "fun foo() {\n<content>\n}"
-            // and returns the body KtBlockExpression.
+        try {
+            // Wrap WITHOUT a closing '}' — all braces come from the real
+            // document. PSI error recovery works with the actual brace
+            // structure instead of a synthetic wrapper.
             KtPsiFactory psiFactory = KotlinEnvironmentManager.getPsiFactory();
-            KtBlockExpression block = psiFactory.createBlock(innerContent);
+            KtFile ktFile = psiFactory.createFile("fun _() {" + innerContent);
 
-            // Derive the content offset from the PSI tree structure:
-            // the content starts one character after LBRACE (the \n separator).
-            PsiElement lBrace = block.getLBrace();
-            PsiElement rBrace = block.getRBrace();
-            if (lBrace == null || rBrace == null) {
+            KtBlockExpression body = findFunctionBody(ktFile);
+            if (body == null || body.getLBrace() == null) {
                 return REMOVE_NODE;
             }
-            int contentPsiStart = lBrace.getTextRange().getEndOffset() + 1;
 
-            // Check that PSI consumed all inner content. If RBRACE matched
-            // a '}' inside the content (not the wrapper's '}'), the inner
-            // node is oversized — it covers text belonging to a parent scope.
-            int psiContentLength = rBrace.getTextRange().getStartOffset() - contentPsiStart;
-            if (psiContentLength < getSize()) {
+            // Detect structural issues via PSI errors at the block level:
+            // - Extra '}' (oversized node): body.getRBrace() != null
+            // - Orphan keywords like 'else'/'catch': PsiErrorElement with
+            //   non-empty text (empty errors are just the missing '}' from
+            //   our wrapper — always present, harmless)
+            if (body.getRBrace() != null || hasBlockLevelErrors(body)) {
                 return REMOVE_NODE;
             }
+
+            int contentPsiStart = body.getLBrace().getTextRange().getEndOffset();
 
             removeAllChildren(nodePos, listener);
-            KotlinPsiScopeBuilder.buildScopesFromBlock(block, this,
+            KotlinPsiScopeBuilder.buildScopesFromBlock(body, this,
                     contentPsiStart, listener);
-
-            // createBlock()'s synthetic '}' can cause PSI error recovery to
-            // extend scope nodes past the actual content. If so, cascade to
-            // full-file reparse which uses the real document structure.
-            if (hasChildBeyondBoundary(nodePos)) {
-                removeAllChildren(nodePos, listener);
-                return REMOVE_NODE;
-            }
 
             document.markSectionParsed(nodePos, getSize());
             return ALL_OK;
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             return REMOVE_NODE;
         }
     }
 
-    // Check whether any child node extends beyond this node's boundary.
-    private boolean hasChildBeyondBoundary(int nodePos)
+    // Check for non-empty PsiErrorElement children at the block level.
+    // These indicate structural keywords (else, catch, finally) that PSI
+    // couldn't connect — meaning the inner node absorbed parent-level text.
+    private static boolean hasBlockLevelErrors(KtBlockExpression body)
     {
-        int mySize = getSize();
-        NodeAndPosition<ParsedNode> child = findNodeAtOrAfter(nodePos, nodePos);
-        while (child != null) {
-            if ((child.getPosition() - nodePos) + child.getSize() > mySize) {
+        for (ASTNode child = body.getNode().getFirstChildNode();
+             child != null; child = child.getTreeNext()) {
+            if (child.getPsi() instanceof PsiErrorElement error
+                    && error.getTextLength() > 0) {
                 return true;
             }
-            child = child.nextSibling();
         }
         return false;
+    }
+
+    // Extract the body block from the first function in a parsed file.
+    private static KtBlockExpression findFunctionBody(KtFile ktFile)
+    {
+        for (KtDeclaration decl : ktFile.getDeclarations()) {
+            if (decl instanceof KtNamedFunction func && func.hasBlockBody()) {
+                return func.getBodyBlockExpression();
+            }
+        }
+        return null;
     }
 
     /**
@@ -260,8 +282,9 @@ public class KotlinParentNode extends JavaParentNode
             LocatableToken lt = lexer.nextToken();
             if (lt.getType() == KotlinToken.EOF)
             {
-                if (remaining > 0)
+                if (remaining > 0) {
                     tokens.add(new Token(remaining, TokenType.DEFAULT));
+                }
                 break;
             }
 
