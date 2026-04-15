@@ -85,12 +85,19 @@ public class JavaLanguageSupport implements FlowLanguageSupport
             new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
 
         if (info.hasInterfaceSelections()) {
+            // if we already have an implements clause then we need to put a
+            // comma and the interface name but not before checking that we
+            // don't already have it
+
             List<String> exists = editor.getInterfaceTexts(info.getInterfaceSelections());
 
+            // XXX make this equality check against full package name
             if (!exists.contains(interfaceName)) {
                 editor.insertText(", " + interfaceName, false);
             }
         } else {
+            // otherwise we need to put the actual "implements" word
+            // and the interface name
             editor.insertText(" implements " + interfaceName, false);
         }
     }
@@ -104,12 +111,19 @@ public class JavaLanguageSupport implements FlowLanguageSupport
             new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
 
         if (info.hasInterfaceSelections()) {
+            // if we already have an extends clause then we need to put a
+            // comma and the interface name but not before checking that we
+            // don't already have it
+
             List<String> exists = editor.getInterfaceTexts(info.getInterfaceSelections());
 
+            // XXX make this equality check against full package name
             if (!exists.contains(interfaceName)) {
                 editor.insertText(", " + interfaceName, false);
             }
         } else {
+            // otherwise we need to put the actual "extends" word
+            // and the interface name
             editor.insertText(" extends " + interfaceName, false);
         }
     }
@@ -117,23 +131,32 @@ public class JavaLanguageSupport implements FlowLanguageSupport
     @Override
     public void removeInterface(FlowEditor editor, String interfaceName, ClassInfo info)
     {
-        List<Selection> vsels = info.getInterfaceSelections();
-        List<String> vtexts = editor.getInterfaceTexts(vsels);
+        Selection s1 = null;
+
+        List<Selection> vsels;
+        List<String> vtexts;
+
+        vsels = info.getInterfaceSelections();
+        vtexts = editor.getInterfaceTexts(vsels);
         int where = vtexts.indexOf(interfaceName);
 
-        // Special case: deleting the first interface when others remain —
-        // delete the following comma instead of the preceding one
+        // we have a special case if we deleted the first bit of an
+        // "implements" clause, yet there are still clauses left.. we have
+        // to delete the following "," instead of the preceding one.
         if (where == 1 && vsels.size() > 2) {
             where = 2;
         }
 
-        if (where > 0) {
-            Selection s1 = vsels.get(where - 1);
+        if (where > 0) { // should always be true
+            s1 = vsels.get(where - 1);
             s1.combineWith(vsels.get(where));
+        }
 
+        // delete the text from the end backwards so that our
+        if (s1 != null) {
             editor.setSelection(
-                new SourceLocation(s1.getLine(), s1.getColumn()),
-                new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+                    new SourceLocation(s1.getLine(), s1.getColumn()),
+                    new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
             editor.insertText("", false);
         }
     }
