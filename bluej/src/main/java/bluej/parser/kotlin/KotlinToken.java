@@ -33,8 +33,6 @@ import threadchecker.Tag;
  * Kotlin token type mapping. Converts PSI KtTokens to BlueJ Token.TokenType
  * for syntax highlighting, and to integer constants compatible with
  * JavaTokenTypes for LocatableToken.
- *
- * @author BlueJ Team
  */
 @OnThread(Tag.Any)
 public final class KotlinToken

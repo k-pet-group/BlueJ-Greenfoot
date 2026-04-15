@@ -40,8 +40,6 @@ import kotlin.metadata.jvm.KotlinClassMetadata;
 /**
  * Reads {@code @kotlin.Metadata} from a compiled Kotlin class and returns
  * the set of method names that are compiler-generated property accessors.
- *
- * @author BlueJ Team
  */
 public final class KotlinPropertyAccessorDetector
 {

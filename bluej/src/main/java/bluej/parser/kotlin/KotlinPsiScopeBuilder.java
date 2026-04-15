@@ -60,8 +60,6 @@ import threadchecker.Tag;
  * Walks a Kotlin PSI tree and creates corresponding BlueJ scope nodes
  * ({@link KotlinParentNode}, {@link KotlinCommentNode}, {@link KotlinStringNode})
  * for scope coloring by {@code JavaSyntaxView}.
- *
- * @author BlueJ Team
  */
 @OnThread(Tag.FXPlatform)
 public class KotlinPsiScopeBuilder

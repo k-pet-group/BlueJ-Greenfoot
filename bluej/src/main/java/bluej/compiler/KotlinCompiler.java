@@ -41,8 +41,6 @@ import org.jetbrains.kotlin.config.Services;
 /**
  * A compiler implementation wrapping kotlin-compiler-embeddable for
  * Kotlin compilation, analogous to CompilerAPICompiler for Java.
- *
- * @author BlueJ Team
  */
 public class KotlinCompiler extends Compiler
 {

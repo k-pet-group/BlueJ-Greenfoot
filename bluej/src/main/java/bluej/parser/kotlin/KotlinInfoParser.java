@@ -63,8 +63,6 @@ import threadchecker.Tag;
  * for the class diagram. This is the Kotlin counterpart to
  * {@code bluej.parser.InfoParser} for Java, using PSI APIs from
  * kotlin-compiler-embeddable.
- *
- * @author BlueJ Team
  */
 @OnThread(Tag.FXPlatform)
 public class KotlinInfoParser

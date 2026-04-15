@@ -39,8 +39,6 @@ import threadchecker.Tag;
  * Root parse node for a Kotlin source file. Uses the Kotlin PSI parser
  * for full-file reparsing and scope building via
  * {@link KotlinPsiScopeBuilder}.
- *
- * @author BlueJ Team
  */
 @OnThread(Tag.FXPlatform)
 public class KotlinParsedCUNode extends ParsedCUNode

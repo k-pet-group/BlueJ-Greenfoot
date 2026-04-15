@@ -34,8 +34,6 @@ import threadchecker.Tag;
 /**
  * A role for Kotlin files containing only top-level functions. The diagram
  * displays a "functions" stereotype label.
- *
- * @author BlueJ Team
  */
 public class KotlinFileRole extends ClassRole
 {

@@ -37,8 +37,6 @@ import threadchecker.Tag;
  * Kotlin tokenizer for the BlueJ editor. Wraps the PSI KotlinLexer from
  * kotlin-compiler-embeddable and produces LocatableTokens compatible with
  * BlueJ's parser infrastructure.
- *
- * @author BlueJ Team
  */
 @OnThread(Tag.Any)
 public final class KotlinLexer implements TokenStream

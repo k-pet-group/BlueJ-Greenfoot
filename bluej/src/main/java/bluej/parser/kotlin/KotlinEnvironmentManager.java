@@ -36,8 +36,6 @@ import threadchecker.Tag;
  * Manages a shared {@link KotlinCoreEnvironment} for editor PSI parsing
  * and Kotlin compilation. The environment is created lazily on first use
  * and cached for the lifetime of the BlueJ process.
- *
- * @author BlueJ Team
  */
 @OnThread(Tag.Any)
 public final class KotlinEnvironmentManager

@@ -35,8 +35,6 @@ import threadchecker.Tag;
  * ({@code """..."""}). Tokenizes gap content as string literals and
  * delegates template expression bodies to child nodes for normal
  * Kotlin tokenization.
- *
- * @author BlueJ Team
  */
 @OnThread(Tag.FXPlatform)
 public class KotlinStringNode extends KotlinParentNode

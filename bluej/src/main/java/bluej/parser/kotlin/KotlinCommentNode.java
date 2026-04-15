@@ -34,8 +34,6 @@ import threadchecker.Tag;
  * A parse node representing a Kotlin comment (KDoc, block, or end-of-line)
  * in the scope tree. Returns a single comment-typed token to prevent keyword
  * highlighting inside comments.
- *
- * @author BlueJ Team
  */
 @OnThread(Tag.FXPlatform)
 public class KotlinCommentNode extends JavaParentNode

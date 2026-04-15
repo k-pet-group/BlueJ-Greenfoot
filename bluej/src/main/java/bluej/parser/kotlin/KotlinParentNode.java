@@ -50,8 +50,6 @@ import threadchecker.Tag;
  * {@link KotlinLexer} instead of the Java lexer, providing Kotlin syntax
  * highlighting. Supports configurable node types for classes, functions,
  * and control-flow scopes.
- *
- * @author BlueJ Team
  */
 @OnThread(Tag.FXPlatform)
 public class KotlinParentNode extends JavaParentNode

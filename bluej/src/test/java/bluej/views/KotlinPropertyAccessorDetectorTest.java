@@ -40,8 +40,6 @@ import static org.junit.Assert.*;
 
 /**
  * Tests for {@link KotlinPropertyAccessorDetector}.
- *
- * @author BlueJ Team
  */
 public class KotlinPropertyAccessorDetectorTest
 {

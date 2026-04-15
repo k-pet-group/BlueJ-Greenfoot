@@ -31,8 +31,6 @@ import threadchecker.Tag;
 
 /**
  * Shared utility methods for Kotlin parser nodes.
- *
- * @author BlueJ Team
  */
 public final class KotlinParserUtils
 {

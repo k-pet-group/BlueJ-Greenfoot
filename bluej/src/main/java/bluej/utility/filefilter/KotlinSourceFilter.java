@@ -28,8 +28,6 @@ import bluej.extensions2.SourceType;
 
 /**
  * A FileFilter that only accepts Kotlin source files (.kt).
- *
- * @author BlueJ Team
  */
 public class KotlinSourceFilter implements FileFilter
 {
