@@ -2544,6 +2544,13 @@ public class ClassTarget extends DependentTarget
 
         // flag dependent Targets as invalid
         invalidate();
+
+        removeBreakpoints();
+        if (getPackage().getProject().getDebugger() != null) {
+            getPackage().getProject().getDebugger().removeBreakpointsForClass(getQualifiedName());
+        }
+        invalidateCompilationContext();
+
         removeAllInDependencies();
         removeAllOutDependencies();
         // remove associated files (.frame, .class, .java and .ctxt)
@@ -2559,7 +2566,11 @@ public class ClassTarget extends DependentTarget
     {
         getClassFile().delete();
         getDocumentationFile().delete();
-        getPackageFile(getBaseName() + ".ctxt").delete();
+        // Facade .ctxt files use the "Kt" suffix (matches updateMetadata)
+        String ctxtName = isKotlinFacade
+            ? getBaseName() + "Kt.ctxt"
+            : getBaseName() + ".ctxt";
+        getPackageFile(ctxtName).delete();
         getAllSourceFilesJavaLast().forEach(info -> info.file.delete());
         Arrays.stream(getInnerClassFiles()).forEach(File::delete);
     }
@@ -2584,8 +2595,8 @@ public class ClassTarget extends DependentTarget
         Package pkg = getPackage();
         pkg.removeTarget(this);
 
-        // Inform all listeners about the class removed
-        ClassEvent event = new ClassEvent(getPackage(), getBClass());
+        // Use local 'pkg' — getPackage() is null after removeTarget()
+        ClassEvent event = new ClassEvent(pkg, getBClass());
         ExtensionsManager.getInstance().delegateEvent(event);
 
         // We must remove after the above, because it might involve saving,
