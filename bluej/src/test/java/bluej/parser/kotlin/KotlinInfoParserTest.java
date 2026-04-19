@@ -632,19 +632,28 @@ public class KotlinInfoParserTest
     }
 
     @Test
-    public void testMixedFileReturnsClass()
+    public void testMixedFileReturnsNull()
     {
-        // File has both a class and top-level functions.
-        // The class should be returned (existing behavior).
+        // File has both a class and top-level functions — invalid structure.
+        // Parser returns null to prevent file rename; the validator reports
+        // the error at compile time.
         ClassInfo info = parseWithFileName(
             "class Dog(val name: String)\n\n"
             + "fun createDog(): Dog = Dog(\"Rex\")",
             "Dog.kt"
         );
-        assertNotNull(info);
-        assertEquals("Dog", info.getName());
-        assertFalse("Mixed file should return class, not function-only",
-            info.isTopLevelFunctionsOnly());
+        assertNull("Mixed file (class + functions) should return null", info);
+    }
+
+    @Test
+    public void testMixedFileClassAndPropertyReturnsNull()
+    {
+        // Class + top-level property — also invalid structure.
+        ClassInfo info = parseWithFileName(
+            "class Config\n\nval version = 1",
+            "Config.kt"
+        );
+        assertNull("Mixed file (class + property) should return null", info);
     }
 
     @Test

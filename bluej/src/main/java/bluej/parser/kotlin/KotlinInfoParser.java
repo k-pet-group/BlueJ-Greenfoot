@@ -151,6 +151,13 @@ public class KotlinInfoParser
                 topLevelFunctions, ktFile, packageName, targetPkg);
         }
 
+        // Mixed content (class + functions/properties) — return null to prevent file rename
+        for (KtDeclaration decl : ktFile.getDeclarations()) {
+            if (decl instanceof KtNamedFunction || decl instanceof KtProperty) {
+                return null;
+            }
+        }
+
         return buildClassInfo(classOrObject, ktFile, packageName, targetPkg);
     }
 

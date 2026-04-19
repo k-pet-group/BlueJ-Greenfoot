@@ -70,6 +70,14 @@ public class KotlinCompiler extends Compiler
             return false;
         }
 
+        // Reject invalid file structures (e.g. mixed class + functions) before invoking K2
+        if (!KotlinFileFormValidator.validate(sources, observer, type)) {
+            if (!type.keepClasses()) {
+                cleanupTempDir(outputDir);
+            }
+            return false;
+        }
+
         List<Diagnostic> diagnostics = new ArrayList<>();
         boolean[] hasErrors = {false};
         MessageCollector collector = createMessageCollector(diagnostics, hasErrors);
