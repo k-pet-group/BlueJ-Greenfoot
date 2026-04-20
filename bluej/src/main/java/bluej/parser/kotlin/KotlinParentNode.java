@@ -30,7 +30,6 @@ import bluej.parser.Token.TokenType;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.nodes.NodeStructureListener;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
 
@@ -223,17 +222,6 @@ public class KotlinParentNode extends JavaParentNode
             }
         }
         return null;
-    }
-
-    private void removeAllChildren(int nodePos, NodeStructureListener listener)
-    {
-        NodeAndPosition<ParsedNode> child = findNodeAtOrAfter(nodePos, nodePos);
-        while (child != null)
-        {
-            NodeAndPosition<ParsedNode> next = child.nextSibling();
-            removeChild(child, listener);
-            child = next;
-        }
     }
 
     /**

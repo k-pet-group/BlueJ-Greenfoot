@@ -36,6 +36,7 @@ import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.TextEditor;
 import bluej.editor.flow.FlowEditor;
+import bluej.editor.flow.FlowLanguageSupport;
 import bluej.editor.flow.JavaLanguageSupport;
 import bluej.editor.flow.KotlinLanguageSupport;
 import bluej.editor.stride.FrameCatalogue;
@@ -1444,16 +1445,7 @@ public class ClassTarget extends DependentTarget
                 }
             };
             if (sourceAvailable == SourceType.Java || sourceAvailable == SourceType.NONE) {
-                editor = new FlowEditor(newWindow -> {
-                    if (newWindow)
-                    {
-                        return project.createNewFXTabbedEditor();
-                    }
-                    else
-                    {
-                        return project.getDefaultFXTabbedEditor();
-                    }
-                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true, new JavaLanguageSupport());
+                editor = createFlowEditor(project, resolver, openCallback, new JavaLanguageSupport());
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
             }
             else if (sourceAvailable == SourceType.Stride) {
@@ -1464,16 +1456,7 @@ public class ClassTarget extends DependentTarget
                 editor = new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, openCallback);
             }
             else if (sourceAvailable == SourceType.Kotlin) {
-                editor = new FlowEditor(newWindow -> {
-                    if (newWindow)
-                    {
-                        return project.createNewFXTabbedEditor();
-                    }
-                    else
-                    {
-                        return project.getDefaultFXTabbedEditor();
-                    }
-                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true, new KotlinLanguageSupport());
+                editor = createFlowEditor(project, resolver, openCallback, new KotlinLanguageSupport());
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
             }
 
@@ -1484,6 +1467,24 @@ public class ClassTarget extends DependentTarget
             }
         }
         return editor;
+    }
+
+    /**
+     * Create a FlowEditor with the given language support strategy.
+     * Shared by Java and Kotlin editor construction.
+     */
+    private FlowEditor createFlowEditor(Project project, EntityResolver resolver,
+            FXPlatformRunnable openCallback, FlowLanguageSupport languageSupport)
+    {
+        return new FlowEditor(newWindow -> {
+            if (newWindow) {
+                return project.createNewFXTabbedEditor();
+            } else {
+                return project.getDefaultFXTabbedEditor();
+            }
+        }, getBaseName(), this, resolver, project.getJavadocResolver(),
+           openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING),
+           true, languageSupport);
     }
 
     /**

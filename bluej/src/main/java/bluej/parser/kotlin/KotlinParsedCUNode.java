@@ -23,10 +23,8 @@ package bluej.parser.kotlin;
 
 import bluej.parser.Token;
 import bluej.parser.nodes.NodeStructureListener;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParseParams;
 import bluej.parser.nodes.ParsedCUNode;
-import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
 
 import org.jetbrains.kotlin.psi.KtFile;
@@ -126,16 +124,6 @@ public class KotlinParsedCUNode extends ParsedCUNode
     protected int doPartialParse(ParseParams params, int state)
     {
         return PP_OK;
-    }
-
-    private void removeAllChildren(int nodePos, NodeStructureListener listener)
-    {
-        NodeAndPosition<ParsedNode> child = findNodeAtOrAfter(nodePos, nodePos);
-        while (child != null) {
-            NodeAndPosition<ParsedNode> next = child.nextSibling();
-            removeChild(child, listener);
-            child = next;
-        }
     }
 
 }

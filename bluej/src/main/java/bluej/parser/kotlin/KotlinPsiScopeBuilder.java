@@ -137,9 +137,11 @@ public class KotlinPsiScopeBuilder
             int parentAbsPos, NodeStructureListener listener)
     {
         if (decl instanceof KtClass ktClass) {
-            processClass(ktClass, parent, parentAbsPos, listener);
+            processTypeDeclaration(ktClass, ktClass.getName(), ktClass.getBody(),
+                    parent, parentAbsPos, listener);
         } else if (decl instanceof KtObjectDeclaration ktObject) {
-            processObject(ktObject, parent, parentAbsPos, listener);
+            processTypeDeclaration(ktObject, ktObject.getName(), ktObject.getBody(),
+                    parent, parentAbsPos, listener);
         } else if (decl instanceof KtNamedFunction ktFunction) {
             processFunction(ktFunction, parent, parentAbsPos, listener);
         } else if (decl instanceof KtSecondaryConstructor ktCtor) {
@@ -153,80 +155,27 @@ public class KotlinPsiScopeBuilder
     }
 
     /**
-     * Process a class declaration → KotlinParentNode(NODETYPE_TYPEDEF).
+     * Process a class or object declaration → KotlinParentNode(NODETYPE_TYPEDEF).
+     * Companion objects are inlined into the parent scope.
      */
-    private static void processClass(KtClass ktClass, JavaParentNode parent,
-            int parentAbsPos, NodeStructureListener listener)
-    {
-        TextRange range = ktClass.getTextRange();
-        int absPos = range.getStartOffset();
-        int relPos = absPos - parentAbsPos;
-        int size = range.getLength();
-
-        // Create KotlinParentNode for the class (TYPEDEF → green scope)
-        KotlinParentNode typeNode = new KotlinParentNode(parent, ParsedNode.NODETYPE_TYPEDEF);
-        String name = ktClass.getName();
-        if (name != null) {
-            typeNode.setName(name);
-        }
-        typeNode.setComplete(true);
-
-        parent.insertNode(typeNode, relPos, size, listener);
-
-        // Insert comment nodes for KDoc/comments attached to this declaration
-        insertAttachedComments(ktClass, typeNode, absPos, listener);
-
-        // Create inner node for class body (matches Java's container+inner pattern)
-        KtClassBody body = ktClass.getBody();
-        if (body != null) {
-            KotlinParentNode innerNode = insertInnerNode(body, typeNode, absPos, listener);
-            if (innerNode != null) {
-                int innerAbsPos = body.getTextRange().getStartOffset() + 1;
-                processClassBody(body, innerNode, innerAbsPos, listener);
-            }
-        }
-    }
-
-    /**
-     * Process an object declaration → KotlinParentNode(NODETYPE_TYPEDEF).
-     */
-    private static void processObject(KtObjectDeclaration ktObject, JavaParentNode parent,
-            int parentAbsPos, NodeStructureListener listener)
+    private static void processTypeDeclaration(PsiElement element, String name,
+            KtClassBody body, JavaParentNode parent, int parentAbsPos,
+            NodeStructureListener listener)
     {
         // Skip companion objects — they don't form a visible scope
-        if (ktObject.isCompanion()) {
-            // But process their members as if they belong to the parent
-            KtClassBody body = ktObject.getBody();
+        if (element instanceof KtObjectDeclaration ktObj && ktObj.isCompanion()) {
             if (body != null) {
                 processClassBody(body, parent, parentAbsPos, listener);
             }
             return;
         }
 
-        TextRange range = ktObject.getTextRange();
-        int absPos = range.getStartOffset();
-        int relPos = absPos - parentAbsPos;
-        int size = range.getLength();
+        KotlinParentNode typeNode = createAndInsertScopeNode(
+                element, parent, parentAbsPos, ParsedNode.NODETYPE_TYPEDEF, name, listener);
 
-        KotlinParentNode typeNode = new KotlinParentNode(parent, ParsedNode.NODETYPE_TYPEDEF);
-        String name = ktObject.getName();
-        if (name != null) {
-            typeNode.setName(name);
-        }
-        typeNode.setComplete(true);
-
-        parent.insertNode(typeNode, relPos, size, listener);
-
-        // Insert comment nodes for KDoc/comments attached to this declaration
-        insertAttachedComments(ktObject, typeNode, absPos, listener);
-
-        KtClassBody body = ktObject.getBody();
         if (body != null) {
-            KotlinParentNode innerNode = insertInnerNode(body, typeNode, absPos, listener);
-            if (innerNode != null) {
-                int innerAbsPos = body.getTextRange().getStartOffset() + 1;
-                processClassBody(body, innerNode, innerAbsPos, listener);
-            }
+            int absPos = element.getTextRange().getStartOffset();
+            insertInnerBlockAndProcessClassBody(body, typeNode, absPos, listener);
         }
     }
 
@@ -255,33 +204,17 @@ public class KotlinPsiScopeBuilder
     private static void processFunction(KtNamedFunction ktFunction, JavaParentNode parent,
             int parentAbsPos, NodeStructureListener listener)
     {
-        TextRange range = ktFunction.getTextRange();
-        int absPos = range.getStartOffset();
-        int relPos = absPos - parentAbsPos;
-        int size = range.getLength();
+        KotlinParentNode methodNode = createAndInsertScopeNode(
+                ktFunction, parent, parentAbsPos,
+                ParsedNode.NODETYPE_METHODDEF, ktFunction.getName(), listener);
 
-        String name = ktFunction.getName();
-        KotlinParentNode methodNode = new KotlinParentNode(parent, ParsedNode.NODETYPE_METHODDEF);
-        if (name != null) {
-            methodNode.setName(name);
-        }
-        methodNode.setComplete(true);
-
-        parent.insertNode(methodNode, relPos, size, listener);
-
-        // Insert comment nodes for KDoc/comments attached to this declaration
-        insertAttachedComments(ktFunction, methodNode, absPos, listener);
+        int absPos = ktFunction.getTextRange().getStartOffset();
 
         // Create inner node for function body (matches Java's container+inner pattern)
         if (ktFunction.hasBlockBody()) {
-            // Block body: fun f() { ... } — inner spans content between braces
             KtBlockExpression block = ktFunction.getBodyBlockExpression();
             if (block != null) {
-                KotlinParentNode innerNode = insertInnerNode(block, methodNode, absPos, listener);
-                if (innerNode != null) {
-                    int innerAbsPos = block.getTextRange().getStartOffset() + 1;
-                    processBlockContents(block, innerNode, innerAbsPos, listener);
-                }
+                insertInnerBlockAndProcessContents(block, methodNode, absPos, listener);
             }
         } else {
             // Expression body: fun f() = expr — inner spans the expression
@@ -311,29 +244,14 @@ public class KotlinPsiScopeBuilder
     private static void processConstructor(KtSecondaryConstructor ktCtor, JavaParentNode parent,
             int parentAbsPos, NodeStructureListener listener)
     {
-        TextRange range = ktCtor.getTextRange();
-        int absPos = range.getStartOffset();
-        int relPos = absPos - parentAbsPos;
-        int size = range.getLength();
+        KotlinParentNode ctorNode = createAndInsertScopeNode(
+                ktCtor, parent, parentAbsPos,
+                ParsedNode.NODETYPE_METHODDEF, "constructor", listener);
 
-        // Container node (NODETYPE_METHODDEF → yellow scope)
-        KotlinParentNode ctorNode = new KotlinParentNode(parent, ParsedNode.NODETYPE_METHODDEF);
-        ctorNode.setName("constructor");
-        ctorNode.setComplete(true);
-
-        parent.insertNode(ctorNode, relPos, size, listener);
-
-        // Insert comment nodes for KDoc/comments attached to this declaration
-        insertAttachedComments(ktCtor, ctorNode, absPos, listener);
-
-        // Inner node for constructor body (block body only — no expression body for constructors)
         KtBlockExpression block = ktCtor.getBodyBlockExpression();
         if (block != null) {
-            KotlinParentNode innerNode = insertInnerNode(block, ctorNode, absPos, listener);
-            if (innerNode != null) {
-                int innerAbsPos = block.getTextRange().getStartOffset() + 1;
-                processBlockContents(block, innerNode, innerAbsPos, listener);
-            }
+            insertInnerBlockAndProcessContents(block, ctorNode,
+                    ktCtor.getTextRange().getStartOffset(), listener);
         }
     }
 
@@ -344,29 +262,14 @@ public class KotlinPsiScopeBuilder
     private static void processInitBlock(KtClassInitializer ktInit, JavaParentNode parent,
             int parentAbsPos, NodeStructureListener listener)
     {
-        TextRange range = ktInit.getTextRange();
-        int absPos = range.getStartOffset();
-        int relPos = absPos - parentAbsPos;
-        int size = range.getLength();
+        KotlinParentNode initNode = createAndInsertScopeNode(
+                ktInit, parent, parentAbsPos,
+                ParsedNode.NODETYPE_METHODDEF, "init", listener);
 
-        // Container node (NODETYPE_METHODDEF → yellow scope)
-        KotlinParentNode initNode = new KotlinParentNode(parent, ParsedNode.NODETYPE_METHODDEF);
-        initNode.setName("init");
-        initNode.setComplete(true);
-
-        parent.insertNode(initNode, relPos, size, listener);
-
-        // Insert comment nodes for KDoc/comments attached to this declaration
-        insertAttachedComments(ktInit, initNode, absPos, listener);
-
-        // Inner node for init body
         KtExpression body = ktInit.getBody();
         if (body instanceof KtBlockExpression block) {
-            KotlinParentNode innerNode = insertInnerNode(block, initNode, absPos, listener);
-            if (innerNode != null) {
-                int innerAbsPos = block.getTextRange().getStartOffset() + 1;
-                processBlockContents(block, innerNode, innerAbsPos, listener);
-            }
+            insertInnerBlockAndProcessContents(block, initNode,
+                    ktInit.getTextRange().getStartOffset(), listener);
         }
     }
 
@@ -430,6 +333,81 @@ public class KotlinPsiScopeBuilder
             for (PsiElement child : element.getChildren()) {
                 processExpression(child, parent, parentAbsPos, listener);
             }
+        }
+    }
+
+    /**
+     * Create a {@link KotlinParentNode} scope node for a PSI element, insert
+     * it into the parent, and attach any leading comments. This consolidates
+     * the common range→position→create→insert→comments boilerplate shared
+     * by processTypeDeclaration, processFunction, processConstructor, and
+     * processInitBlock.
+     *
+     * @param element      the PSI element that defines the scope
+     * @param parent       the parent BlueJ node to insert into
+     * @param parentAbsPos absolute document position of the parent
+     * @param nodeType     one of the NODETYPE_* constants (TYPEDEF, METHODDEF, etc.)
+     * @param name         display name for the node (may be null)
+     * @param listener     structure listener for node change notifications
+     * @return the newly created and inserted scope node
+     */
+    private static KotlinParentNode createAndInsertScopeNode(PsiElement element,
+            JavaParentNode parent, int parentAbsPos, int nodeType, String name,
+            NodeStructureListener listener)
+    {
+        TextRange range = element.getTextRange();
+        int absPos = range.getStartOffset();
+        int relPos = absPos - parentAbsPos;
+        int size = range.getLength();
+
+        KotlinParentNode node = new KotlinParentNode(parent, nodeType);
+        if (name != null) {
+            node.setName(name);
+        }
+        node.setComplete(true);
+
+        parent.insertNode(node, relPos, size, listener);
+        insertAttachedComments(element, node, absPos, listener);
+
+        return node;
+    }
+
+    /**
+     * Insert an inner node for a braced block and process its contents
+     * as block statements. Shared by processFunction, processConstructor,
+     * and processInitBlock.
+     *
+     * @param block          the KtBlockExpression to process
+     * @param container      the container scope node
+     * @param containerAbsPos absolute position of the container element
+     * @param listener       structure listener
+     */
+    private static void insertInnerBlockAndProcessContents(KtBlockExpression block,
+            KotlinParentNode container, int containerAbsPos, NodeStructureListener listener)
+    {
+        KotlinParentNode innerNode = insertInnerNode(block, container, containerAbsPos, listener);
+        if (innerNode != null) {
+            int innerAbsPos = block.getTextRange().getStartOffset() + 1;
+            processBlockContents(block, innerNode, innerAbsPos, listener);
+        }
+    }
+
+    /**
+     * Insert an inner node for a class body and process its members
+     * (declarations and comments). Used by processTypeDeclaration.
+     *
+     * @param body            the KtClassBody to process
+     * @param container       the container scope node
+     * @param containerAbsPos absolute position of the container element
+     * @param listener        structure listener
+     */
+    private static void insertInnerBlockAndProcessClassBody(KtClassBody body,
+            KotlinParentNode container, int containerAbsPos, NodeStructureListener listener)
+    {
+        KotlinParentNode innerNode = insertInnerNode(body, container, containerAbsPos, listener);
+        if (innerNode != null) {
+            int innerAbsPos = body.getTextRange().getStartOffset() + 1;
+            processClassBody(body, innerNode, innerAbsPos, listener);
         }
     }
 
