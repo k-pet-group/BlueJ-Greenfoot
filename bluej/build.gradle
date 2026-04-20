@@ -49,8 +49,25 @@ tasks.flatpakGradleGenerator {
     description = "Collect dependencies for Flatpak"
     outputFile = file(out)
     downloadDirectory = "./offline-repository"
-    doFirst { println "Generating dependencies.json for flatpak in " + out}
-    doLast { println "Generated dependencies.json for flatpak" }
+    onlyArches = 'x86_64'
+}
+
+tasks.register("flatpakGradleGeneratorAarch64", io.github.jwharm.flatpakgradlegenerator.FlatpakGradleGeneratorTask) {
+    def out = "${rootDir.absolutePath}/${flatpakDir}/dependencies-aarch64.json"
+    description = "Collect dependencies for Flatpak (aarch64)"
+    outputFile = file(out)
+    downloadDirectory = "./offline-repository"
+    onlyArches = 'aarch64'
+}
+
+tasks.register("flatpak") {
+    description = "Collect dependencies for Flatpak (architecture-aware)"
+    def arch = System.getProperty("os.arch")
+    if (arch == "aarch64") {
+        dependsOn("flatpakGradleGeneratorAarch64")
+    } else {
+        dependsOn("flatpakGradleGenerator")
+    }
 }
 
 compileJava {
