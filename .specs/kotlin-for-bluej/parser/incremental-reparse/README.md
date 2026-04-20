@@ -71,11 +71,20 @@ Both were designed but deferred in favor of the simpler always-`REMOVE_NODE` app
 | 3 | `createFile()` wrapper for block reparse | More robust than `createBlock()` which may have different error-recovery behavior |
 | 4 | Containers always REMOVE_NODE | Container boundaries (signatures, class headers) need full-file context to validate |
 | 5 | Leaf nodes absorb edits locally | Prevents immediate REMOVE_NODE cascade; scheduled reparse is debounced by `FlowReparseRunner` |
+| 6 | Boundary check only on non-containers | Inner/leaf nodes reject text at their end boundary to prevent sibling absorption (block-level reparse would silently succeed for absorbed content). Containers skip this check so they survive `textInserted()` — their inner child REMOVE_NODEs instead, keeping the tree stable for the paint cycle and avoiding keystroke swallowing |
 
 ---
 
 ## Known Limitations
 
-- Expression-body functions (`fun f() = expr`) have no block body -- inner node returns REMOVE_NODE
+- Expression-body functions (`fun f() = expr`) have no block body -- inner node returns REMOVE_NODE, cascading to full-file reparse via the container
 - Block-level reparse doesn't update sibling/parent nodes (acceptable: scope coloring is syntax-only)
 - Nested block reparse may cascade 3-4 hops before reaching root (still faster than full-file)
+
+---
+
+## Boundary Check in textInserted
+
+`KotlinParentNode.textInserted()` rejects text appended at the exact end boundary (`insPos >= nodePos + getSize()`) for **non-container** nodes only. This prevents sibling absorption: without the check, an inner node (e.g., expression-body `20`) would grow to include new text, and the block-level reparse would silently succeed (`fun _() {20X` is valid block content), permanently keeping the wrong tree structure.
+
+Container nodes (TYPEDEF, METHODDEF, SELECTION, ITERATION) skip this check. They delegate to `super.textInserted()`, which grows the container and passes the insertion to the inner child. The inner child then REMOVE_NODEs, triggering the reparse cascade while the container survives in the tree — keeping the display stable during the paint cycle between `textInserted()` and `FlowReparseRunner`.

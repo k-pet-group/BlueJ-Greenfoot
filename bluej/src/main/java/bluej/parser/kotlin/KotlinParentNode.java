@@ -106,18 +106,15 @@ public class KotlinParentNode extends JavaParentNode
         return isContainerNode;
     }
 
-    // Refuse to absorb text appended exactly at our end boundary.
-    // ParentParsedNode.textInserted delegates into a child when
-    // findNodeAtOrAfter returns it (using >=, so nodeEnd == insPos
-    // matches). For Kotlin, this causes nodes to absorb text that
-    // belongs to a sibling scope (e.g., "else" absorbed into if's
-    // then-inner, or "fun main()" absorbed into expression-body "20").
-    // Returning REMOVE_NODE forces the parent to handle the insertion.
+    // Non-container nodes reject text at their end boundary to prevent
+    // sibling absorption (block-level reparse would silently succeed).
+    // Containers skip this so they survive textInserted — their inner
+    // child will REMOVE_NODE instead, keeping the tree stable for paint.
     @Override
     public int textInserted(ReparseableDocument document, int nodePos,
                             int insPos, int length, NodeStructureListener listener)
     {
-        if (insPos >= nodePos + getSize()) {
+        if (insPos >= nodePos + getSize() && !isContainer()) {
             return REMOVE_NODE;
         }
         return super.textInserted(document, nodePos, insPos, length, listener);
