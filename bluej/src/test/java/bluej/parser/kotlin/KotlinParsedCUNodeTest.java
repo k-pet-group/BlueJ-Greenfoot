@@ -55,8 +55,7 @@ public class KotlinParsedCUNodeTest
     private static class StringDocument implements ReparseableDocument
     {
         private String content;
-        private int parsedPos = -1;
-        private int parsedSize = -1;
+        private final List<int[]> parsedSections = new ArrayList<>();
 
         StringDocument(String content)
         {
@@ -102,12 +101,10 @@ public class KotlinParsedCUNodeTest
         @Override
         public void markSectionParsed(int pos, int size)
         {
-            this.parsedPos = pos;
-            this.parsedSize = size;
+            parsedSections.add(new int[]{pos, size});
         }
 
-        int getParsedPos() { return parsedPos; }
-        int getParsedSize() { return parsedSize; }
+        List<int[]> getParsedSections() { return parsedSections; }
     }
 
     /**
@@ -386,10 +383,12 @@ public class KotlinParsedCUNodeTest
         node.setSize(source.length());
         node.reparse(doc, 0, 0, source.length(), NO_OP);
 
-        assertEquals("markSectionParsed should have been called at offset 0",
-            0, doc.getParsedPos());
-        assertTrue("markSectionParsed size should be > 0",
-            doc.getParsedSize() > 0);
+        List<int[]> sections = doc.getParsedSections();
+        assertFalse("markSectionParsed should have been called", sections.isEmpty());
+        assertEquals("First markSectionParsed should be at offset 0",
+            0, sections.get(0)[0]);
+        assertTrue("First markSectionParsed size should be > 0",
+            sections.get(0)[1] > 0);
     }
 
     @Test

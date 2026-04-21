@@ -87,6 +87,8 @@ public class KotlinParsedCUNode extends ParsedCUNode
         KotlinPsiScopeBuilder.buildScopesFromFile(ktFile, this, 0, listener);
 
         document.markSectionParsed(nodePos, getSize());
+        // Clear any boundary reparse record (mirrors IncrementalParsingNode)
+        document.markSectionParsed(nodePos + getSize(), 0);
         complete = true;
 
         return ALL_OK;
