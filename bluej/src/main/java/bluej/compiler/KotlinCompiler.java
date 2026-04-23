@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
@@ -65,22 +66,18 @@ public class KotlinCompiler extends Compiler
     public boolean compile(File[] sources, CompileObserver observer,
             boolean internal, List<String> userOptions, Charset fileCharset, CompileType type)
     {
+        // Reject invalid file structures (e.g. mixed class + functions) before invoking K2
+        if (!KotlinFileFormValidator.validate(sources, observer, type)) {
+            return false;
+        }
+
         File outputDir = resolveOutputDir(type, observer);
         if (outputDir == null) {
             return false;
         }
 
-        // Reject invalid file structures (e.g. mixed class + functions) before invoking K2
-        if (!KotlinFileFormValidator.validate(sources, observer, type)) {
-            if (!type.keepClasses()) {
-                cleanupTempDir(outputDir);
-            }
-            return false;
-        }
-
         List<Diagnostic> diagnostics = new ArrayList<>();
-        boolean[] hasErrors = {false};
-        MessageCollector collector = createMessageCollector(diagnostics, hasErrors);
+        MessageCollector collector = createMessageCollector(diagnostics);
 
         ExitCode exitCode;
         try {
@@ -131,11 +128,12 @@ public class KotlinCompiler extends Compiler
      * Create a MessageCollector that converts Kotlin compiler messages into
      * BlueJ Diagnostic objects.
      */
-    private MessageCollector createMessageCollector(List<Diagnostic> diagnostics,
-            boolean[] hasErrors)
+    private MessageCollector createMessageCollector(List<Diagnostic> diagnostics)
     {
         return new MessageCollector()
         {
+            private boolean hasErrors = false;
+
             @Override
             public void report(CompilerMessageSeverity severity, String message,
                     CompilerMessageSourceLocation location)
@@ -146,7 +144,7 @@ public class KotlinCompiler extends Compiler
                 }
 
                 if (severity.isError()) {
-                    hasErrors[0] = true;
+                    hasErrors = true;
                 }
 
                 int diagType = mapSeverity(severity);
@@ -162,13 +160,13 @@ public class KotlinCompiler extends Compiler
             @Override
             public boolean hasErrors()
             {
-                return hasErrors[0];
+                return hasErrors;
             }
 
             @Override
             public void clear()
             {
-                hasErrors[0] = false;
+                hasErrors = false;
                 diagnostics.clear();
             }
         };
@@ -241,11 +239,7 @@ public class KotlinCompiler extends Compiler
         args.setJvmTarget("21");
         args.setNoReflect(true);
 
-        String[] sourcePaths = new String[sources.length];
-        for (int i = 0; i < sources.length; i++) {
-            sourcePaths[i] = sources[i].getAbsolutePath();
-        }
-        args.setFreeArgs(List.of(sourcePaths));
+        args.setFreeArgs(Arrays.stream(sources).map(File::getAbsolutePath).toList());
 
         return compiler.exec(collector, Services.EMPTY, args);
     }

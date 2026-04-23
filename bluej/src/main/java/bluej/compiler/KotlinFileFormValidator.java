@@ -80,11 +80,24 @@ public final class KotlinFileFormValidator
         return allValid;
     }
 
+    /**
+     * Checks a Kotlin file for the following violations:
+     * <ul>
+     *   <li>More than one class/object declaration in the file.</li>
+     *   <li>A single class/object whose name does not match the file stem.</li>
+     *   <li>A mix of a class/object declaration with top-level functions or properties.</li>
+     * </ul>
+     *
+     * @param file   the source file
+     * @param source the full text of the file
+     * @return one {@link Diagnostic} per violation site
+     */
     private static List<Diagnostic> validateFile(File file, String source)
     {
         String fileName = file.getName();
-        String fileStem = fileName.endsWith(".kt")
-                ? fileName.substring(0, fileName.length() - 3) : fileName;
+        if (!fileName.toLowerCase().endsWith(".kt"))
+            return List.of();
+        String fileStem = fileName.substring(0, fileName.length() - 3);
 
         KtFile ktFile = KotlinEnvironmentManager.getPsiFactory()
                 .createFile(fileName, source);

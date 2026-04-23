@@ -56,7 +56,7 @@ public final class SourceInfo
         {
             try
             {
-                if (sourceFile != null && sourceFile.getName().endsWith(".kt"))
+                if (sourceFile != null && sourceFile.getName().toLowerCase().endsWith(".kt"))
                 {
                     info = KotlinInfoParser.parse(sourceFile);
                 }

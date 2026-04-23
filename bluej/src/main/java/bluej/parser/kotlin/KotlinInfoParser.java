@@ -236,7 +236,7 @@ public class KotlinInfoParser
         ClassInfo info = new ClassInfo();
 
         String ktFileName = ktFile.getName();
-        String stem = ktFileName.endsWith(".kt")
+        String stem = ktFileName.toLowerCase().endsWith(".kt")
                 ? ktFileName.substring(0, ktFileName.length() - 3)
                 : ktFileName;
         info.setName(stem, true);

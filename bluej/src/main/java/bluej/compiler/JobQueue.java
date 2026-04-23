@@ -103,7 +103,7 @@ public class JobQueue
     {
         for (CompileInputFile source : sources) {
             File sourceFile = source.getJavaCompileInputFile();
-            if (sourceFile != null && sourceFile.getName().endsWith(".kt")) {
+            if (sourceFile != null && sourceFile.getName().toLowerCase().endsWith(".kt")) {
                 return true;
             }
         }

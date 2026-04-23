@@ -47,16 +47,8 @@ public final class KotlinParserUtils
     public static String readDocumentText(ReparseableDocument document,
             int start, int end)
     {
-        try {
-            Reader reader = document.makeReader(start, end);
-            StringBuilder sb = new StringBuilder(end - start);
-            char[] buf = new char[4096];
-            int n;
-            while ((n = reader.read(buf)) != -1) {
-                sb.append(buf, 0, n);
-            }
-            reader.close();
-            return sb.toString();
+        try (Reader reader = document.makeReader(start, end)) {
+            return readFully(reader);
         } catch (IOException e) {
             return "";
         }
