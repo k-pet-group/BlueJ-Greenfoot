@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2014,2016,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2013,2014,2016,2023,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -75,6 +75,7 @@ public final class ClassInfo
     private boolean isAbstract = false;
     private boolean isUnitTest = false;
     private boolean isEnum = false;
+    private boolean topLevelFunctionsOnly = false;
 
     private boolean hadParseError = false;
 
@@ -533,6 +534,16 @@ public final class ClassInfo
     public boolean isEnum()
     {
         return this.isEnum;
+    }
+
+    public boolean isTopLevelFunctionsOnly()
+    {
+        return this.topLevelFunctionsOnly;
+    }
+
+    public void setTopLevelFunctionsOnly(boolean topLevelFunctionsOnly)
+    {
+        this.topLevelFunctionsOnly = topLevelFunctionsOnly;
     }
 
     public boolean hadParseError()

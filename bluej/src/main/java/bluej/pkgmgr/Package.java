@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024,2025 Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024,2025,2026 Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -68,6 +68,7 @@ import bluej.utility.*;
 import bluej.utility.filefilter.FrameSourceFilter;
 import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
+import bluej.utility.filefilter.KotlinSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -673,6 +674,29 @@ public final class Package
             interestingSet.add(frameFileName);
         }
 
+        // process all *.kt files
+        File kotlinSrcFiles[] = path.listFiles(new KotlinSourceFilter());
+        if (kotlinSrcFiles != null)
+        {
+            for (int i = 0; i < kotlinSrcFiles.length; i++)
+            {
+                String kotlinFileName = JavaNames.stripSuffix(
+                        kotlinSrcFiles[i].getName(),
+                        "." + SourceType.Kotlin.getExtension());
+
+                // check if the name would be a valid java name
+                // (Kotlin class names must also be valid JVM identifiers)
+                if (!JavaNames.isIdentifier(kotlinFileName)) {
+                    continue;
+                }
+
+                // files with a $ in them signify inner classes (which we want
+                // to ignore)
+                if (kotlinFileName.indexOf('$') == -1) {
+                    interestingSet.add(kotlinFileName);
+                }
+            }
+        }
 
         // process all *.class files
         for (int i = 0; i < classFiles.length; i++) {
@@ -688,7 +712,14 @@ public final class Package
                 continue;
 
             if (classFileName.indexOf('$') == -1) {
-                // add only if there is no corresponding .java file
+                // skip Kt facade classes that have a corresponding .kt source
+                // (e.g., UtilsKt.class when Utils.kt exists)
+                if (classFileName.endsWith("Kt") && classFileName.length() > 2
+                        && interestingSet.contains(
+                                classFileName.substring(0, classFileName.length() - 2))) {
+                    continue;
+                }
+                // add only if there is no corresponding source file
                 if (!interestingSet.contains(classFileName)) {
                     try {
                         Class<?> c = loadClass(getQualifiedName(classFileName));
@@ -1964,7 +1995,7 @@ public final class Package
      */
     public void userAddImplementsClassDependency(ClassTarget from, ClassTarget to)
     {
-        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
         if (info != null) {
             from.getEditor().addImplements(to.getBaseName(), info);
             from.analyseSource();
@@ -1979,7 +2010,7 @@ public final class Package
      */
     public void userAddExtendsInterfaceDependency(ClassTarget from, ClassTarget to)
     {
-        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
         from.getEditor().addExtendsInterface(to.getBaseName(), info);
         from.analyseSource();
     }
@@ -1992,7 +2023,7 @@ public final class Package
      */
     public void userAddExtendsClassDependency(ClassTarget from, ClassTarget to)
     {
-        from.getEditor().setExtendsClass(to.getBaseName(), from.getSourceInfo().getInfo(from.getJavaSourceFile(), this));
+        from.getEditor().setExtendsClass(to.getBaseName(), from.getSourceInfo().getInfo(from.getSourceFile(), this));
         from.analyseSource();
     }
 
@@ -2009,7 +2040,7 @@ public final class Package
 
         ClassTarget from = (ClassTarget) d.getFrom();
         ClassTarget to = (ClassTarget) d.getTo();
-        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
         if (d instanceof ImplementsDependency) {
             from.getEditor().removeExtendsOrImplementsInterface(to.getBaseName(), info);
         }
@@ -2753,7 +2784,7 @@ public final class Package
                      * names)
                      */
                     try {
-                        ClassInfo info = t.getSourceInfo().getInfo(t.getJavaSourceFile(), t.getPackage());
+                        ClassInfo info = t.getSourceInfo().getInfo(t.getSourceFile(), t.getPackage());
 
                         if (info != null) {
                             // Use ClassTarget method to create and save context

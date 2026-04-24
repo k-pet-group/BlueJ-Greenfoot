@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2018,2025  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2018,2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
@@ -50,8 +49,6 @@ import bluej.compiler.Diagnostic.DiagnosticOrigin;
  */
 public class CompilerAPICompiler extends Compiler
 {
-    private static final AtomicInteger nextDiagnosticIdentifier = new AtomicInteger(1);
-
     public CompilerAPICompiler()
     {
         setDebug(true);
@@ -139,7 +136,7 @@ public class CompilerAPICompiler extends Compiler
                     else
                         bjDiagnostic = new bluej.compiler.Diagnostic(diagType,
                             message, src, diag.getLineNumber(), beginCol,
-                            diag.getLineNumber(), endCol, DiagnosticOrigin.JAVAC, getNewErrorIdentifer());
+                            diag.getLineNumber(), endCol, DiagnosticOrigin.JAVAC, getNewErrorIdentifier());
                 }
                 else if (diag.getKind() == Diagnostic.Kind.WARNING) {
                     if (message.englishMessage().startsWith("bootstrap class path not set in conjunction with -source ")) {
@@ -160,7 +157,7 @@ public class CompilerAPICompiler extends Compiler
                     long endCol = diag.getEndPosition() - diag.getPosition() + beginCol;
                     bjDiagnostic = new bluej.compiler.Diagnostic(diagType,
                             message, src, diag.getLineNumber(), beginCol,
-                            diag.getLineNumber(), endCol, DiagnosticOrigin.JAVAC, getNewErrorIdentifer());
+                            diag.getLineNumber(), endCol, DiagnosticOrigin.JAVAC, getNewErrorIdentifier());
                 }
                 else {
                     diagType = bluej.compiler.Diagnostic.NOTE;
@@ -304,10 +301,5 @@ public class CompilerAPICompiler extends Compiler
             }
         }
         return message;
-    }
-
-    public static int getNewErrorIdentifer()
-    {
-        return nextDiagnosticIdentifier.getAndIncrement();
     }
 }

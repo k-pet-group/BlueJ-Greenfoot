@@ -54,6 +54,19 @@ jar uf "$TOP_LEVEL"/Contents/Java/jna-*-jpms.jar com/sun/jna/darwin/libjnidispat
 rm com/sun/jna/darwin/libjnidispatch.jnilib
 echo "Signing JNI lib - done"
 
+# There are jnilib files inside Kotlin compiler (jansi, used by JLine) so we sign those too:
+echo "Signing Kotlin jansi JNI libs..."
+KOTLIN_JAR="$TOP_LEVEL"/Contents/Java/kotlin-compiler-embeddable-*.jar
+JANSI_NATIVE_PATH=org/jetbrains/kotlin/org/fusesource/jansi/internal/native/Mac
+if jar tf $KOTLIN_JAR | grep -q "$JANSI_NATIVE_PATH.*libjansi.jnilib"; then
+    jar xf $KOTLIN_JAR $JANSI_NATIVE_PATH
+    find $JANSI_NATIVE_PATH -name "*.jnilib" -exec \
+        codesign --verbose=4 --timestamp --options=runtime -s "Developer ID Application: $1" --entitlements entitlements.plist {} \;
+    jar uf $KOTLIN_JAR $JANSI_NATIVE_PATH
+    rm -rf org/jetbrains
+fi
+echo "Signing Kotlin jansi JNI libs - done"
+
 # Sign the executable:
 echo "Signing BlueJ executable..."
 codesign --verbose=4 --timestamp --options=runtime --deep -s "Developer ID Application: $1" --entitlements entitlements.plist "$TOP_LEVEL"/Contents/MacOS/*

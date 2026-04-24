@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2019,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -118,6 +118,15 @@ public class ParsedCUNode extends IncrementalParsingNode
     protected boolean marksOwnEnd()
     {
         return true;
+    }
+
+    /**
+     * Returns whether this compilation unit handles multiline string
+     * highlighting via the parse tree rather than MultilineStringTracker.
+     */
+    public boolean handlesMultilineStrings()
+    {
+        return false;
     }
 
     @Override

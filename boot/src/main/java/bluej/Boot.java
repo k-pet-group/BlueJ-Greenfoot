@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2026  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -67,7 +67,7 @@ public class Boot
     
     // The version numbers for Greenfoot are changed in the Greenfoot build.xml
     // and then the update-version target should be executed.
-    private static final String[] bluejUserJars = { "bluejcore.jar", "javafx-*.jar", "junit-*.jar", "hamcrest-*.jar", "opentest4j-*.jar", "lang-stride.jar" };
+    private static final String[] bluejUserJars = { "bluejcore.jar", "javafx-*.jar", "junit-*.jar", "hamcrest-*.jar", "opentest4j-*.jar", "lang-stride.jar", "kotlin-stdlib-*.jar" };
     private static final String JLAYER_MP3_JAR = "jl1.0.1.jar";
     // Jars that should be included with exported scenarios
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};

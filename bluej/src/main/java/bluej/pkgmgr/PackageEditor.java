@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2019,2020,2021,2022,2023,2025  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2019,2020,2021,2022,2023,2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1039,7 +1039,13 @@ public final class PackageEditor extends StackPane
                     return false;
                 }
                 ClassTarget superClass = (ClassTarget)target;
-                if (subClassFinal.isInterface())
+                // Kotlin top-level function files cannot participate
+                // in inheritance — silently ignore
+                if (subClassFinal.isKotlinFacade() || superClass.isKotlinFacade())
+                {
+                    // no-op: fall through to stopNewInherits()
+                }
+                else if (subClassFinal.isInterface())
                 {
                     if (superClass.isInterface())
                         pkg.userAddExtendsInterfaceDependency(subClassFinal, superClass);

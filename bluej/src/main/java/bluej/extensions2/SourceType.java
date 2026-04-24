@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019,2026 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,7 @@ import threadchecker.Tag;
 @OnThread(Tag.Any)
 public enum SourceType
 {
-    NONE, Java, Stride;
+    NONE, Java, Stride, Kotlin;
 
     /**
      * Returns a <code>SourceType</code> based on a literal value.
@@ -52,6 +52,9 @@ public enum SourceType
         if(lowerCase.equals("java")){
             return Java;
         }
+        if(lowerCase.equals("kotlin")){
+            return Kotlin;
+        }
         throw new IllegalArgumentException("No Enum specified for this string");
     }
 
@@ -67,6 +70,7 @@ public enum SourceType
         {
             case Java: return "java";
             case Stride: return "stride";
+            case Kotlin: return "kt";
             default: return "";
         }
     }

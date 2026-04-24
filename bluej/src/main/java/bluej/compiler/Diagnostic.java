@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2011,2016,2025  Michael Kolling and John Rosenberg
+ Copyright (C) 2011,2016,2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,7 @@ public class Diagnostic implements Serializable
 
     public static enum DiagnosticOrigin
     {
-        JAVAC("javac"), STRIDE_EARLY("stride_early"), STRIDE_LATE("stride_late"), UNKNOWN("unknown");
+        JAVAC("javac"), STRIDE_EARLY("stride_early"), STRIDE_LATE("stride_late"), KOTLIN("kotlin"), UNKNOWN("unknown");
 
         private String serverOrigin;
 

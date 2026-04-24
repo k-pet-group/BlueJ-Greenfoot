@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022,2023,2024,2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -188,6 +188,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final EditorFixesManager editorFixesMgr;
 
     private final boolean sourceIsCode;           // true if current buffer is code
+    private final FlowLanguageSupport languageSupport;  // strategy for language-specific editor behavior
     private final List<Menu> fxMenus;
     private final ListView<ErrorDetails> errorList;
     private final BorderPane errorListPane;
@@ -257,7 +258,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     // Used during testing
     public void enableParser(boolean force)
     {
-        javaSyntaxView.enableParser(force);
+        javaSyntaxView.enableParser(
+            languageSupport.createRootNode(javaSyntaxView.getEntityResolver()), force);
     }
 
     @Override
@@ -529,7 +531,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     // package-visible:
     final UndoManager undoManager;
 
-    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting, boolean sourceIsCode)
+    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting, boolean sourceIsCode, FlowLanguageSupport languageSupport)
     {
         this.fxTab = new FlowFXTab(this, title);
         this.javadocResolver = javadocResolver;
@@ -548,6 +550,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.actions = new FlowActions(this);
         this.htmlPane = new WebView();
         this.sourceIsCode = sourceIsCode;
+        this.languageSupport = languageSupport;
         this.editorFixesMgr = new EditorFixesManager(watcher == null || watcher.getPackage() == null ? new CompletableFuture<>() : watcher.getPackage().getProject().getImports());
         htmlPane.visibleProperty().bind(viewingHTML);
         setCenter(new StackPane(flowEditorPane, htmlPane));
@@ -1280,7 +1283,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
                 if (sourceIsCode)
                 {
-                    javaSyntaxView.enableParser(false);
+                    enableParser(false);
                 }
                 loaded = true;
             }
@@ -2615,18 +2618,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                if (info.getSuperclass() == null) {
-                    Selection s1 = info.getExtendsInsertSelection();
-
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                    insertText(" extends " + className, false);
-                }
-                else {
-                    Selection s1 = info.getSuperReplaceSelection();
-
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                    insertText(className, false);
-                }
+                languageSupport.setExtendsClass(this, className, info);
                 save();
             }
         }
@@ -2642,13 +2634,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                Selection s1 = info.getExtendsReplaceSelection();
-                s1.combineWith(info.getSuperReplaceSelection());
-
-                if (s1 != null) {
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                    insertText("", false);
-                }
+                languageSupport.removeExtendsClass(this, info);
                 save();
             }
         }
@@ -2664,25 +2650,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                Selection s1 = info.getImplementsInsertSelection();
-                setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-
-                if (info.hasInterfaceSelections()) {
-                    // if we already have an implements clause then we need to put a
-                    // comma and the interface name but not before checking that we
-                    // don't already have it
-
-                    List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
-
-                    // XXX make this equality check against full package name
-                    if (!exists.contains(interfaceName))
-                        insertText(", " + interfaceName, false);
-                }
-                else {
-                    // otherwise we need to put the actual "implements" word
-                    // and the interface name
-                    insertText(" implements " + interfaceName, false);
-                }
+                languageSupport.addImplements(this, interfaceName, info);
                 save();
             }
         }
@@ -2697,7 +2665,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      * TODO this is usually used to get the implemented interfaces, but it is a clumsy way
      *      to do that.
      */
-    private List<String> getInterfaceTexts(List<Selection> selections)
+    List<String> getInterfaceTexts(List<Selection> selections)
     {
         List<String> r = new ArrayList<String>(selections.size());
         for (Selection sel : selections)
@@ -2723,26 +2691,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                Selection s1 = info.getExtendsInsertSelection();
-                setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-
-                if (info.hasInterfaceSelections()) {
-                    // if we already have an extends clause then we need to put a
-                    // comma and the interface name but not before checking that we
-                    // don't
-                    // already have it
-
-                    List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
-
-                    // XXX make this equality check against full package name
-                    if (!exists.contains(interfaceName))
-                        insertText(", " + interfaceName, false);
-                }
-                else {
-                    // otherwise we need to put the actual "extends" word
-                    // and the interface name
-                    insertText(" extends " + interfaceName, false);
-                }
+                languageSupport.addExtendsInterface(this, interfaceName, info);
                 save();
             }
         }
@@ -2758,32 +2707,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                Selection s1 = null;
-
-                List<Selection> vsels;
-                List<String> vtexts;
-
-                vsels = info.getInterfaceSelections();
-                vtexts = getInterfaceTexts(vsels);
-                int where = vtexts.indexOf(interfaceName);
-
-                // we have a special case if we deleted the first bit of an
-                // "implements" clause, yet there are still clauses left.. we have
-                // to delete the following "," instead of the preceding one.
-                if (where == 1 && vsels.size() > 2)
-                    where = 2;
-
-                if (where > 0) { // should always be true
-                    s1 = vsels.get(where - 1);
-                    s1.combineWith(vsels.get(where));
-                }
-
-                // delete the text from the end backwards so that our
-                if (s1 != null) {
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                    insertText("", false);
-                }
-
+                languageSupport.removeInterface(this, interfaceName, info);
                 save();
             }
         }
@@ -3663,7 +3587,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 return lineDisplay.calculateLineWidth(content);
             }
         }, flowEditorPaneListener, this.javaSyntaxView.getEntityResolver(), PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING));
-        javaSyntaxView.enableParser(true);
+        javaSyntaxView.enableParser(
+            languageSupport.createRootNode(javaSyntaxView.getEntityResolver()), true);
         StyledLines allLines = new StyledLines(doc, lineStylerWrapper[0]);
         lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true, null));
 
