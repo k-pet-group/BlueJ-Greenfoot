@@ -570,7 +570,7 @@ public class ClassTarget extends DependentTarget
     {
         if (role == null || role.getRoleName() != newRole.getRoleName()) {
             role = newRole;
-            isKotlinFacade = (newRole instanceof KotlinFileRole);
+            isKotlinFacade = (newRole instanceof KotlinFileRole) && !getBaseName().endsWith("Kt");
 
             String select = pseudoFor(role.getClass());
             String stereotype = role.getStereotypeLabel();
