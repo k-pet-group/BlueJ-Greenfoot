@@ -1766,13 +1766,16 @@ public class ClassTarget extends DependentTarget
     public void enforcePackage(String packageName)
         throws IOException
     {
-        if (getSourceType() != SourceType.Java)
+        SourceType st = getSourceType();
+        if (st != SourceType.Java && st != SourceType.Kotlin)
         {
-            // Only force packages in Java files
+            // Stride and other source types are not rewritten this way.
             return;
         }
 
         if (!JavaNames.isQualifiedIdentifier(packageName)) {
+            // Kotlin's qualified-identifier grammar matches Java's for the
+            // purpose of package directives, so the same validator applies.
             throw new IllegalArgumentException();
         }
 
@@ -1780,6 +1783,13 @@ public class ClassTarget extends DependentTarget
         if (info == null) {
             return;
         }
+
+        // Kotlin has no trailing semicolon on package directives; Java does.
+        // This only matters when inserting a missing directive — the rename
+        // and delete branches use either real PSI selections (Kotlin) or the
+        // tokeniser-derived selections (Java) which already span the semicolon.
+        boolean isKotlin = st == SourceType.Kotlin;
+        String semiInsert = isKotlin ? "\n\n" : ";\n\n";
 
         // We may or may not need to change each of the semi colon selection text,
         // package name selection text, and package statement selection text.
@@ -1812,7 +1822,7 @@ public class ClassTarget extends DependentTarget
             }
             else {
                 // we must insert all the "package" statement
-                semiReplacement = ";\n\n";
+                semiReplacement = semiInsert;
                 nameReplacement = packageName;
                 pkgStatementReplacement = "package ";
             }

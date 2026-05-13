@@ -30,7 +30,7 @@ All spokes work identically for Kotlin as for Java/Stride. Modifications are in 
 - **Dependency system is unchanged** -- `KotlinInfoParser` produces standard `ClassInfo` consumed by `analyseDependencies()`
 - **Template substitution** -- Kotlin templates use same `$CLASSNAME`/`$PKGLINE` variables as Java
 - **`canConvertToStride()` returns false** for Kotlin
-- **`enforcePackage()` skips Kotlin** (Java-only; Kotlin-aware enforcement is post-MVP)
+- **`enforcePackage()` rewrites Kotlin package directives** alongside Java. The branch that inserts a missing directive omits the trailing semicolon for Kotlin (Java emits `";\n\n"`, Kotlin emits `"\n\n"`); rename and delete branches reuse the PSI-derived `Selection`s from `KotlinInfoParser`
 
 ### Dependency Editing (UI -> Source)
 

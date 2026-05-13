@@ -59,6 +59,7 @@
 - PSI-based `ClassInfo` extraction: class name, superclass, interfaces, methods, modifiers, package, type parameters
 - For function-only files: synthesizes `ClassInfo` with `topLevelFunctionsOnly=true`
 - Supertype-editing `Selection` positions derived from `PsiElement.getTextRange()`
+- Package-directive `Selection`s (keyword span + name span + zero-length post-name marker) derived from `KtFile.getPackageDirective()` so `ClassTarget.enforcePackage()` can rewrite the line in place; built via `KotlinParserUtils.packageSelections(ktFile, source)`. The post-name marker takes the place of Java's `;` (Kotlin has no trailing semicolon).
 
 ---
 

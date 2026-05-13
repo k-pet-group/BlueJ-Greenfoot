@@ -128,6 +128,7 @@ public class KotlinInfoParser
 
         FqName packageFqName = ktFile.getPackageFqName();
         String packageName = packageFqName.isRoot() ? "" : packageFqName.asString();
+        Selection[] pkgSelections = KotlinParserUtils.packageSelections(ktFile, source);
 
         KtClassOrObject classOrObject = null;
         for (KtDeclaration decl : ktFile.getDeclarations()) {
@@ -148,7 +149,7 @@ public class KotlinInfoParser
                 return null; // No class AND no functions — truly empty file
             }
             return buildTopLevelFunctionsInfo(
-                topLevelFunctions, ktFile, packageName, targetPkg);
+                topLevelFunctions, ktFile, packageName, pkgSelections, targetPkg);
         }
 
         // Mixed content (class + functions/properties) — return null to prevent file rename
@@ -158,14 +159,15 @@ public class KotlinInfoParser
             }
         }
 
-        return buildClassInfo(classOrObject, ktFile, packageName, targetPkg);
+        return buildClassInfo(classOrObject, ktFile, packageName, pkgSelections, targetPkg);
     }
 
     /**
      * Build a {@link ClassInfo} from a PSI class/object declaration.
      */
     private static ClassInfo buildClassInfo(KtClassOrObject classOrObject,
-            KtFile ktFile, String packageName, String targetPkg)
+            KtFile ktFile, String packageName, Selection[] pkgSelections,
+            String targetPkg)
     {
         ClassInfo info = new ClassInfo();
 
@@ -193,12 +195,12 @@ public class KotlinInfoParser
             info.setEnum(false);
         }
 
-        if (!packageName.isEmpty()) {
+        if (pkgSelections != null) {
             info.setPackageSelections(
-                new Selection(1, 1),   // package statement placeholder
-                new Selection(1, 1),   // package name placeholder
-                packageName,           // the actual package name text
-                new Selection(1, 1)    // semi placeholder (Kotlin has no semicolons)
+                pkgSelections[0],     // package keyword span
+                pkgSelections[1],     // package name span
+                packageName,          // the actual package name text
+                pkgSelections[2]      // zero-length post-name marker (no semicolons in Kotlin)
             );
         }
 
@@ -231,7 +233,8 @@ public class KotlinInfoParser
      */
     private static ClassInfo buildTopLevelFunctionsInfo(
             List<KtNamedFunction> functions,
-            KtFile ktFile, String packageName, String targetPkg)
+            KtFile ktFile, String packageName, Selection[] pkgSelections,
+            String targetPkg)
     {
         ClassInfo info = new ClassInfo();
 
@@ -247,12 +250,12 @@ public class KotlinInfoParser
         info.setEnum(false);
         info.setAbstract(false);
 
-        if (!packageName.isEmpty()) {
+        if (pkgSelections != null) {
             info.setPackageSelections(
-                new Selection(1, 1),   // package statement placeholder
-                new Selection(1, 1),   // package name placeholder
-                packageName,           // the actual package name text
-                new Selection(1, 1)    // semi placeholder (Kotlin has no semicolons)
+                pkgSelections[0],     // package keyword span
+                pkgSelections[1],     // package name span
+                packageName,          // the actual package name text
+                pkgSelections[2]      // zero-length post-name marker (no semicolons in Kotlin)
             );
         }
 
