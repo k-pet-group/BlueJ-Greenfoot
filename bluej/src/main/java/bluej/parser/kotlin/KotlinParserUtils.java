@@ -47,6 +47,31 @@ public final class KotlinParserUtils
     }
 
     /**
+     * Compute the JVM facade class name the Kotlin compiler produces for a
+     * top-level-functions file with the given source-file stem.
+     *
+     * <p>K2 capitalises the first letter of the stem and appends {@code "Kt"},
+     * so {@code utils.kt} compiles to {@code UtilsKt.class}, {@code myUtil.kt}
+     * compiles to {@code MyUtilKt.class}, and {@code Utils.kt} compiles to
+     * {@code UtilsKt.class}. The casing of the rest of the stem is preserved.
+     *
+     * <p>This is verified against {@code K2JVMCompiler} 2.1.20 and is consistent
+     * with {@code @file:JvmName} default behaviour. Use this from every site
+     * that needs to derive the facade class name from a source-file stem so
+     * the rule lives in exactly one place.
+     *
+     * @param stem the source-file stem (no extension), e.g. {@code "utils"}
+     * @return the facade class simple name, e.g. {@code "UtilsKt"}
+     */
+    public static String kotlinFacadeClassName(String stem)
+    {
+        if (stem == null || stem.isEmpty()) {
+            return stem;
+        }
+        return Character.toUpperCase(stem.charAt(0)) + stem.substring(1) + "Kt";
+    }
+
+    /**
      * Convert a 0-based character offset within {@code source} to a 1-based
      * {@link Selection}-compatible [line, column] pair. The end of the
      * conversion is inclusive: the returned column is the column of the

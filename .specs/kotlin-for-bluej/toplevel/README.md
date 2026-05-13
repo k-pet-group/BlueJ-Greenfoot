@@ -18,14 +18,32 @@ Mixed files (class + top-level functions) are not supported. Extra declarations 
 
 ## Facade Class Naming
 
-Kotlin compiles `Utils.kt` (functions only) to `UtilsKt.class`. The naming mismatch is resolved in `ClassTarget`:
+Kotlin compiles a top-level-functions file into a JVM facade class whose
+name is the source-file stem with its **first letter capitalised** and
+`Kt` appended. The naming mismatch is resolved in `ClassTarget`:
 
-| Concept | Value |
-|---------|-------|
-| Source file / diagram display | `Utils` |
-| Compiled facade class / qualified name | `UtilsKt` |
+| Source file | Compiled facade class |
+|---|---|
+| `Utils.kt` | `UtilsKt` |
+| `utils.kt` | `UtilsKt` (first letter uppercased) |
+| `myUtil.kt` | `MyUtilKt` |
+| `A.kt` / `a.kt` | `AKt` |
 
-`ClassTarget.getQualifiedName()` appends `"Kt"` when role is `KotlinFileRole`. Uses `volatile boolean isKotlinFacade` for thread safety (`getQualifiedName()` is `@OnThread(Tag.Any)` but `role` requires `@FXPlatform`).
+The capitalisation rule lives in one place:
+`bluej.parser.kotlin.KotlinParserUtils.kotlinFacadeClassName(stem)`. Every
+site that needs to derive the compiled facade name from a source stem
+uses that helper:
+
+- `ClassTarget.getQualifiedName()` — class-loader lookup name
+- `ClassTarget.getClassFile()` — `.class` file path
+- `ClassTarget.InnerClassFileFilter` — inner-class match prefix
+- `ClassTarget.removeGeneratedFiles()` — facade `.ctxt` cleanup
+- `Package.findTargets()` — facade-class dedup against the set of
+  expected facade names built from the Kotlin source stems
+
+The class itself stores a `volatile boolean isKotlinFacade` flag so
+`getQualifiedName()` can stay `@OnThread(Tag.Any)` while role assignment
+remains on FXPlatform.
 
 ---
 

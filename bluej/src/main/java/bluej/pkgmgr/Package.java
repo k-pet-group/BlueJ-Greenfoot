@@ -68,6 +68,7 @@ import bluej.utility.*;
 import bluej.utility.filefilter.FrameSourceFilter;
 import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
+import bluej.parser.kotlin.KotlinParserUtils;
 import bluej.utility.filefilter.KotlinSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
 import threadchecker.OnThread;
@@ -675,6 +676,14 @@ public final class Package
         }
 
         // process all *.kt files
+        // Record the *facade class names* the Kotlin compiler will emit for
+        // each top-level-functions source file. K2 capitalises the stem's
+        // first letter and appends "Kt", so utils.kt → UtilsKt.class. We
+        // need that set later to dedup facade .class files; a naïve
+        // stripSuffix("Kt") on the class name produces the wrong stem for
+        // lowercase sources (UtilsKt → "Utils", which doesn't match the
+        // lowercase "utils" we just added to interestingSet).
+        Set<String> kotlinFacadeNames = new HashSet<String>();
         File kotlinSrcFiles[] = path.listFiles(new KotlinSourceFilter());
         if (kotlinSrcFiles != null)
         {
@@ -694,6 +703,8 @@ public final class Package
                 // to ignore)
                 if (kotlinFileName.indexOf('$') == -1) {
                     interestingSet.add(kotlinFileName);
+                    kotlinFacadeNames.add(
+                            KotlinParserUtils.kotlinFacadeClassName(kotlinFileName));
                 }
             }
         }
@@ -713,10 +724,11 @@ public final class Package
 
             if (classFileName.indexOf('$') == -1) {
                 // skip Kt facade classes that have a corresponding .kt source
-                // (e.g., UtilsKt.class when Utils.kt exists)
-                if (classFileName.endsWith("Kt") && classFileName.length() > 2
-                        && interestingSet.contains(
-                                classFileName.substring(0, classFileName.length() - 2))) {
+                // (e.g., UtilsKt.class when utils.kt or Utils.kt exists).
+                // Match against the precomputed kotlinFacadeNames so the
+                // capitalisation rule lives in one place
+                // (KotlinParserUtils.kotlinFacadeClassName).
+                if (kotlinFacadeNames.contains(classFileName)) {
                     continue;
                 }
                 // add only if there is no corresponding source file
