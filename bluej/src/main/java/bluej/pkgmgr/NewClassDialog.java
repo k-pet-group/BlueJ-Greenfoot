@@ -88,6 +88,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
      * The label with the error message.
      */
     private final Label errorLabel;
+    private final ObservableValue<Boolean> isClassContentBoxEnabled;
 
     /**
      * The information selected in the dialog: class name,
@@ -164,7 +165,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         HBox classContentBox = new HBox(new Label(Config.getString("pkgmgr.newClass.content")), classContent);
         classContentBox.setSpacing(10);
         classContentBox.setAlignment(Pos.BASELINE_LEFT);
-        ObservableValue<Boolean> isClassContentBoxEnabled = language.selectedProperty()
+        isClassContentBoxEnabled = language.selectedProperty()
                 .map(language -> language != SourceType.Kotlin);
         classContentBox.visibleProperty().bind(isClassContentBoxEnabled);
         classContentBox.managedProperty().bind(isClassContentBoxEnabled);
