@@ -34,6 +34,7 @@ import java.util.StringTokenizer;
 
 import bluej.prefmgr.PrefMgr;
 import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -87,6 +88,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
      * The label with the error message.
      */
     private final Label errorLabel;
+    private final ObservableValue<Boolean> isClassContentBoxEnabled;
 
     /**
      * The information selected in the dialog: class name,
@@ -163,6 +165,10 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         HBox classContentBox = new HBox(new Label(Config.getString("pkgmgr.newClass.content")), classContent);
         classContentBox.setSpacing(10);
         classContentBox.setAlignment(Pos.BASELINE_LEFT);
+        isClassContentBoxEnabled = language.selectedProperty()
+                .map(language -> language != SourceType.Kotlin);
+        classContentBox.visibleProperty().bind(isClassContentBoxEnabled);
+        classContentBox.managedProperty().bind(isClassContentBoxEnabled);
         mainPanel.getChildren().add(classContentBox);
 
 
@@ -181,10 +187,14 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         setResultConverter(buttonType -> {
             if (buttonType == ButtonType.OK)
             {
+                SourceType selectedLanguage = language.selectedProperty().get();
+                ClassContent selectedContent = selectedLanguage == SourceType.Kotlin
+                        ? ClassContent.FULL
+                        : classContent.getSelectionModel().getSelectedItem();
                 // Save the classContent preference:
-                PrefMgr.setFlag(PrefMgr.NEW_CLASS_FULL_CONTENT, classContent.getSelectionModel().getSelectedItem() == ClassContent.FULL);
+                PrefMgr.setFlag(PrefMgr.NEW_CLASS_FULL_CONTENT, selectedContent == ClassContent.FULL);
 
-                return new NewClassInfo(nameField.getText().trim(), templates.get(templateButtons.getSelectedToggle()).name, language.selectedProperty().get(), classContent.getSelectionModel().getSelectedItem());
+                return new NewClassInfo(nameField.getText().trim(), templates.get(templateButtons.getSelectedToggle()).name, selectedLanguage, selectedContent);
             }
             else {
                 return null;

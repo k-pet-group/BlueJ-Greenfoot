@@ -52,6 +52,7 @@ import bluej.parser.context.CompilationUnitContextLoader;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
 import bluej.parser.entity.ParsedReflective;
+import bluej.parser.kotlin.KotlinParserUtils;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.symtab.ClassInfo;
@@ -383,14 +384,15 @@ public class ClassTarget extends DependentTarget
     public String getQualifiedName()
     {
         String baseName = getBaseName();
-        // Kotlin facade classes are compiled with a "Kt" suffix
-        // (e.g., Utils.kt → UtilsKt.class), so the class loader
-        // needs the suffixed name to find the compiled class.
+        // Kotlin facade classes are compiled with the first letter of the
+        // stem capitalised and a "Kt" suffix appended (e.g. Utils.kt and
+        // utils.kt both → UtilsKt.class). The class loader needs that exact
+        // name; reuse the single source of truth in KotlinParserUtils.
         // Uses volatile isKotlinFacade flag (thread-safe) instead of
         // checking role directly (which requires FXPlatform).
         if (isKotlinFacade)
         {
-            baseName = baseName + "Kt";
+            baseName = KotlinParserUtils.kotlinFacadeClassName(baseName);
         }
         return getPackage().getQualifiedName(baseName);
     }
@@ -570,7 +572,7 @@ public class ClassTarget extends DependentTarget
     {
         if (role == null || role.getRoleName() != newRole.getRoleName()) {
             role = newRole;
-            isKotlinFacade = (newRole instanceof KotlinFileRole);
+            isKotlinFacade = (newRole instanceof KotlinFileRole) && !getBaseName().endsWith("Kt");
 
             String select = pseudoFor(role.getClass());
             String stereotype = role.getStereotypeLabel();
@@ -1319,10 +1321,12 @@ public class ClassTarget extends DependentTarget
      */
     public File getClassFile()
     {
-        // Kotlin facade classes compile with a "Kt" suffix
+        // Kotlin facade classes compile with the capitalised-stem + "Kt"
+        // facade name; the helper centralises that rule.
         if (isKotlinFacade)
         {
-            return getPackageFile(getBaseName() + "Kt.class");
+            return getPackageFile(
+                KotlinParserUtils.kotlinFacadeClassName(getBaseName()) + ".class");
         }
         return getPackageFile(getBaseName() + ".class");
     }
@@ -1374,9 +1378,10 @@ public class ClassTarget extends DependentTarget
             {
                 return true;
             }
-            // Kotlin facade classes compile as ClassNameKt.class, with
-            // inner/lambda classes as ClassNameKt$lambda.class
-            if (isKotlinFacade && name.startsWith(getBaseName() + "Kt$"))
+            // Kotlin facade classes compile as <CapitalisedStem>Kt.class,
+            // with inner/lambda classes as <CapitalisedStem>Kt$lambda.class.
+            if (isKotlinFacade && name.startsWith(
+                    KotlinParserUtils.kotlinFacadeClassName(getBaseName()) + "$"))
             {
                 return true;
             }
@@ -1766,13 +1771,16 @@ public class ClassTarget extends DependentTarget
     public void enforcePackage(String packageName)
         throws IOException
     {
-        if (getSourceType() != SourceType.Java)
+        SourceType st = getSourceType();
+        if (st != SourceType.Java && st != SourceType.Kotlin)
         {
-            // Only force packages in Java files
+            // Stride and other source types are not rewritten this way.
             return;
         }
 
         if (!JavaNames.isQualifiedIdentifier(packageName)) {
+            // Kotlin's qualified-identifier grammar matches Java's for the
+            // purpose of package directives, so the same validator applies.
             throw new IllegalArgumentException();
         }
 
@@ -1780,6 +1788,13 @@ public class ClassTarget extends DependentTarget
         if (info == null) {
             return;
         }
+
+        // Kotlin has no trailing semicolon on package directives; Java does.
+        // This only matters when inserting a missing directive — the rename
+        // and delete branches use either real PSI selections (Kotlin) or the
+        // tokeniser-derived selections (Java) which already span the semicolon.
+        boolean isKotlin = st == SourceType.Kotlin;
+        String semiInsert = isKotlin ? "\n\n" : ";\n\n";
 
         // We may or may not need to change each of the semi colon selection text,
         // package name selection text, and package statement selection text.
@@ -1812,7 +1827,7 @@ public class ClassTarget extends DependentTarget
             }
             else {
                 // we must insert all the "package" statement
-                semiReplacement = ";\n\n";
+                semiReplacement = semiInsert;
                 nameReplacement = packageName;
                 pkgStatementReplacement = "package ";
             }
@@ -2567,9 +2582,10 @@ public class ClassTarget extends DependentTarget
     {
         getClassFile().delete();
         getDocumentationFile().delete();
-        // Facade .ctxt files use the "Kt" suffix (matches updateMetadata)
+        // Facade .ctxt files use the capitalised-stem + "Kt" facade name
+        // (matches updateMetadata via getQualifiedName).
         String ctxtName = isKotlinFacade
-            ? getBaseName() + "Kt.ctxt"
+            ? KotlinParserUtils.kotlinFacadeClassName(getBaseName()) + ".ctxt"
             : getBaseName() + ".ctxt";
         getPackageFile(ctxtName).delete();
         getAllSourceFilesJavaLast().forEach(info -> info.file.delete());

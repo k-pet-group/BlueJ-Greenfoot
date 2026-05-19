@@ -30,7 +30,10 @@ All spokes work identically for Kotlin as for Java/Stride. Modifications are in 
 - **Dependency system is unchanged** -- `KotlinInfoParser` produces standard `ClassInfo` consumed by `analyseDependencies()`
 - **Template substitution** -- Kotlin templates use same `$CLASSNAME`/`$PKGLINE` variables as Java
 - **`canConvertToStride()` returns false** for Kotlin
-- **`enforcePackage()` skips Kotlin** (Java-only; Kotlin-aware enforcement is post-MVP)
+- **`enforcePackage()` rewrites Kotlin package directives** alongside Java. The branch that inserts a missing directive omits the trailing semicolon for Kotlin (Java emits `";\n\n"`, Kotlin emits `"\n\n"`); rename and delete branches reuse the PSI-derived `Selection`s from `KotlinInfoParser`
+- **Package move (`Package.importFile`)** accepts `.kt` alongside `.java` and `.stride` via the shared `stripRecognisedSourceExtension` helper. After the source file is copied to the destination, the standard `addClass` → `analyseSource` flow picks up the right `SourceType.Kotlin`, applies `enforcePackage`, and the next compile in the destination emits the proper `.class` (regular classes) or facade `.class` (top-level functions).
+- **Non-BlueJ project import (`Import.convertNonBlueJ`)** treats `.kt` files as first-class source files: `findInterestingDirectories` marks a directory interesting if it contains any recognised source file (Java, Stride, or Kotlin); `findSourceFiles` (formerly `findJavaFiles`) returns all such files. The mismatch loop dispatches to `KotlinInfoParser.parse` for `.kt` files and `InfoParser.parse` for `.java` files.
+- **Add Class from File…** (`PkgMgrFrame.doAddFromFile`) uses `FileUtility.getSourceFilterFX` (formerly `getJavaStrideSourceFilterFX`) which lists `*.java`, `*.stride`, and `*.kt` in the file picker. The selected files are routed through `Package.importFile`, which is also Kotlin-aware.
 
 ### Dependency Editing (UI -> Source)
 

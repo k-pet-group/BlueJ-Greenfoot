@@ -61,6 +61,7 @@ import bluej.extensions2.SourceType;
 import bluej.extensions2.event.CompileEvent;
 import bluej.extensions2.event.CompileEvent.EventType;
 import bluej.extmgr.ExtensionsManager;
+import bluej.parser.kotlin.KotlinParserUtils;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
@@ -675,6 +676,14 @@ public final class Package
         }
 
         // process all *.kt files
+        // Record the *facade class names* the Kotlin compiler will emit for
+        // each top-level-functions source file. K2 capitalises the stem's
+        // first letter and appends "Kt", so utils.kt → UtilsKt.class. We
+        // need that set later to dedup facade .class files; a naïve
+        // stripSuffix("Kt") on the class name produces the wrong stem for
+        // lowercase sources (UtilsKt → "Utils", which doesn't match the
+        // lowercase "utils" we just added to interestingSet).
+        Set<String> kotlinFacadeNames = new HashSet<String>();
         File kotlinSrcFiles[] = path.listFiles(new KotlinSourceFilter());
         if (kotlinSrcFiles != null)
         {
@@ -694,6 +703,8 @@ public final class Package
                 // to ignore)
                 if (kotlinFileName.indexOf('$') == -1) {
                     interestingSet.add(kotlinFileName);
+                    kotlinFacadeNames.add(
+                            KotlinParserUtils.kotlinFacadeClassName(kotlinFileName));
                 }
             }
         }
@@ -713,10 +724,11 @@ public final class Package
 
             if (classFileName.indexOf('$') == -1) {
                 // skip Kt facade classes that have a corresponding .kt source
-                // (e.g., UtilsKt.class when Utils.kt exists)
-                if (classFileName.endsWith("Kt") && classFileName.length() > 2
-                        && interestingSet.contains(
-                                classFileName.substring(0, classFileName.length() - 2))) {
+                // (e.g., UtilsKt.class when utils.kt or Utils.kt exists).
+                // Match against the precomputed kotlinFacadeNames so the
+                // capitalisation rule lives in one place
+                // (KotlinParserUtils.kotlinFacadeClassName).
+                if (kotlinFacadeNames.contains(classFileName)) {
                     continue;
                 }
                 // add only if there is no corresponding source file
@@ -1349,23 +1361,20 @@ public final class Package
     /**
      * Import a source file into this package as a new class target. Returns an
      * error code: NO_ERROR - everything is fine FILE_NOT_FOUND - file does not
-     * exist ILLEGAL_FORMAT - the file name does not end in ".java" CLASS_EXISTS -
-     * a class with this name already exists COPY_ERROR - could not copy
+     * exist ILLEGAL_FORMAT - the file name does not end in a recognised source
+     * extension (.java, .stride, or .kt) CLASS_EXISTS - a class with this name
+     * already exists COPY_ERROR - could not copy
      */
     public int importFile(File aFile)
     {
-        // check whether specified class exists and is a java file
+        // check whether specified file exists and has a recognised source extension
 
         if (!aFile.exists())
             return FILE_NOT_FOUND;
         String fileName = aFile.getName();
 
-        String className;
-        if (fileName.endsWith("." + SourceType.Java.getExtension())) // it's a Java source file
-            className = fileName.substring(0, fileName.length() - SourceType.Java.getExtension().length() - 1);
-        else if (fileName.endsWith("." + SourceType.Stride.getExtension())) // it's a Stride source file
-            className = fileName.substring(0, fileName.length() - SourceType.Stride.getExtension().length() - 1);
-        else
+        String className = stripRecognisedSourceExtension(fileName);
+        if (className == null)
             return ILLEGAL_FORMAT;
 
         // check whether name is already used
@@ -1400,6 +1409,25 @@ public final class Package
         DataCollector.addClass(this, t);
 
         return NO_ERROR;
+    }
+
+    /**
+     * If {@code fileName} ends with a source extension BlueJ recognises
+     * ({@code .java}, {@code .stride}, or {@code .kt}), return the
+     * stem (file name without extension). Otherwise return {@code null}.
+     *
+     * <p>Used by {@link #importFile(File)} to decide whether an arbitrary
+     * file path can be imported as a class target.
+     */
+    static String stripRecognisedSourceExtension(String fileName)
+    {
+        for (SourceType st : new SourceType[]{SourceType.Java, SourceType.Stride, SourceType.Kotlin}) {
+            String suffix = "." + st.getExtension();
+            if (fileName.endsWith(suffix)) {
+                return fileName.substring(0, fileName.length() - suffix.length());
+            }
+        }
+        return null;
     }
 
     public ClassTarget addClass(String className)
