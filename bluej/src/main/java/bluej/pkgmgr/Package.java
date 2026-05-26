@@ -675,7 +675,6 @@ public final class Package
             interestingSet.add(frameFileName);
         }
 
-        // process all *.kt files
         // Record the *facade class names* the Kotlin compiler will emit for
         // each top-level-functions source file. K2 capitalises the stem's
         // first letter and appends "Kt", so utils.kt → UtilsKt.class. We
@@ -684,27 +683,30 @@ public final class Package
         // lowercase sources (UtilsKt → "Utils", which doesn't match the
         // lowercase "utils" we just added to interestingSet).
         Set<String> kotlinFacadeNames = new HashSet<String>();
-        File kotlinSrcFiles[] = path.listFiles(new KotlinSourceFilter());
-        if (kotlinSrcFiles != null)
-        {
-            for (int i = 0; i < kotlinSrcFiles.length; i++)
+        if (!Config.isGreenfoot()) {
+            // process all *.kt files
+            File kotlinSrcFiles[] = path.listFiles(new KotlinSourceFilter());
+            if (kotlinSrcFiles != null)
             {
-                String kotlinFileName = JavaNames.stripSuffix(
-                        kotlinSrcFiles[i].getName(),
-                        "." + SourceType.Kotlin.getExtension());
+                for (int i = 0; i < kotlinSrcFiles.length; i++)
+                {
+                    String kotlinFileName = JavaNames.stripSuffix(
+                            kotlinSrcFiles[i].getName(),
+                            "." + SourceType.Kotlin.getExtension());
 
-                // check if the name would be a valid java name
-                // (Kotlin class names must also be valid JVM identifiers)
-                if (!JavaNames.isIdentifier(kotlinFileName)) {
-                    continue;
-                }
+                    // check if the name would be a valid java name
+                    // (Kotlin class names must also be valid JVM identifiers)
+                    if (!JavaNames.isIdentifier(kotlinFileName)) {
+                        continue;
+                    }
 
-                // files with a $ in them signify inner classes (which we want
-                // to ignore)
-                if (kotlinFileName.indexOf('$') == -1) {
-                    interestingSet.add(kotlinFileName);
-                    kotlinFacadeNames.add(
-                            KotlinParserUtils.kotlinFacadeClassName(kotlinFileName));
+                    // files with a $ in them signify inner classes (which we want
+                    // to ignore)
+                    if (kotlinFileName.indexOf('$') == -1) {
+                        interestingSet.add(kotlinFileName);
+                        kotlinFacadeNames.add(
+                                KotlinParserUtils.kotlinFacadeClassName(kotlinFileName));
+                    }
                 }
             }
         }

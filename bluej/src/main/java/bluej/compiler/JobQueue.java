@@ -28,7 +28,6 @@ import java.util.List;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
-import bluej.utility.Debug;
 import bluej.utility.Utility;
 
 /**
@@ -62,7 +61,9 @@ public class JobQueue
     private JobQueue()
     {
         javaCompiler = new CompilerAPICompiler();
-        kotlinCompiler = new KotlinCompiler();
+        if (!Config.isGreenfoot()) {
+            kotlinCompiler = new KotlinCompiler();
+        }
         thread = new CompilerThread();
 
         // Lower priority to improve GUI response time during compilation
@@ -91,7 +92,8 @@ public class JobQueue
         String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, "");
         options.addAll(Utility.dequoteCommandLine(optionString));
 
-        Compiler selectedCompiler = hasKotlinSources(sources) ? kotlinCompiler : javaCompiler;
+        Compiler selectedCompiler = (kotlinCompiler != null && hasKotlinSources(sources))
+                ? kotlinCompiler : javaCompiler;
         thread.addJob(new Job(sources, selectedCompiler, observer, bpClassLoader,
                 destDir, suppressUnchecked, options, fileCharset, type, reason));
     }
