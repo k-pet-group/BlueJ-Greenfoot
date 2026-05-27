@@ -22,6 +22,7 @@
 **Submodules:**
 - [PSI-Based Scope Detection](psi-scope/README.md) -- PSI tree -> ParsedNode conversion
 - [Highlighting](highlighting/README.md) -- token-level syntax coloring details
+- [Auto-Indent](auto-indent/README.md) -- token-driven Kotlin indenter (no scope-tree dependency)
 
 ---
 
@@ -34,6 +35,11 @@
 | `PlainTextLanguageSupport` | `null` (fail-fast) | throws `UnsupportedOperationException` |
 
 FlowEditor delegates parser creation and source-editing (setExtendsClass, addImplements, etc.) to the strategy. Callers pass strategy explicitly at construction.
+
+Auto-indent is **not** routed through the strategy. `FlowIndent` dispatches
+on `parser.getParser() instanceof KotlinParsedCUNode` in one place — see
+[Auto-Indent](auto-indent/README.md). Indent correctness no longer depends
+on `KotlinPsiScopeBuilder` emitting the right `isInner` / container shape.
 
 ---
 

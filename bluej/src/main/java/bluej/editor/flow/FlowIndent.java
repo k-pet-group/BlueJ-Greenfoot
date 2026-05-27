@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2019,2021,2022  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2019,2021,2022,2026  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.editor.flow;
 import bluej.Config;
 import bluej.editor.flow.Document.Bias;
 import bluej.editor.flow.MultilineStringTracker.TextBlockRelation;
+import bluej.parser.kotlin.KotlinParsedCUNode;
 import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -82,9 +83,18 @@ public class FlowIndent
     /**
      * Perform an auto-layout - calculate the correct indent for each source line between the given
      * start and end positions, and apply it. Return information about the applied indentation.
+     *
+     * <p>Kotlin source uses the token-driven {@link KotlinIndent}, dispatched by
+     * the {@code instanceof KotlinParsedCUNode} check below. All other languages
+     * fall through to the tree-walking implementation.
      */
     public static AutoIndentInformation calculateIndentsAndApply(ReparseableDocument parser, Document doc, MultilineStringTracker multilineStringTracker, int startPos, int endPos, int prevCaretPos)
     {
+        if (parser != null && parser.getParser() instanceof KotlinParsedCUNode) {
+            return KotlinIndent.calculateIndentsAndApply(
+                    parser, doc, multilineStringTracker, startPos, endPos, prevCaretPos);
+        }
+
         int caretPos = prevCaretPos;
         Element rootElement = parser.getDefaultRootElement();
         List<DocumentAction> methodUpdates = new LinkedList<DocumentAction>();

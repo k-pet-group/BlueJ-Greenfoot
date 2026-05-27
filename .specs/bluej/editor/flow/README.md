@@ -16,7 +16,8 @@ The traditional text-based Java editor (27 files). Implements the `TextEditor` i
 | `FlowErrorManager` | Compiler diagnostic display with squiggly underlines and quick-fix integration |
 | `FlowActions` | Editor action definitions with key binding management |
 | `FindPanel` / `FindNavigator` | Find/replace UI and navigation logic |
-| `FlowIndent` | Auto-indentation using parser scope analysis |
+| `FlowIndent` | Auto-indentation; default tree-walking implementation for Java + dispatch hook for `FlowLanguageSupport.calculateIndents` (Kotlin) |
+| `KotlinIndent` | Token-driven Kotlin auto-indenter; no parse-tree dependency |
 | `TrackedPosition` | Caret/anchor positions that auto-adjust on text edits; has `Bias` (FORWARD/NONE) |
 
 ---
@@ -38,6 +39,23 @@ The traditional text-based Java editor (27 files). Implements the `TextEditor` i
 2. `getBackgrounds(lineIndex)` walks the tree to find overlapping scopes
 3. Creates `BackgroundItem` nodes with scope colors from `ScopeColors` palette
 4. `FlowEditorPane` distributes backgrounds to visible lines
+
+---
+
+## Auto-Indent Dispatch
+
+`FlowIndent.calculateIndentsAndApply` checks the parser root type with one
+`instanceof` and routes Kotlin sources to `KotlinIndent`; everything else
+falls through to the default tree-walking implementation that walks
+`NodeAndPosition<ParsedNode>` and `JavaParentNode.isSwitchBlockNode()`.
+
+| Parser root | Path |
+|---|---|
+| `KotlinParsedCUNode` | `KotlinIndent.calculateIndentsAndApply(...)` — token-driven; no parse-tree read; multi-line strings flagged `LEAVE_UNTOUCHED` |
+| Anything else (incl. `null`) | Tree-walking via `IndentCalculator` / `NodeIndentCalculator`, including `checkMethodSpacing` |
+
+Java behavior is bit-identical to the pre-feature implementation (verified
+by `TestAutoIndent` passing unchanged).
 
 ---
 
