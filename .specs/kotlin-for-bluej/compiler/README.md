@@ -8,11 +8,11 @@
 
 ## Architecture
 
-1. **Dispatch** -- `JobQueue` inspects source file extensions; selects `KotlinCompiler` for `.kt`, `CompilerAPICompiler` for `.java`
-2. **Pipeline** (inside `KotlinCompiler.compile()`) -- Validate file structure via `KotlinFileFormValidator` -> configure K2 arguments -> invoke `K2JVMCompiler.exec()` in-process -> collect diagnostics via `MessageCollector` -> map to BlueJ `Diagnostic` -> notify `CompileObserver`
+1. **Dispatch** -- `JobQueue.addJob` partitions sources by extension. `.kt` files go to `KotlinCompiler`, everything else to `CompilerAPICompiler`. In a mixed-language package both jobs are submitted: Kotlin first (so its `.class` output is on javac's classpath via `projectDir`), then Java. The `.java` sources are also handed to K2 via `KotlinCompiler.setJavaSymbolSources` so K2 can resolve Kotlin->Java references without their bytecode existing yet. K2 reads but does not emit for `.java`; the second job produces the authoritative bytecode and diagnostics.
+2. **Pipeline** (inside `KotlinCompiler.compile()`) -- Validate file structure via `KotlinFileFormValidator` -> configure K2 arguments (Kotlin sources plus any Java symbol sources in `freeArgs`) -> invoke `K2JVMCompiler.exec()` in-process -> collect diagnostics via `MessageCollector` (dropping any whose path ends in `.java` -- javac is the authoritative source for those) -> map to BlueJ `Diagnostic` -> notify `CompileObserver`
 3. **Classpath** -- `Boot.java` includes `kotlin-stdlib-*.jar` in `bluejUserJars`; `Job.compile()` passes it to `KotlinCompiler` via `setClasspath()`
 
-No new threads. Runs on existing `CompilerThread`, preserving single-threaded serialization.
+No new threads. Runs on existing `CompilerThread`, preserving single-threaded serialization. Mixed-language packages produce two sequential jobs on the same thread.
 
 ---
 
@@ -57,7 +57,7 @@ Line/column from `CompilerMessageSourceLocation` mapped 1:1. Origin = `KOTLIN`. 
 
 ## Known Limitations (MVP)
 
-- **No mixed-language projects** -- each class is Java OR Kotlin
+- **No per-class language mixing** -- each class is wholly Java OR wholly Kotlin (a package may contain both, see `JobQueue` mixed-language dispatch)
 - **K2 cold-start latency** -- first compile ~2-5s due to class loading
 - **No incremental compilation** -- full K2 on all `.kt` sources each time
 - **Full Kotlin language accepted** -- K2 doesn't restrict to educational subset

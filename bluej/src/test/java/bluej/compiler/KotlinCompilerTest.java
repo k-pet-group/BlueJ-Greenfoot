@@ -230,6 +230,156 @@ public class KotlinCompilerTest
         assertTrue("Deprecation should be enabled by default", compiler.isDeprecation());
     }
 
+    // ---- Mixed Java + Kotlin compilation ----
+
+    @Test
+    public void kotlinReferencingJava_compilesWhenJavaIsGivenAsSymbolSource() throws IOException
+    {
+        Path javaFile = sourceDir.resolve("Greeter.java");
+        Files.writeString(javaFile, """
+            public class Greeter {
+                public String greet(String name) {
+                    return "Hello, " + name;
+                }
+            }
+            """);
+
+        Path ktFile = sourceDir.resolve("Caller.kt");
+        Files.writeString(ktFile, """
+            class Caller {
+                fun run(): String = Greeter().greet("Kotlin")
+            }
+            """);
+
+        compiler.setJavaSymbolSources(List.of(inputFile(javaFile)));
+
+        TestObserver observer = new TestObserver();
+        boolean success = compiler.compile(
+                new File[]{ktFile.toFile()},
+                observer, false, Collections.emptyList(),
+                StandardCharsets.UTF_8, CompileType.EXPLICIT_USER_COMPILE);
+
+        assertTrue("Kotlin referencing Java should compile when the .java file is supplied as a symbol source",
+                success);
+        assertEquals("No errors expected", 0, observer.errors.size());
+
+        // K2 must emit bytecode for the .kt but never for the symbol-only .java.
+        assertTrue("Caller.class should be generated",
+                new File(tempDir.toFile(), "Caller.class").exists());
+        assertFalse("Greeter.class must NOT be emitted by K2 — javac is the authoritative emitter",
+                new File(tempDir.toFile(), "Greeter.class").exists());
+    }
+
+    @Test
+    public void kotlinReferencingJava_failsWithoutSymbolSource() throws IOException
+    {
+        // Regression baseline: this is the case that produced the "compile twice" bug.
+        Path javaFile = sourceDir.resolve("Greeter.java");
+        Files.writeString(javaFile, """
+            public class Greeter {
+                public String greet(String name) {
+                    return "Hello, " + name;
+                }
+            }
+            """);
+
+        Path ktFile = sourceDir.resolve("Caller.kt");
+        Files.writeString(ktFile, """
+            class Caller {
+                fun run(): String = Greeter().greet("Kotlin")
+            }
+            """);
+
+        // Note: no setJavaSymbolSources() call.
+        TestObserver observer = new TestObserver();
+        boolean success = compiler.compile(
+                new File[]{ktFile.toFile()},
+                observer, false, Collections.emptyList(),
+                StandardCharsets.UTF_8, CompileType.EXPLICIT_USER_COMPILE);
+
+        assertFalse("Kotlin should fail to resolve the Java type when it is not supplied",
+                success);
+        assertTrue("Unresolved-reference error expected", observer.errors.size() > 0);
+    }
+
+    @Test
+    public void javaSymbolSources_areClearedAfterEachCompile() throws IOException
+    {
+        // First compile: aux is set and consumed.
+        Path javaFile = sourceDir.resolve("Greeter.java");
+        Files.writeString(javaFile, """
+            public class Greeter { public String hi() { return "hi"; } }
+            """);
+        Path ktFile1 = sourceDir.resolve("First.kt");
+        Files.writeString(ktFile1, """
+            class First { fun run() = Greeter().hi() }
+            """);
+
+        compiler.setJavaSymbolSources(List.of(inputFile(javaFile)));
+        assertTrue(compiler.compile(new File[]{ktFile1.toFile()}, new TestObserver(), false,
+                Collections.emptyList(), StandardCharsets.UTF_8, CompileType.EXPLICIT_USER_COMPILE));
+
+        // Second compile: no setJavaSymbolSources() — the Greeter reference must NOT resolve
+        // through leaked state from the previous call.
+        Path ktFile2 = sourceDir.resolve("Second.kt");
+        Files.writeString(ktFile2, """
+            class Second { fun run() = Greeter().hi() }
+            """);
+
+        TestObserver observer = new TestObserver();
+        boolean success = compiler.compile(new File[]{ktFile2.toFile()}, observer, false,
+                Collections.emptyList(), StandardCharsets.UTF_8, CompileType.EXPLICIT_USER_COMPILE);
+
+        assertFalse("Aux state from a previous compile must not leak into the next call",
+                success);
+        assertTrue("Unresolved-reference error expected", observer.errors.size() > 0);
+    }
+
+    @Test
+    public void diagnosticsOnJavaSymbolSources_areSuppressed() throws IOException
+    {
+        // Even when the Java symbol source has a syntax error, K2 must not surface a
+        // .java-pathed diagnostic — javac is the authoritative source for Java errors.
+        Path javaFile = sourceDir.resolve("Broken.java");
+        Files.writeString(javaFile, """
+            public class Broken {
+                public String oops( {  // syntax error
+                    return "x";
+                }
+            }
+            """);
+
+        Path ktFile = sourceDir.resolve("OkKotlin.kt");
+        Files.writeString(ktFile, """
+            class OkKotlin { fun hello(): String = "hi" }
+            """);
+
+        compiler.setJavaSymbolSources(List.of(inputFile(javaFile)));
+
+        TestObserver observer = new TestObserver();
+        compiler.compile(new File[]{ktFile.toFile()}, observer, false,
+                Collections.emptyList(), StandardCharsets.UTF_8, CompileType.EXPLICIT_USER_COMPILE);
+
+        for (Diagnostic d : observer.errors)
+        {
+            String f = d.getFileName();
+            assertFalse("K2 should not report errors against .java files (got: " + f + ")",
+                    f != null && f.toLowerCase().endsWith(".java"));
+        }
+        for (Diagnostic d : observer.warnings)
+        {
+            String f = d.getFileName();
+            assertFalse("K2 should not report warnings against .java files (got: " + f + ")",
+                    f != null && f.toLowerCase().endsWith(".java"));
+        }
+    }
+
+    private static CompileInputFile inputFile(Path p)
+    {
+        File f = p.toFile();
+        return new CompileInputFile(f, f);
+    }
+
     // ---- Test infrastructure ----
 
     /**
