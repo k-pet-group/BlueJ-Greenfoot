@@ -348,6 +348,7 @@ editor.info.emptySearchString = Empty search string.
 editor.info.notFound = Not found (search again to wrap around).
 editor.info.compiling = Compiling...
 editor.info.cannotSetBreak = Cannot set breakpoint:\nNo code associated with this editor.
+editor.info.kotlinCompletionUnavailable = Code completion is not available for Kotlin files
 editor.info.fileDisappeared = ERROR: The file seems to have disappeared!
 editor.info.fileReadError = ERROR: There was an error while trying to read this file.
 editor.info.saved = File saved

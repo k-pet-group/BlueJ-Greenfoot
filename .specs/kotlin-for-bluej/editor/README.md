@@ -79,7 +79,7 @@ Required because `JavaSyntaxView.drawNode()` checks `isContainer() || isInner()`
 ## Known Limitations
 
 - **~1-2 second first-parse delay** when `KotlinCoreEnvironment` initializes
-- **No code completion** or type-aware highlighting for Kotlin
+- **No code completion** or type-aware highlighting for Kotlin. Ctrl+Space inside a `.kt` editor surfaces a transient caret-anchored popup ("Code completion is not available for Kotlin files") via `FlowEditor.showKotlinUnavailableNotice` — implemented as a `PopupControl` + custom `Skin` mirroring the existing `showErrorOverlay` shape, auto-dismissed after ~3s. This is an honest "not supported yet" signal rather than a working completion path; lifting it requires `BindingContext`-based type resolution (Tier 2, post-MVP).
 - **PSI environment ~10-20 MB** memory
 - **Full-file reparse per edit** (~50-100ms for 500 lines; debounced by `FlowReparseRunner`)
 - **Multi-line `${...}` spanning lines** -- continuation lines may highlight incorrectly (rare)
