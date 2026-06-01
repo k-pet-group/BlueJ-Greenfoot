@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -605,6 +606,12 @@ public final class Package
         for (PackageListener l : listeners)
         {
             l.graphChanged();
+        }
+        Set<SourceType> sourceTypes = getClassTargets().stream().map(ClassTarget::getSourceType).collect(Collectors.toSet());
+        boolean javaAndKotlin = sourceTypes.contains(SourceType.Java) && sourceTypes.contains(SourceType.Kotlin);
+        for (ClassTarget t : getClassTargets())
+        {
+            t.updateJavaKotlinMarker(javaAndKotlin);
         }
     }
 

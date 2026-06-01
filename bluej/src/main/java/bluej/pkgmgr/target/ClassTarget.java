@@ -85,6 +85,7 @@ import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
@@ -92,6 +93,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -218,6 +220,11 @@ public class ClassTarget extends DependentTarget
     private boolean drawingExtends = false;
     private final Label nameLabel;
     private final Label noSourceLabel;
+    private final ImageView sourceTypeIcon;
+
+    private static final Image javaHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "j.png"));
+    private static final Image kotlinHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "k.png"));
+
 
     // The body of the class target which goes hashed, etc:
     @OnThread(Tag.FX)
@@ -277,9 +284,17 @@ public class ClassTarget extends DependentTarget
         // We need to add label to the stack pane element
         // to be used later for visual indication that class lacks source
         noSourceLabel = new Label("");
-        StackPane stackPane = new StackPane(canvas, noSourceLabel);
+        sourceTypeIcon = new ImageView();
+        sourceTypeIcon.setVisible(false);
+        sourceTypeIcon.setOpacity(0.6);
+        sourceTypeIcon.setFitWidth(15);
+        sourceTypeIcon.setFitHeight(15);
+        sourceTypeIcon.setPreserveRatio(true);
+        StackPane stackPane = new StackPane(canvas, noSourceLabel, sourceTypeIcon);
         StackPane.setAlignment(noSourceLabel, Pos.TOP_CENTER);
         StackPane.setAlignment(canvas, Pos.CENTER);
+        StackPane.setAlignment(sourceTypeIcon, Pos.BOTTOM_LEFT);
+        StackPane.setMargin(sourceTypeIcon, new Insets(0, 0, 5, 5));
         pane.setCenter(stackPane);
 
         // This must come after GUI init because it might try to affect GUI:
@@ -334,24 +349,29 @@ public class ClassTarget extends DependentTarget
         {
             sourceAvailable = SourceType.Stride;
             noSourceLabel.setText("");
+            sourceTypeIcon.setImage(null);
         }
         else if (getJavaSourceFile().canRead())
         {
             sourceAvailable = SourceType.Java;
             noSourceLabel.setText("");
+            sourceTypeIcon.setImage(javaHeaderImage);
         }
         else if (getKotlinSourceFile().canRead())
         {
             sourceAvailable = SourceType.Kotlin;
             JavaFXUtil.addStyleClass(pane, "class-target-kotlin");
             noSourceLabel.setText("");
+            sourceTypeIcon.setImage(kotlinHeaderImage);
         }
         else
         {
+            Debug.message("Found no source for " + getBaseName() + " @ " + getKotlinSourceFile());
             sourceAvailable = SourceType.NONE;
             // Can't have been modified since compile since there's no source to modify:
             setState(State.COMPILED);
             noSourceLabel.setText("(" + Config.getString("classTarget.noSource") + ")");
+            sourceTypeIcon.setImage(null);
         }
     }
 
@@ -1260,6 +1280,11 @@ public class ClassTarget extends DependentTarget
         // an error state now for an unsuccessful compilation.
     }
 
+    public void updateJavaKotlinMarker(boolean javaAndKotlin)
+    {
+        sourceTypeIcon.setVisible(javaAndKotlin);
+    }
+
     public static class SourceFileInfo
     {
         public final File file;
@@ -1890,6 +1915,8 @@ public class ClassTarget extends DependentTarget
         }
 
         analysing = true;
+
+        calcSourceAvailable();
 
         File sourceFile = (sourceAvailable == SourceType.Kotlin) ? getKotlinSourceFile() : getJavaSourceFile();
         ClassInfo info = sourceInfo.getInfo(sourceFile, getPackage());
