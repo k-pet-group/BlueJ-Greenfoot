@@ -21,6 +21,7 @@
  */
 package bluej.editor.flow;
 
+import bluej.extensions2.SourceType;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
@@ -85,4 +86,9 @@ public interface FlowLanguageSupport
      * @param info          parsed class info
      */
     void removeInterface(FlowEditor editor, String interfaceName, ClassInfo info);
+
+    /**
+     * Gets the source type of the program code.
+     */
+    SourceType getSourceType();
 }

@@ -41,6 +41,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import bluej.Config;
@@ -181,6 +182,13 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         JavaFXUtil.addChangeListenerPlatform(language.selectedProperty(), language -> {
             hideError();
             updateOKButton(false);
+
+            // Force resize (Stride content is shorter than Java/Kotlin:
+            getDialogPane().requestLayout();
+            JavaFXUtil.runAfterCurrent(() -> {
+                Stage stage = (Stage)getDialogPane().getScene().getWindow();
+                stage.sizeToScene();
+            });
         });
 
         getDialogPane().setContent(mainPanel);

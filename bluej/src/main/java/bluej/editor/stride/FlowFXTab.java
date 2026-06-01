@@ -190,4 +190,12 @@ public @OnThread(Tag.FXPlatform) class FlowFXTab extends FXTab
     {
         classIcon.set(image);
     }
+
+    /**
+     * Get the current header image for this editor
+     */
+    public Image getHeaderImage()
+    {
+        return classIcon.get();
+    }
 }
