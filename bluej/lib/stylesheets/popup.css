@@ -9,3 +9,16 @@
     -fx-background-radius: 5px;
     -fx-effect: dropshadow(one-pass-box, grey, 5, 0.2, 2, 2);
 }
+.kotlin-unavailable-popup {
+    /* Informational, not an error: use a neutral dark-grey background
+       with white text so it reads as a transient notification rather
+       than a compile-error overlay. */
+    -fx-background-color: derive(darkslategrey, -20%);
+    -fx-padding: 5px 10px 5px 10px;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(one-pass-box, grey, 5, 0.2, 2, 2);
+}
+.kotlin-unavailable-popup .kotlin-unavailable-label {
+    -fx-font-family: "Source Sans Pro";
+    -fx-text-fill: white;
+}

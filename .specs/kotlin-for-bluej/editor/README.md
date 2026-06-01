@@ -22,6 +22,7 @@
 **Submodules:**
 - [PSI-Based Scope Detection](psi-scope/README.md) -- PSI tree -> ParsedNode conversion
 - [Highlighting](highlighting/README.md) -- token-level syntax coloring details
+- [Auto-Indent](auto-indent/README.md) -- token-driven Kotlin indenter (no scope-tree dependency)
 
 ---
 
@@ -34,6 +35,11 @@
 | `PlainTextLanguageSupport` | `null` (fail-fast) | throws `UnsupportedOperationException` |
 
 FlowEditor delegates parser creation and source-editing (setExtendsClass, addImplements, etc.) to the strategy. Callers pass strategy explicitly at construction.
+
+Auto-indent is **not** routed through the strategy. `FlowIndent` dispatches
+on `parser.getParser() instanceof KotlinParsedCUNode` in one place — see
+[Auto-Indent](auto-indent/README.md). Indent correctness no longer depends
+on `KotlinPsiScopeBuilder` emitting the right `isInner` / container shape.
 
 ---
 
@@ -73,7 +79,7 @@ Required because `JavaSyntaxView.drawNode()` checks `isContainer() || isInner()`
 ## Known Limitations
 
 - **~1-2 second first-parse delay** when `KotlinCoreEnvironment` initializes
-- **No code completion** or type-aware highlighting for Kotlin
+- **No code completion** or type-aware highlighting for Kotlin. Ctrl+Space inside a `.kt` editor surfaces a transient caret-anchored popup ("Code completion is not available for Kotlin files") via `FlowEditor.showKotlinUnavailableNotice` — implemented as a `PopupControl` + custom `Skin` mirroring the existing `showErrorOverlay` shape, auto-dismissed after ~3s. This is an honest "not supported yet" signal rather than a working completion path; lifting it requires `BindingContext`-based type resolution (Tier 2, post-MVP).
 - **PSI environment ~10-20 MB** memory
 - **Full-file reparse per edit** (~50-100ms for 500 lines; debounced by `FlowReparseRunner`)
 - **Multi-line `${...}` spanning lines** -- continuation lines may highlight incorrectly (rare)

@@ -97,6 +97,8 @@ import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
@@ -147,6 +149,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow.AnchorLocation;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.EventTarget;
@@ -207,6 +210,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final BooleanProperty compiledProperty = new SimpleBooleanProperty(true);
     private final BooleanProperty viewingHTML = new SimpleBooleanProperty(false); // changing this alters the interface accordingly
     private ErrorDisplay errorDisplay;
+    // "Completion unavailable" popup shown on Ctrl+Space in .kt files; null when hidden.
+    private PopupControl kotlinUnavailablePopup;
+    private Timeline kotlinUnavailablePopupTimer;
     private final BitSet breakpoints = new BitSet();
     private int currentStepLineIndex = -1;
     private ComboBox<String> interfaceToggle;
@@ -3222,6 +3228,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     protected void createContentAssist()
     {
+        if (languageSupport instanceof KotlinLanguageSupport)
+        {
+            // Kotlin has no completion path yet; the Java pipeline below would silently produce nothing.
+            showKotlinUnavailableNotice();
+            return;
+        }
+
         //need to recreate the dialog each time it is pressed as the values may be different
         javaSyntaxView.flushReparseQueue();
         ParsedCUNode parser = getParsedNode();
@@ -3385,6 +3398,87 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
             initialiseContentAssist(codeCompletionDlg, xpos, ypos);
             */
+        }
+    }
+
+    // Transient caret-anchored "completion unavailable" popup, mirroring showErrorOverlay's shape.
+    @OnThread(Tag.FXPlatform)
+    private void showKotlinUnavailableNotice()
+    {
+        Bounds caretBounds = flowEditorPane.getCaretBoundsOnScreen(flowEditorPane.getCaretPosition()).orElse(null);
+        if (caretBounds == null && flowEditorPane.getCaretPosition() > 0)
+        {
+            caretBounds = flowEditorPane.getCaretBoundsOnScreen(flowEditorPane.getCaretPosition() - 1).orElse(null);
+        }
+        if (caretBounds == null)
+        {
+            return; // caret off-screen
+        }
+
+        // Dismiss previous instance so repeat presses don't stack.
+        hideKotlinUnavailableNotice();
+
+        String msg = Config.getString(
+            "editor.info.kotlinCompletionUnavailable",
+            "Code completion is not available for Kotlin files");
+        Label label = new Label(msg);
+        JavaFXUtil.addStyleClass(label, "kotlin-unavailable-label");
+        VBox box = new VBox(label);
+        JavaFXUtil.addStyleClass(box, "kotlin-unavailable-popup");
+        box.setStyle(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_ONLY).get());
+        Config.addPopupStylesheets(box);
+
+        PopupControl popup = new PopupControl();
+        popup.setAutoHide(true);
+        popup.setHideOnEscape(true);
+        popup.setSkin(new Skin<Skinnable>()
+        {
+            @Override
+            @OnThread(Tag.FX)
+            public Skinnable getSkinnable()
+            {
+                return popup;
+            }
+
+            @Override
+            @OnThread(Tag.FX)
+            public Node getNode()
+            {
+                return box;
+            }
+
+            @Override
+            @OnThread(Tag.FX)
+            public void dispose()
+            {
+            }
+        });
+
+        // Anchor below the caret line — same offset showErrorOverlay uses.
+        popup.setAnchorLocation(AnchorLocation.WINDOW_TOP_LEFT);
+        popup.setAnchorX(caretBounds.getMinX());
+        popup.setAnchorY(caretBounds.getMinY() + (4 * caretBounds.getHeight() / 3));
+        popup.show(getWindow());
+
+        Timeline timer = new Timeline(new KeyFrame(Duration.seconds(3), e -> hideKotlinUnavailableNotice()));
+        timer.play();
+
+        kotlinUnavailablePopup = popup;
+        kotlinUnavailablePopupTimer = timer;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private void hideKotlinUnavailableNotice()
+    {
+        if (kotlinUnavailablePopupTimer != null)
+        {
+            kotlinUnavailablePopupTimer.stop();
+            kotlinUnavailablePopupTimer = null;
+        }
+        if (kotlinUnavailablePopup != null)
+        {
+            kotlinUnavailablePopup.hide();
+            kotlinUnavailablePopup = null;
         }
     }
 

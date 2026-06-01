@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
 
@@ -45,10 +46,24 @@ import org.jetbrains.kotlin.config.Services;
  */
 public class KotlinCompiler extends Compiler
 {
+    // Java sources K2 loads for Kotlin→Java symbol resolution on the next compile() call;
+    // consumed and cleared inside compile(). Safe — CompilerThread is single-threaded.
+    private List<CompileInputFile> javaSymbolSources;
+
     public KotlinCompiler()
     {
         setDebug(true);
         setDeprecation(true);
+    }
+
+    /**
+     * Provide Java sources for K2 to load as symbol sources during the next
+     * compile() call. Used in mixed-language packages so Kotlin code can resolve
+     * Java references whose bytecode does not yet exist.
+     */
+    public void setJavaSymbolSources(List<CompileInputFile> javaSymbolSources)
+    {
+        this.javaSymbolSources = javaSymbolSources;
     }
 
     /**
@@ -66,7 +81,10 @@ public class KotlinCompiler extends Compiler
     public boolean compile(File[] sources, CompileObserver observer,
             boolean internal, List<String> userOptions, Charset fileCharset, CompileType type)
     {
-        // Reject invalid file structures (e.g. mixed class + functions) before invoking K2
+        // Snapshot and clear so state never leaks to the next compile() even if K2 throws.
+        List<CompileInputFile> auxJavaSources = this.javaSymbolSources;
+        this.javaSymbolSources = null;
+
         if (!KotlinFileFormValidator.validate(sources, observer, type)) {
             return false;
         }
@@ -81,7 +99,7 @@ public class KotlinCompiler extends Compiler
 
         ExitCode exitCode;
         try {
-            exitCode = invokeCompiler(sources, collector, outputDir);
+            exitCode = invokeCompiler(sources, auxJavaSources, collector, outputDir);
         }
         catch (Exception e) {
             observer.compilerMessage(new Diagnostic(Diagnostic.ERROR,
@@ -126,7 +144,8 @@ public class KotlinCompiler extends Compiler
 
     /**
      * Create a MessageCollector that converts Kotlin compiler messages into
-     * BlueJ Diagnostic objects.
+     * BlueJ Diagnostic objects. Diagnostics K2 emits against .java files (loaded
+     * as symbol sources) are dropped — javac is the authoritative source for them.
      */
     private MessageCollector createMessageCollector(List<Diagnostic> diagnostics)
     {
@@ -140,6 +159,10 @@ public class KotlinCompiler extends Compiler
             {
                 if (severity == CompilerMessageSeverity.LOGGING ||
                     severity == CompilerMessageSeverity.OUTPUT) {
+                    return;
+                }
+
+                if (location != null && location.getPath().toLowerCase().endsWith(".java")) {
                     return;
                 }
 
@@ -211,13 +234,12 @@ public class KotlinCompiler extends Compiler
     }
 
     /**
-     * Build K2 compiler arguments and invoke the compiler.
-     *
-     * @return the compiler exit code
-     * @throws Exception if the compiler encounters an internal error
+     * Build K2 compiler arguments and invoke the compiler. Kotlin sources compile
+     * to .class; auxiliary Java sources (when provided) are loaded for symbol
+     * resolution only — no bytecode is emitted for them.
      */
-    private ExitCode invokeCompiler(File[] sources, MessageCollector collector,
-            File outputDir) throws Exception
+    private ExitCode invokeCompiler(File[] sources, List<CompileInputFile> auxJavaSources,
+            MessageCollector collector, File outputDir) throws Exception
     {
         K2JVMCompiler compiler = new K2JVMCompiler();
         K2JVMCompilerArguments args = new K2JVMCompilerArguments();
@@ -239,7 +261,12 @@ public class KotlinCompiler extends Compiler
         args.setJvmTarget("21");
         args.setNoReflect(true);
 
-        args.setFreeArgs(Arrays.stream(sources).map(File::getAbsolutePath).toList());
+        Stream<File> auxStream = auxJavaSources == null
+                ? Stream.empty()
+                : auxJavaSources.stream().map(CompileInputFile::getJavaCompileInputFile);
+        args.setFreeArgs(Stream.concat(Arrays.stream(sources), auxStream)
+                .map(File::getAbsolutePath)
+                .toList());
 
         return compiler.exec(collector, Services.EMPTY, args);
     }

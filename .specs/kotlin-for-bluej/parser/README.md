@@ -81,7 +81,7 @@
 
 - **Full-file reparse per edit** (~50-100ms for 500 lines) -- see [Incremental PSI Reparse](incremental-reparse/README.md)
 - **Soft keyword reclassification is context-free** -- `data` highlighted as keyword even when used as identifier
-- **No entity resolution** -- no code completion or type-aware features for Kotlin
+- **No entity resolution** -- no code completion or type-aware features for Kotlin. The Ctrl+Space keybinding short-circuits to a transient "unavailable" popup in `FlowEditor`; see [Editor: Known Limitations](../editor/README.md#known-limitations).
 - **Shaded PSI class paths** may change between Kotlin versions (concentrated in 4 files)
 - **Multi-line `${...}` in triple-quoted strings** -- continuation lines may not highlight correctly (rare in educational code)
 

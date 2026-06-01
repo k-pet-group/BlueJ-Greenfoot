@@ -47,19 +47,17 @@ import bluej.extmgr.ExtensionMenu;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionsMenuManager;
 import bluej.parser.ParseFailure;
-import bluej.parser.context.CompilationUnitContext;
-import bluej.parser.context.CompilationUnitContextLoader;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.kotlin.KotlinParserUtils;
 import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.*;
-import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.PermitsDependency;
@@ -453,8 +451,8 @@ public class ClassTarget extends DependentTarget
 
         if (node != null)
         {
-            ParsedTypeNode ptn = (ParsedTypeNode) node.getTypeNode(getBaseName());
-            if (ptn != null)
+            ParsedNode typeNode = node.getTypeNode(getBaseName());
+            if (typeNode instanceof ParsedTypeNode ptn)
             {
                 return new ParsedReflective(ptn);
             }

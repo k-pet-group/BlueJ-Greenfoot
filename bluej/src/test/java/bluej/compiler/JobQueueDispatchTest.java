@@ -22,73 +22,155 @@
 package bluej.compiler;
 
 import java.io.File;
-import java.lang.reflect.Method;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Tests for the JobQueue's compiler dispatch logic — verifies that .kt files
- * are routed to KotlinCompiler and .java files to CompilerAPICompiler.
+ * Tests for the JobQueue's compiler dispatch logic — verifies that source files
+ * are correctly partitioned by language so .kt files go to KotlinCompiler and
+ * .java files (and everything else) go to CompilerAPICompiler. The mixed-language
+ * case is the regression target: previously a single batch with both languages
+ * was routed to one compiler, dropping the other.
  */
 public class JobQueueDispatchTest
 {
     @Test
-    public void testHasKotlinSourcesWithKtFile() throws Exception
+    public void allKotlin_goesToKotlinGroup()
     {
-        CompileInputFile ktFile = new CompileInputFile(
-                new File("Hello.kt"), new File("Hello.kt"));
+        CompileInputFile a = input("Hello.kt");
+        CompileInputFile b = input("World.kt");
 
-        boolean result = invokeHasKotlinSources(new CompileInputFile[]{ktFile});
-        assertTrue(".kt file should be detected as Kotlin source", result);
+        JobQueue.LanguagePartition p = JobQueue.partitionByLanguage(
+                new CompileInputFile[]{a, b}, true);
+
+        assertEquals(2, p.kotlinSources().size());
+        assertEquals(0, p.javaSources().size());
     }
 
     @Test
-    public void testHasKotlinSourcesWithJavaFile() throws Exception
+    public void allJava_goesToJavaGroup()
     {
-        CompileInputFile javaFile = new CompileInputFile(
-                new File("Hello.java"), new File("Hello.java"));
+        CompileInputFile a = input("Hello.java");
+        CompileInputFile b = input("World.java");
 
-        boolean result = invokeHasKotlinSources(new CompileInputFile[]{javaFile});
-        assertFalse(".java file should not be detected as Kotlin source", result);
+        JobQueue.LanguagePartition p = JobQueue.partitionByLanguage(
+                new CompileInputFile[]{a, b}, true);
+
+        assertEquals(0, p.kotlinSources().size());
+        assertEquals(2, p.javaSources().size());
     }
 
     @Test
-    public void testHasKotlinSourcesMixedFiles() throws Exception
+    public void mixed_splitsByExtension()
     {
-        CompileInputFile javaFile = new CompileInputFile(
-                new File("Hello.java"), new File("Hello.java"));
-        CompileInputFile ktFile = new CompileInputFile(
-                new File("World.kt"), new File("World.kt"));
+        CompileInputFile java1 = input("Hello.java");
+        CompileInputFile kt1 = input("World.kt");
+        CompileInputFile java2 = input("Other.java");
+        CompileInputFile kt2 = input("Util.kt");
 
-        boolean result = invokeHasKotlinSources(new CompileInputFile[]{javaFile, ktFile});
-        assertTrue("Array with any .kt file should be detected as Kotlin", result);
+        JobQueue.LanguagePartition p = JobQueue.partitionByLanguage(
+                new CompileInputFile[]{java1, kt1, java2, kt2}, true);
+
+        assertEquals(2, p.kotlinSources().size());
+        assertEquals(2, p.javaSources().size());
+        assertTrue(p.kotlinSources().contains(kt1));
+        assertTrue(p.kotlinSources().contains(kt2));
+        assertTrue(p.javaSources().contains(java1));
+        assertTrue(p.javaSources().contains(java2));
     }
 
     @Test
-    public void testHasKotlinSourcesEmptyArray() throws Exception
+    public void emptyInput_returnsEmptyPartition()
     {
-        boolean result = invokeHasKotlinSources(new CompileInputFile[]{});
-        assertFalse("Empty array should not be detected as Kotlin", result);
+        JobQueue.LanguagePartition p = JobQueue.partitionByLanguage(
+                new CompileInputFile[]{}, true);
+
+        assertEquals(0, p.kotlinSources().size());
+        assertEquals(0, p.javaSources().size());
     }
 
     @Test
-    public void testHasKotlinSourcesWithPath() throws Exception
+    public void nullInput_returnsEmptyPartition()
     {
-        CompileInputFile ktFile = new CompileInputFile(
-                new File("/path/to/project/Hello.kt"), new File("/path/to/project/Hello.kt"));
+        JobQueue.LanguagePartition p = JobQueue.partitionByLanguage(null, true);
 
-        boolean result = invokeHasKotlinSources(new CompileInputFile[]{ktFile});
-        assertTrue(".kt file with full path should be detected", result);
+        assertEquals(0, p.kotlinSources().size());
+        assertEquals(0, p.javaSources().size());
     }
 
-    /**
-     * Invoke the private static hasKotlinSources method via reflection for testing.
-     */
-    private static boolean invokeHasKotlinSources(CompileInputFile[] sources) throws Exception
+    @Test
+    public void unknownExtension_routedToJava()
     {
-        Method method = JobQueue.class.getDeclaredMethod("hasKotlinSources", CompileInputFile[].class);
-        method.setAccessible(true);
-        return (boolean) method.invoke(null, (Object) sources);
+        // Stride / shell / unexpected extensions fall back to the Java compiler,
+        // matching the pre-Kotlin behaviour where CompilerAPICompiler handled them all.
+        CompileInputFile odd = input("Generated.shell");
+
+        JobQueue.LanguagePartition p = JobQueue.partitionByLanguage(
+                new CompileInputFile[]{odd}, true);
+
+        assertEquals(0, p.kotlinSources().size());
+        assertEquals(1, p.javaSources().size());
+        assertTrue(p.javaSources().contains(odd));
+    }
+
+    @Test
+    public void mixedCaseKtExtension_treatedAsKotlin()
+    {
+        CompileInputFile upper = input("Hello.KT");
+        CompileInputFile mixed = input("World.Kt");
+
+        JobQueue.LanguagePartition p = JobQueue.partitionByLanguage(
+                new CompileInputFile[]{upper, mixed}, true);
+
+        assertEquals(2, p.kotlinSources().size());
+        assertEquals(0, p.javaSources().size());
+    }
+
+    @Test
+    public void ktFileWithPath_treatedAsKotlin()
+    {
+        CompileInputFile withPath = new CompileInputFile(
+                new File("/path/to/project/Hello.kt"),
+                new File("/path/to/project/Hello.kt"));
+
+        JobQueue.LanguagePartition p = JobQueue.partitionByLanguage(
+                new CompileInputFile[]{withPath}, true);
+
+        assertEquals(1, p.kotlinSources().size());
+        assertEquals(0, p.javaSources().size());
+    }
+
+    @Test
+    public void kotlinCompilerUnavailable_routesAllToJava()
+    {
+        // In Greenfoot (no Kotlin compiler), .kt files should not be split off;
+        // they fall through to the Java compiler, which keeps the legacy single-job behaviour.
+        CompileInputFile java1 = input("Hello.java");
+        CompileInputFile kt1 = input("World.kt");
+
+        JobQueue.LanguagePartition p = JobQueue.partitionByLanguage(
+                new CompileInputFile[]{java1, kt1}, false);
+
+        assertEquals(0, p.kotlinSources().size());
+        assertEquals(2, p.javaSources().size());
+    }
+
+    @Test
+    public void nullEntriesInArray_areSkipped()
+    {
+        CompileInputFile java1 = input("Hello.java");
+
+        JobQueue.LanguagePartition p = JobQueue.partitionByLanguage(
+                new CompileInputFile[]{null, java1, null}, true);
+
+        assertEquals(0, p.kotlinSources().size());
+        assertEquals(1, p.javaSources().size());
+    }
+
+    private static CompileInputFile input(String name)
+    {
+        File f = new File(name);
+        return new CompileInputFile(f, f);
     }
 }
