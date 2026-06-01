@@ -35,10 +35,12 @@ public interface PackageListener
     /**
      * The package has closed.
      */
+    @OnThread(Tag.FXPlatform)
     void graphClosed();
 
     /**
      * The graph changed - a class was added or removed.
      */
+    @OnThread(Tag.FXPlatform)
     void graphChanged();
 }

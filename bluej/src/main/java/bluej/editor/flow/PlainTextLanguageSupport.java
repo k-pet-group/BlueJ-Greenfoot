@@ -21,6 +21,7 @@
  */
 package bluej.editor.flow;
 
+import bluej.extensions2.SourceType;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
@@ -73,5 +74,11 @@ public class PlainTextLanguageSupport implements FlowLanguageSupport
     {
         throw new UnsupportedOperationException(
             "PlainTextLanguageSupport does not support class declaration editing");
+    }
+
+    @Override
+    public SourceType getSourceType()
+    {
+        return null;
     }
 }

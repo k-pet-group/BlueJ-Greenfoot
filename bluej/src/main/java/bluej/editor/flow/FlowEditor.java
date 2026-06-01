@@ -54,6 +54,7 @@ import bluej.editor.flow.PrintDialog.PrintChoices;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FlowFXTab;
 import bluej.editor.stride.FrameEditor;
+import bluej.extensions2.SourceType;
 import bluej.extensions2.editor.DocumentListener;
 import bluej.parser.*;
 import bluej.parser.AssistContent.ParamInfo;
@@ -3562,6 +3563,14 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void removeDocumentListener(DocumentListener documentListener)
     {
         document.removeListener(documentListener);
+    }
+
+    /**
+     * Get the SourceType of this editor
+     */
+    public SourceType getSourceType()
+    {
+        return languageSupport.getSourceType();
     }
 
     /**

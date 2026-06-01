@@ -23,6 +23,7 @@ package bluej.editor.flow;
 
 import java.util.List;
 
+import bluej.extensions2.SourceType;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.ParsedCUNode;
@@ -159,5 +160,11 @@ public class JavaLanguageSupport implements FlowLanguageSupport
                     new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
             editor.insertText("", false);
         }
+    }
+
+    @Override
+    public SourceType getSourceType()
+    {
+        return SourceType.Java;
     }
 }

@@ -24,6 +24,7 @@ package bluej.editor.flow;
 import java.util.ArrayList;
 import java.util.List;
 
+import bluej.extensions2.SourceType;
 import org.jetbrains.kotlin.psi.KtClassOrObject;
 import org.jetbrains.kotlin.psi.KtDeclaration;
 import org.jetbrains.kotlin.psi.KtFile;
@@ -124,6 +125,12 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
             }
         }
         rebuildSupertypeClause(editor, source, cls, texts);
+    }
+
+    @Override
+    public SourceType getSourceType()
+    {
+        return SourceType.Kotlin;
     }
 
     /**
