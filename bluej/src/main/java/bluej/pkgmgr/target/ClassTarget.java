@@ -168,7 +168,7 @@ public class ClassTarget extends DependentTarget
     // cached information obtained by parsing the source code
     // automatically becomes invalidated when the source code is
     // edited
-    private SourceInfo sourceInfo = new SourceInfo();
+    private final SourceInfo sourceInfo = new SourceInfo();
 
     // caches whether the class is abstract. Only accurate when the
     // classtarget state is normal (ie. the class is compiled).
@@ -192,7 +192,7 @@ public class ClassTarget extends DependentTarget
     private String typeParameters = "";
 
     //properties map to store values used in the editor from the props (if necessary)
-    private Map<String, String> properties = new HashMap<String, String>();
+    private final Map<String, String> properties = new HashMap<String, String>();
     // Keep track of whether the editor is open or not; we get a lot of
     // potential open events, and don't want to keep recording ourselves as re-opening
     private boolean recordedAsOpen = false;
@@ -200,7 +200,7 @@ public class ClassTarget extends DependentTarget
     private static String[] pseudos;
 
 
-    private Label stereotypeLabel;
+    private final Label stereotypeLabel;
     private boolean isFront = true;
     @OnThread(Tag.FX)
     private static Image greyStripeImage;
@@ -216,8 +216,8 @@ public class ClassTarget extends DependentTarget
     private static final Color GREY_STRIPE = Color.rgb(158, 139, 116);
     private boolean showingInterface;
     private boolean drawingExtends = false;
-    private Label nameLabel;
-    private Label noSourceLabel;
+    private final Label nameLabel;
+    private final Label noSourceLabel;
 
     // The body of the class target which goes hashed, etc:
     @OnThread(Tag.FX)
@@ -343,6 +343,7 @@ public class ClassTarget extends DependentTarget
         else if (getKotlinSourceFile().canRead())
         {
             sourceAvailable = SourceType.Kotlin;
+            JavaFXUtil.addStyleClass(pane, "class-target-kotlin");
             noSourceLabel.setText("");
         }
         else
