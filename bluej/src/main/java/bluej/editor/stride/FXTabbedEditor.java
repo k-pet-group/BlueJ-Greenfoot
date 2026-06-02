@@ -149,6 +149,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
 
     private static final Image javaHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "j.png"));
     private static final Image kotlinHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "k.png"));
+    private static final Image strideHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "s.png"));
 
     // Neither the constructor nor any initialisers should do any JavaFX work until
     // initialise is called.
@@ -426,32 +427,43 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     private void updateHeaderImages()
     {
         // Check if we have a mix of Java and Kotlin source types:
-        Set<SourceType> allSourceTypes = project.getUnnamedPackage().getClassTargets().stream().map(ClassTarget::getSourceType).filter(st -> st == SourceType.Java || st == SourceType.Kotlin).collect(Collectors.toSet());
+        Set<SourceType> allSourceTypes = project.getUnnamedPackage().getClassTargets().stream().map(ClassTarget::getSourceType).filter(st -> st != null && st != SourceType.NONE).collect(Collectors.toSet());
 
         for (Tab tab : tabPane.getTabs())
         {
-            if (tab instanceof FlowFXTab fxt)
+            switch (tab)
             {
-                // Don't override the header image in Greenfoot and no need to set header image again (SourceType can't change):
-                if (allSourceTypes.size() > 1 && fxt.getHeaderImage() == null)
+                case FlowFXTab fxt ->
                 {
-                    if (fxt.getFlowEditor().getSourceType() == SourceType.Java)
+                    // Don't override the header image in Greenfoot and no need to set header image again (SourceType can't change):
+                    if (allSourceTypes.size() > 1 && fxt.getHeaderImage() == null)
                     {
-                        fxt.setHeaderImage(javaHeaderImage);
+                        fxt.setHeaderImage(fxt.getFlowEditor().getSourceType() == SourceType.Kotlin ? kotlinHeaderImage : javaHeaderImage);
                     }
-                    else if (fxt.getFlowEditor().getSourceType() == SourceType.Kotlin)
+                    else if (allSourceTypes.size() == 1)
                     {
-                        fxt.setHeaderImage(kotlinHeaderImage);
+                        // Can remove designations if it was one of the standard header images:
+                        if (fxt.getHeaderImage() == javaHeaderImage || fxt.getHeaderImage() == kotlinHeaderImage)
+                        {
+                            fxt.setHeaderImage(null);
+                        }
                     }
                 }
-                else if (allSourceTypes.size() == 1)
+                case FrameEditorTab fet ->
                 {
-                    // Can remove designations:
-                    if (fxt.getHeaderImage() == javaHeaderImage || fxt.getHeaderImage() == kotlinHeaderImage)
+                    if (allSourceTypes.size() > 1 && fet.getHeaderImage() == null)
                     {
-                        fxt.setHeaderImage(null);
+                        fet.setHeaderImage(strideHeaderImage);
+                    }
+                    else if (allSourceTypes.size() == 1)
+                    {
+                        if (fet.getHeaderImage() == strideHeaderImage)
+                        {
+                            fet.setHeaderImage(null);
+                        }
                     }
                 }
+                default -> {}
             }
         }
     }

@@ -224,6 +224,7 @@ public class ClassTarget extends DependentTarget
 
     private static final Image javaHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "j.png"));
     private static final Image kotlinHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "k.png"));
+    private static final Image strideHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "s.png"));
 
 
     // The body of the class target which goes hashed, etc:
@@ -349,7 +350,7 @@ public class ClassTarget extends DependentTarget
         {
             sourceAvailable = SourceType.Stride;
             noSourceLabel.setText("");
-            sourceTypeIcon.setImage(null);
+            sourceTypeIcon.setImage(strideHeaderImage);
         }
         else if (getJavaSourceFile().canRead())
         {
@@ -360,7 +361,6 @@ public class ClassTarget extends DependentTarget
         else if (getKotlinSourceFile().canRead())
         {
             sourceAvailable = SourceType.Kotlin;
-            JavaFXUtil.addStyleClass(pane, "class-target-kotlin");
             noSourceLabel.setText("");
             sourceTypeIcon.setImage(kotlinHeaderImage);
         }
