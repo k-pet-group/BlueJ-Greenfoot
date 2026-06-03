@@ -1,6 +1,5 @@
 .root {
     class-target: rgb(239, 204, 149);
-    class-target-kotlin: rgb(236, 163, 127);
     test-target: rgb(166, 191, 137);
     css-target: rgb(197, 205, 206);
     text-target: rgb(197, 205, 206);
@@ -184,12 +183,6 @@
 }
 .class-target:hover {
     -fx-background-color: derive(class-target, 25%);
-}
-.class-target-kotlin, .class-target-kotlin:bj-resizing, .class-target-kotlin:bj-resizing:hover {
-    -fx-background-color: class-target-kotlin !important;
-}
-.class-target-kotlin:hover {
-    -fx-background-color: derive(class-target-kotlin, 25%) !important;
 }
 
 .class-target:bj-unittest {
