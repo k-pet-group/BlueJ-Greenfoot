@@ -1280,9 +1280,9 @@ public class ClassTarget extends DependentTarget
         // an error state now for an unsuccessful compilation.
     }
 
-    public void updateJavaKotlinMarker(boolean javaAndKotlin)
+    public void updateLanguageMarker(boolean showLanguageMarker)
     {
-        sourceTypeIcon.setVisible(javaAndKotlin);
+        sourceTypeIcon.setVisible(showLanguageMarker);
     }
 
     public static class SourceFileInfo
