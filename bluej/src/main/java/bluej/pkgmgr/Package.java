@@ -607,11 +607,11 @@ public final class Package
         {
             l.graphChanged();
         }
-        Set<SourceType> sourceTypes = getClassTargets().stream().map(ClassTarget::getSourceType).collect(Collectors.toSet());
-        boolean javaAndKotlin = sourceTypes.contains(SourceType.Java) && sourceTypes.contains(SourceType.Kotlin);
+        Set<SourceType> sourceTypes = getClassTargets().stream().map(ClassTarget::getSourceType).filter(t -> t != null && t != SourceType.NONE).collect(Collectors.toSet());
         for (ClassTarget t : getClassTargets())
         {
-            t.updateJavaKotlinMarker(javaAndKotlin);
+            // Show language marker iff there is more than one language in the project:
+            t.updateLanguageMarker(sourceTypes.size() > 1);
         }
     }
 
