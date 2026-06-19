@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018,2019,2020,2021,2023,2025  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018,2019,2020,2021,2023,2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -520,8 +520,15 @@ public class Invoker
             MethodView method = (MethodView) member;
             isVoid = method.isVoid();
 
-            if (method.isStatic())
+            // Must be tested before isStatic(): a companion method reports
+            // isStatic() == true, but needs the "Foo.Companion.method()" receiver.
+            if (method.isKotlinCompanionMethod()) {
+                command = nameTransform.transform(className) + "." + method.getCompanionReceiverName()
+                        + "." + method.getName();
+            }
+            else if (method.isStatic()) {
                 command = nameTransform.transform(className) + "." + method.getName();
+            }
             else {
                 command = instanceName + "." + method.getName();
             }

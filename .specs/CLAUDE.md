@@ -522,6 +522,14 @@ Design documentation is maintained in `.specs/`.
 
 ### Spec Writing Rules
 
+#### What a Spec Is For
+
+A spec captures what is **hard to recover from the code and the file system** — the *why*, not the *what*. Code, signatures, and directory structure are already visible directly; duplicating them in a spec only creates a second copy that drifts out of date.
+
+- **Focus on decisions, contracts, and limitations.** Record the design decisions and their rationale, the invariants/contracts a component must uphold, and the known limitations and out-of-scope boundaries. These are the things a reader cannot infer by opening the source.
+- **Don't duplicate — refer.** If information already lives in another spec or in the code, link to it rather than restating it. One source of truth; the spec points to it.
+- **No file trees, no copied code.** Do not paste directory listings or verbatim code blocks — both are duplications of things already plainly visible. When a snippet genuinely aids understanding (e.g. the shape of a decision branch), use short **pseudocode** that conveys intent, not a copy of the implementation.
+
 #### Key Lifecycles (REQUIRED for module-design specs)
 
 **Every module spec that introduces a new entity type** (role, target, handler, state, filter, etc.) **MUST include a "Key Lifecycles" section** that traces ALL code paths that create, mutate, or destroy that entity. Do not document only the "canonical" assignment path — search for every site that instantiates or sets the entity and verify each path produces the correct state.
@@ -538,13 +546,6 @@ For each new entity type, trace:
 - Check for "fallback" or "default" branches in switch/if-else chains that might silently apply to the new entity
 
 **Why:** A bug in the Top-Level Functions module went undetected because the spec documented role assignment via `determineRole()` but missed a separate "early guess" in the `ClassTarget` constructor that defaulted to `StdClassRole`. The implementation followed the spec exactly — inheriting the gap.
-
-#### Task Spec Requirements
-
-Task specs that modify entity assignment/routing logic MUST:
-1. **List all code locations** where the entity is assigned — not just the one being modified
-2. **Verify upstream callers** — trace from the modified method to all callers
-3. **Include an end-to-end acceptance criterion** (e.g., "creating a Kotlin File from the dialog immediately shows `«functions»` stereotype"), not just unit-level checks
 
 #### Marking Components as "Unchanged"
 
