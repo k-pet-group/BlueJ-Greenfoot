@@ -2991,9 +2991,12 @@ public final class Package
     public SourceType getDefaultSourceType()
     {
         // Our heuristic is: if the package contains any Stride files, the default is Stride,
+        // if the package contains any Kotlin files, the default is Kotlin,
         // otherwise it's Java
         if (getClassTargets().stream().anyMatch(c -> c.getSourceType() == SourceType.Stride))
             return SourceType.Stride;
+        else if (getClassTargets().stream().anyMatch(c -> c.getSourceType() == SourceType.Kotlin))
+            return SourceType.Kotlin;
         else
             return SourceType.Java;
     }

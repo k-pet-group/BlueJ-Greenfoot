@@ -287,7 +287,7 @@ public class ClassTarget extends DependentTarget
         noSourceLabel = new Label("");
         sourceTypeIcon = new ImageView();
         sourceTypeIcon.setVisible(false);
-        sourceTypeIcon.setOpacity(0.6);
+        sourceTypeIcon.setOpacity(1);
         sourceTypeIcon.setFitWidth(15);
         sourceTypeIcon.setFitHeight(15);
         sourceTypeIcon.setPreserveRatio(true);
