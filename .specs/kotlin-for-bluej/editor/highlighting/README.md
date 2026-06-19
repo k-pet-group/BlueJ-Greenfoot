@@ -55,7 +55,7 @@ Same scope types and colors as Java:
 
 | Kotlin Construct | Color |
 |-----------------|-------|
-| `class`, `interface`, `enum class`, `object` | Green |
+| `class`, `interface`, `enum class`, `object`, `companion object` | Green |
 | `fun`, `init`, constructors | Yellow |
 | `for`, `while`, `do` | Pink |
 | `if`/`else`, `try`/`catch`, `when` | Blue |

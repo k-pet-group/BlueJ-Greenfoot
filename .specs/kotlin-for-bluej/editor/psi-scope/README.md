@@ -20,7 +20,7 @@ All scope nodes are `KotlinParentNode` with configurable `nodeType`. Each contai
 | PSI Node | Container Node Type | Scope Color |
 |----------|-------------------|-------------|
 | `KtClass` | `NODETYPE_TYPEDEF` | Green |
-| `KtObjectDeclaration` | `NODETYPE_TYPEDEF` | Green |
+| `KtObjectDeclaration` (incl. companion) | `NODETYPE_TYPEDEF` | Green |
 | `KtNamedFunction` | `NODETYPE_METHODDEF` | Yellow |
 | `KtSecondaryConstructor` | `NODETYPE_METHODDEF` | Yellow |
 | `KtClassInitializer` (init block) | `NODETYPE_METHODDEF` | Yellow |
@@ -29,7 +29,7 @@ All scope nodes are `KotlinParentNode` with configurable `nodeType`. Each contai
 | `PsiComment` | `KotlinCommentNode` (COMMENT) | Comment styling |
 | `KtStringTemplateExpression` (multiline) | `KotlinStringNode` | STRING_LITERAL gaps + code children |
 
-**Not scoped**: `KtPrimaryConstructor` (no block body), `KtProperty`, companion objects (members promoted to parent).
+**Not scoped**: `KtPrimaryConstructor` (no block body), `KtProperty`.
 
 Inner nodes span content between braces for block bodies, or the expression itself for braceless bodies (`fun f() = expr`, `if (x) return y`).
 
@@ -48,7 +48,7 @@ Inner nodes span content between braces for block bodies, or the expression itse
 - `buildScopesFromBlock(KtBlockExpression, parent, baseOffset, listener)` -- block-level (for incremental reparse)
 - Comment detection at 4 levels: file, class body, block expression, attached to declarations (via AST traversal)
 - String template handling: multiline `"""..."""` -> `KotlinStringNode` with children for `$name`/`${expr}`
-- Companion object members promoted to parent scope (transparent)
+- Companion objects scoped as green type declarations (anonymous ones named "Companion")
 - Uses type-specific PSI getters for control flow bodies (`getBody()`, `getThen()`/`getElse()`, `getEntries()`)
 
 ---
@@ -66,7 +66,7 @@ Inner nodes span content between braces for block bodies, or the expression itse
 | 7 | Secondary constructors as METHODDEF (yellow) | Matches Java treatment; structurally identical to method bodies |
 | 8 | Primary constructors skipped | No block body; `init` blocks serve this purpose |
 | 9 | Init blocks as METHODDEF (yellow) | Initializer code analogous to constructors |
-| 10 | Companion objects transparent | Members promoted to parent class scope; avoids confusing nested scope for beginners |
+| 10 | Companion objects scoped | Treated like any other `object` (green type scope); members highlighted within the companion body. Diagram representation is unaffected (separate `KotlinInfoParser`/compiled-class path) |
 | 11 | KotlinCommentNode | Returns single comment-typed token; prevents keyword highlighting in comments |
 | 12 | KotlinStringNode | Handles `$template` expressions correctly where `MultilineStringTracker` cannot |
 | 13 | `handlesMultilineStrings()` virtual method | OOP polymorphism keeps `JavaSyntaxView` language-agnostic |

@@ -950,7 +950,7 @@ public class KotlinPsiScopeBuilderTest
 
 
     @Test
-    public void testCompanionObjectTransparency()
+    public void testCompanionObjectCreatesTypeNode()
     {
         String source = "class Foo {\n    companion object {\n        fun create(): Foo = Foo()\n    }\n}";
         KotlinParsedCUNode root = buildScopeTree(source);
@@ -959,16 +959,23 @@ public class KotlinPsiScopeBuilderTest
         assertNotNull(classNp);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
 
-        // The companion object's fun create() should be promoted to the class body level
-        // — no intermediate TYPEDEF for the companion object
-        NodeAndPosition<ParsedNode> methodNp = firstContentChild(classNp);
-        assertNotNull("Companion method should be promoted to class level", methodNp);
-        assertEquals("Promoted method should be NODETYPE_METHODDEF",
+        // The companion object forms its own green type scope inside the class
+        NodeAndPosition<ParsedNode> companionNp = firstContentChild(classNp);
+        assertNotNull("Companion object should create a scope node", companionNp);
+        assertEquals("Companion object should be NODETYPE_TYPEDEF",
+            ParsedNode.NODETYPE_TYPEDEF, companionNp.getNode().getNodeType());
+        assertEquals("Anonymous companion should be labelled \"Companion\"",
+            "Companion", companionNp.getNode().getName());
+
+        // Its method is highlighted within the companion's body
+        NodeAndPosition<ParsedNode> methodNp = firstContentChild(companionNp);
+        assertNotNull("Companion method should be inside the companion scope", methodNp);
+        assertEquals("Companion method should be NODETYPE_METHODDEF",
             ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
     }
 
     @Test
-    public void testNamedCompanionObjectTransparency()
+    public void testNamedCompanionObjectCreatesTypeNode()
     {
         String source = "class Foo {\n    companion object Factory {\n        fun create(): Foo = Foo()\n    }\n}";
         KotlinParsedCUNode root = buildScopeTree(source);
@@ -977,10 +984,17 @@ public class KotlinPsiScopeBuilderTest
         assertNotNull(classNp);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNp.getNode().getNodeType());
 
-        // Named companion object should also be transparent
-        NodeAndPosition<ParsedNode> methodNp = firstContentChild(classNp);
-        assertNotNull("Named companion method should be promoted to class level", methodNp);
-        assertEquals("Promoted method should be NODETYPE_METHODDEF",
+        // Named companion object is scoped the same as an anonymous one
+        NodeAndPosition<ParsedNode> companionNp = firstContentChild(classNp);
+        assertNotNull("Named companion object should create a scope node", companionNp);
+        assertEquals("Named companion object should be NODETYPE_TYPEDEF",
+            ParsedNode.NODETYPE_TYPEDEF, companionNp.getNode().getNodeType());
+        assertEquals("Named companion should be labelled with its own name",
+            "Factory", companionNp.getNode().getName());
+
+        NodeAndPosition<ParsedNode> methodNp = firstContentChild(companionNp);
+        assertNotNull("Named companion method should be inside the companion scope", methodNp);
+        assertEquals("Named companion method should be NODETYPE_METHODDEF",
             ParsedNode.NODETYPE_METHODDEF, methodNp.getNode().getNodeType());
     }
 
