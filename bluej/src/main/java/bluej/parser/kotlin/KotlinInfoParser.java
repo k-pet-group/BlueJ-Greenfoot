@@ -48,6 +48,7 @@ import org.jetbrains.kotlin.psi.KtObjectDeclaration;
 import org.jetbrains.kotlin.psi.KtParameter;
 import org.jetbrains.kotlin.psi.KtPrimaryConstructor;
 import org.jetbrains.kotlin.psi.KtProperty;
+import org.jetbrains.kotlin.psi.KtSecondaryConstructor;
 import org.jetbrains.kotlin.psi.KtSuperTypeCallEntry;
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry;
 import org.jetbrains.kotlin.psi.KtTypeElement;
@@ -213,11 +214,13 @@ public class KotlinInfoParser
 
         extractTypeParameters(classOrObject, info);
 
-        extractPrimaryConstructor(classOrObject, info);
+        extractPrimaryConstructor(classOrObject, info, ktFile);
+
+        extractSecondaryConstructors(classOrObject, info, ktFile);
 
         extractSupertypes(classOrObject, info);
 
-        extractClassBody(classOrObject, info);
+        extractClassBody(classOrObject, info, ktFile);
 
         String classKDoc = extractKDoc(classOrObject);
         if (classKDoc != null) {
@@ -267,7 +270,7 @@ public class KotlinInfoParser
         extractImports(ktFile, info);
 
         for (KtNamedFunction fun : functions) {
-            extractMethod(fun, info);
+            extractMethod(fun, info, ktFile);
         }
 
         return info;
@@ -304,17 +307,59 @@ public class KotlinInfoParser
     }
 
     /**
-     * Extract parameter types from the primary constructor and add
-     * non-primitive ones to the "used" list.
+     * Extract the primary constructor: add its parameter types to the "used"
+     * list and emit a comment carrying the parameter names so the right-click
+     * "new ..." menu can show them.
      */
-    private static void extractPrimaryConstructor(KtClassOrObject classOrObject, ClassInfo info)
+    private static void extractPrimaryConstructor(KtClassOrObject classOrObject,
+            ClassInfo info, KtFile ktFile)
     {
         KtPrimaryConstructor ctor = classOrObject.getPrimaryConstructor();
         if (ctor == null) {
             return;
         }
 
-        for (KtParameter param : ctor.getValueParameters()) {
+        String className = classOrObject.getName();
+        if (className == null) {
+            return;
+        }
+
+        List<KtParameter> params = ctor.getValueParameters();
+        addUsedTypes(params, info);
+
+        String target = buildConstructorTarget(className, params, ktFile);
+        info.addComment(target, extractKDoc(ctor), buildParamNames(params));
+    }
+
+    /**
+     * Extract each secondary constructor: add parameter types to the "used"
+     * list and emit a comment carrying the parameter names. Overloaded
+     * constructors produce distinct targets via their (resolved) parameter types.
+     */
+    private static void extractSecondaryConstructors(KtClassOrObject classOrObject,
+            ClassInfo info, KtFile ktFile)
+    {
+        String className = classOrObject.getName();
+        if (className == null) {
+            return;
+        }
+
+        for (KtSecondaryConstructor ctor : classOrObject.getSecondaryConstructors()) {
+            List<KtParameter> params = ctor.getValueParameters();
+            addUsedTypes(params, info);
+
+            String target = buildConstructorTarget(className, params, ktFile);
+            info.addComment(target, extractKDoc(ctor), buildParamNames(params));
+        }
+    }
+
+    /**
+     * Add the non-primitive parameter types of a parameter list to the
+     * "used" (dependency) list.
+     */
+    private static void addUsedTypes(List<KtParameter> params, ClassInfo info)
+    {
+        for (KtParameter param : params) {
             KtTypeReference typeRef = param.getTypeReference();
             if (typeRef != null) {
                 String typeName = extractSimpleName(typeRef);
@@ -360,7 +405,8 @@ public class KotlinInfoParser
      * Adds their types to the "used" list and their KDoc comments
      * to the comments list.
      */
-    private static void extractClassBody(KtClassOrObject classOrObject, ClassInfo info)
+    private static void extractClassBody(KtClassOrObject classOrObject, ClassInfo info,
+            KtFile ktFile)
     {
         KtClassBody body = classOrObject.getBody();
         if (body == null) {
@@ -369,32 +415,32 @@ public class KotlinInfoParser
 
         for (KtDeclaration member : body.getDeclarations()) {
             if (member instanceof KtNamedFunction fun) {
-                extractMethod(fun, info);
+                extractMethod(fun, info, ktFile);
             } else if (member instanceof KtProperty prop) {
                 extractProperty(prop, info);
+            } else if (member instanceof KtObjectDeclaration obj && obj.isCompanion()) {
+                // Companion methods are surfaced as static-style operations on the
+                // enclosing class (View.addCompanionMethods), so emit their comments
+                // too — otherwise the call-method menu shows no parameter names.
+                extractClassBody(obj, info, ktFile);
             }
         }
     }
 
     /**
-     * Extract a method's parameter types, return type, and KDoc comment.
+     * Extract a method's parameter types, return type, and parameter names.
+     * A comment is emitted for every method (so the right-click "call method"
+     * menu can show parameter names), mirroring Java's {@code InfoParser};
+     * KDoc text is attached only when present.
      */
-    private static void extractMethod(KtNamedFunction fun, ClassInfo info)
+    private static void extractMethod(KtNamedFunction fun, ClassInfo info, KtFile ktFile)
     {
         String methodName = fun.getName();
         if (methodName == null) {
             return;
         }
 
-        for (KtParameter param : fun.getValueParameters()) {
-            KtTypeReference typeRef = param.getTypeReference();
-            if (typeRef != null) {
-                String typeName = extractSimpleName(typeRef);
-                if (typeName != null && !isPrimitiveKotlinType(typeName)) {
-                    info.addUsed(typeName);
-                }
-            }
-        }
+        addUsedTypes(fun.getValueParameters(), info);
 
         KtTypeReference returnTypeRef = fun.getTypeReference();
         if (returnTypeRef != null) {
@@ -404,12 +450,8 @@ public class KotlinInfoParser
             }
         }
 
-        String docComment = extractKDoc(fun);
-        if (docComment != null) {
-            String target = buildMethodTarget(fun);
-            String paramNames = buildParamNames(fun);
-            info.addComment(target, docComment, paramNames);
-        }
+        String target = buildMethodTarget(fun, ktFile);
+        info.addComment(target, extractKDoc(fun), buildParamNames(fun.getValueParameters()));
     }
 
     /**
@@ -503,50 +545,57 @@ public class KotlinInfoParser
     }
 
     /**
-     * Build the method target string for {@link ClassInfo#addComment}.
-     * Format: {@code "ReturnType methodName(ParamType1,ParamType2)"}
+     * Build the method target string for {@link ClassInfo#addComment}. The
+     * format must match {@code JavaUtils.getSignature(Method)} of the compiled
+     * method exactly, since comments are attached to members by exact string
+     * equality: {@code "<erased-FQ-return> name(<erased-FQ-type>, ...)"}, e.g.
+     * {@code "void setX(int)"}.
      */
-    private static String buildMethodTarget(KtNamedFunction fun)
+    private static String buildMethodTarget(KtNamedFunction fun, KtFile ktFile)
     {
         StringBuilder target = new StringBuilder();
-
-        // Return type (or "Unit" if not specified)
-        KtTypeReference returnTypeRef = fun.getTypeReference();
-        if (returnTypeRef != null) {
-            target.append(returnTypeRef.getText());
-        } else {
-            target.append("Unit");
-        }
-
+        target.append(jvmReturnTypeName(fun.getTypeReference(), ktFile));
         target.append(' ');
         target.append(fun.getName());
         target.append('(');
-
-        // Parameter types
-        StringJoiner params = new StringJoiner(",");
-        for (KtParameter param : fun.getValueParameters()) {
-            KtTypeReference paramType = param.getTypeReference();
-            if (paramType != null) {
-                params.add(paramType.getText());
-            } else {
-                params.add("Any");
-            }
-        }
-        target.append(params);
+        target.append(joinParamTypes(fun.getValueParameters(), ktFile));
         target.append(')');
-
         return target.toString();
+    }
+
+    /**
+     * Build a constructor target string for {@link ClassInfo#addComment}. Must
+     * match {@code JavaUtils.getSignature(Constructor)} of the compiled
+     * constructor: {@code "SimpleClassName(<erased-FQ-type>, ...)"} (no return
+     * type), e.g. {@code "Flight(java.lang.String, java.lang.String)"}.
+     */
+    private static String buildConstructorTarget(String className,
+            List<KtParameter> params, KtFile ktFile)
+    {
+        return className + "(" + joinParamTypes(params, ktFile) + ")";
+    }
+
+    /**
+     * Join the erased-FQ JVM type names of a parameter list with ", "
+     * (the separator {@code JavaUtils.makeSignature} uses).
+     */
+    private static String joinParamTypes(List<KtParameter> params, KtFile ktFile)
+    {
+        StringJoiner types = new StringJoiner(", ");
+        for (KtParameter param : params) {
+            types.add(jvmTypeName(param.getTypeReference(), ktFile));
+        }
+        return types.toString();
     }
 
     /**
      * Build a space-separated list of parameter names for
      * {@link ClassInfo#addComment}.
      *
-     * @return parameter names string, or null if no parameters
+     * @return parameter names string, or null if there are no parameters
      */
-    private static String buildParamNames(KtNamedFunction fun)
+    private static String buildParamNames(List<KtParameter> params)
     {
-        List<KtParameter> params = fun.getValueParameters();
         if (params.isEmpty()) {
             return null;
         }
@@ -560,6 +609,130 @@ public class KotlinInfoParser
         }
         String result = names.toString();
         return result.isEmpty() ? null : result;
+    }
+
+    /**
+     * Map a method return type reference to its erased JVM name. A missing or
+     * (non-nullable) {@code Unit} return type maps to {@code "void"}; everything
+     * else follows {@link #jvmTypeName}.
+     */
+    private static String jvmReturnTypeName(KtTypeReference typeRef, KtFile ktFile)
+    {
+        if (typeRef == null) {
+            // Expression-body function with an inferred return type: single-file PSI
+            // cannot resolve it, so we guess "void". View.loadClassComments matches
+            // such targets return-type-agnostically. TODO once the Kotlin Analysis API
+            // is integrated, resolve the real inferred type and drop that fallback.
+            return "void";
+        }
+        if (!(typeRef.getTypeElement() instanceof KtNullableType)
+            && "Unit".equals(extractSimpleName(typeRef))) {
+            return "void";
+        }
+        return jvmTypeName(typeRef, ktFile);
+    }
+
+    /**
+     * Map a Kotlin type reference to the erased, fully-qualified JVM type name
+     * that reflection would report for the compiled member. Kotlin built-ins
+     * use a fixed table (nullable built-ins box to their wrapper); user types
+     * are resolved from the single file via {@link #resolveUserTypeFqn}.
+     */
+    private static String jvmTypeName(KtTypeReference typeRef, KtFile ktFile)
+    {
+        if (typeRef == null) {
+            return "java.lang.Object";
+        }
+        String simple = extractSimpleName(typeRef);
+        if (simple == null) {
+            return "java.lang.Object";
+        }
+        boolean nullable = typeRef.getTypeElement() instanceof KtNullableType;
+        String builtin = jvmBuiltinType(simple, nullable);
+        if (builtin != null) {
+            return builtin;
+        }
+        return resolveUserTypeFqn(simple, typeRef, ktFile);
+    }
+
+    /**
+     * Map a Kotlin built-in type to its JVM name, or null if not a built-in.
+     * Nullable primitives box to their wrapper (e.g. {@code Int? -> Integer}).
+     */
+    private static String jvmBuiltinType(String simpleName, boolean nullable)
+    {
+        return switch (simpleName) {
+            case "Int" -> nullable ? "java.lang.Integer" : "int";
+            case "Long" -> nullable ? "java.lang.Long" : "long";
+            case "Short" -> nullable ? "java.lang.Short" : "short";
+            case "Byte" -> nullable ? "java.lang.Byte" : "byte";
+            case "Double" -> nullable ? "java.lang.Double" : "double";
+            case "Float" -> nullable ? "java.lang.Float" : "float";
+            case "Boolean" -> nullable ? "java.lang.Boolean" : "boolean";
+            case "Char" -> nullable ? "java.lang.Character" : "char";
+            case "String" -> "java.lang.String";
+            case "Any" -> "java.lang.Object";
+            case "Unit" -> "kotlin.Unit";
+            default -> null;
+        };
+    }
+
+    /**
+     * Resolve a user-defined type's simple name to a fully-qualified name using
+     * only single-file PSI information, the way Java's {@code InfoParser} does:
+     * already-qualified source text, then explicit imports, then the file's
+     * package, falling back to the bare name. Star imports and types reachable
+     * only via the project classpath cannot be resolved here (see the parser
+     * spec's known limitations).
+     */
+    private static String resolveUserTypeFqn(String simpleName,
+            KtTypeReference typeRef, KtFile ktFile)
+    {
+        // 1. Already qualified in source (e.g. "com.example.Foo")
+        String stripped = stripTypeDecoration(typeRef.getText());
+        if (stripped != null && stripped.indexOf('.') > 0) {
+            return stripped.replace('$', '.');
+        }
+
+        // 2. Explicit (non-star) import whose short name matches
+        for (KtImportDirective imp : ktFile.getImportDirectives()) {
+            if (imp.isAllUnder()) {
+                continue;
+            }
+            FqName fq = imp.getImportedFqName();
+            if (fq != null && simpleName.equals(fq.shortName().asString())) {
+                return fq.asString();
+            }
+        }
+
+        // 3. Same package as this file
+        FqName pkg = ktFile.getPackageFqName();
+        if (pkg != null && !pkg.isRoot()) {
+            return pkg.asString() + "." + simpleName;
+        }
+
+        // 4. Bare simple name (default package, or unresolved)
+        return simpleName;
+    }
+
+    /**
+     * Strip nullable markers and generic arguments from raw type text, keeping
+     * any package qualifier. {@code "Foo<Bar>?" -> "Foo"}, {@code "a.b.C" -> "a.b.C"}.
+     */
+    private static String stripTypeDecoration(String text)
+    {
+        if (text == null) {
+            return null;
+        }
+        text = text.trim();
+        int lt = text.indexOf('<');
+        if (lt > 0) {
+            text = text.substring(0, lt);
+        }
+        if (text.endsWith("?")) {
+            text = text.substring(0, text.length() - 1);
+        }
+        return text.trim();
     }
 
     /**
