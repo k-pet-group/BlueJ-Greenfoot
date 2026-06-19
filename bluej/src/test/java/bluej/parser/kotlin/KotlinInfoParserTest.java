@@ -24,6 +24,7 @@ package bluej.parser.kotlin;
 import java.io.StringReader;
 
 import bluej.parser.symtab.ClassInfo;
+import bluej.utility.JavaUtils;
 
 import org.junit.Test;
 
@@ -723,4 +724,198 @@ public class KotlinInfoParserTest
         assertFalse("Regular class should not be top-level functions only",
             info.isTopLevelFunctionsOnly());
     }
+
+    // Callable parameter names — comment targets must match the erased,
+    // fully-qualified JavaUtils.getSignature() format of the compiled member,
+    // since comments are attached to members by exact string equality.
+
+    /**
+     * Find a saved comment by its exact target signature, or null if absent.
+     */
+    private ClassInfo.SavedComment commentFor(ClassInfo info, String target)
+    {
+        return info.getCommentsAsList().stream()
+            .filter(c -> target.equals(c.target))
+            .findFirst().orElse(null);
+    }
+
+    @Test
+    public void testPrimaryConstructorParamNames()
+    {
+        ClassInfo info = parse("class PositionKotlin(x: Int, y: Int)");
+        assertNotNull(info);
+        ClassInfo.SavedComment c = commentFor(info, "PositionKotlin(int, int)");
+        assertNotNull("Primary constructor comment with mapped primitive types", c);
+        assertEquals("x y", c.paramnames);
+    }
+
+    @Test
+    public void testMethodParamNamesWithoutKDoc()
+    {
+        // Regression: param names must be recorded even with no KDoc present.
+        ClassInfo info = parse("class PositionKotlin { fun setX(value: Int) {} }");
+        assertNotNull(info);
+        ClassInfo.SavedComment c = commentFor(info, "void setX(int)");
+        assertNotNull("Method comment emitted without a KDoc", c);
+        assertEquals("value", c.paramnames);
+        assertNull("No KDoc text when none present", c.comment);
+    }
+
+    @Test
+    public void testCompanionMethodParamNames()
+    {
+        // Companion-object methods are surfaced as static-style operations on the
+        // enclosing class, so their comments (and param names) must be emitted too.
+        ClassInfo info = parse(
+            "class Calc {\n"
+            + "    companion object {\n"
+            + "        fun square(value: Int): Int = value * value\n"
+            + "    }\n"
+            + "}");
+        assertNotNull(info);
+        ClassInfo.SavedComment c = commentFor(info, "int square(int)");
+        assertNotNull("Companion method comment emitted", c);
+        assertEquals("value", c.paramnames);
+    }
+
+    @Test
+    public void testNamedCompanionMethodParamNames()
+    {
+        ClassInfo info = parse(
+            "class Calc {\n"
+            + "    companion object Factory {\n"
+            + "        fun make(name: String) {}\n"
+            + "    }\n"
+            + "}");
+        assertNotNull(info);
+        ClassInfo.SavedComment c = commentFor(info, "void make(java.lang.String)");
+        assertNotNull("Named companion method comment emitted", c);
+        assertEquals("name", c.paramnames);
+    }
+
+    @Test
+    public void testConstructorStringParamsFullyQualified()
+    {
+        // Mirrors the Flight example: three String params.
+        ClassInfo info = parse("class Flight(source: String, dest: String, carrier: String)");
+        assertNotNull(info);
+        ClassInfo.SavedComment c = commentFor(info,
+            "Flight(java.lang.String, java.lang.String, java.lang.String)");
+        assertNotNull("String params map to java.lang.String, ', '-separated", c);
+        assertEquals("source dest carrier", c.paramnames);
+    }
+
+    @Test
+    public void testMethodReturnTypeMapped()
+    {
+        ClassInfo info = parse("class Shape { fun scale(factor: Double): Double = factor }");
+        assertNotNull(info);
+        assertNotNull("Return and param primitives mapped (double)",
+            commentFor(info, "double scale(double)"));
+    }
+
+    @Test
+    public void testNullablePrimitiveParamBoxes()
+    {
+        ClassInfo info = parse("class Box { fun put(value: Int?) {} }");
+        assertNotNull(info);
+        assertNotNull("Nullable primitive boxes to its wrapper",
+            commentFor(info, "void put(java.lang.Integer)"));
+    }
+
+    @Test
+    public void testSecondaryConstructorParamNames()
+    {
+        String source =
+            "class Person(val name: String) {\n"
+            + "    constructor(name: String, age: Int) : this(name)\n"
+            + "}";
+        ClassInfo info = parse(source);
+        assertNotNull(info);
+        assertNotNull("Primary constructor recorded",
+            commentFor(info, "Person(java.lang.String)"));
+        ClassInfo.SavedComment sec =
+            commentFor(info, "Person(java.lang.String, int)");
+        assertNotNull("Secondary constructor recorded", sec);
+        assertEquals("name age", sec.paramnames);
+    }
+
+    @Test
+    public void testUserTypeParamResolvedViaImport()
+    {
+        ClassInfo info = parse(
+            "import com.example.Person\n"
+            + "class Registry { fun add(p: Person) {} }");
+        assertNotNull(info);
+        assertNotNull("Imported user type resolves to its FQN",
+            commentFor(info, "void add(com.example.Person)"));
+    }
+
+    @Test
+    public void testUserTypeParamResolvedViaSamePackage()
+    {
+        ClassInfo info = parse(
+            "package com.example\n"
+            + "class Registry(owner: Person)");
+        assertNotNull(info);
+        assertNotNull("Same-package user type resolves via the file's package",
+            commentFor(info, "Registry(com.example.Person)"));
+    }
+
+    @Test
+    public void testQualifiedUserTypeParamKeepsQualifier()
+    {
+        ClassInfo info = parse("class Registry(owner: com.example.Person)");
+        assertNotNull(info);
+        assertNotNull("Already-qualified source type keeps its qualifier",
+            commentFor(info, "Registry(com.example.Person)"));
+    }
+
+    /**
+     * The decisive end-to-end check: comments are attached to members by
+     * exact equality against {@code JavaUtils.getSignature()} of the compiled
+     * member. Parse a Kotlin class and assert each emitted target matches the
+     * signature reflection would report for the equivalent compiled members
+     * ({@link KParamNamesRef}, whose JVM signatures mirror the Kotlin source).
+     */
+    @Test
+    public void testTargetsMatchJavaUtilsGetSignature() throws Exception
+    {
+        String source =
+            "class KParamNamesRef(x: Int, y: Int) {\n"
+            + "    constructor(source: String, dest: String, carrier: String) : this(0, 0)\n"
+            + "    fun setX(value: Int) {}\n"
+            + "    fun scale(factor: Double): Double = factor\n"
+            + "    fun put(value: Int?) {}\n"
+            + "}";
+        ClassInfo info = parse(source);
+        assertNotNull(info);
+
+        assertNotNull("primary ctor matches reflected signature", commentFor(info,
+            JavaUtils.getSignature(KParamNamesRef.class.getDeclaredConstructor(int.class, int.class))));
+        assertNotNull("secondary (3 String) ctor matches", commentFor(info,
+            JavaUtils.getSignature(KParamNamesRef.class.getDeclaredConstructor(
+                String.class, String.class, String.class))));
+        assertNotNull("setX(int) matches", commentFor(info,
+            JavaUtils.getSignature(KParamNamesRef.class.getDeclaredMethod("setX", int.class))));
+        assertNotNull("scale(double):double matches", commentFor(info,
+            JavaUtils.getSignature(KParamNamesRef.class.getDeclaredMethod("scale", double.class))));
+        assertNotNull("nullable Int? param boxes to Integer", commentFor(info,
+            JavaUtils.getSignature(KParamNamesRef.class.getDeclaredMethod("put", Integer.class))));
+    }
+}
+
+/**
+ * Reference type whose compiled JVM signatures mirror the Kotlin source used
+ * in {@link KotlinInfoParserTest#testTargetsMatchJavaUtilsGetSignature}. Kept
+ * top-level (not nested) so {@code JavaNames.getBase} yields a bare class name,
+ * matching a real top-level Kotlin class.
+ */
+class KParamNamesRef
+{
+    KParamNamesRef(int x, int y) {}
+    KParamNamesRef(String source, String dest, String carrier) {}
+    void setX(int value) {}
+    double scale(double factor) { return factor; }
+    void put(Integer value) {}
 }

@@ -140,7 +140,13 @@ public class KotlinPsiScopeBuilder
             processTypeDeclaration(ktClass, ktClass.getName(), ktClass.getBody(),
                     parent, parentAbsPos, listener);
         } else if (decl instanceof KtObjectDeclaration ktObject) {
-            processTypeDeclaration(ktObject, ktObject.getName(), ktObject.getBody(),
+            // Anonymous companion objects (companion object { }) have no PSI name;
+            // give them a "Companion" display name so the scope node is labelled.
+            String name = ktObject.getName();
+            if (name == null && ktObject.isCompanion()) {
+                name = "Companion";
+            }
+            processTypeDeclaration(ktObject, name, ktObject.getBody(),
                     parent, parentAbsPos, listener);
         } else if (decl instanceof KtNamedFunction ktFunction) {
             processFunction(ktFunction, parent, parentAbsPos, listener);
@@ -156,20 +162,13 @@ public class KotlinPsiScopeBuilder
 
     /**
      * Process a class or object declaration → KotlinParentNode(NODETYPE_TYPEDEF).
-     * Companion objects are inlined into the parent scope.
+     * Companion objects are scoped like any other object declaration (green
+     * type scope); their members are highlighted within the companion's body.
      */
     private static void processTypeDeclaration(PsiElement element, String name,
             KtClassBody body, JavaParentNode parent, int parentAbsPos,
             NodeStructureListener listener)
     {
-        // Skip companion objects — they don't form a visible scope
-        if (element instanceof KtObjectDeclaration ktObj && ktObj.isCompanion()) {
-            if (body != null) {
-                processClassBody(body, parent, parentAbsPos, listener);
-            }
-            return;
-        }
-
         KotlinParentNode typeNode = createAndInsertScopeNode(
                 element, parent, parentAbsPos, ParsedNode.NODETYPE_TYPEDEF, name, listener);
 
