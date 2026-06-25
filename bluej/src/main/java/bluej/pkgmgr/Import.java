@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2014,2016,2019,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.pkgmgr;
 
 import bluej.extensions2.SourceType;
 import bluej.parser.InfoParser;
+import bluej.parser.kotlin.KotlinInfoParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
@@ -32,7 +33,9 @@ import javafx.stage.Window;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -51,10 +54,10 @@ public class Import
 {
     /**
      * Attempt to convert a non-bluej Path to a Bluej project.
-     * 
-     * <p>If no java source files are found, a warning dialog is displayed and
-     * the conversion doesn't take place.
-     * 
+     *
+     * <p>If no source files (Java, Stride, or Kotlin) are found, a warning
+     * dialog is displayed and the conversion doesn't take place.
+     *
      * <p>If source files are found whose package line mismatches the apparent
      * package, a warning dialog is displayed and the user is prompted to
      * either allow the package line to be corrected, or to cancel the
@@ -66,33 +69,29 @@ public class Import
      */
     public static boolean convertNonBlueJ(FXPlatformSupplier<Window> parentWin, File path)
     {
-        // find all sub directories with Java files in them
-        // then find all the Java files in those directories
+        // find all sub directories with recognised source files,
+        // then find all the source files in those directories
         List<File> interestingDirs = Import.findInterestingDirectories(path);
 
-        // check to make sure the path contains some java source files
+        // check to make sure the path contains some recognised source files
         if (interestingDirs.size() == 0) {
             DialogManager.showErrorFX(parentWin.get(), "open-non-bluej-no-java");
             return false;
         }
 
-        List<File> javaFiles = Import.findJavaFiles(interestingDirs);
+        List<File> sourceFiles = Import.findSourceFiles(interestingDirs);
 
-        // for each Java file, lets check its package line against the
-        // package line we think that it should have
-        // for each mismatch we collect the file, the package line it had,
-        // and what we want to convert it to
+        // for each source file, check its package directive against the
+        // package line we think that it should have. For each mismatch we
+        // collect the file, the package line it had, and what we want
+        // to convert it to.
         List<File> mismatchFiles = new ArrayList<File>();
         List<String> mismatchPackagesOriginal = new ArrayList<String>();
         List<String> mismatchPackagesChanged = new ArrayList<String>();
 
-        Iterator<File> it = javaFiles.iterator();
-
-        while (it.hasNext()) {
-            File f = it.next();
-
+        for (File f : sourceFiles) {
             try {
-                ClassInfo info = InfoParser.parse(f);
+                ClassInfo info = parseSourceFile(f);
                 if (info != null && ! info.hadParseError()) {
 
                     String qf = JavaNames.convertFileToQualifiedName(path, f);
@@ -105,6 +104,7 @@ public class Import
                 }
             }
             catch (FileNotFoundException fnfe) {}
+            catch (IOException ioe) {}
         }
 
         // now ask if they want to continue if we have detected mismatches
@@ -123,11 +123,34 @@ public class Import
     }
 
     /**
+     * Parse a source file via the appropriate parser for its extension.
+     * Returns null for unrecognised extensions or empty files.
+     */
+    private static ClassInfo parseSourceFile(File f) throws IOException
+    {
+        String name = f.getName();
+        if (name.endsWith("." + SourceType.Java.getExtension())) {
+            return InfoParser.parse(f);
+        }
+        if (name.endsWith("." + SourceType.Kotlin.getExtension())) {
+            try (Reader r = new FileReader(f)) {
+                // Pass file name so the parser can derive top-level-functions
+                // file names from the stem; package is the only field we need
+                // here, so targetPkg validation is skipped (null).
+                return KotlinInfoParser.parse(r, null, name);
+            }
+        }
+        // Stride files have generated .java siblings that are picked up
+        // by the .java branch above; we don't need to parse .stride here.
+        return null;
+    }
+
+    /**
      * Find all directories under a certain directory which
      * we deem 'interesting'.
      * An interesting directory is one which either contains
-     * a java source file or contains a directory which in
-     * turn contains a java source file.
+     * a recognised source file (Java, Stride, or Kotlin) or contains
+     * a directory which in turn contains such a source file.
      *
      * @param   dir     the directory to look in
      * @returns         a list of File's representing the
@@ -161,13 +184,13 @@ public class Import
                 }
             }
             else {
-                if (files[i].getName().endsWith("." + SourceType.Java.toString().toLowerCase()))
+                if (hasRecognisedSourceExtension(files[i].getName()))
                     imInteresting = true;
             }
         }
 
-        // if we have found anything of interest (either a java
-        // file or a subdirectory with java files) then we consider
+        // if we have found anything of interest (either a source
+        // file or a subdirectory with source files) then we consider
         // ourselves interesting and add ourselves to the list
         if (imInteresting)
             interesting.add(dir);
@@ -176,32 +199,40 @@ public class Import
     }
 
     /**
-     * Find all Java files contained in a list of
-     * directory paths.
+     * Find all recognised source files (Java, Stride, Kotlin) contained
+     * in a list of directory paths. Stride is included for completeness
+     * but {@link #convertNonBlueJ} only parses Java and Kotlin for
+     * package-mismatch detection.
      */
-    public static List<File> findJavaFiles(List<File> dirs)
+    public static List<File> findSourceFiles(List<File> dirs)
     {
         List<File> interesting = new LinkedList<File>();
 
-        Iterator<File> it = dirs.iterator();
-
-        while(it.hasNext()) {
-            File dir = it.next();
-
+        for (File dir : dirs) {
             File[] files = dir.listFiles();
-
             if (files == null) {
                 continue;
             }
-
-            for (int i=0; i<files.length; i++) {
-                if (files[i].isFile() && files[i].getName().endsWith("." + SourceType.Java.toString().toLowerCase())) {
-                    interesting.add(files[i]);
+            for (File f : files) {
+                if (f.isFile() && hasRecognisedSourceExtension(f.getName())) {
+                    interesting.add(f);
                 }
             }
         }
 
         return interesting;
+    }
+
+    /**
+     * Whether {@code fileName} ends with one of the source extensions we
+     * recognise during non-BlueJ project import: {@code .java},
+     * {@code .stride}, or {@code .kt}.
+     */
+    private static boolean hasRecognisedSourceExtension(String fileName)
+    {
+        return fileName.endsWith("." + SourceType.Java.getExtension())
+            || fileName.endsWith("." + SourceType.Stride.getExtension())
+            || fileName.endsWith("." + SourceType.Kotlin.getExtension());
     }
 
     /**

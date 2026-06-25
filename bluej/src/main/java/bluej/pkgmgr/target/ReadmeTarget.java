@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2020,2021,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.pkgmgr.target;
 import bluej.Config;
 import bluej.editor.Editor;
 import bluej.editor.flow.FlowEditor;
+import bluej.editor.flow.PlainTextLanguageSupport;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.actions.EditAction;
 import bluej.utility.Debug;
@@ -128,7 +129,7 @@ public class ReadmeTarget extends NonCodeEditableTarget
                 {
                     return getPackage().getProject().getDefaultFXTabbedEditor();
                 }
-            }, getSourceFile().getName(), this, null, null, () -> {}, new ReadOnlyBooleanWrapper(false), false);
+            }, getSourceFile().getName(), this, null, null, () -> {}, new ReadOnlyBooleanWrapper(false), false, new PlainTextLanguageSupport());
             flowEditor.showFile(getSourceFile().getAbsolutePath(), StandardCharsets.UTF_8, false, null);
             this.editor = flowEditor;
         }

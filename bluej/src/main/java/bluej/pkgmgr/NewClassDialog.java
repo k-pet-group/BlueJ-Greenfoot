@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2016,2017,2019,2022,2025  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2016,2017,2019,2022,2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,12 +34,14 @@ import java.util.StringTokenizer;
 
 import bluej.prefmgr.PrefMgr;
 import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import bluej.Config;
@@ -87,6 +89,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
      * The label with the error message.
      */
     private final Label errorLabel;
+    private final ObservableValue<Boolean> isClassContentBoxEnabled;
 
     /**
      * The information selected in the dialog: class name,
@@ -127,7 +130,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
         mainPanel.getChildren().add(nameBox);
 
-        language = new HorizontalRadio(Arrays.asList(SourceType.Java, SourceType.Stride));
+        language = new HorizontalRadio(Arrays.asList(SourceType.Java, SourceType.Stride, SourceType.Kotlin));
         language.select(defaultSourceType);
 
         HBox langBox = new HBox();
@@ -163,6 +166,10 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         HBox classContentBox = new HBox(new Label(Config.getString("pkgmgr.newClass.content")), classContent);
         classContentBox.setSpacing(10);
         classContentBox.setAlignment(Pos.BASELINE_LEFT);
+        isClassContentBoxEnabled = language.selectedProperty()
+                .map(language -> language != SourceType.Kotlin);
+        classContentBox.visibleProperty().bind(isClassContentBoxEnabled);
+        classContentBox.managedProperty().bind(isClassContentBoxEnabled);
         mainPanel.getChildren().add(classContentBox);
 
 
@@ -175,16 +182,27 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         JavaFXUtil.addChangeListenerPlatform(language.selectedProperty(), language -> {
             hideError();
             updateOKButton(false);
+
+            // Force resize (Stride content is shorter than Java/Kotlin:
+            getDialogPane().requestLayout();
+            JavaFXUtil.runAfterCurrent(() -> {
+                Stage stage = (Stage)getDialogPane().getScene().getWindow();
+                stage.sizeToScene();
+            });
         });
 
         getDialogPane().setContent(mainPanel);
         setResultConverter(buttonType -> {
             if (buttonType == ButtonType.OK)
             {
+                SourceType selectedLanguage = language.selectedProperty().get();
+                ClassContent selectedContent = selectedLanguage == SourceType.Kotlin
+                        ? ClassContent.FULL
+                        : classContent.getSelectionModel().getSelectedItem();
                 // Save the classContent preference:
-                PrefMgr.setFlag(PrefMgr.NEW_CLASS_FULL_CONTENT, classContent.getSelectionModel().getSelectedItem() == ClassContent.FULL);
+                PrefMgr.setFlag(PrefMgr.NEW_CLASS_FULL_CONTENT, selectedContent == ClassContent.FULL);
 
-                return new NewClassInfo(nameField.getText().trim(), templates.get(templateButtons.getSelectedToggle()).name, language.selectedProperty().get(), classContent.getSelectionModel().getSelectedItem());
+                return new NewClassInfo(nameField.getText().trim(), templates.get(templateButtons.getSelectedToggle()).name, selectedLanguage, selectedContent);
             }
             else {
                 return null;
@@ -254,9 +272,11 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         // (we do this rather than using the directory only to be able to force an order on the templates.)
         addDEFsTemplates(templates, SourceType.Java);
         addDEFsTemplates(templates, SourceType.Stride);
+        addDEFsTemplates(templates, SourceType.Kotlin);
 
         // next, get templates from files in template directory and merge them in
         addDirectoryTemplates(templates, SourceType.Java, parent);
+        addDirectoryTemplates(templates, SourceType.Kotlin, parent);
 
         // Create a radio button for each template found
         boolean first = true;
@@ -290,11 +310,18 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             DialogManager.showErrorFX(parent, "error-no-templates");
         }
         else {
-            String templateSuffix = ".tmpl";
+            // Kotlin templates use ".kt.tmpl" suffix; Java templates use plain ".tmpl".
+            // We must match the language-specific suffix to avoid leaking templates
+            // across languages (e.g., "stdclass.kt.tmpl" must not appear as a Java template).
+            String templateSuffix = sourceType == SourceType.Kotlin ? ".kt.tmpl" : ".tmpl";
             int suffixLength = templateSuffix.length();
 
             Arrays.asList(templateDir.list()).forEach(file -> {
                 if(file.endsWith(templateSuffix)) {
+                    // For Java, skip files that match a more-specific language suffix (e.g., ".kt.tmpl")
+                    if (sourceType != SourceType.Kotlin && file.endsWith(".kt.tmpl")) {
+                        return;
+                    }
                     String templateName = file.substring(0, file.length() - suffixLength);
                     templates.addTemplate(templateName, sourceType);
                 }
@@ -341,7 +368,11 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             enable = true;
         }
 
-        templates.forEach((radio, templateInfo) -> radio.setVisible(templateInfo.sourceTypes.contains(language.selectedProperty().get())));
+        templates.forEach((radio, templateInfo) -> {
+            boolean visible = templateInfo.sourceTypes.contains(language.selectedProperty().get());
+            radio.setVisible(visible);
+            radio.setManaged(visible);
+        });
         setOKEnabled(enable);
     }
 

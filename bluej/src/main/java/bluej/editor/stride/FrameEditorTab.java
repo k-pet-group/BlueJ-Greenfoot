@@ -2954,4 +2954,9 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     {
         imageProperty.set(image);
     }
+
+    public Image getHeaderImage()
+    {
+        return imageProperty.get();
+    }
 }

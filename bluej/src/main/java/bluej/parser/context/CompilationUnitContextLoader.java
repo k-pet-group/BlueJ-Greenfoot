@@ -1,7 +1,7 @@
 
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2016,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -232,7 +232,7 @@ public class CompilationUnitContextLoader implements AutoCloseable {
         Path contextFilePath = constructContextFilePath(qualifiedName);
 
         try {
-            File contextFile = contextFilePath.toFile();
+            File contextFile = getPackageRoot().resolve(contextFilePath).toFile();
 
             context.setComments(PropertyContextFormat.fromProperties(data.comments));
 

@@ -572,6 +572,20 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     }
 
     /**
+     * Remove all child nodes at or after the given position, notifying the
+     * listener for each removal. Used by Kotlin parse nodes during reparse.
+     */
+    protected void removeAllChildren(int nodePos, NodeStructureListener listener)
+    {
+        NodeAndPosition<ParsedNode> child = findNodeAtOrAfter(nodePos, nodePos);
+        while (child != null) {
+            NodeAndPosition<ParsedNode> next = child.nextSibling();
+            removeChild(child, listener);
+            child = next;
+        }
+    }
+
+    /**
      * Check whether a documentary comment is attached to this node.
      */
     public boolean isCommentAttached()

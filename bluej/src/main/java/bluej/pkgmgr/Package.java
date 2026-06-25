@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024,2025 Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024,2025,2026 Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -61,6 +62,7 @@ import bluej.extensions2.SourceType;
 import bluej.extensions2.event.CompileEvent;
 import bluej.extensions2.event.CompileEvent.EventType;
 import bluej.extmgr.ExtensionsManager;
+import bluej.parser.kotlin.KotlinParserUtils;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
@@ -68,6 +70,7 @@ import bluej.utility.*;
 import bluej.utility.filefilter.FrameSourceFilter;
 import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
+import bluej.utility.filefilter.KotlinSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -604,6 +607,12 @@ public final class Package
         {
             l.graphChanged();
         }
+        Set<SourceType> sourceTypes = getClassTargets().stream().map(ClassTarget::getSourceType).filter(t -> t != null && t != SourceType.NONE).collect(Collectors.toSet());
+        for (ClassTarget t : getClassTargets())
+        {
+            // Show language marker iff there is more than one language in the project:
+            t.updateLanguageMarker(sourceTypes.size() > 1);
+        }
     }
 
     /**
@@ -673,6 +682,41 @@ public final class Package
             interestingSet.add(frameFileName);
         }
 
+        // Record the *facade class names* the Kotlin compiler will emit for
+        // each top-level-functions source file. K2 capitalises the stem's
+        // first letter and appends "Kt", so utils.kt → UtilsKt.class. We
+        // need that set later to dedup facade .class files; a naïve
+        // stripSuffix("Kt") on the class name produces the wrong stem for
+        // lowercase sources (UtilsKt → "Utils", which doesn't match the
+        // lowercase "utils" we just added to interestingSet).
+        Set<String> kotlinFacadeNames = new HashSet<String>();
+        if (!Config.isGreenfoot()) {
+            // process all *.kt files
+            File kotlinSrcFiles[] = path.listFiles(new KotlinSourceFilter());
+            if (kotlinSrcFiles != null)
+            {
+                for (int i = 0; i < kotlinSrcFiles.length; i++)
+                {
+                    String kotlinFileName = JavaNames.stripSuffix(
+                            kotlinSrcFiles[i].getName(),
+                            "." + SourceType.Kotlin.getExtension());
+
+                    // check if the name would be a valid java name
+                    // (Kotlin class names must also be valid JVM identifiers)
+                    if (!JavaNames.isIdentifier(kotlinFileName)) {
+                        continue;
+                    }
+
+                    // files with a $ in them signify inner classes (which we want
+                    // to ignore)
+                    if (kotlinFileName.indexOf('$') == -1) {
+                        interestingSet.add(kotlinFileName);
+                        kotlinFacadeNames.add(
+                                KotlinParserUtils.kotlinFacadeClassName(kotlinFileName));
+                    }
+                }
+            }
+        }
 
         // process all *.class files
         for (int i = 0; i < classFiles.length; i++) {
@@ -688,7 +732,15 @@ public final class Package
                 continue;
 
             if (classFileName.indexOf('$') == -1) {
-                // add only if there is no corresponding .java file
+                // skip Kt facade classes that have a corresponding .kt source
+                // (e.g., UtilsKt.class when utils.kt or Utils.kt exists).
+                // Match against the precomputed kotlinFacadeNames so the
+                // capitalisation rule lives in one place
+                // (KotlinParserUtils.kotlinFacadeClassName).
+                if (kotlinFacadeNames.contains(classFileName)) {
+                    continue;
+                }
+                // add only if there is no corresponding source file
                 if (!interestingSet.contains(classFileName)) {
                     try {
                         Class<?> c = loadClass(getQualifiedName(classFileName));
@@ -1318,23 +1370,20 @@ public final class Package
     /**
      * Import a source file into this package as a new class target. Returns an
      * error code: NO_ERROR - everything is fine FILE_NOT_FOUND - file does not
-     * exist ILLEGAL_FORMAT - the file name does not end in ".java" CLASS_EXISTS -
-     * a class with this name already exists COPY_ERROR - could not copy
+     * exist ILLEGAL_FORMAT - the file name does not end in a recognised source
+     * extension (.java, .stride, or .kt) CLASS_EXISTS - a class with this name
+     * already exists COPY_ERROR - could not copy
      */
     public int importFile(File aFile)
     {
-        // check whether specified class exists and is a java file
+        // check whether specified file exists and has a recognised source extension
 
         if (!aFile.exists())
             return FILE_NOT_FOUND;
         String fileName = aFile.getName();
 
-        String className;
-        if (fileName.endsWith("." + SourceType.Java.getExtension())) // it's a Java source file
-            className = fileName.substring(0, fileName.length() - SourceType.Java.getExtension().length() - 1);
-        else if (fileName.endsWith("." + SourceType.Stride.getExtension())) // it's a Stride source file
-            className = fileName.substring(0, fileName.length() - SourceType.Stride.getExtension().length() - 1);
-        else
+        String className = stripRecognisedSourceExtension(fileName);
+        if (className == null)
             return ILLEGAL_FORMAT;
 
         // check whether name is already used
@@ -1369,6 +1418,25 @@ public final class Package
         DataCollector.addClass(this, t);
 
         return NO_ERROR;
+    }
+
+    /**
+     * If {@code fileName} ends with a source extension BlueJ recognises
+     * ({@code .java}, {@code .stride}, or {@code .kt}), return the
+     * stem (file name without extension). Otherwise return {@code null}.
+     *
+     * <p>Used by {@link #importFile(File)} to decide whether an arbitrary
+     * file path can be imported as a class target.
+     */
+    static String stripRecognisedSourceExtension(String fileName)
+    {
+        for (SourceType st : new SourceType[]{SourceType.Java, SourceType.Stride, SourceType.Kotlin}) {
+            String suffix = "." + st.getExtension();
+            if (fileName.endsWith(suffix)) {
+                return fileName.substring(0, fileName.length() - suffix.length());
+            }
+        }
+        return null;
     }
 
     public ClassTarget addClass(String className)
@@ -1964,7 +2032,7 @@ public final class Package
      */
     public void userAddImplementsClassDependency(ClassTarget from, ClassTarget to)
     {
-        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
         if (info != null) {
             from.getEditor().addImplements(to.getBaseName(), info);
             from.analyseSource();
@@ -1979,7 +2047,7 @@ public final class Package
      */
     public void userAddExtendsInterfaceDependency(ClassTarget from, ClassTarget to)
     {
-        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
         from.getEditor().addExtendsInterface(to.getBaseName(), info);
         from.analyseSource();
     }
@@ -1992,7 +2060,7 @@ public final class Package
      */
     public void userAddExtendsClassDependency(ClassTarget from, ClassTarget to)
     {
-        from.getEditor().setExtendsClass(to.getBaseName(), from.getSourceInfo().getInfo(from.getJavaSourceFile(), this));
+        from.getEditor().setExtendsClass(to.getBaseName(), from.getSourceInfo().getInfo(from.getSourceFile(), this));
         from.analyseSource();
     }
 
@@ -2009,7 +2077,7 @@ public final class Package
 
         ClassTarget from = (ClassTarget) d.getFrom();
         ClassTarget to = (ClassTarget) d.getTo();
-        ClassInfo info = from.getSourceInfo().getInfo(from.getJavaSourceFile(), this);
+        ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
         if (d instanceof ImplementsDependency) {
             from.getEditor().removeExtendsOrImplementsInterface(to.getBaseName(), info);
         }
@@ -2753,7 +2821,7 @@ public final class Package
                      * names)
                      */
                     try {
-                        ClassInfo info = t.getSourceInfo().getInfo(t.getJavaSourceFile(), t.getPackage());
+                        ClassInfo info = t.getSourceInfo().getInfo(t.getSourceFile(), t.getPackage());
 
                         if (info != null) {
                             // Use ClassTarget method to create and save context
@@ -2923,9 +2991,12 @@ public final class Package
     public SourceType getDefaultSourceType()
     {
         // Our heuristic is: if the package contains any Stride files, the default is Stride,
+        // if the package contains any Kotlin files, the default is Kotlin,
         // otherwise it's Java
         if (getClassTargets().stream().anyMatch(c -> c.getSourceType() == SourceType.Stride))
             return SourceType.Stride;
+        else if (getClassTargets().stream().anyMatch(c -> c.getSourceType() == SourceType.Kotlin))
+            return SourceType.Kotlin;
         else
             return SourceType.Java;
     }

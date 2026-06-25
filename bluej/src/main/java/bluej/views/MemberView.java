@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -111,6 +111,15 @@ public abstract class MemberView
     public boolean isStatic()
     {
         return Modifier.isStatic(getModifiers());
+    }
+
+    /**
+     * @return true if this member is a Kotlin companion-object method, which is
+     *         callable without an instance but is not a JVM static method.
+     */
+    public boolean isKotlinCompanionMethod()
+    {
+        return false;
     }
 
     public String toString()

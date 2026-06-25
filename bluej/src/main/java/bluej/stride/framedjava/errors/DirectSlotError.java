@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016,2020,2025 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2020,2025,2026 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,7 +54,7 @@ public abstract class DirectSlotError extends CodeError
     @OnThread(Tag.FXPlatform)
     public DirectSlotError(SlotFragment code, DiagnosticOrigin origin)
     {
-        super(code, CompilerAPICompiler.getNewErrorIdentifer());
+        super(code, CompilerAPICompiler.getNewErrorIdentifier());
         this.origin = origin;
     }
 

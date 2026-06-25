@@ -184,6 +184,7 @@
 .class-target:hover {
     -fx-background-color: derive(class-target, 25%);
 }
+
 .class-target:bj-unittest {
     -fx-background-color: test-target;
 }

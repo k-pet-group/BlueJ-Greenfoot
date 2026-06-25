@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2019,2020,2021,2022  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License 
@@ -261,7 +261,7 @@ public class TestBasicEditorDisplay extends FXTest
             {
 
             }
-        }, null, null, null, new ReadOnlyBooleanWrapper(true), true);
+        }, null, null, null, new ReadOnlyBooleanWrapper(true), true, new JavaLanguageSupport());
         flowEditorPane = flowEditor.getSourcePane();
         flowEditorPane.setPrefWidth(800.0 + MarginAndTextLine.textLeftEdge(true));
         flowEditorPane.setMaxWidth(Region.USE_PREF_SIZE);

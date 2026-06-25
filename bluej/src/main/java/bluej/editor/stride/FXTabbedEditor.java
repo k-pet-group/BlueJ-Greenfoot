@@ -26,7 +26,10 @@ import bluej.Config;
 import bluej.Main;
 import bluej.collect.DataCollector;
 import bluej.editor.stride.FrameCatalogue.Hint;
+import bluej.extensions2.SourceType;
+import bluej.pkgmgr.PackageListener;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ClassTarget;
 import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.generic.Frame;
@@ -81,6 +84,7 @@ import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -88,6 +92,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -142,14 +147,33 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     private FrameShelf shelf;
     private boolean dragFromShelf;
 
+    private static final Image javaHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "j.png"));
+    private static final Image kotlinHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "k.png"));
+    private static final Image strideHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "s.png"));
 
     // Neither the constructor nor any initialisers should do any JavaFX work until
     // initialise is called.
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public FXTabbedEditor(Project project, Rectangle startSize)
     {
         this.project = project;
         this.startSize = startSize;
+        // Ideally we should listen to all packages but we don't have a nice way to do that
+        // and Kotlin doesn't yet support packages, so we focus on the unnamed package:
+        this.project.getUnnamedPackage().addListener(new PackageListener()
+        {
+            @Override
+            public void graphClosed()
+            {
+            }
+
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void graphChanged()
+            {
+                updateHeaderImages();
+            }
+        });
     }
 
     static boolean isUselessDrag(FrameCursor dragTarget, List<Frame> dragging, boolean copying)
@@ -287,6 +311,10 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 stage.close();
                 project.removeFXTabbedEditor(this);
             }
+            else
+            {
+                updateHeaderImages();
+            }
         });
 
         stage.setOnHidden(e -> {
@@ -390,6 +418,54 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         stage.titleProperty().bind(Bindings.concat(
             JavaFXUtil.applyPlatform(tabPane.getSelectionModel().selectedItemProperty(), t -> ((FXTab)t).windowTitleProperty(), "Unknown")
                 ," - ", projectTitle, titleStatus));
+    }
+
+    /**
+     * Updates the Java/Kotlin header images
+     */
+    @OnThread(Tag.FXPlatform)
+    private void updateHeaderImages()
+    {
+        // Check if we have a mix of Java and Kotlin source types:
+        Set<SourceType> allSourceTypes = project.getUnnamedPackage().getClassTargets().stream().map(ClassTarget::getSourceType).filter(st -> st != null && st != SourceType.NONE).collect(Collectors.toSet());
+
+        for (Tab tab : tabPane.getTabs())
+        {
+            switch (tab)
+            {
+                case FlowFXTab fxt ->
+                {
+                    // Don't override the header image in Greenfoot and no need to set header image again (SourceType can't change):
+                    if (allSourceTypes.size() > 1 && fxt.getHeaderImage() == null)
+                    {
+                        fxt.setHeaderImage(fxt.getFlowEditor().getSourceType() == SourceType.Kotlin ? kotlinHeaderImage : javaHeaderImage);
+                    }
+                    else if (allSourceTypes.size() == 1)
+                    {
+                        // Can remove designations if it was one of the standard header images:
+                        if (fxt.getHeaderImage() == javaHeaderImage || fxt.getHeaderImage() == kotlinHeaderImage)
+                        {
+                            fxt.setHeaderImage(null);
+                        }
+                    }
+                }
+                case FrameEditorTab fet ->
+                {
+                    if (allSourceTypes.size() > 1 && fet.getHeaderImage() == null)
+                    {
+                        fet.setHeaderImage(strideHeaderImage);
+                    }
+                    else if (allSourceTypes.size() == 1)
+                    {
+                        if (fet.getHeaderImage() == strideHeaderImage)
+                        {
+                            fet.setHeaderImage(null);
+                        }
+                    }
+                }
+                default -> {}
+            }
+        }
     }
 
     /**

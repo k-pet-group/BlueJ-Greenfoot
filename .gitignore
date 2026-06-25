@@ -2,6 +2,7 @@
 !.env
 !.gitignore
 !.github
+!.specs
 
 /bluej/classes
 /bluej/.*

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022,2023,2024,2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,6 +54,7 @@ import bluej.editor.flow.PrintDialog.PrintChoices;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FlowFXTab;
 import bluej.editor.stride.FrameEditor;
+import bluej.extensions2.SourceType;
 import bluej.extensions2.editor.DocumentListener;
 import bluej.parser.*;
 import bluej.parser.AssistContent.ParamInfo;
@@ -97,6 +98,8 @@ import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
@@ -147,6 +150,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow.AnchorLocation;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.EventTarget;
@@ -188,6 +192,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final EditorFixesManager editorFixesMgr;
 
     private final boolean sourceIsCode;           // true if current buffer is code
+    private final FlowLanguageSupport languageSupport;  // strategy for language-specific editor behavior
     private final List<Menu> fxMenus;
     private final ListView<ErrorDetails> errorList;
     private final BorderPane errorListPane;
@@ -206,6 +211,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final BooleanProperty compiledProperty = new SimpleBooleanProperty(true);
     private final BooleanProperty viewingHTML = new SimpleBooleanProperty(false); // changing this alters the interface accordingly
     private ErrorDisplay errorDisplay;
+    // "Completion unavailable" popup shown on Ctrl+Space in .kt files; null when hidden.
+    private PopupControl kotlinUnavailablePopup;
+    private Timeline kotlinUnavailablePopupTimer;
     private final BitSet breakpoints = new BitSet();
     private int currentStepLineIndex = -1;
     private ComboBox<String> interfaceToggle;
@@ -257,7 +265,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     // Used during testing
     public void enableParser(boolean force)
     {
-        javaSyntaxView.enableParser(force);
+        javaSyntaxView.enableParser(
+            languageSupport.createRootNode(javaSyntaxView.getEntityResolver()), force);
     }
 
     @Override
@@ -529,7 +538,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     // package-visible:
     final UndoManager undoManager;
 
-    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting, boolean sourceIsCode)
+    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting, boolean sourceIsCode, FlowLanguageSupport languageSupport)
     {
         this.fxTab = new FlowFXTab(this, title);
         this.javadocResolver = javadocResolver;
@@ -548,13 +557,14 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.actions = new FlowActions(this);
         this.htmlPane = new WebView();
         this.sourceIsCode = sourceIsCode;
+        this.languageSupport = languageSupport;
         this.editorFixesMgr = new EditorFixesManager(watcher == null || watcher.getPackage() == null ? new CompletableFuture<>() : watcher.getPackage().getProject().getImports());
         htmlPane.visibleProperty().bind(viewingHTML);
         setCenter(new StackPane(flowEditorPane, htmlPane));
         this.interfaceToggle = createInterfaceSelector();
         interfaceToggle.setDisable(!sourceIsCode);
         Region toolbar = createToolbar(interfaceToggle.heightProperty());
-        setTop(JavaFXUtil.withStyleClass(new BorderPane(toolbar, null, interfaceToggle, null, null), "flow-top-bar"));
+        setTop(JavaFXUtil.withStyleClass(new BorderPane(toolbar, null, languageSupport.getSourceType() == SourceType.Kotlin ? null : interfaceToggle, null, null), "flow-top-bar"));
         errorList = new ListView<>(errorManager.getObservableErrorList());
         errorListPane = new BorderPane(errorList);
         errorList.setCellFactory(lv -> new ListCell<>() {
@@ -1280,7 +1290,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
                 if (sourceIsCode)
                 {
-                    javaSyntaxView.enableParser(false);
+                    enableParser(false);
                 }
                 loaded = true;
             }
@@ -2615,18 +2625,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                if (info.getSuperclass() == null) {
-                    Selection s1 = info.getExtendsInsertSelection();
-
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                    insertText(" extends " + className, false);
-                }
-                else {
-                    Selection s1 = info.getSuperReplaceSelection();
-
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                    insertText(className, false);
-                }
+                languageSupport.setExtendsClass(this, className, info);
                 save();
             }
         }
@@ -2642,13 +2641,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                Selection s1 = info.getExtendsReplaceSelection();
-                s1.combineWith(info.getSuperReplaceSelection());
-
-                if (s1 != null) {
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                    insertText("", false);
-                }
+                languageSupport.removeExtendsClass(this, info);
                 save();
             }
         }
@@ -2664,25 +2657,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                Selection s1 = info.getImplementsInsertSelection();
-                setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-
-                if (info.hasInterfaceSelections()) {
-                    // if we already have an implements clause then we need to put a
-                    // comma and the interface name but not before checking that we
-                    // don't already have it
-
-                    List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
-
-                    // XXX make this equality check against full package name
-                    if (!exists.contains(interfaceName))
-                        insertText(", " + interfaceName, false);
-                }
-                else {
-                    // otherwise we need to put the actual "implements" word
-                    // and the interface name
-                    insertText(" implements " + interfaceName, false);
-                }
+                languageSupport.addImplements(this, interfaceName, info);
                 save();
             }
         }
@@ -2697,7 +2672,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      * TODO this is usually used to get the implemented interfaces, but it is a clumsy way
      *      to do that.
      */
-    private List<String> getInterfaceTexts(List<Selection> selections)
+    List<String> getInterfaceTexts(List<Selection> selections)
     {
         List<String> r = new ArrayList<String>(selections.size());
         for (Selection sel : selections)
@@ -2723,26 +2698,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                Selection s1 = info.getExtendsInsertSelection();
-                setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-
-                if (info.hasInterfaceSelections()) {
-                    // if we already have an extends clause then we need to put a
-                    // comma and the interface name but not before checking that we
-                    // don't
-                    // already have it
-
-                    List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
-
-                    // XXX make this equality check against full package name
-                    if (!exists.contains(interfaceName))
-                        insertText(", " + interfaceName, false);
-                }
-                else {
-                    // otherwise we need to put the actual "extends" word
-                    // and the interface name
-                    insertText(" extends " + interfaceName, false);
-                }
+                languageSupport.addExtendsInterface(this, interfaceName, info);
                 save();
             }
         }
@@ -2758,32 +2714,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             save();
 
             if (info != null) {
-                Selection s1 = null;
-
-                List<Selection> vsels;
-                List<String> vtexts;
-
-                vsels = info.getInterfaceSelections();
-                vtexts = getInterfaceTexts(vsels);
-                int where = vtexts.indexOf(interfaceName);
-
-                // we have a special case if we deleted the first bit of an
-                // "implements" clause, yet there are still clauses left.. we have
-                // to delete the following "," instead of the preceding one.
-                if (where == 1 && vsels.size() > 2)
-                    where = 2;
-
-                if (where > 0) { // should always be true
-                    s1 = vsels.get(where - 1);
-                    s1.combineWith(vsels.get(where));
-                }
-
-                // delete the text from the end backwards so that our
-                if (s1 != null) {
-                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
-                    insertText("", false);
-                }
-
+                languageSupport.removeInterface(this, interfaceName, info);
                 save();
             }
         }
@@ -3298,6 +3229,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     protected void createContentAssist()
     {
+        if (languageSupport instanceof KotlinLanguageSupport)
+        {
+            // Kotlin has no completion path yet; the Java pipeline below would silently produce nothing.
+            showKotlinUnavailableNotice();
+            return;
+        }
+
         //need to recreate the dialog each time it is pressed as the values may be different
         javaSyntaxView.flushReparseQueue();
         ParsedCUNode parser = getParsedNode();
@@ -3464,6 +3402,87 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
     }
 
+    // Transient caret-anchored "completion unavailable" popup, mirroring showErrorOverlay's shape.
+    @OnThread(Tag.FXPlatform)
+    private void showKotlinUnavailableNotice()
+    {
+        Bounds caretBounds = flowEditorPane.getCaretBoundsOnScreen(flowEditorPane.getCaretPosition()).orElse(null);
+        if (caretBounds == null && flowEditorPane.getCaretPosition() > 0)
+        {
+            caretBounds = flowEditorPane.getCaretBoundsOnScreen(flowEditorPane.getCaretPosition() - 1).orElse(null);
+        }
+        if (caretBounds == null)
+        {
+            return; // caret off-screen
+        }
+
+        // Dismiss previous instance so repeat presses don't stack.
+        hideKotlinUnavailableNotice();
+
+        String msg = Config.getString(
+            "editor.info.kotlinCompletionUnavailable",
+            "Code completion is not available for Kotlin files");
+        Label label = new Label(msg);
+        JavaFXUtil.addStyleClass(label, "kotlin-unavailable-label");
+        VBox box = new VBox(label);
+        JavaFXUtil.addStyleClass(box, "kotlin-unavailable-popup");
+        box.setStyle(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_ONLY).get());
+        Config.addPopupStylesheets(box);
+
+        PopupControl popup = new PopupControl();
+        popup.setAutoHide(true);
+        popup.setHideOnEscape(true);
+        popup.setSkin(new Skin<Skinnable>()
+        {
+            @Override
+            @OnThread(Tag.FX)
+            public Skinnable getSkinnable()
+            {
+                return popup;
+            }
+
+            @Override
+            @OnThread(Tag.FX)
+            public Node getNode()
+            {
+                return box;
+            }
+
+            @Override
+            @OnThread(Tag.FX)
+            public void dispose()
+            {
+            }
+        });
+
+        // Anchor below the caret line — same offset showErrorOverlay uses.
+        popup.setAnchorLocation(AnchorLocation.WINDOW_TOP_LEFT);
+        popup.setAnchorX(caretBounds.getMinX());
+        popup.setAnchorY(caretBounds.getMinY() + (4 * caretBounds.getHeight() / 3));
+        popup.show(getWindow());
+
+        Timeline timer = new Timeline(new KeyFrame(Duration.seconds(3), e -> hideKotlinUnavailableNotice()));
+        timer.play();
+
+        kotlinUnavailablePopup = popup;
+        kotlinUnavailablePopupTimer = timer;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private void hideKotlinUnavailableNotice()
+    {
+        if (kotlinUnavailablePopupTimer != null)
+        {
+            kotlinUnavailablePopupTimer.stop();
+            kotlinUnavailablePopupTimer = null;
+        }
+        if (kotlinUnavailablePopup != null)
+        {
+            kotlinUnavailablePopup.hide();
+            kotlinUnavailablePopup = null;
+        }
+    }
+
     /**
      * codeComplete prints the selected text in the editor
      */
@@ -3544,6 +3563,14 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void removeDocumentListener(DocumentListener documentListener)
     {
         document.removeListener(documentListener);
+    }
+
+    /**
+     * Get the SourceType of this editor
+     */
+    public SourceType getSourceType()
+    {
+        return languageSupport.getSourceType();
     }
 
     /**
@@ -3663,7 +3690,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 return lineDisplay.calculateLineWidth(content);
             }
         }, flowEditorPaneListener, this.javaSyntaxView.getEntityResolver(), PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING));
-        javaSyntaxView.enableParser(true);
+        javaSyntaxView.enableParser(
+            languageSupport.createRootNode(javaSyntaxView.getEntityResolver()), true);
         StyledLines allLines = new StyledLines(doc, lineStylerWrapper[0]);
         lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true, null));
 

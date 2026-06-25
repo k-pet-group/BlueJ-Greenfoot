@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import bluej.parser.InfoParser;
+import bluej.parser.kotlin.KotlinInfoParser;
 import bluej.parser.symtab.ClassInfo;
 
 /**
@@ -55,7 +56,14 @@ public final class SourceInfo
         {
             try
             {
-                info = InfoParser.parseWithPkg(sourceFile, pkg);
+                if (sourceFile != null && sourceFile.getName().toLowerCase().endsWith(".kt"))
+                {
+                    info = KotlinInfoParser.parse(sourceFile);
+                }
+                else
+                {
+                    info = InfoParser.parseWithPkg(sourceFile, pkg);
+                }
             }
             catch (FileNotFoundException fnfe)
             {

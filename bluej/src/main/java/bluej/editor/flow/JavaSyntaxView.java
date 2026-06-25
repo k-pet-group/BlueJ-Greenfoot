@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2015,2016,2017,2018,2019,2020,2021,2022,2024  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2015,2016,2017,2018,2019,2020,2021,2022,2024,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -379,23 +379,33 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     }
 
     /**
-     * Enable the parser. This should be called after loading a document.
-     * @param force  whether to force-enable the parser. If false, the parser will only
-     *                be enabled if an entity resolver is available.
+     * Enable the parser with a default Java root node. This is a convenience
+     * for callers that always use Java parsing (e.g. Stride elements, tests).
+     * Language-aware callers should use {@link #enableParser(ParsedCUNode, boolean)}.
+     *
+     * @param force  if {@code true}, replace the existing parser
      */
     @OnThread(Tag.FXPlatform)
     public void enableParser(boolean force)
     {
+        enableParser(new ParsedCUNode(parentResolver), force);
+    }
+
+    /**
+     * Enable the parser with a pre-built root node and optional force flag.
+     *
+     * @param externalRootNode  the root parse node to use
+     * @param force             if {@code true}, replace the existing parser
+     */
+    @OnThread(Tag.FXPlatform)
+    public void enableParser(ParsedCUNode externalRootNode, boolean force)
+    {
         if (rootNode == null)
         {
-            rootNode = new ParsedCUNode(parentResolver);
+            rootNode = externalRootNode;
             reparseRecordTree = new NodeTree<ReparseRecord>();
-            //if (parentResolver != null || force) {
-            //rootNode.setParentResolver(parentResolver);
             rootNode.textInserted(this, 0, 0, document.getLength(),
                     new SyntaxEvent(0, document.getLength(), true, false));
-            // We can discard the MoeSyntaxEvent: the reparse will update scopes/syntax
-            //}
             document.addListener(true, (start, oldText, newText, linesRemoved, linesAdded) -> {
                 if (oldText.length() != 0)
                 {
@@ -406,10 +416,19 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 {
                     scopeBackgrounds.linesAdded(document.getLineFromPosition(start), linesAdded);
                     fireInsertUpdate(start, newText.length());
-                }                
+                }
                 scheduleReparseRunner();
             });
 
+            scheduleReparseRunner();
+        }
+        else if (force)
+        {
+            // Replace the root node but don't re-register the document listener
+            rootNode = externalRootNode;
+            reparseRecordTree = new NodeTree<ReparseRecord>();
+            rootNode.textInserted(this, 0, 0, document.getLength(),
+                    new SyntaxEvent(0, document.getLength(), true, false));
             scheduleReparseRunner();
         }
     }
@@ -453,9 +472,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         int lineEnd = document.getLineEnd(lineIndex);
         ParsedNode.TokenAndScope tas = rootNode.getMarkTokensFor(lineStart, lineContent.length(), 0, this);
 
-        // We first need to check if we're in a multiline string
-        // literal, as that will determine the highlighting:
-        TextBlockRelation textBlockRelation = multilineStringTracker.getTextBlockRelation(lineStart, lineEnd, tas.startLatestScope());
+        // Skip MultilineStringTracker when the root node handles multiline strings natively (e.g., Kotlin).
+        TextBlockRelation textBlockRelation = rootNode.handlesMultilineStrings()
+                ? TextBlockRelation.NONE
+                : multilineStringTracker.getTextBlockRelation(lineStart, lineEnd, tas.startLatestScope());
 
         if (textBlockRelation == TextBlockRelation.ENTIRELY_INSIDE)
         {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1476,10 +1476,13 @@ public class PkgMgrFrame
 
         ClassTarget target = new ClassTarget(thePkg, name, template);
 
-        if ( template != null ) { 
+        if ( template != null ) {
             boolean success = target.generateSkeleton(template, sourceType, classContent == ClassContent.FULL);
             if (! success)
                 return false;
+            // Re-analyse source to confirm the role from parsed content,
+            // as defense-in-depth in case the constructor's template guess was wrong.
+            target.analyseSource();
         }
 
         thePkg.addTarget(target);
@@ -1864,8 +1867,8 @@ public class PkgMgrFrame
      */
     public void doAddFromFile()
     {
-        // multi selection file dialog that shows .java and .class files
-        List<File> classes = FileUtility.getMultipleFilesFX(getWindow(), Config.getString("pkgmgr.addClass.title"), FileUtility.getJavaStrideSourceFilterFX());
+        // multi selection file dialog showing recognised source files (.java/.stride/.kt)
+        List<File> classes = FileUtility.getMultipleFilesFX(getWindow(), Config.getString("pkgmgr.addClass.title"), FileUtility.getSourceFilterFX());
 
         if (classes == null || classes.isEmpty())
             return;
