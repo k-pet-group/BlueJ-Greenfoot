@@ -52,6 +52,7 @@ Kotlin joins Java and Stride as a teaching language. New Kotlin classes live alo
 - `Diagnostic` -- add `KOTLIN` DiagnosticOrigin
 - `Package` -- Kotlin stdlib on classpath, `.kt` file discovery
 - `Boot` -- `"kotlin-*.jar"` patterns for runtime classpath
+- `Config` / `Main` -- Kotlin editor-open counter (`session.numeditors.kotlin`) and `&kotlineditors=` in the launch stats ping; the ping's guard requires all three language counts to be present, so the first launch after upgrade sends no editor stats (accepted trade-off)
 - `build.gradle` -- `kotlin-compiler-embeddable` and `kotlin-stdlib` dependencies
 
 ### New Components

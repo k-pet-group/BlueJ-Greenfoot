@@ -143,6 +143,7 @@ public final class Config
     private static boolean isDebugVm = true; // Default to true, will be corrected on main VM
     public static final String EDITOR_COUNT_JAVA = "session.numeditors.java";
     public static final String EDITOR_COUNT_STRIDE = "session.numeditors.stride";
+    public static final String EDITOR_COUNT_KOTLIN = "session.numeditors.kotlin";
     public static final String MESSAGE_LATEST_SEEN = "bluej.latest.msg";
     private static long MAX_DEBUG_LOG_SIZE = 1048576;
 
@@ -800,6 +801,14 @@ public final class Config
                 saveAppProperties();
             }
             break;
+            case Kotlin:
+            {
+                int kotlinEditors = getPropInteger(EDITOR_COUNT_KOTLIN, 0, userProps);
+                kotlinEditors += 1;
+                userProps.setProperty(EDITOR_COUNT_KOTLIN, Integer.toString(kotlinEditors));
+                saveAppProperties();
+            }
+            break;
             default: break;
         }
     }
@@ -818,6 +827,7 @@ public final class Config
         {
             case Java: return getPropInteger(EDITOR_COUNT_JAVA, -1, userProps);
             case Stride: return getPropInteger(EDITOR_COUNT_STRIDE, -1, userProps);
+            case Kotlin: return getPropInteger(EDITOR_COUNT_KOTLIN, -1, userProps);
             default: return -1;
         }
     }
@@ -830,6 +840,7 @@ public final class Config
     {
         userProps.setProperty(EDITOR_COUNT_JAVA, "0");
         userProps.setProperty(EDITOR_COUNT_STRIDE, "0");
+        userProps.setProperty(EDITOR_COUNT_KOTLIN, "0");
         saveAppProperties();
     }
 

@@ -77,6 +77,20 @@ Property hierarchy (each layer overrides the previous):
 
 ---
 
+## Usage Statistics (two separate systems)
+
+1. **Launch ping** (`Main.updateStats()`): once per launch, a background thread sends one anonymous
+   HTTP GET to `stats.bluej.org` (or `stats.greenfoot.org`) with OS, app/Java version, UI language,
+   and per-language editor-open counts. Counts are accumulated across sessions by
+   `Config.recordEditorOpen` (called from `ClassTarget` on first editor show) in `userProps` keys
+   `session.numeditors.{java,stride,kotlin}`, then sent and reset on the next launch. Editor counts
+   are only included when all three properties exist (`getEditorCount != -1` for each). Opt-out:
+   set the `bluej.uid`/`greenfoot.uid` property to `private`.
+2. **Blackbox** (`collect/`): opt-in fine-grained research data collection — unrelated to the
+   launch ping.
+
+---
+
 ## Threading Model
 
 Compile-time-enforced thread safety via `@OnThread` annotations, checked by the `threadchecker` annotation processor.
