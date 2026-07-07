@@ -1,3 +1,15 @@
+---
+id: kotlin-for-bluej-editor-highlighting
+type: submodule-design
+title: "Kotlin Code Highlighting"
+status: active
+parent: kotlin-for-bluej-editor
+depends-on:
+  - bluej-editor-highlighting
+tags:
+  - kotlin
+---
+
 # Kotlin Code Highlighting
 
 > Token-level syntax coloring and how it integrates with BlueJ's shared highlighting infrastructure.

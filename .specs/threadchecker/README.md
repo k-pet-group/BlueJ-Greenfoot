@@ -1,3 +1,13 @@
+---
+id: threadchecker
+type: module-design
+title: "Thread-Safety Checker"
+status: active
+parent: bluej-greenfoot-architecture
+depends-on:
+  - anns-threadchecker
+---
+
 # Thread-Safety Checker
 
 A javac compiler plugin that statically verifies `@OnThread` thread-safety contracts at compile time. Hooks into the ANALYZE phase to walk the AST and check that all method calls, lambda expressions, field accesses, and overrides respect thread-tag compatibility.

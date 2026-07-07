@@ -1,3 +1,11 @@
+---
+id: greenfoot-vmcomm
+type: submodule-design
+title: "VM Communication"
+status: active
+parent: greenfoot
+---
+
 # VM Communication
 
 Inter-VM communication protocol (4 files) using memory-mapped shared memory with a three-lock synchronization protocol between IDE (Main VM) and user scenario code (Debug VM).

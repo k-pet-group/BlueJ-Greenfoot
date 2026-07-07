@@ -1,3 +1,13 @@
+---
+id: bluej
+type: module-design
+title: "BlueJ Core IDE"
+status: active
+parent: bluej-greenfoot-architecture
+depends-on:
+  - lang-stride
+---
+
 # BlueJ Core IDE
 
 BlueJ is an educational Java IDE providing compilation, debugging, code editing (text and block-based Stride), project management, version control, and an extension system. It is the foundation upon which Greenfoot is built.

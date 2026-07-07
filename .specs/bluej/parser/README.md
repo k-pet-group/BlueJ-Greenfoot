@@ -1,3 +1,11 @@
+---
+id: bluej-parser
+type: submodule-design
+title: "Java Parser"
+status: active
+parent: bluej
+---
+
 # Java Parser
 
 An incremental Java parser (103 files) that builds and maintains a scope-based syntax tree for the editor. Provides syntax highlighting, code completion, symbol resolution, and class metadata extraction.

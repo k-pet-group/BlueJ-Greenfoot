@@ -1,3 +1,11 @@
+---
+id: greenfoot-guifx-classes
+type: submodule-design
+title: "Greenfoot Class Diagram"
+status: active
+parent: greenfoot-guifx
+---
+
 # Greenfoot Class Diagram
 
 > Auto-generated from code analysis. Review and refine.

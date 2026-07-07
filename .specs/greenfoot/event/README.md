@@ -1,3 +1,11 @@
+---
+id: greenfoot-event
+type: submodule-design
+title: "Event System"
+status: active
+parent: greenfoot
+---
+
 # Event System
 
 > Auto-generated from code analysis. Review and refine.

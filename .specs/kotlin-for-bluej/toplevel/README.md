@@ -1,3 +1,16 @@
+---
+id: kotlin-for-bluej-toplevel
+type: module-design
+title: "Top-Level Functions Support"
+status: active
+parent: kotlin-for-bluej
+depends-on:
+  - bluej-pkgmgr-target
+  - kotlin-for-bluej-parser
+tags:
+  - kotlin
+---
+
 # Top-Level Functions Support
 
 > Kotlin files with only top-level functions as first-class entities on BlueJ's class diagram.

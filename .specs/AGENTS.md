@@ -1,4 +1,4 @@
-# CLAUDE.md — Coding Guidelines for BlueJ-Greenfoot
+# AGENTS.md — Coding Guidelines for BlueJ-Greenfoot
 
 ## Project Overview
 
@@ -310,7 +310,7 @@ public String getName() { ... }
 private boolean paused;  // Requires synchronized(this) to access
 ```
 
-**Thread tags** (in order of prevalence — 2,889 annotations across 616 files):
+**Thread tags** (in order of prevalence):
 
 | Tag | Usage | Meaning |
 |-----|-------|---------|
@@ -518,9 +518,18 @@ When adding support for a new source language (e.g., Kotlin alongside Java/Strid
 
 ## Specifications
 
-Design documentation is maintained in `.specs/`.
+Design documentation is maintained in `.specs/`. Every spec file carries YAML frontmatter (`id`, `type`, `title`, `status`, `parent`, `depends-on`, …) that registers it in the project's spec-graph. Discover and navigate specs through the spec-graph tools (`spec_grep`, `spec_get`, `spec_graph`) rather than by directory listing.
 
 ### Spec Writing Rules
+
+#### Registration (Frontmatter)
+
+Every spec file must begin with YAML frontmatter that registers it in the spec-graph:
+
+- Required: unique `id`, `type` (`goal-and-requirements` | `architecture-design` | `module-design` | `submodule-design` | `task-spec`), `title`.
+- Link it into the graph: `parent` mirrors the `.specs/` directory tree; `depends-on` records real design dependencies on other specs.
+- Run `spec_validate` after adding, moving, or restructuring specs.
+- Avoid directory names that file-walkers skip by default (e.g. `build`) — a spec in such a directory silently disappears from the index. This is why the build spec lives in `.specs/kotlin-for-bluej/distribution/`.
 
 #### What a Spec Is For
 
@@ -569,7 +578,7 @@ When a module spec notes a component is "unchanged", verify this by tracing the 
 | Debug Manager (UI) | `.specs/bluej/debugmgr/README.md` | Shell generation, Invoker lifecycle, ResultWatcher hierarchy, ObjectBench |
 | Runtime (ExecServer) | `.specs/bluej/runtime/README.md` | Debug VM two-thread model, static field IPC, breakpoint sync, thread-target dispatch |
 | Compiler | `.specs/bluej/compiler/README.md` | Single-thread compilation queue, producer-consumer, observer adapters |
-| Package Manager | `.specs/bluej/pkgmgr/README.md` | Central orchestrator, compilation batching, 42 synchronized blocks |
+| Package Manager | `.specs/bluej/pkgmgr/README.md` | Central orchestrator, compilation batching, synchronization strategy |
 | Source Code Editor | `.specs/bluej/editor/README.md` | Dual editor modes, FXPlatform enforcement, EditorWatcher contract |
 | Utility Library | `.specs/bluej/utility/README.md` | 8-thread background pool, FX/Worker bridge, CompletableFuture patterns |
 | Terminal | `.specs/bluej/terminal/README.md` | Cross-thread I/O, InputBuffer thread safety |
@@ -582,7 +591,7 @@ When a module spec notes a component is "unchanged", verify this by tracing the 
 | VM Communication | `.specs/greenfoot/vmcomm/README.md` | Shared memory IPC, 3-lock protocol, image double-buffering, command reliability |
 | Audio System | `.specs/greenfoot/sound/README.md` | 6 thread types, ClipProcess/ClipCloser threads, deadlock avoidance |
 
-Run `ls .specs/` for the full list of 54 specifications covering all modules and submodules.
+These tables list only the most load-bearing specs. The full set — covering all modules and submodules — is the spec-graph itself: walk it with `spec_graph` from the root (`goal-and-requirements`), or search it with `spec_grep`.
 
 ---
 

@@ -1,3 +1,11 @@
+---
+id: bluej-testmgr
+type: submodule-design
+title: "Test Manager"
+status: active
+parent: bluej
+---
+
 # Test Manager
 
 Unit test recording and replay system (14 files). Provides a UI for viewing test results and a recording subsystem that captures user interactions (object creation, method calls, inspections) as replayable JUnit test fixtures.

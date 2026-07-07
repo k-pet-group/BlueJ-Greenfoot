@@ -1,3 +1,11 @@
+---
+id: bluej-parser-symtab
+type: submodule-design
+title: "Symbol Table"
+status: active
+parent: bluej-parser
+---
+
 # Symbol Table
 
 Class metadata extraction and source position tracking (3 files).

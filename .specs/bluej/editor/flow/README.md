@@ -1,3 +1,11 @@
+---
+id: bluej-editor-flow
+type: submodule-design
+title: "Flow Text Editor"
+status: active
+parent: bluej-editor
+---
+
 # Flow Text Editor
 
 The traditional text-based Java editor (27 files). Implements the `TextEditor` interface with a custom document model (gap buffer), undo/redo, syntax and scope coloring, find/replace, and incremental parser integration.

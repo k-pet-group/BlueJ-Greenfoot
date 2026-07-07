@@ -1,3 +1,15 @@
+---
+id: kotlin-for-bluej
+type: architecture-design
+title: "Kotlin for BlueJ — Architecture Design"
+status: active
+parent: goal-and-requirements
+depends-on:
+  - bluej
+tags:
+  - kotlin
+---
+
 # Kotlin for BlueJ — Architecture Design
 
 > Architecture for adding Kotlin as a third language in BlueJ, targeting an educational MVP subset.
@@ -103,4 +115,4 @@ No new threads. Kotlin uses existing threading:
 | Parser & Lexer | `.specs/kotlin-for-bluej/parser/README.md` |
 | Class Diagram | `.specs/kotlin-for-bluej/diagram/README.md` |
 | Top-Level Functions | `.specs/kotlin-for-bluej/toplevel/README.md` |
-| Build & Distribution | `.specs/kotlin-for-bluej/build/README.md` |
+| Build & Distribution | `.specs/kotlin-for-bluej/distribution/README.md` |

@@ -1,3 +1,11 @@
+---
+id: greenfoot-platforms
+type: submodule-design
+title: "Platform Abstraction"
+status: active
+parent: greenfoot
+---
+
 # Platform Abstraction
 
 Strategy pattern (9 files) supporting two execution contexts: IDE mode (running inside BlueJ) and standalone mode (exported JAR). Three delegate interfaces each have IDE and standalone implementations.

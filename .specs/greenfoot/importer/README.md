@@ -1,3 +1,11 @@
+---
+id: greenfoot-importer
+type: submodule-design
+title: "Scratch Importer"
+status: active
+parent: greenfoot
+---
+
 # Scratch Importer
 
 Imports Scratch projects into Greenfoot (16 files). Converts Scratch's stage/sprite model into Greenfoot's World/Actor model, importing images, sounds, and basic structure.

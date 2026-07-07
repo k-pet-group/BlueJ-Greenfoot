@@ -1,3 +1,11 @@
+---
+id: greenfoot-guifx-images
+type: submodule-design
+title: "Image Library UI"
+status: active
+parent: greenfoot-guifx
+---
+
 # Image Library UI
 
 > Auto-generated from code analysis. Review and refine.

@@ -1,3 +1,13 @@
+---
+id: kotlin-for-bluej-parser-incremental-reparse
+type: submodule-design
+title: "Incremental PSI Reparse for Kotlin"
+status: active
+parent: kotlin-for-bluej-parser
+tags:
+  - kotlin
+---
+
 # Incremental PSI Reparse for Kotlin
 
 > Tiered incremental reparse strategy to reduce per-keystroke cost from ~50-100ms to ~0.1-20ms for common edits.

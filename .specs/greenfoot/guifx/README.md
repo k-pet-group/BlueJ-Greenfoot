@@ -1,3 +1,11 @@
+---
+id: greenfoot-guifx
+type: submodule-design
+title: "Greenfoot JavaFX UI"
+status: active
+parent: greenfoot
+---
+
 # Greenfoot JavaFX UI
 
 > Auto-generated from code analysis. Review and refine.

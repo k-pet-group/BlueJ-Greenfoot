@@ -1,3 +1,11 @@
+---
+id: bluej-debugmgr
+type: submodule-design
+title: "Debug Manager (UI)"
+status: active
+parent: bluej
+---
+
 # Debug Manager (UI)
 
 User-facing debugging interface (~41 files). Provides the Object Bench for storing live objects, inspectors for viewing object state, a code pad for expression evaluation, and execution controls. Orchestrates the full invocation lifecycle: shell code generation -> compilation -> execution in the debug VM -> result unwrapping.

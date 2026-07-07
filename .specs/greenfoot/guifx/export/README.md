@@ -1,3 +1,11 @@
+---
+id: greenfoot-guifx-export
+type: submodule-design
+title: "Greenfoot Export UI"
+status: active
+parent: greenfoot-guifx
+---
+
 # Greenfoot Export UI
 
 > Auto-generated from code analysis. Review and refine.

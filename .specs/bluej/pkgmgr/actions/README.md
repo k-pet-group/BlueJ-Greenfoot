@@ -1,3 +1,11 @@
+---
+id: bluej-pkgmgr-actions
+type: submodule-design
+title: "Package Manager Actions"
+status: active
+parent: bluej-pkgmgr
+---
+
 # Package Manager Actions
 
 Menu and toolbar actions for the main IDE window (38 files). Uses the Command pattern with a `PkgMgrAction` base class. Actions are configuration-driven via `Config.getString()` for labels and shortcuts.

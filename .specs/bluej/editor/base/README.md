@@ -1,3 +1,11 @@
+---
+id: bluej-editor-base
+type: submodule-design
+title: "Editor Base Components"
+status: active
+parent: bluej-editor
+---
+
 # Editor Base Components
 
 Low-level editor rendering foundation (7 files). Provides a custom virtualized text editor built on JavaFX primitives (Region, TextFlow, Text nodes) -- NOT using JavaFX TextArea. Used by both the code editor (`FlowEditorPane`) and the terminal (`TerminalTextPane`).

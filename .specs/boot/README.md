@@ -1,3 +1,11 @@
+---
+id: boot
+type: module-design
+title: "Boot Module"
+status: active
+parent: bluej-greenfoot-architecture
+---
+
 # Boot Module
 
 Entry point for both BlueJ and Greenfoot. Dynamically constructs the classpath from `lib/*.jar`, shows a splash screen, and loads `bluej.Main` via reflection using a custom URLClassLoader.

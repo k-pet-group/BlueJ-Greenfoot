@@ -1,3 +1,13 @@
+---
+id: kotlin-for-bluej-editor-psi-scope
+type: submodule-design
+title: "PSI-Based Scope Detection"
+status: active
+parent: kotlin-for-bluej-editor
+tags:
+  - kotlin
+---
+
 # PSI-Based Scope Detection
 
 > Uses the full Kotlin PSI parser from `kotlin-compiler-embeddable` to build accurate scope structure for `JavaSyntaxView` scope coloring.

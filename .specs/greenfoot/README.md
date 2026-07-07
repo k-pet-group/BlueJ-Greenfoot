@@ -1,3 +1,13 @@
+---
+id: greenfoot
+type: module-design
+title: "Greenfoot Simulation IDE"
+status: active
+parent: bluej-greenfoot-architecture
+depends-on:
+  - bluej
+---
+
 # Greenfoot Simulation IDE
 
 Greenfoot is a 2D game/simulation IDE built on top of BlueJ. Students create scenarios by extending `World` and `Actor` classes. Provides collision detection, audio, image manipulation, and a visual execution environment with Run/Pause/Step controls.

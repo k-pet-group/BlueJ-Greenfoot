@@ -1,3 +1,11 @@
+---
+id: bluej-editor-fixes
+type: submodule-design
+title: "Quick Fixes"
+status: active
+parent: bluej-editor
+---
+
 # Quick Fixes
 
 Code fix suggestions triggered by compiler diagnostics (8 files). Provides "did you mean?" corrections, import suggestions, and error-specific quick fixes. Also contains the code completion popup (`SuggestionList`).

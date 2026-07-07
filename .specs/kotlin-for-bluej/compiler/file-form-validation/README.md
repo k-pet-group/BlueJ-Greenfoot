@@ -1,3 +1,13 @@
+---
+id: kotlin-for-bluej-compiler-file-form-validation
+type: submodule-design
+title: "Kotlin File Form Validation"
+status: active
+parent: kotlin-for-bluej-compiler
+tags:
+  - kotlin
+---
+
 # Kotlin File Form Validation
 
 > Pre-compilation validation enforcing BlueJ's one-concept-per-file model with hard errors that mirror javac's file restrictions.

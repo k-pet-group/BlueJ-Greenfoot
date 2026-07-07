@@ -1,3 +1,11 @@
+---
+id: greenfoot-util
+type: submodule-design
+title: "Greenfoot Utilities"
+status: active
+parent: greenfoot
+---
+
 # Greenfoot Utilities
 
 > Auto-generated from code analysis. Review and refine.

@@ -1,3 +1,11 @@
+---
+id: bluej-parser-entity
+type: submodule-design
+title: "Entity Resolution"
+status: active
+parent: bluej-parser
+---
+
 # Entity Resolution
 
 Resolves Java identifiers to their semantic meaning (29 files). Implements a type hierarchy for entities: packages, classes, values, type parameters, wildcards, and constants. Supports **lazy resolution** -- entities are created as `UnresolvedEntity` and resolved on demand.

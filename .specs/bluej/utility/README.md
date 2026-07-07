@@ -1,3 +1,11 @@
+---
+id: bluej-utility
+type: submodule-design
+title: "Utility Library"
+status: active
+parent: bluej
+---
+
 # Utility Library
 
 Shared utility classes used across all BlueJ packages (91 files). Provides JavaFX helpers, file operations, dialog management, debug logging, and observable bindings.

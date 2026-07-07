@@ -1,3 +1,11 @@
+---
+id: bluej-views
+type: submodule-design
+title: "Views"
+status: active
+parent: bluej
+---
+
 # Views
 
 Class reflection view layer (12 files). Provides a cached, read-only representation of Java classes and their members for display in inspectors, code completion, and the extensions API.

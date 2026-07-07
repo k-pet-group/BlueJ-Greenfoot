@@ -1,3 +1,16 @@
+---
+id: kotlin-for-bluej-editor
+type: module-design
+title: "Kotlin Editor & Syntax"
+status: active
+parent: kotlin-for-bluej
+depends-on:
+  - bluej-editor
+  - kotlin-for-bluej-parser
+tags:
+  - kotlin
+---
+
 # Kotlin Editor & Syntax
 
 > Kotlin syntax highlighting and scope coloring by extending BlueJ's incremental parser infrastructure, reusing `JavaSyntaxView` unchanged.

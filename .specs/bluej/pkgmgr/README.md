@@ -1,3 +1,11 @@
+---
+id: bluej-pkgmgr
+type: submodule-design
+title: "Package Manager (Central Orchestrator)"
+status: active
+parent: bluej
+---
+
 # Package Manager (Central Orchestrator)
 
 The central orchestrator of BlueJ (115 files). Manages projects, packages, class targets, and the visual class diagram. Nearly every other subsystem connects through pkgmgr.

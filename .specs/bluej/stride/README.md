@@ -1,3 +1,11 @@
+---
+id: bluej-stride
+type: submodule-design
+title: "Stride Block-Based Editor"
+status: active
+parent: bluej
+---
+
 # Stride Block-Based Editor
 
 The largest subsystem in BlueJ (223 files). Implements the Stride language -- a block-based visual programming interface that generates Java code. Students manipulate visual "frames" instead of typing text, with editable "slots" for expressions and identifiers.

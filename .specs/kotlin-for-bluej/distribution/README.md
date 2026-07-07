@@ -1,3 +1,15 @@
+---
+id: kotlin-for-bluej-build
+type: module-design
+title: "Build & Distribution"
+status: active
+parent: kotlin-for-bluej
+depends-on:
+  - boot
+tags:
+  - kotlin
+---
+
 # Build & Distribution
 
 > How Kotlin dependencies are declared, assembled, discovered at runtime, and shipped to end users.

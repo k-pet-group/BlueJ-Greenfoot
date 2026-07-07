@@ -1,3 +1,11 @@
+---
+id: bluej-editor-highlighting
+type: submodule-design
+title: "Java Code Highlighting"
+status: active
+parent: bluej-editor
+---
+
 # Java Code Highlighting
 
 Token-level syntax coloring and structural scope background highlighting in the BlueJ Java editor.

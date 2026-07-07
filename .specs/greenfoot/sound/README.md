@@ -1,3 +1,11 @@
+---
+id: greenfoot-sound
+type: submodule-design
+title: "Greenfoot Audio System"
+status: active
+parent: greenfoot
+---
+
 # Greenfoot Audio System
 
 > Auto-generated from code analysis. Review and refine.

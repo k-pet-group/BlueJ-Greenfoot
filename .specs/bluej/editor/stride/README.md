@@ -1,3 +1,11 @@
+---
+id: bluej-editor-stride
+type: submodule-design
+title: "Stride Editor Integration"
+status: active
+parent: bluej-editor
+---
+
 # Stride Editor Integration
 
 Integrates the Stride block-based editor into BlueJ's editor framework (21 files). Provides tabbed editing (shared with Java text editors), frame catalogue (block palette), frame shelf (saved blocks), bird's eye view, overlay panes, and error overview bar.

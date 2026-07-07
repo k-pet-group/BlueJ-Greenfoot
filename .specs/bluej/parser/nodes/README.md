@@ -1,3 +1,11 @@
+---
+id: bluej-parser-nodes
+type: submodule-design
+title: "Parse Tree Nodes"
+status: active
+parent: bluej-parser
+---
+
 # Parse Tree Nodes
 
 A scope-oriented parse tree (25 files) for incremental reparsing and editor features. **Not a full AST** -- nodes represent scope boundaries (compilation units, types, methods, blocks) rather than individual expressions. Child nodes are stored in a red-black tree keyed by relative document offset.

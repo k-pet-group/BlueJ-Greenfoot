@@ -1,3 +1,15 @@
+---
+id: kotlin-for-bluej-parser
+type: module-design
+title: "Kotlin Parser & Lexer"
+status: active
+parent: kotlin-for-bluej
+depends-on:
+  - bluej-parser
+tags:
+  - kotlin
+---
+
 # Kotlin Parser & Lexer
 
 > `bluej.parser.kotlin` -- Tokenization, scope detection, and class metadata extraction for Kotlin `.kt` files, leveraging PSI from `kotlin-compiler-embeddable`.

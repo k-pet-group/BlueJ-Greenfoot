@@ -1,3 +1,11 @@
+---
+id: bluej-utility-javafx
+type: submodule-design
+title: "JavaFX Utilities"
+status: active
+parent: bluej-utility
+---
+
 # JavaFX Utilities
 
 JavaFX-specific utility classes (59 files + 3 dialog + 5 binding).

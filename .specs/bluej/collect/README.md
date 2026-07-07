@@ -1,3 +1,11 @@
+---
+id: bluej-collect
+type: submodule-design
+title: "Data Collection"
+status: active
+parent: bluej
+---
+
 # Data Collection
 
 Anonymous, opt-in usage statistics collection system (15 files). Tracks IDE interactions (compilations, method calls, test runs, edits) and submits anonymized events to a remote server via HTTP.

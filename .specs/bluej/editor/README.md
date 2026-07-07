@@ -1,3 +1,11 @@
+---
+id: bluej-editor
+type: submodule-design
+title: "Source Code Editor"
+status: active
+parent: bluej
+---
+
 # Source Code Editor
 
 Text and frame-based source code editing (67 files, 4 sub-packages). Supports dual editing modes: traditional text editing with syntax highlighting (Java), and Stride frame-based visual editing.
