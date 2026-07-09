@@ -1,3 +1,11 @@
+---
+id: bluej-pkgmgr-target
+type: submodule-design
+title: "Class Targets & Roles"
+status: active
+parent: bluej-pkgmgr
+---
+
 # Class Targets & Roles
 
 Represents compilable classes and other project elements in the class diagram. Uses a hierarchy of `Target` -> `EditableTarget` -> `ClassTarget`, with a Strategy pattern for class roles.

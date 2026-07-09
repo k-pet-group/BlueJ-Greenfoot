@@ -1,3 +1,11 @@
+---
+id: bluej-extmgr
+type: submodule-design
+title: "Extension Manager"
+status: active
+parent: bluej
+---
+
 # Extension Manager
 
 Extension lifecycle management (12 files). Discovers, loads, wraps, and manages third-party extensions from `~/.bluej/extensions2/`.

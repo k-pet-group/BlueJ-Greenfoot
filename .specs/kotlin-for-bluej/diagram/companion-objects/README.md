@@ -1,3 +1,13 @@
+---
+id: kotlin-for-bluej-diagram-companion-objects
+type: submodule-design
+title: "Companion Object Methods as Static Operations"
+status: active
+parent: kotlin-for-bluej-diagram
+tags:
+  - kotlin
+---
+
 # Companion Object Methods as Static Operations
 
 > Invoking Kotlin `companion object` methods from the class diagram as if they were static methods of the enclosing class.

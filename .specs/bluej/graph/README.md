@@ -1,3 +1,11 @@
+---
+id: bluej-graph
+type: submodule-design
+title: "Graph (Class Diagram)"
+status: active
+parent: bluej
+---
+
 # Graph (Class Diagram)
 
 Class diagram interaction layer (6 files). Manages selection, marquee selection, and keyboard navigation within the visual class dependency diagram.

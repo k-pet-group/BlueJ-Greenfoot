@@ -1,3 +1,11 @@
+---
+id: bluej-runtime
+type: submodule-design
+title: "Runtime (ExecServer)"
+status: active
+parent: bluej
+---
+
 # Runtime (ExecServer)
 
 Debug VM execution environment (5 files). Runs inside the debug VM and provides the two-threaded execution model that BlueJ's debugger controls via JDI.

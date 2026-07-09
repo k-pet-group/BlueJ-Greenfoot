@@ -1,3 +1,11 @@
+---
+id: greenfoot-collision
+type: submodule-design
+title: "Collision Detection"
+status: active
+parent: greenfoot
+---
+
 # Collision Detection
 
 > Auto-generated from code analysis. Review and refine.

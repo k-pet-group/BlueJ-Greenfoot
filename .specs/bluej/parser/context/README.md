@@ -1,3 +1,11 @@
+---
+id: bluej-parser-context
+type: submodule-design
+title: "Compilation Context"
+status: active
+parent: bluej-parser
+---
+
 # Compilation Context
 
 Persisted metadata about compilation units (5 files). Preserves javadoc comments, parameter names, and documentation in `.ctxt` files alongside compiled classes -- information lost in `.class` bytecode.

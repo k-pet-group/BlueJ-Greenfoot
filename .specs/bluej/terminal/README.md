@@ -1,3 +1,11 @@
+---
+id: bluej-terminal
+type: submodule-design
+title: "Terminal"
+status: active
+parent: bluej
+---
+
 # Terminal
 
 Interactive I/O console (6 files) connected to the debug VM.

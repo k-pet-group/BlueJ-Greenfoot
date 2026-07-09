@@ -1,3 +1,11 @@
+---
+id: bluej-prefmgr
+type: submodule-design
+title: "Preferences Manager"
+status: active
+parent: bluej
+---
+
 # Preferences Manager
 
 Persistent user preferences system (7 files). Stores editor settings, compiler options, and UI preferences using JavaFX observable properties for reactive UI binding. Preferences persist to `~/.bluej/bluej.properties`.

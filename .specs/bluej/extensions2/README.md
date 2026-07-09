@@ -1,3 +1,11 @@
+---
+id: bluej-extensions2
+type: submodule-design
+title: "Extensions API"
+status: active
+parent: bluej
+---
+
 # Extensions API
 
 The official third-party plugin API (47 files, v3.4). Extensions are loaded from `~/.bluej/extensions2` and can add menu items, respond to IDE events, and interact with projects, packages, and classes through bridge wrapper objects.

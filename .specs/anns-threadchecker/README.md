@@ -1,3 +1,11 @@
+---
+id: anns-threadchecker
+type: module-design
+title: "Thread-Checker Annotations"
+status: active
+parent: bluej-greenfoot-architecture
+---
+
 # Thread-Checker Annotations
 
 Pure annotation definitions used by the `threadchecker` compiler plugin and all other modules. Declares which thread a method, class, or package should execute on. Zero external dependencies.

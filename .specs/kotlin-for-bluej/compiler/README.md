@@ -1,3 +1,16 @@
+---
+id: kotlin-for-bluej-compiler
+type: module-design
+title: "Kotlin Compiler Integration"
+status: active
+parent: kotlin-for-bluej
+depends-on:
+  - bluej-compiler
+  - boot
+tags:
+  - kotlin
+---
+
 # Kotlin Compiler Integration
 
 > Programmatic Kotlin compilation within BlueJ by wrapping `kotlin-compiler-embeddable` (K2) behind the existing `Compiler` interface.

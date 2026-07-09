@@ -1,3 +1,11 @@
+---
+id: bluej-groupwork
+type: submodule-design
+title: "Groupwork (Version Control)"
+status: active
+parent: bluej
+---
+
 # Groupwork (Version Control)
 
 Git-based collaboration and version control (67 files). Provides commit, push, pull, merge, and conflict resolution through an abstracted `Repository` interface implemented with Eclipse JGit.

@@ -1,3 +1,11 @@
+---
+id: bluej-compiler
+type: submodule-design
+title: "Compiler"
+status: active
+parent: bluej
+---
+
 # Compiler
 
 Single-threaded compilation queue (14 files) using the javax.tools Java Compiler API.

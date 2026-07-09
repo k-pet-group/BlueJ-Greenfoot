@@ -1,3 +1,11 @@
+---
+id: bluej-parser-lexer
+type: submodule-design
+title: "Lexer (Tokenizer)"
+status: active
+parent: bluej-parser
+---
+
 # Lexer (Tokenizer)
 
 Java source tokenization (5 files). Converts raw text into a stream of located tokens for the parser.

@@ -1,3 +1,11 @@
+---
+id: greenfoot-record
+type: submodule-design
+title: "Greenfoot Recorder"
+status: active
+parent: greenfoot
+---
+
 # Greenfoot Recorder
 
 "Save the World" recording system (1 file). Captures interactive user actions and generates a `prepare()` method as Stride code that can reproduce the world state.

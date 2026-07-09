@@ -1,3 +1,11 @@
+---
+id: bluej-greenfoot-architecture
+type: architecture-design
+title: "BlueJ-Greenfoot Architecture Design"
+status: active
+parent: goal-and-requirements
+---
+
 # BlueJ-Greenfoot Architecture Design
 
 BlueJ and Greenfoot are educational Java IDEs sharing a monorepo. BlueJ is a general-purpose pedagogical IDE; Greenfoot extends it for 2D game/simulation programming. Built with Gradle, targeting Java 21 and JavaFX 23.0.2.

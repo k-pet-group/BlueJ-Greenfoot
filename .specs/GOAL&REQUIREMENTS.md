@@ -1,3 +1,12 @@
+---
+id: goal-and-requirements
+type: goal-and-requirements
+title: "Kotlin for BlueJ — Goal & Requirements"
+status: active
+tags:
+  - kotlin
+---
+
 # Kotlin for BlueJ
 
 * Project\Feature name: Kotlin for BlueJ
@@ -82,7 +91,3 @@ Kotlin files (.kt) will be compiled via `kotlin-compiler-embeddable` invoked pro
 | `break` & `continue` | Loop control |
 | Object inspection in BlueJ object view | Inspect/modify Kotlin property values |
 | Java ↔ Kotlin interop | Mixed projects with cross-language references |
-
-### Reference
-
-See [.specs/external notes/Kotlin in BlueJ.md](.specs/external%20notes/Kotlin%20in%20BlueJ.md) for the original feature subset analysis and pedagogical comparison table.

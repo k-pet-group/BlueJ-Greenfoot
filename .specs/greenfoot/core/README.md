@@ -1,3 +1,11 @@
+---
+id: greenfoot-core
+type: submodule-design
+title: "Greenfoot Simulation Core"
+status: active
+parent: greenfoot
+---
+
 # Greenfoot Simulation Core
 
 Simulation engine and initialization layer (18 files). Runs in the debug VM and drives the act() cycle. Manages world state, project lifecycle, and image caching.

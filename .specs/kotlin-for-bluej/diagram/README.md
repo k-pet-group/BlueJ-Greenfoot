@@ -1,3 +1,16 @@
+---
+id: kotlin-for-bluej-diagram
+type: module-design
+title: "Class Diagram Integration"
+status: active
+parent: kotlin-for-bluej
+depends-on:
+  - bluej-pkgmgr-target
+  - kotlin-for-bluej-compiler
+tags:
+  - kotlin
+---
+
 # Class Diagram Integration
 
 > How Kotlin classes appear and behave on BlueJ's visual class diagram.

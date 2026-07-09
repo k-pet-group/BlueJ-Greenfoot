@@ -1,3 +1,11 @@
+---
+id: greenfoot-guifx-soundrecorder
+type: submodule-design
+title: "Sound Recorder UI"
+status: active
+parent: greenfoot-guifx
+---
+
 # Sound Recorder UI
 
 > Auto-generated from code analysis. Review and refine.

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2025  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2025,2026  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -391,12 +391,14 @@ public class Main
         String editorStats = "";
         int javaEditors = Config.getEditorCount(Config.SourceType.Java);
         int strideEditors = Config.getEditorCount(Config.SourceType.Stride);
+        int kotlinEditors = Config.getEditorCount(Config.SourceType.Kotlin);
         try
         {
-            if (javaEditors != -1 && strideEditors != -1)
+            if (javaEditors != -1 && strideEditors != -1 && kotlinEditors != -1)
             {
                 editorStats = "&javaeditors=" + URLEncoder.encode(Integer.toString(javaEditors), "UTF-8")
-                    + "&strideeditors=" + URLEncoder.encode(Integer.toString(strideEditors), "UTF-8");
+                    + "&strideeditors=" + URLEncoder.encode(Integer.toString(strideEditors), "UTF-8")
+                    + "&kotlineditors=" + URLEncoder.encode(Integer.toString(kotlinEditors), "UTF-8");
             }
         }
         catch (UnsupportedEncodingException ex)

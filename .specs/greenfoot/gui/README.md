@@ -1,3 +1,11 @@
+---
+id: greenfoot-gui
+type: submodule-design
+title: "GUI (Rendering & Input)"
+status: active
+parent: greenfoot
+---
+
 # GUI (Rendering & Input)
 
 > Auto-generated from code analysis. Review and refine.

@@ -1,3 +1,11 @@
+---
+id: bluej-debugger
+type: submodule-design
+title: "Debugger (JDI)"
+status: active
+parent: bluej
+---
+
 # Debugger (JDI)
 
 Abstract debugger interface with a JDI (Java Debug Interface) implementation (59 files). Manages a debug VM where user code runs, handling breakpoints, stepping, variable inspection, and object creation.

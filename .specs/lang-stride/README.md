@@ -1,3 +1,11 @@
+---
+id: lang-stride
+type: module-design
+title: "Stride Language API"
+status: active
+parent: bluej-greenfoot-architecture
+---
+
 # Stride Language API
 
 A minimal public library providing utility classes for the Stride language. Bundled with compiled Stride programs and available to student code both inside the IDE and in standalone exports.

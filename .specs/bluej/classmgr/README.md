@@ -1,3 +1,11 @@
+---
+id: bluej-classmgr
+type: submodule-design
+title: "Class Manager"
+status: active
+parent: bluej
+---
+
 # Class Manager
 
 Dynamic class loading for BlueJ projects (3 files).

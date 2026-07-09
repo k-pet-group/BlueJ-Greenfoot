@@ -1,3 +1,13 @@
+---
+id: kotlin-for-bluej-editor-auto-indent
+type: submodule-design
+title: "Kotlin Auto-Indent"
+status: active
+parent: kotlin-for-bluej-editor
+tags:
+  - kotlin
+---
+
 # Kotlin Auto-Indent
 
 > Token-driven indenter for `.kt` files. Computes target indents from
