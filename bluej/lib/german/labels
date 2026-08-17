@@ -829,3 +829,7 @@ about.theTeam=Das $APPNAME-Team:
 
 # Work Indicator
 workIndicator.resetMachine=Java Virtuelle Maschine zur\u00fccksetzen@^R
+pkgmgr.newClass.openclass=Offene Klasse
+pkgmgr.newClass.abstractclass=Abstrakte Klasse
+pkgmgr.newClass.dataclass=Datenklasse
+pkgmgr.newClass.kotlinfile=Kotlin-Funktionen

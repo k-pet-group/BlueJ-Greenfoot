@@ -605,3 +605,7 @@ about.theTeam=$APPNAME\u5f00\u53d1\u5c0f\u7ec4:
 
 # Work Indicator
 workIndicator.resetMachine=\u91cd\u542f Java \u865a\u62df\u673a@^R
+pkgmgr.newClass.openclass=\u5f00\u653e\u7c7b
+pkgmgr.newClass.abstractclass=\u62bd\u8c61\u7c7b
+pkgmgr.newClass.dataclass=\u6570\u636e\u7c7b
+pkgmgr.newClass.kotlinfile=Kotlin \u51fd\u6570

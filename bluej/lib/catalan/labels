@@ -500,3 +500,7 @@ about.moreInfo=M\u00E9s informaci\u00F3 a
 workIndicator.showDebugger=Mostra depurador
 about.theTeam=L\u2019equip $APPNAME
 workIndicator.resetMachine=Arranca novament l'ordinador
+pkgmgr.newClass.openclass=Classe oberta
+pkgmgr.newClass.abstractclass=Classe abstracta
+pkgmgr.newClass.dataclass=Classe de dades
+pkgmgr.newClass.kotlinfile=Funcions Kotlin

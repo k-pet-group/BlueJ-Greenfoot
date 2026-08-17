@@ -813,3 +813,8 @@ about.theTeam=El equipo $APPNAME:
 
 # Work Indicator
 workIndicator.resetMachine=Reiniciar la M\u00e1quina Virtual@^R
+
+pkgmgr.newClass.openclass=Open Class
+pkgmgr.newClass.abstractclass=Abstract Class
+pkgmgr.newClass.dataclass=Data Class
+pkgmgr.newClass.kotlinfile=Kotlin Functions

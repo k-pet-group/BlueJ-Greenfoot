@@ -945,3 +945,7 @@ printing.progress.title=\uc778\uc1c4 \uc911
 printing.progress.file=\ud30c\uc77c \uc9c4\ud589 (${cur}/${total} \uc904)
 printing.progress.project=\ud504\ub85c\uc81d\ud2b8 \uc9c4\ud589 (${cur}/${total} \ud56d\ubaa9)
 printing.progress.canceling=\ucde8\uc18c \uc911...
+pkgmgr.newClass.openclass=\uc5f4\ub9b0 \ud074\ub798\uc2a4
+pkgmgr.newClass.abstractclass=\ucd94\uc0c1 \ud074\ub798\uc2a4
+pkgmgr.newClass.dataclass=\ub370\uc774\ud130 \ud074\ub798\uc2a4
+pkgmgr.newClass.kotlinfile=Kotlin \ud568\uc218

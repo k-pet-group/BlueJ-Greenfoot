@@ -464,3 +464,7 @@ about.logfile=Ontfoutingsrekord\:
 about.moreInfo=Meer inligting is by
 about.theTeam=Die $APPNAME span\:
 workIndicator.resetMachine=Herlaai Masjien@^R
+pkgmgr.newClass.openclass=Oop klas
+pkgmgr.newClass.abstractclass=Abstrakte klas
+pkgmgr.newClass.dataclass=Dataklas
+pkgmgr.newClass.kotlinfile=Kotlin-funksies

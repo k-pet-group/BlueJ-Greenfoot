@@ -761,3 +761,7 @@ about.theTeam=L'\u00e9quipe $APPNAME:
 
 # Work Indicator
 workIndicator.resetMachine=R\u00E9initialiser la machine
+pkgmgr.newClass.openclass=Classe ouverte
+pkgmgr.newClass.abstractclass=Classe abstraite
+pkgmgr.newClass.dataclass=Classe de donn\u00e9es
+pkgmgr.newClass.kotlinfile=Fonctions Kotlin
