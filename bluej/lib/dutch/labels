@@ -574,3 +574,7 @@ about.theTeam=The $APPNAME team:
 # Work Indicator
 workIndicator.showDebugger=Laat debugger zien
 workIndicator.resetMachine=Herstart virtual machine@^R
+pkgmgr.newClass.openclass=Open class
+pkgmgr.newClass.abstractclass=Abstracte class
+pkgmgr.newClass.dataclass=Data class
+pkgmgr.newClass.kotlinfile=Kotlin-functies

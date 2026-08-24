@@ -574,3 +574,7 @@ about.moreInfo=Mere information p\u00E5
 about.theTeam=$APPNAME teamet\:
 workIndicator.resetMachine=Reset virtuel maskine@^R
 
+pkgmgr.newClass.openclass=\u00c5ben klasse
+pkgmgr.newClass.abstractclass=Abstrakt klasse
+pkgmgr.newClass.dataclass=Dataklasse
+pkgmgr.newClass.kotlinfile=Kotlin-funktioner

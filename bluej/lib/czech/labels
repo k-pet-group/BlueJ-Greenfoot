@@ -895,3 +895,7 @@ newProject.error.nameEmpty=N\u00e1zev nesm\u00ed b\u00fdt pr\u00e1zdn\u00fd
 newProject.error.compoundExist=Cesta ji\u017e existuje
 newProject.error.pathInvalid=Cesta je neplatn\u00e1
 
+pkgmgr.newClass.openclass=Open Class
+pkgmgr.newClass.abstractclass=Abstract Class
+pkgmgr.newClass.dataclass=Data Class
+pkgmgr.newClass.kotlinfile=Kotlin Functions

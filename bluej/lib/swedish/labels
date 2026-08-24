@@ -444,3 +444,8 @@ about.runningOn=K\u00F6rs p\u00E5\:
 about.javahome=Java Home\:
 about.logfile=loggfil f\u00F6r avlusning\:
 about.moreInfo=Mer information finns p\u00E5
+
+pkgmgr.newClass.openclass=Open Class
+pkgmgr.newClass.abstractclass=Abstract Class
+pkgmgr.newClass.dataclass=Data Class
+pkgmgr.newClass.kotlinfile=Kotlin Functions

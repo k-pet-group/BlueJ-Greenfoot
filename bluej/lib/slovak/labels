@@ -848,3 +848,8 @@ newProject.error.parentNotExist=Umiestnenie nejestvuje
 newProject.error.nameEmpty=N\u00e1zov nesmie by\u0165 pr\u00e1zdny
 newProject.error.compoundExist=Cesta u\u017e jestvuje
 newProject.error.pathInvalid=Cesta je neplatn\u00e1
+
+pkgmgr.newClass.openclass=Open Class
+pkgmgr.newClass.abstractclass=Abstract Class
+pkgmgr.newClass.dataclass=Data Class
+pkgmgr.newClass.kotlinfile=Kotlin Functions

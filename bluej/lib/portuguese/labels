@@ -910,3 +910,7 @@ printing.progress.title=Imprimindo
 printing.progress.file=Arquivo em processamento (${cur}/${total} linhas)
 printing.progress.project=Projeto em processamento (${cur}/${total} elementos)
 printing.progress.canceling=Cancelando...
+pkgmgr.newClass.openclass=Classe aberta
+pkgmgr.newClass.abstractclass=Classe abstrata
+pkgmgr.newClass.dataclass=Classe de dados
+pkgmgr.newClass.kotlinfile=Fun\u00e7\u00f5es Kotlin
