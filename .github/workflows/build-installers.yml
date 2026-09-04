@@ -9,6 +9,9 @@ on:
       - 'bluej/package/build.xml'
       - 'bluej/package/greenfoot-build.xml'
       - '.env'
+    tags:
+      - 'BLUEJ-RELEASE-*'
+      - 'GREENFOOT-RELEASE-*'
   workflow_dispatch:
 jobs:
   Build-Windows-Installers:
@@ -96,6 +99,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
       - name: Build
         run: ./gradlew :bluej:packageBlueJLinux :greenfoot:packageGreenfootLinux --info --stacktrace --no-daemon
+      - name: Add architecture to deb filenames
+        run: |
+          for f in bluej/package/BlueJ-linux-*.deb bluej/package/Greenfoot-linux-*.deb; do
+            mv "$f" "$(echo "$f" | sed 's/-linux-/-linux-x64-/')"
+          done
       - name: Archive BlueJ Ubuntu installers
         uses: actions/upload-artifact@v4
         with:
@@ -290,6 +298,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
       - name: Build
         run: ./gradlew :bluej:packageBlueJLinux :greenfoot:packageGreenfootLinux --info --stacktrace --no-daemon
+      - name: Add architecture to deb filenames
+        run: |
+          for f in bluej/package/BlueJ-linux-*.deb bluej/package/Greenfoot-linux-*.deb; do
+            mv "$f" "$(echo "$f" | sed 's/-linux-/-linux-arm64-/')"
+          done
       - name: Archive BlueJ Ubuntu installers
         uses: actions/upload-artifact@v4
         with:
@@ -302,3 +315,61 @@ jobs:
           name: greenfoot-installers-arm64
           path: |
             bluej/package/Greenfoot-linux*.deb
+
+  Publish-Release:
+    # Only runs when a BLUEJ-RELEASE-x.y.z or GREENFOOT-RELEASE-x.y.z tag is pushed - not on
+    # ordinary version.properties/workflow_dispatch builds (i.e. RC builds).
+    if: startsWith(github.ref, 'refs/tags/BLUEJ-RELEASE-') || startsWith(github.ref, 'refs/tags/GREENFOOT-RELEASE-')
+    needs:
+      - Build-Windows-Installers
+      - Build-Ubuntu-Installers
+      - Build-Mac-Installers-Intel
+      - Build-Mac-Installers-Aarch
+      - Build-UbuntuARM64-Installers
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Work out product and title from the tag
+        id: release-info
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          if [[ "$TAG" == BLUEJ-RELEASE-* ]]; then
+            PRODUCT=bluej
+            TITLE="BlueJ ${TAG#BLUEJ-RELEASE-}"
+          else
+            PRODUCT=greenfoot
+            TITLE="Greenfoot ${TAG#GREENFOOT-RELEASE-}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
+          echo "title=$TITLE" >> "$GITHUB_OUTPUT"
+      - name: Download built installers for this product
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ steps.release-info.outputs.product }}-installers-*
+          path: release-assets
+          merge-multiple: true
+      - name: List assets to be attached
+        run: ls -la release-assets
+      - name: Create or update GitHub release with the built installers
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release-info.outputs.tag }}
+          TITLE: ${{ steps.release-info.outputs.title }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            # A release for this tag already exists (e.g. someone created a draft for it
+            # by hand in the GitHub web UI before the installers finished building) -
+            # just attach the installers to it, leaving its title/notes/draft state alone.
+            echo "Release for $TAG already exists - attaching installers to it."
+            gh release upload "$TAG" release-assets/* --clobber
+          else
+            gh release create "$TAG" \
+              --draft \
+              --title "$TITLE" \
+              --notes "Draft release created automatically by CI - edit these notes and publish when ready." \
+              release-assets/*
+          fi

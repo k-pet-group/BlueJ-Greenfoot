@@ -1,23 +1,10 @@
 How to build a Greenfoot release
 ================================
 
-This file contains instructions for building releases of Greenfoot, for all supported operating
-systems.
-
-Note that Greenfoot is built on top of BlueJ. If building from the distributed source bundle,
-you will find both a "bluej" and "greenfoot" directory (the former contains the complete BlueJ
-source code). The steps below are run/applied in the greenfoot directory except where otherwise
-specified.
-
-
-Prerequisites:
- build.properties in both the greenfoot and bluej source directories should be 
- modified to match your configuration.  (For BlueJ, copy build.properties.template
- to build.properties and then edit. In most cases the Greenfoot build.properties
- will not need to be modified.)
-
-
-Building Greenfoot:
+NOTE: This process changed when the build moved to Gradle and the installers started being
+built by GitHub Actions, from the repo root. Local Ant builds are no longer how releases are
+made. Greenfoot and BlueJ are built and released together from the same
+version.properties change and the same "Build Installers" workflow run.
 
 
 Before build:
@@ -26,48 +13,60 @@ Before build:
     'menu.help.copyright.line0', which is in the labels file:
     'labels/english/greenfoot/greenfoot-labels'.
 
- 2. Update version number in build.xml. If there are API changes, make sure that:
-    - the API version has also been updated (see instructions in comments in build.xml)
-    - the labels have been updated with description of the API changes (see build.xml)
+ 2. Update the Greenfoot version number in version.properties (repo root):
+       greenfoot_major / greenfoot_minor / greenfoot_release / greenfoot_suffix /
+       greenfoot_rcnumber
+    If there are API changes, make sure that:
+    - greenfoot_api_breaking has also been updated if the change is breaking (see the
+      comment above it in version.properties)
+    - the labels have been updated with a description of the API changes
     - the @version javadoc tag has been correctly set for any user-visible Greenfoot
       classes which are affected by the API changes.
-    Add a GUID to bluej/package/winsetup/version-guid file (Get one at guidgen.com)
-    Then, run "ant update-version-number". This propagates the changes to various files.
-    
-    NOTE: you must run "ant update-version-number" to generate the spash screen image,
-          even if you do not change the version number.
-    
+    If you bump to a new x.y.z, add a new GUID for it in version.properties (in the
+    "Greenfoot GUIDs" section) - get one from guidgen.com.
+
  3. Test bundled scenarios and make sure they are compatible with the new API version.
- 
-Build process:
- 
- 4. Run "ant clean" in both bluej and greenfoot directories, and ensure source tree is clean.
- 5. Run "ant ready-to-run-greenfoot" in the bluej directory.
- 6. Run "ant ready-to-run" in the greenfoot directory.
- 7. Different Systems:
-    - Debian package:
-      - run "fakeroot ant debian" to build the Debian/Ubuntu ".deb" package. You can only do this on
-        a system which has the "dpkg-deb" and "fakeroot" utilities installed. Alternatively:
-      - run "ant dist" followed by "ant debian-dist", the latter must be run as root.
-    - Mac: 
-      - check prerequisites are installed (see bluej/doc/HOWTO.make-mac-release).
-      - run "ant mac" (see below for more details).
-    - Windows:
-      - check prerequisites are installed (see bluej/doc/HOWTO.make-win-version).
-      - run "ant windows".
-    - Generic installer:
-      - the generic installer is build as part of any of the above, and can be built alone
-        using "ant dist".
-    
-Post build:
-    
- 8. Copy the builds and source to greenfoot.org.
- 9. Run "ant urls-rc" to check files are in the right place.
- 
+
+ 4. Commit and push the version.properties change (and any label/copyright changes) to main.
+
+
+Build process (GitHub Actions):
+
+ 5. Pushing the version.properties change automatically triggers the "Build Installers"
+    workflow (.github/workflows/build-installers.yml) - see bluej/doc/HOWTO.make-release for
+    the full description, since it builds BlueJ and Greenfoot installers together in the same
+    run. You can also trigger it manually from the Actions tab if needed.
+
+ 6. Download the greenfoot-installers-windows, greenfoot-installers-other,
+    greenfoot-installers-mac-*, and greenfoot-installers-arm64 artifacts from the completed
+    workflow run.
+
+ 7. Test. If you find problems, fix them, bump greenfoot_rcnumber in version.properties,
+    push, and repeat from step 5.
+
+
 Release:
 
-10. Create/update release tag in version control (GREENFOOT-RELEASE-x.y.z).
+ 8. When happy, do a final version.properties change dropping the RC suffix, commit and push.
+
+ 9. Tag the released commit in git as GREENFOOT-RELEASE-x.y.z (e.g. GREENFOOT-RELEASE-3.9.1)
+    and push the tag. Pushing a tag matching GREENFOOT-RELEASE-* (or BLUEJ-RELEASE-* for
+    BlueJ) triggers the "Build Installers" workflow again, and its final job,
+    "Publish-Release", automatically collects the built greenfoot-installers-* files (already
+    named with version and architecture) and creates a DRAFT GitHub Release for the tag with
+    them attached. No manual downloading/renaming/re-uploading of artifacts is needed.
+
+10. Go to the repository's Releases page, open the new draft, write the release notes,
+    double-check the attached files (Greenfoot-windows-x.y.z.msi, .zip,
+    Greenfoot-linux-x64-x.y.z.deb, Greenfoot-linux-arm64-x.y.z.deb,
+    Greenfoot-generic-x.y.z.jar, Greenfoot-mac-x64-x.y.z.dmg, Greenfoot-mac-aarch64-x.y.z.dmg),
+    and click "Publish release".
+    Source is available at the tag; there's no separate source-zip upload, and no manual
+    copying of files to a greenfoot.org download server any more - GitHub Releases is the
+    download location.
+
 11. Create new version in bug tracker.
+
 12. Update web pages (see below).
 
 If necessary:
@@ -78,37 +77,13 @@ If necessary:
 
 
 
-Building and Signing on Mac:
-    Follow steps 1-6 above, and check prerequisites in bluej/doc/HOWTO.make-mac-release. To build,
-    run "ant mac" in the greenfoot source directory. This will sign and verify automatically, if
-    the appropriate certificate is found and an internet connection is available. 
-        
-        Note: In order for the bundle to be signed, the certificate must be in the keychain on the
-        machine on which the above command is run (and an internet connection must be active). If it
-        is not available, the bundle should still be generated but the signing step will fail.
-
-    To sign manually:
-        - On the terminal, execute:
-            codesign -s "Developer ID Application: Michael Kolling" Greenfoot.app/Contents/JDK/
-
-            codesign -f -s "Developer ID Application: Michael Kolling" Greenfoot.app
-
-    To verify manually:
-        - On the terminal, execute:
-            codesign --verify --deep --verbose=4 Greenfoot.app/
-
-            spctl -a -t exec -vv Greenfoot.app/
-
-
- 
 Web-pages to update on www.greenfoot.org.
 These need uploading files to the greenfoot home folder:
   (/home/greenfoot/www/download/files/javadoc)
     update javadoc with the generated doc from create-api-doc
 These pages can be edited directly:
   download
-  download/installation 
+  download/installation
   site/download_source
   download/old-downloads.html
   version_history
- 

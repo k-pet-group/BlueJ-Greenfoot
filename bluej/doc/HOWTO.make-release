@@ -1,70 +1,85 @@
 How to make a BlueJ release
 ---------------------------
 
+NOTE: This process changed when the build moved to Gradle and the installers
+started being built by GitHub Actions. Building locally with Ant is no longer
+how releases are made; see HOWTO.make-mac-release for Mac-specific signing
+notes only.
+
 PART I - BEFORE BUILDING
-------------------------
+-------------------------
 
  0. Before building, check the copyright years (for display in the copyright dialog), in the
     showCopyright() method in PkgMgrFrame.
 
- 1. Set the right BlueJ version number in bluej/build.xml.
-    Add a GUID to package/winsetup/version-guid file (Get one at guidgen.com).
-    Run: ant update-version-number
-        - This updates the version number in the Boot class and the README.TXT file.
+ 1. Set the right BlueJ version number in version.properties (repo root):
+       bluej_major / bluej_minor / bluej_release / bluej_suffix / bluej_rcnumber
+    If you bump to a new x.y.z (or change bluej_suffix), add a new GUID for it in
+    version.properties (further down, in the "BlueJ GUIDs" section) - get one from
+    guidgen.com. The comment at the top of version.properties explains this.
 
- 2. Tag the current source tree in version control.
+ 2. Commit and push the version.properties change (and any copyright-year change) to main.
 
 
-PART II - BUILDING BLUEJ RELEASE CANDIDATE
-------------------------------------------
+PART II - BUILDING THE RELEASE CANDIDATE (GITHUB ACTIONS)
+-----------------------------------------------------------
 
-NOTE:
-    For the following "ant" commands, a release candidate suffix can be specified via
-    -Dbluej.rcsuffix on the command line. For example:
-    
-       ant debian -Dbluej.rcsuffix=-rc3
-    
-    The above will append "-rc3" to the base filenames generated in the package directory,
-    generating "BlueJ-linux-4.1.3-rc3.deb" for example.
+ 3. Pushing a change to version.properties automatically triggers the "Build Installers"
+    workflow (.github/workflows/build-installers.yml). You can also trigger it manually from
+    the Actions tab on GitHub ("Build Installers" -> "Run workflow") if you need to rebuild
+    without changing version.properties.
 
- 3. For Debian, run "fakeroot ant debian".
-    (You will need fakeroot installed: sudo apt-get install fakeroot)
-    
-    It is possible to build as root instead, though this is not recommended. Root is necessary so
-    that files in the deb package are correctly owned as the root user when the package is
-    installed. 
+    This workflow builds, via Gradle, installers for:
+      - Windows (msi + zip)
+      - Ubuntu/Debian, x64 and arm64 (deb + generic jar)
+      - Mac, Intel and Apple Silicon (dmg, signed and notarized using the secrets configured
+        in the repo)
+    There is no more manual "ant windows" / "ant mac" / "fakeroot ant debian" step - all
+    platforms are built in parallel on GitHub-hosted (and one self-hosted ARM64) runners.
 
- 4. See HOWTO.make-win-version for details on the Windows release bundle.
-    Short version: run "ant windows"
- 
- 5. See HOWTO.make-mac-release for details on the Mac release bundles.
-    Short version: run "ant mac"
+ 4. When the workflow run completes, download the build artifacts from the run's summary
+    page on GitHub (bluej-installers-windows, bluej-installers-other, bluej-installers-mac-*,
+    bluej-installers-arm64, and the equivalent greenfoot-installers-* ones). Each is a zip
+    containing the actual installer files.
 
- 6. Test. When okay, upload to server.
+ 5. Test the installers from these artifacts on each platform. If you find problems, fix them,
+    bump bluej_rcnumber in version.properties, push, and repeat from step 3.
 
- 7. Run "ant urls-rc" to check the RCs are in place and get a print-out of the URLs.  Include this
-    in RC announcement email.
- 
 
-PART III - RELEASING BLUEJ
---------------------------
+PART III - RELEASING BLUEJ ON GITHUB
+--------------------------------------
 
- 8. Make sure the release is correctly tagged in version control
+ 6. When you're happy with a build, do a final version.properties change to drop the RC
+    suffix (i.e. this is now the real release, not a candidate), commit and push.
 
- 9. Move the RCs and the source to the public
-    server (currently www.bluej.org/download/files/).
+ 7. Tag the released commit in git as BLUEJ-RELEASE-x.y.z (e.g. BLUEJ-RELEASE-6.0.1) and push
+    the tag. Pushing a tag matching BLUEJ-RELEASE-* (or GREENFOOT-RELEASE-* for Greenfoot)
+    triggers the same "Build Installers" workflow, and this time its final job,
+    "Publish-Release", automatically:
+      - collects the built installers for the matching product (bluej-installers-* for a
+        BLUEJ-RELEASE-* tag; greenfoot-installers-* for GREENFOOT-RELEASE-*), already named
+        with version and architecture (the Linux job renames the .deb to add "-x64-"/
+        "-arm64-", since the Ant build itself doesn't distinguish Linux architectures in the
+        filename)
+      - creates a DRAFT GitHub Release for that tag with all of those files attached.
+    No manual downloading/renaming/re-uploading of artifacts is needed any more.
 
-10. Run "ant urls-final" to check the files are in place
+ 8. Go to the repository's Releases page, open the new draft, write the release notes (see
+    previous releases for the style used), double-check the attached files, and click
+    "Publish release" (leave "pre-release" unchecked unless it genuinely is one).
+    There is no separate source-zip upload; source is available at the tag itself. There is
+    also no more manual copying of files to a bluej.org/www.bluej.org download server -
+    GitHub Releases is the download location.
 
-11. Update the BlueJ web site to announce the new version:
+ 9. Update the BlueJ web site to point at (or announce) the new GitHub release:
      - update the front page (index.html)
-        - change version, date, and download links 
+        - change version, date, and download links
      - update the versions page (versions.html)
         - add section with version, date, changes and download links
      - update the current version information (version.info)
         - change the version number and the release notes' summary.
-       
-12. In the bugs database (http://bugs.bluej.org/trac/bluej),
+
+10. In the bugs database (http://bugs.bluej.org/trac/bluej),
 
    1. Add a future release milestone ("Roadmap", "New Milestone").
 
@@ -72,18 +87,17 @@ PART III - RELEASING BLUEJ
       Trac provides to retarget open bugs to the future milestone.
       ("Roadmap" -> click on milestone -> "Edit milestone";
        do not go through the Admin panel!).
-   
+
    3. Also check that there are no bugs against the current release which are marked as
       FIXED but for which the milestone isn't set. Set the milestone to the new release
       for such bugs.
-   
-13. Also in the bugs database, add the new version so that bugs can be reported against
+
+11. Also in the bugs database, add the new version so that bugs can be reported against
     it.
-    
-14. Update the support form at https://www.bluej.org/support.html - the drop-down
+
+12. Update the support form at https://www.bluej.org/support.html - the drop-down
     version field should have the new version added as an option.
 
-15. Send a mail message to bluej-announce@bluej.org, announcing the release.
+13. Send a mail message to bluej-announce@bluej.org, announcing the release.
 
-16. More public announcements. See HOWTO.announce-release.
-
+14. More public announcements. See HOWTO.announce-release.
