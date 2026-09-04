@@ -354,12 +354,22 @@ jobs:
           merge-multiple: true
       - name: List assets to be attached
         run: ls -la release-assets
-      - name: Create draft GitHub release
+      - name: Create or update GitHub release with the built installers
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release-info.outputs.tag }}
+          TITLE: ${{ steps.release-info.outputs.title }}
         run: |
-          gh release create "${{ steps.release-info.outputs.tag }}" \
-            --draft \
-            --title "${{ steps.release-info.outputs.title }}" \
-            --notes "Draft release created automatically by CI - edit these notes and publish when ready." \
-            release-assets/*
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            # A release for this tag already exists (e.g. someone created a draft for it
+            # by hand in the GitHub web UI before the installers finished building) -
+            # just attach the installers to it, leaving its title/notes/draft state alone.
+            echo "Release for $TAG already exists - attaching installers to it."
+            gh release upload "$TAG" release-assets/* --clobber
+          else
+            gh release create "$TAG" \
+              --draft \
+              --title "$TITLE" \
+              --notes "Draft release created automatically by CI - edit these notes and publish when ready." \
+              release-assets/*
+          fi
