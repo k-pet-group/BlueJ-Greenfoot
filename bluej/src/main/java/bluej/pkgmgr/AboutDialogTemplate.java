@@ -145,21 +145,21 @@ public class AboutDialogTemplate extends Dialog<Void>
         debugLogShow.setOnAction(e -> {
             try
             {
+                // Use ProcessBuilder for better Unicode/emoji path support (issue #2426)
+                ProcessBuilder pb = new ProcessBuilder();
                 if (Config.isWinOS())
                 {
-                    Runtime.getRuntime().exec(
-                        new String[] {"cmd", "/c", "start", Config.getUserConfigDir().getAbsolutePath()});
+                    pb.command("cmd", "/c", "start", Config.getUserConfigDir().getAbsolutePath());
                 }
                 else if (Config.isMacOS())
                 {
-                    Runtime.getRuntime().exec(
-                        new String[] {"open", Config.getUserConfigDir().getAbsolutePath()});
+                    pb.command("open", Config.getUserConfigDir().getAbsolutePath());
                 }
                 else if (Config.isLinux())
                 {
-                    Runtime.getRuntime().exec(
-                            new String[] {"xdg-open", Config.getUserConfigDir().getAbsolutePath()});
+                    pb.command("xdg-open", Config.getUserConfigDir().getAbsolutePath());
                 }
+                pb.start();
             }
             catch (IOException ex)
             {
