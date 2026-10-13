@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
+import bluej.utility.FileUtility;
 
 import org.jetbrains.kotlin.cli.common.ExitCode;
 import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments;
@@ -40,16 +41,19 @@ import org.jetbrains.kotlin.cli.common.messages.MessageCollector;
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler;
 import org.jetbrains.kotlin.config.Services;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * A compiler implementation wrapping kotlin-compiler-embeddable for
  * Kotlin compilation, analogous to CompilerAPICompiler for Java.
  */
 public class KotlinCompiler extends Compiler
 {
-    // Java sources K2 loads for Kotlin→Java symbol resolution on the next compile() call;
-    // consumed and cleared inside compile(). Safe — CompilerThread is single-threaded.
+    // For direct backend callers only; queued requests pass symbol sources with the compile call.
     private List<CompileInputFile> javaSymbolSources;
 
+    /** Creates a Kotlin backend with debug information and deprecation diagnostics enabled. */
     public KotlinCompiler()
     {
         setDebug(true);
@@ -59,11 +63,14 @@ public class KotlinCompiler extends Compiler
     /**
      * Provide Java sources for K2 to load as symbol sources during the next
      * compile() call. Used in mixed-language packages so Kotlin code can resolve
-     * Java references whose bytecode does not yet exist.
+     * Java references whose bytecode does not yet exist. Call on the same thread as compile;
+     * queued requests supply these inputs directly instead.
+     *
+     * @param javaSymbolSources Java symbol inputs, or null for none
      */
     public void setJavaSymbolSources(List<CompileInputFile> javaSymbolSources)
     {
-        this.javaSymbolSources = javaSymbolSources;
+        this.javaSymbolSources = javaSymbolSources == null ? null : List.copyOf(javaSymbolSources);
     }
 
     /**
@@ -85,12 +92,28 @@ public class KotlinCompiler extends Compiler
         List<CompileInputFile> auxJavaSources = this.javaSymbolSources;
         this.javaSymbolSources = null;
 
-        if (!KotlinFileFormValidator.validate(sources, observer, type)) {
+        boolean keepClasses = type.keepClasses();
+        File outputDir = resolveOutputDir(keepClasses, observer, type);
+        if (outputDir == null) {
             return false;
         }
+        try {
+            return compile(sources, auxJavaSources, outputDir, observer, type);
+        }
+        finally {
+            if (!keepClasses) {
+                FileUtility.deleteDir(outputDir);
+            }
+        }
+    }
 
-        File outputDir = resolveOutputDir(type, observer);
-        if (outputDir == null) {
+    // The caller owns outputDir and its lifetime, including any subsequent javac phase.
+    // Any owning thread may call this, but must confine the backend and its configuration to that thread.
+    @OnThread(Tag.Any)
+    boolean compile(File[] sources, List<CompileInputFile> javaSymbolSources, File outputDir,
+            CompileObserver observer, CompileType type)
+    {
+        if (!KotlinFileFormValidator.validate(sources, observer, type)) {
             return false;
         }
 
@@ -99,15 +122,12 @@ public class KotlinCompiler extends Compiler
 
         ExitCode exitCode;
         try {
-            exitCode = invokeCompiler(sources, auxJavaSources, collector, outputDir);
+            exitCode = invokeCompiler(sources, javaSymbolSources, collector, outputDir);
         }
         catch (Exception e) {
             observer.compilerMessage(new Diagnostic(Diagnostic.ERROR,
                     DiagnosticMessage.fromEnglish("Kotlin compiler internal error: " + e.getMessage())),
                     type);
-            if (!type.keepClasses()) {
-                cleanupTempDir(outputDir);
-            }
             return false;
         }
 
@@ -115,9 +135,6 @@ public class KotlinCompiler extends Compiler
             observer.compilerMessage(diagnostic, type);
         }
 
-        if (!type.keepClasses()) {
-            cleanupTempDir(outputDir);
-        }
         return exitCode == ExitCode.OK;
     }
 
@@ -126,9 +143,9 @@ public class KotlinCompiler extends Compiler
      *
      * @return the output directory, or null if creation failed
      */
-    private File resolveOutputDir(CompileType type, CompileObserver observer)
+    private File resolveOutputDir(boolean keepClasses, CompileObserver observer, CompileType type)
     {
-        if (type.keepClasses()) {
+        if (keepClasses) {
             return getDestDir();
         }
         try {
@@ -269,25 +286,5 @@ public class KotlinCompiler extends Compiler
                 .toList());
 
         return compiler.exec(collector, Services.EMPTY, args);
-    }
-
-    /**
-     * Recursively deletes a temporary directory if non-null.
-     */
-    private void cleanupTempDir(File tempDir)
-    {
-        if (tempDir != null && tempDir.exists()) {
-            File[] files = tempDir.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        cleanupTempDir(file);
-                    } else {
-                        file.delete();
-                    }
-                }
-            }
-            tempDir.delete();
-        }
     }
 }

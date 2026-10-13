@@ -70,9 +70,47 @@ tags:
 
 - PSI-based `ClassInfo` extraction: class name, superclass, interfaces, methods, modifiers, package, type parameters
 - For function-only files: synthesizes `ClassInfo` with `topLevelFunctionsOnly=true`
-- Supertype-editing `Selection` positions derived from `PsiElement.getTextRange()`
+- Supertype identities follow the bounded [Hierarchy Metadata](#hierarchy-metadata) contract below. Supertype editing itself uses PSI in `KotlinLanguageSupport`; hierarchy extraction does not supply editing selections.
 - Package-directive `Selection`s (keyword span + name span + zero-length post-name marker) derived from `KtFile.getPackageDirective()` so `ClassTarget.enforcePackage()` can rewrite the line in place; built via `KotlinParserUtils.packageSelections(ktFile, source)`. The post-name marker takes the place of Java's `;` (Kotlin has no trailing semicolon).
 - **Callable parameter names** -- emits a `ClassInfo` comment entry (via `info.addComment(target, kdoc, paramNames)`) for every method, the primary constructor, and every secondary constructor. These power the parameter names shown in the class-diagram / object-bench right-click "call constructor / call method" menus (`ConstructorView`/`MethodView.getLongDesc()` -> `CallableView.getParamNames()`). See [Callable Parameter Names](#callable-parameter-names).
+
+### Hierarchy Metadata
+
+`ClassInfo.getSuperclass()` and `getImplements()` carry **qualified type identities**, not display/simple names.
+This is needed by both dependency analysis and Greenfoot's superclass grouping. Hierarchy resolution is
+separate from the existing callable-signature heuristics and `extractSimpleName`; neither is broadened here.
+
+- Preserve qualified identifier segments (without generic arguments/backticks). Expand explicit imports,
+  including `as` aliases and imported outer-class qualifiers. Qualified/explicitly imported names establish
+  identity even when the referenced type is unavailable; they do not by themselves establish its kind.
+- Resolve bare names from same-file declarations, explicit imports, **verified same-package project types**,
+  verified explicit star imports, then verified default imports. No guessed `currentPackage.Unknown` FQNs.
+  Same-file/import conflicts, conflicting explicit imports and multiple star candidates remain unresolved. Type
+  parameters, nested classifier declarations and unsupported type aliases must not leak through to an
+  imported library identity. Member properties/functions do not shadow names in this type lookup.
+  This is deliberately conservative on incomplete or ambiguous code.
+- The supplied exact-name lookup distinguishes class, interface, absent, and present-but-unknown declarations.
+  A present-but-unknown source name blocks library/import fallback. Project lookup is owned by
+  [SourceInfo](../diagram/README.md#source-hierarchy-lifecycle); it uses source identities before compilation,
+  never a Java `ParsedReflective` requirement for Kotlin.
+- Known declaration kind decides superclass versus interface, including `class Child : Base` with
+  `constructor(...) : super(...)` in the body. If kind is unavailable, a constructor-call entry proves class
+  syntax; delegation or an interface's own supertype list proves interface syntax. A plain entry in a class
+  is otherwise omitted rather than assumed to be an interface.
+- Library lookup verifies class resources and public types (including nested JVM types) without class
+  initialisation. The project adapter excludes source-backed and untracked project bytecode before loading.
+  There are no Greenfoot-specific `World`/`Actor` cases and no Kotlin Analysis API session.
+
+### Key Lifecycles — Hierarchy Snapshots
+
+- Ordinary `parse` calls create a short-lived `ParsedSource` PSI snapshot and return a fresh `ClassInfo`.
+  Context-free calls use the parser's library loader; syntax-only tests must supply known project identities
+  rather than relying on invented types resolving automatically.
+- `SourceInfo` retains a snapshot while source text and filename are unchanged. Each metadata request creates
+  a new `ClassInfo` and a request-local lookup cache, so changes to **other** declarations are visible without
+  reparsing this file. Declaration-kind inspection reads only declarations, never recursively resolves parents.
+- An edit/invalidation, changed file contents/name or read failure discards/replaces the retained snapshot.
+  Snapshots own no separate environment/disposable; the shared PSI environment retains its existing lifecycle.
 
 ### Callable Parameter Names
 
@@ -109,9 +147,10 @@ The right-click call menus display parameter names only when a member's reflecte
 
 - **Full-file reparse per edit** (~50-100ms for 500 lines) -- see [Incremental PSI Reparse](incremental-reparse/README.md)
 - **Soft keyword reclassification is context-free** -- `data` highlighted as keyword even when used as identifier
-- **No entity resolution** -- no code completion or type-aware features for Kotlin. The Ctrl+Space keybinding short-circuits to a transient "unavailable" popup in `FlowEditor`; see [Editor: Known Limitations](../editor/README.md#known-limitations).
+- **No general semantic entity resolution** -- the bounded hierarchy lookup above does not provide code completion or other type-aware features for Kotlin. The Ctrl+Space keybinding short-circuits to a transient "unavailable" popup in `FlowEditor`; see [Editor: Known Limitations](../editor/README.md#known-limitations).
 - **Shaded PSI class paths** may change between Kotlin versions (concentrated in 4 files)
 - **Multi-line `${...}` in triple-quoted strings** -- continuation lines may not highlight correctly (rare in educational code)
+- **Hierarchy resolution is bounded** -- no type-alias expansion (including Kotlin library aliases such as `kotlin.collections.ArrayList`), inherited nested-type search or general semantic/accessibility analysis. Bare names require a verified declaration; unknown/ambiguous identities or kinds are omitted.
 - **Parameter-name resolution is single-file/heuristic** -- a parameter whose type the file cannot resolve to the correct erased-FQ name will simply not match the reflected member, so that callable falls back to showing no names (never wrong names). Known unresolved cases, all out of MVP scope:
   - **Star imports** (`import com.foo.*`) -- the origin package of a bare simple name is unknown
   - **Type aliases**

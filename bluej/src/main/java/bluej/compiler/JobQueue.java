@@ -24,23 +24,32 @@ package bluej.compiler;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
 import bluej.utility.Utility;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Reasonably generic interface between the BlueJ IDE and the compiler(s).
  * Manages a single CompilerThread and dispatches compilation jobs to the
  * appropriate compiler (Java or Kotlin) based on source file extension.
- *
- * @author Michael Cahill
  */
 public class JobQueue
 {
     private static JobQueue queue = null;
 
+    /**
+     * Returns the shared compilation queue, starting its worker if necessary.
+     *
+     * @return the application compilation queue
+     */
+    @OnThread(Tag.Any)
     public static synchronized JobQueue getJobQueue()
     {
         if (queue == null) {
@@ -51,9 +60,9 @@ public class JobQueue
 
     // ---- instance ----
 
-    private CompilerThread thread = null;
-    private Compiler javaCompiler = null;
-    private KotlinCompiler kotlinCompiler = null;
+    private final CompilerThread thread;
+    private final CompilerAPICompiler javaCompiler;
+    private final KotlinCompiler kotlinCompiler;
 
     /**
      * Construct the JobQueue. This is private; use getJobQueue() to get the job queue instance.
@@ -61,9 +70,7 @@ public class JobQueue
     private JobQueue()
     {
         javaCompiler = new CompilerAPICompiler();
-        if (!Config.isGreenfoot()) {
-            kotlinCompiler = new KotlinCompiler();
-        }
+        kotlinCompiler = new KotlinCompiler();
         thread = new CompilerThread();
 
         // Lower priority to improve GUI response time during compilation
@@ -75,16 +82,21 @@ public class JobQueue
     }
 
     /**
-     * Adds a job (or two) to the compile queue. Sources are partitioned by extension:
+     * Adds one request to the compile queue. Sources are partitioned by extension:
      * {@code .kt} files go to {@link KotlinCompiler}, the rest to {@link CompilerAPICompiler}.
-     * When both languages are present, Kotlin runs first, then Java.
+     * When both languages are present, Kotlin runs first, then Java only if Kotlin succeeds.
+     * Inputs and configuration are copied; source file contents are read when compilation runs.
      *
      * @param sources       The files to compile
      * @param observer      Observer notified at start, errors/warnings, and completion
      * @param bpClassLoader The classpath to use to locate objects/source code
-     * @param destDir       Destination for class files
+     * @param destDir       Project source root and destination for retained class files
      * @param suppressUnchecked   Suppress "unchecked" warning
+     * @param fileCharset   Source file character set
+     * @param reason        Reason for compilation
+     * @param type          Compilation and output-retention policy
      */
+    @OnThread(Tag.Any)
     public void addJob(CompileInputFile[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir,
             boolean suppressUnchecked, Charset fileCharset, CompileReason reason, CompileType type)
     {
@@ -92,24 +104,26 @@ public class JobQueue
         String optionString = Config.getPropString(Compiler.COMPILER_OPTIONS, "");
         options.addAll(Utility.dequoteCommandLine(optionString));
 
-        LanguagePartition partition = partitionByLanguage(sources, kotlinCompiler != null);
-
-        // Kotlin first so its .class output is on javac's classpath; .java sources are
-        // also handed to K2 for Kotlin→Java symbol resolution.
-        if (!partition.kotlinSources.isEmpty()) {
-            if (!partition.javaSources.isEmpty()) {
-                kotlinCompiler.setJavaSymbolSources(partition.javaSources);
+        if (sources != null) {
+            List<CompileInputFile> inputs = Arrays.stream(sources).filter(Objects::nonNull).toList();
+            if (!inputs.isEmpty()) {
+                thread.addJob(new Job(inputs, javaCompiler, kotlinCompiler, observer, bpClassLoader.getClassPathAsFiles(),
+                        destDir, suppressUnchecked, options, fileCharset, type, reason, type.keepClasses()));
             }
-            CompileInputFile[] ktSources = partition.kotlinSources.toArray(new CompileInputFile[0]);
-            thread.addJob(new Job(ktSources, kotlinCompiler, observer, bpClassLoader,
-                    destDir, suppressUnchecked, options, fileCharset, type, reason));
         }
+    }
 
-        if (!partition.javaSources.isEmpty()) {
-            CompileInputFile[] javaSources = partition.javaSources.toArray(new CompileInputFile[0]);
-            thread.addJob(new Job(javaSources, javaCompiler, observer, bpClassLoader,
-                    destDir, suppressUnchecked, options, fileCharset, type, reason));
-        }
+    /**
+     * Tests whether a request contains both Kotlin and Java-compiler inputs, using the queue's extension rules.
+     *
+     * @param sources the selected inputs; null arrays and null entries are ignored
+     * @return true if both language partitions are non-empty
+     */
+    @OnThread(Tag.Any)
+    public static boolean isMixedLanguage(CompileInputFile[] sources)
+    {
+        LanguagePartition partition = partitionByLanguage(sources, true);
+        return !partition.kotlinSources().isEmpty() && !partition.javaSources().isEmpty();
     }
 
     /**
@@ -118,13 +132,14 @@ public class JobQueue
      * Files whose name ends with {@code .kt} (case-insensitive) are treated as Kotlin
      * sources when a Kotlin compiler is available; everything else (including files
      * with unrecognised extensions and any null/empty input file paths) is treated as
-     * Java for the Java compiler. When the Kotlin compiler is unavailable (Greenfoot),
-     * all sources route to Java, matching pre-Kotlin behaviour.
+     * Java for the Java compiler. Both BlueJ and Greenfoot provide the Kotlin compiler;
+     * the unavailable-backend fallback routes all sources to Java.
      *
      * @param sources              the input files to partition
      * @param kotlinCompilerAvailable  whether a Kotlin compiler exists in this JobQueue
      * @return a {@link LanguagePartition} with the two source groups
      */
+    @OnThread(Tag.Any)
     static LanguagePartition partitionByLanguage(CompileInputFile[] sources, boolean kotlinCompilerAvailable)
     {
         List<CompileInputFile> kotlinSources = new ArrayList<>();

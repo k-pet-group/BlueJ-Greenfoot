@@ -24,7 +24,7 @@ tags:
 |-------|-----------|------------------------|
 | 1. Declaration | `bluej/build.gradle` | **Yes** -- add 3 Kotlin deps |
 | 2. Assembly | `copyToLib` Gradle task | No -- copies all `runtimeClasspath` JARs |
-| 3. Discovery | `Boot.getKnownJars()` | **Yes** -- add `"kotlin-stdlib-*.jar"` to `bluejUserJars` |
+| 3. Discovery | `Boot.getKnownJars()` | **Yes** -- separate IDE dependencies from student stdlib for both IDEs |
 | 4. Classpath | `Project.getClassLoader()` -> `Compiler.setClasspath()` | No -- generic passthrough |
 | 5. Distribution | Ant `build.xml` + Gradle packaging | No -- `lib/*.jar` bundles all |
 
@@ -34,8 +34,8 @@ tags:
 
 | Classpath | Contains | Used by |
 |-----------|----------|---------|
-| IDE (`runtimeClassPath`) | ALL JARs in lib/ (including kotlin-compiler-embeddable) | BlueJ IDE classes, KotlinCompiler |
-| Student (`runtimeUserClassPath`) | bluejcore + javafx + junit + hamcrest + lang-stride + **kotlin-stdlib** | Student code execution, compilation classpath |
+| IDE (`runtimeClassPath`) | BlueJ's catch-all jars; Greenfoot's explicit IDE whitelist, including the compiler/PSI/metadata closure | IDE classes, KotlinCompiler |
+| Student (`runtimeUserClassPath`) | Existing language/runtime jars plus **kotlin-stdlib** (and Greenfoot API for scenarios) | Student code execution, compilation classpath |
 
 `kotlin-compiler-embeddable` is intentionally NOT on the student classpath -- only `kotlin-stdlib`.
 
@@ -55,7 +55,18 @@ All use `implementation` scope (needed at both compile time and runtime).
 
 ## Boot.java Change
 
-Add `"kotlin-stdlib-*.jar"` to the `bluejUserJars` array. Wildcard matches any version. The catch-all `"^bluejcore.jar"` pattern handles all other Kotlin JARs for the IDE classpath.
+Both student whitelists include `kotlin-stdlib-*.jar`. BlueJ's catch-all `^bluejcore.jar` pattern
+supplies IDE dependencies. Greenfoot instead extends its existing whitelist with compiler-embeddable,
+daemon, script-runtime, reflect, metadata-jvm, coroutines, trove4j and JetBrains annotations. These
+compiler dependencies must not be added to the shared IDE/student list. The existing Greenfoot Gradle
+runtime copy already stages them; no external Kotlin SDK or new dependency versions are needed.
+
+IDE and project loaders have the boot loader as parent, not each other. Jar presence or development
+launch success alone does not verify installed loading; tests must use these isolated classpaths,
+including compilation, stdlib execution and source/compiled metadata readers. The
+[views metadata reader](../../bluej/views/README.md#kotlin-metadata-across-loaders) adapts annotation values
+across these loaders without sharing compiler dependencies. Kotlin export dependency
+selection is a separate boundary and is unchanged by local scenario support.
 
 ---
 
@@ -74,5 +85,5 @@ Add `"kotlin-stdlib-*.jar"` to the `bluejUserJars` array. Wildcard matches any v
 ## Known Limitations
 
 - **~30-40 MB distribution size increase** -- acceptable for educational tool
-- **No Greenfoot Kotlin support** -- `greenfootRuntimeAndUserJars` does not include kotlin-stdlib (deliberate scope boundary)
+- Greenfoot's IDE whitelist must be checked against the transitive closure when upgrading Kotlin; new dependencies are not picked up by a catch-all as they are in BlueJ.
 - **No version alignment validation** -- all 3 Kotlin deps must match; currently relies on visual adjacency in build.gradle

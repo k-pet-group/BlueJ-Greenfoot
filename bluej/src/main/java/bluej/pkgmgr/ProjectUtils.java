@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2018,2019,2023,2025  Michael Kolling and John Rosenberg
+ Copyright (C) 2018,2019,2023,2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,14 +21,6 @@
  */
 package bluej.pkgmgr;
 
-import bluej.Config;
-import bluej.debugger.Debugger;
-import bluej.extensions2.SourceType;
-import bluej.utility.BlueJFileReader;
-import bluej.utility.DialogManager;
-import bluej.utility.FileUtility;
-import javafx.stage.Stage;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -38,6 +30,15 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.Path;
 import java.util.Dictionary;
 import java.util.Hashtable;
+
+import bluej.Config;
+import bluej.debugger.Debugger;
+import bluej.extensions2.SourceType;
+import bluej.utility.BlueJFileReader;
+import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
+
+import javafx.stage.Stage;
 
 /**
  * Utilities for working with projects.
@@ -124,7 +125,14 @@ public class ProjectUtils
     }
 
     /**
-     * Creates the skeleton for a new class
+     * Create a class skeleton using the localized template and shared substitutions.
+     *
+     * @param className name of the new class
+     * @param superClassName superclass name, or null for no explicit parent
+     * @param file destination source file
+     * @param templateFileName template filename under greenfoot/templates
+     * @param projCharsetName destination encoding (falls back to UTF-8 if unsupported)
+     * @throws IOException if the template cannot be read or the destination cannot be written
      */
     public static void createSkeleton(String className, String superClassName, File file, String templateFileName, String projCharsetName)
         throws IOException
@@ -141,6 +149,8 @@ public class ProjectUtils
             translations.put("EXTENDSANDSUPERCLASSNAME", "");
             translations.put("EXTENDSSUPERCLASSNAME",  "");
         }
+        translations.put("KOTLINEXTENDSANDSUPERCLASSNAME",
+                superClassName == null ? "" : ": " + superClassName + "()");
         String baseName = "greenfoot/templates/" +  templateFileName;
         File template = Config.getLanguageFile(baseName);
 

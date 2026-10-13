@@ -38,7 +38,7 @@ All spokes work identically for Kotlin as for Java/Stride. Modifications are in 
 
 ## Key Contracts
 
-- **Source detection priority**: `.stride` -> `.java` -> `.kt` -> `NONE`
+- **Source detection priority**: `.stride` -> `.java` -> `.kt` -> `NONE`. Both IDEs discover `.kt` sources and deduplicate their generated facade outputs. Discovery retains its existing filename rules; new-class identifier validation must not hide existing function files such as `when.kt`.
 - **ClassRole hierarchy is unchanged** -- Kotlin `class`/`abstract class`/`interface`/`enum class` map to existing `StdClassRole`/`AbstractClassRole`/`InterfaceClassRole`/`EnumClassRole`
 - **Dependency system is unchanged** -- `KotlinInfoParser` produces standard `ClassInfo` consumed by `analyseDependencies()`
 - **Template substitution** -- Kotlin templates use same `$CLASSNAME`/`$PKGLINE` variables as Java
@@ -49,13 +49,37 @@ All spokes work identically for Kotlin as for Java/Stride. Modifications are in 
 - **Add Class from File…** (`PkgMgrFrame.doAddFromFile`) uses `FileUtility.getSourceFilterFX` (formerly `getJavaStrideSourceFilterFX`) which lists `*.java`, `*.stride`, and `*.kt` in the file picker. The selected files are routed through `Package.importFile`, which is also Kotlin-aware.
 - **Right-click call menus show parameter names** -- the "call constructor" / "call method" menu items display real parameter names for Kotlin classes and bench objects, matching Java. Names come from `ClassInfo` comments emitted by `KotlinInfoParser` for every method and constructor; see [Parser: Callable Parameter Names](../parser/README.md#callable-parameter-names) for the signature-matching contract and resolution limits.
 
+### Source Hierarchy Lifecycle
+
+Kotlin hierarchy names follow the [parser's qualified-identity contract](../parser/README.md#hierarchy-metadata).
+`SourceInfo` supplies the project context; the editor's general Kotlin type resolution remains out of scope.
+
+- A Kotlin metadata request resolves exact project targets (including enclosing targets for nested names)
+  from **current source declarations**, not old compiled output. Kotlin PSI supplies kind/identity before
+  compilation without opening editors or recursively analysing the target's parents. Java source kind is
+  read through the existing parser without a project-bytecode resolver; Stride's generated Java is used only
+  when compiled. Unreadable, unsupported or mismatched source identities reserve the target name as unknown.
+- Source-file existence is checked even if a target's cached source type has not yet refreshed. Only a
+  current compiled-only target or a library may use reflection; an untracked `.class` resource inside the
+  project directory cannot be treated as a library. Java/Stride metadata caching and analysis paths are unchanged.
+- The Kotlin PSI snapshot is cached by complete source text and filename, avoiding timestamp/size races.
+  Hierarchy lookup runs anew on every `getInfo` request: creating, changing or removing another source
+  declaration can shadow/unshadow an import even when this class's own source is unchanged. This is a
+  request-time refresh, not a new project-wide watcher or invalidation service.
+- `setSourceModified` clears both metadata and the snapshot. Read failure also clears cached results;
+  unsupported source replaces the previous `ClassInfo` with null. `getInfoIfAvailable` deliberately remains
+  a non-refreshing view of the last result for existing role-assignment callers.
+- Greenfoot takes one superclass snapshot per diagram recalculation before recursive grouping, avoiding
+  repeated metadata work in the recursion. See the [Greenfoot diagram contract](../../greenfoot/guifx/classes/README.md).
+  The remaining Greenfoot workflow boundaries are owned by the [Greenfoot spec](../../greenfoot/README.md#kotlin-local-scenarios).
+
 ### Dependency Editing (UI -> Source)
 
 When a user draws an inheritance arrow, `FlowLanguageSupport` strategy handles the source modification:
 - Java: `" extends " + name`, `" implements " + name`
 - Kotlin: `" : " + name + "()"`, `", " + name` (unified supertype list)
 
-`KotlinInfoParser` populates `Selection` positions via `PsiElement.getTextRange()` for accurate source editing.
+Kotlin supertype edits use PSI directly in `KotlinLanguageSupport`; hierarchy metadata does not carry supertype-editing `Selection`s. `KotlinInfoParser` still supplies PSI-derived package-directive selections for package editing.
 
 ---
 

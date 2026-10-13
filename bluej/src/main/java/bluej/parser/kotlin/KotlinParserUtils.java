@@ -26,6 +26,7 @@ import java.io.Reader;
 
 import bluej.parser.SourceLocation;
 import bluej.parser.SourceSpan;
+import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.parser.symtab.Selection;
 
@@ -44,6 +45,29 @@ public final class KotlinParserUtils
 {
     private KotlinParserUtils()
     {
+    }
+
+    /**
+     * Check an unquoted identifier for a newly created Kotlin class. This is not
+     * a source-discovery filename filter: existing files can have other names.
+     *
+     * @param name the proposed class name, without an extension or whitespace trimming
+     * @return true for one ordinary identifier (including soft keywords), but not
+     *         hard keywords, reserved underscore-only names or escaped identifiers
+     */
+    @OnThread(Tag.Any)
+    public static boolean isCreationIdentifier(String name)
+    {
+        if (name == null || name.isEmpty() || name.indexOf('$') >= 0 || name.indexOf('`') >= 0
+            || name.chars().allMatch(c -> c == '_')) {
+            return false;
+        }
+        KotlinLexer lexer = new KotlinLexer(name);
+        LocatableToken token = lexer.nextToken();
+        int softKeyword = KotlinToken.mapSoftKeywordByText(name);
+        return (token.getType() == KotlinToken.IDENTIFIER
+                || (softKeyword >= 0 && token.getType() == softKeyword))
+            && token.getText().equals(name) && lexer.nextToken().getType() == KotlinToken.EOF;
     }
 
     /**

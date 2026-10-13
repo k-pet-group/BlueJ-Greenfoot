@@ -22,7 +22,9 @@
 package bluej.parser.kotlin;
 
 import java.io.StringReader;
+import java.util.Map;
 
+import bluej.parser.kotlin.KotlinHierarchyResolver.TypeKind;
 import bluej.parser.symtab.ClassInfo;
 import bluej.utility.JavaUtils;
 
@@ -38,6 +40,13 @@ public class KotlinInfoParserTest
     private ClassInfo parse(String source)
     {
         return KotlinInfoParser.parse(new StringReader(source), null);
+    }
+
+    private ClassInfo parse(String source, Map<String, TypeKind> knownTypes)
+    {
+        return KotlinInfoParser.parse(new StringReader(source), null, null,
+            name -> knownTypes.containsKey(name) ? knownTypes.get(name)
+                : KotlinHierarchyResolver.libraryType(name, getClass().getClassLoader()));
     }
 
     private ClassInfo parseWithPkg(String source, String targetPkg)
@@ -127,7 +136,7 @@ public class KotlinInfoParserTest
     @Test
     public void testWithSuperclass()
     {
-        ClassInfo info = parse("class Dog : Animal()");
+        ClassInfo info = parse("class Dog : Animal()", Map.of("Animal", TypeKind.CLASS));
         assertNotNull(info);
         assertEquals("Dog", info.getName());
         assertEquals("Animal", info.getSuperclass());
@@ -139,25 +148,26 @@ public class KotlinInfoParserTest
         ClassInfo info = parse("class Dog : Runnable");
         assertNotNull(info);
         assertEquals("Dog", info.getName());
-        assertNull("No superclass (Runnable has no parens)", info.getSuperclass());
-        assertTrue(info.getImplements().contains("Runnable"));
+        assertNull("Runnable is an interface", info.getSuperclass());
+        assertTrue(info.getImplements().contains("java.lang.Runnable"));
     }
 
     @Test
     public void testWithSuperclassAndInterfaces()
     {
-        ClassInfo info = parse("class Dog : Animal(), Runnable, Serializable");
+        ClassInfo info = parse("import java.io.Serializable\nclass Dog : Animal(), Runnable, Serializable",
+            Map.of("Animal", TypeKind.CLASS));
         assertNotNull(info);
         assertEquals("Dog", info.getName());
         assertEquals("Animal", info.getSuperclass());
-        assertTrue(info.getImplements().contains("Runnable"));
-        assertTrue(info.getImplements().contains("Serializable"));
+        assertTrue(info.getImplements().contains("java.lang.Runnable"));
+        assertTrue(info.getImplements().contains("java.io.Serializable"));
     }
 
     @Test
     public void testWithPrimaryConstructorAndSuperclass()
     {
-        ClassInfo info = parse("class Dog(val name: String) : Animal()");
+        ClassInfo info = parse("class Dog(val name: String) : Animal()", Map.of("Animal", TypeKind.CLASS));
         assertNotNull(info);
         assertEquals("Dog", info.getName());
         assertEquals("Animal", info.getSuperclass());
@@ -258,11 +268,11 @@ public class KotlinInfoParserTest
             + "    fun bark(): String = \"Woof!\"\n"
             + "}";
 
-        ClassInfo info = parse(source);
+        ClassInfo info = parse(source, Map.of("animals.Animal", TypeKind.CLASS));
         assertNotNull(info);
         assertEquals("Dog", info.getName());
-        assertEquals("Animal", info.getSuperclass());
-        assertTrue(info.getImplements().contains("Runnable"));
+        assertEquals("animals.Animal", info.getSuperclass());
+        assertTrue(info.getImplements().contains("java.lang.Runnable"));
         assertFalse(info.isAbstract());
     }
 
@@ -461,23 +471,23 @@ public class KotlinInfoParserTest
     {
         ClassInfo info = parse("class Dog : com.example.Animal()");
         assertNotNull(info);
-        assertEquals("Simple name should be extracted from qualified supertype",
-            "Animal", info.getSuperclass());
+        assertEquals("ClassInfo promises the fully-qualified superclass name",
+            "com.example.Animal", info.getSuperclass());
     }
 
     @Test
     public void testGenericSupertype()
     {
-        ClassInfo info = parse("class StringList : ArrayList<String>()");
+        ClassInfo info = parse("import java.util.ArrayList\nclass StringList : ArrayList<String>()");
         assertNotNull(info);
         assertEquals("Generic supertype name should be extracted without type args",
-            "ArrayList", info.getSuperclass());
+            "java.util.ArrayList", info.getSuperclass());
     }
 
     @Test
     public void testObjectWithSupertype()
     {
-        ClassInfo info = parse("object Singleton : Base()");
+        ClassInfo info = parse("object Singleton : Base()", Map.of("Base", TypeKind.CLASS));
         assertNotNull(info);
         assertEquals("Singleton", info.getName());
         assertEquals("Base", info.getSuperclass());

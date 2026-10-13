@@ -78,6 +78,30 @@ VMComms uses regions A (server area), B (user area), C (sync area) with a strict
 
 ---
 
+## Kotlin Local Scenarios
+
+Local Kotlin-source scenarios reuse the shared BlueJ Kotlin compiler, text editor and JVM execution
+pipeline. The authoring UI supplies Kotlin ordinary/Actor/World/subworld templates; hierarchy metadata
+uses the shared qualified-name contract before and after compilation. Students call the compiled Java
+Greenfoot API and bundled libraries without installing Kotlin. The compiler and metadata tooling stay
+on the IDE classpath, while students receive stdlib; see [Kotlin distribution](../kotlin-for-bluej/distribution/README.md).
+
+Local authoring/runtime acceptance remains scoped to Kotlin-only student sources, not fully reliable
+mixed Java/Kotlin/Stride projects. Both IDEs share the mixed-request coordination contract in
+`bluej-compiler`; this does not repair omitted inputs or deferred dependency discovery. Source-selection
+correctness waits for Kotlin Analysis API integration, without a whole-scenario compilation workaround.
+Existing Java/Stride scenarios and generated Java invocation shells retain their routes; no new
+language-policy checks or Stride/Kotlin guarantee are added. Save the World, structural
+duplication/import/navigation, and export/publishing remain separate, unverified Kotlin integration
+areas. Their controls are not blocked by this foundation work; no compatibility is claimed for them.
+See the authoring and class-diagram child specs for local contracts.
+
+Focused regression coverage protects hierarchy/source-cache/diagram boundaries. Shared real-queue
+regressions additionally cover request isolation, combined failure/completion, BlueJ temporary output
+and Greenfoot retained check-only output. Discovery, class authoring/templates, creation-name handling
+and installed-loader behavior still have no dedicated Greenfoot Kotlin fixtures. Selected-source queue
+probes do not establish complete source selection or live installed GUI/runtime acceptance.
+
 ## Existing Documentation
 
 - `greenfoot/doc/Greenfoot-architecture-and-design.txt`

@@ -94,7 +94,7 @@ No new threads. Kotlin uses existing threading:
 
 - `SourceType.Kotlin` is additive -- existing enum values unchanged
 - Stride detection takes priority over Kotlin in `calcSourceAvailable()`
-- Mixed Java+Kotlin projects not in MVP scope
+- Shared Java/Kotlin request correctness is implemented for both IDEs; fully reliable mixed-project source selection remains outside the established support boundary
 - Distribution size increases ~30-40 MB (acceptable for educational tool)
 
 ---
@@ -103,7 +103,13 @@ No new threads. Kotlin uses existing threading:
 
 **In scope:** Kotlin compilation (K2), syntax highlighting + scope coloring via PSI, class templates, top-level function files, compiler error display, object bench interaction, Kotlin stdlib bundled, basic code completion.
 
-**Out of scope:** Java-Kotlin interop, Kotlin-specific inspection, lambdas/coroutines in parser, REPL, Greenfoot support, code conversion, Kotlin-specific quick fixes.
+**Out of scope:** full mixed student-source project reliability, Kotlin-specific inspection, lambdas/coroutines in parser, REPL, code conversion, Kotlin-specific quick fixes. Calling compiled Java libraries is supported.
+
+Greenfoot reuses this Kotlin foundation for local Kotlin-source scenario authoring and execution; see
+[Greenfoot's support boundary](../greenfoot/README.md#kotlin-local-scenarios). Shared compiler request
+coordination is owned by `bluej-compiler`, with Java-only behavior as the baseline and explicit temporary
+diagnostic/recovery exceptions. Source-selection correctness is deferred until Kotlin Analysis API
+integration; no whole-project workaround or unsupported-workflow guards are added.
 
 ---
 

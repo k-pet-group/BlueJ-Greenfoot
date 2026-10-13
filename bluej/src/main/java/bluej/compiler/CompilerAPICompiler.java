@@ -41,6 +41,10 @@ import javax.tools.ToolProvider;
 
 import bluej.Config;
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
+import bluej.utility.FileUtility;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A compiler implementation using the Compiler API introduced in Java 6.
@@ -66,14 +70,45 @@ public class CompilerAPICompiler extends Compiler
      * @param internal
      *            True if compiling BlueJ-generated code (shell files); false if
      *            compiling user code
-     * 
-     * @return  true if successful
+     * @param userOptions Additional javac options
+     * @param fileCharset Source file character set
+     * @param type Compilation and output-retention policy
+     *
+     * @return true if successful
      */
     @Override
     public boolean compile(final File[] sources, final CompileObserver observer,
             final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type)
     {
-        boolean result = true;
+        File tempDir = null;
+        try {
+            File outputDir = getDestDir();
+            if (!type.keepClasses()) {
+                // We could make a new file manager that memory-mapped the output files
+                // and discarded them... but creating a temporary dir is much more
+                // straightforward:
+                tempDir = Files.createTempDirectory("bluej").toFile();
+                outputDir = tempDir;
+            }
+            return compile(sources, observer, internal, userOptions, fileCharset, type, outputDir);
+        }
+        catch (IOException e) {
+            e.printStackTrace(System.out);
+            return false;
+        }
+        finally {
+            if (tempDir != null) {
+                FileUtility.deleteDir(tempDir);
+            }
+        }
+    }
+
+    // The caller owns outputDir; getDestDir() remains the real project source root.
+    // Any owning thread may call this, but must confine the backend and its configuration to that thread.
+    @OnThread(Tag.Any)
+    boolean compile(final File[] sources, final CompileObserver observer, final boolean internal,
+            List<String> userOptions, Charset fileCharset, CompileType type, File outputDir)
+    {
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
         List<String> optionsList = new ArrayList<String>();
 
@@ -178,32 +213,10 @@ public class CompilerAPICompiler extends Compiler
             }
         };
 
-        try
-        {  
-            //setup the filemanager
-            StandardJavaFileManager sjfm = jc.getStandardFileManager(diagListener, null, fileCharset);
-            List<File> pathList = new ArrayList<File>();
-            List<File> outputList = new ArrayList<File>();
-            outputList.add(getDestDir());
-            pathList.addAll(getClassPath());
-
-            // In BlueJ, the destination directory and the source path are
-            // always the same
-            sjfm.setLocation(StandardLocation.SOURCE_PATH, outputList);
-            sjfm.setLocation(StandardLocation.CLASS_PATH, pathList);
-            File tempDir = null;
-            if (type.keepClasses())
-            {
-                sjfm.setLocation(StandardLocation.CLASS_OUTPUT, outputList);
-            }
-            else
-            {
-                // We could make a new file manager that memory-mapped the output files
-                // and discarded them... but creating a temporary dir is much more
-                // straightforward:
-                tempDir = Files.createTempDirectory("bluej").toFile();
-                sjfm.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(tempDir));
-            }
+        try (StandardJavaFileManager sjfm = jc.getStandardFileManager(diagListener, null, fileCharset)) {
+            sjfm.setLocation(StandardLocation.SOURCE_PATH, Arrays.asList(getDestDir()));
+            sjfm.setLocation(StandardLocation.CLASS_PATH, getClassPath());
+            sjfm.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(outputDir));
 
             //get the source files for compilation  
             Iterable<? extends JavaFileObject> compilationUnits1 =
@@ -224,18 +237,12 @@ public class CompilerAPICompiler extends Compiler
             optionsList.addAll(userOptions);
 
             //compile
-            result = jc.getTask(null, sjfm, diagListener, optionsList, null, compilationUnits1).call();
-            sjfm.close();
-            if (tempDir != null)
-                tempDir.delete();
+            return jc.getTask(null, sjfm, diagListener, optionsList, null, compilationUnits1).call();
         }
-        catch(IOException e)
-        {
+        catch (IOException e) {
             e.printStackTrace(System.out);
             return false;
         }
-
-        return result;
     }
 
     /**

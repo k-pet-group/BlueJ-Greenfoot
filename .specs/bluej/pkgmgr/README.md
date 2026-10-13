@@ -60,6 +60,38 @@ Package manager is a threading hotspot:
 
 ---
 
+## Compilation Completion and Recovery
+
+Package receives one full-selected-source lifecycle from `bluej-compiler`, not per-language completion.
+Its existing final processing remains authoritative: clear selected targets' queue flags, update metadata
+and analyse eligible compiled targets, send extension events and notify chained observers. No intermediate
+language result may clear request state or trigger those completion actions.
+
+Target readiness follows Java-only rules. `ClassTarget.markCompiling` records whether the editor is
+already modified; invalidation during compilation marks the result stale. `markCompiled` must retain
+that stale-edit rejection and only newly mark a target compiled on successful retained output with
+current class files and no known error. Whole-request failure does **not** force already-COMPILED targets
+to an error state or erase output; ordinary final eligibility is preserved. Greenfoot's final reset policy
+is not replaced with a new success-only guard.
+
+Automatic dependency-based subset recovery remains available for failed explicit single-language
+requests, with the existing NEEDS_COMPILE and dependency-error filtering. Successful requests (including
+empty files), check-only, internal and other compile types do not enter that recovery path. Normal
+queued compiles and editor-requested recompilation are separate and remain unchanged.
+
+**Temporary mixed-request exception:** dependency-based subset recovery is suppressed after a failed
+mixed request, since the current dependency graph cannot prove a subset independent of the failed
+language phase. Restoring Java-only parity requires reliable cross-language dependency/error reachability,
+including body uses and inferred types, revision-aware independence checks, and coherent follow-up
+requests. This belongs with deferred source-selection/Kotlin Analysis API work, not a whole-project
+compilation workaround. Normal requested-source selection is unchanged.
+
+Policy regressions cover the request/type/language gate, including generated Java from Stride. They do
+not instantiate a real Project/editor/debugger and therefore do not establish live stale-completion,
+target-state or Greenfoot reset acceptance.
+
+---
+
 ## Dependencies
 
 Uses: `compiler/`, `debugger/`, `editor/`, `parser/`, `groupwork/`, `extensions2/`, `terminal/`, `graph/`
