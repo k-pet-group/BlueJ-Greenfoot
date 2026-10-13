@@ -26,3 +26,7 @@ Entry point for both BlueJ and Greenfoot. Dynamically constructs the classpath f
 
 - Boot uses a custom `URLClassLoader` and reflection to load `bluej.Main`, decoupling the entry point from the full IDE classpath.
 - The splash screen progress bar is intentionally delayed 5 seconds to avoid flicker on fast startups.
+- Greenfoot has separate installed IDE and student selections. Only Kotlin stdlib is added to the
+  shared set; compiler/PSI/metadata and their transitive dependencies are IDE-only. BlueJ retains its
+  existing catch-all IDE selection. See [Kotlin distribution](../kotlin-for-bluej/distribution/README.md)
+  for the dependency/loading contract. Export jar selection is independent and unchanged.

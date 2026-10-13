@@ -30,6 +30,25 @@ Class reflection view layer (12 files). Provides a cached, read-only representat
 
 ---
 
+## Kotlin Metadata Across Loaders
+
+The IDE and student/project classloaders are siblings under Boot, so installed Kotlin classes can
+carry a different `kotlin.Metadata` class identity from the IDE's metadata library. Typed annotation
+lookup alone silently loses companion callables and generated-property labels despite valid bytecode.
+
+The existing companion and property-accessor detectors share a loader-neutral read: use a typed
+annotation when available; otherwise identify `kotlin.Metadata` by annotation type name and copy its
+primitive/String-array values into the metadata library's own annotation factory. Strict metadata
+parsing and the detectors' logged, empty-result failure behavior remain unchanged. This is not a
+reason to expose compiler/metadata jars or the IDE loader to student code.
+
+### Key Lifecycles — Metadata Reads
+
+A read is transient and synchronous with the existing reflective member enumeration. Foreign annotation
+values are adapted for that read only; no extra classloader, global metadata cache or retained student
+annotation is introduced. The resulting member views retain the existing View cache and eviction
+lifecycle. See [companion operations](../../kotlin-for-bluej/diagram/companion-objects/README.md).
+
 ## Dependencies
 
-Uses: Java reflection API (`java.lang.reflect`)
+Uses: Java reflection API (`java.lang.reflect`) and the IDE-only Kotlin metadata library.

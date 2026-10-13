@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017,2018,2019,2019,2020,2021,2022,2023,2024  Poul Henriksen and Michael Kolling
+ Copyright (C) 2017,2018,2019,2019,2020,2021,2022,2023,2024,2026  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,6 +20,20 @@
  LICENSE.txt file that accompanied this code.
  */
 package greenfoot.guifx;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.OptionalInt;
+import java.util.Properties;
+import java.util.Queue;
 
 import bluej.Boot;
 import bluej.Config;
@@ -90,6 +104,7 @@ import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.GreenfootDebugHandler;
 import greenfoot.vmcomm.GreenfootDebugHandler.SimulationStateListener;
 import greenfoot.vmcomm.VMCommsMain;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -135,22 +150,9 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.OptionalInt;
-import java.util.Properties;
-import java.util.Queue;
 
 import static bluej.pkgmgr.target.EditableTarget.MENU_STYLE_INBUILT;
 import static greenfoot.vmcomm.Command.*;
@@ -1127,6 +1129,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     JavaFXUtil.makeMenuItem("java.new.project",
                         new KeyCodeCombination(KeyCode.J, KeyCombination.SHORTCUT_DOWN),
                         () -> {doNewProject(SourceType.Java);}, null
+                    ),
+                    JavaFXUtil.makeMenuItem("kotlin.new.project",
+                        null, () -> doNewProject(SourceType.Kotlin), null
                     ),
                     JavaFXUtil.makeMenuItem("open.project",
                         new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN),
@@ -2305,7 +2310,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     public void newNonImageClass(Package pkg, String superClassName)
     {
-        NewClassDialog dlg = new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType());
+        NewClassDialog dlg = new NewClassDialog(this, pkg);
         dlg.showAndWait().ifPresent(result -> {
             createNewClass(pkg, superClassName, result.className, result.sourceType,
                     getNormalTemplateFileName(result.sourceType));
@@ -2318,7 +2323,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      * @param pkg            The package that should contain the new class.
      * @param superClassName The full qualified name of the super class.
      * @param className      The class's name, which will be created.
-     * @param language       The source type of the class, e.g. Java or Stride.
+     * @param language       The source type of the class: Java, Stride or Kotlin.
      * @param templateFileName  The name of the template file to use
      *
      * @return A class info reference for the class created.
@@ -2326,13 +2331,35 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     private LocalGClassNode createNewClass(Package pkg, String superClassName, String className, SourceType language,
             String templateFileName)
     {
-        try
-        {
-            File dir = project.getProjectDir();
-            final String extension = language.getExtension();
-            File newFile = new File(dir, className + "." + extension);
-            ProjectUtils.createSkeleton(className, superClassName, newFile,
-                    templateFileName, project.getProjectCharset().toString());
+        if (!ClassNameVerifier.isLegalClassName(className, language)
+            || ClassNameVerifier.isWindowsRestrictedWord(className)) {
+            Properties substitutions = new Properties();
+            substitutions.put("LANGUAGE", language.toString());
+            DialogManager.showErrorTextFX(this,
+                Config.getString("newclass.dialog.err.classNameIllegal", null, substitutions, false));
+            return null;
+        }
+        if (ClassNameVerifier.classNameExists(pkg, className)) {
+            DialogManager.showErrorTextFX(this, Config.getString("newclass.dialog.err.classExists"));
+            return null;
+        }
+        try {
+            File newFile = new File(pkg.getPath(), className + "." + language.getExtension());
+            // Reserve our destination so a file created since the dialog check is not overwritten.
+            if (!newFile.createNewFile()) {
+                DialogManager.showErrorTextFX(this, Config.getString("newclass.dialog.err.classExists"));
+                return null;
+            }
+            try {
+                ProjectUtils.createSkeleton(className, superClassName, newFile,
+                        templateFileName, project.getProjectCharset().toString());
+            }
+            catch (IOException ioe) {
+                if (!newFile.delete()) {
+                    Debug.reportError("Could not remove incomplete class source: " + newFile);
+                }
+                throw ioe;
+            }
             ClassTarget newClass = pkg.addClass(className);
 
             // The stride class needs to be compiled to be placed correctly on the class diagram.
@@ -2340,31 +2367,42 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
             return classDiagram.addClass(newClass);
         }
-        catch (IOException ioe)
-        {
+        catch (IOException ioe) {
             Debug.reportError(ioe);
             return null;
         }
     }
 
-    private static String getNormalTemplateFileName(SourceType language)
+    @OnThread(Tag.Any)
+    static String getNormalTemplateFileName(SourceType language)
     {
         return "std" + language + ".tmpl";
     }
 
+    /**
+     * Get the template for an Actor subclass.
+     * @param language source language to generate
+     * @return the localized template filename
+     */
+    @OnThread(Tag.Any)
     public static String getActorTemplateFileName(SourceType language)
     {
         return "actor" + language + ".tmpl";
     }
 
+    /**
+     * Get the template for a World subclass, preserving the constructor delegation shape.
+     * @param makeDirectSubclassOfWorld true for World itself, false for a scenario's World subclass
+     * @param language source language to generate
+     * @return the localized template filename
+     */
+    @OnThread(Tag.Any)
     public static String getWorldTemplateFileName(boolean makeDirectSubclassOfWorld, SourceType language)
     {
-        if (!makeDirectSubclassOfWorld)
-        {
+        if (!makeDirectSubclassOfWorld) {
             return "subworld" + language + ".tmpl";
         }
-        else
-        {
+        else {
             return "world" + language + ".tmpl";
         }
     }
@@ -2396,8 +2434,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
                 // set the image of the class to the selected file, if there is one selected.
                 File imageFile = classInfo.imageFile;
-                if (imageFile != null)
-                {
+                if (newClass != null && imageFile != null) {
                     setImageToClassNode(newClass, imageFile);
                 }
             });
@@ -2417,7 +2454,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      *
      * @param classType   World or Actor. If Other is passed, an IllegalArgumentException will be fired.
      * @param parentName  The direct parent's name.
-     * @param sourceType  Java or Stride.
+     * @param sourceType  Java, Stride or Kotlin.
      * @return The suitable template file name.
      * @throws IllegalStateException Only if the class type is not World or Actor.
      */
@@ -2843,7 +2880,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      * Create new Greenfoot project with a sub class of World.
      *
      * @param dirName The directory to create the project in.
-     * @param sourceType The source type of the project which is either Stride or Java.
+     * @param sourceType The source type of the project: Java, Stride or Kotlin.
      * @return     true if successful, false otherwise
      */
     public boolean newProject(String dirName, SourceType sourceType)
@@ -2862,6 +2899,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 GreenfootStage stage = findStageForProject(proj);
                 LocalGClassNode worldClass = stage.createNewClass(unNamedPkg, "World",
                         "MyWorld", sourceType, getWorldTemplateFileName(true, sourceType));
+                if (worldClass == null) {
+                    return false;
+                }
                 stage.currentWorld = worldClass.getClassTarget();
                 stage.toFront();
                 return true;

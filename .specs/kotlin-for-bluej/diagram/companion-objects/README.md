@@ -39,7 +39,9 @@ actual name (`Companion` by default, or a custom name). This mirrors `KotlinFile
 Detection reuses the `@kotlin.Metadata` mechanism and graceful-degradation contract of
 `KotlinPropertyAccessorDetector` (parser/reflection metadata is the single source of truth for
 "is this Kotlin, and what is its companion"); on any parse failure the class is treated as
-having no companion.
+having no companion. The shared reader also handles independent IDE/student annotation class identities;
+see the [views loader boundary](../../../bluej/views/README.md#kotlin-metadata-across-loaders). This preserves
+installed companion entries without putting metadata/compiler dependencies on the student classpath.
 
 ---
 
