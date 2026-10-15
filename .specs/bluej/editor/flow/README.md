@@ -19,7 +19,7 @@ The traditional text-based Java editor (27 files). Implements the `TextEditor` i
 | `FlowEditor` | Main text editor; extends `ScopeColorsBorderPane`, implements `TextEditor` |
 | `FlowEditorPane` | Custom text rendering pane (extends `BaseEditorPane`) -- NOT JavaFX TextArea |
 | `HoleDocument` | Gap-buffer document with change tracking and tracked positions |
-| `DocumentUndoStack` | Undo/redo with compound edit grouping based on timing, type, and contiguity |
+| `DocumentUndoStack` | Undo/redo with explicit compound edit grouping |
 | `JavaSyntaxView` | Maps parser scope tree to syntax CSS classes and scope background colors; implements `NodeStructureListener` |
 | `FlowErrorManager` | Compiler diagnostic display with squiggly underlines and quick-fix integration |
 | `FlowActions` | Editor action definitions with key binding management |
@@ -35,7 +35,8 @@ The traditional text-based Java editor (27 files). Implements the `TextEditor` i
 - `FlowEditor` is both a JavaFX UI component AND the `TextEditor` implementation
 - `assumeText()` returns `this`; `assumeFrame()` returns `null`
 - `HoleDocument` uses a gap buffer: O(1) amortized sequential edits, O(n) random-access edits
-- `DocumentUndoStack` merges edits based on time proximity (<500ms), type (inserts vs deletes), and contiguity; paste/find-replace always create separate undo units
+- A document replacement creates one undo unit unless explicitly grouped in a compound edit; there is no timing/contiguity-based merge in `DocumentUndoStack`
+- Compound undo groups history only: document listeners still see individual replacements and exceptions do not roll them back. Coordinated Kotlin preparation changes therefore use one enclosing replacement (see `kotlin-for-bluej-editor`).
 - Only visible lines are tokenized and styled (lazy `StyledLines` AbstractList)
 
 ---

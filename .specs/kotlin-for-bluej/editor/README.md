@@ -56,6 +56,29 @@ on `KotlinPsiScopeBuilder` emitting the right `isInner` / container shape.
 
 ---
 
+## PSI-guided source edits
+
+PSI is a detached structural snapshot, not the editor document. Source changes use PSI-derived positions
+and normal editor text replacement, not PSI mutation: the compiler-only environment lacks the tree-copy
+extension point and POM mutation service, and a write-action wrapper does not supply them. This avoids
+installing editor-platform services merely to edit student source.
+
+`KotlinSourceEditor` plans bounded preparation-method/initialization edits. It preserves unrelated text,
+reuses compatible ordinary zero-argument block-bodied Unit methods, and declines malformed or ambiguous
+structure rather than guessing. It does not resolve inherited members or prove constructor/control-flow
+coverage. Supplied statements remain separate so each operation can be indented without rewriting
+embedded argument lines; their expressions are neither converted nor validated.
+
+### Edit lifecycle
+
+A plan is created from the current normalized editor text and contains one enclosing UTF-16 range and
+replacement, including unchanged intervening text. Planning does not modify the document. The caller
+must discard a plan if its source snapshot no longer matches, otherwise apply it through the existing
+document path for undo/dirty notifications. Plans are temporary values, not a second source cache;
+applying one does not establish that the resulting program compiles.
+
+---
+
 ## Refactored Existing Code
 
 - **`JavaParentNode.tokenizeText()`**: `static` -> virtual (enables `KotlinParentNode` override via virtual dispatch; Java behavior unchanged)

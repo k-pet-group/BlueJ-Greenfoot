@@ -2412,66 +2412,89 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @Override
-    public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
+    public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<InsertionResult> after)
     {
-        NodeAndPosition<ParsedNode> classNode = findClassNode();
-        if (classNode != null) {
-            NodeAndPosition<ParsedNode> existingMethodNode = findMethodNode(method.getName(), classNode);
+        InsertionResult result = InsertionResult.FAILED;
+        try {
+            NodeAndPosition<ParsedNode> classNode = findClassNode();
+            if (classNode != null) {
+                NodeAndPosition<ParsedNode> existingMethodNode = findMethodNode(method.getName(), classNode);
 
-            if (existingMethodNode != null) {
-                //Append to existing method:
-                String text = "";
-                for (CodeElement codeElement : method.getContents()) {
-                    text += codeElement.toJavaSource().toTemporaryJavaCodeString();
+                if (existingMethodNode != null) {
+                    //Append to existing method:
+                    String text = "";
+                    for (CodeElement codeElement : method.getContents()) {
+                        text += codeElement.toJavaSource().toTemporaryJavaCodeString();
+                    }
+                    if (appendTextToNode(existingMethodNode, text)) {
+                        result = InsertionResult.EXISTING;
+                    }
                 }
-                appendTextToNode(existingMethodNode, text);
-                after.accept(false);
-                return;
+                else {
+                    //Make a new method:
+                    if (appendTextToNode(classNode, method.toJavaSource().toTemporaryJavaCodeString())) {
+                        result = InsertionResult.INSERTED;
+                    }
+                }
             }
-
-            //Make a new method:
-            appendTextToNode(classNode, method.toJavaSource().toTemporaryJavaCodeString());
-            after.accept(true);
         }
-        after.accept(false);
+        catch (RuntimeException e) {
+            Debug.reportError("Could not insert or append method", e);
+            result = InsertionResult.FAILED;
+        }
+        after.accept(result);
     }
 
     @Override
-    public void insertMethodCallInConstructor(String className, CallElement callElement, FXPlatformConsumer<Boolean> after)
+    public void insertMethodCallInConstructor(String className, CallElement callElement, FXPlatformConsumer<InsertionResult> after)
     {
-        NodeAndPosition<ParsedNode> classNode = findClassNode();
-        if (classNode != null) {
-            NodeAndPosition<ParsedNode> constructor = findMethodNode(className, classNode);
-            if (constructor == null) {
-                addDefaultConstructor(className, callElement);
-            }
-            else {
-                String methodName = callElement.toJavaSource().toTemporaryJavaCodeString();
-                methodName = methodName.substring(0, methodName.indexOf('('));
-                if (!hasMethodCall(methodName, constructor, true)) {
-                    //Add at the end of the constructor:
-                    appendTextToNode(constructor, callElement.toJavaSource().toTemporaryJavaCodeString());
-                    after.accept(true);
-                    return;
+        InsertionResult result = InsertionResult.FAILED;
+        try {
+            NodeAndPosition<ParsedNode> classNode = findClassNode();
+            if (classNode != null) {
+                NodeAndPosition<ParsedNode> constructor = findMethodNode(className, classNode);
+                if (constructor == null) {
+                    if (addDefaultConstructor(className, callElement)) {
+                        result = InsertionResult.INSERTED;
+                    }
+                }
+                else {
+                    String methodName = callElement.toJavaSource().toTemporaryJavaCodeString();
+                    methodName = methodName.substring(0, methodName.indexOf('('));
+                    if (!hasMethodCall(methodName, constructor, true)) {
+                        //Add at the end of the constructor:
+                        if (appendTextToNode(constructor, callElement.toJavaSource().toTemporaryJavaCodeString())) {
+                            result = InsertionResult.INSERTED;
+                        }
+                    }
+                    else {
+                        result = InsertionResult.EXISTING;
+                    }
                 }
             }
         }
-        after.accept(false);
+        catch (RuntimeException e) {
+            Debug.reportError("Could not insert method call in constructor", e);
+            result = InsertionResult.FAILED;
+        }
+        after.accept(result);
     }
 
-    private void addDefaultConstructor(String className, CallElement callElement)
+    private boolean addDefaultConstructor(String className, CallElement callElement)
     {
         NodeAndPosition<ParsedNode> classNode = findClassNode();
         if (classNode != null) {
             //Make a new method:
-            appendTextToNode(classNode, "public " + className + "()\n{\n" + callElement.toJavaSource().toTemporaryJavaCodeString() + "}\n");
+            return appendTextToNode(classNode, "public " + className + "()\n{\n" + callElement.toJavaSource().toTemporaryJavaCodeString() + "}\n");
         }
+        return false;
     }
 
     /**
-     * Appends text to a node that ends in a curly bracket
+     * Appends text to a node that ends in a curly bracket.
+     * @return true if the text was appended, false if no closing bracket was found
      */
-    private void appendTextToNode(NodeAndPosition<ParsedNode> node, String text)
+    private boolean appendTextToNode(NodeAndPosition<ParsedNode> node, String text)
     {
         //The node may have whitespace at the end, so we look for the last closing brace and
         //insert before that:
@@ -2488,11 +2511,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                         node.getPosition() + originalLength + text.length(), oldPos);
                 });
                 setCaretLocation(getLineColumnFromOffset(pos));
-                return;
+                return true;
             }
         }
         Debug.message("Could not find end of node to append to: \"" + getText(getLineColumnFromOffset(
             node.getPosition()), getLineColumnFromOffset(node.getEnd())) + "\"");
+        return false;
     }
 
     private NodeAndPosition<ParsedNode> findClassNode()

@@ -41,7 +41,7 @@ Greenfoot is a 2D game/simulation IDE built on top of BlueJ. Students create sce
 | `gui/` | Low-level rendering: WorldRenderer, keyboard/mouse input managers |
 | `event/` | Observer pattern: SimulationListener, WorldListener, PublishListener |
 | `vmcomm/` | Inter-VM communication via memory-mapped shared memory |
-| `record/` | Screen recording (GreenfootRecorder) |
+| `record/` | Interactive setup recording and source replay (GreenfootRecorder) |
 
 ---
 
@@ -91,16 +91,19 @@ mixed Java/Kotlin/Stride projects. Both IDEs share the mixed-request coordinatio
 `bluej-compiler`; this does not repair omitted inputs or deferred dependency discovery. Source-selection
 correctness waits for Kotlin Analysis API integration, without a whole-scenario compilation workaround.
 Existing Java/Stride scenarios and generated Java invocation shells retain their routes; no new
-language-policy checks or Stride/Kotlin guarantee are added. Save the World, structural
-duplication/import/navigation, and export/publishing remain separate, unverified Kotlin integration
-areas. Their controls are not blocked by this foundation work; no compatibility is claimed for them.
-See the authoring and class-diagram child specs for local contracts.
+language-policy checks or Stride/Kotlin guarantee are added. Kotlin Save
+the World uses structured recording and PSI-guided source insertion under the bounded `greenfoot-record`
+contract; UI completion and compilation are owned by `greenfoot-guifx`. Structural duplication/import/
+navigation and export/publishing remain separate, unverified Kotlin integration areas. Their controls
+are not blocked; no compatibility is claimed for them.
 
-Focused regression coverage protects hierarchy/source-cache/diagram boundaries. Shared real-queue
-regressions additionally cover request isolation, combined failure/completion, BlueJ temporary output
-and Greenfoot retained check-only output. Discovery, class authoring/templates, creation-name handling
-and installed-loader behavior still have no dedicated Greenfoot Kotlin fixtures. Selected-source queue
-probes do not establish complete source selection or live installed GUI/runtime acceptance.
+Focused regression coverage protects hierarchy/source-cache/diagram boundaries and setup recording,
+source generation, document undo and save acknowledgement. Shared real-queue regressions additionally
+cover request isolation, combined failure/completion, BlueJ temporary output and Greenfoot retained
+check-only output. Discovery, class authoring/templates, creation-name handling and installed-loader
+behavior still have no dedicated Greenfoot Kotlin fixtures. Selected-source queue probes do not establish
+complete source selection. Compiler/direct-engine and editor tests do not establish live installed
+GUI/runtime acceptance.
 
 ## Existing Documentation
 

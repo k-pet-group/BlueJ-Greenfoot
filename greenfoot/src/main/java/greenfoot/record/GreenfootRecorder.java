@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011,2014,2015,2016,2018 Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2010,2011,2014,2015,2016,2018,2026 Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,22 +21,30 @@
  */
 package greenfoot.record;
 
-import bluej.debugger.DebuggerObject;
-import bluej.editor.Editor;
-import bluej.utility.javafx.FXPlatformFunction;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import bluej.Config;
+import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaType;
+import bluej.editor.Editor;
+import bluej.editor.TextEditor;
+import bluej.extensions2.SourceType;
+import bluej.parser.SourceLocation;
+import bluej.parser.kotlin.KotlinSourceEditor;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
-import bluej.stride.framedjava.elements.VarElement;
+import bluej.utility.Debug;
+import bluej.utility.JavaNames;
+import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformFunction;
+import greenfoot.record.RecordedAction.Arguments;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -48,7 +56,7 @@ public class GreenfootRecorder
 {
     /** A map of known objects to their name as it appears in the code */
     private final HashMap<DebuggerObject, String> objectNames;
-    private final ArrayList<CodeElement> code;
+    private final List<RecordedAction> actions;
     private DebuggerObject world;
     
     public static final String METHOD_ACCESS = "private";
@@ -58,6 +66,33 @@ public class GreenfootRecorder
     
     // Only valid if no run has occurred in the mean time. 
     private boolean validToSave = false;
+    private long recordingGeneration;
+    private Recording saving;
+
+    /** The current source destination, resolved by the UI rather than inferred from recorded expressions.
+     * @param editor the editor owning the current source buffer
+     * @param sourceType the World target's source language
+     */
+    public record WorldSource(Editor editor, SourceType sourceType)
+    {
+    }
+
+    /** Completion of source insertion, not of persistence or compilation. */
+    public enum SaveResult
+    {
+        /** The captured actions were inserted and consumed. */
+        SAVED,
+        /** Act/Run has made the recording invalid. */
+        INVALID_RECORDING,
+        /** Editing failed; the recording is retained and partial source edits may remain. */
+        EDIT_FAILED,
+        /** This request was superseded or another save is still pending. */
+        CANCELLED
+    }
+
+    private record Recording(long generation, String className, List<RecordedAction> actions)
+    {
+    }
 
     /**
      * Construct a new GreenfootRecorder instance.
@@ -65,13 +100,13 @@ public class GreenfootRecorder
     public GreenfootRecorder()
     {
         objectNames = new HashMap<>();
-        code = new ArrayList<>();
+        actions = new ArrayList<>();
     }
 
     /**
      * Record the interactive construction of an actor object.
      * @param actor   The newly constructed actor
-     * @param args     The arguments supplied to the actor's constructor, as Java expresssions
+     * @param args     The arguments supplied to the actor's constructor, as Java expressions
      * @param paramTypes  The parameter types of the called constructor
      */
     @OnThread(Tag.Any)
@@ -81,8 +116,8 @@ public class GreenfootRecorder
         String className = actor.getGenType().toString(true);
         String name = nameActor(actor);
         if (name != null) {
-            code.add(new VarElement(null, className, name,  "new " + className
-                    + "(" + withCommas(args, paramTypes, false) + ")"));
+            // Constructor capture does not supply a varargs flag; retain the existing non-varargs handling.
+            actions.add(new RecordedAction.Create(className, name, Arguments.capture(args, paramTypes, false)));
         }
     }
     
@@ -128,43 +163,6 @@ public class GreenfootRecorder
     }
     
     /**
-     * Insert commas and other necessary syntax into an argument list
-     * @param args      The arguments to a method or constructor call (as Java expressions)
-     * @param paramTypes  The parameter types of the method/constructor
-     * @return  The arguments as a comma-separated list
-     */
-    @OnThread(Tag.Any)
-    @SuppressWarnings("threadchecker")
-    private static String withCommas(String[] args, JavaType[] paramTypes, boolean isVarArgs)
-    {
-        if (args == null) {
-            return "";
-        }
-        
-        StringBuffer commaArgs = new StringBuffer();
-        
-        for (int i = 0; i < args.length;i++) {
-            String arg = args[i].trim();
-            if (arg.startsWith("{") && arg.endsWith("}")) {
-                String paramTypeName;
-                if (isVarArgs && i >= paramTypes.length - 1) {
-                    paramTypeName = paramTypes[paramTypes.length - 1].toString();
-                    paramTypeName = paramTypeName.substring(0,paramTypeName.length()-2);
-                }
-                else {
-                    paramTypeName = paramTypes[i].toString();
-                }
-                arg = "new " + paramTypeName + " " + arg;
-            }
-            commaArgs.append(arg);
-            if (i != args.length - 1) {
-                commaArgs.append(", ");
-            }
-        }
-        return commaArgs.toString();
-    }
-    
-    /**
      * An actor was interactively added to the world: record the interaction
      * @param actor   The added actor
      * @param x       The actor's x position
@@ -178,7 +176,7 @@ public class GreenfootRecorder
             //An actor that we don't know about is being added to the world: ignore
             return;
         }
-        code.add(callElement("addObject(" + actorObjectName + "," + String.valueOf(x) + "," + String.valueOf(y) + ")"));
+        actions.add(new RecordedAction.Add(actorObjectName, x, y));
     }
 
     /**
@@ -186,7 +184,6 @@ public class GreenfootRecorder
      * successfully returns.
      * 
      * @param obj        The object on which the method was invoked
-     * @param actorName  The assigned object name
      * @param method     The method being called
      * @param args       The arguments to the method, as Java expressions
      * @param paramTypes  The parameter types of the method
@@ -198,15 +195,16 @@ public class GreenfootRecorder
             //Method is being called on an actor we don't know about: ignore
             return;
         }
-        String name;
+        String receiver;
         if (world != null && world.equals(obj)) {
             // Called on the world, so don't use the world's object name before the call:
-            name = method.getName();
+            receiver = null;
         }
         else {
-            name = objectNames.get(obj) + "." + method.getName();
+            receiver = String.valueOf(objectNames.get(obj));
         }
-        code.add(callElement(name + "(" + withCommas(args, paramTypes, method.isVarArgs()) + ")"));
+        actions.add(new RecordedAction.MethodCall(receiver, false, method,
+                Arguments.capture(args, paramTypes, method.isVarArgs())));
     }
 
     /**
@@ -215,13 +213,13 @@ public class GreenfootRecorder
      * 
      * @param className  The name of the class to which the called method belongs
      * @param method     The method
-     * @param args       The arguments to the method, as a
-     * @param argTypes
+     * @param args       The arguments to the method, as Java expressions
+     * @param argTypes   The parameter types of the method
      */
-    public void callStaticMethod(String className, Method method, String[] args, JavaType[] argTypes)
+    public synchronized void callStaticMethod(String className, Method method, String[] args, JavaType[] argTypes)
     {
-        code.add(callElement(className + "." + method.getName() + 
-                "(" + withCommas(args, argTypes, method.isVarArgs()) + ")"));
+        actions.add(new RecordedAction.MethodCall(className, true, method,
+                Arguments.capture(args, argTypes, method.isVarArgs())));
     }
     
     /**
@@ -231,7 +229,8 @@ public class GreenfootRecorder
      */
     public synchronized void clearCode(boolean clearObjectNames)
     {
-        code.clear();
+        actions.clear();
+        recordingGeneration++;
         if (clearObjectNames)
         {
             objectNames.clear();
@@ -243,6 +242,9 @@ public class GreenfootRecorder
      */
     public synchronized void setWorld(DebuggerObject newWorld)
     {
+        if (!Objects.equals(world, newWorld)) {
+            recordingGeneration++;
+        }
         world = newWorld;
         lastWorldClass = newWorld.getClassName();
     }
@@ -250,6 +252,9 @@ public class GreenfootRecorder
     /**
      * Record a dragged actor interaction. This is currently called from the simulation
      * thread (i.e. with the world locked).
+     * @param actor  The actor being moved
+     * @param xCell  The actor's new x position
+     * @param yCell  The actor's new y position
      */
     public synchronized void moveActor(DebuggerObject actor, int xCell, int yCell)
     {
@@ -260,13 +265,14 @@ public class GreenfootRecorder
             // We'll just have to ignore it
             return;
         }
-        code.add(callElement(actorObjectName + ".setLocation(" + String.valueOf(xCell) + "," + String.valueOf(yCell) + ")"));
+        actions.add(new RecordedAction.Move(actorObjectName, xCell, yCell));
     }
 
     /**
      * Record a remove actor interaction.
+     * @param obj  The actor being removed
      */
-    public void removeActor(DebuggerObject obj)
+    public synchronized void removeActor(DebuggerObject obj)
     {
         String actorObjectName = objectNames.get(obj);
         if (null == actorObjectName) {
@@ -275,26 +281,71 @@ public class GreenfootRecorder
             // We'll just have to ignore it
             return;
         }
-        code.add(callElement("removeObject(" + actorObjectName + ")"));
+        actions.add(new RecordedAction.Remove(actorObjectName));
         objectNames.remove(obj);
     }
 
     /**
      * Retrieve the code elements representing the interactions recorded up to this point.
+     * @return a fresh, mutable snapshot rendered as Java/Stride code elements
      */
-    public synchronized List<CodeElement> getCode()
+    public List<CodeElement> getCode()
     {
-        return new LinkedList<CodeElement>(code);
+        return javaCode(snapshotActions());
     }
 
+    private synchronized List<RecordedAction> snapshotActions()
+    {
+        return List.copyOf(actions);
+    }
+
+    private static List<CodeElement> javaCode(List<RecordedAction> recorded)
+    {
+        List<CodeElement> code = new LinkedList<>();
+        for (RecordedAction action : recorded) {
+            code.add(action.toJava());
+        }
+        return code;
+    }
+
+    /**
+     * Retrieve native Kotlin statements representing the interactions recorded up to this point.
+     * @return a fresh, mutable snapshot of statements without indentation or a method wrapper
+     */
+    @OnThread(Tag.FXPlatform)
+    public List<String> getKotlinCode()
+    {
+        return kotlinCode(snapshotActions());
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private static List<String> kotlinCode(List<RecordedAction> recorded)
+    {
+        List<String> code = new ArrayList<>(recorded.size());
+        for (RecordedAction action : recorded) {
+            code.add(action.toKotlin());
+        }
+        return code;
+    }
+
+    /**
+     * Build the prepare method from a snapshot of the recorded interactions.
+     * @return the Java/Stride prepare method
+     */
     public NormalMethodElement getPrepareMethod()
     {
-        StringBuffer documentation = new StringBuffer();
-        documentation.append(Config.getString("record.method.comment1")).append("\n");
-        documentation.append(Config.getString("record.method.comment2"));
-        
+        return prepareMethod(snapshotActions());
+    }
+
+    private static NormalMethodElement prepareMethod(List<RecordedAction> recorded)
+    {
         return new NormalMethodElement(METHOD_ACCESS, METHOD_RETURN, METHOD_NAME,
-                null, code, documentation.toString());
+            null, javaCode(recorded), preparationDocumentation());
+    }
+
+    private static String preparationDocumentation()
+    {
+        return Config.getString("record.method.comment1") + "\n" + Config.getString("record.method.comment2");
     }
 
     public CallElement getPrepareMethodCall()
@@ -308,44 +359,167 @@ public class GreenfootRecorder
     }
 
     /**
-     * Write the recorded code to the world class. 
-     * @param getEditor A function that takes a world class name and returns an editor
-     * @return True if world code successfully saved, false if it could not because save the world isn't valid.
+     * Insert a snapshot of the recorded setup into the World's source.
+     * @param getWorldSource resolves the current editor and language for the recorded World class
+     * @param after completion on the FX thread, possibly deferred while a frame editor loads;
+     *              only SAVED permits the caller to request compilation
      */
     @OnThread(Tag.FXPlatform)
-    public boolean writeCode(FXPlatformFunction<String, Editor> getEditor)
+    public void writeCode(FXPlatformFunction<String, WorldSource> getWorldSource, FXPlatformConsumer<SaveResult> after)
     {
-        if (!validToSave)
-        {
-            return false;
-        }
-        
-        NormalMethodElement method = getPrepareMethod();
-        CallElement methodCall = getPrepareMethodCall();
-
-        Editor editor = getEditor.apply(lastWorldClass);
-        editor.insertMethodCallInConstructor(lastWorldClass, methodCall, inserted -> {});
-        editor.insertAppendMethod(method, inserted -> {
-            if (inserted)
-            {
-                editor.setEditorVisible(true, false);
+        Recording recording = null;
+        SaveResult result;
+        synchronized (this) {
+            result = !validToSave ? SaveResult.INVALID_RECORDING : saving != null ? SaveResult.CANCELLED : null;
+            if (result == null) {
+                recording = new Recording(recordingGeneration, lastWorldClass, List.copyOf(actions));
+                saving = recording;
             }
-        });
-        // Now that we've inserted the code, we must reset the recorder,
-        // so that if the user saves the world again before re-compiling,
-        // it doesn't insert the same code twice.  If the user scrubs our method
-        // and saves the world before re-compiling this will then go wrong
-        // (by inserting code depending on objects no longer there) but that
-        // seems less likely:
-        clearCode(false);
-        
-        return true;
+        }
+        if (result != null) {
+            after.accept(result);
+            return;
+        }
+        Recording request = recording;
+        try {
+            WorldSource source = request.className() == null ? null : getWorldSource.apply(request.className());
+            if (source == null || source.editor() == null || source.editor().isReadOnly()) {
+                result = SaveResult.EDIT_FAILED;
+            }
+            else if (!isCurrent(request)) {
+                result = SaveResult.CANCELLED;
+            }
+            else if (source.sourceType() == SourceType.Kotlin) {
+                result = writeKotlin(request, source, getWorldSource);
+            }
+            else if (source.sourceType() == SourceType.Java || source.sourceType() == SourceType.Stride) {
+                NormalMethodElement method = prepareMethod(request.actions());
+                source.editor().insertMethodCallInConstructor(request.className(), getPrepareMethodCall(), constructor -> {
+                    if (!inserted(constructor)) {
+                        finish(request, SaveResult.EDIT_FAILED, after);
+                        return;
+                    }
+                    try {
+                        source.editor().insertAppendMethod(method, appended -> {
+                            if (appended == Editor.InsertionResult.INSERTED) {
+                                showPreparedSource(source.editor());
+                            }
+                            finish(request, inserted(appended) ? SaveResult.SAVED : SaveResult.EDIT_FAILED, after);
+                        });
+                    }
+                    catch (RuntimeException e) {
+                        insertionFailed(request, e, after);
+                    }
+                });
+                return;
+            }
+            else {
+                result = SaveResult.EDIT_FAILED;
+            }
+        }
+        catch (RuntimeException e) {
+            insertionFailed(request, e, after);
+            return;
+        }
+        finish(request, result, after);
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private SaveResult writeKotlin(Recording request, WorldSource destination,
+                                   FXPlatformFunction<String, WorldSource> getWorldSource)
+    {
+        TextEditor editor = destination.editor().assumeText();
+        String source = editorText(editor);
+        KotlinSourceEditor.Edit edit = KotlinSourceEditor.appendPreparation(source,
+            JavaNames.getBase(request.className()), METHOD_NAME, kotlinCode(request.actions()), preparationDocumentation());
+        if (edit == null) {
+            return SaveResult.EDIT_FAILED;
+        }
+        WorldSource current = getWorldSource.apply(request.className());
+        if (!isCurrent(request) || current == null || current.editor() != destination.editor()
+            || current.sourceType() != destination.sourceType()) {
+            return SaveResult.CANCELLED;
+        }
+        if (editor.isReadOnly() || !source.equals(editorText(editor))) {
+            return SaveResult.EDIT_FAILED;
+        }
+        if (edit.start() != edit.end() || !edit.replacement().isEmpty()) {
+            // One enclosing replacement keeps init and method changes in the same undo operation.
+            editor.setText(editor.getLineColumnFromOffset(edit.start()), editor.getLineColumnFromOffset(edit.end()),
+                edit.replacement());
+        }
+        if (edit.newMethod()) {
+            showPreparedSource(editor);
+        }
+        return SaveResult.SAVED;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private static String editorText(TextEditor editor)
+    {
+        return editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(editor.getTextLength()));
+    }
+
+    private static boolean inserted(Editor.InsertionResult result)
+    {
+        return result == Editor.InsertionResult.INSERTED || result == Editor.InsertionResult.EXISTING;
+    }
+
+    private synchronized boolean isCurrent(Recording recording)
+    {
+        return saving == recording && recording.generation() == recordingGeneration;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private void insertionFailed(Recording request, RuntimeException failure, FXPlatformConsumer<SaveResult> after)
+    {
+        synchronized (this) {
+            // A synchronous completion callback may throw; that is not an insertion failure.
+            if (saving != request) {
+                throw failure;
+            }
+        }
+        Debug.reportError("Could not insert recorded World setup", failure);
+        finish(request, SaveResult.EDIT_FAILED, after);
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private void finish(Recording request, SaveResult result, FXPlatformConsumer<SaveResult> after)
+    {
+        synchronized (this) {
+            if (saving != request) {
+                return;
+            }
+            if (request.generation() != recordingGeneration) {
+                result = SaveResult.CANCELLED;
+            }
+            else if (result == SaveResult.SAVED) {
+                // Consume only the acknowledged prefix, retaining later captures and replay names.
+                // As before, manually deleting saved setup can leave subsequent actions referring
+                // to actors whose declarations no longer exist; source reconstruction is not inferred.
+                actions.subList(0, request.actions().size()).clear();
+            }
+            saving = null;
+        }
+        after.accept(result);
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private static void showPreparedSource(Editor editor)
+    {
+        try {
+            editor.setEditorVisible(true, false);
+        }
+        catch (RuntimeException e) {
+            // Failure to open a window must not turn an already completed source insertion into a retry.
+            Debug.reportError("Could not show recorded World setup", e);
+        }
     }
 
     /**
      * Mark the recording as not valid (because Act/Run has been used)
      */
-    public void invalidateRecording()
+    public synchronized void invalidateRecording()
     {
         validToSave = false;
     }
@@ -354,7 +528,7 @@ public class GreenfootRecorder
      * Mark the recording as valid, because the user has manually created a World, 
      * or triggered a reset (including by recompiling or focusing main window).
      */
-    public void recordingValid()
+    public synchronized void recordingValid()
     {
         validToSave = true;
     }
