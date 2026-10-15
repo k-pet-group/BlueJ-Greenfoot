@@ -77,7 +77,6 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformFunction;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
@@ -99,6 +98,7 @@ import greenfoot.guifx.images.NewImageClassFrame;
 import greenfoot.guifx.images.SelectImageFrame;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
 import greenfoot.record.GreenfootRecorder;
+import greenfoot.record.GreenfootRecorder.WorldSource;
 import greenfoot.sound.SoundPreferencePanel;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.GreenfootDebugHandler;
@@ -1174,28 +1174,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
         Menu toolsMenu = new Menu(Config.getString("menu.tools"), null);
         toolsMenu.getItems().addAll(
-                JavaFXUtil.makeMenuItem(Config.getString("save.world"), () -> {
-                    FXPlatformFunction<String, Editor> fetchEditorByName = className -> {
-                        Target t = project.getTarget(className);
-                        if (t instanceof ClassTarget)
-                        {
-                            return ((ClassTarget) t).getEditor();
-                        }
-                        else
-                        {
-                            return null;
-                        }
-                    };
-                    if (!saveTheWorldRecorder.writeCode(fetchEditorByName))
-                    {
-                        DialogManager.showErrorFX(this, "cannot-save-world");
-                    }
-                    else
-                    {
-                        this.project.scheduleCompilation(true, CompileReason.USER,
-                                CompileType.INDIRECT_USER_COMPILE, this.project.getUnnamedPackage());
-                    }
-                }, null),
+                JavaFXUtil.makeMenuItem("save.world", null, this::doSaveWorld, hasNoProject),
                 JavaFXUtil.makeMenuItem(Config.getString("menu.tools.recompileAll"), () -> project.getUnnamedPackage().rebuild(), null),
                 JavaFXUtil.makeMenuItem("menu.tools.generateDoc",new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN),
                         this::generateDocumentation, hasNoProject),
@@ -1257,6 +1236,42 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
         menuBar.setUseSystemMenuBar(true);
         return menuBar;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private void doSaveWorld()
+    {
+        Project saveProject = project;
+        GreenfootRecorder recorder = saveTheWorldRecorder;
+        if (saveProject == null || recorder == null) {
+            return;
+        }
+
+        recorder.writeCode(className -> {
+            if (project != saveProject || saveTheWorldRecorder != recorder) {
+                return null;
+            }
+            // The recorded World may differ from the one whose context menu was opened.
+            Target target = saveProject.getTarget(className);
+            if (!(target instanceof ClassTarget classTarget) || !classTarget.hasSourceCode()) {
+                return null;
+            }
+            Editor editor = classTarget.getEditor();
+            return editor == null ? null : new WorldSource(editor, classTarget.getSourceType());
+        }, result -> {
+            if (project != saveProject || saveTheWorldRecorder != recorder) {
+                return;
+            }
+            switch (result) {
+                case SAVED -> saveProject.scheduleCompilation(true, CompileReason.USER,
+                        CompileType.INDIRECT_USER_COMPILE, saveProject.getUnnamedPackage());
+                case INVALID_RECORDING -> DialogManager.showErrorFX(this, "cannot-save-world");
+                case EDIT_FAILED -> DialogManager.showErrorFX(this, "cannot-save-world-source");
+                case CANCELLED -> {
+                    // A superseded or overlapping save needs no UI action.
+                }
+            }
+        });
     }
 
     /**
@@ -1890,17 +1905,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                         
                         MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
                         JavaFXUtil.addStyleClass(saveTheWorld, MENU_STYLE_INBUILT);
-                        saveTheWorld.setOnAction(e -> {
-                            if (!saveTheWorldRecorder.writeCode(className -> ((ClassTarget) target).getEditor()))
-                            {
-                                DialogManager.showErrorFX(this, "cannot-save-world");
-                            }
-                            else
-                            {
-                                this.project.scheduleCompilation(true, CompileReason.USER,
-                                        CompileType.INDIRECT_USER_COMPILE, this.project.getUnnamedPackage());
-                            }
-                        });
+                        saveTheWorld.setOnAction(e -> doSaveWorld());
                         contextMenu.getItems().add(saveTheWorld);
 
                         Point2D screenLocation = worldDisplay.worldToScreen(curPickPoint);

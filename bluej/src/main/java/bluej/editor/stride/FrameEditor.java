@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022,2024,2025 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2022,2024,2025,2026 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -674,14 +674,14 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
+            public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<InsertionResult> after)
             {
                 FrameEditor.this.insertAppendMethod(method, after);
             }
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void insertMethodCallInConstructor(String className, CallElement methodName, FXPlatformConsumer<Boolean> after)
+            public void insertMethodCallInConstructor(String className, CallElement methodName, FXPlatformConsumer<InsertionResult> after)
             {
                 FrameEditor.this.insertMethodCallInConstructor(className, methodName, after);
             }
@@ -1299,7 +1299,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
+    public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<InsertionResult> after)
     {
         if (panel == null)
         {
@@ -1310,7 +1310,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void insertMethodCallInConstructor(String className, CallElement methodName, FXPlatformConsumer<Boolean> after)
+    public void insertMethodCallInConstructor(String className, CallElement methodName, FXPlatformConsumer<InsertionResult> after)
     {
         if (panel == null)
         {

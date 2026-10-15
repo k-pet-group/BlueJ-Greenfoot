@@ -4,6 +4,7 @@ type: submodule-design
 title: "Greenfoot JavaFX UI"
 status: active
 parent: greenfoot
+depends-on: [greenfoot-record]
 ---
 
 # Greenfoot JavaFX UI
@@ -88,15 +89,34 @@ stages must not separately discard or reset the World. The existing final behavi
 Project is ignored, focus controls reset, then messages/grouping are refreshed. No new success-only reset
 guard is introduced. Target readiness and stale-edit rejection remain owned by `bluej-pkgmgr`.
 
+## Save the World Lifecycle
+
+- Tools and World context-menu saves share one FX-thread request path. Each request captures its
+  Project and recorder identities. Source lookup uses the recorder's World class name to resolve the
+  current ClassTarget in that Project, returning its editor and source type; it must not reuse the
+  context menu's captured target, which may describe a different World. No current project means no
+  request; missing targets, source or editors are ordinary source-edit failures, not language policy.
+- Completion belongs to the captured Project/recorder pair. A callback is ignored if either identity
+  has changed. Only `SAVED`, after the source edit and recording-snapshot acknowledgement, requests
+  compilation. This acknowledges editing, not disk persistence or successful compilation; see the
+  [recorder contract](../record/README.md) and
+  [editor acknowledgement contract](../../bluej/editor/README.md#source-insertion-acknowledgement).
+- `INVALID_RECORDING` preserves the existing Act/Run explanation. `EDIT_FAILED` uses a distinct
+  source-error dialogue: the recording is retained, and users should inspect source before retrying
+  because partial edits may remain. `CANCELLED` (superseded/overlapping saves) neither reports a false
+  source error nor compiles. The recorder owns snapshot consumption and cancellation, not the menus.
+
 ## Scope and Verification Limits
 
-This authoring increment does not implement Save World, structural duplication/import, export or
-publishing, nor does it reject those deferred workflows. Shared mixed-request correctness follows
-`bluej-compiler`; full mixed-project source selection and project-language enforcement remain outside
-this supported local workflow. No whole-scenario compilation fallback is added. The existing duplication
+Save the World follows the bounded `greenfoot-record` replay contract, including its deferred expression
+and source-name compatibility cases; it is not general Kotlin replay support. Shared mixed-request
+correctness follows `bluej-compiler`; full mixed-project source selection remains deferred. Structural
+duplication/import, surrounding workflows and export/publishing remain separate integration areas.
+No language-policy rejection or whole-scenario compilation fallback is added. The existing duplication
 dialog still uses its explicit source language; adding Kotlin creation is not a claim that duplication
 is Kotlin-aware.
 
-The retained [local Kotlin regression coverage](../README.md#kotlin-local-scenarios) exercises hierarchy
-metadata boundaries, not source generation, name/collision handling or the live dialogs. Installed
-create/reopen and execution acceptance must be checked separately.
+M1 acceptance limits are unchanged. Its hierarchy fixtures and the newer
+[recording/source/editor regressions](../README.md#kotlin-local-scenarios) do not exercise live dialogs.
+Installed create/reopen and execution acceptance remains unconfirmed; automated M2 save checks do not
+establish that acceptance or live Save/Reset/reopen verification.

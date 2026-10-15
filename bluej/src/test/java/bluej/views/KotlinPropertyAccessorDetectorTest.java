@@ -292,6 +292,31 @@ public class KotlinPropertyAccessorDetectorTest
         assertEquals(5, names.size());
     }
 
+    /**
+     * Renamed accessors resolve to their Kotlin property, while an ordinary overload does not.
+     *
+     * @throws Exception if fixture loading, method lookup or classloader cleanup fails
+     */
+    @Test
+    public void testReplayPropertyNames() throws Exception
+    {
+        compileAndDetect("ReplayProperties.kt", """
+            class ReplayProperties {
+                @get:JvmName("readURL")
+                @set:JvmName("writeURL")
+                var URL: Int = 0
+                fun writeURL(value: String) {}
+            }
+            """, "ReplayProperties");
+
+        try (URLClassLoader loader = new URLClassLoader(new URL[]{outputDir.toUri().toURL()}, getClass().getClassLoader())) {
+            Class<?> type = loader.loadClass("ReplayProperties");
+            assertEquals("URL", KotlinPropertyAccessorDetector.getPropertyName(type.getMethod("readURL")));
+            assertEquals("URL", KotlinPropertyAccessorDetector.getPropertyName(type.getMethod("writeURL", int.class)));
+            assertNull(KotlinPropertyAccessorDetector.getPropertyName(type.getMethod("writeURL", String.class)));
+        }
+    }
+
     // --- Test infrastructure ---
 
     /**
