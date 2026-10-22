@@ -2189,7 +2189,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     public void duplicateClass(LocalGClassNode originalNode, ClassTarget originalClassTarget)
     {
-        String originalClassName = originalClassTarget.getDisplayName();
+        String originalClassName = originalClassTarget.getBaseName();
         SourceType sourceType = originalClassTarget.getSourceType();
         NewClassDialog dialog = new NewClassDialog(this, sourceType);
         dialog.setSuggestedClassName("CopyOf" + originalClassName);

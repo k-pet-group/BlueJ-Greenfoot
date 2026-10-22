@@ -38,6 +38,11 @@ The traditional text-based Java editor (27 files). Implements the `TextEditor` i
 - A document replacement creates one undo unit unless explicitly grouped in a compound edit; there is no timing/contiguity-based merge in `DocumentUndoStack`
 - Compound undo groups history only: document listeners still see individual replacements and exceptions do not roll them back. Coordinated Kotlin preparation changes therefore use one enclosing replacement (see `kotlin-for-bluej-editor`).
 - Only visible lines are tokenized and styled (lazy `StyledLines` AbstractList)
+- Deferred scope repaint requests are checked against the current document line count after layout;
+  undo/deletion may remove a queued line before it is processed. Such requests are discarded rather than
+  indexing stale lines. This does not change undo grouping or document notification behavior.
+- Insert Method follows the editor's source language; Kotlin template/fallback behavior is owned by
+  `kotlin-for-bluej-editor`.
 
 ---
 

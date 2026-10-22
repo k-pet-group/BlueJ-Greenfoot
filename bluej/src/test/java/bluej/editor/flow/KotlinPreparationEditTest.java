@@ -31,11 +31,13 @@ import bluej.Config;
 import bluej.editor.TextEditor;
 import bluej.parser.InitConfig;
 import bluej.parser.SourceLocation;
+import bluej.parser.kotlin.KotlinEnvironmentManager;
 import bluej.parser.kotlin.KotlinSourceEditor;
 
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -45,7 +47,7 @@ import static org.junit.Assert.*;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-/** Exercises Kotlin preparation planning through the real editor document and undo stack. */
+/** Exercises Kotlin source insertion through the real editor document and undo stack. */
 public class KotlinPreparationEditTest extends FXTest
 {
     /** Holds the source file loaded by the editor. */
@@ -116,6 +118,36 @@ public class KotlinPreparationEditTest extends FXTest
 
         fx_(() -> editor.getActions().getActionByName("undo").actionPerformed(false));
         assertEquals(before, source());
+        fx_(() -> editor.getActions().getActionByName("redo").actionPerformed(false));
+        assertEquals(after, source());
+    }
+
+    /**
+     * The existing Insert Method action must generate Kotlin and remain one undoable edit.
+     * @throws IOException if the temporary source cannot be written
+     */
+    @Test
+    public void testInsertMethodUsesKotlinTemplate() throws IOException
+    {
+        String initial = "class Scene {\n}\n";
+        Path file = temporary.newFile("Scene.kt").toPath();
+        Files.writeString(file, initial, StandardCharsets.UTF_8);
+        assertTrue(fx(() -> editor.showFile(file.toString(), StandardCharsets.UTF_8, false, null)));
+        assertFalse(fx(() -> editor.isModified()));
+        fx_(() -> {
+            editor.enableParser(true);
+            editor.getSourceDocument().flushReparseQueue();
+            editor.getSourcePane().positionCaret(initial.indexOf('}'));
+            editor.getActions().getActionByName("insert-method").actionPerformed(false);
+        });
+        String after = source();
+        assertTrue(after, after.contains("    fun sampleMethod(y: Int): Int"));
+        assertTrue(after, after.contains("        return y\n"));
+        assertFalse(after, after.contains("public int"));
+        assertFalse(PsiTreeUtil.hasErrorElements(KotlinEnvironmentManager.getPsiFactory().createFile(after)));
+        assertTrue(fx(() -> editor.isModified()));
+        fx_(() -> editor.getActions().getActionByName("undo").actionPerformed(false));
+        assertEquals(initial, source());
         fx_(() -> editor.getActions().getActionByName("redo").actionPerformed(false));
         assertEquals(after, source());
     }

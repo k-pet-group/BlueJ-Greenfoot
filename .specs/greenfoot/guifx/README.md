@@ -106,15 +106,26 @@ guard is introduced. Target readiness and stale-edit rejection remain owned by `
   because partial edits may remain. `CANCELLED` (superseded/overlapping saves) neither reports a false
   source error nor compiles. The recorder owns snapshot consumption and cancellation, not the menus.
 
+## Class Duplication
+
+Duplication is a best-effort source copy, not a semantic rename. Its language-locked dialog uses the source
+basename, not the generic display label. Kotlin copying delegates to the identifier-rewriting contract in
+`kotlin-for-bluej-editor`; Java/Stride retain their legacy text copier. After writing, the existing path
+registers the target, reuses the original image association and requests compilation.
+
+This path is distinct from normal creation safety: it retains the existing collision/overwrite policy,
+reads disk rather than explicitly saving an open editor, and uses the JVM-default charset as the legacy
+copier does. It does not promise transactionality or compilation success. Broader hardening is not part
+of the agreed Java-parity behavior.
+
 ## Scope and Verification Limits
 
 Save the World follows the bounded `greenfoot-record` replay contract, including its deferred expression
-and source-name compatibility cases; it is not general Kotlin replay support. Shared mixed-request
-correctness follows `bluej-compiler`; full mixed-project source selection remains deferred. Structural
-duplication/import, surrounding workflows and export/publishing remain separate integration areas.
-No language-policy rejection or whole-scenario compilation fallback is added. The existing duplication
-dialog still uses its explicit source language; adding Kotlin creation is not a claim that duplication
-is Kotlin-aware.
+and source-name compatibility cases; it is not general Kotlin replay support. Imports and their bundled
+Java source helpers are deliberately unchanged; no external-source chooser, Kotlin helper ports or catalog
+filter change is supplied. Shared mixed-request correctness follows `bluej-compiler`; full mixed-project
+source selection, export/publishing and unsupported-workflow guards remain outside this supported local
+workflow. No new language-policy rejection or whole-scenario compilation fallback is added.
 
 M1 acceptance limits are unchanged. Its hierarchy fixtures and the newer
 [recording/source/editor regressions](../README.md#kotlin-local-scenarios) do not exercise live dialogs.

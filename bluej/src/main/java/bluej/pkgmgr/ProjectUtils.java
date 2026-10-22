@@ -27,6 +27,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -34,6 +35,7 @@ import java.util.Hashtable;
 import bluej.Config;
 import bluej.debugger.Debugger;
 import bluej.extensions2.SourceType;
+import bluej.parser.kotlin.KotlinSourceEditor;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
@@ -162,14 +164,29 @@ public class ProjectUtils
     }
 
     /**
-     * Creates the duplicate for a class
+     * Copy a class with best-effort name substitution, not semantic refactoring.
+     *
+     * @param originalClassName source class name without generic parameters
+     * @param destinationClassName validated new class name
+     * @param originalFile source file to read
+     * @param destination file to write
+     * @param type source language, selecting Kotlin identifier rewriting or the legacy copier
+     * @throws IOException if reading or writing fails
      */
     public static void duplicate(String originalClassName, String destinationClassName, File originalFile, File destination, SourceType type)
         throws IOException
     {
-        Dictionary<String, String> translations = new Hashtable<String, String>();
-        translations.put(originalClassName, destinationClassName);
-        BlueJFileReader.duplicateFile(originalFile, destination, translations);
+        if (type == SourceType.Kotlin) {
+            Charset charset = Charset.defaultCharset();
+            String source = Files.readString(originalFile.toPath(), charset);
+            Files.writeString(destination.toPath(),
+                KotlinSourceEditor.renameIdentifiers(source, originalClassName, destinationClassName), charset);
+        }
+        else {
+            Dictionary<String, String> translations = new Hashtable<String, String>();
+            translations.put(originalClassName, destinationClassName);
+            BlueJFileReader.duplicateFile(originalFile, destination, translations);
+        }
 
         //TODO if the previous line doesn't work properly for Java & Frame files, replace it with the next mechanism
 //      if (type.equals(SourceType.Java)) {
