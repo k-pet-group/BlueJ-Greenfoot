@@ -102,7 +102,6 @@ Kotlin supertype edits use PSI directly in `KotlinLanguageSupport`; hierarchy me
 - **No Kotlin object/companion** *diagram representation* -- a companion object is not drawn as its own node or `<<companion>>` stereotype. Companion **methods** are nonetheless invokable as static-style operations on the enclosing class (see [Companion Object Methods](companion-objects/README.md)). Top-level `object` declarations remain unrepresented.
 - **No Stride <-> Kotlin conversion**
 - **Template subset** -- only 5 Kotlin templates vs 6+ Java templates
-- **`enforcePackage()` is Java-only** -- Kotlin package declarations not auto-corrected on move
 
 ---
 

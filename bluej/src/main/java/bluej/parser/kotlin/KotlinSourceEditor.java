@@ -34,7 +34,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Plans bounded Kotlin preparation edits using PSI only for structure and offsets.
+ * Plans bounded Kotlin source edits using PSI only for structure and offsets.
  * Original source is never reformatted and no PSI mutation services are needed.
  */
 @OnThread(Tag.Any)
@@ -59,6 +59,29 @@ public final class KotlinSourceEditor
 
     private KotlinSourceEditor()
     {
+    }
+
+    /**
+     * Rename matching identifier tokens in a source copy without resolving their bindings.
+     * Comments and literal text are not identifiers; unrelated same-named identifiers may change.
+     *
+     * @param source complete source to copy
+     * @param originalName unquoted source class name
+     * @param destinationName validated, unquoted name for the new class
+     * @return source with matching identifiers renamed, without modifying the PSI tree
+     */
+    public static String renameIdentifiers(String source, String originalName, String destinationName)
+    {
+        KtFile file = KotlinEnvironmentManager.getPsiFactory().createFile(source);
+        String escapedName = "`" + originalName + "`";
+        StringBuilder result = new StringBuilder(file.getText());
+        for (PsiElement leaf = PsiTreeUtil.getDeepestLast(file); leaf != null; leaf = PsiTreeUtil.prevLeaf(leaf)) {
+            if (leaf.getNode().getElementType() == KtTokens.IDENTIFIER
+                && (leaf.getText().equals(originalName) || leaf.getText().equals(escapedName))) {
+                result.replace(leaf.getTextRange().getStartOffset(), leaf.getTextRange().getEndOffset(), destinationName);
+            }
+        }
+        return result.toString();
     }
 
     /**

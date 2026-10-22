@@ -83,7 +83,7 @@ VMComms uses regions A (server area), B (user area), C (sync area) with a strict
 Local Kotlin-source scenarios reuse the shared BlueJ Kotlin compiler, text editor and JVM execution
 pipeline. The authoring UI supplies Kotlin ordinary/Actor/World/subworld templates; hierarchy metadata
 uses the shared qualified-name contract before and after compilation. Students call the compiled Java
-Greenfoot API and bundled libraries without installing Kotlin. The compiler and metadata tooling stay
+Greenfoot API and compiled libraries without installing Kotlin. The compiler and metadata tooling stay
 on the IDE classpath, while students receive stdlib; see [Kotlin distribution](../kotlin-for-bluej/distribution/README.md).
 
 Local authoring/runtime acceptance remains scoped to Kotlin-only student sources, not fully reliable
@@ -93,17 +93,24 @@ correctness waits for Kotlin Analysis API integration, without a whole-scenario 
 Existing Java/Stride scenarios and generated Java invocation shells retain their routes; no new
 language-policy checks or Stride/Kotlin guarantee are added. Kotlin Save
 the World uses structured recording and PSI-guided source insertion under the bounded `greenfoot-record`
-contract; UI completion and compilation are owned by `greenfoot-guifx`. Structural duplication/import/
-navigation and export/publishing remain separate, unverified Kotlin integration areas. Their controls
-are not blocked; no compatibility is claimed for them.
+contract; UI completion and compilation are owned by `greenfoot-guifx`. Kotlin class duplication uses the
+bounded copy contract in `greenfoot-guifx`; runtime links use `bluej-terminal`, and native Insert Method
+uses `kotlin-for-bluej-editor`. These are not general refactoring, semantic navigation or completion.
+
+Import facilities and bundled Java source helpers are unchanged. Importing such a helper introduces
+mixed student sources, not a compiled-library dependency. Selected-source queue/compiler probes do not
+establish a reliable import-to-execution workflow while source selection remains incomplete. No new
+source chooser, Kotlin catalog entries or helper ports are supplied. Export/publishing remains a separate
+unverified Kotlin integration area. Existing controls are not blocked by new language-policy checks.
 
 Focused regression coverage protects hierarchy/source-cache/diagram boundaries and setup recording,
-source generation, document undo and save acknowledgement. Shared real-queue regressions additionally
-cover request isolation, combined failure/completion, BlueJ temporary output and Greenfoot retained
-check-only output. Discovery, class authoring/templates, creation-name handling and installed-loader
-behavior still have no dedicated Greenfoot Kotlin fixtures. Selected-source queue probes do not establish
-complete source selection. Compiler/direct-engine and editor tests do not establish live installed
-GUI/runtime acceptance.
+source generation, document undo and save acknowledgement. Additional focused checks cover class-copy
+text, terminal frame matching and native method insertion/undo. They do not establish live source-link
+activation or duplication dialogs. Shared real-queue regressions additionally cover request isolation,
+combined failure/completion, BlueJ temporary output and Greenfoot retained check-only output. These are
+not restored M1 authoring/installed-loader fixtures: discovery, class authoring/templates, creation-name
+handling and installed-loader behavior still have no dedicated Greenfoot Kotlin fixtures.
+Compiler/direct-engine and editor tests do not establish live installed GUI/runtime acceptance.
 
 ## Existing Documentation
 

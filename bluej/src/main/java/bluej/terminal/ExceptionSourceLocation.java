@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2012,2014,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2012,2014,2019,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,10 +21,13 @@
  */
 package bluej.terminal;
 
-import bluej.extensions2.SourceType;
+import java.io.File;
+import java.util.regex.Pattern;
+
 import bluej.pkgmgr.Package;
 
-import java.io.File;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A class that holds information about the location of an exception.
@@ -34,10 +37,13 @@ import java.io.File;
  */
 public class ExceptionSourceLocation
 {
+    @OnThread(Tag.Any)
+    static final Pattern STACK_TRACE_PATTERN = Pattern.compile("at (\\S+)\\((\\S+\\.(?:java|kt)):(\\d+)\\)");
+
     /** The package */
     private Package pkg;
-    /** The unqualified class name */
-    private String className;
+    /** The reported source filename, including its extension */
+    private String sourceFileName;
     /** The line number */
     private int lineNumber;
 
@@ -46,13 +52,22 @@ public class ExceptionSourceLocation
     /** The ending position in the document of the bit to be linked */
     private int endPos;
 
+    /**
+     * Create a source link from a frame whose file belongs to the given package.
+     *
+     * @param startPos first linked character in the terminal line
+     * @param endPos exclusive end of the linked text
+     * @param pkg package owning the source target
+     * @param sourceFileName reported source filename, not the JVM class name
+     * @param lineNumber one-based source line
+     */
     public ExceptionSourceLocation(int startPos, int endPos,
-            Package pkg, String className, int lineNumber)
+            Package pkg, String sourceFileName, int lineNumber)
     {
         this.startPos = startPos;
         this.endPos = endPos;
         this.pkg = pkg;
-        this.className = className;
+        this.sourceFileName = sourceFileName;
         this.lineNumber = lineNumber;
     }
 
@@ -67,9 +82,7 @@ public class ExceptionSourceLocation
 
     public void showInEditor()
     {
-        String fileName = className.replace('.', '/') + "." + SourceType.Java.toString().toLowerCase();
-
-        pkg.exceptionMessage(new File(pkg.getPath(), fileName).getAbsolutePath(), lineNumber);
+        pkg.exceptionMessage(new File(pkg.getPath(), sourceFileName).getAbsolutePath(), lineNumber);
 
     }
 

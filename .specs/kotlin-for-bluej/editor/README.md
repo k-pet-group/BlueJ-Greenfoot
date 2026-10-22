@@ -58,7 +58,7 @@ on `KotlinPsiScopeBuilder` emitting the right `isInner` / container shape.
 
 ## PSI-guided source edits
 
-PSI is a detached structural snapshot, not the editor document. Source changes use PSI-derived positions
+PSI is a detached structural snapshot, not the editor document. Editor changes use PSI-derived positions
 and normal editor text replacement, not PSI mutation: the compiler-only environment lacks the tree-copy
 extension point and POM mutation service, and a write-action wrapper does not supply them. This avoids
 installing editor-platform services merely to edit student source.
@@ -69,7 +69,7 @@ structure rather than guessing. It does not resolve inherited members or prove c
 coverage. Supplied statements remain separate so each operation can be indented without rewriting
 embedded argument lines; their expressions are neither converted nor validated.
 
-### Edit lifecycle
+### Preparation edit lifecycle
 
 A plan is created from the current normalized editor text and contains one enclosing UTF-16 range and
 replacement, including unchanged intervening text. Planning does not modify the document. The caller
@@ -78,6 +78,25 @@ document path for undo/dirty notifications. Plans are temporary values, not a se
 applying one does not establish that the resulting program compiles.
 
 ---
+
+## Class-copy identifier rewriting
+
+Kotlin duplication uses PSI token positions to replace identifiers matching the source class's name,
+including backtick-escaped spellings. It walks physical token leaves and rewrites from the end, without
+mutating PSI or installing mutation services. Literal/comment text stays untouched; references inside
+string-template expressions are code and can change.
+
+The contract is deliberately best-effort, at Java duplication's level: it does not resolve bindings,
+qualifications, shadowing or external references. Unrelated same-spelled identifiers can change, and no
+compilation guarantee is implied. The caller owns file I/O, target registration and image association;
+see `greenfoot-guifx`. This source-copy result is not a preparation edit or an editor transaction.
+
+## Method template insertion
+
+Insert Method selects a Kotlin template through the editor's source type. The selected locale/custom
+template directory is tried first, with English fallback for the missing Kotlin file rather than Java
+syntax. Existing document insertion, auto-indent and compound undo are retained; Java lookup is unchanged.
+This does not implement KDoc generation through Add Javadoc or semantic completion.
 
 ## Refactored Existing Code
 
