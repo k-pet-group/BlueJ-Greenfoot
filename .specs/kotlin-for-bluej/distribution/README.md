@@ -4,10 +4,9 @@ type: module-design
 title: "Build & Distribution"
 status: active
 parent: kotlin-for-bluej
-depends-on:
-  - boot
-tags:
-  - kotlin
+depends-on: [boot]
+tags: [kotlin]
+references: [greenfoot-export]
 ---
 
 # Build & Distribution
@@ -65,8 +64,17 @@ IDE and project loaders have the boot loader as parent, not each other. Jar pres
 launch success alone does not verify installed loading; tests must use these isolated classpaths,
 including compilation, stdlib execution and source/compiled metadata readers. The
 [views metadata reader](../../bluej/views/README.md#kotlin-metadata-across-loaders) adapts annotation values
-across these loaders without sharing compiler dependencies. Kotlin export dependency
-selection is a separate boundary and is unchanged by local scenario support.
+across these loaders without sharing compiler dependencies. Greenfoot publishing consumes the selected
+student stdlib under the separate `greenfoot-export` contract; it must not use this IDE dependency closure.
+
+## Export licensing resources
+
+Greenfoot stages Kotlin's upstream licence/notice and a stdlib-only clarification in its installed
+library resources, alongside—not inside—the selected dependency JAR. The existing Gradle resource copy
+and Ant Greenfoot library-directory inclusion carry these assets without a new dependency or SDK.
+Publishing embeds those legal resources with stdlib, while source-project archives remain unchanged;
+artifact selection, setup validation and hosted-compatibility limits belong to `greenfoot-export`.
+Dependency upgrades must keep this legal text aligned with the shipped runtime.
 
 ---
 

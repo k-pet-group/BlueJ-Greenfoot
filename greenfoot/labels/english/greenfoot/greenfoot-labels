@@ -100,6 +100,7 @@ export.progress.writingJar=Writing jar file...
 export.progress.writingGfar=Writing gfar file...
 export.progress.complete=Export complete.
 export.publish.fail=Publish failed:
+export.publish.kotlinRuntimeMissing=The installed Kotlin runtime or its licence files are missing or damaged. Please reinstall Greenfoot and try again.
 export.publish.unknownHost=Publish failed: Unknown host
 export.publish.errorResponse=Unrecognized response from the server.
 export.publish.errorPassword=Invalid username or password
