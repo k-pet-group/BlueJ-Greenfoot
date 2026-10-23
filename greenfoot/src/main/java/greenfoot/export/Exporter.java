@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2015,2018,2022,2023  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2015,2018,2022,2023,2026  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,10 +21,21 @@
 */
 package greenfoot.export;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
+
 import bluej.Boot;
 import bluej.Config;
+import bluej.extensions2.SourceType;
 import bluej.pkgmgr.Project;
-
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.utility.Debug;
 import greenfoot.event.PublishEvent;
 import greenfoot.event.PublishListener;
 import greenfoot.export.mygame.MyGameClient;
@@ -33,18 +44,10 @@ import greenfoot.guifx.export.ExportDialog;
 import greenfoot.guifx.export.ProxyAuthDialog;
 import greenfoot.util.GreenfootUtil;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 import javafx.application.Platform;
 import javafx.geometry.Dimension2D;
-
 import org.glavo.png.javafx.PNGJavaFXUtils;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -138,11 +141,12 @@ public class Exporter implements PublishListener
      * @param worldName     The world's name.
      * @param worldWidth    The world's width.
      * @param worldHeight   The world's height.
+     * @param hasKotlinSources Whether the FX-thread request snapshot contains Kotlin source targets.
      */
     @OnThread(Tag.Worker)
     public void doExport(Project project, ExportDialog dialog, ScenarioSaver scenarioSaver,
                          ExportInfo scenarioInfo, ExportFunction function, String worldName,
-                         double worldWidth, double worldHeight)
+                         double worldWidth, double worldHeight, boolean hasKotlinSources)
     {
         this.project = project;
         this.dialog = dialog;
@@ -153,7 +157,7 @@ public class Exporter implements PublishListener
 
         if (function.equals(ExportFunction.PUBLISH))
         {
-            publishToWebServer();
+            publishToWebServer(hasKotlinSources);
         }
         if (function.equals(ExportFunction.PROJECT))
         {
@@ -162,12 +166,44 @@ public class Exporter implements PublishListener
     }
     
     /**
+     * Snapshot Kotlin source presence from all packages, including mixed-language scenarios.
+     *
+     * @param project The scenario whose existing source targets are inspected on the FX thread.
+     * @return Whether any target represents Kotlin source (not just compiled Kotlin or a library).
+     */
+    @OnThread(Tag.FXPlatform)
+    public static boolean hasKotlinSources(Project project)
+    {
+        return hasKotlinSources(project.getPackageNames().stream()
+                .flatMap(name -> project.getPackage(name).getClassTargets().stream())
+                .map(ClassTarget::getSourceType));
+    }
+
+    @OnThread(Tag.Any)
+    static boolean hasKotlinSources(Stream<SourceType> sourceTypes)
+    {
+        return sourceTypes.anyMatch(type -> type == SourceType.Kotlin);
+    }
+
+    /**
      * Publish this scenario to the web server.
      */
     @OnThread(Tag.Worker)
-    private void publishToWebServer()
+    private void publishToWebServer(boolean hasKotlinSources)
     {
         dialog.setProgress(true, Config.getString("export.progress.bundling"));
+
+        // Resolve required installed runtime inputs before creating any publishing artifacts.
+        KotlinRuntime kotlinRuntime;
+        try {
+            kotlinRuntime = KotlinRuntime.prepare(hasKotlinSources);
+        }
+        catch (IOException e) {
+            Debug.reportError("Unable to prepare Kotlin runtime for publishing", e);
+            Platform.runLater(() -> dialog.publishFinished(false,
+                    Config.getString("export.publish.fail") + " " + Config.getString("export.publish.kotlinRuntimeMissing")));
+            return;
+        }
         
         //Create temporary jar        
         try {
@@ -194,6 +230,7 @@ public class Exporter implements PublishListener
         
         // do not include source
         jarCreator.includeSource(false);
+        kotlinRuntime.addTo(jarCreator);
        
         // Add the Greenfoot standalone classes as a separate external jar
         jarCreator.addToClassPath(hostAddress + GALLERY_SHARED_JARS + GREENFOOT_CORE_JAR);   

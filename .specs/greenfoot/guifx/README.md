@@ -124,8 +124,10 @@ Save the World follows the bounded `greenfoot-record` replay contract, including
 and source-name compatibility cases; it is not general Kotlin replay support. Imports and their bundled
 Java source helpers are deliberately unchanged; no external-source chooser, Kotlin helper ports or catalog
 filter change is supplied. Shared mixed-request correctness follows `bluej-compiler`; full mixed-project
-source selection, export/publishing and unsupported-workflow guards remain outside this supported local
-workflow. No new language-policy rejection or whole-scenario compilation fallback is added.
+source selection and unsupported-workflow guards remain outside this supported local workflow. Export
+request capture and client publishing artifacts follow `greenfoot-guifx-export` and `greenfoot-export`;
+hosted Kotlin conversion/playback remains unverified. No new language-policy rejection or whole-scenario
+compilation fallback is added.
 
 M1 acceptance limits are unchanged. Its hierarchy fixtures and the newer
 [recording/source/editor regressions](../README.md#kotlin-local-scenarios) do not exercise live dialogs.
