@@ -352,6 +352,12 @@ jobs:
           pattern: ${{ steps.release-info.outputs.product }}-installers-*
           path: release-assets
           merge-multiple: true
+      - name: Strip the RC suffix from filenames for the real release
+        run: |
+          for f in release-assets/*; do
+            new="$(echo "$f" | sed -E 's/-rc[0-9]+(\.[^.]+)$/\1/')"
+            if [ "$f" != "$new" ]; then mv "$f" "$new"; fi
+          done
       - name: List assets to be attached
         run: ls -la release-assets
       - name: Create or update GitHub release with the built installers
