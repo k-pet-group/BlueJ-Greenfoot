@@ -201,6 +201,322 @@ public class KotlinCompilerTest
     }
 
     @Test
+    public void testAssigningInheritedValInInitProducesDiagnostic() throws IOException
+    {
+        // Regression: K2 2.1.20 missed VAL_REASSIGNMENT for an inherited val assigned in
+        // a subclass init block, then crashed in the backend with an IR lowering exception.
+        Path file1 = sourceDir.resolve("Base.kt");
+        Files.writeString(file1, """
+            open class Base {
+                protected val p: Int?
+                init { p = null }
+            }
+            """);
+
+        Path file2 = sourceDir.resolve("Sub.kt");
+        Files.writeString(file2, """
+            class Sub : Base() {
+                init {
+                    p = 1
+                }
+            }
+            """);
+
+        TestObserver observer = new TestObserver();
+        boolean success = compiler.compile(
+                new File[]{file1.toFile(), file2.toFile()},
+                observer, false, Collections.emptyList(),
+                StandardCharsets.UTF_8, CompileType.EXPLICIT_USER_COMPILE);
+
+        assertFalse("Reassigning an inherited val should fail", success);
+        assertEquals("Exactly one error expected", 1, observer.errors.size());
+
+        Diagnostic error = observer.errors.get(0);
+        assertEquals(file2.toFile().getPath(), error.getFileName());
+        assertEquals(3, error.getStartLine());
+        assertTrue("Expected a val reassignment error, got: " + error.getMessage().englishMessage(),
+                error.getMessage().englishMessage().contains("'val' cannot be reassigned"));
+    }
+
+    @Test
+    public void testDiagnosticInSubPackageKeepsFullPath() throws IOException
+    {
+        // Regression: the file name was reduced to "Foo.kt", so Package resolved it to the
+        // default package and showed an "error-in-file" dialog instead of the editor.
+        Path pkgDir = Files.createDirectories(sourceDir.resolve("sub"));
+        Path sourceFile = pkgDir.resolve("Foo.kt");
+        Files.writeString(sourceFile, """
+            package sub
+
+            class Foo {
+                fun f(): Int = "x"
+            }
+            """);
+
+        TestObserver observer = new TestObserver();
+        boolean success = compiler.compile(
+                new File[]{sourceFile.toFile()},
+                observer, false, Collections.emptyList(),
+                StandardCharsets.UTF_8, CompileType.EXPLICIT_USER_COMPILE);
+
+        assertFalse(success);
+        assertFalse("Expected an error", observer.errors.isEmpty());
+        Diagnostic error = observer.errors.get(0);
+        assertEquals(sourceFile.toFile().getPath(), error.getFileName());
+        assertEquals("sub.Foo",
+                bluej.utility.JavaNames.convertFileToQualifiedName(sourceDir.toFile(), new File(error.getFileName())));
+    }
+
+    @Test
+    public void testDiagnosticInNestedSubPackageResolvesQualifiedName() throws IOException
+    {
+        Path sourceFile = writeSource("a/b/c/Deep.kt", """
+            package a.b.c
+
+            class Deep {
+                fun f(): Int = "x"
+            }
+            """);
+
+        TestObserver observer = compileUserFiles(sourceFile);
+
+        assertFalse("Expected an error", observer.errors.isEmpty());
+        assertEquals(sourceFile.toFile().getPath(), observer.errors.get(0).getFileName());
+        assertEquals("a.b.c.Deep", qualifiedNameOf(observer.errors.get(0)));
+    }
+
+    @Test
+    public void testWarningInSubPackageKeepsFullPath() throws IOException
+    {
+        Path sourceFile = writeSource("sub/Warn.kt", """
+            package sub
+
+            class Warn {
+                @Deprecated("use g")
+                fun old(): Int = 1
+
+                fun g(): Int = old()
+            }
+            """);
+
+        TestObserver observer = compileUserFiles(sourceFile);
+
+        assertTrue("Deprecated call should only warn: " + observer.errors, observer.errors.isEmpty());
+        // Ignore location-less warnings K2 emits about the compiler environment
+        List<Diagnostic> located = observer.warnings.stream().filter(d -> d.getFileName() != null).toList();
+        assertFalse("Expected a deprecation warning", located.isEmpty());
+        assertEquals(sourceFile.toFile().getPath(), located.get(0).getFileName());
+        assertEquals("sub.Warn", qualifiedNameOf(located.get(0)));
+    }
+
+    @Test
+    public void testSameSimpleNameInDifferentPackagesAttributedSeparately() throws IOException
+    {
+        // With bare file names both errors would read "Foo.kt" and land on the root Foo.
+        Path rootFoo = writeSource("Foo.kt", """
+            class Foo {
+                fun f(): Int = "root"
+            }
+            """);
+        Path subFoo = writeSource("sub/Foo.kt", """
+            package sub
+
+            class Foo {
+                fun g(): Int = "sub"
+            }
+            """);
+
+        TestObserver observer = compileUserFiles(rootFoo, subFoo);
+
+        List<String> names = observer.errors.stream().map(this::qualifiedNameOf).sorted().toList();
+        assertEquals(List.of("Foo", "sub.Foo"), names);
+    }
+
+    @Test
+    public void testSubPackageClassFileWrittenToPackageDir() throws IOException
+    {
+        // ClassTarget.getClassFile() looks in the package directory under the project dir.
+        Path sourceFile = writeSource("sub/Foo.kt", """
+            package sub
+
+            class Foo
+            """);
+
+        TestObserver observer = compileUserFiles(sourceFile);
+
+        assertEquals(0, observer.errors.size());
+        assertTrue(new File(tempDir.toFile(), "sub/Foo.class").exists());
+        assertFalse(new File(tempDir.toFile(), "Foo.class").exists());
+    }
+
+    @Test
+    public void testSubPackageFacadeClassFileWrittenToPackageDir() throws IOException
+    {
+        Path sourceFile = writeSource("sub/utils.kt", """
+            package sub
+
+            fun twice(x: Int): Int = x * 2
+            """);
+
+        TestObserver observer = compileUserFiles(sourceFile);
+
+        assertEquals(0, observer.errors.size());
+        String facade = bluej.parser.kotlin.KotlinParserUtils.kotlinFacadeClassName("utils");
+        assertTrue(new File(tempDir.toFile(), "sub/" + facade + ".class").exists());
+    }
+
+    @Test
+    public void testCrossPackageReferenceInSameBatch() throws IOException
+    {
+        Path owner = writeSource("a/Owner.kt", """
+            package a
+
+            class Owner {
+                fun name(): String = "owner"
+            }
+            """);
+        Path user = writeSource("b/User.kt", """
+            package b
+
+            import a.Owner
+
+            class User {
+                fun ownerName(): String = Owner().name()
+            }
+            """);
+
+        TestObserver observer = compileUserFiles(owner, user);
+
+        assertEquals("No errors expected: " + observer.errors, 0, observer.errors.size());
+        assertTrue(new File(tempDir.toFile(), "b/User.class").exists());
+    }
+
+    @Test
+    public void testCrossPackageReferenceWithoutImportReportsAgainstReferencingFile() throws IOException
+    {
+        Path owner = writeSource("a/Owner.kt", """
+            package a
+
+            class Owner
+            """);
+        Path user = writeSource("b/User.kt", """
+            package b
+
+            class User {
+                val o = Owner()
+            }
+            """);
+
+        TestObserver observer = compileUserFiles(owner, user);
+
+        assertFalse("Unresolved reference expected", observer.errors.isEmpty());
+        for (Diagnostic d : observer.errors)
+        {
+            assertEquals("b.User", qualifiedNameOf(d));
+        }
+    }
+
+    @Test
+    public void testKotlinInSubPackageReferencingJavaInSamePackage() throws IOException
+    {
+        Path javaFile = writeSource("sub/Greeter.java", """
+            package sub;
+
+            public class Greeter {
+                public String greet() { return "hi"; }
+            }
+            """);
+        Path ktFile = writeSource("sub/Caller.kt", """
+            package sub
+
+            class Caller {
+                fun run(): String = Greeter().greet()
+            }
+            """);
+
+        compiler.setJavaSymbolSources(List.of(inputFile(javaFile)));
+        TestObserver observer = compileUserFiles(ktFile);
+
+        assertEquals("No errors expected: " + observer.errors, 0, observer.errors.size());
+        assertTrue(new File(tempDir.toFile(), "sub/Caller.class").exists());
+        assertFalse(new File(tempDir.toFile(), "sub/Greeter.class").exists());
+    }
+
+    @Test
+    public void testDiagnosticPathMatchesGivenPathThroughSymlink() throws IOException
+    {
+        // K2 may report a resolved path; Package needs the path as given so that it
+        // lies under the project directory (e.g. /var vs /private/var on macOS).
+        Path realPkg = Files.createDirectories(sourceDir.resolve("real/sub"));
+        Path linkRoot = sourceDir.resolve("link");
+        try
+        {
+            Files.createSymbolicLink(linkRoot, sourceDir.resolve("real"));
+        }
+        catch (IOException | UnsupportedOperationException e)
+        {
+            org.junit.Assume.assumeNoException("Symlinks not supported", e);
+        }
+        Files.writeString(realPkg.resolve("Foo.kt"), """
+            package sub
+
+            class Foo {
+                fun f(): Int = "x"
+            }
+            """);
+        Path viaLink = linkRoot.resolve("sub/Foo.kt");
+
+        TestObserver observer = compileUserFiles(viaLink);
+
+        assertFalse("Expected an error", observer.errors.isEmpty());
+        assertEquals(viaLink.toFile().getPath(), observer.errors.get(0).getFileName());
+    }
+
+    @Test
+    public void testHardKeywordPackageNameDoesNotCompile() throws IOException
+    {
+        // The New Package dialog rejects these names (KotlinParserUtils.containsHardKeyword)
+        Path sourceFile = writeSource("fun/Foo.kt", """
+            package fun
+
+            class Foo
+            """);
+
+        TestObserver observer = compileUserFiles(sourceFile);
+
+        assertFalse("A hard keyword is not a valid Kotlin package name", observer.errors.isEmpty());
+    }
+
+    @Test
+    public void testHardKeywordClassNameDoesNotCompile() throws IOException
+    {
+        // The New/Duplicate Class dialogs reject these names for Kotlin classes
+        Path sourceFile = writeSource("object.kt", """
+            class object
+            """);
+
+        TestObserver observer = compileUserFiles(sourceFile);
+
+        assertFalse("A hard keyword is not a valid Kotlin class name", observer.errors.isEmpty());
+    }
+
+    @Test
+    public void testSoftKeywordPackageNameCompiles() throws IOException
+    {
+        // ...but must still accept soft keywords such as "data"
+        Path sourceFile = writeSource("data/Foo.kt", """
+            package data
+
+            class Foo
+            """);
+
+        TestObserver observer = compileUserFiles(sourceFile);
+
+        assertEquals("No errors expected: " + observer.errors, 0, observer.errors.size());
+        assertTrue(new File(tempDir.toFile(), "data/Foo.class").exists());
+    }
+
+    @Test
     public void testErrorCheckOnlyDoesNotRetainClasses() throws IOException
     {
         Path sourceFile = sourceDir.resolve("Temp.kt");
@@ -372,6 +688,32 @@ public class KotlinCompilerTest
             assertFalse("K2 should not report warnings against .java files (got: " + f + ")",
                     f != null && f.toLowerCase().endsWith(".java"));
         }
+    }
+
+    private Path writeSource(String relativePath, String content) throws IOException
+    {
+        Path file = sourceDir.resolve(relativePath);
+        Files.createDirectories(file.getParent());
+        Files.writeString(file, content);
+        return file;
+    }
+
+    private TestObserver compileUserFiles(Path... files)
+    {
+        TestObserver observer = new TestObserver();
+        compiler.compile(Arrays.stream(files).map(Path::toFile).toArray(File[]::new),
+                observer, false, Collections.emptyList(),
+                StandardCharsets.UTF_8, CompileType.EXPLICIT_USER_COMPILE);
+        return observer;
+    }
+
+    /**
+     * The qualified name Package derives from a diagnostic's file name, treating
+     * the test source directory as the project directory.
+     */
+    private String qualifiedNameOf(Diagnostic d)
+    {
+        return bluej.utility.JavaNames.convertFileToQualifiedName(sourceDir.toFile(), new File(d.getFileName()));
     }
 
     private static CompileInputFile inputFile(Path p)

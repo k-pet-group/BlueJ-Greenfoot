@@ -435,8 +435,26 @@ public class KotlinFileFormValidatorTest
         KotlinFileFormValidator.validate(
                 new File[]{file}, observer, CompileType.EXPLICIT_USER_COMPILE);
 
-        assertEquals("Diagnostic should reference the source file",
-                "Animal.kt", observer.errors.get(0).getFileName());
+        assertEquals("Diagnostic should reference the source file by full path",
+                file.getPath(), observer.errors.get(0).getFileName());
+    }
+
+    @Test
+    public void testDiagnosticInSubPackageKeepsFullPath() throws IOException
+    {
+        // Package resolves the target class from the path; a bare "Animal.kt" maps to
+        // the default package, so the error is shown in a dialog instead of the editor.
+        Files.createDirectories(sourceDir.resolve("zoo"));
+        File file = writeSource("zoo/Animal.kt", "package zoo\n\nclass Dog");
+
+        KotlinFileFormValidator.validate(
+                new File[]{file}, observer, CompileType.EXPLICIT_USER_COMPILE);
+
+        assertEquals(1, observer.errors.size());
+        String fileName = observer.errors.get(0).getFileName();
+        assertEquals(file.getPath(), fileName);
+        assertEquals("zoo.Animal",
+                bluej.utility.JavaNames.convertFileToQualifiedName(sourceDir.toFile(), new File(fileName)));
     }
 
     @Test
@@ -466,7 +484,7 @@ public class KotlinFileFormValidatorTest
         assertFalse("Validation should fail when any file has violations", result);
         assertEquals("One error from the bad file", 1, observer.errors.size());
         assertEquals("Error should reference Bad.kt",
-                "Bad.kt", observer.errors.get(0).getFileName());
+                bad.getPath(), observer.errors.get(0).getFileName());
     }
 
     @Test

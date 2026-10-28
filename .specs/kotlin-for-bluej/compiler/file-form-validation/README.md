@@ -52,7 +52,7 @@ Runs as pre-compile pass before `invokeCompiler()`:
 2. Check V1-V4; create `Diagnostic(ERROR)` for each violation, positioned at the offending keyword
 3. If any violations found -> `return false` (skip K2)
 
-All files validated before reporting (not fail-fast on first). Diagnostics point to the offending declaration keyword for actionable feedback.
+All files validated before reporting (not fail-fast on first). Diagnostics point to the offending declaration keyword for actionable feedback, and carry the source file's full path (`file.getPath()`, not `getName()`) so errors in sub-package classes reach the editor -- see [Diagnostic Mapping](../README.md#diagnostic-mapping).
 
 ---
 

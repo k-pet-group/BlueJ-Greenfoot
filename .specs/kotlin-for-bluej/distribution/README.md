@@ -45,11 +45,15 @@ tags:
 
 | Dependency | Version | Purpose |
 |------------|---------|---------|
-| `kotlin-compiler-embeddable` | 2.1.20 | K2 compilation + bundled PSI lexer/parser |
-| `kotlin-stdlib` | 2.1.20 | Kotlin standard library (bundled for student projects) |
-| `kotlin-metadata-jvm` | 2.1.20 | Read Kotlin metadata from compiled `.class` files |
+| `kotlin-compiler-embeddable` | 2.2.20 | K2 compilation + bundled PSI lexer/parser |
+| `kotlin-stdlib` | 2.2.20 | Kotlin standard library (bundled for student projects) |
+| `kotlin-metadata-jvm` | 2.2.20 | Read Kotlin metadata from compiled `.class` files |
 
 All use `implementation` scope (needed at both compile time and runtime).
+
+Transitive dependencies of the compiler (`kotlin-script-runtime`, `kotlin-daemon-embeddable`, `kotlin-reflect`, `kotlinx-coroutines-core-jvm`) reach `lib/` via `copyToLib` with no explicit declaration. `kotlin-reflect` is required at runtime by K2 2.2.x; `trove4j` is no longer a dependency as of 2.2.
+
+2.2.20 is the minimum supported version: K2 2.1.20 failed to report `'val' cannot be reassigned` when a subclass `init` block assigned an inherited `val`, and then crashed in the JVM backend (`BackendException: Exception during IR lowering`). Covered by `KotlinCompilerTest.testAssigningInheritedValInInitProducesDiagnostic`.
 
 ---
 
