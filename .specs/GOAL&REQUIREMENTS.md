@@ -47,7 +47,7 @@ Kotlin files (.kt) will be compiled via `kotlin-compiler-embeddable` invoked pro
 | Component | Choice |
 | --- | --- |
 | Host language | Java 21 (existing BlueJ codebase) |
-| Target language | Kotlin 2.1.x (latest stable, K2 compiler) |
+| Target language | Kotlin 2.2.x (K2 compiler; minimum 2.2.20) |
 | Compiler integration | `kotlin-compiler-embeddable` — programmatic invocation mirroring `javax.tools.JavaCompiler` |
 | UI framework | JavaFX 23.0.2 (existing) |
 | Build system | Gradle (existing) |

@@ -46,7 +46,8 @@ Kotlin joins Java and Stride as a teaching language. New Kotlin classes live alo
 - `SourceType` -- add `Kotlin` enum value
 - `ClassTarget` -- `.kt` detection, `FlowLanguageSupport` strategy, facade naming for top-level functions
 - `ClassInfo` -- add `topLevelFunctionsOnly` flag
-- `NewClassDialog` -- Kotlin language radio button + template loading
+- `NewClassDialog` -- Kotlin language radio button + template loading; rejects Kotlin hard keywords as Kotlin class names
+- `NewPackageDialog`, `DuplicateClassDialog` -- reject Kotlin hard keywords as package names / Kotlin class names (see [Class Diagram](diagram/README.md#key-contracts))
 - `FlowEditor` -- `FlowLanguageSupport` field replaces `boolean isKotlin`
 - `JobQueue` -- dual compiler dispatch (Java + Kotlin)
 - `Diagnostic` -- add `KOTLIN` DiagnosticOrigin
