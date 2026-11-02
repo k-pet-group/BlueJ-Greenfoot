@@ -211,10 +211,11 @@ public final class FlowActions
     // package-visible
     void updateKeymap()
     {
-        if (getTextComponent() != null)
+        FlowEditorPane textComponent = getTextComponent();
+        if (textComponent != null)
         {
             if (curKeymap != null)
-                Nodes.removeInputMap(getTextComponent(), curKeymap);
+                Nodes.removeInputMap(textComponent, curKeymap);
             // Join built-in keymap (important that it goes first in order, so it can get overridden) with custom keymap:
             Stream<Entry<KeyCodeCombination, FlowAbstractAction>> joinedKeyMapStream = Stream.concat(
                 builtInKeymap.entrySet().stream(),
@@ -238,10 +239,15 @@ public final class FlowActions
                     return InputMap.ignore(EventPattern.keyPressed(e.getKey()));
                 else
                 {
-                    return InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> e.getValue().actionPerformed(false));
+                    return InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> {
+                        // A key bound to an action must not also type its character (e.g. Option+Space
+                        // on macOS types a space), which would edit the document under the action.
+                        textComponent.ignoreTypedCharacterOfCurrentKeyPress();
+                        e.getValue().actionPerformed(false);
+                    });
                 }
             }).toArray(InputMap[]::new));
-            Nodes.addInputMap(getTextComponent(), curKeymap);
+            Nodes.addInputMap(textComponent, curKeymap);
         }
     }
 

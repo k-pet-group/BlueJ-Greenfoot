@@ -54,4 +54,30 @@ public class KotlinParserUtilsTest
             assertFalse(name, KotlinParserUtils.containsHardKeyword(name));
         }
     }
+
+    @Test
+    public void testKDocMarkdownConvertedForJavadocDisplay()
+    {
+        String converted = KotlinParserUtils.kdocToJavadoc("""
+            /**
+             * Moves `x` by [steps], see [the docs](https://example.org).
+             * **Note**: a < b & c.
+             * @param steps how far
+             */""");
+        assertTrue(converted, converted.contains("Moves <code>x</code> by <code>steps</code>, see the docs."));
+        assertTrue("HTML special characters are escaped: " + converted, converted.contains("<b>Note</b>: a &lt; b &amp; c."));
+        assertTrue("Block tags are kept for Javadoc rendering: " + converted, converted.contains("@param steps how far"));
+    }
+
+    @Test
+    public void testMissingKDoc()
+    {
+        assertNull(KotlinParserUtils.kdocToJavadoc(null));
+    }
+
+    @Test
+    public void testDelimitersAndLeadingStarsRemoved()
+    {
+        assertEquals("One line.", KotlinParserUtils.kdocToJavadoc("/** One line. */").trim());
+    }
 }

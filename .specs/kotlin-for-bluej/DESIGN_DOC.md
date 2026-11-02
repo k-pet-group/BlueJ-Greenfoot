@@ -27,7 +27,7 @@ Kotlin joins Java and Stride as a teaching language. New Kotlin classes live alo
 | # | Decision | Rationale |
 |---|----------|-----------|
 | 1 | **Integrated subpackages** over separate module | Follows existing Stride pattern; `lang-stride/` only has 2 files. Keeps all IDE code in `bluej/`. |
-| 2 | **Reuse FlowEditor** via `FlowLanguageSupport` strategy | FlowEditor is generic. Language specifics (parser creation, extends/implements syntax) encapsulated in strategy implementations. `JavaSyntaxView` reused unchanged. |
+| 2 | **Reuse FlowEditor** via `FlowLanguageSupport` strategy | FlowEditor is generic. Language specifics (parser creation, extends/implements syntax, code completion provider) encapsulated in strategy implementations. `JavaSyntaxView` reused unchanged. |
 | 3 | **KotlinCompiler extends Compiler** | Peer to `CompilerAPICompiler`, selected by `JobQueue` based on file extension. |
 | 4 | **PSI KotlinLexer wrapper** for tokenization | Wraps battle-tested JFlex-generated PSI lexer from `kotlin-compiler-embeddable` (already on classpath). ~280 lines adapter vs ~800 lines hand-written. |
 | 5 | **Kotlin stdlib bundled** in distribution | Students must not install a Kotlin SDK. |
@@ -48,10 +48,11 @@ Kotlin joins Java and Stride as a teaching language. New Kotlin classes live alo
 - `ClassInfo` -- add `topLevelFunctionsOnly` flag
 - `NewClassDialog` -- Kotlin language radio button + template loading; rejects Kotlin hard keywords as Kotlin class names
 - `NewPackageDialog`, `DuplicateClassDialog` -- reject Kotlin hard keywords as package names / Kotlin class names (see [Class Diagram](diagram/README.md#key-contracts))
-- `FlowEditor` -- `FlowLanguageSupport` field replaces `boolean isKotlin`
+- `FlowEditor` -- `FlowLanguageSupport` field replaces `boolean isKotlin`; Ctrl+Space delegates to the strategy's `CompletionProvider` through a `CompletionRequest` that goes stale when the text or caret changes (Java completion moved into `JavaCompletionProvider`, behaviour unchanged)
 - `JobQueue` -- dual compiler dispatch (Java + Kotlin)
 - `Diagnostic` -- add `KOTLIN` DiagnosticOrigin
 - `Package` -- Kotlin stdlib on classpath, `.kt` file discovery
+- `Project` -- lazily owns the Kotlin analysis service; disposes it in `cleanUp`
 - `Boot` -- `"kotlin-*.jar"` patterns for runtime classpath
 - `Config` / `Main` -- Kotlin editor-open counter (`session.numeditors.kotlin`) and `&kotlineditors=` in the launch stats ping; the ping's guard requires all three language counts to be present, so the first launch after upgrade sends no editor stats (accepted trade-off)
 - `build.gradle` -- `kotlin-compiler-embeddable` and `kotlin-stdlib` dependencies
@@ -61,6 +62,11 @@ Kotlin joins Java and Stride as a teaching language. New Kotlin classes live alo
 - `KotlinCompiler` -- wraps `kotlin-compiler-embeddable` for K2 compilation
 - `KotlinFileFormValidator` -- pre-compilation one-concept-per-file enforcement
 - `FlowLanguageSupport` / `JavaLanguageSupport` / `KotlinLanguageSupport` / `PlainTextLanguageSupport` -- strategy interface + implementations
+- `CompletionProvider` / `CompletionRequest` / `JavaCompletionProvider` -- per-language code completion behind the shared FlowEditor popup (contract in `bluej-editor-flow`)
+- `KotlinAnalysisService` / `KotlinAnalysisEnvironment` / `KotlinAnalysisRequest` -- per-project K1 analysis of Kotlin sources (see `kotlin-for-bluej-parser-analysis`)
+- `KotlinCompletionEngine` -- Kotlin completion suggestions on top of that analysis (see `kotlin-for-bluej-editor-completion`)
+- `KotlinAssistContent` -- a suggestion as shown and inserted by the editor, documented via Javadoc/KDoc
+- `KotlinCompletionProvider` -- Kotlin's `CompletionProvider`: background request, loading/timeout/failure messages
 - `KotlinLexer` / `KotlinToken` -- PSI lexer adapter + token mapping
 - `KotlinInfoParser` -- PSI-based ClassInfo extraction
 - `KotlinEnvironmentManager` -- shared KotlinCoreEnvironment singleton
@@ -88,6 +94,7 @@ No new threads. Kotlin uses existing threading:
 | Compilation | CompilerThread (single, serialized) |
 | Compilation result dispatch | FX via `Platform.runLater()` |
 | Object bench operations | VMEventHandler + FXPlatform |
+| Semantic analysis (code completion) | Shared background pool, one request at a time per project; results returned to FXPlatform |
 
 ---
 

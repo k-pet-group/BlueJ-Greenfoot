@@ -57,7 +57,6 @@ import bluej.editor.stride.FrameEditor;
 import bluej.extensions2.SourceType;
 import bluej.extensions2.editor.DocumentListener;
 import bluej.parser.*;
-import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ImportsCollection.LocatableImport;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -83,10 +82,8 @@ import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
-import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
 import bluej.editor.fixes.SuggestionList;
 import bluej.editor.fixes.SuggestionList.SuggestionDetails;
-import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithHTMLDoc;
 import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 import bluej.editor.fixes.SuggestionList.SuggestionListParent;
 import bluej.editor.fixes.SuggestionList.SuggestionShown;
@@ -167,7 +164,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener, SelectionListener, BlueJEventListener, DocumentListener
@@ -211,9 +207,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final BooleanProperty compiledProperty = new SimpleBooleanProperty(true);
     private final BooleanProperty viewingHTML = new SimpleBooleanProperty(false); // changing this alters the interface accordingly
     private ErrorDisplay errorDisplay;
-    // "Completion unavailable" popup shown on Ctrl+Space in .kt files; null when hidden.
-    private PopupControl kotlinUnavailablePopup;
-    private Timeline kotlinUnavailablePopupTimer;
+    // Transient code completion message (e.g. still loading, nothing to complete); null when hidden.
+    private PopupControl completionMessagePopup;
+    private Timeline completionMessageTimer;
+    // Numbers completion requests, so that a late result can tell it has been superseded.
+    private int completionRequestCount;
+    // Counts document changes, so that a late completion result can tell the text has changed.
+    private long documentChangeCount;
     private final BitSet breakpoints = new BitSet();
     private int currentStepLineIndex = -1;
     private ComboBox<String> interfaceToggle;
@@ -1493,6 +1493,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         return javaSyntaxView;
     }
 
+    // The resolver used by completion providers to look up Javadoc.
+    JavadocResolver getJavadocResolver()
+    {
+        return javadocResolver;
+    }
+
+    // The file being edited, or null if there is none.
+    File getSourceFile()
+    {
+        return filename == null ? null : new File(filename);
+    }
+
     @Override
     public void reloadFile()
     {
@@ -2262,6 +2274,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     public void textReplaced(int origStartIncl, String replaced, String replacement, int linesRemoved, int linesAdded)
     {
+        documentChangeCount++;
         // Prevent re-entry to this method.  In theory this shouldn't happen as we
         // shouldn't modify the document in this function.  But it seems like sometimes
         // the styled changes we make cause RichTextFX to generate a plain text change event:
@@ -3253,182 +3266,175 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     protected void createContentAssist()
     {
-        if (languageSupport instanceof KotlinLanguageSupport)
-        {
-            // Kotlin has no completion path yet; the Java pipeline below would silently produce nothing.
-            showKotlinUnavailableNotice();
+        CompletionProvider provider = languageSupport.getCompletionProvider();
+        if (provider == null) {
             return;
         }
-
+        hideCompletionMessage();
+        int requestNumber = ++completionRequestCount;
+        int caretPosition = flowEditorPane.getCaretPosition();
+        long documentChanges = documentChangeCount;
         //need to recreate the dialog each time it is pressed as the values may be different
-        javaSyntaxView.flushReparseQueue();
-        ParsedCUNode parser = getParsedNode();
-        ExpressionTypeInfo suggests = parser == null ? null : parser.getExpressionType(flowEditorPane.getCaretPosition(),
-                javaSyntaxView);
-        if (suggests != null)
+        provider.requestCompletions(this, new CompletionRequest()
         {
-            List<AssistContent> completionCandidates = new ArrayList<>();
-
-            // Get the static classes for completion suggestions, like System.out.
-            // They are only available if nothing (like "x." or "this.") precedes the caret),
-            // which is captured in the isPlain variable:
-            if (suggests.isPlain())
+            @Override
+            public int getCaretPosition()
             {
-                // To check if Greenfoot.* is available, we check if Greenfoot is imported with a regex before the caret in the file:
-                SuggestionList.getStaticClassesCompletion(completionCandidates,
-                    Pattern.compile("(;|^)\\s*import\\s+greenfoot\\s*\\.\\s*(\\*\\s*;|Greenfoot\\s*;)").matcher(getText(new SourceLocation(1, 1), getCaretLocation())).find(),
-                    getProject().getPackage(""),
-                    javadocResolver);
+                return caretPosition;
             }
 
-
-            LocatableToken suggestToken = suggests.getSuggestionToken();
-            AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getContainingMethodOrClassNode(flowEditorPane.getCaretPosition()) instanceof MethodNode m ? m : null, flowEditorPane.getCaretPosition());
-            if (possibleCompletions != null)
+            @Override
+            public boolean isCurrent()
             {
-                Arrays.sort(possibleCompletions, AssistContent.getComparator());
-                completionCandidates.addAll(Arrays.asList(possibleCompletions));
+                return requestNumber == completionRequestCount && documentChanges == documentChangeCount
+                    && flowEditorPane.getCaretPosition() == caretPosition;
             }
 
-            // Create suggestions from all the candidates
-            List<SuggestionDetails> suggestionDetails = completionCandidates.stream()
-                    .map(AssistContentThreadSafe::new)
-                    .map(ac -> new SuggestionDetailsWithHTMLDoc(ac.getName(), ExpressionCompletionCalculator.getParamsCompletionDisplay(ac), ac.getType(), SuggestionShown.COMMON, ac.getDocHTML()))
-                    .collect(Collectors.toList());
-
-            // Prepare the suggestions popup
-            int originalPosition = suggestToken == null ? flowEditorPane.getCaretPosition() : suggestToken.getPosition();
-            Bounds screenPos;
-            // First, try to get the character after the caret:
-            screenPos = flowEditorPane.getCaretBoundsOnScreen(originalPosition).orElse(null);
-
-            // That may be null if caret was at end of line, in which case try character before:
-            if (screenPos == null && originalPosition > 0)
+            @Override
+            public void showResult(CompletionResult result)
             {
-                screenPos = flowEditorPane.getCaretBoundsOnScreen(originalPosition - 1).orElse(null);;
-                // Adjust to move to RHS of the rectangle:
-                screenPos = new BoundingBox(screenPos.getMaxX(), screenPos.getMinY(), 0, screenPos.getHeight());
+                if (isCurrent()) {
+                    hideCompletionMessage();
+                    showCompletionPopup(provider, result);
+                }
             }
-            if (screenPos == null)
-                return;
-            Bounds spLoc = flowEditorPane.screenToLocal(screenPos);
 
-            StringExpression editorFontCSS = PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_AND_FAMILY);
-            SuggestionList suggestionList = new SuggestionList(new SuggestionListParent()
+            @Override
+            public void showMessage(String message)
             {
-                @Override
-                @OnThread(Tag.FX)
-                public StringExpression getFontCSS()
-                {
-                    return editorFontCSS;
+                if (isCurrent()) {
+                    showCompletionMessage(message);
                 }
-
-                @Override
-                public double getFontSize()
-                {
-                    return PrefMgr.getEditorFontSize().get();
-                }
-
-                @Override
-                public void setupSuggestionWindow(Stage window)
-                {
-                    flowEditorPane.setFakeCaret(true);
-                }
-            }, suggestionDetails, null, SuggestionShown.RARE, i ->
-            {
-            }, new SuggestionListListener()
-            {
-                @Override
-                public @OnThread(Tag.FXPlatform) void suggestionListChoiceClicked(SuggestionList suggestionList, int highlighted)
-                {
-                    if (highlighted != -1)
-                    {
-                        codeComplete(completionCandidates.get(highlighted), originalPosition, flowEditorPane.getCaretPosition(), suggestionList);
-                    }
-                }
-
-                @Override
-                public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
-                {
-                    if (event.getCharacter().equals("\b") || event.getCharacter().equals("\u007F"))
-                    {
-                        // Backspace/delete; handled by key pressed event, lower down
-                    }
-                    else if (event.getCharacter().equals("\n"))
-                    {
-                        suggestionListChoiceClicked(suggestionList, highlighted);
-                        return Response.DISMISS;
-                    }
-                    else
-                    {
-                        document.replaceText(flowEditorPane.getCaretPosition(), flowEditorPane.getCaretPosition(), event.getCharacter());
-                    }
-
-                    String prefix = document.getContent(originalPosition, flowEditorPane.getCaretPosition()).toString();
-                    suggestionList.calculateEligible(prefix, true, false);
-                    suggestionList.updateVisual(prefix);
-                    return Response.CONTINUE;
-                }
-
-                @Override
-                public @OnThread(Tag.FXPlatform) SuggestionList.SuggestionListListener.Response suggestionListKeyPressed(SuggestionList suggestionList, KeyEvent event, int highlighted)
-                {
-                    switch (event.getCode())
-                    {
-                        case ESCAPE:
-                            return Response.DISMISS;
-                        case ENTER:
-                        case TAB:
-                            suggestionListChoiceClicked(suggestionList, highlighted);
-                            return Response.DISMISS;
-                        case BACK_SPACE:
-                            actions.getActionByName("delete-previous").actionPerformed(false);
-                            break;
-                        case DELETE:
-                            actions.getActionByName("delete-next").actionPerformed(false);
-                            break;
-                    }
-                    // If they delete to before the original position then
-                    // not only does it make sense to dismiss, but in fact
-                    // we must dismiss or we will encounter an exception:
-                    if (flowEditorPane.getCaretPosition() < originalPosition)
-                    {
-                        return Response.DISMISS;
-                    }
-                    else
-                    {
-                        return Response.CONTINUE;
-                    }
-                }
-
-                @Override
-                public @OnThread(Tag.FXPlatform) void hidden()
-                {
-                    flowEditorPane.setFakeCaret(false);
-                }
-            });
-            String prefix = document.getContent(originalPosition, flowEditorPane.getCaretPosition()).toString();
-            suggestionList.calculateEligible(prefix, true, false);
-            suggestionList.updateVisual(prefix);
-            suggestionList.highlightFirstEligible();
-            suggestionList.show(flowEditorPane, spLoc);
-            watcher.recordCodeCompletionStarted(document.getLineFromPosition(originalPosition) + 1, document.getColumnFromPosition(originalPosition) + 1, null, null, prefix, suggestionList.getRecordingId());
-
-        } else {
-            /*
-            //no completions found. no need to search.
-            info.message ("No completions available.");
-            CodeCompletionDisplay codeCompletionDlg = new CodeCompletionDisplay(this, watcher,
-                            null, new AssistContent[0], null);
-
-            initialiseContentAssist(codeCompletionDlg, xpos, ypos);
-            */
-        }
+            }
+        });
     }
 
-    // Transient caret-anchored "completion unavailable" popup, mirroring showErrorOverlay's shape.
+    // Show the completion popup for a provider's result. While it is open, typed characters go into
+    // the document and filter the candidates by the text between the replace-start position and the caret.
+    private void showCompletionPopup(CompletionProvider provider, CompletionResult result)
+    {
+        List<AssistContent> completionCandidates = result.candidates();
+
+        // Create suggestions from all the candidates
+        List<SuggestionDetails> suggestionDetails = completionCandidates.stream()
+                .map(provider::getSuggestionDetails)
+                .collect(Collectors.toList());
+
+        // Prepare the suggestions popup
+        int originalPosition = result.replaceStart();
+        Bounds screenPos;
+        // First, try to get the character after the caret:
+        screenPos = flowEditorPane.getCaretBoundsOnScreen(originalPosition).orElse(null);
+
+        // That may be null if caret was at end of line, in which case try character before:
+        if (screenPos == null && originalPosition > 0) {
+            screenPos = flowEditorPane.getCaretBoundsOnScreen(originalPosition - 1).orElse(null);
+            // Adjust to move to RHS of the rectangle:
+            screenPos = new BoundingBox(screenPos.getMaxX(), screenPos.getMinY(), 0, screenPos.getHeight());
+        }
+        if (screenPos == null) {
+            return;
+        }
+        Bounds spLoc = flowEditorPane.screenToLocal(screenPos);
+
+        StringExpression editorFontCSS = PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_AND_FAMILY);
+        SuggestionList suggestionList = new SuggestionList(new SuggestionListParent()
+        {
+            @Override
+            @OnThread(Tag.FX)
+            public StringExpression getFontCSS()
+            {
+                return editorFontCSS;
+            }
+
+            @Override
+            public double getFontSize()
+            {
+                return PrefMgr.getEditorFontSize().get();
+            }
+
+            @Override
+            public void setupSuggestionWindow(Stage window)
+            {
+                flowEditorPane.setFakeCaret(true);
+            }
+        }, suggestionDetails, null, SuggestionShown.RARE, i ->
+        {
+        }, new SuggestionListListener()
+        {
+            @Override
+            public @OnThread(Tag.FXPlatform) void suggestionListChoiceClicked(SuggestionList suggestionList, int highlighted)
+            {
+                if (highlighted != -1) {
+                    codeComplete(provider, completionCandidates.get(highlighted), originalPosition, flowEditorPane.getCaretPosition(), suggestionList);
+                }
+            }
+
+            @Override
+            public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
+            {
+                if (event.getCharacter().equals("\b") || event.getCharacter().equals("\u007F")) {
+                    // Backspace/delete; handled by key pressed event, lower down
+                }
+                else if (event.getCharacter().equals("\n")) {
+                    suggestionListChoiceClicked(suggestionList, highlighted);
+                    return Response.DISMISS;
+                }
+                else {
+                    document.replaceText(flowEditorPane.getCaretPosition(), flowEditorPane.getCaretPosition(), event.getCharacter());
+                }
+
+                String prefix = document.getContent(originalPosition, flowEditorPane.getCaretPosition()).toString();
+                suggestionList.calculateEligible(prefix, true, false);
+                suggestionList.updateVisual(prefix);
+                return Response.CONTINUE;
+            }
+
+            @Override
+            public @OnThread(Tag.FXPlatform) SuggestionList.SuggestionListListener.Response suggestionListKeyPressed(SuggestionList suggestionList, KeyEvent event, int highlighted)
+            {
+                switch (event.getCode()) {
+                    case ESCAPE:
+                        return Response.DISMISS;
+                    case ENTER:
+                    case TAB:
+                        suggestionListChoiceClicked(suggestionList, highlighted);
+                        return Response.DISMISS;
+                    case BACK_SPACE:
+                        actions.getActionByName("delete-previous").actionPerformed(false);
+                        break;
+                    case DELETE:
+                        actions.getActionByName("delete-next").actionPerformed(false);
+                        break;
+                }
+                // If they delete to before the original position then
+                // not only does it make sense to dismiss, but in fact
+                // we must dismiss or we will encounter an exception:
+                if (flowEditorPane.getCaretPosition() < originalPosition) {
+                    return Response.DISMISS;
+                }
+                else {
+                    return Response.CONTINUE;
+                }
+            }
+
+            @Override
+            public @OnThread(Tag.FXPlatform) void hidden()
+            {
+                flowEditorPane.setFakeCaret(false);
+            }
+        });
+        String prefix = document.getContent(originalPosition, flowEditorPane.getCaretPosition()).toString();
+        suggestionList.calculateEligible(prefix, true, false);
+        suggestionList.updateVisual(prefix);
+        suggestionList.highlightFirstEligible();
+        suggestionList.show(flowEditorPane, spLoc);
+        watcher.recordCodeCompletionStarted(document.getLineFromPosition(originalPosition) + 1, document.getColumnFromPosition(originalPosition) + 1, null, null, prefix, suggestionList.getRecordingId());
+    }
+
+    // Transient caret-anchored code completion message, mirroring showErrorOverlay's shape.
     @OnThread(Tag.FXPlatform)
-    private void showKotlinUnavailableNotice()
+    private void showCompletionMessage(String message)
     {
         Bounds caretBounds = flowEditorPane.getCaretBoundsOnScreen(flowEditorPane.getCaretPosition()).orElse(null);
         if (caretBounds == null && flowEditorPane.getCaretPosition() > 0)
@@ -3441,15 +3447,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
 
         // Dismiss previous instance so repeat presses don't stack.
-        hideKotlinUnavailableNotice();
+        hideCompletionMessage();
 
-        String msg = Config.getString(
-            "editor.info.kotlinCompletionUnavailable",
-            "Code completion is not available for Kotlin files");
-        Label label = new Label(msg);
-        JavaFXUtil.addStyleClass(label, "kotlin-unavailable-label");
+        Label label = new Label(message);
+        JavaFXUtil.addStyleClass(label, "completion-message-label");
         VBox box = new VBox(label);
-        JavaFXUtil.addStyleClass(box, "kotlin-unavailable-popup");
+        JavaFXUtil.addStyleClass(box, "completion-message-popup");
         box.setStyle(PrefMgr.getEditorFontCSS(PrefMgr.FontCSS.EDITOR_SIZE_ONLY).get());
         Config.addPopupStylesheets(box);
 
@@ -3485,64 +3488,49 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         popup.setAnchorY(caretBounds.getMinY() + (4 * caretBounds.getHeight() / 3));
         popup.show(getWindow());
 
-        Timeline timer = new Timeline(new KeyFrame(Duration.seconds(3), e -> hideKotlinUnavailableNotice()));
+        Timeline timer = new Timeline(new KeyFrame(Duration.seconds(3), e -> hideCompletionMessage()));
         timer.play();
 
-        kotlinUnavailablePopup = popup;
-        kotlinUnavailablePopupTimer = timer;
+        completionMessagePopup = popup;
+        completionMessageTimer = timer;
     }
 
     @OnThread(Tag.FXPlatform)
-    private void hideKotlinUnavailableNotice()
+    private void hideCompletionMessage()
     {
-        if (kotlinUnavailablePopupTimer != null)
+        if (completionMessageTimer != null)
         {
-            kotlinUnavailablePopupTimer.stop();
-            kotlinUnavailablePopupTimer = null;
+            completionMessageTimer.stop();
+            completionMessageTimer = null;
         }
-        if (kotlinUnavailablePopup != null)
+        if (completionMessagePopup != null)
         {
-            kotlinUnavailablePopup.hide();
-            kotlinUnavailablePopup = null;
+            completionMessagePopup.hide();
+            completionMessagePopup = null;
         }
     }
 
     /**
      * codeComplete prints the selected text in the editor
      */
-    private void codeComplete(AssistContent selected, int prefixBegin, int prefixEnd, SuggestionList suggestionList)
+    private void codeComplete(CompletionProvider provider, AssistContent selected, int prefixBegin, int prefixEnd, SuggestionList suggestionList)
     {
-        String start = selected.getName();
-        List<ParamInfo> params = selected.getParams();
-        if (params != null)
-            start += "(";
+        CompletionInsertion insertion = provider.getInsertion(selected);
         // Replace prefix with the full name:
         flowEditorPane.select(prefixBegin, prefixEnd);
         String prefix = flowEditorPane.getSelectedText();
-        insertText(start, false);
-        String inserted = start;
-
-        if (params != null)
-        {
-            // Record position before we add first parameter,
-            // so that we can come back and select it:
-            int selLoc = flowEditorPane.getCaretPosition();
-            // Put all available params in, separated by ", "
-            if (!params.isEmpty())
-            {
-                final String joinedParams = params.stream().map(ParamInfo::getDummyName).collect(Collectors.joining(", "));
-                insertText(joinedParams, false);
-                inserted += joinedParams;
-            }
-
-            insertText(")", false);
-            inserted += ")";
-
-            // If there were any dummy parameters, go back and select first one:
-            if (params.size() > 0)
-                flowEditorPane.select(selLoc, selLoc + params.get(0).getDummyName().length());
+        int insertionStart = flowEditorPane.getSelectionStart();
+        // Each segment is a separate edit (and undo step), as Java method completion has always been:
+        for (String segment : insertion.segments()) {
+            insertText(segment, false);
         }
-        watcher.recordCodeCompletionEnded(document.getLineFromPosition(prefixBegin) + 1, document.getColumnFromPosition(prefixBegin) + 1, null, null, prefix, inserted, suggestionList.getRecordingId());
+
+        // If there were any dummy parameters, go back and select first one:
+        if (insertion.selectionStart() != -1) {
+            flowEditorPane.select(insertionStart + insertion.selectionStart(), insertionStart + insertion.selectionEnd());
+        }
+
+        watcher.recordCodeCompletionEnded(document.getLineFromPosition(prefixBegin) + 1, document.getColumnFromPosition(prefixBegin) + 1, null, null, prefix, insertion.fullText(), suggestionList.getRecordingId());
         try
         {
             save();
