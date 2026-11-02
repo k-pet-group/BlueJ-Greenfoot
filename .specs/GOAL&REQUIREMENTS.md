@@ -59,7 +59,7 @@ Kotlin files (.kt) will be compiled via `kotlin-compiler-embeddable` invoked pro
 | --- | --- |
 | Syntax highlighting | Kotlin keyword coloring, string/comment styling in FlowEditor |
 | Class creation from diagram | Right-click → New Kotlin Class with templates (class, open class, abstract class, data class) |
-| Basic code completion | Auto-complete for Kotlin keywords and class members |
+| Basic code completion | Auto-complete for Kotlin class members, locals and a small teaching set, matching Java completion (no keyword completion, as Java has none) |
 | Error reporting | Show `kotlinc` compiler errors in the editor with line markers |
 
 #### Constraints

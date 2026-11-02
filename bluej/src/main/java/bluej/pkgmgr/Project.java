@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,6 +54,7 @@ import bluej.parser.context.ClassLoaderProvider;
 import bluej.parser.context.CompilationUnitContext;
 import bluej.parser.context.CompilationUnitContextLoader;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.kotlin.analysis.KotlinAnalysisService;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
@@ -225,6 +226,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     /** The scanner for available imports.  May be null if not requested yet. */
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private ImportScanner importScanner;
+    /** Kotlin analysis (for code completion); null until first requested, so Java-only projects never create it. */
+    private KotlinAnalysisService kotlinAnalysisService;
 
     /** check if the project is a dvcs project**/
     private final FrameShelfStorage shelfStorage;
@@ -635,6 +638,11 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         project.removeAllInspectors();
         project.getDebugger().removeDebuggerListener(project);
         project.getDebugger().close(false);
+
+        if (project.kotlinAnalysisService != null) {
+            project.kotlinAnalysisService.dispose();
+            project.kotlinAnalysisService = null;
+        }
 
         projects.remove(project.getProjectDir());
     }
@@ -2499,6 +2507,20 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                 compilerTimer.playFromStart();
             }
         }
+    }
+
+    /**
+     * Get the service that analyses this project's Kotlin sources, creating it on first use.
+     * It is disposed when the project is closed.
+     *
+     * @return the project's Kotlin analysis service
+     */
+    public KotlinAnalysisService getKotlinAnalysisService()
+    {
+        if (kotlinAnalysisService == null) {
+            kotlinAnalysisService = new KotlinAnalysisService();
+        }
+        return kotlinAnalysisService;
     }
 
     @OnThread(Tag.Any)

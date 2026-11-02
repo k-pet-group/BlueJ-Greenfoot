@@ -134,7 +134,7 @@ The right-click call menus display parameter names only when a member's reflecte
 | 2 | Full-file PSI reparse (MVP) | Educational files 100-500 lines; ~50-100ms acceptable. Incremental is future optimization. |
 | 3 | `KotlinParentNode` for all scope nodes | Ensures Kotlin tokenization via virtual dispatch at every tree level |
 | 4 | Lazy singleton environment | Zero startup cost for Java-only projects |
-| 5 | Flat package (`bluej.parser.kotlin`) | 10 files across 3 capability areas -- not enough to justify sub-packages |
+| 5 | Flat package (`bluej.parser.kotlin`) | 10 files across 3 capability areas -- not enough to justify sub-packages. Semantic analysis is the exception, in `bluej.parser.kotlin.analysis` (see [Kotlin Semantic Analysis](analysis/README.md#design-decisions)) |
 | 6 | Comment/string nodes with REMOVE_NODE | Consistent with Kotlin's full-reparse strategy; simpler than smart local validation |
 | 7 | `handlesMultilineStrings()` virtual method | OOP polymorphism keeps `JavaSyntaxView` language-agnostic |
 | 8 | Param names via `ClassInfo` comments, mirroring Java's `InfoParser` | Reuses the existing `.ctxt` -> `View` -> menu pipeline unchanged; no new core-side mechanism |
@@ -147,7 +147,7 @@ The right-click call menus display parameter names only when a member's reflecte
 
 - **Full-file reparse per edit** (~50-100ms for 500 lines) -- see [Incremental PSI Reparse](incremental-reparse/README.md)
 - **Soft keyword reclassification is context-free** -- `data` highlighted as keyword even when used as identifier
-- **No general semantic entity resolution** -- the bounded hierarchy lookup above does not provide code completion or other type-aware features for Kotlin. The Ctrl+Space keybinding short-circuits to a transient "unavailable" popup in `FlowEditor`; see [Editor: Known Limitations](../editor/README.md#known-limitations).
+- **No general semantic entity resolution in the parser** -- the bounded hierarchy lookup above does not provide code completion or other type-aware features for Kotlin. Type-resolved analysis lives in [Kotlin Semantic Analysis](analysis/README.md), used by [Kotlin Code Completion](../editor/completion/README.md).
 - **Shaded PSI class paths** may change between Kotlin versions (concentrated in 4 files)
 - **Multi-line `${...}` in triple-quoted strings** -- continuation lines may not highlight correctly (rare in educational code)
 - **Hierarchy resolution is bounded** -- no type-alias expansion (including Kotlin library aliases such as `kotlin.collections.ArrayList`), inherited nested-type search or general semantic/accessibility analysis. Bare names require a verified declaration; unknown/ambiguous identities or kinds are omitted.
@@ -162,3 +162,4 @@ The right-click call menus display parameter names only when a member's reflecte
 ## Submodules
 
 - [Incremental PSI Reparse](incremental-reparse/README.md) -- tiered strategy to reduce per-keystroke latency
+- [Kotlin Semantic Analysis](analysis/README.md) -- per-project type-resolved analysis for code completion
