@@ -16,7 +16,7 @@ The central orchestrator of BlueJ (115 files). Manages projects, packages, class
 
 | Class | Purpose |
 |-------|---------|
-| `Project` | Represents an open BlueJ project; owns compiler, debugger, and packages |
+| `Project` | Represents an open BlueJ project; owns compiler, debugger, and packages (and, once requested, the Kotlin analysis service; see `kotlin-for-bluej-parser-analysis`) |
 | `Package` | Represents a Java package; manages class targets and dependencies |
 | `PkgMgrFrame` | Main IDE window showing the class diagram and menu actions |
 | `ClassTarget` | Visual representation of a class; tracks compiled/error state |

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2015,2017,2026  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -131,12 +131,7 @@ public class MethodCompletion extends AssistContent
     //package-visible
     static String buildDummyName(JavaType paramType, String paramName)
     {
-        if (paramName != null) {
-            return "_" + paramName + "_";
-        }
-        else {
-            return "_" + paramType.toString(true) + "_";
-        }
+        return ParamInfo.makeDummyName(paramName != null ? paramName : paramType.toString(true));
     }
 
     public CompletionKind getKind()
@@ -181,19 +176,7 @@ public class MethodCompletion extends AssistContent
         final String javadocSrc = getJavadoc();
         return () -> {
             JavaUtils.Javadoc javadoc = JavaUtils.parseJavadoc(javadocSrc);
-
-            if (javadoc == null)
-                return null;
-
-            String target = "param " + paramName;
-            for (String block : javadoc.getBlocks())
-            {
-                if (block.startsWith(target) && Character.isWhitespace(block.charAt(target.length())))
-                {
-                    return block.substring(target.length() + 1).trim();
-                }
-            }
-            return null;
+            return javadoc == null ? null : javadoc.getParamDescription(paramName);
         };
     }
 

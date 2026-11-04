@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2015,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2017,2026 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -133,19 +133,7 @@ public class ConstructorCompletion extends AssistContent
         String javadocSrc = getJavadoc();
         return () -> {
             JavaUtils.Javadoc javadoc = JavaUtils.parseJavadoc(javadocSrc);
-
-            if (javadoc == null)
-                return null;
-
-            String target = "param " + paramName;
-            for (String block : javadoc.getBlocks())
-            {
-                if (block.startsWith(target) && Character.isWhitespace(block.charAt(target.length())))
-                {
-                    return block.substring(target.length() + 1).trim();
-                }
-            }
-            return null;
+            return javadoc == null ? null : javadoc.getParamDescription(paramName);
         };
     }
 }

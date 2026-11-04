@@ -6,6 +6,7 @@ status: active
 parent: kotlin-for-bluej
 depends-on:
   - bluej-editor
+  - bluej-editor-flow
   - kotlin-for-bluej-parser
 tags:
   - kotlin
@@ -36,18 +37,22 @@ tags:
 - [PSI-Based Scope Detection](psi-scope/README.md) -- PSI tree -> ParsedNode conversion
 - [Highlighting](highlighting/README.md) -- token-level syntax coloring details
 - [Auto-Indent](auto-indent/README.md) -- token-driven Kotlin indenter (no scope-tree dependency)
+- [Code Completion](completion/README.md) -- what Kotlin completion suggests and inserts, and how it is delivered
 
 ---
 
 ## FlowLanguageSupport Strategy
 
-| Implementation | Parser Root | Supertype Syntax |
-|----------------|-------------|------------------|
-| `JavaLanguageSupport` | `ParsedCUNode` | `extends`/`implements` |
-| `KotlinLanguageSupport` | `KotlinParsedCUNode` | `: SuperClass(), Interface` |
-| `PlainTextLanguageSupport` | `null` (fail-fast) | throws `UnsupportedOperationException` |
+| Implementation | Parser Root | Supertype Syntax | Completion Provider |
+|----------------|-------------|------------------|---------------------|
+| `JavaLanguageSupport` | `ParsedCUNode` | `extends`/`implements` | `JavaCompletionProvider` |
+| `KotlinLanguageSupport` | `KotlinParsedCUNode` | `: SuperClass(), Interface` | `KotlinCompletionProvider` (see [Code Completion](completion/README.md)) |
+| `PlainTextLanguageSupport` | `null` (fail-fast) | throws `UnsupportedOperationException` | none (Ctrl+Space does nothing) |
 
-FlowEditor delegates parser creation and source-editing (setExtendsClass, addImplements, etc.) to the strategy. Callers pass strategy explicitly at construction.
+FlowEditor delegates parser creation, source-editing (setExtendsClass, addImplements, etc.) and code
+completion to the strategy. Callers pass strategy explicitly at construction. The completion contract
+(provider vs. editor responsibilities, callback, insertion segments) is owned by `bluej-editor-flow`;
+see its Code Completion section.
 
 Auto-indent is **not** routed through the strategy. `FlowIndent` dispatches
 on `parser.getParser() instanceof KotlinParsedCUNode` in one place — see
@@ -134,7 +139,7 @@ Required because `JavaSyntaxView.drawNode()` checks `isContainer() || isInner()`
 ## Known Limitations
 
 - **~1-2 second first-parse delay** when `KotlinCoreEnvironment` initializes
-- **No code completion** or type-aware highlighting for Kotlin. Ctrl+Space inside a `.kt` editor surfaces a transient caret-anchored popup ("Code completion is not available for Kotlin files") via `FlowEditor.showKotlinUnavailableNotice` — implemented as a `PopupControl` + custom `Skin` mirroring the existing `showErrorOverlay` shape, auto-dismissed after ~3s. This is an honest "not supported yet" signal rather than a working completion path; lifting it requires `BindingContext`-based type resolution (Tier 2, post-MVP).
+- **No type-aware highlighting** for Kotlin. Code completion is type-aware (see [Code Completion](completion/README.md) for its own limitations); highlighting and scope colouring remain PSI-only.
 - **PSI environment ~10-20 MB** memory
 - **Full-file reparse per edit** (~50-100ms for 500 lines; debounced by `FlowReparseRunner`)
 - **Multi-line `${...}` spanning lines** -- continuation lines may highlight incorrectly (rare)

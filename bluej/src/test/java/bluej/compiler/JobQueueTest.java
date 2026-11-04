@@ -420,10 +420,8 @@ public class JobQueueTest
     {
         List<URL> urls = new ArrayList<>();
         urls.add(dir.toUri().toURL());
-        for (String entry : System.getProperty("java.class.path").split(File.pathSeparator)) {
-            if (new File(entry).getName().startsWith("kotlin-stdlib")) {
-                urls.add(new File(entry).toURI().toURL());
-            }
+        for (File stdlib : KotlinTestClasspath.getKotlinStdlib()) {
+            urls.add(stdlib.toURI().toURL());
         }
         return new BPClassLoader(urls.toArray(URL[]::new), ClassLoader.getPlatformClassLoader());
     }

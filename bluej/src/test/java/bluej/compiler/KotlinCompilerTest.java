@@ -27,10 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -56,27 +54,7 @@ public class KotlinCompilerTest
         compiler.setDestDir(tempDir.toFile());
         // The Kotlin compiler needs kotlin-stdlib on the classpath to compile
         // even basic Kotlin code. Extract it from the test runtime classpath.
-        compiler.setClasspath(getKotlinStdlibFromTestClasspath());
-    }
-
-    /**
-     * Finds kotlin-stdlib JAR(s) on the current test classpath, so that the
-     * KotlinCompiler can resolve standard library types during compilation.
-     */
-    private static List<File> getKotlinStdlibFromTestClasspath()
-    {
-        String cp = System.getProperty("java.class.path");
-        if (cp == null)
-        {
-            return Collections.emptyList();
-        }
-        return Arrays.stream(cp.split(File.pathSeparator))
-                .filter(entry -> {
-                    String name = new File(entry).getName();
-                    return name.startsWith("kotlin-stdlib");
-                })
-                .map(File::new)
-                .collect(Collectors.toList());
+        compiler.setClasspath(KotlinTestClasspath.getKotlinStdlib());
     }
 
     @After
@@ -182,7 +160,7 @@ public class KotlinCompilerTest
             """);
 
         // Need to set classpath to include destDir + kotlin-stdlib
-        List<File> cp = new ArrayList<>(getKotlinStdlibFromTestClasspath());
+        List<File> cp = new ArrayList<>(KotlinTestClasspath.getKotlinStdlib());
         cp.add(tempDir.toFile());
         compiler.setClasspath(cp);
 
