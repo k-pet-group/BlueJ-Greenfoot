@@ -9,6 +9,8 @@
 !/bluej/.gitignore
 /bluej/package/**/*.jar
 /bluej/package/**/*.zip
+/bluej/package/BlueJ.app
+/bluej/package/Greenfoot.app
 /bluej/doc/extensions/**
 /bluej/lib/buildid.txt
 
