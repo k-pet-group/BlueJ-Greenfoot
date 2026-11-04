@@ -207,8 +207,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final BooleanProperty compiledProperty = new SimpleBooleanProperty(true);
     private final BooleanProperty viewingHTML = new SimpleBooleanProperty(false); // changing this alters the interface accordingly
     private ErrorDisplay errorDisplay;
-    // Transient code completion message (e.g. still loading, nothing to complete); null when hidden.
+    // Code completion message (e.g. still loading, nothing to complete); null when hidden.
     private PopupControl completionMessagePopup;
+    // Dismisses an auto-hiding message; null for a progress message, which stays until superseded.
     private Timeline completionMessageTimer;
     // Numbers completion requests, so that a late result can tell it has been superseded.
     private int completionRequestCount;
@@ -903,6 +904,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     public void selectionChanged(int caretPos, int anchorPos)
     {
+        // Any completion message refers to a request that this caret move has just made stale:
+        hideCompletionMessage();
         showErrorPopupForCaretPos(caretPos, false);
 
         actions.userAction();
@@ -1503,6 +1506,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     File getSourceFile()
     {
         return filename == null ? null : new File(filename);
+    }
+
+    // For tests: whether a code completion message (progress or otherwise) is currently shown.
+    boolean isCompletionMessageShowing()
+    {
+        return completionMessagePopup != null;
     }
 
     @Override
@@ -2275,6 +2284,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void textReplaced(int origStartIncl, String replaced, String replacement, int linesRemoved, int linesAdded)
     {
         documentChangeCount++;
+        // Any completion message refers to a request that this change has just made stale:
+        hideCompletionMessage();
         // Prevent re-entry to this method.  In theory this shouldn't happen as we
         // shouldn't modify the document in this function.  But it seems like sometimes
         // the styled changes we make cause RichTextFX to generate a plain text change event:
@@ -3303,7 +3314,15 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             public void showMessage(String message)
             {
                 if (isCurrent()) {
-                    showCompletionMessage(message);
+                    showCompletionMessage(message, true);
+                }
+            }
+
+            @Override
+            public void showProgress(String message)
+            {
+                if (isCurrent()) {
+                    showCompletionMessage(message, false);
                 }
             }
         });
@@ -3432,18 +3451,23 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         watcher.recordCodeCompletionStarted(document.getLineFromPosition(originalPosition) + 1, document.getColumnFromPosition(originalPosition) + 1, null, null, prefix, suggestionList.getRecordingId());
     }
 
-    // Transient caret-anchored code completion message, mirroring showErrorOverlay's shape.
+    // Caret-anchored code completion message, mirroring showErrorOverlay's shape. It is hidden by the
+    // next request, result or message, and by any document change or caret move; if autoHide is set
+    // it also dismisses itself after a few seconds.
     @OnThread(Tag.FXPlatform)
-    private void showCompletionMessage(String message)
+    private void showCompletionMessage(String message, boolean autoHide)
     {
         Bounds caretBounds = flowEditorPane.getCaretBoundsOnScreen(flowEditorPane.getCaretPosition()).orElse(null);
-        if (caretBounds == null && flowEditorPane.getCaretPosition() > 0)
-        {
+        if (caretBounds == null && flowEditorPane.getCaretPosition() > 0) {
             caretBounds = flowEditorPane.getCaretBoundsOnScreen(flowEditorPane.getCaretPosition() - 1).orElse(null);
         }
-        if (caretBounds == null)
-        {
+        if (caretBounds == null) {
             return; // caret off-screen
+        }
+        // The pane's own window: the tabbed editor's stage when embedded, the test stage in tests.
+        Window owner = flowEditorPane.getScene() == null ? null : flowEditorPane.getScene().getWindow();
+        if (owner == null) {
+            return;
         }
 
         // Dismiss previous instance so repeat presses don't stack.
@@ -3486,25 +3510,24 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         popup.setAnchorLocation(AnchorLocation.WINDOW_TOP_LEFT);
         popup.setAnchorX(caretBounds.getMinX());
         popup.setAnchorY(caretBounds.getMinY() + (4 * caretBounds.getHeight() / 3));
-        popup.show(getWindow());
-
-        Timeline timer = new Timeline(new KeyFrame(Duration.seconds(3), e -> hideCompletionMessage()));
-        timer.play();
-
+        popup.show(owner);
         completionMessagePopup = popup;
-        completionMessageTimer = timer;
+
+        if (autoHide) {
+            Timeline timer = new Timeline(new KeyFrame(Duration.seconds(3), e -> hideCompletionMessage()));
+            timer.play();
+            completionMessageTimer = timer;
+        }
     }
 
     @OnThread(Tag.FXPlatform)
     private void hideCompletionMessage()
     {
-        if (completionMessageTimer != null)
-        {
+        if (completionMessageTimer != null) {
             completionMessageTimer.stop();
             completionMessageTimer = null;
         }
-        if (completionMessagePopup != null)
-        {
+        if (completionMessagePopup != null) {
             completionMessagePopup.hide();
             completionMessagePopup = null;
         }
@@ -3519,15 +3542,15 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         // Replace prefix with the full name:
         flowEditorPane.select(prefixBegin, prefixEnd);
         String prefix = flowEditorPane.getSelectedText();
-        int insertionStart = flowEditorPane.getSelectionStart();
         // Each segment is a separate edit (and undo step), as Java method completion has always been:
         for (String segment : insertion.segments()) {
             insertText(segment, false);
         }
 
-        // If there were any dummy parameters, go back and select first one:
+        // If there were any dummy parameters, go back and select first one (the insertion replaced the
+        // prefix, so it starts where the prefix did):
         if (insertion.selectionStart() != -1) {
-            flowEditorPane.select(insertionStart + insertion.selectionStart(), insertionStart + insertion.selectionEnd());
+            flowEditorPane.select(prefixBegin + insertion.selectionStart(), prefixBegin + insertion.selectionEnd());
         }
 
         watcher.recordCodeCompletionEnded(document.getLineFromPosition(prefixBegin) + 1, document.getColumnFromPosition(prefixBegin) + 1, null, null, prefix, insertion.fullText(), suggestionList.getRecordingId());

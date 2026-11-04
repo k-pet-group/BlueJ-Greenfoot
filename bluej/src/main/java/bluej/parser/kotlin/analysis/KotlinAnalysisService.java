@@ -31,6 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import bluej.parser.kotlin.analysis.KotlinAnalysisEnvironment.Key;
 import bluej.parser.kotlin.analysis.KotlinAnalysisEnvironment.SourceText;
 import bluej.utility.Utility;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -58,8 +59,6 @@ public class KotlinAnalysisService
     // Only the running job (jobs never overlap) or the final disposal touches the environment.
     @OnThread(Tag.Worker)
     private KotlinAnalysisEnvironment environment;
-    @OnThread(Tag.Worker)
-    private int environmentsCreated;
 
     /**
      * Queue an analysis of the request's sources, followed by the given task.
@@ -158,7 +157,6 @@ public class KotlinAnalysisService
             // Create the replacement before releasing the old environment, so that the Kotlin
             // application environment they share is kept alive rather than rebuilt.
             KotlinAnalysisEnvironment replacement = new KotlinAnalysisEnvironment(key);
-            environmentsCreated++;
             if (environment != null) {
                 environment.dispose();
             }
@@ -193,12 +191,5 @@ public class KotlinAnalysisService
             environment.dispose();
             environment = null;
         }
-    }
-
-    // For tests: how many environments this service has created, to check reuse and rebuilding.
-    @OnThread(Tag.Worker)
-    int getEnvironmentsCreated()
-    {
-        return environmentsCreated;
     }
 }

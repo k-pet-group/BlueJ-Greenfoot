@@ -47,6 +47,7 @@ import bluej.pkgmgr.JavadocResolver;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -61,15 +62,16 @@ public class KotlinAssistContent extends AssistContent
     private static final Pattern SYNTHETIC_PARAMETER_NAME = Pattern.compile("p\\d+");
 
     private final KotlinCompletionCandidate candidate;
-    // From Javadoc, for Java members; null if unavailable.
-    private final String javadoc;
-    private final List<String> javadocParameterNames;
+    // Javadoc for Java members, otherwise the KDoc converted to Javadoc form; null if there is none.
+    private final String documentation;
+    // Built once: getParams() is called for every popup row, document and comparison while sorting.
+    private final List<ParamInfo> params;
 
     private KotlinAssistContent(KotlinCompletionCandidate candidate, String javadoc, List<String> javadocParameterNames)
     {
         this.candidate = candidate;
-        this.javadoc = javadoc;
-        this.javadocParameterNames = javadocParameterNames;
+        this.documentation = javadoc != null ? javadoc : KotlinParserUtils.kdocToJavadoc(candidate.kdoc());
+        this.params = makeParams(javadocParameterNames);
     }
 
     /**
@@ -144,22 +146,28 @@ public class KotlinAssistContent extends AssistContent
     @Override
     public List<ParamInfo> getParams()
     {
-        if (candidate.parameters() == null) {
-            return null;
-        }
-        List<ParamInfo> params = new ArrayList<>();
-        for (int i = 0; i < candidate.parameters().size(); i++) {
-            Parameter parameter = candidate.parameters().get(i);
-            String name = parameterName(i);
-            String description = name == null ? null : getParamDescription(name);
-            params.add(new ParamInfo(parameter.type(), name, ParamInfo.makeDummyName(name != null ? name : parameter.type()),
-                () -> description));
-        }
         return params;
     }
 
+    // The parameters as ParamInfos, or null if this is not a function. Descriptions are looked up on
+    // demand, since the Javadoc is only parsed when a parameter's description is actually displayed.
+    private List<ParamInfo> makeParams(List<String> javadocParameterNames)
+    {
+        if (candidate.parameters() == null) {
+            return null;
+        }
+        List<ParamInfo> made = new ArrayList<>();
+        for (int i = 0; i < candidate.parameters().size(); i++) {
+            Parameter parameter = candidate.parameters().get(i);
+            String name = parameterName(i, javadocParameterNames);
+            made.add(new ParamInfo(parameter.type(), name, ParamInfo.makeDummyName(name != null ? name : parameter.type()),
+                () -> name == null ? null : getParamDescription(name)));
+        }
+        return List.copyOf(made);
+    }
+
     // The parameter's real name, or null if only a synthetic one (p0, p1, ...) is known.
-    private String parameterName(int index)
+    private String parameterName(int index, List<String> javadocParameterNames)
     {
         String name = candidate.parameters().get(index).name();
         if (candidate.javaMember() != null && SYNTHETIC_PARAMETER_NAME.matcher(name).matches()) {
@@ -169,9 +177,10 @@ public class KotlinAssistContent extends AssistContent
         return name;
     }
 
+    @OnThread(Tag.Any)
     private String getParamDescription(String name)
     {
-        JavaUtils.Javadoc parsed = JavaUtils.parseJavadoc(getJavadoc());
+        JavaUtils.Javadoc parsed = JavaUtils.parseJavadoc(documentation);
         return parsed == null ? null : parsed.getParamDescription(name);
     }
 
@@ -208,7 +217,7 @@ public class KotlinAssistContent extends AssistContent
     @Override
     public String getJavadoc()
     {
-        return javadoc != null ? javadoc : KotlinParserUtils.kdocToJavadoc(candidate.kdoc());
+        return documentation;
     }
 
     /**

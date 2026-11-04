@@ -40,6 +40,7 @@ import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

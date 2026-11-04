@@ -47,7 +47,7 @@ Popup behaviour, request staleness and insertion mechanics follow the shared con
 | 17 | Calls insert placeholders for required parameters only | Kotlin defaults and varargs make other arguments optional; Java-style `_name_` placeholders (type-based when no name is known), first one selected. Named arguments are not used. |
 | 18 | A required function-typed last parameter becomes a trailing lambda | `repeat(_times_) { }`, `forEach { }` with the caret inside -- how Kotlin is written. An optional last lambda is simply left out. |
 | 19 | Analysis in the background; the popup appears when ready, if the request is still current | Keeps the editor responsive during the first request's ~1s start-up. Stale results are dropped by the shared request contract, which relies on the completion shortcut itself not typing into the document (see `bluej-editor-flow` Key Contracts). |
-| 20 | Messages instead of silence: "Loading code completion..." after 300ms, "No completions available" when nothing can be completed, "Code completion failed" (also logged), and a timeout message after 5s | Students should know whether to wait. Unlike Java, which shows nothing when there is nothing to complete. A superseded request shows nothing. |
+| 20 | Messages instead of silence: "Loading code completion..." after 300 ms, "No completions available" when nothing can be completed, "Code completion failed" (also logged), and a timeout message after 5 s | Students should know whether to wait. Unlike Java, which shows nothing when there is nothing to complete. A superseded request shows nothing. The loading message is a *progress* message in the `bluej-editor-flow` contract: it has no timer of its own and stays up until the result, the timeout or a failure replaces it (the other three dismiss themselves after 3 s). |
 | 21 | Timers are FX `Timeline`s, the analysis runs on the shared pool | No new threads, as the Kotlin architecture requires. |
 | 22 | Sorted as Java does: Greenfoot shortcuts first, then by name, kind and parameters | Java puts its static shortcuts first and sorts the rest with `AssistContent.getComparator()`. |
 
@@ -75,8 +75,9 @@ Popup behaviour, request staleness and insertion mechanics follow the shared con
 - **Provider and request**: `KotlinLanguageSupport` shares one stateless `KotlinCompletionProvider`. Each
   Ctrl+Space snapshots the project (`KotlinAnalysisRequest.forProject`, with the editor's current text)
   and submits it to the project's analysis service. Exactly one outcome is shown -- result, message or
-  timeout, whichever comes first; the loading message and timeout timers are cancelled when the outcome
-  arrives. A timed-out analysis still completes in the background and its result is discarded.
+  timeout, whichever comes first; the loading-message and timeout timers are cancelled when the outcome
+  arrives, and the outcome replaces the loading message if it is up. A timed-out analysis still
+  completes in the background and its result is discarded.
 
 ---
 
@@ -91,8 +92,10 @@ Popup behaviour, request staleness and insertion mechanics follow the shared con
   pairwise. These can occasionally keep or drop a borderline suggestion.
 - **Not completed**: `super.` members, labels (`this@Outer`), named arguments, hidden properties of outer
   receivers.
-- **No automated end-to-end test in a live project** -- request snapshotting from a real `Project` and
-  the popup itself are checked manually; the provider's outcome handling, request staleness, items and
-  engine are tested separately.
+- **Automated tests are deliberately thin** -- request snapshotting from a real `Project` and the popup
+  itself are checked manually. The editor-side contracts (request staleness, messages, items, insertion,
+  the provider's outcome handling) have unit tests; the engine has a smoke test per completion position
+  plus the null-context and candidate-data contracts. The finer resolution decisions above (7-11) are
+  checked by hand, since they will be re-derived on the Kotlin Analysis API.
 - **Performance** (student-sized project, real Greenfoot classes): about 1.1s for the session's first
   request, then roughly 25ms analysis plus up to 50ms collecting candidates.

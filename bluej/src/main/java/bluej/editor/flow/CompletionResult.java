@@ -24,6 +24,7 @@ package bluej.editor.flow;
 import java.util.List;
 
 import bluej.parser.AssistContent;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

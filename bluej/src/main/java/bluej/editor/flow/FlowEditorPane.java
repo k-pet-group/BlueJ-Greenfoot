@@ -118,6 +118,11 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     private int imStart = -1;
     private int imLength;
 
+    // Set when a key press has run a bound editor action; the character typed by that same key
+    // press is then dropped. Cleared by that key's release, or by the next key press that the
+    // editor actions do not handle, so that it cannot outlive the keystroke which set it.
+    private boolean ignoreTypedCharacter;
+
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
         super(true, listener);
@@ -131,6 +136,9 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
 
 
         updateRender(false);
+
+        // Bound keys that type nothing (arrows, shortcuts) would otherwise leave the flag set:
+        addEventHandler(KeyEvent.KEY_RELEASED, e -> ignoreTypedCharacter = false);
 
         document.addListener(false, (origStartIncl, replaced, replacement, linesRemoved, linesAdded) -> {
             notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
@@ -306,10 +314,6 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     {
         return new TrackedPosition(document, document.getLineStart(line) + column, Bias.NONE);
     }
-
-    // Set when a key press has run a bound editor action; the character typed by that same key
-    // press is then dropped. Cleared by the next key press that the editor actions do not handle.
-    private boolean ignoreTypedCharacter;
 
     @Override
     protected void keyPressed(KeyEvent event)

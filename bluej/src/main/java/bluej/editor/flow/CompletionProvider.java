@@ -23,6 +23,7 @@ package bluej.editor.flow;
 
 import bluej.editor.fixes.SuggestionList.SuggestionDetails;
 import bluej.parser.AssistContent;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

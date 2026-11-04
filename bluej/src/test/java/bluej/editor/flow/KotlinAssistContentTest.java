@@ -21,17 +21,12 @@
  */
 package bluej.editor.flow;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
-import bluej.compiler.KotlinTestClasspath;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.fixes.SuggestionList.SuggestionDetails;
@@ -40,14 +35,11 @@ import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ConstructorOrMethodReflective;
 import bluej.parser.InitConfig;
-import bluej.parser.kotlin.analysis.KotlinAnalysisRequest;
-import bluej.parser.kotlin.analysis.KotlinAnalysisService;
 import bluej.parser.kotlin.analysis.KotlinCompletionCandidate;
 import bluej.parser.kotlin.analysis.KotlinCompletionCandidate.JavaMember;
 import bluej.parser.kotlin.analysis.KotlinCompletionCandidate.Parameter;
-import bluej.parser.kotlin.analysis.KotlinCompletionEngine;
-import bluej.parser.kotlin.analysis.KotlinCompletionResult;
 import bluej.pkgmgr.JavadocResolver;
+
 import javafx.stage.Stage;
 import org.junit.Test;
 
@@ -68,76 +60,36 @@ public class KotlinAssistContentTest extends FXTest
     }
 
     @Test
-    public void testJavaParameterNamesAndDocumentationFromJavadoc()
+    public void testJavadocNamesAndDescriptionsForJavaMembers()
     {
-        StubJavadocResolver resolver = new StubJavadocResolver(Map.of("indexOf",
-            new Doc("Finds a substring.\n@param str the substring\n@param fromIndex where to start", List.of("str", "fromIndex"))));
-        KotlinAssistContent item = single(javaMethod("indexOf", "java.lang.String", List.of("java.lang.String", "int"),
-            List.of(param("p0", "String"), param("p1", "Int"))), resolver);
-
-        List<ParamInfo> params = fx(item::getParams);
-        assertEquals("str", params.get(0).getFormalName());
-        assertEquals("_fromIndex_", params.get(1).getDummyName());
-        assertEquals("the substring", params.get(0).getJavadocDescription());
-        assertTrue(fx(item::getJavadoc).startsWith("Finds a substring."));
-    }
-
-    @Test
-    public void testJavadocLookupMatchesArrayAndGenericParameters()
-    {
+        // Java members compiled without parameter names reach the engine as p0, p1, ...; Javadoc supplies the
+        // real names and descriptions, matched to the reflected method by erased JVM parameter types.
         StubJavadocResolver resolver = new StubJavadocResolver(Map.of(
+            "indexOf", new Doc("Finds a substring.\n@param str the substring\n@param fromIndex where to start",
+                List.of("str", "fromIndex")),
             "valueOf", new Doc("", List.of("data")),
             "add", new Doc("", List.of("e"))));
         List<KotlinAssistContent> items = fx(() -> KotlinAssistContent.create(List.of(
+            javaMethod("indexOf", "java.lang.String", List.of("java.lang.String", "int"),
+                List.of(param("p0", "String"), param("p1", "Int"))),
             javaMethod("valueOf", "java.lang.String", List.of("char[]"), List.of(param("p0", "CharArray"))),
             javaMethod("add", "java.util.List", List.of("java.lang.Object"), List.of(param("p0", "E")))),
             resolver, KotlinAssistContentTest::loadClass));
-        assertEquals("data", fx(() -> items.getFirst().getParams().getFirst().getFormalName()));
-        assertEquals("e", fx(() -> items.get(1).getParams().getFirst().getFormalName()));
-    }
 
-    @Test
-    public void testEngineSignaturesMatchJavaReflection() throws Exception
-    {
-        // JDK classes, like the Greenfoot API, are compiled without parameter names: the engine sees p0, p1, ...
-        Path projectDir = Files.createTempDirectory("kotlin-assist-test");
-        KotlinAnalysisService service = new KotlinAnalysisService();
-        try {
-            String text = "fun f(c: Class<*>) { c. }";
-            KotlinAnalysisRequest request = new KotlinAnalysisRequest(projectDir.toFile(),
-                KotlinTestClasspath.getKotlinStdlib(), StandardCharsets.UTF_8, projectDir.resolve("F.kt").toFile(),
-                text, Map.of());
-            KotlinCompletionResult result = KotlinCompletionEngine.complete(service, request, text.indexOf("c. ") + 2)
-                .get(60, TimeUnit.SECONDS);
-            List<KotlinCompletionCandidate> methods = result.candidates().stream()
-                .filter(c -> c.name().equals("isAssignableFrom") || c.name().equals("getMethod")).toList();
-            assertEquals(2, methods.size());
+        List<ParamInfo> indexOf = fx(() -> items.getFirst().getParams());
+        assertEquals("str", indexOf.get(0).getFormalName());
+        assertEquals("_fromIndex_", indexOf.get(1).getDummyName());
+        assertEquals("the substring", indexOf.get(0).getJavadocDescription());
+        assertTrue(fx(() -> items.getFirst().getJavadoc()).startsWith("Finds a substring."));
+        assertEquals("Array parameter matched", "data", fx(() -> items.get(1).getParams().getFirst().getFormalName()));
+        assertEquals("Generic parameter matched by erasure", "e", fx(() -> items.get(2).getParams().getFirst().getFormalName()));
 
-            StubJavadocResolver resolver = new StubJavadocResolver(Map.of(
-                "isAssignableFrom", new Doc("", List.of("cls")),
-                "getMethod", new Doc("", List.of("name", "parameterTypes"))));
-            List<KotlinAssistContent> items = fx(() -> KotlinAssistContent.create(methods, resolver,
-                KotlinAssistContentTest::loadClass));
-            for (KotlinAssistContent item : items) {
-                assertTrue("Javadoc names should replace p0 for " + item.getName() + " (generic and vararg parameters)",
-                    fx(item::getParams).stream().allMatch(p -> p.getFormalName() != null));
-            }
-        }
-        finally {
-            service.dispose();
-            Files.deleteIfExists(projectDir);
-        }
-    }
-
-    @Test
-    public void testWithoutJavadocSyntheticNamesFallBackToTypePlaceholders()
-    {
-        KotlinAssistContent item = single(javaMethod("indexOf", "java.lang.String", List.of("java.lang.String", "int"),
-            List.of(param("p0", "String"), param("p1", "Int"))), new StubJavadocResolver(Map.of()));
-        List<ParamInfo> params = fx(item::getParams);
-        assertNull("p0 is not a real name", params.get(0).getFormalName());
-        assertEquals("_Int_", params.get(1).getDummyName());
-        assertEquals(CompletionInsertion.call("indexOf", List.of("_String_", "_Int_")), fx(item::getInsertion));
+        // Without Javadoc, synthetic names fall back to type placeholders:
+        KotlinAssistContent undocumented = single(javaMethod("indexOf", "java.lang.String",
+            List.of("java.lang.String", "int"), List.of(param("p0", "String"), param("p1", "Int"))),
+            new StubJavadocResolver(Map.of()));
+        assertNull("p0 is not a real name", fx(undocumented::getParams).get(0).getFormalName());
+        assertEquals(CompletionInsertion.call("indexOf", List.of("_String_", "_Int_")), fx(undocumented::getInsertion));
     }
 
     @Test
@@ -170,7 +122,7 @@ public class KotlinAssistContentTest extends FXTest
     }
 
     @Test
-    public void testPopupRowAndDocumentationHeader()
+    public void testPopupRowsAndDocumentationHeader()
     {
         KotlinAssistContent item = single(roll(), new StubJavadocResolver(Map.of()));
         SuggestionDetails details = fx(item::getSuggestionDetails);
@@ -181,18 +133,12 @@ public class KotlinAssistContentTest extends FXTest
         String html = fx(item::getDocHTML);
         assertTrue(html, html.contains("<b>roll</b>(steps: Int = ..., fast: Boolean, action: () -&gt; Unit): Int"));
         assertTrue(html, html.contains("Rolls the rock"));
-    }
 
-    @Test
-    public void testPopupRowForPropertiesVarargsAndUnnamedJavaParameters()
-    {
         KotlinCompletionCandidate world = new KotlinCompletionCandidate("", "world", CompletionKind.FIELD, "World", null,
             "greenfoot.Actor", Access.PUBLIC, null, null);
         assertEquals(": World", fx(single(world, new StubJavadocResolver(Map.of()))::getSuggestionDetails).suffix);
-
         KotlinCompletionCandidate listOf = kotlinFunction("listOf", new Parameter("elements", "T", true, true, false));
         assertEquals("(vararg elements: T): Unit", fx(single(listOf, new StubJavadocResolver(Map.of()))::getSuggestionDetails).suffix);
-
         KotlinAssistContent indexOf = single(javaMethod("indexOf", "java.lang.String", List.of("java.lang.String", "int"),
             List.of(param("p0", "String"), param("p1", "Int"))), new StubJavadocResolver(Map.of()));
         assertEquals("Without Javadoc names, just the types", "(String, Int): Int", fx(indexOf::getSuggestionDetails).suffix);

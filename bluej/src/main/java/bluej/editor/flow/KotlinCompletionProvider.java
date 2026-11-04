@@ -42,8 +42,10 @@ import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+
 import javafx.application.Platform;
 import javafx.util.Duration;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -106,7 +108,8 @@ public class KotlinCompletionProvider implements CompletionProvider
         Outcome outcome = new Outcome();
         FXPlatformRunnable cancelLoadingMessage = JavaFXUtil.runAfter(loadingMessageDelay, () -> {
             if (!outcome.isSettled()) {
-                request.showMessage(Config.getString("editor.info.completionLoading"));
+                // Stays up until the result, the timeout or a failure replaces it.
+                request.showProgress(Config.getString("editor.info.completionLoading"));
             }
         });
         FXPlatformRunnable cancelTimeout = JavaFXUtil.runAfter(timeout, () -> {

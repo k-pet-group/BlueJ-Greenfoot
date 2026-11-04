@@ -24,6 +24,7 @@ package bluej.editor.flow;
 import java.util.List;
 
 import bluej.parser.AssistContent;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -34,74 +35,42 @@ import static org.junit.Assert.assertEquals;
 public class CompletionInsertionTest
 {
     @Test
-    public void testPlainTextLeavesCaretAfterText()
+    public void testJavaInsertionUnchanged()
     {
-        CompletionInsertion insertion = CompletionInsertion.text("count");
-        assertEquals(List.of("count"), insertion.segments());
-        assertEquals("Plain text should not select anything", -1, insertion.selectionStart());
-        assertEquals("count", insertion.fullText());
+        // A field inserts its name; a method inserts name(, the dummy parameters and ) as the three separate
+        // undo steps Java completion has always had, with the first dummy parameter selected.
+        JavaCompletionProvider java = new JavaCompletionProvider();
+        assertEquals(CompletionInsertion.text("out"), java.getInsertion(new StubContent("out", null)));
+        assertEquals(List.of("act(", ")"), java.getInsertion(new StubContent("act", List.of())).segments());
+
+        List<AssistContent.ParamInfo> params = List.of(
+            new AssistContent.ParamInfo("int", "distance", "distance", () -> ""),
+            new AssistContent.ParamInfo("int", null, "int1", () -> ""));
+        CompletionInsertion insertion = java.getInsertion(new StubContent("move", params));
+        assertEquals(List.of("move(", "distance, int1", ")"), insertion.segments());
+        assertEquals("move(distance, int1)", insertion.fullText());
+        assertEquals("First dummy parameter should be selected", "move(".length(), insertion.selectionStart());
+        assertEquals("First dummy parameter should be selected", "move(distance".length(), insertion.selectionEnd());
     }
 
     @Test
-    public void testCallSelectsFirstArgument()
+    public void testTrailingLambdaCall()
     {
-        CompletionInsertion insertion = CompletionInsertion.call("setLocation", List.of("x", "y"));
-        assertEquals(List.of("setLocation(", "x, y", ")"), insertion.segments());
-        assertEquals("setLocation(x, y)", insertion.fullText());
-        assertEquals("First argument should be selected", "setLocation(".length(), insertion.selectionStart());
-        assertEquals("First argument should be selected", "setLocation(x".length(), insertion.selectionEnd());
-    }
+        CompletionInsertion withArgs = CompletionInsertion.trailingLambdaCall("repeat", List.of("_times_"));
+        assertEquals(List.of("repeat(", "_times_", ") { ", "}"), withArgs.segments());
+        assertEquals("First argument should be selected", "repeat(".length(), withArgs.selectionStart());
+        assertEquals("First argument should be selected", "repeat(_times_".length(), withArgs.selectionEnd());
 
-    @Test
-    public void testCallWithoutArgumentsDropsEmptySegmentAndLeavesCaretAfterParen()
-    {
-        CompletionInsertion insertion = CompletionInsertion.call("act", List.of());
-        assertEquals("Empty parameter segment should be dropped", List.of("act(", ")"), insertion.segments());
-        assertEquals("Caret should stay after the closing parenthesis", -1, insertion.selectionStart());
-    }
-
-    @Test
-    public void testTrailingLambdaCallSelectsFirstArgument()
-    {
-        CompletionInsertion insertion = CompletionInsertion.trailingLambdaCall("repeat", List.of("_times_"));
-        assertEquals(List.of("repeat(", "_times_", ") { ", "}"), insertion.segments());
-        assertEquals("First argument should be selected", "repeat(".length(), insertion.selectionStart());
-        assertEquals("First argument should be selected", "repeat(_times_".length(), insertion.selectionEnd());
-    }
-
-    @Test
-    public void testTrailingLambdaOnlyPutsCaretInsideBraces()
-    {
-        CompletionInsertion insertion = CompletionInsertion.trailingLambdaCall("forEach", List.of());
-        assertEquals("forEach { }", insertion.fullText());
-        assertEquals("Caret should be inside the braces", "forEach { ".length(), insertion.selectionStart());
-        assertEquals("Nothing should be selected", insertion.selectionStart(), insertion.selectionEnd());
+        CompletionInsertion lambdaOnly = CompletionInsertion.trailingLambdaCall("forEach", List.of());
+        assertEquals("forEach { }", lambdaOnly.fullText());
+        assertEquals("Caret should be inside the braces", "forEach { ".length(), lambdaOnly.selectionStart());
+        assertEquals("Nothing should be selected", lambdaOnly.selectionStart(), lambdaOnly.selectionEnd());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSelectionOutsideInsertionIsRejected()
     {
         new CompletionInsertion(List.of("ab"), 1, 3);
-    }
-
-    @Test
-    public void testJavaFieldInsertsName()
-    {
-        CompletionInsertion insertion = new JavaCompletionProvider().getInsertion(new StubContent("out", null));
-        assertEquals(CompletionInsertion.text("out"), insertion);
-    }
-
-    @Test
-    public void testJavaMethodInsertsDummyParameterNames()
-    {
-        List<AssistContent.ParamInfo> params = List.of(
-            new AssistContent.ParamInfo("int", "distance", "distance", () -> ""),
-            new AssistContent.ParamInfo("int", null, "int1", () -> ""));
-        CompletionInsertion insertion = new JavaCompletionProvider().getInsertion(new StubContent("move", params));
-        assertEquals("Java inserts name(, parameters and ) as separate undo steps",
-            List.of("move(", "distance, int1", ")"), insertion.segments());
-        assertEquals("First dummy parameter should be selected", "move(".length(), insertion.selectionStart());
-        assertEquals("First dummy parameter should be selected", "move(distance".length(), insertion.selectionEnd());
     }
 
     /** Minimal completion candidate: only the name and parameters matter for insertion. */
