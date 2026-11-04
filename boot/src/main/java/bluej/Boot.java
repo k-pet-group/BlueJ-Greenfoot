@@ -21,14 +21,6 @@
  */
 package bluej;
 
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
-import javafx.stage.Stage;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.lang.reflect.InvocationTargetException;
@@ -40,6 +32,16 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
+import javafx.stage.Stage;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This class is the BlueJ boot loader. bluej.Boot is the class that should be 
@@ -78,12 +80,18 @@ public class Boot
         "classgraph-*.jar",
         "diffutils-*.jar", "commons-logging*.jar",
         JLAYER_MP3_JAR, "opencsv-*.jar", "xom-*.jar",
-        "lang-stride.jar",
+        "lang-stride.jar", "kotlin-stdlib-*.jar",
         "nsmenufx-*.jar", "wellbehavedfx-*.jar",
         "guava-*.jar",
         "failureaccess-*.jar",
         "simple-png*.jar",
         "http*.jar"};
+    // Compiler, PSI and metadata dependencies belong to the IDE, not the student's VM/classpath.
+    private static final String[] GREENFOOT_RUNTIME_JARS = Stream.concat(Arrays.stream(greenfootRuntimeAndUserJars),
+        Stream.of("kotlin-compiler-embeddable-*.jar", "kotlin-daemon-embeddable-*.jar",
+            "kotlin-script-runtime-*.jar", "kotlin-reflect-*.jar", "kotlin-metadata-jvm-*.jar",
+            "kotlinx-coroutines-core-jvm-*.jar", "trove4j-*.jar", "annotations-*.jar"))
+        .toArray(String[]::new);
     
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
@@ -290,7 +298,7 @@ public class Boot
             }
         };
         if(isGreenfoot) {
-            runtimeJars = greenfootRuntimeAndUserJars;
+            runtimeJars = GREENFOOT_RUNTIME_JARS;
             userJars = greenfootRuntimeAndUserJars;
         }
         
@@ -569,8 +577,8 @@ public class Boot
         javaHomeDir = new File(System.getProperty("java.home"));
 
         try {
-            runtimeClassPath = getKnownJars(getBluejLibDir(), runtimeJars, false);
-            runtimeUserClassPath = getKnownJars(getBluejLibDir(), userJars, true);
+            runtimeClassPath = getKnownJars(getBluejLibDir(), runtimeJars, new URL[0]);
+            runtimeUserClassPath = getKnownJars(getBluejLibDir(), userJars, getJavaFXClassPath());
         }
         catch (Exception exc) {
             exc.printStackTrace();
@@ -583,12 +591,12 @@ public class Boot
      * @param libDir  the BlueJ "lib" dir (where the jars are stored)
      * @param jars    the names of the jar files whose urls to add in the
      *                returned list
-     * @param isForUserVM  True if any jar files required for the user VM should be included.
+     * @param extraJars additional URLs, such as JavaFX for the user VM
      *
      * @return  URLs of the required JAR files
      * @exception  MalformedURLException  for any problems with the URLs
      */
-    private URL[] getKnownJars(File libDir, String[] jars, boolean isForUserVM)
+    private static URL[] getKnownJars(File libDir, String[] jars, URL[] extraJars)
         throws MalformedURLException
     {
         // by default, we require all our known jars to be present
@@ -630,12 +638,8 @@ public class Boot
             }
         }
 
-        if (isForUserVM)
-        {
-            // Only need to specially add JavaFX for the user VM, it will
-            // already be on classpath for server VM:
-            urlList.addAll(Arrays.asList(getJavaFXClassPath()));
-        }
+        // JavaFX is already on the server VM's boot path, but must be added for the user VM.
+        urlList.addAll(Arrays.asList(extraJars));
         return (URL[]) urlList.toArray(new URL[0]);
     }
     

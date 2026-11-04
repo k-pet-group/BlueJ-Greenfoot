@@ -23,7 +23,6 @@ package bluej.views;
 
 import bluej.utility.Debug;
 
-import kotlin.Metadata;
 import kotlin.metadata.KmClass;
 import kotlin.metadata.jvm.KotlinClassMetadata;
 
@@ -81,13 +80,8 @@ public final class KotlinCompanionDetector
      */
     public static CompanionInfo getCompanion(Class<?> cl)
     {
-        Metadata metadata = cl.getAnnotation(Metadata.class);
-        if (metadata == null) {
-            return null;
-        }
-
         try {
-            KotlinClassMetadata kcm = KotlinClassMetadata.readStrict(metadata);
+            KotlinClassMetadata kcm = KotlinMetadataReader.read(cl);
             if (!(kcm instanceof KotlinClassMetadata.Class)) {
                 return null;
             }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019,2020,2021,2022,2024,2025  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020,2021,2022,2024,2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -118,6 +118,11 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     private int imStart = -1;
     private int imLength;
 
+    // Set when a key press has run a bound editor action; the character typed by that same key
+    // press is then dropped. Cleared by that key's release, or by the next key press that the
+    // editor actions do not handle, so that it cannot outlive the keystroke which set it.
+    private boolean ignoreTypedCharacter;
+
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
         super(true, listener);
@@ -131,6 +136,9 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
 
 
         updateRender(false);
+
+        // Bound keys that type nothing (arrows, shortcuts) would otherwise leave the flag set:
+        addEventHandler(KeyEvent.KEY_RELEASED, e -> ignoreTypedCharacter = false);
 
         document.addListener(false, (origStartIncl, replaced, replacement, linesRemoved, linesAdded) -> {
             notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
@@ -310,6 +318,8 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
     @Override
     protected void keyPressed(KeyEvent event)
     {
+        // Only key presses the editor actions did not handle get here, so a new key is being typed:
+        ignoreTypedCharacter = false;
         // All the key press events are handled by the editor actions system, except the context menu key:
         if (event.getCode() == KeyCode.CONTEXT_MENU)
         {
@@ -319,9 +329,24 @@ public class FlowEditorPane extends BaseEditorPane implements JavaSyntaxView.Dis
         }
     }
 
+    /**
+     * Note that the current key press has run an editor action (via a key binding), so the character
+     * that the same key press types must not be inserted as well -- for example the space typed by
+     * Option+Space on macOS, or by Shift+Space, when either is bound to code completion.
+     */
+    void ignoreTypedCharacterOfCurrentKeyPress()
+    {
+        ignoreTypedCharacter = true;
+    }
+
     @Override
     protected void keyTyped(KeyEvent event)
     {
+        if (ignoreTypedCharacter) {
+            // The key press that typed this already ran an editor action.
+            ignoreTypedCharacter = false;
+            return;
+        }
         if (!editable)
             return;
 

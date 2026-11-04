@@ -47,6 +47,8 @@ import bluej.parser.symtab.ClassInfo;
  */
 public class KotlinLanguageSupport implements FlowLanguageSupport
 {
+    private static final CompletionProvider COMPLETION_PROVIDER = new KotlinCompletionProvider();
+
     @Override
     public ParsedCUNode createRootNode(EntityResolver resolver)
     {
@@ -131,6 +133,12 @@ public class KotlinLanguageSupport implements FlowLanguageSupport
     public SourceType getSourceType()
     {
         return SourceType.Kotlin;
+    }
+
+    @Override
+    public CompletionProvider getCompletionProvider()
+    {
+        return COMPLETION_PROVIDER;
     }
 
     /**

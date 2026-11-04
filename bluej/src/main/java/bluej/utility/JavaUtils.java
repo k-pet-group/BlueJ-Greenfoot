@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2014,2015,2016,2018,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2014,2015,2016,2018,2019,2020,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -591,6 +591,24 @@ public abstract class JavaUtils
         public List<String> getBlocks()
         {
             return blocks;
+        }
+
+        /**
+         * Get the description given for a parameter by its {@code @param} tag.
+         *
+         * @param paramName the parameter name
+         * @return the description, or null if the parameter is not documented
+         */
+        public String getParamDescription(String paramName)
+        {
+            String target = "param " + paramName;
+            for (String block : blocks) {
+                if (block.length() > target.length() && block.startsWith(target)
+                        && Character.isWhitespace(block.charAt(target.length()))) {
+                    return block.substring(target.length() + 1).trim();
+                }
+            }
+            return null;
         }
     }
 

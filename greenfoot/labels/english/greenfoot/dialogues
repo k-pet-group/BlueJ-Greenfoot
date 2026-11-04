@@ -98,6 +98,12 @@ cannot-save-world
 It is not possible to save the world after using Act/Run.
 Reset, set up the world, then save - before using Act/Run.
 
+cannot-save-world-source
+Greenfoot could not finish updating the world's source code.
+The recording has been kept. Check that the source is available
+and writable, and inspect it before trying again: some source
+changes may already have been made.
+
 terminate-for-reset
 The scenario is currently waiting for input.  To proceed you need
 to terminate the current execution.

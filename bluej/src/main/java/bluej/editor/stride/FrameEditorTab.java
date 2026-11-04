@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.debugger.DebuggerThread;
+import bluej.editor.Editor.InsertionResult;
 import bluej.parser.AssistContentThreadSafe;
 import bluej.editor.stride.ErrorOverviewBar.ErrorInfo;
 import bluej.editor.stride.ErrorOverviewBar.ErrorState;
@@ -2176,52 +2177,90 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         }));
     }
 
+    /**
+     * Insert or append a method once the top-level frame is available.
+     *
+     * @param method The method to insert or append
+     * @param after Completion called once on the JavaFX platform thread after the source operation finishes
+     */
     @OnThread(Tag.FXPlatform)
-    public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
+    public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<InsertionResult> after)
     {
         withTopLevelFrame(topLevelFrame -> {
-            for (NormalMethodFrame normalMethodFrame : (List<NormalMethodFrame>) topLevelFrame.getMethods()) {
-                // Check if it already exists
-                if (normalMethodFrame.getName().equals(method.getName())) {
-                    insertMethodContentsIntoMethodFrame(method, normalMethodFrame);
-                    after.accept(false);
-                    return;
-                }
+            InsertionResult result;
+            try {
+                result = insertAppendMethodToFrame(topLevelFrame, method);
             }
-            // method not found, create it
-            insertMethodElementAtTheEnd(method);
-            after.accept(true);
+            catch (RuntimeException e) {
+                Debug.reportError("Could not insert or append method in Stride editor", e);
+                result = InsertionResult.FAILED;
+            }
+            after.accept(result);
         });
     }
 
     @OnThread(Tag.FXPlatform)
-    public void insertMethodCallInConstructor(CallElement methodCall, FXPlatformConsumer<Boolean> after)
+    private InsertionResult insertAppendMethodToFrame(TopLevelFrame<? extends TopLevelCodeElement> topLevelFrame,
+                                                    NormalMethodElement method)
+    {
+        for (NormalMethodFrame normalMethodFrame : (List<NormalMethodFrame>) topLevelFrame.getMethods()) {
+            // Check if it already exists
+            if (normalMethodFrame.getName().equals(method.getName())) {
+                insertMethodContentsIntoMethodFrame(method, normalMethodFrame);
+                return InsertionResult.EXISTING;
+            }
+        }
+        // method not found, create it
+        insertMethodElementAtTheEnd(method);
+        return InsertionResult.INSERTED;
+    }
+
+    /**
+     * Insert a constructor call once the top-level frame is available.
+     *
+     * @param methodCall The call to insert or reuse
+     * @param after Completion called once on the JavaFX platform thread after the source operation finishes
+     */
+    @OnThread(Tag.FXPlatform)
+    public void insertMethodCallInConstructor(CallElement methodCall, FXPlatformConsumer<InsertionResult> after)
     {
         // TODO maybe we have to insert it into the element not the frames.
         withTopLevelFrame(topLevelFrame -> {
-            if (topLevelFrame.getConstructors().isEmpty())
-            {
-                topLevelFrame.addDefaultConstructor();
+            InsertionResult result;
+            try {
+                result = insertMethodCallInConstructorFrames(topLevelFrame, methodCall);
             }
-            for (ConstructorFrame constructorFrame : topLevelFrame.getConstructors())
-            {
-                for (CodeFrame<?> innerFrame : constructorFrame.getMembersFrames())
-                {
-                    if (innerFrame instanceof CallFrame)
-                    {
-                        CallFrame doFrame = (CallFrame) innerFrame;
-                        if (doFrame.getCode().toJavaSource().toTemporaryJavaCodeString().equals(methodCall.toJavaSource().toTemporaryJavaCodeString()))
-                        {
-                            after.accept(true);
-                            return;
-                        }
+            catch (RuntimeException e) {
+                Debug.reportError("Could not insert method call in Stride constructor", e);
+                result = InsertionResult.FAILED;
+            }
+            after.accept(result);
+        });
+    }
+
+    @OnThread(Tag.FXPlatform)
+    private InsertionResult insertMethodCallInConstructorFrames(TopLevelFrame<? extends TopLevelCodeElement> topLevelFrame,
+                                                               CallElement methodCall)
+    {
+        InsertionResult result = InsertionResult.FAILED;
+        if (topLevelFrame.getConstructors().isEmpty()) {
+            topLevelFrame.addDefaultConstructor();
+        }
+        for (ConstructorFrame constructorFrame : topLevelFrame.getConstructors()) {
+            for (CodeFrame<?> innerFrame : constructorFrame.getMembersFrames()) {
+                if (innerFrame instanceof CallFrame) {
+                    CallFrame doFrame = (CallFrame) innerFrame;
+                    if (doFrame.getCode().toJavaSource().toTemporaryJavaCodeString().equals(methodCall.toJavaSource().toTemporaryJavaCodeString())) {
+                        // An earlier constructor may already have received a new call.
+                        return result == InsertionResult.INSERTED ? result : InsertionResult.EXISTING;
                     }
                 }
-                // Constructor found, but doesn't contain the method call
-                insertElementIntoMethod(methodCall, constructorFrame);
             }
-            after.accept(false);
-        });
+            // Constructor found, but doesn't contain the method call
+            insertElementIntoMethod(methodCall, constructorFrame);
+            result = InsertionResult.INSERTED;
+        }
+        return result;
     }
 
     @OnThread(Tag.FXPlatform)
