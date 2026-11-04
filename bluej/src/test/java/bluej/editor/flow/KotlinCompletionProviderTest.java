@@ -33,6 +33,7 @@ import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.InitConfig;
 import bluej.parser.kotlin.analysis.KotlinCompletionCandidate;
 import bluej.parser.kotlin.analysis.KotlinCompletionResult;
+
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.junit.Test;
@@ -67,53 +68,45 @@ public class KotlinCompletionProviderTest extends FXTest
     }
 
     @Test
-    public void testNothingToCompleteShowsMessage() throws Exception
+    public void testOutcomesWithoutAResult() throws Exception
     {
-        RecordingRequest request = deliver(new KotlinCompletionProvider(), CompletableFuture.completedFuture(null));
-        waitFor(() -> !request.messages.isEmpty());
-        assertEquals(List.of(Config.getString("editor.info.noCompletions")), request.messages);
-    }
+        RecordingRequest nothing = deliver(new KotlinCompletionProvider(), CompletableFuture.completedFuture(null));
+        waitFor(() -> !nothing.messages.isEmpty());
+        assertEquals(List.of(Config.getString("editor.info.noCompletions")), nothing.messages);
 
-    @Test
-    public void testFailureShowsMessage() throws Exception
-    {
-        RecordingRequest request = deliver(new KotlinCompletionProvider(),
+        RecordingRequest failed = deliver(new KotlinCompletionProvider(),
             CompletableFuture.failedFuture(new IllegalStateException("expected test failure")));
-        waitFor(() -> !request.messages.isEmpty());
-        assertEquals(List.of(Config.getString("editor.info.completionFailed")), request.messages);
-    }
+        waitFor(() -> !failed.messages.isEmpty());
+        assertEquals(List.of(Config.getString("editor.info.completionFailed")), failed.messages);
 
-    @Test
-    public void testSupersededRequestShowsNothing() throws Exception
-    {
-        CompletableFuture<KotlinCompletionResult> future = new CompletableFuture<>();
-        RecordingRequest request = deliver(new KotlinCompletionProvider(), future);
-        future.cancel(false);
+        CompletableFuture<KotlinCompletionResult> cancelled = new CompletableFuture<>();
+        RecordingRequest superseded = deliver(new KotlinCompletionProvider(), cancelled);
+        cancelled.cancel(false);
         Thread.sleep(500);
-        assertTrue(fx(() -> request.result == null && request.messages.isEmpty()));
+        assertTrue("A superseded request shows nothing; the newer one shows its own outcome",
+            fx(() -> superseded.result == null && superseded.messages.isEmpty()));
     }
 
     @Test
-    public void testSlowResultShowsLoadingMessageFirst() throws Exception
+    public void testLoadingMessageThenOutcomeOrTimeout() throws Exception
     {
-        CompletableFuture<KotlinCompletionResult> future = new CompletableFuture<>();
-        RecordingRequest request = deliver(new KotlinCompletionProvider(Duration.millis(50), Duration.seconds(30)), future);
-        waitFor(() -> !request.messages.isEmpty());
-        assertEquals(List.of(Config.getString("editor.info.completionLoading")), fx(() -> List.copyOf(request.messages)));
-        future.complete(new KotlinCompletionResult(0, List.of(field("", "speed"))));
+        // A slow analysis first shows progress, then its result:
+        CompletableFuture<KotlinCompletionResult> slow = new CompletableFuture<>();
+        RecordingRequest request = deliver(new KotlinCompletionProvider(Duration.millis(50), Duration.seconds(30)), slow);
+        waitFor(() -> !request.progress.isEmpty());
+        assertEquals(List.of(Config.getString("editor.info.completionLoading")), fx(() -> List.copyOf(request.progress)));
+        assertTrue("Loading is progress, not a self-dismissing message: " + request.messages, request.messages.isEmpty());
+        slow.complete(new KotlinCompletionResult(0, List.of(field("", "speed"))));
         waitFor(() -> request.result != null);
-    }
 
-    @Test
-    public void testTimeoutShowsMessageAndDropsLateResult() throws Exception
-    {
-        CompletableFuture<KotlinCompletionResult> future = new CompletableFuture<>();
-        RecordingRequest request = deliver(new KotlinCompletionProvider(Duration.seconds(30), Duration.millis(50)), future);
-        waitFor(() -> !request.messages.isEmpty());
-        assertEquals(List.of(Config.getString("editor.info.completionTimeout")), fx(() -> List.copyOf(request.messages)));
-        future.complete(new KotlinCompletionResult(0, List.of(field("", "speed"))));
+        // Past the timeout, the timeout message is the outcome and a late result is discarded:
+        CompletableFuture<KotlinCompletionResult> late = new CompletableFuture<>();
+        RecordingRequest timedOut = deliver(new KotlinCompletionProvider(Duration.seconds(30), Duration.millis(50)), late);
+        waitFor(() -> !timedOut.messages.isEmpty());
+        assertEquals(List.of(Config.getString("editor.info.completionTimeout")), fx(() -> List.copyOf(timedOut.messages)));
+        late.complete(new KotlinCompletionResult(0, List.of(field("", "speed"))));
         Thread.sleep(500);
-        assertTrue("A result after the timeout is discarded", fx(() -> request.result == null));
+        assertTrue("A result after the timeout is discarded", fx(() -> timedOut.result == null));
     }
 
     private RecordingRequest deliver(KotlinCompletionProvider provider, CompletableFuture<KotlinCompletionResult> future)
@@ -146,6 +139,7 @@ public class KotlinCompletionProviderTest extends FXTest
     {
         private CompletionResult result;
         private final List<String> messages = new ArrayList<>();
+        private final List<String> progress = new ArrayList<>();
 
         @Override
         public int getCaretPosition()
@@ -169,6 +163,12 @@ public class KotlinCompletionProviderTest extends FXTest
         public void showMessage(String message)
         {
             messages.add(message);
+        }
+
+        @Override
+        public void showProgress(String message)
+        {
+            progress.add(message);
         }
     }
 }

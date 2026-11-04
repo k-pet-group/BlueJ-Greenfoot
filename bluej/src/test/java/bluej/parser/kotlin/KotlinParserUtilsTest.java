@@ -56,8 +56,12 @@ public class KotlinParserUtilsTest
     }
 
     @Test
-    public void testKDocMarkdownConvertedForJavadocDisplay()
+    public void testKDocConvertedForJavadocDisplay()
     {
+        assertNull("No comment, no documentation", KotlinParserUtils.kdocToJavadoc(null));
+        assertEquals("Delimiters and leading stars removed", "One line.",
+            KotlinParserUtils.kdocToJavadoc("/** One line. */").trim());
+
         String converted = KotlinParserUtils.kdocToJavadoc("""
             /**
              * Moves `x` by [steps], see [the docs](https://example.org).
@@ -67,17 +71,5 @@ public class KotlinParserUtilsTest
         assertTrue(converted, converted.contains("Moves <code>x</code> by <code>steps</code>, see the docs."));
         assertTrue("HTML special characters are escaped: " + converted, converted.contains("<b>Note</b>: a &lt; b &amp; c."));
         assertTrue("Block tags are kept for Javadoc rendering: " + converted, converted.contains("@param steps how far"));
-    }
-
-    @Test
-    public void testMissingKDoc()
-    {
-        assertNull(KotlinParserUtils.kdocToJavadoc(null));
-    }
-
-    @Test
-    public void testDelimitersAndLeadingStarsRemoved()
-    {
-        assertEquals("One line.", KotlinParserUtils.kdocToJavadoc("/** One line. */").trim());
     }
 }

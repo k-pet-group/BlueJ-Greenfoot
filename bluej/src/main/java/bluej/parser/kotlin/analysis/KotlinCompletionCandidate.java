@@ -25,6 +25,7 @@ import java.util.List;
 
 import bluej.parser.AssistContent.Access;
 import bluej.parser.AssistContent.CompletionKind;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

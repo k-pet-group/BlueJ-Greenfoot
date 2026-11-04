@@ -82,5 +82,7 @@ tags:
 - **Whole-project analysis per request** -- the project directory is scanned and all Kotlin files are
   analysed each time. Fine at student scale; large projects would need narrower analysis.
 - **Memory** -- one environment per open project that has requested analysis (tens of MB).
-- **`forProject` snapshotting is not covered by automated tests** (needs a live project); service
-  behaviour is covered with directly constructed requests.
+- **Automated tests are deliberately thin** -- `forProject` snapshotting needs a live project and is
+  checked by hand; the service is covered with directly constructed requests for the sources contract and
+  the queue contract only. Environment reuse and rebuilding are K1 internals that will go with the
+  Analysis API integration and are not pinned by tests.

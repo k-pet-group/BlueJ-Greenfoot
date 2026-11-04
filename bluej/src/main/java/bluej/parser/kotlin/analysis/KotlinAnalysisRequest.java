@@ -34,6 +34,7 @@ import bluej.parser.SourceLocation;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

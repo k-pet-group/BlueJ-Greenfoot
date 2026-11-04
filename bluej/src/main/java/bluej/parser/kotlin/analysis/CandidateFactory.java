@@ -28,6 +28,7 @@ import bluej.parser.AssistContent.Access;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.kotlin.analysis.KotlinCompletionCandidate.JavaMember;
 import bluej.parser.kotlin.analysis.KotlinCompletionCandidate.Parameter;
+
 import org.jetbrains.kotlin.builtins.FunctionTypesKt;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
 import org.jetbrains.kotlin.descriptors.CallableDescriptor;

@@ -55,9 +55,19 @@ public interface CompletionRequest
 
     /**
      * Show a short message next to the caret, if the request is still current (for example, that
-     * completion is still loading or that there is nothing to complete).
+     * there is nothing to complete). It dismisses itself after a few seconds, or as soon as the
+     * document changes or the caret moves.
      *
      * @param message the message text
      */
     void showMessage(String message);
+
+    /**
+     * Show a progress message next to the caret, if the request is still current (for example, that
+     * completion is still loading). Unlike {@link #showMessage}, it stays until the request's result
+     * or a message replaces it, or until the request stops being current.
+     *
+     * @param message the message text
+     */
+    void showProgress(String message);
 }
