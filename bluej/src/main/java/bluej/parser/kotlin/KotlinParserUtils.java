@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.psi.KtPackageDirective;
+import org.jetbrains.kotlin.renderer.KeywordStringsGenerated;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -55,7 +56,7 @@ public final class KotlinParserUtils
      * compiles to {@code MyUtilKt.class}, and {@code Utils.kt} compiles to
      * {@code UtilsKt.class}. The casing of the rest of the stem is preserved.
      *
-     * <p>This is verified against {@code K2JVMCompiler} 2.1.20 and is consistent
+     * <p>This is verified against {@code K2JVMCompiler} 2.2.20 and is consistent
      * with {@code @file:JvmName} default behaviour. Use this from every site
      * that needs to derive the facade class name from a source-file stem so
      * the rule lives in exactly one place.
@@ -69,6 +70,25 @@ public final class KotlinParserUtils
             return stem;
         }
         return Character.toUpperCase(stem.charAt(0)) + stem.substring(1) + "Kt";
+    }
+
+    /**
+     * Check whether any segment of a qualified name is a Kotlin hard keyword
+     * (e.g. {@code fun}, {@code val}, {@code object}). Such names are valid in
+     * Java but break Kotlin sources that declare them (package directive or
+     * class name).
+     * Uses the compiler's own keyword set, so it tracks the bundled Kotlin version.
+     *
+     * @param qualifiedName a dot-separated name, e.g. {@code "a.fun.b"}
+     */
+    public static boolean containsHardKeyword(String qualifiedName)
+    {
+        for (String segment : qualifiedName.split("\\.")) {
+            if (KeywordStringsGenerated.KEYWORDS.contains(segment)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

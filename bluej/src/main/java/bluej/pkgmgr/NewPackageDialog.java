@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ import javafx.stage.Window;
 
 import bluej.*;
 import bluej.Config;
+import bluej.parser.kotlin.KotlinParserUtils;
 import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.dialog.InputDialog;
@@ -57,7 +58,9 @@ class NewPackageDialog extends InputDialog<String>
     {
         newInput = newInput.trim();
 
-        if (!newInput.isEmpty() && JavaNames.isQualifiedIdentifier(newInput))
+        // Kotlin keywords are rejected too, as a package may later hold Kotlin classes
+        if (!newInput.isEmpty() && JavaNames.isQualifiedIdentifier(newInput)
+                && !KotlinParserUtils.containsHardKeyword(newInput))
         {
             setOKEnabled(true);
             setErrorText("");

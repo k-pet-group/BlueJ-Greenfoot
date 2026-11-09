@@ -42,6 +42,7 @@ All spokes work identically for Kotlin as for Java/Stride. Modifications are in 
 - **ClassRole hierarchy is unchanged** -- Kotlin `class`/`abstract class`/`interface`/`enum class` map to existing `StdClassRole`/`AbstractClassRole`/`InterfaceClassRole`/`EnumClassRole`
 - **Dependency system is unchanged** -- `KotlinInfoParser` produces standard `ClassInfo` consumed by `analyseDependencies()`
 - **Template substitution** -- Kotlin templates use same `$CLASSNAME`/`$PKGLINE` variables as Java
+- **Kotlin hard keywords rejected as names**, mirroring Java's keyword check (`JavaNames.isIdentifier`) at the same dialogs: `NewPackageDialog` rejects them for every package (any package may later hold Kotlin classes); `NewClassDialog` and `DuplicateClassDialog` reject them for Kotlin classes only. Single rule: `KotlinParserUtils.containsHardKeyword`, backed by the compiler's own `KeywordStringsGenerated.KEYWORDS` (`fun`, `val`, `object`, `when`, ...) so it tracks the bundled Kotlin version; soft keywords (`data`, `open`, `value`, ...) remain valid. Loading existing projects is not affected.
 - **`canConvertToStride()` returns false** for Kotlin
 - **`enforcePackage()` rewrites Kotlin package directives** alongside Java. The branch that inserts a missing directive omits the trailing semicolon for Kotlin (Java emits `";\n\n"`, Kotlin emits `"\n\n"`); rename and delete branches reuse the PSI-derived `Selection`s from `KotlinInfoParser`
 - **Package move (`Package.importFile`)** accepts `.kt` alongside `.java` and `.stride` via the shared `stripRecognisedSourceExtension` helper. After the source file is copied to the destination, the standard `addClass` → `analyseSource` flow picks up the right `SourceType.Kotlin`, applies `enforcePackage`, and the next compile in the destination emits the proper `.class` (regular classes) or facade `.class` (top-level functions).
@@ -78,7 +79,7 @@ When a user draws an inheritance arrow, `FlowLanguageSupport` strategy handles t
 - **No Kotlin object/companion** *diagram representation* -- a companion object is not drawn as its own node or `<<companion>>` stereotype. Companion **methods** are nonetheless invokable as static-style operations on the enclosing class (see [Companion Object Methods](companion-objects/README.md)). Top-level `object` declarations remain unrepresented.
 - **No Stride <-> Kotlin conversion**
 - **Template subset** -- only 5 Kotlin templates vs 6+ Java templates
-- **`enforcePackage()` is Java-only** -- Kotlin package declarations not auto-corrected on move
+- **`enforcePackage()` inserts a missing directive at line 1** -- i.e. above any `@file:` annotation, which K2 rejects ("'@file:' annotations can only be applied before package declaration"); not handled because annotations are unsupported (see [Top-Level Functions](../toplevel/README.md))
 
 ---
 

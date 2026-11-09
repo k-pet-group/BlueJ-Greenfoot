@@ -131,7 +131,7 @@ public final class KotlinFileFormValidator
                     .collect(Collectors.joining(", "));
             String message = "Only one class or object declaration is allowed per file. Found: " + names;
             for (int i = 1; i < classDecls.size(); i++) {
-                violations.add(createDiagnostic(message, fileName, source,
+                violations.add(createDiagnostic(message, file.getPath(), source,
                         getKeywordRange(classDecls.get(i))));
             }
         }
@@ -144,7 +144,7 @@ public final class KotlinFileFormValidator
                 TextRange range = classOrObject.getNameIdentifier() != null
                         ? classOrObject.getNameIdentifier().getTextRange()
                         : getKeywordRange(classOrObject);
-                violations.add(createDiagnostic(message, fileName, source, range));
+                violations.add(createDiagnostic(message, file.getPath(), source, range));
             }
         }
 
@@ -154,7 +154,7 @@ public final class KotlinFileFormValidator
                     : hasFunction ? "top-level functions" : "top-level properties";
             String message = "A file cannot contain both a class declaration and " + what + ". "
                     + "Move one to a separate file.";
-            violations.add(createDiagnostic(message, fileName, source,
+            violations.add(createDiagnostic(message, file.getPath(), source,
                     getKeywordRange(classDecls.get(0))));
 
             TextRange range;
@@ -165,7 +165,7 @@ public final class KotlinFileFormValidator
             } else {
                 range = firstNonClass.getTextRange();
             }
-            violations.add(createDiagnostic(message, fileName, source, range));
+            violations.add(createDiagnostic(message, file.getPath(), source, range));
         }
 
         return violations;
@@ -183,7 +183,7 @@ public final class KotlinFileFormValidator
         return classOrObject.getTextRange();
     }
 
-    private static Diagnostic createDiagnostic(String message, String fileName,
+    private static Diagnostic createDiagnostic(String message, String filePath,
             String source, TextRange range)
     {
         int[] startPos = offsetToLineColumn(source, range.getStartOffset());
@@ -191,7 +191,7 @@ public final class KotlinFileFormValidator
 
         return new Diagnostic(Diagnostic.ERROR,
                 DiagnosticMessage.fromEnglish(message),
-                fileName, startPos[0], startPos[1], endPos[0], endPos[1],
+                filePath, startPos[0], startPos[1], endPos[0], endPos[1],
                 DiagnosticOrigin.KOTLIN, Compiler.getNewErrorIdentifier());
     }
 

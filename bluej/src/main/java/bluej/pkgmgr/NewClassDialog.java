@@ -46,6 +46,7 @@ import javafx.stage.Window;
 
 import bluej.Config;
 import bluej.extensions2.SourceType;
+import bluej.parser.kotlin.KotlinParserUtils;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.HorizontalRadio;
@@ -352,7 +353,8 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
             showError(Config.getString("pkgmgr.newClass.error.noType"), false);
         else if (((RadioButton)selectedToggle).isDisabled() || !info.sourceTypes.contains(sourceType))
             showError(Config.getString("pkgmgr.newClass.error.typeNotAvailable", null,  localProperties, false), false);
-        else if (!JavaNames.isIdentifier(newClassName))
+        else if (!JavaNames.isIdentifier(newClassName)
+                || (sourceType == SourceType.Kotlin && KotlinParserUtils.containsHardKeyword(newClassName)))
         {
             if (fieldHasHadContent || force)
                 showError(Config.getString("pkgmgr.newClass.error.notValidClassName", null,  localProperties, false), true);

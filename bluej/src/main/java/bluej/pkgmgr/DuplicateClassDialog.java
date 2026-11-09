@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2017,2019,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.pkgmgr;
 
 import bluej.Config;
 import bluej.extensions2.SourceType;
+import bluej.parser.kotlin.KotlinParserUtils;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.dialog.InputDialog;
 import javafx.stage.Window;
@@ -38,6 +39,8 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public class DuplicateClassDialog extends InputDialog<String>
 {
+    private final SourceType sourceType;
+
     /**
      * Creates a DuplicateClassDialog, which prompts the user to enter (or confirm a suggested) name for the new class.
      *
@@ -49,6 +52,7 @@ public class DuplicateClassDialog extends InputDialog<String>
     {
         super(Config.getString("pkgmgr.duplicate.title"), Config.getString("pkgmgr.newClass.label"),
                 Config.getString("pkgmgr.newClass.prompt"), "new-class-dialog", "." + sourceType.name());
+        this.sourceType = sourceType;
         initOwner(parent);
         setOKEnabled(false);
         field.setText(name);
@@ -65,7 +69,8 @@ public class DuplicateClassDialog extends InputDialog<String>
     {
         newInput = newInput.trim();
 
-        if (!newInput.isEmpty() && JavaNames.isIdentifier(newInput))
+        if (!newInput.isEmpty() && JavaNames.isIdentifier(newInput)
+                && !(sourceType == SourceType.Kotlin && KotlinParserUtils.containsHardKeyword(newInput)))
         {
             setOKEnabled(true);
             setErrorText("");

@@ -47,6 +47,8 @@ No new threads. Runs on existing `CompilerThread`, preserving single-threaded se
 
 Line/column from `CompilerMessageSourceLocation` mapped 1:1. Origin = `KOTLIN`. Identifier from shared atomic counter.
 
+**File name = full source path, as passed in.** `KotlinCompiler.resolveSourcePath` maps K2's reported path back to the matching input `File` (absolute match, then canonical; falls back to the absolute path). Never reduce it to the bare file name: `Package.getTargetForSource` derives package and class from the path relative to the project dir, so `"Foo.kt"` resolves to the default package and, for a class in a sub-package, the error is shown in an `error-in-file` dialog instead of the editor. Diagnostics without a location (e.g. K2's "kotlin home" warnings) have a `null` file name. Same contract as javac diagnostics in `CompilerAPICompiler` and as [File Form Validation](file-form-validation/README.md).
+
 ---
 
 ## Submodules
@@ -74,3 +76,4 @@ Line/column from `CompilerMessageSourceLocation` mapped 1:1. Origin = `KOTLIN`. 
 - **K2 cold-start latency** -- first compile ~2-5s due to class loading
 - **No incremental compilation** -- full K2 on all `.kt` sources each time
 - **Full Kotlin language accepted** -- K2 doesn't restrict to educational subset
+- **K2 internal errors shown raw** -- an `EXCEPTION`-severity message (e.g. a backend crash on code the frontend failed to reject) is surfaced as a `Diagnostic.ERROR` containing the full stack trace, with no source location. Compiler bugs of this kind are addressed by upgrading Kotlin (see [Build & Distribution](../distribution/README.md#gradle-dependencies))

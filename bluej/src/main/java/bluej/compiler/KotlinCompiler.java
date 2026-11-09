@@ -95,7 +95,7 @@ public class KotlinCompiler extends Compiler
         }
 
         List<Diagnostic> diagnostics = new ArrayList<>();
-        MessageCollector collector = createMessageCollector(diagnostics);
+        MessageCollector collector = createMessageCollector(diagnostics, sources);
 
         ExitCode exitCode;
         try {
@@ -147,7 +147,7 @@ public class KotlinCompiler extends Compiler
      * BlueJ Diagnostic objects. Diagnostics K2 emits against .java files (loaded
      * as symbol sources) are dropped — javac is the authoritative source for them.
      */
-    private MessageCollector createMessageCollector(List<Diagnostic> diagnostics)
+    private MessageCollector createMessageCollector(List<Diagnostic> diagnostics, File[] sources)
     {
         return new MessageCollector()
         {
@@ -174,7 +174,7 @@ public class KotlinCompiler extends Compiler
                 DiagnosticMessage diagMessage = DiagnosticMessage.fromEnglish(message);
 
                 if (location != null) {
-                    diagnostics.add(createLocatedDiagnostic(diagType, diagMessage, location));
+                    diagnostics.add(createLocatedDiagnostic(diagType, diagMessage, location, sources));
                 } else {
                     diagnostics.add(new Diagnostic(diagType, diagMessage));
                 }
@@ -212,15 +212,11 @@ public class KotlinCompiler extends Compiler
      * Create a Diagnostic with source location from a Kotlin compiler message.
      */
     private Diagnostic createLocatedDiagnostic(int diagType, DiagnosticMessage message,
-            CompilerMessageSourceLocation location)
+            CompilerMessageSourceLocation location, File[] sources)
     {
-        String fileName = location.getPath();
-        if (fileName != null) {
-            int lastSep = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
-            if (lastSep >= 0) {
-                fileName = fileName.substring(lastSep + 1);
-            }
-        }
+        // Keep the full path: Package resolves the target class (and its package)
+        // from it, as it does for javac diagnostics.
+        String fileName = location.getPath() == null ? null : resolveSourcePath(location.getPath(), sources);
 
         long startLine = location.getLine();
         long startColumn = location.getColumn();
@@ -231,6 +227,32 @@ public class KotlinCompiler extends Compiler
         return new Diagnostic(diagType, message, fileName,
                 startLine, startColumn, endLine, endColumn,
                 DiagnosticOrigin.KOTLIN, getNewErrorIdentifier());
+    }
+
+    /**
+     * Map a path reported by K2 back to the source file BlueJ passed in, so the
+     * path matches the project directory exactly (K2 may report a canonicalised
+     * form, e.g. /private/var vs /var on macOS). Falls back to the absolute path.
+     */
+    private static String resolveSourcePath(String reportedPath, File[] sources)
+    {
+        File reported = new File(reportedPath).getAbsoluteFile();
+        for (File source : sources) {
+            if (source.getAbsoluteFile().equals(reported)) {
+                return source.getPath();
+            }
+        }
+        for (File source : sources) {
+            try {
+                if (source.getCanonicalFile().equals(reported.getCanonicalFile())) {
+                    return source.getPath();
+                }
+            }
+            catch (IOException e) {
+                // ignore and try the next source
+            }
+        }
+        return reported.getPath();
     }
 
     /**
