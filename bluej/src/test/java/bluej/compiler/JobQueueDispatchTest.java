@@ -144,8 +144,8 @@ public class JobQueueDispatchTest
     @Test
     public void kotlinCompilerUnavailable_routesAllToJava()
     {
-        // In Greenfoot (no Kotlin compiler), .kt files should not be split off;
-        // they fall through to the Java compiler, which keeps the legacy single-job behaviour.
+        // Preserve the partition helper's unavailable-backend fallback.
+        // Production queues in both BlueJ and Greenfoot provide the Kotlin backend.
         CompileInputFile java1 = input("Hello.java");
         CompileInputFile kt1 = input("World.kt");
 
@@ -166,6 +166,19 @@ public class JobQueueDispatchTest
 
         assertEquals(0, p.kotlinSources().size());
         assertEquals(1, p.javaSources().size());
+    }
+
+    /** Verifies that callers use exactly the queue's extension partition rules. */
+    @Test
+    public void testMixedLanguageUsesPartitionRules()
+    {
+        assertTrue(JobQueue.isMixedLanguage(new CompileInputFile[]{input("Hello.KT"), input("World.java")}));
+        assertTrue(JobQueue.isMixedLanguage(new CompileInputFile[]{input("Generated.shell"), input("World.kt")}));
+        assertTrue(JobQueue.isMixedLanguage(new CompileInputFile[]{input("World.kt"), new CompileInputFile(null, null)}));
+        assertFalse(JobQueue.isMixedLanguage(new CompileInputFile[]{null, input("Hello.kt")}));
+        assertFalse(JobQueue.isMixedLanguage(new CompileInputFile[]{input("Hello.java")}));
+        assertFalse(JobQueue.isMixedLanguage(new CompileInputFile[0]));
+        assertFalse(JobQueue.isMixedLanguage(null));
     }
 
     private static CompileInputFile input(String name)

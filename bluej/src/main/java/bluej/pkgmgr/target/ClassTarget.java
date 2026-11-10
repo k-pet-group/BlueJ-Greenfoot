@@ -222,11 +222,6 @@ public class ClassTarget extends DependentTarget
     private final Label noSourceLabel;
     private final ImageView sourceTypeIcon;
 
-    private static final Image javaHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "j.png"));
-    private static final Image kotlinHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "k.png"));
-    private static final Image strideHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "s.png"));
-
-
     // The body of the class target which goes hashed, etc:
     @OnThread(Tag.FX)
     protected ResizableCanvas canvas;
@@ -350,19 +345,19 @@ public class ClassTarget extends DependentTarget
         {
             sourceAvailable = SourceType.Stride;
             noSourceLabel.setText("");
-            sourceTypeIcon.setImage(strideHeaderImage);
+            sourceTypeIcon.setImage(SourceTypeIcons.headerImage(SourceType.Stride));
         }
         else if (getJavaSourceFile().canRead())
         {
             sourceAvailable = SourceType.Java;
             noSourceLabel.setText("");
-            sourceTypeIcon.setImage(javaHeaderImage);
+            sourceTypeIcon.setImage(SourceTypeIcons.headerImage(SourceType.Java));
         }
         else if (getKotlinSourceFile().canRead())
         {
             sourceAvailable = SourceType.Kotlin;
             noSourceLabel.setText("");
-            sourceTypeIcon.setImage(kotlinHeaderImage);
+            sourceTypeIcon.setImage(SourceTypeIcons.headerImage(SourceType.Kotlin));
         }
         else
         {

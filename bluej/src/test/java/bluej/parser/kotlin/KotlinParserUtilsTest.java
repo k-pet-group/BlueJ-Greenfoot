@@ -54,4 +54,22 @@ public class KotlinParserUtilsTest
             assertFalse(name, KotlinParserUtils.containsHardKeyword(name));
         }
     }
+
+    @Test
+    public void testKDocConvertedForJavadocDisplay()
+    {
+        assertNull("No comment, no documentation", KotlinParserUtils.kdocToJavadoc(null));
+        assertEquals("Delimiters and leading stars removed", "One line.",
+            KotlinParserUtils.kdocToJavadoc("/** One line. */").trim());
+
+        String converted = KotlinParserUtils.kdocToJavadoc("""
+            /**
+             * Moves `x` by [steps], see [the docs](https://example.org).
+             * **Note**: a < b & c.
+             * @param steps how far
+             */""");
+        assertTrue(converted, converted.contains("Moves <code>x</code> by <code>steps</code>, see the docs."));
+        assertTrue("HTML special characters are escaped: " + converted, converted.contains("<b>Note</b>: a &lt; b &amp; c."));
+        assertTrue("Block tags are kept for Javadoc rendering: " + converted, converted.contains("@param steps how far"));
+    }
 }

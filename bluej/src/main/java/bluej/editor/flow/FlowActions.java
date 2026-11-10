@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ package bluej.editor.flow;
 import bluej.Config;
 import bluej.debugger.gentype.JavaType;
 import bluej.editor.flow.FlowIndent.AutoIndentInformation;
+import bluej.extensions2.SourceType;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.nodes.CommentNode;
@@ -210,10 +211,11 @@ public final class FlowActions
     // package-visible
     void updateKeymap()
     {
-        if (getTextComponent() != null)
+        FlowEditorPane textComponent = getTextComponent();
+        if (textComponent != null)
         {
             if (curKeymap != null)
-                Nodes.removeInputMap(getTextComponent(), curKeymap);
+                Nodes.removeInputMap(textComponent, curKeymap);
             // Join built-in keymap (important that it goes first in order, so it can get overridden) with custom keymap:
             Stream<Entry<KeyCodeCombination, FlowAbstractAction>> joinedKeyMapStream = Stream.concat(
                 builtInKeymap.entrySet().stream(),
@@ -237,10 +239,15 @@ public final class FlowActions
                     return InputMap.ignore(EventPattern.keyPressed(e.getKey()));
                 else
                 {
-                    return InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> e.getValue().actionPerformed(false));
+                    return InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> {
+                        // A key bound to an action must not also type its character (e.g. Option+Space
+                        // on macOS types a space), which would edit the document under the action.
+                        textComponent.ignoreTypedCharacterOfCurrentKeyPress();
+                        e.getValue().actionPerformed(false);
+                    });
                 }
             }).toArray(InputMap[]::new));
-            Nodes.addInputMap(getTextComponent(), curKeymap);
+            Nodes.addInputMap(textComponent, curKeymap);
         }
     }
 
@@ -451,7 +458,12 @@ public final class FlowActions
     {
         try {
             FlowEditorPane textPane = getTextComponent();
-            File template = Config.getTemplateFile(templateName);
+            boolean kotlin = editor.getSourceType() == SourceType.Kotlin;
+            String sourceTemplateName = kotlin ? templateName + ".kt" : templateName;
+            File template = Config.getTemplateFile(sourceTemplateName);
+            if (kotlin && !template.canRead()) {
+                template = Config.getDefaultLanguageFile("templates/" + sourceTemplateName + ".tmpl");
+            }
 
             InputStream fileStream = new FileInputStream(template);
             BufferedReader in = new BufferedReader(new InputStreamReader(fileStream, StandardCharsets.UTF_8));

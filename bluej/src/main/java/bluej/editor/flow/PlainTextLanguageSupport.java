@@ -81,4 +81,11 @@ public class PlainTextLanguageSupport implements FlowLanguageSupport
     {
         return null;
     }
+
+    @Override
+    public CompletionProvider getCompletionProvider()
+    {
+        // Ctrl+Space in a plain-text editor does nothing, as before this hook existed.
+        return null;
+    }
 }

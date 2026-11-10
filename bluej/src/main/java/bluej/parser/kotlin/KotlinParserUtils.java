@@ -23,11 +23,14 @@ package bluej.parser.kotlin;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.regex.Pattern;
 
 import bluej.parser.SourceLocation;
 import bluej.parser.SourceSpan;
+import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.parser.symtab.Selection;
+import bluej.utility.JavaUtils;
 
 import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange;
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement;
@@ -43,8 +46,59 @@ import threadchecker.Tag;
  */
 public final class KotlinParserUtils
 {
+    // KDoc Markdown forms converted for display: `code`, [text](url), [reference] and **bold**.
+    private static final Pattern MARKDOWN_CODE = Pattern.compile("`([^`\n]+)`");
+    private static final Pattern MARKDOWN_LINK = Pattern.compile("\\[([^\\]\n]+)\\]\\([^)\n]*\\)");
+    private static final Pattern MARKDOWN_REFERENCE = Pattern.compile("\\[([^\\]\n]+)\\]");
+    private static final Pattern MARKDOWN_BOLD = Pattern.compile("\\*\\*([^*\n]+)\\*\\*");
+
     private KotlinParserUtils()
     {
+    }
+
+    /**
+     * Convert a KDoc comment to the form BlueJ's Javadoc display expects ({@code JavaUtils.javadocToHtml}):
+     * delimiters and leading asterisks removed, HTML special characters escaped (KDoc is Markdown,
+     * not HTML), and common Markdown converted. Block tags such as {@code @param} are shared with Javadoc.
+     *
+     * @param kdoc the comment, including its delimiters, or null
+     * @return the converted text, or null if there is no comment
+     */
+    @OnThread(Tag.Any)
+    public static String kdocToJavadoc(String kdoc)
+    {
+        String text = JavaUtils.javadocToString(kdoc);
+        if (text == null) {
+            return null;
+        }
+        text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        text = MARKDOWN_CODE.matcher(text).replaceAll("<code>$1</code>");
+        text = MARKDOWN_LINK.matcher(text).replaceAll("$1");
+        text = MARKDOWN_REFERENCE.matcher(text).replaceAll("<code>$1</code>");
+        return MARKDOWN_BOLD.matcher(text).replaceAll("<b>$1</b>");
+    }
+
+    /**
+     * Check an unquoted identifier for a newly created Kotlin class. This is not
+     * a source-discovery filename filter: existing files can have other names.
+     *
+     * @param name the proposed class name, without an extension or whitespace trimming
+     * @return true for one ordinary identifier (including soft keywords), but not
+     *         hard keywords, reserved underscore-only names or escaped identifiers
+     */
+    @OnThread(Tag.Any)
+    public static boolean isCreationIdentifier(String name)
+    {
+        if (name == null || name.isEmpty() || name.indexOf('$') >= 0 || name.indexOf('`') >= 0
+            || name.chars().allMatch(c -> c == '_')) {
+            return false;
+        }
+        KotlinLexer lexer = new KotlinLexer(name);
+        LocatableToken token = lexer.nextToken();
+        int softKeyword = KotlinToken.mapSoftKeywordByText(name);
+        return (token.getType() == KotlinToken.IDENTIFIER
+                || (softKeyword >= 0 && token.getType() == softKeyword))
+            && token.getText().equals(name) && lexer.nextToken().getType() == KotlinToken.EOF;
     }
 
     /**

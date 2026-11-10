@@ -72,6 +72,7 @@ import bluej.utility.filefilter.JavaClassFilter;
 import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.utility.filefilter.KotlinSourceFilter;
 import bluej.utility.filefilter.SubPackageFilter;
+import bluej.utility.javafx.FXPlatformFunction;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -647,6 +648,12 @@ public final class Package
      */
     private Set<String> findTargets(File path)
     {
+        return findTargets(path, name -> loadClass(getQualifiedName(name)));
+    }
+
+    // Keep filesystem discovery independent of project construction and class loading.
+    static Set<String> findTargets(File path, FXPlatformFunction<String, Class<?>> loadClass)
+    {
         File javaSrcFiles[] = path.listFiles(new JavaSourceFilter());
         File frameSrcFiles[] = path.listFiles(new FrameSourceFilter());
         File classFiles[] = path.listFiles(new JavaClassFilter());
@@ -690,30 +697,22 @@ public final class Package
         // lowercase sources (UtilsKt → "Utils", which doesn't match the
         // lowercase "utils" we just added to interestingSet).
         Set<String> kotlinFacadeNames = new HashSet<String>();
-        if (!Config.isGreenfoot()) {
-            // process all *.kt files
-            File kotlinSrcFiles[] = path.listFiles(new KotlinSourceFilter());
-            if (kotlinSrcFiles != null)
-            {
-                for (int i = 0; i < kotlinSrcFiles.length; i++)
-                {
-                    String kotlinFileName = JavaNames.stripSuffix(
-                            kotlinSrcFiles[i].getName(),
-                            "." + SourceType.Kotlin.getExtension());
+        // process all *.kt files in both BlueJ and Greenfoot
+        File kotlinSrcFiles[] = path.listFiles(new KotlinSourceFilter());
+        if (kotlinSrcFiles != null) {
+            for (File source : kotlinSrcFiles) {
+                String kotlinFileName = JavaNames.stripSuffix(source.getName(), "." + SourceType.Kotlin.getExtension());
 
-                    // check if the name would be a valid java name
-                    // (Kotlin class names must also be valid JVM identifiers)
-                    if (!JavaNames.isIdentifier(kotlinFileName)) {
-                        continue;
-                    }
+                // Keep filename discovery distinct from new-class name validation:
+                // a function file can legitimately be named when.kt.
+                if (!JavaNames.isIdentifier(kotlinFileName)) {
+                    continue;
+                }
 
-                    // files with a $ in them signify inner classes (which we want
-                    // to ignore)
-                    if (kotlinFileName.indexOf('$') == -1) {
-                        interestingSet.add(kotlinFileName);
-                        kotlinFacadeNames.add(
-                                KotlinParserUtils.kotlinFacadeClassName(kotlinFileName));
-                    }
+                // files with a $ in them signify inner classes (which we want to ignore)
+                if (kotlinFileName.indexOf('$') == -1) {
+                    interestingSet.add(kotlinFileName);
+                    kotlinFacadeNames.add(KotlinParserUtils.kotlinFacadeClassName(kotlinFileName));
                 }
             }
         }
@@ -743,7 +742,7 @@ public final class Package
                 // add only if there is no corresponding source file
                 if (!interestingSet.contains(classFileName)) {
                     try {
-                        Class<?> c = loadClass(getQualifiedName(classFileName));
+                        Class<?> c = loadClass.apply(classFileName);
 
                         // fix for bug 152
                         // check that this class is a public class which means
@@ -2633,6 +2632,14 @@ public final class Package
         return true;
     }
 
+    // Request-level gate for dependency-based recovery; target eligibility is checked separately.
+    @OnThread(Tag.Any)
+    static boolean allowsPartialCompileRetry(CompileInputFile[] sources, boolean successful, CompileType type)
+    {
+        // Cross-language dependencies are not yet reliable enough to prove a subset independent.
+        return !successful && type == CompileType.EXPLICIT_USER_COMPILE && !JobQueue.isMixedLanguage(sources);
+    }
+
     // ---- bluej.compiler.CompileObserver interfaces ----
 
     /**
@@ -2762,6 +2769,7 @@ public final class Package
         {
             List<ClassTarget> targetsToAnalyse = new ArrayList<>();
             List<ClassTarget> readyToCompileList = new ArrayList<>();
+            boolean allowPartialRetry = allowsPartialCompileRetry(sources, successful, type);
             for (int i = 0; i < sources.length; i++) {
                 String filename = sources[i].getJavaCompileInputFile().getPath();
 
@@ -2794,7 +2802,7 @@ public final class Package
                     // and an error in one may prevent others being compiled even though they could be 
                     // compiled separately, we check for all the classes that can be compiled and have
                     // no direct/indirect dependencies with compile errors to be compiled
-                    if (t.getState() == State.NEEDS_COMPILE && type == CompileType.EXPLICIT_USER_COMPILE)
+                    if (t.getState() == State.NEEDS_COMPILE && allowPartialRetry)
                     {
                         if (!checkDependecyCompilationError(t))
                         {

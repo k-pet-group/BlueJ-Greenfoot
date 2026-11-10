@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
+import bluej.parser.kotlin.KotlinHierarchyResolver.Supertype;
+import bluej.parser.kotlin.KotlinHierarchyResolver.TypeKind;
+import bluej.parser.kotlin.KotlinHierarchyResolver.TypeLookup;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 
@@ -40,6 +43,7 @@ import org.jetbrains.kotlin.psi.KtClass;
 import org.jetbrains.kotlin.psi.KtClassBody;
 import org.jetbrains.kotlin.psi.KtClassOrObject;
 import org.jetbrains.kotlin.psi.KtDeclaration;
+import org.jetbrains.kotlin.psi.KtDelegatedSuperTypeEntry;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.psi.KtImportDirective;
 import org.jetbrains.kotlin.psi.KtNamedFunction;
@@ -113,20 +117,66 @@ public class KotlinInfoParser
      */
     public static ClassInfo parse(Reader r, String targetPkg, String fileName)
     {
-        String source = KotlinParserUtils.readFully(r);
-        if (source.isBlank()) {
-            return null;
+        return parse(r, targetPkg, fileName,
+            name -> KotlinHierarchyResolver.libraryType(name, KotlinInfoParser.class.getClassLoader()));
+    }
+
+    /**
+     * Parse source with an exact-name lookup for project and library hierarchy types.
+     *
+     * @param r reader over Kotlin source
+     * @param targetPkg expected package, or null
+     * @param fileName original source filename, or null
+     * @param lookup source-first supertype lookup (null result means absent)
+     * @return extracted metadata, or null if no supported declaration exists
+     */
+    public static ClassInfo parse(Reader r, String targetPkg, String fileName, TypeLookup lookup)
+    {
+        return new ParsedSource(KotlinParserUtils.readFully(r), fileName).getInfo(targetPkg, lookup);
+    }
+
+    /** A reusable PSI snapshot; hierarchy lookup is repeated without reparsing unchanged source. */
+    @OnThread(Tag.FXPlatform)
+    public static final class ParsedSource
+    {
+        private final String source;
+        private final KtFile file;
+
+        /**
+         * @param source complete source text
+         * @param fileName original filename for function-only files, or null
+         */
+        public ParsedSource(String source, String fileName)
+        {
+            this.source = source;
+            file = fileName == null ? KotlinEnvironmentManager.getPsiFactory().createFile(source)
+                : KotlinEnvironmentManager.getPsiFactory().createFile(fileName, source);
         }
 
-        KtFile ktFile;
-        if (fileName != null) {
-            ktFile = KotlinEnvironmentManager.getPsiFactory()
-                .createFile(fileName, source);
-        } else {
-            ktFile = KotlinEnvironmentManager.getPsiFactory()
-                .createFile(source);
+        /**
+         * Rebuild metadata using current external declarations, without resolving their parents.
+         *
+         * @param targetPkg expected package, or null
+         * @param lookup source-first hierarchy type lookup
+         * @return metadata, or null for an unsupported/empty file
+         */
+        public ClassInfo getInfo(String targetPkg, TypeLookup lookup)
+        {
+            return extractInfo(file, source, targetPkg, lookup);
         }
 
+        /**
+         * @param qualifiedName exact source-qualified declaration name
+         * @return declaration kind, UNKNOWN for unsupported/ambiguous declarations, or null if absent
+         */
+        public TypeKind getDeclaredType(String qualifiedName)
+        {
+            return KotlinHierarchyResolver.declaredType(file, qualifiedName);
+        }
+    }
+
+    private static ClassInfo extractInfo(KtFile ktFile, String source, String targetPkg, TypeLookup lookup)
+    {
         FqName packageFqName = ktFile.getPackageFqName();
         String packageName = packageFqName.isRoot() ? "" : packageFqName.asString();
         Selection[] pkgSelections = KotlinParserUtils.packageSelections(ktFile, source);
@@ -160,7 +210,7 @@ public class KotlinInfoParser
             }
         }
 
-        return buildClassInfo(classOrObject, ktFile, packageName, pkgSelections, targetPkg);
+        return buildClassInfo(classOrObject, ktFile, packageName, pkgSelections, targetPkg, lookup);
     }
 
     /**
@@ -168,7 +218,7 @@ public class KotlinInfoParser
      */
     private static ClassInfo buildClassInfo(KtClassOrObject classOrObject,
             KtFile ktFile, String packageName, Selection[] pkgSelections,
-            String targetPkg)
+            String targetPkg, TypeLookup lookup)
     {
         ClassInfo info = new ClassInfo();
 
@@ -218,7 +268,7 @@ public class KotlinInfoParser
 
         extractSecondaryConstructors(classOrObject, info, ktFile);
 
-        extractSupertypes(classOrObject, info);
+        extractSupertypes(classOrObject, info, new KotlinHierarchyResolver(ktFile, classOrObject, lookup));
 
         extractClassBody(classOrObject, info, ktFile);
 
@@ -377,26 +427,28 @@ public class KotlinInfoParser
      * no Selection objects.
      */
     private static void extractSupertypes(KtClassOrObject classOrObject,
-            ClassInfo info)
+            ClassInfo info, KotlinHierarchyResolver resolver)
     {
         for (KtSuperTypeListEntry entry : classOrObject.getSuperTypeListEntries()) {
             KtTypeReference typeRef = entry.getTypeReference();
-            if (typeRef == null) {
+            if (typeRef == null || !(typeRef.getTypeElement() instanceof KtUserType userType)) {
+                continue;
+            }
+            Supertype type = resolver.resolve(userType);
+            if (type == null) {
                 continue;
             }
 
-            String typeName = extractSimpleName(typeRef);
-            if (typeName == null) {
-                continue;
+            if (type.kind() == TypeKind.CLASS
+                || (type.kind() == null && entry instanceof KtSuperTypeCallEntry)) {
+                // A plain class entry is valid when secondary constructors call super(...).
+                info.setSuperclass(type.name());
             }
-
-            if (entry instanceof KtSuperTypeCallEntry) {
-                // Constructor call → superclass: `: Base(...)`
-                info.setSuperclass(typeName);
-            } else {
-                // Plain or delegated entry → interface: `: Interface`
-                info.addImplements(typeName);
+            else if (type.kind() == TypeKind.INTERFACE
+                || (type.kind() == null && (info.isInterface() || entry instanceof KtDelegatedSuperTypeEntry))) {
+                info.addImplements(type.name());
             }
+            // An unverified plain entry could be a class or interface: do not guess.
         }
     }
 
