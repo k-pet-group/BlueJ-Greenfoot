@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020,2021,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,6 +41,7 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SourceTypeIcons;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.utility.javafx.UntitledCollapsiblePane;
 import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
@@ -84,7 +85,6 @@ import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -147,9 +147,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     private FrameShelf shelf;
     private boolean dragFromShelf;
 
-    private static final Image javaHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "j.png"));
-    private static final Image kotlinHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "k.png"));
-    private static final Image strideHeaderImage = JavaFXUtil.loadImage(new File(Config.getBlueJIconPath(), "s.png"));
 
     // Neither the constructor nor any initialisers should do any JavaFX work until
     // initialise is called.
@@ -438,12 +435,13 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                     // Don't override the header image in Greenfoot and no need to set header image again (SourceType can't change):
                     if (allSourceTypes.size() > 1 && fxt.getHeaderImage() == null)
                     {
-                        fxt.setHeaderImage(fxt.getFlowEditor().getSourceType() == SourceType.Kotlin ? kotlinHeaderImage : javaHeaderImage);
+                        fxt.setHeaderImage(SourceTypeIcons.headerImage(fxt.getFlowEditor().getSourceType()));
                     }
                     else if (allSourceTypes.size() == 1)
                     {
                         // Can remove designations if it was one of the standard header images:
-                        if (fxt.getHeaderImage() == javaHeaderImage || fxt.getHeaderImage() == kotlinHeaderImage)
+                        if (fxt.getHeaderImage() == SourceTypeIcons.headerImage(SourceType.Java)
+                            || fxt.getHeaderImage() == SourceTypeIcons.headerImage(SourceType.Kotlin))
                         {
                             fxt.setHeaderImage(null);
                         }
@@ -453,11 +451,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 {
                     if (allSourceTypes.size() > 1 && fet.getHeaderImage() == null)
                     {
-                        fet.setHeaderImage(strideHeaderImage);
+                        fet.setHeaderImage(SourceTypeIcons.headerImage(SourceType.Stride));
                     }
                     else if (allSourceTypes.size() == 1)
                     {
-                        if (fet.getHeaderImage() == strideHeaderImage)
+                        if (fet.getHeaderImage() == SourceTypeIcons.headerImage(SourceType.Stride))
                         {
                             fet.setHeaderImage(null);
                         }
