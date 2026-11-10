@@ -65,8 +65,10 @@ No phase completion may trigger intermediate target analysis, class loading or G
 `JobQueue.addJob` creates the request from caller-selected non-null inputs; an empty selection enqueues
 nothing. `CompilerThread` serializes execution, allowing producers to enqueue while compilation runs.
 `Job` announces the full start, configures/runs the required stages, closes compilation resources and
-cleans request-owned temporary output before final notification. Exceptions from compilation/start or
-an end callback are logged; a throwing end callback is not retried. FX adapters keep their existing
+cleans request-owned temporary output before final notification. Any `Throwable` from start or
+compilation is logged and makes the result unsuccessful; one from the end callback is logged and not
+retried. `Error` is included because `CompilerThread` has no handler of its own: an escaping `Error`
+would kill the only compiler thread and `endCompile` would never arrive. FX adapters keep their existing
 synchronous dispatch. Direct public backend calls retain their own output cleanup; they do not own a
 queue lifecycle.
 

@@ -285,6 +285,35 @@ public class JobQueueTest
     }
 
     /**
+     * An Error must still complete the request unsuccessfully and leave the compiler thread alive.
+     *
+     * @throws Exception on test failure
+     */
+    @Test(timeout = 60000)
+    public void testErrorDuringRequestCompletesAndKeepsQueueAlive() throws Exception
+    {
+        Path dir = temporary.newFolder().toPath();
+        CompileInputFile input = source(dir, "Fine.java", "public class Fine {}");
+        Observer observer = new Observer()
+        {
+            // Fail after recording the start, as a broken backend would.
+            @Override
+            public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int sequence)
+            {
+                super.startCompile(sources, reason, type, sequence);
+                throw new LinkageError("Expected backend failure");
+            }
+        };
+        try (BPClassLoader loader = loader(dir)) {
+            enqueue(dir, loader, observer, CompileType.EXPLICIT_USER_COMPILE, input);
+            JobQueue.getJobQueue().waitForEmptyQueue();
+        }
+        observer.assertResult(new CompileInputFile[]{input}, CompileType.EXPLICIT_USER_COMPILE, false);
+        compile(dir, CompileType.EXPLICIT_USER_COMPILE, input)
+                .assertResult(new CompileInputFile[]{input}, CompileType.EXPLICIT_USER_COMPILE, true);
+    }
+
+    /**
      * Uses a separate JVM because application mode is fixed at Config initialization.
      *
      * @throws Exception on test failure

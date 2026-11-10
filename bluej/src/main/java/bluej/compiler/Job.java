@@ -97,9 +97,10 @@ record Job(List<CompileInputFile> sources, CompilerAPICompiler javaCompiler, Kot
                         userCompileOptions, fileCharset, type, outputDir);
             }
         }
-        catch (Exception e) {
+        // An escaping Error would kill the only compiler thread and endCompile would never run.
+        catch (Throwable t) {
             successful = false;
-            Debug.reportError(Config.getString("compileException"), e);
+            Debug.reportError(Config.getString("compileException"), t);
         }
         finally {
             if (tempDir != null) {
@@ -112,8 +113,8 @@ record Job(List<CompileInputFile> sources, CompilerAPICompiler javaCompiler, Kot
             try {
                 observer.endCompile(sources.toArray(CompileInputFile[]::new), successful, type, compilationSequence);
             }
-            catch (Exception e) {
-                Debug.reportError(Config.getString("compileException"), e);
+            catch (Throwable t) {
+                Debug.reportError(Config.getString("compileException"), t);
             }
         }
     }
