@@ -227,6 +227,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     @OnThread(value = Tag.Any,requireSynchronized = true)
     private ImportScanner importScanner;
     /** Kotlin analysis (for code completion); null until first requested, so Java-only projects never create it. */
+    @OnThread(Tag.FXPlatform)
     private KotlinAnalysisService kotlinAnalysisService;
 
     /** check if the project is a dvcs project**/
@@ -2511,10 +2512,11 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
     /**
      * Get the service that analyses this project's Kotlin sources, creating it on first use.
-     * It is disposed when the project is closed.
+     * It is disposed when the project is closed. The service itself accepts requests from any thread.
      *
      * @return the project's Kotlin analysis service
      */
+    @OnThread(Tag.FXPlatform)
     public KotlinAnalysisService getKotlinAnalysisService()
     {
         if (kotlinAnalysisService == null) {
