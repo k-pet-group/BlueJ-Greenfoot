@@ -460,13 +460,13 @@ debugger.threadRunning=<html><center>\u7ebf\u7a0b\u6b63\u5728\u8fd0\u884c\u3002<
 
 # DialogManager labels
 
-dialogmgr.error=BlueJ:  \u9519\u8bef
-dialogmgr.question=BlueJ:  \u95ee\u9898
-dialogmgr.message=BlueJ:  \u6d88\u606f
+dialogmgr.error=\u9519\u8bef
+dialogmgr.question=\u95ee\u9898
+dialogmgr.message=\u6d88\u606f
 
 #Terminal Window
 terminal.options=\u9009\u9879
-terminal.title=BlueJ:  \u7ec8\u7aef\u7a97\u53e3
+terminal.title=\u7ec8\u7aef\u7a97\u53e3
 terminal.clear=\u6e05\u9664
 terminal.copy=\u590d\u5236
 terminal.save=\u4fdd\u5b58\u4e3a\u6587\u4ef6...
