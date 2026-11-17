@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017,2018,2019,2020  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2017,2018,2019,2020,2026  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,32 +21,7 @@
  */
 package greenfoot.guifx.classes;
 
-import bluej.Config;
-import bluej.debugger.gentype.Reflective;
-import bluej.extensions2.ClassNotFoundException;
-import bluej.extensions2.ProjectNotOpenException;
-import bluej.pkgmgr.Project;
-import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.EditableTarget;
-import bluej.pkgmgr.target.Target;
-import bluej.utility.javafx.AbstractOperation;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.views.ConstructorView;
-import bluej.views.View;
-import bluej.views.ViewFilter;
-import bluej.views.ViewFilter.StaticOrInstance;
-import greenfoot.guifx.GreenfootStage;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.layout.BorderPane;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,6 +31,37 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
+
+import bluej.Config;
+import bluej.debugger.gentype.Reflective;
+import bluej.extensions2.ClassNotFoundException;
+import bluej.extensions2.ProjectNotOpenException;
+import bluej.extensions2.SourceType;
+import bluej.parser.symtab.ClassInfo;
+import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.EditableTarget;
+import bluej.pkgmgr.target.Target;
+import bluej.utility.javafx.AbstractOperation;
+import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.FXPlatformSupplier;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.views.ConstructorView;
+import bluej.views.View;
+import bluej.views.ViewFilter;
+import bluej.views.ViewFilter.StaticOrInstance;
+import greenfoot.guifx.GreenfootStage;
+
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.layout.BorderPane;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The class diagram on the right-hand side of the Greenfoot window.
@@ -98,7 +104,7 @@ public class GClassDiagram extends BorderPane
                 View view = View.getView(cl, project);
 
                 // Needs to be non-abstract to instantiate:
-                if (!java.lang.reflect.Modifier.isAbstract(cl.getModifiers()))
+                if (!Modifier.isAbstract(cl.getModifiers()))
                 {
                     ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, "");
                     // Look for a visible constructor with no parameters:
@@ -208,26 +214,55 @@ public class GClassDiagram extends BorderPane
     {
         ArrayList<ClassTarget> originalClassTargets = project.getUnnamedPackage().getClassTargets();
         
-        // Start by mapping everything to false;
-        HashMap<ClassTarget, Boolean> classTargets = new HashMap<>();
-        for (ClassTarget originalClassTarget : originalClassTargets)
-        {
-            classTargets.put(originalClassTarget, false);
+        // Resolve once per refresh, not on every visit in the recursive grouping search.
+        Map<ClassTarget, String> superclasses = new HashMap<>();
+        Map<ClassTarget, Boolean> classTargets = new HashMap<>();
+        for (ClassTarget target : originalClassTargets) {
+            classTargets.put(target, false);
+            superclasses.put(target, superclassName(target.analyseSource(), target.getSourceType(),
+                target.isCompiled(), () -> reflectedSuperclass(target)));
         }
         // Note that the classTargets list will be modified by each findAllSubclasses call,
         // so the order here is very important.  Actor and World must come before other:
         
         // First, we must take out any World and Actor classes:
-        List<GClassNode> worldSubclasses = findAllSubclasses("greenfoot.World", classTargets, GClassType.WORLD);
+        List<GClassNode> worldSubclasses = findAllSubclasses("greenfoot.World", classTargets, superclasses, GClassType.WORLD);
         GClassNode worldClassesInfo = new BuiltInGClassNode(GClassType.WORLD, worldSubclasses, this);
         worldClasses.setClasses(Collections.singletonList(worldClassesInfo));
 
-        List<GClassNode> actorSubclasses = findAllSubclasses("greenfoot.Actor", classTargets, GClassType.ACTOR);
+        List<GClassNode> actorSubclasses = findAllSubclasses("greenfoot.Actor", classTargets, superclasses, GClassType.ACTOR);
         GClassNode actorClassesInfo = new BuiltInGClassNode(GClassType.ACTOR, actorSubclasses, this);
         actorClasses.setClasses(Collections.singletonList(actorClassesInfo));
         
         // All other classes can be found by passing null, see docs on findAllSubclasses:
-        otherClasses.setClasses(findAllSubclasses(null, classTargets, GClassType.OTHER));
+        otherClasses.setClasses(findAllSubclasses(null, classTargets, superclasses, GClassType.OTHER));
+    }
+
+    // Source metadata is definitive, including an unresolved superclass. Never use stale Kotlin bytecode.
+    static String superclassName(ClassInfo info, SourceType sourceType, boolean compiled,
+            FXPlatformSupplier<String> reflected)
+    {
+        if (info != null) {
+            return info.getSuperclass();
+        }
+        if (sourceType == SourceType.Kotlin || (sourceType == SourceType.NONE && !compiled)) {
+            return null;
+        }
+        return reflected.get();
+    }
+
+    private String reflectedSuperclass(ClassTarget target)
+    {
+        try {
+            Class<?> cls = target.getBClass().getJavaClass();
+            if (cls != null && cls.getSuperclass() != null) {
+                return cls.getSuperclass().getName();
+            }
+        }
+        catch (ProjectNotOpenException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -240,41 +275,22 @@ public class GClassDiagram extends BorderPane
      *                        in the classTargets list will be processed and returned.
      * @param classTargets Class targets to search -- only those mapped to false will be searched.  If
      *                     they are processed into a GClassNode, their value will be flipped to true.
+     * @param superclasses superclass snapshot for this refresh
      * @return The list of GClassNode at the requested level (there may be a deeper tree inside).
      */
-    private List<GClassNode> findAllSubclasses(String parentClassName, Map<ClassTarget, Boolean> classTargets, GClassType type)
+    private List<GClassNode> findAllSubclasses(String parentClassName, Map<ClassTarget, Boolean> classTargets,
+            Map<ClassTarget, String> superclasses, GClassType type)
     {
         List<GClassNode> curLevel = new ArrayList<>();
         for (Entry<ClassTarget, Boolean> classTargetAndVal : classTargets.entrySet())
         {
             // Ignore anything already mapped to true:
-            if (classTargetAndVal.getValue() == true)
+            if (classTargetAndVal.getValue()) {
                 continue;
+            }
             
             ClassTarget classTarget = classTargetAndVal.getKey();
-            bluej.parser.symtab.ClassInfo classInfo = classTarget.analyseSource();
-            String superClassName = null;
-            if (classInfo != null)
-            {
-                superClassName = classInfo.getSuperclass();
-            }
-            else
-            {
-                try {
-                    Class<?> javaClass = classTarget.getBClass().getJavaClass();
-                    if (javaClass != null)
-                    {
-                        Class<?> superClass = javaClass.getSuperclass();
-                        if (superClass != null)
-                        {
-                            superClassName = superClass.getName();
-                        }
-                    }
-                }
-                catch (ProjectNotOpenException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
+            String superClassName = superclasses.get(classTarget);
             boolean includeAtThisLevel;
             if (parentClassName == null)
             {
@@ -297,7 +313,7 @@ public class GClassDiagram extends BorderPane
                 // Update processed status before recursing:
                 classTargetAndVal.setValue(true);
 
-                List<GClassNode> subClasses = findAllSubclasses(classTarget.getQualifiedName(), classTargets, type);
+                List<GClassNode> subClasses = findAllSubclasses(classTarget.getQualifiedName(), classTargets, superclasses, type);
                 curLevel.add(makeClassInfo(classTarget, subClasses, type));
             }
         }
@@ -313,7 +329,7 @@ public class GClassDiagram extends BorderPane
     public LocalGClassNode addClass(ClassTarget classTarget)
     {
         String superClass = null;
-        bluej.parser.symtab.ClassInfo info = classTarget.analyseSource();
+        ClassInfo info = classTarget.analyseSource();
         if (info != null)
         {
             superClass = info.getSuperclass();

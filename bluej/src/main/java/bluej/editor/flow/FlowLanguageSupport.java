@@ -91,4 +91,11 @@ public interface FlowLanguageSupport
      * Gets the source type of the program code.
      */
     SourceType getSourceType();
+
+    /**
+     * Get the code completion provider for this language.
+     *
+     * @return the provider, or null if this language has no code completion
+     */
+    CompletionProvider getCompletionProvider();
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2014,2015,2016,2017,2019,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2019,2020,2026 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -175,14 +175,28 @@ public final class AssistContentThreadSafe
                    return type;
             }).collect(Collectors.joining(", ")) + ")";
         }
-        header += "<br><br>"; // TODO make this proper HTML spacing
-        
+        return makeDocHTML(header, getJavadoc());
+    }
+
+    /**
+     * Make the HTML shown beside a completion: a signature header followed by the rendered Javadoc,
+     * in the font of a label.
+     *
+     * @param headerHtml the signature, as HTML
+     * @param javadoc    Javadoc text with comment delimiters removed, or null for none
+     * @return the HTML document
+     */
+    @OnThread(Tag.FXPlatform)
+    public static String makeDocHTML(String headerHtml, String javadoc)
+    {
+        String header = headerHtml + "<br><br>"; // TODO make this proper HTML spacing
+
         // Match font with that of a Label:
         Font font = new Label().getFont();
         String start = "<html><body style='font-family:" + font.getFamily() + ";font-size:" + font.getSize() + ";'>";
         String end = "</body></html>";
-        String javadoc = getJavadoc() != null ? getJavadoc() : "";
-        return start + header + JavaUtils.javadocToHtml(javadoc.replace("\n\n", "<br><br>")) + end;
+        String body = javadoc != null ? javadoc : "";
+        return start + header + JavaUtils.javadocToHtml(body.replace("\n\n", "<br><br>")) + end;
     }
 
     public boolean accessibleFromPackage(String pkgName)

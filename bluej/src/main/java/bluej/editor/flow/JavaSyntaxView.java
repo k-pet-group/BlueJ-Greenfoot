@@ -732,6 +732,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
                 for (Entry<Integer, Integer> entry : toProcess.entrySet())
                 {
+                    // An undo or deletion may have removed this line since it was queued.
+                    if (entry.getKey() >= document.getLineCount()) {
+                        continue;
+                    }
                     // Give up at 5 attempts, to avoid looping forever if something goes wrong:
                     if (entry.getValue() < 5)
                     {

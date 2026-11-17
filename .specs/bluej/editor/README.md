@@ -62,6 +62,18 @@ The package declares `@OnThread(Tag.FXPlatform)` -- all interface methods must b
 
 ---
 
+## Source Insertion Acknowledgement
+
+Method/constructor-call insertion reports `FAILED`, `INSERTED` or `EXISTING`; successful reuse may
+append a method body. New-versus-existing is not a success Boolean. Callers must wait for completion
+before consuming work or requesting compilation. Completion reports source editing, not persistence
+or successful compilation, and exceptions from the caller's callback are not converted into edit failures.
+
+Java retains its existing class/method selection and constructor placement heuristics. Stride retains
+its frame placement and constructor traversal. Once the target is available, insertion reports one
+result; the Stride frame-loading path still has no failure signal before a frame becomes available.
+Legacy multi-step edits are not a rollback transaction and may leave partial changes on failure.
+
 ## Dependencies
 
 Uses: `parser/`, `compiler/`, `utility/`

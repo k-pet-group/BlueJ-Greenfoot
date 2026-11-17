@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2005-2009,2010,2014,2015,2016,2017,2018,2019  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2014,2015,2016,2017,2018,2019,2026  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -21,6 +21,8 @@
  */
 package greenfoot.guifx.images;
 
+import java.io.File;
+
 import bluej.Config;
 import bluej.extensions2.SourceType;
 import bluej.pkgmgr.Package;
@@ -29,7 +31,6 @@ import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.ClassNameVerifier;
 
-import java.io.File;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -46,15 +47,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
  * A (modal) dialog for selecting a class image. The image can be selected from either the
  * project image library, or the greenfoot library, or an external location.
- *
- * @author Davin McCall
- * @author Amjad Altadmri
  */
 @OnThread(Tag.FXPlatform)
 public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.NewImageClassInfo>
@@ -127,7 +126,7 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
         classNameField.setPrefWidth(220);
         classNameField.setPromptText(Config.getString("pkgmgr.newClass.prompt"));
 
-        languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(SourceType.Stride, SourceType.Java));
+        languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(SourceType.Stride, SourceType.Java, SourceType.Kotlin));
         languageSelectionBox.getSelectionModel().select(pkg.getDefaultSourceType());
 
         okButton = getDialogPane().lookupButton(ButtonType.OK);

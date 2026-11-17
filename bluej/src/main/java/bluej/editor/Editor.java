@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014,2015,2016,2017,2018,2019,2020,2021  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2013,2014,2015,2016,2017,2018,2019,2020,2021,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -283,20 +283,39 @@ public interface Editor
     FrameEditor assumeFrame();
 
     /**
-     * Create a new method, or appending the contents if the method already exists
-     *
-     * @param method element
-     * @param after will be passed true if the method did not exist already and was inserted, false otherwise (will always be run)
+     * Acknowledgement of a source insertion, independent of saving or compilation.
      */
-    void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after);
+    @OnThread(Tag.Any)
+    enum InsertionResult
+    {
+        /** No successful edit was acknowledged; partial edits may remain. */
+        FAILED,
+        /** A new method or call was successfully inserted. */
+        INSERTED,
+        /** An existing method or call was successfully reused; a method body may have been appended. */
+        EXISTING
+    }
 
     /**
-     * Insert a method call in constructor, if it does not already exists
-     * 
-     * @param methodCall element 
-     * @param after will be passed true if the call did not exist already and was inserted
+     * Create a new method, or append its contents if the method already exists.
+     *
+     * @param method The method to insert or append
+     * @param after Completion called once on the JavaFX platform thread after the source operation finishes:
+     *              INSERTED for a new method, EXISTING for a successful append, or FAILED if unsuccessful.
+     *              Completion may be deferred while a frame editor loads.
      */
-    void insertMethodCallInConstructor(String className, CallElement methodCall, FXPlatformConsumer<Boolean> after);
+    void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<InsertionResult> after);
+
+    /**
+     * Insert a method call in a constructor, if it does not already exist.
+     *
+     * @param className The class whose constructor should contain the call
+     * @param methodCall The call to insert
+     * @param after Completion called once on the JavaFX platform thread after the source operation finishes:
+     *              INSERTED if a new call was added, EXISTING if an existing call was reused without adding
+     *              another, or FAILED if unsuccessful. Completion may be deferred while a frame editor loads.
+     */
+    void insertMethodCallInConstructor(String className, CallElement methodCall, FXPlatformConsumer<InsertionResult> after);
 
     /**
      * Focuses the method of the given name in the editor.  If the paramTypes are non-null

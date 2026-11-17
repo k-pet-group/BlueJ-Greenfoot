@@ -6,6 +6,7 @@ status: active
 parent: kotlin-for-bluej
 depends-on:
   - bluej-editor
+  - bluej-editor-flow
   - kotlin-for-bluej-parser
 tags:
   - kotlin
@@ -36,18 +37,22 @@ tags:
 - [PSI-Based Scope Detection](psi-scope/README.md) -- PSI tree -> ParsedNode conversion
 - [Highlighting](highlighting/README.md) -- token-level syntax coloring details
 - [Auto-Indent](auto-indent/README.md) -- token-driven Kotlin indenter (no scope-tree dependency)
+- [Code Completion](completion/README.md) -- what Kotlin completion suggests and inserts, and how it is delivered
 
 ---
 
 ## FlowLanguageSupport Strategy
 
-| Implementation | Parser Root | Supertype Syntax |
-|----------------|-------------|------------------|
-| `JavaLanguageSupport` | `ParsedCUNode` | `extends`/`implements` |
-| `KotlinLanguageSupport` | `KotlinParsedCUNode` | `: SuperClass(), Interface` |
-| `PlainTextLanguageSupport` | `null` (fail-fast) | throws `UnsupportedOperationException` |
+| Implementation | Parser Root | Supertype Syntax | Completion Provider |
+|----------------|-------------|------------------|---------------------|
+| `JavaLanguageSupport` | `ParsedCUNode` | `extends`/`implements` | `JavaCompletionProvider` |
+| `KotlinLanguageSupport` | `KotlinParsedCUNode` | `: SuperClass(), Interface` | `KotlinCompletionProvider` (see [Code Completion](completion/README.md)) |
+| `PlainTextLanguageSupport` | `null` (fail-fast) | throws `UnsupportedOperationException` | none (Ctrl+Space does nothing) |
 
-FlowEditor delegates parser creation and source-editing (setExtendsClass, addImplements, etc.) to the strategy. Callers pass strategy explicitly at construction.
+FlowEditor delegates parser creation, source-editing (setExtendsClass, addImplements, etc.) and code
+completion to the strategy. Callers pass strategy explicitly at construction. The completion contract
+(provider vs. editor responsibilities, callback, insertion segments) is owned by `bluej-editor-flow`;
+see its Code Completion section.
 
 Auto-indent is **not** routed through the strategy. `FlowIndent` dispatches
 on `parser.getParser() instanceof KotlinParsedCUNode` in one place — see
@@ -55,6 +60,48 @@ on `parser.getParser() instanceof KotlinParsedCUNode` in one place — see
 on `KotlinPsiScopeBuilder` emitting the right `isInner` / container shape.
 
 ---
+
+## PSI-guided source edits
+
+PSI is a detached structural snapshot, not the editor document. Editor changes use PSI-derived positions
+and normal editor text replacement, not PSI mutation: the compiler-only environment lacks the tree-copy
+extension point and POM mutation service, and a write-action wrapper does not supply them. This avoids
+installing editor-platform services merely to edit student source.
+
+`KotlinSourceEditor` plans bounded preparation-method/initialization edits. It preserves unrelated text,
+reuses compatible ordinary zero-argument block-bodied Unit methods, and declines malformed or ambiguous
+structure rather than guessing. It does not resolve inherited members or prove constructor/control-flow
+coverage. Supplied statements remain separate so each operation can be indented without rewriting
+embedded argument lines; their expressions are neither converted nor validated.
+
+### Preparation edit lifecycle
+
+A plan is created from the current normalized editor text and contains one enclosing UTF-16 range and
+replacement, including unchanged intervening text. Planning does not modify the document. The caller
+must discard a plan if its source snapshot no longer matches, otherwise apply it through the existing
+document path for undo/dirty notifications. Plans are temporary values, not a second source cache;
+applying one does not establish that the resulting program compiles.
+
+---
+
+## Class-copy identifier rewriting
+
+Kotlin duplication uses PSI token positions to replace identifiers matching the source class's name,
+including backtick-escaped spellings. It walks physical token leaves and rewrites from the end, without
+mutating PSI or installing mutation services. Literal/comment text stays untouched; references inside
+string-template expressions are code and can change.
+
+The contract is deliberately best-effort, at Java duplication's level: it does not resolve bindings,
+qualifications, shadowing or external references. Unrelated same-spelled identifiers can change, and no
+compilation guarantee is implied. The caller owns file I/O, target registration and image association;
+see `greenfoot-guifx`. This source-copy result is not a preparation edit or an editor transaction.
+
+## Method template insertion
+
+Insert Method selects a Kotlin template through the editor's source type. The selected locale/custom
+template directory is tried first, with English fallback for the missing Kotlin file rather than Java
+syntax. Existing document insertion, auto-indent and compound undo are retained; Java lookup is unchanged.
+This does not implement KDoc generation through Add Javadoc or semantic completion.
 
 ## Refactored Existing Code
 
@@ -92,7 +139,7 @@ Required because `JavaSyntaxView.drawNode()` checks `isContainer() || isInner()`
 ## Known Limitations
 
 - **~1-2 second first-parse delay** when `KotlinCoreEnvironment` initializes
-- **No code completion** or type-aware highlighting for Kotlin. Ctrl+Space inside a `.kt` editor surfaces a transient caret-anchored popup ("Code completion is not available for Kotlin files") via `FlowEditor.showKotlinUnavailableNotice` — implemented as a `PopupControl` + custom `Skin` mirroring the existing `showErrorOverlay` shape, auto-dismissed after ~3s. This is an honest "not supported yet" signal rather than a working completion path; lifting it requires `BindingContext`-based type resolution (Tier 2, post-MVP).
+- **No type-aware highlighting** for Kotlin. Code completion is type-aware (see [Code Completion](completion/README.md) for its own limitations); highlighting and scope colouring remain PSI-only.
 - **PSI environment ~10-20 MB** memory
 - **Full-file reparse per edit** (~50-100ms for 500 lines; debounced by `FlowReparseRunner`)
 - **Multi-line `${...}` spanning lines** -- continuation lines may highlight incorrectly (rare)

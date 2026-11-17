@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2017,2019,2020  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2014,2015,2017,2019,2020,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -127,6 +127,17 @@ public abstract class AssistContent
         public String getDummyName()
         {
             return dummyName;
+        }
+
+        /**
+         * Make the placeholder inserted for a parameter when completing a call, e.g. {@code _distance_}.
+         *
+         * @param nameOrType the parameter name if known, otherwise its type
+         * @return the placeholder
+         */
+        public static String makeDummyName(String nameOrType)
+        {
+            return "_" + nameOrType + "_";
         }
 
         public String getFormalName()

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2013,2014,2015,2016,2018,2019,2022  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2013,2014,2015,2016,2018,2019,2022,2026  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,8 +22,15 @@
 package greenfoot.guifx;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
+
+import bluej.Config;
+import bluej.extensions2.SourceType;
+import bluej.pkgmgr.Package;
+import bluej.utility.javafx.HorizontalRadio;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.dialog.DialogPaneAnimateError;
+
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
@@ -35,29 +42,19 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 
-import bluej.Config;
-import bluej.extensions2.SourceType;
-import bluej.utility.JavaNames;
-import bluej.utility.javafx.HorizontalRadio;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.dialog.DialogPaneAnimateError;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Dialog for creating a new class
- *
- * @author  Justin Tan
- * @author  Michael Kolling
+ * Dialog for creating a new class.
  */
 @OnThread(Tag.FXPlatform)
 public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 {
-    /** The buttons for the source language (Java/Stride) */
+    /** The buttons for the source language (Java/Stride/Kotlin) */
     private final HorizontalRadio<SourceType> language;
 
-    /** stores restricted windows class filenames */
-    private static List<String> windowsRestrictedWords;
+    private final Package pkg;
     /** The field with the class name */
     private final TextField nameField;
     /** The dialog pane */
@@ -90,10 +87,28 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
 
     /**
-     * Construct a NewClassDialog.
+     * Construct a dialog with an explicit default language (also used by duplication).
+     * @param parent owner window
+     * @param defaultSourceType initially selected language
      */
     public NewClassDialog(Window parent, SourceType defaultSourceType)
     {
+        this(parent, defaultSourceType, null);
+    }
+
+    /**
+     * Construct a new-class dialog using the package's default language and checking its names.
+     * @param parent owner window
+     * @param pkg package to receive the new class
+     */
+    public NewClassDialog(Window parent, Package pkg)
+    {
+        this(parent, pkg.getDefaultSourceType(), pkg);
+    }
+
+    private NewClassDialog(Window parent, SourceType defaultSourceType, Package pkg)
+    {
+        this.pkg = pkg;
         setTitle(Config.getString("newclass.dialog.title"));
         initOwner(parent);
         initModality(Modality.WINDOW_MODAL);
@@ -118,7 +133,7 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
         mainPanel.getChildren().add(nameBox);
 
-        language = new HorizontalRadio<>(Arrays.asList(SourceType.Java, SourceType.Stride));
+        language = new HorizontalRadio<>(Arrays.asList(SourceType.Java, SourceType.Stride, SourceType.Kotlin));
         language.select(defaultSourceType);
 
         HBox langBox = new HBox();
@@ -136,8 +151,7 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
         getDialogPane().setContent(mainPanel);
         setResultConverter(buttonType -> {
-            if (buttonType == ButtonType.OK)
-            {
+            if (buttonType == ButtonType.OK) {
                 return new NewClassInfo(nameField.getText().trim(), language.selectedProperty().get());
             }
             else {
@@ -166,18 +180,20 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         Properties localProperties = new Properties();
         localProperties.put("LANGUAGE", sourceType.toString());
 
-        if (!JavaNames.isIdentifier(newClassName))
-        {
-            if (fieldHasHadContent || force)
-                showError(Config.getString("pkgmgr.newClass.error.notValidClassName", null,  localProperties, false), true);
+        if (!ClassNameVerifier.isLegalClassName(newClassName, sourceType)) {
+            if (fieldHasHadContent || force) {
+                showError(Config.getString("pkgmgr.newClass.error.notValidClassName", null, localProperties, false), true);
+            }
         }
-        else if (isWindowsRestrictedWord(newClassName))
-        {
-            if (fieldHasHadContent || force)
+        else if (ClassNameVerifier.isWindowsRestrictedWord(newClassName)) {
+            if (fieldHasHadContent || force) {
                 showError(Config.getString("pkgmgr.newClass.error.windowsRestricted"), true);
+            }
         }
-        else
-        {
+        else if (pkg != null && ClassNameVerifier.classNameExists(pkg, newClassName)) {
+            showError(Config.getString("newclass.dialog.err.classExists"), true);
+        }
+        else {
             hideError();
             enable = true;
         }
@@ -204,27 +220,6 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
     private void setOKEnabled(boolean okEnabled)
     {
         dialogPane.getOKButton().setDisable(!okEnabled);
-    }
-    /**
-     * Tests for restricted class names (case insensitive)
-     * @param fileName potential class name
-     * @return true if restricted word
-     */
-    private boolean isWindowsRestrictedWord(String fileName)
-    {
-        initialiseRestrictedWordList();
-        return windowsRestrictedWords.contains(fileName.toUpperCase());
-    }
-
-    /**
-     * Initialises the list of restricted words
-     */
-    private void initialiseRestrictedWordList()
-    {
-        if (windowsRestrictedWords==null){
-            windowsRestrictedWords = Arrays.asList("CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5",
-                    "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9");
-        }
     }
 
     /**

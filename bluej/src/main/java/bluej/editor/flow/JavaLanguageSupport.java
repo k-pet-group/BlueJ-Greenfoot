@@ -37,6 +37,8 @@ import bluej.parser.symtab.Selection;
  */
 public class JavaLanguageSupport implements FlowLanguageSupport
 {
+    private static final CompletionProvider COMPLETION_PROVIDER = new JavaCompletionProvider();
+
     @Override
     public ParsedCUNode createRootNode(EntityResolver resolver)
     {
@@ -166,5 +168,11 @@ public class JavaLanguageSupport implements FlowLanguageSupport
     public SourceType getSourceType()
     {
         return SourceType.Java;
+    }
+
+    @Override
+    public CompletionProvider getCompletionProvider()
+    {
+        return COMPLETION_PROVIDER;
     }
 }

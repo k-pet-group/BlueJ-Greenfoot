@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2024,2025  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019,2021,2022,2023,2024,2025,2026  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -605,12 +605,12 @@ public final class Terminal
         try {
             List<String> allLines = errorText.getLines();
 
-            Pattern fileAndLine = java.util.regex.Pattern.compile("at (\\S+)\\((\\S+)\\.java:(\\d+)\\)");
+            Pattern fileAndLine = ExceptionSourceLocation.STACK_TRACE_PATTERN;
             Pattern noSource = java.util.regex.Pattern.compile("at \\S+\\((Native Method|Unknown Source)\\)");
 
             // Matches things like:
             // at greenfoot.localdebugger.LocalDebugger$QueuedExecution.run(LocalDebugger.java:267)
-            //    ^--------------------group 1----------------------------^ ^--group 2--^      ^3^
+            //    ^--------------------group 1----------------------------^ ^-----group 2----^ ^3^
             for (int i = 0; i < allLines.size(); i++)
             {
                 String line = allLines.get(i);
@@ -619,7 +619,8 @@ public final class Terminal
                 while (m.find())
                 {
                     String fullyQualifiedMethodName = m.group(1);
-                    String javaFile = m.group(2);
+                    String sourceFile = m.group(2);
+                    String sourceStem = sourceFile.substring(0, sourceFile.lastIndexOf('.'));
                     int lineNumber = Integer.parseInt(m.group(3));
 
                     // The fully qualified method name will end in ".method", so we can
@@ -632,9 +633,9 @@ public final class Terminal
                     //Find out if that file is available, and only link if it is:
                     Package pkg = project.getPackage(packageName);
 
-                    if (pkg != null && pkg.getAllClassnames().contains(javaFile))
+                    if (pkg != null && pkg.getAllClassnames().contains(sourceStem))
                     {
-                        errorText.setStyleForLineSegment(i, m.start(1), m.end(), STDERR_LINKED_STACK_TRACE, new ExceptionSourceLocation(m.start(1), m.end(), pkg, javaFile, lineNumber));
+                        errorText.setStyleForLineSegment(i, m.start(1), m.end(), STDERR_LINKED_STACK_TRACE, new ExceptionSourceLocation(m.start(1), m.end(), pkg, sourceFile, lineNumber));
                     }
                     else
                     {

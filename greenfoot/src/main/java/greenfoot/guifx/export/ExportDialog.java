@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2013,2016,2018,2021,2023  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2011,2013,2016,2018,2021,2023,2026  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,11 @@
  */
 package greenfoot.guifx.export;
 
+import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import bluej.Config;
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.debugger.gentype.Reflective;
@@ -31,16 +36,11 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.Utility;
 
 import greenfoot.export.Exporter;
-import static greenfoot.export.Exporter.ExportFunction;
+import greenfoot.export.Exporter.ExportFunction;
 
 import greenfoot.export.mygame.ExportInfo;
 import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.export.ScenarioSaver;
-
-import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
@@ -239,6 +239,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         private final String displayName;
         private final ExportFunction function;
         private final ExportInfo info;
+        private final boolean hasKotlinSources;
         
         /**
          * Construct an export thread, which will use the given ExportInfo information.
@@ -254,6 +255,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             snapshotHeight = snapshot.getHeight();
             displayName = currentWorld.getDisplayName();
             function = getSelectedFunction();
+            hasKotlinSources = function == ExportFunction.PUBLISH && Exporter.hasKotlinSources(project);
             this.info = info;
         }
         
@@ -265,7 +267,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             {
                 Exporter exporter = Exporter.getInstance();
                 exporter.doExport(project, ExportDialog.this, scenarioSaver, info, function,
-                        displayName, snapshotWidth, snapshotHeight);
+                        displayName, snapshotWidth, snapshotHeight, hasKotlinSources);
             }
             finally
             {

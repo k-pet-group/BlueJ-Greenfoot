@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2018,2019,2023,2025  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2018,2019,2023,2025,2026  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -55,6 +55,9 @@ import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Utility class to create jar or zip files from a Greenfoot project.
  * 
@@ -62,8 +65,6 @@ import bluej.utility.FileUtility;
  */
 public class JarCreator
 {
-    private static final String SOURCE_SUFFIX = "." + SourceType.Java.toString().toLowerCase();    
-
     /** Should source files be included in the jar? */
     private boolean includeSource;
 
@@ -138,13 +139,18 @@ public class JarCreator
      */
     public JarCreator(Project project, File exportDir, String jarName, String worldClass,
                       boolean lockScenario)
-    {   
+    {
+        this(project.getProjectDir(), exportDir, jarName, worldClass, lockScenario);
+    }
+
+    // Packaging only needs the project directory, not the live Project's UI/debugger lifecycle.
+    @OnThread(Tag.Any)
+    JarCreator(File projectDir, File exportDir, String jarName, String worldClass, boolean lockScenario)
+    {
         this(exportDir, jarName);
-        
-        // get the project directory        
-        projectDir = project.getProjectDir();
-        
-        String scenarioName = project.getProjectName();
+        this.projectDir = projectDir;
+
+        String scenarioName = projectDir.getName();
         
         addFile(projectDir);
 
@@ -218,12 +224,19 @@ public class JarCreator
      * @param zipName Name of the jar file that should be created.
      */
     public JarCreator(Project project, File exportDir, String zipName)
-    {   
+    {
+        this(project.getProjectDir(), exportDir, zipName);
+    }
+
+    // Uses the same source-archive setup for live projects and filesystem callers.
+    @OnThread(Tag.Any)
+    JarCreator(File projectDir, File exportDir, String zipName)
+    {
         this(exportDir, zipName);
         
         isZip = true;
         
-        projectDir = project.getProjectDir();
+        this.projectDir = projectDir;
         
         addFile(projectDir);        
         
@@ -633,17 +646,22 @@ public class JarCreator
     /**
      * Checks whether a file should be skipped during a copy operation. 
      */
+    @OnThread(Tag.Any)
     private boolean skipFile(String fileName, boolean skipSource)
     {
-
-        for(String skipFile : skipFiles) {
-            if (fileName.endsWith(skipFile))
-                return true;            
+        for (String skipFile : skipFiles) {
+            if (fileName.endsWith(skipFile)) {
+                return true;
+            }
         }
-        
-        if (fileName.endsWith(SOURCE_SUFFIX))
-            return !includeSource;
 
+        if (skipSource) {
+            for (SourceType sourceType : SourceType.values()) {
+                if (sourceType != SourceType.NONE && fileName.endsWith("." + sourceType.getExtension())) {
+                    return true;
+                }
+            }
+        }
 
         return false;
     }

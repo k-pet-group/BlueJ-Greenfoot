@@ -36,3 +36,12 @@ Represents compilable classes and other project elements in the class diagram. U
 ## Actions (`target/actions/`) -- Command Pattern
 
 `ClassTargetOperation` (abstract) base with concrete implementations: `CompileAction`, `EditAction`, `InspectAction`, `ConvertToJavaAction`, `ConvertToStrideAction`, `CreateTestAction`, `DuplicateClassAction`, etc.
+
+## Key Contracts
+
+- **`ClassTarget` class initialisation does not depend on `Config`.** Its static text helpers (e.g.
+  `replaceSelection`, used by `enforcePackage`) are unit-tested without the application initialised,
+  so eager `Config`-backed statics in `ClassTarget` make those tests order-dependent across Gradle
+  forks. The J/K/S source-type marker images are therefore loaded on first use through
+  `bluej.utility.javafx.SourceTypeIcons`, which also serves `FXTabbedEditor` so the images exist once
+  (callers compare them by identity).
