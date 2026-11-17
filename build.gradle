@@ -17,15 +17,21 @@ tasks.withType(JavaCompile) {
 subprojects {
     ext.versionProps = new Properties()
     file("$rootDir/version.properties").withInputStream { versionProps.load(it) }
+    // When GitHub Actions is building a release-candidate tag (BLUEJ-RC-x.y.z-rcN or
+    // GREENFOOT-RC-x.y.z-rcN), the RC number comes from the tag rather than version.properties,
+    // for the product named in the tag.  Everything else still comes from version.properties.
+    def rcTagMatch = (System.getenv("GITHUB_REF_NAME") ?: "") =~ /^(BLUEJ|GREENFOOT)-RC-.+-rc(\d+)$/
+    def rcTagProduct = rcTagMatch.matches() ? rcTagMatch.group(1) : null
+    def rcTagNumber = rcTagMatch.matches() ? rcTagMatch.group(2) : null
     ext.bluejVersionNoSuffix = versionProps.bluej_major + "." + versionProps.bluej_minor + "." + versionProps.bluej_release;
     ext.bluejVersion = bluejVersionNoSuffix + versionProps.bluej_suffix;
     ext.bluejVersionCommas = versionProps.bluej_major + "," + versionProps.bluej_minor + "," + versionProps.bluej_release;
-    ext.bluejRCSuffix = "-rc" + versionProps.bluej_rcnumber
+    ext.bluejRCSuffix = "-rc" + (rcTagProduct == "BLUEJ" ? rcTagNumber : versionProps.bluej_rcnumber)
     ext.greenfootVersionNoSuffix = versionProps.greenfoot_major + "." + versionProps.greenfoot_minor + "." + versionProps.greenfoot_release;
     ext.greenfootVersion = greenfootVersionNoSuffix + versionProps.greenfoot_suffix;
     ext.greenfootVersionCommas = versionProps.greenfoot_major + "," + versionProps.greenfoot_minor + "," + versionProps.greenfoot_release;
     ext.greenfootAPIVersion = versionProps.greenfoot_api_breaking + "." + versionProps.greenfoot_api_nonbreaking + "." + versionProps.greenfoot_api_internal;
-    ext.greenfootRCSuffix = "-rc" + versionProps.greenfoot_rcnumber
+    ext.greenfootRCSuffix = "-rc" + (rcTagProduct == "GREENFOOT" ? rcTagNumber : versionProps.greenfoot_rcnumber)
 
     ext.toolProps = new Properties()
     file("../tools.properties").withInputStream { toolProps.load(it) }

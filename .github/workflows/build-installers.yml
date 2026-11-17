@@ -12,6 +12,8 @@ on:
     tags:
       - 'BLUEJ-RELEASE-*'
       - 'GREENFOOT-RELEASE-*'
+      - 'BLUEJ-RC-*'
+      - 'GREENFOOT-RC-*'
   workflow_dispatch:
 jobs:
   Build-Windows-Installers:
@@ -379,3 +381,68 @@ jobs:
               --notes "Draft release created automatically by CI - edit these notes and publish when ready." \
               release-assets/*
           fi
+
+  Publish-Prerelease:
+    # Only runs when a BLUEJ-RC-x.y.z-rcN or GREENFOOT-RC-x.y.z-rcN tag is pushed.  Publishes the
+    # installers as a public GitHub pre-release (which never counts as the "Latest" release), so
+    # that testers without GitHub accounts can download them.  The RC number in the installer
+    # filenames comes from the tag (see build.gradle); the version must match version.properties.
+    if: startsWith(github.ref, 'refs/tags/BLUEJ-RC-') || startsWith(github.ref, 'refs/tags/GREENFOOT-RC-')
+    needs:
+      - Build-Windows-Installers
+      - Build-Ubuntu-Installers
+      - Build-Mac-Installers-Intel
+      - Build-Mac-Installers-Aarch
+      - Build-UbuntuARM64-Installers
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Work out product, version and title from the tag
+        id: rc-info
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [[ ! "$TAG" =~ ^(BLUEJ|GREENFOOT)-RC-([0-9]+\.[0-9]+\.[0-9]+)-rc([0-9]+)$ ]]; then
+            echo "Tag '$TAG' does not look like BLUEJ-RC-x.y.z-rcN or GREENFOOT-RC-x.y.z-rcN"
+            exit 1
+          fi
+          PRODUCT_UPPER="${BASH_REMATCH[1]}"
+          VERSION="${BASH_REMATCH[2]}"
+          RC="${BASH_REMATCH[3]}"
+          if [[ "$PRODUCT_UPPER" == BLUEJ ]]; then
+            PRODUCT=bluej
+            NAME=BlueJ
+          else
+            PRODUCT=greenfoot
+            NAME=Greenfoot
+          fi
+          # The tag's version must agree with version.properties, to catch typos in the tag:
+          PROPS_VERSION="$(grep "^${PRODUCT}_major=" version.properties | cut -d= -f2).$(grep "^${PRODUCT}_minor=" version.properties | cut -d= -f2).$(grep "^${PRODUCT}_release=" version.properties | cut -d= -f2)"
+          if [[ "$PROPS_VERSION" != "$VERSION" ]]; then
+            echo "Tag version $VERSION does not match $PRODUCT version $PROPS_VERSION in version.properties"
+            exit 1
+          fi
+          echo "product=$PRODUCT" >> "$GITHUB_OUTPUT"
+          echo "title=$NAME $VERSION release candidate $RC" >> "$GITHUB_OUTPUT"
+      - name: Download built installers for this product
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ steps.rc-info.outputs.product }}-installers-*
+          path: release-assets
+          merge-multiple: true
+      - name: List assets to be attached
+        run: ls -la release-assets
+      - name: Create GitHub pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          TITLE: ${{ steps.rc-info.outputs.title }}
+        run: |
+          gh release create "$TAG" \
+            --prerelease \
+            --title "$TITLE" \
+            --notes "Release candidate for testing; not a final release." \
+            release-assets/*
