@@ -193,7 +193,9 @@ public class DocuGenerator
                     // If javadoc doesn't seem to be available via reflection,
                     // execute it as an external process
                     {
-                        Process docuRun = Runtime.getRuntime().exec(docuCall);
+                        // Use ProcessBuilder for better Unicode/emoji path support (issue #2426)
+                        ProcessBuilder pb = new ProcessBuilder(docuCall);
+                        Process docuRun = pb.start();
 
                         // because we don't know what comes first we have to start
                         // two threads that consume both the standard and the error
