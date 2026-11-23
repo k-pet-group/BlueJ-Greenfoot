@@ -737,6 +737,9 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      * (in the case of a bluej.pkg file passed in, return the directory containing
      * the file. Returns null if file is not a bluej.pkg file or if the
      * directory/file does not exist.
+     *
+     * This method uses Path API for better Unicode support, ensuring that
+     * paths containing emoji and other non-ASCII characters are handled correctly.
      */
     @OnThread(Tag.Any)
     private static File pathIntoStartingDirectory(String projectPath)
@@ -744,7 +747,9 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     {
         File startingDir;
 
-        startingDir = new File(projectPath).getCanonicalFile();
+        // Use Path API for better Unicode and emoji support
+        // The toFile() conversion preserves the Unicode characters correctly
+        startingDir = java.nio.file.Paths.get(projectPath).toRealPath().toFile();
 
         if (startingDir.isDirectory()) {
             return startingDir;
